@@ -1,0 +1,174 @@
+// Zakai data model.
+//
+// Money is stored as INTEGER agorot (1 ₪ = 100 agorot) everywhere, so the
+// 18% success-fee arithmetic is exact and never touches floating point.
+// The "proof of savings" and "authorization" tables are the trust core of the
+// product and are designed to be append-only / not user-editable.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  // E.164 Israeli mobile, e.g. +972501234567. The number the user's bills are
+  // registered to; ownership verification sends a code here.
+  phone        String
+  createdAt    DateTime @default(now())
+
+  cases             Case[]
+  phoneVerifications PhoneVerification[]
+}
+
+enum CaseStatus {
+  ANALYZED // AI produced a recommendation
+  APPROVED // user explicitly consented to the drafted request
+  VERIFIED // ownership + authorization both confirmed
+  SENT // outreach dispatched to provider
+  SAVED // a saving was documented -> fee applies
+  NO_SAVING // reply recorded, no saving -> no fee
+  REVOKED // authorization revoked / case cancelled
+}
+
+model Case {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider        String // provider key: cellcom | partner | bezeq | hot | yes | other
+  planDescription String @default("")
+
+  // amounts in agorot
+  amountOriginal Int // documented "before" amount, snapshotted at analysis time
+  targetAmount   Int
+  marketLow      Int?
+  marketHigh     Int?
+
+  strategy      String @default("") // one-sentence plan shown to the user
+  draftMessage  String @default("") // exact outreach text the user approves
+
+  status CaseStatus @default(ANALYZED)
+
+  // trust timeline
+  approvedAt           DateTime?
+  ownershipVerifiedAt  DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  authorization Authorization?
+  savingsProof  SavingsProof?
+  fee           Fee?
+  outbox        Outbox[]
+
+  @@index([userId])
+}
+
+// SMS ownership verification: a hashed one-time code sent to the user's phone.
+model PhoneVerification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  caseId    String? // optional: which case this verification unlocks
+  phone     String
+  codeHash  String // sha-256 of the 6-digit code; never stored in the clear
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  consumedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+enum AuthorizationStatus {
+  ACTIVE
+  REVOKED
+}
+
+// The power-of-attorney-style authorization document a provider can verify.
+model Authorization {
+  id     String @id @default(cuid())
+  caseId String @unique
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  // Human-verifiable public code, e.g. ZK-7Q4K-2M9P. Unique per authorization.
+  code String @unique
+
+  principalName  String
+  principalPhone String // E.164; shown masked on the public verify page
+  principalEmail String // shown masked on the public verify page
+  provider       String
+  scope          String
+
+  status    AuthorizationStatus @default(ACTIVE)
+  issuedAt  DateTime            @default(now())
+  revokedAt DateTime?
+}
+
+enum OutboxChannel {
+  EMAIL
+  SMS
+}
+
+enum OutboxStatus {
+  QUEUED
+  SENT
+  FAILED
+}
+
+// Every outbound message (real send or dev log) is recorded here. In dev, with
+// no SMTP/SMS provider configured, messages land here and nothing leaves.
+model Outbox {
+  id        String        @id @default(cuid())
+  caseId    String?
+  case      Case?         @relation(fields: [caseId], references: [id], onDelete: SetNull)
+  channel   OutboxChannel
+  toAddress String
+  subject   String?
+  body      String
+  status    OutboxStatus  @default(QUEUED)
+  providerMessageId String?
+  error     String?
+  createdAt DateTime      @default(now())
+  sentAt    DateTime?
+
+  @@index([caseId])
+}
+
+// Append-only proof of savings: the "before/after" the fee is computed from.
+model SavingsProof {
+  id     String @id @default(cuid())
+  caseId String @unique
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  originalAmount Int // agorot, copied from Case at record time
+  newAmount      Int // agorot
+  savingMonthly  Int // agorot, = max(0, original - new)
+  source         String   @default("manual") // how the new amount was obtained
+  recordedAt     DateTime @default(now())
+}
+
+enum FeeStatus {
+  PENDING // saving documented, fee owed, not yet collected
+  WAIVED // no saving -> no fee
+  PAID
+}
+
+model Fee {
+  id     String @id @default(cuid())
+  caseId String @unique
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  savingMonthly Int // agorot
+  rateBps       Int       @default(1800) // 18.00%
+  amount        Int // agorot, = round(savingMonthly * rateBps / 10000)
+  status        FeeStatus @default(PENDING)
+  createdAt     DateTime  @default(now())
+}

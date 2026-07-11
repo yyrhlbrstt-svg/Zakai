@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #070b12;
+  color: #f2f6f5;
+  padding: 0;
+  margin: 0;
+}
+
+/* Accessible focus ring on every interactive element, from day one. */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid #f0b45c;
+  outline-offset: 2px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #3ec6ff;
+}
+
+::placeholder {
+  color: rgba(242, 246, 245, 0.35);
+}
+
+select option {
+  background: #0d1622;
+  color: #f2f6f5;
+}
+
+/* The signature gradient, reserved for the savings moment. */
+.grad-text {
+  background: linear-gradient(100deg, #2ce5a7, #3ec6ff 50%, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grad-bg {
+  background: linear-gradient(100deg, #2ce5a7, #3ec6ff 50%, #8b5cf6);
+}
+
+/* Ambient background blobs. */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+/* Honor reduced-motion from day one: kill all transitions and animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Range input, used by the savings calculator. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(100deg, #2ce5a7, #3ec6ff 50%, #8b5cf6);
+  cursor: pointer;
+  border: 2px solid #06121a;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #3ec6ff;
+  cursor: pointer;
+  border: 2px solid #06121a;
+}
