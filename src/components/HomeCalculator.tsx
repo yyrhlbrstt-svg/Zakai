@@ -30,7 +30,7 @@ export function HomeCalculator() {
         <div className="mb-3.5">
           <div className="flex justify-between text-[13.5px] mb-1.5">
             <span className="font-bold">📱 {t("cell")}</span>
-            <span className="text-cyan font-extrabold">
+            <span className="text-emerald font-extrabold">
               ₪{cell} {tc("perMonthTag")}
             </span>
           </div>

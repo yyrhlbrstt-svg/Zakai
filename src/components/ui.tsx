@@ -22,18 +22,18 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 export function Button({ variant = "primary", className = "", ...rest }: ButtonProps) {
   const base =
-    "rounded-[14px] font-extrabold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,box-shadow,filter] duration-200 focus-visible:outline-none";
+    "rounded-[14px] font-extrabold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,box-shadow,filter,background-color,border-color] duration-200 ease-[var(--ease-snappy)] focus-visible:outline-none";
   const styles =
     variant === "primary"
-      ? "grad-bg text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_12px_34px_rgba(62,198,255,0.3)] hover:brightness-110 hover:-translate-y-0.5"
-      : "bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.09)] px-6 py-3.5 text-[15px] font-bold hover:bg-[rgba(255,255,255,0.1)]";
+      ? "grad-bg text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_10px_30px_rgba(44,229,167,0.28)] hover:-translate-y-0.5 hover:brightness-[1.06] hover:shadow-[0_16px_42px_rgba(44,229,167,0.42)] active:translate-y-0 active:brightness-100"
+      : "bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.09)] px-6 py-3.5 text-[15px] font-bold hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(44,229,167,0.4)] active:bg-[rgba(255,255,255,0.08)]";
   return <button className={`${base} ${styles} ${className}`} {...rest} />;
 }
 
 export function Input({ className = "", ...rest }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border ${className}`}
+      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border transition-colors duration-200 ease-[var(--ease-out)] hover:border-[rgba(255,255,255,0.16)] ${className}`}
       {...rest}
     />
   );

@@ -93,7 +93,7 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
           <Row label={t("providerLabel")} value={tp(result.provider)} />
           <Row label={t("issuedLabel")} value={new Date(result.issuedAt).toLocaleString(bcp47[locale])} />
           <div className="mt-3">
-            <div className="text-[12px] font-bold text-ink-soft uppercase tracking-wide">
+            <div className="text-[12px] font-bold text-ink-soft">
               {t("scopeLabel")}
             </div>
             <div className="text-[14px] mt-1 leading-relaxed">{result.scope}</div>

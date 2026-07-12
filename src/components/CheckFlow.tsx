@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
+import { FallNumber } from "@/components/FallNumber";
 import { PROVIDER_KEYS } from "@/lib/providers";
 
 type Stage =
@@ -263,7 +264,7 @@ export function CheckFlow() {
             {i < steps.length - 1 && (
               <div
                 className="flex-1 h-0.5 rounded mb-4"
-                style={{ background: i < stepIndex ? "#3EC6FF" : "rgba(255,255,255,0.08)" }}
+                style={{ background: i < stepIndex ? "#2CE5A7" : "rgba(255,255,255,0.08)" }}
               />
             )}
           </li>
@@ -298,8 +299,8 @@ export function CheckFlow() {
               "bg-[rgba(255,255,255,0.045)] rounded-2xl backdrop-blur-xl cursor-pointer transition-all"
             } text-center px-6 py-11`}
             style={{
-              border: `2px dashed ${dragOver ? "#3EC6FF" : "rgba(255,255,255,0.09)"}`,
-              background: dragOver ? "rgba(62,198,255,0.07)" : "rgba(255,255,255,0.045)",
+              border: `2px dashed ${dragOver ? "#2CE5A7" : "rgba(255,255,255,0.09)"}`,
+              background: dragOver ? "rgba(44,229,167,0.07)" : "rgba(255,255,255,0.045)",
             }}
           >
             <div className="text-[38px] mb-3">📄</div>
@@ -312,7 +313,7 @@ export function CheckFlow() {
           <div className="flex justify-center mt-4">
             <button
               onClick={() => setManualOpen((v) => !v)}
-              className="bg-transparent border-0 text-cyan text-sm font-bold cursor-pointer"
+              className="bg-transparent border-0 text-emerald text-sm font-bold cursor-pointer"
             >
               {t("orManual")}
             </button>
@@ -375,14 +376,14 @@ export function CheckFlow() {
                 <div className="font-display grad-text text-3xl">₪{nf.format(rec.targetShekels)}</div>
               </div>
             </div>
-            <div className="mt-3.5 text-[11.5px] font-bold text-ink-soft uppercase tracking-wide">
+            <div className="mt-3.5 text-[11.5px] font-bold text-ink-soft">
               {t("strategyTitle")}
             </div>
             <div className="mt-1.5 text-[14.5px] leading-relaxed">{rec.strategy}</div>
           </Card>
 
           <Card className="p-5 mt-3.5">
-            <div className="text-[12px] tracking-wide font-extrabold text-ink-soft uppercase">
+            <div className="text-[12px] font-extrabold text-ink-soft">
               {t("draftTitle")}
             </div>
             <div className="text-[12px] text-ink-soft mt-1.5 mb-2.5">{t("draftNote")}</div>
@@ -455,7 +456,7 @@ export function CheckFlow() {
                     </div>
                     <button
                       onClick={sendCode}
-                      className="bg-transparent border-0 text-cyan text-[13px] font-bold cursor-pointer mt-2"
+                      className="bg-transparent border-0 text-emerald text-[13px] font-bold cursor-pointer mt-2"
                     >
                       {tv("resendCode")}
                     </button>
@@ -485,10 +486,10 @@ export function CheckFlow() {
                 <div className="text-ink-soft">{tv("authCode")}</div>
                 <div className="font-display text-xl tracking-wide">{auth.code}</div>
                 <div className="flex gap-4 mt-2.5 flex-wrap">
-                  <a href={auth.documentUrl} target="_blank" rel="noreferrer" className="text-cyan font-bold no-underline">
+                  <a href={auth.documentUrl} target="_blank" rel="noreferrer" className="text-emerald font-bold no-underline">
                     {tv("authView")} ↗
                   </a>
-                  <a href={auth.verifyUrl} target="_blank" rel="noreferrer" className="text-cyan font-bold no-underline">
+                  <a href={auth.verifyUrl} target="_blank" rel="noreferrer" className="text-emerald font-bold no-underline">
                     {tv("authVerifyLink")} ↗
                   </a>
                 </div>
@@ -551,30 +552,42 @@ export function CheckFlow() {
 
       {stage === "result" && rec && outcome && (
         <div>
-          <Card className="text-center px-7 py-11 relative overflow-hidden">
+          <Card className="text-center px-7 py-14 relative overflow-hidden">
             <div
-              className="absolute top-1/2 left-1/2 w-[300px] h-[300px] -ml-[150px] -mt-[150px] rounded-full"
-              style={{ background: "#2CE5A7", filter: "blur(90px)", opacity: 0.28 }}
+              className="absolute top-1/2 left-1/2 w-[340px] h-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{ background: "#2CE5A7", filter: "blur(95px)", opacity: 0.3 }}
               aria-hidden
             />
             <div className="relative">
-              <div className="text-[13px] text-ink-soft font-extrabold uppercase tracking-wide">
+              <div className="text-[13px] text-ink-soft font-extrabold">
                 {t("resultTitle")}
               </div>
               {outcome.chargeable ? (
                 <>
-                  <div className="font-display grad-text text-[64px] mt-3">
-                    ₪{nf.format(rec.amountShekels - outcome.saving)}
+                  {/* The old amount, settling down to the new one — weight lifted. */}
+                  <div className="text-ink-soft text-[15px] mt-4 line-through decoration-[rgba(147,166,165,0.5)]">
+                    ₪{nf.format(rec.amountShekels)}
                   </div>
-                  <div className="text-ink-soft text-sm mt-1">{t("perMonth")}</div>
-                  <div className="flex justify-center gap-10 mt-8 flex-wrap">
+                  <div className="font-display grad-text text-[76px] leading-[1.05] mt-1">
+                    <FallNumber
+                      from={rec.amountShekels}
+                      to={rec.amountShekels - outcome.saving}
+                      locale={bcp47[locale]}
+                    />
+                  </div>
+                  <div className="text-ink-soft text-sm mt-2">{t("perMonth")}</div>
+                  <div className="flex justify-center gap-12 mt-10 flex-wrap">
                     <div>
-                      <div className="font-display text-2xl">₪{nf.format(outcome.saving)}</div>
-                      <div className="text-[12.5px] text-ink-soft">{t("monthlySaving")}</div>
+                      <div className="font-display text-emerald text-[26px]">
+                        ₪{nf.format(outcome.saving)}
+                      </div>
+                      <div className="text-[12.5px] text-ink-soft mt-0.5">{t("monthlySaving")}</div>
                     </div>
                     <div>
-                      <div className="font-display text-2xl">₪{nf.format(outcome.saving * 12)}</div>
-                      <div className="text-[12.5px] text-ink-soft">{t("annualSaving")}</div>
+                      <div className="font-display text-emerald text-[26px]">
+                        ₪{nf.format(outcome.saving * 12)}
+                      </div>
+                      <div className="text-[12.5px] text-ink-soft mt-0.5">{t("annualSaving")}</div>
                     </div>
                   </div>
                 </>

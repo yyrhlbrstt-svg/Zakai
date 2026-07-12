@@ -7,37 +7,39 @@ export function Background() {
       className="fixed inset-0 -z-10 overflow-hidden"
       style={{ background: "#070B12" }}
     >
+      {/* Emerald dominates the canvas; cyan and violet are faint, smaller
+          accents so the palette commits to one signature colour. */}
       <div
         className="blob"
         style={{
-          width: 560,
-          height: 560,
+          width: 640,
+          height: 640,
           background: "radial-gradient(circle, #2CE5A7, transparent 70%)",
-          top: -180,
-          insetInlineEnd: -140,
-          opacity: 0.28,
+          top: -200,
+          insetInlineEnd: -160,
+          opacity: 0.3,
         }}
       />
       <div
         className="blob"
         style={{
-          width: 500,
-          height: 500,
-          background: "radial-gradient(circle, #8B5CF6, transparent 70%)",
-          bottom: -200,
-          insetInlineStart: -160,
-          opacity: 0.26,
+          width: 460,
+          height: 460,
+          background: "radial-gradient(circle, #2CE5A7, transparent 70%)",
+          bottom: -220,
+          insetInlineStart: -180,
+          opacity: 0.16,
         }}
       />
       <div
         className="blob"
         style={{
-          width: 420,
-          height: 420,
+          width: 360,
+          height: 360,
           background: "radial-gradient(circle, #3EC6FF, transparent 70%)",
-          top: "34%",
+          top: "36%",
           insetInlineStart: "16%",
-          opacity: 0.18,
+          opacity: 0.1,
         }}
       />
       <div

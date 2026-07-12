@@ -52,6 +52,13 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={dir[locale as Locale]}>
       <body className={`${body.variable} ${display.variable} font-body text-ink`}>
+        {/* Mark JS as available before paint so scroll-reveal only hides content
+            when it can actually reveal it (no-JS keeps everything visible). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.add('js')",
+          }}
+        />
         <NextIntlClientProvider messages={messages}>
           <Background />
           <Header user={user ? { name: user.name } : null} />

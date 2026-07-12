@@ -114,7 +114,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {mode === "signup" && (
             <div className="mt-1">
               <details className="text-[12.5px] text-ink-soft">
-                <summary className="cursor-pointer font-bold text-cyan">
+                <summary className="cursor-pointer font-bold text-emerald">
                   {tl("termsTitle")}
                 </summary>
                 <ul className="mt-2 ps-4 list-disc space-y-1.5 leading-relaxed">
@@ -152,7 +152,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <p className="text-center mt-5 text-sm">
         <Link
           href={mode === "login" ? "/signup" : "/login"}
-          className="text-cyan font-bold no-underline"
+          className="text-emerald font-bold no-underline"
         >
           {mode === "login" ? t("toSignup") : t("toLogin")}
         </Link>

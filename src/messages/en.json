@@ -67,6 +67,7 @@
     "sub": "Zakai detects inflated mobile bills, drafts a professional request and acts on your behalf — taking a fee only from money that actually returns to you.",
     "cta": "Check a bill now",
     "howTitle": "How it works",
+    "trust": ["Pay only on success — 18% of savings", "Full disclosure — a digital agent, with your authorization", "Your data is encrypted"],
     "scopeNote": "At this stage Zakai handles mobile bills only, over a messaging channel (email/form). More categories and channels come only once this path has proven itself."
   },
   "calc": {

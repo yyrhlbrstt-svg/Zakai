@@ -4,6 +4,26 @@
 
 :root {
   color-scheme: dark;
+
+  /* Motion tokens — one consistent set of curves, applied to every existing
+     transition so the whole product decelerates the same, "expensive" way.
+     Nothing in nature moves linearly; default `ease` is the templated tell. */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1); /* standard entrance */
+  --ease-snappy: cubic-bezier(0.22, 1, 0.36, 1); /* crisp, no overshoot */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* tactile overshoot */
+  --dur-fast: 160ms;
+  --dur: 220ms;
+
+  /* Signature accent: emerald. Cyan/violet are rare accents only. */
+  --emerald: #2ce5a7;
+  --cyan: #3ec6ff;
+  --violet: #8b5cf6;
+  --amber: #f0b45c;
+}
+
+html {
+  /* Reserve scrollbar space so RTL layouts don't shift when it appears. */
+  scrollbar-gutter: stable;
 }
 
 html,
@@ -20,14 +40,15 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 a:focus-visible {
-  outline: 3px solid #f0b45c;
+  outline: 3px solid var(--amber);
   outline-offset: 2px;
 }
 
+/* Emerald is the committed accent — inputs focus emerald, not cyan. */
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: #3ec6ff;
+  border-color: var(--emerald);
 }
 
 ::placeholder {
@@ -39,7 +60,9 @@ select option {
   color: #f2f6f5;
 }
 
-/* The signature gradient, reserved for the savings moment. */
+/* The tri-colour signature gradient is RESERVED for the savings moment and the
+   brand wordmark — the one place emerald, cyan and violet blend rather than
+   compete. Everywhere else, use emerald. */
 .grad-text {
   background: linear-gradient(100deg, #2ce5a7, #3ec6ff 50%, #8b5cf6);
   -webkit-background-clip: text;
@@ -47,11 +70,13 @@ select option {
   color: transparent;
 }
 
+/* Primary surfaces (CTAs, brand chip) commit to emerald: emerald → teal,
+   staying in the green family instead of a rainbow. */
 .grad-bg {
-  background: linear-gradient(100deg, #2ce5a7, #3ec6ff 50%, #8b5cf6);
+  background: linear-gradient(105deg, #2ce5a7, #23cbb6 55%, #1fb6c9);
 }
 
-/* Ambient background blobs. */
+/* Ambient background blobs. Emerald dominant; cyan/violet faint and small. */
 .blob {
   position: absolute;
   border-radius: 50%;
@@ -59,7 +84,49 @@ select option {
   pointer-events: none;
 }
 
-/* Honor reduced-motion from day one: kill all transitions and animations. */
+/* Mouse-tracked spotlight for the existing glass cards. Pure compositor work:
+   JS only writes --mx/--my; the browser paints a soft emerald radial glow that
+   fades in on hover. Subtle by design (low alpha), clipped to the card radius. */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(44, 229, 167, 0.16),
+    rgba(44, 229, 167, 0) 60%
+  );
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease-out);
+  pointer-events: none;
+}
+.spotlight:hover::before,
+.spotlight:focus-within::before {
+  opacity: 1;
+}
+
+/* Restrained scroll-reveal (small fade + rise). Gated behind `.js` so that
+   without JavaScript the content is always visible (never stuck hidden), and
+   forced visible under reduced-motion. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out);
+  will-change: opacity, transform;
+}
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Honor reduced-motion from day one: kill all transitions/animations, and make
+   sure revealed content is shown, not frozen invisible. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -68,6 +135,10 @@ select option {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+  .js .reveal {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -86,15 +157,16 @@ input[type="range"]::-webkit-slider-thumb {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: linear-gradient(100deg, #2ce5a7, #3ec6ff 50%, #8b5cf6);
+  background: var(--emerald);
   cursor: pointer;
   border: 2px solid #06121a;
+  box-shadow: 0 0 14px rgba(44, 229, 167, 0.5);
 }
 input[type="range"]::-moz-range-thumb {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #3ec6ff;
+  background: var(--emerald);
   cursor: pointer;
   border: 2px solid #06121a;
 }

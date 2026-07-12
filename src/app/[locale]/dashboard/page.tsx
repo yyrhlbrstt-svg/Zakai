@@ -3,6 +3,8 @@ import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { Card, Button } from "@/components/ui";
+import { SpotlightCard } from "@/components/SpotlightCard";
+import { Reveal } from "@/components/Reveal";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -61,20 +63,22 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         </Card>
       ) : (
         <>
-          <Card className="p-7 relative overflow-hidden">
-            <div
-              className="absolute -top-[70px] -start-[50px] w-60 h-60 rounded-full"
-              style={{ background: "#2CE5A7", filter: "blur(80px)", opacity: 0.26 }}
-              aria-hidden
-            />
-            <div className="relative">
-              <div className="text-[13px] text-ink-soft font-bold">{t("dashboard.potential")}</div>
-              <div className="font-display grad-text text-5xl mt-2">
-                {formatAgorot(totalPotential, loc)} {t("common.perMonthTag")}
+          <Reveal>
+            <SpotlightCard className="p-7 relative overflow-hidden">
+              <div
+                className="absolute -top-[70px] -start-[50px] w-60 h-60 rounded-full"
+                style={{ background: "#2CE5A7", filter: "blur(80px)", opacity: 0.26 }}
+                aria-hidden
+              />
+              <div className="relative">
+                <div className="text-[13px] text-ink-soft font-bold">{t("dashboard.potential")}</div>
+                <div className="font-display grad-text text-5xl mt-2">
+                  {formatAgorot(totalPotential, loc)} {t("common.perMonthTag")}
+                </div>
+                <div className="text-[12.5px] text-ink-soft mt-1.5">{t("dashboard.potentialSub")}</div>
               </div>
-              <div className="text-[12.5px] text-ink-soft mt-1.5">{t("dashboard.potentialSub")}</div>
-            </div>
-          </Card>
+            </SpotlightCard>
+          </Reveal>
 
           <h2 className="text-[17px] font-extrabold mt-6 mb-3.5">{t("dashboard.checks")}</h2>
           <Card className="py-1.5">
