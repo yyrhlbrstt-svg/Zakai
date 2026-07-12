@@ -31,7 +31,10 @@ export function HomeCalculator() {
           <div className="flex justify-between text-[13.5px] mb-1.5">
             <span className="font-bold">📱 {t("cell")}</span>
             <span className="text-emerald font-extrabold">
-              ₪{cell} {tc("perMonthTag")}
+              <span dir="ltr" className="tabular-nums inline-block">
+                ₪{cell}
+              </span>{" "}
+              {tc("perMonthTag")}
             </span>
           </div>
           <input
@@ -47,7 +50,7 @@ export function HomeCalculator() {
 
         <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.09)] text-center">
           <div className="text-[12.5px] text-ink-soft font-bold">{t("result")}</div>
-          <div className="font-display grad-text text-4xl mt-1.5">
+          <div className="font-display grad-text text-4xl mt-1.5" dir="ltr">
             ₪{fmt.format(low)}–₪{fmt.format(high)}
           </div>
           <div className="text-[11px] text-ink-soft mt-2 leading-relaxed">{t("note")}</div>

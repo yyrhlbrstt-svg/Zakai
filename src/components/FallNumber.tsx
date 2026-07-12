@@ -41,5 +41,11 @@ export function FallNumber({
     return () => cancelAnimationFrame(raf);
   }, [from, to, duration]);
 
-  return <span>₪{new Intl.NumberFormat(locale).format(val)}</span>;
+  // Numerals are logically LTR even inside RTL text; isolate so ₪ + digits
+  // render as one clean left-to-right run, and keep tabular width during the roll.
+  return (
+    <span dir="ltr" className="tabular-nums inline-block">
+      ₪{new Intl.NumberFormat(locale).format(val)}
+    </span>
+  );
 }

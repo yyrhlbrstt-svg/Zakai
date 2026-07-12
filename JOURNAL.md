@@ -63,3 +63,12 @@ Scope was deliberately limited to the calm, on-brand set the user approved; expl
 - **Savings-moment polish** (`FallNumber`): the amount now settles from the old figure down to the new one (ease-out cubic, "weight lifted"), with the old amount struck through above it; reduced-motion shows the final number instantly.
 - **Hebrew/RTL correctness pass:** removed `letter-spacing`/`uppercase` from Hebrew UI labels (both harm Hebrew letterforms / are no-ops), added `scrollbar-gutter: stable`, `text-wrap: balance` on the hero. Confirmed the codebase already uses logical properties (`ms-`/`ps-`/`inset-inline-*`/`text-start`/`text-end`) — no physical left/right to flip.
 - **Verified visually** with headless Chromium at 1280px and 390px (desktop + mobile): emerald-dominant, tri-gradient only on savings moments, trust row above the fold, RTL layout correct (cards 1→2→3 right-to-left on desktop, stacked on mobile), no horizontal overflow. Tests 27/27, typecheck + build clean.
+
+## Design pass 2 — fintech number discipline (from the 2nd design brief)
+
+Adopted only the one unambiguous-correctness item from the second brief; explicitly declined the rest as diminishing returns / net-neutral (documented reasoning below).
+
+- **Tabular figures + bidi isolation on money numbers.** Added `font-variant-numeric: tabular-nums` to the display face (every large money figure) so digits don't jitter as they animate/change and columns align — the Mercury/Ramp fintech discipline. Wrapped the changing numerals (the settling savings figure, the live calculator amount, the estimate range) in `dir="ltr"` isolation so `₪` + Latin digits render as one clean left-to-right run inside RTL text.
+- **Declined — `animation-timeline: view()` replacing the IntersectionObserver reveal:** a lateral swap, not an upgrade. Our reveal already uses IO (no scroll listeners → no INP cost) and is reduced-motion/no-JS safe; Firefox stable still needs the IO fallback, so this would mean maintaining two code paths for an invisible change.
+- **Declined — View Transitions on the flow:** the flow is in-component state, not routes, and already has calm per-stage fade-ins; VT here is gilding with manual reduced-motion babysitting.
+- **Declined (per brief's own advice) — liquid glass, progressive blur, looping shimmer/gradient text, per-character kinetic type, cross-document transitions:** all clash with the calm tone and/or carry mobile-perf / RTL / single-engine risk.

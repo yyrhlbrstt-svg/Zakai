@@ -26,6 +26,13 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Financial discipline: the display face carries every large money figure, so
+   give it tabular (fixed-width) digits. Numbers never jitter as they animate or
+   change, and columns of figures line up — standard for fintech UIs. */
+.font-display {
+  font-variant-numeric: tabular-nums;
+}
+
 html,
 body {
   background: #070b12;
