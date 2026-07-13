@@ -14,12 +14,6 @@ export function Header({ user }: { user: { name: string } | null }) {
     router.replace(pathname, { locale: next });
   }
 
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/");
-    router.refresh();
-  }
-
   return (
     <header className="flex justify-between items-center px-5 py-4 max-w-[1080px] mx-auto flex-wrap gap-3">
       <Link href="/" className="font-display text-[22px] flex items-center gap-2 no-underline text-ink">
@@ -35,12 +29,19 @@ export function Header({ user }: { user: { name: string } | null }) {
           <>
             <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
             <NavLink href="/check">{t("nav.newCheck")}</NavLink>
-            <button
-              onClick={logout}
-              className="bg-transparent text-ink-soft border-0 rounded-[10px] px-3.5 py-2 text-sm font-bold cursor-pointer hover:text-ink"
+            {/* Logged-in user's name — also the entry point to account settings. */}
+            <Link
+              href="/settings"
+              className="flex items-center gap-2 no-underline rounded-full ps-1.5 pe-3 py-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)] hover:border-[rgba(44,229,167,0.4)] transition-colors duration-200"
+              aria-label={t("nav.settings")}
             >
-              {t("nav.logout")}
-            </button>
+              <span className="w-6 h-6 rounded-full grad-bg text-[#06121A] inline-flex items-center justify-center text-[12px] font-black">
+                {user.name.trim().charAt(0)}
+              </span>
+              <span className="text-ink text-[13.5px] font-bold max-w-[120px] truncate">
+                {user.name}
+              </span>
+            </Link>
           </>
         ) : (
           <>

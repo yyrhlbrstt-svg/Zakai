@@ -94,3 +94,11 @@ Adopted only the one unambiguous-correctness item from the second brief; explici
 - **Deployment Protection re-checked (unauthenticated, via WebFetch):** `/he` still returns **403** — protection is still ON; the site is not yet public. Must be disabled in Vercel settings.
 - **AUTH_SECRET:** generated a fresh 48-byte base64 secret for the operator to paste into Vercel env (given in chat, not committed).
 - **Direct DB migration from here is not possible:** the sandbox has no outbound egress to arbitrary hosts and I was not given the connection string; the build-time auto-migrate removes the need for it.
+
+## Account name in header + basic settings screen (scoped: just these two)
+
+- **Header now shows the logged-in user's name** as an account chip (emerald initial + name), which doubles as the entry point to `/settings`. The standalone header logout button moved into settings.
+- **New `/settings` (`My account`) screen:** server component, auth-gated (redirects to login), shows name / email / phone (email + phone LTR-isolated for clean RTL rendering), plus a `LogoutButton` (client) that clears the session and returns home.
+- Added `settings` message namespace + `nav.settings` (he/en).
+- **Verified in a real browser (production build):** header renders the name; `/settings` shows the details and the logout button; clicking logout clears the session and lands back on `/he` with the header reverting to login/signup. Tests 27/27, typecheck + build clean.
+- Deliberately scoped to exactly these two additions — no extra features, per request.

@@ -23,7 +23,17 @@
     "newCheck": "New check",
     "login": "Log in",
     "logout": "Log out",
-    "signup": "Sign up"
+    "signup": "Sign up",
+    "settings": "My account"
+  },
+  "settings": {
+    "title": "My account",
+    "detailsTitle": "Account details",
+    "name": "Full name",
+    "email": "Email address",
+    "phone": "Mobile phone",
+    "logout": "Log out",
+    "loggingOut": "Logging out..."
   },
   "disclosure": {
     "agent": "Zakai is a digital agent acting on the customer's behalf, with explicit authorization.",
