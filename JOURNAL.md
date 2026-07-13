@@ -87,3 +87,10 @@ Adopted only the one unambiguous-correctness item from the second brief; explici
   2. Eye toggle flips the field `password → text`.
   3. Correctly-configured server → full signup **lands on `/he/check`** end-to-end with a session cookie.
 - **Still requires the operator (cannot be done from here):** the *live* signup will only succeed once `DATABASE_URL` + `AUTH_SECRET` are set on Vercel and `prisma migrate deploy` has run, and Vercel's Deployment-Protection 403 is lifted. My sandbox cannot reach the protected `*.vercel.app` host, so live E2E is the operator's step; the code-side blocker (raw key / crash) is fixed and proven locally.
+
+## Ops — auto-migrate on Vercel build; AUTH_SECRET; protection still on
+
+- **Auto-migrations:** `build` now runs `scripts/prebuild-migrate.mjs` before `next build`. It runs `prisma migrate deploy` **only when `DATABASE_URL` is set** (fails the build on migration error — better red than a runtime 500), and **skips cleanly when it isn't** (so a DB-less preview still builds). Verified both branches locally. Vercel runs `npm run build`, so no dashboard change is needed as long as the Build Command is left at its default.
+- **Deployment Protection re-checked (unauthenticated, via WebFetch):** `/he` still returns **403** — protection is still ON; the site is not yet public. Must be disabled in Vercel settings.
+- **AUTH_SECRET:** generated a fresh 48-byte base64 secret for the operator to paste into Vercel env (given in chat, not committed).
+- **Direct DB migration from here is not possible:** the sandbox has no outbound egress to arbitrary hosts and I was not given the connection string; the build-time auto-migrate removes the need for it.
