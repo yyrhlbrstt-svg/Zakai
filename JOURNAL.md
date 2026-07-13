@@ -72,3 +72,18 @@ Adopted only the one unambiguous-correctness item from the second brief; explici
 - **Declined — `animation-timeline: view()` replacing the IntersectionObserver reveal:** a lateral swap, not an upgrade. Our reveal already uses IO (no scroll listeners → no INP cost) and is reduced-motion/no-JS safe; Firefox stable still needs the IO fallback, so this would mean maintaining two code paths for an invisible change.
 - **Declined — View Transitions on the flow:** the flow is in-component state, not routes, and already has calm per-stage fade-ins; VT here is gilding with manual reduced-motion babysitting.
 - **Declined (per brief's own advice) — liquid glass, progressive blur, looping shimmer/gradient text, per-character kinetic type, cross-document transitions:** all clash with the calm tone and/or carry mobile-perf / RTL / single-engine risk.
+
+## Fix — signup showed raw "auth.genericError"; password eye toggle
+
+- **Root cause (two layers):**
+  1. On a misconfigured deployment (no `DATABASE_URL`/`AUTH_SECRET`, or an unreachable DB) the signup/login handlers threw, so Next returned an unstructured 500. The client fell back to `setError("genericError")`.
+  2. `AuthForm` looked error keys up in the **`auth`** namespace, but `genericError` lives in **`common`**. next-intl returns the raw key path for a missing key (it does not throw), so `try/catch` never fired and the string **`auth.genericError`** was rendered to the user.
+- **Fix:**
+  - `AuthForm.tErr` now maps only a known allow-list of keys into the `auth` namespace and sends everything else to `common.genericError` — **a raw key can never reach the UI** again, for any current or future error.
+  - `signup`/`login` routes wrapped in `try/catch` → structured `500 {error:"genericError"}` (+ `console.error` so the real cause shows in Vercel logs) instead of an unhandled crash.
+  - Added a **show/hide password** eye toggle (accessible `aria-label`/`aria-pressed`, RTL-correct at the inline-end).
+- **Proven from a real user's-eye view (headless Chromium on the production build):**
+  1. Misconfigured server (broken `DATABASE_URL`) → the form shows **"משהו השתבש. נסה שוב."** (Hebrew), assertion `contains raw key? false`.
+  2. Eye toggle flips the field `password → text`.
+  3. Correctly-configured server → full signup **lands on `/he/check`** end-to-end with a session cookie.
+- **Still requires the operator (cannot be done from here):** the *live* signup will only succeed once `DATABASE_URL` + `AUTH_SECRET` are set on Vercel and `prisma migrate deploy` has run, and Vercel's Deployment-Protection 403 is lifted. My sandbox cannot reach the protected `*.vercel.app` host, so live E2E is the operator's step; the code-side blocker (raw key / crash) is fixed and proven locally.

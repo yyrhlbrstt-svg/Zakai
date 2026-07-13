@@ -12,12 +12,17 @@ export async function POST(request: Request) {
   }
   const { email, password } = parsed.data;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  // Same response for "no user" and "bad password" to avoid user enumeration.
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    return NextResponse.json({ error: "invalidCredentials" }, { status: 401 });
-  }
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    // Same response for "no user" and "bad password" to avoid user enumeration.
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+      return NextResponse.json({ error: "invalidCredentials" }, { status: 401 });
+    }
 
-  await createSession(user.id);
-  return NextResponse.json({ ok: true });
+    await createSession(user.id);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("[login] failed:", err);
+    return NextResponse.json({ error: "genericError" }, { status: 500 });
+  }
 }

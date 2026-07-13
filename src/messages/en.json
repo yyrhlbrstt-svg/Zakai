@@ -35,6 +35,8 @@
     "signupTitle": "Create your Zakai account",
     "email": "Email address",
     "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "name": "Full name",
     "phone": "Mobile phone",
     "phoneHint": "The number your bills are registered to — used later to verify ownership",

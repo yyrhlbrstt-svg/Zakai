@@ -14,21 +14,29 @@ export async function POST(request: Request) {
   const { name, email, password, phone } = parsed.data;
   const normalizedPhone = normalizeIsraeliMobile(phone)!;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return NextResponse.json({ error: "emailTaken" }, { status: 409 });
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return NextResponse.json({ error: "emailTaken" }, { status: 409 });
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        phone: normalizedPhone,
+        passwordHash: await hashPassword(password),
+      },
+      select: { id: true },
+    });
+
+    await createSession(user.id);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    // Unexpected failure — almost always a missing DATABASE_URL/AUTH_SECRET or an
+    // unreachable database in a misconfigured deployment. Log it server-side and
+    // return a structured error the client renders as a proper message.
+    console.error("[signup] failed:", err);
+    return NextResponse.json({ error: "genericError" }, { status: 500 });
   }
-
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      phone: normalizedPhone,
-      passwordHash: await hashPassword(password),
-    },
-    select: { id: true },
-  });
-
-  await createSession(user.id);
-  return NextResponse.json({ ok: true });
 }
