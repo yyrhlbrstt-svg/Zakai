@@ -3,8 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { loginSchema, firstError } from "@/lib/validation";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { reportError } from "@/lib/report-error";
 
 export async function POST(request: Request) {
+  const limited = await rateLimit("login", clientIp(request), 10, 600);
+  if (!limited.ok) {
+    return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = loginSchema.safeParse(body);
   if (!parsed.success) {
@@ -22,7 +29,7 @@ export async function POST(request: Request) {
     await createSession(user.id);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[login] failed:", err);
+    await reportError(err, { route: "login" });
     return NextResponse.json({ error: "genericError" }, { status: 500 });
   }
 }

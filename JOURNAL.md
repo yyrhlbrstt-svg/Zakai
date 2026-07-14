@@ -102,3 +102,23 @@ Adopted only the one unambiguous-correctness item from the second brief; explici
 - Added `settings` message namespace + `nav.settings` (he/en).
 - **Verified in a real browser (production build):** header renders the name; `/settings` shows the details and the logout button; clicking logout clears the session and lands back on `/he` with the header reverting to login/signup. Tests 27/27, typecheck + build clean.
 - Deliberately scoped to exactly these two additions — no extra features, per request.
+
+## Production-readiness slice — security, fee trust loop, Trust page (scoped to three)
+
+Implemented exactly the three items the user approved from the gap-analysis brief; everything else went to BACKLOG by stage.
+
+**1. Basic security hardening.**
+- Security headers via `next.config` (`Strict-Transport-Security`/HSTS, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`) — verified live on responses. TLS itself is host-terminated (Vercel); session cookie already `httpOnly`+`secure` in prod.
+- **Secrets scan:** `.env` not tracked; no provider-token/private-key patterns in tracked files; secrets referenced only via `process.env`. Clean.
+- **Dependabot** (`.github/dependabot.yml`) — weekly npm (grouped) + github-actions.
+- **Rate limiting:** durable Postgres-backed fixed-window limiter (`RateLimit` table + `src/lib/ratelimit.ts`, migration `rate_limit`) on login (10/10min), signup (10/hr), OTP send (5/hr) and OTP verify (30/10min), keyed by client IP. Fail-open. Verified live: login allows exactly 10 then `429`.
+- **Error monitoring:** native `instrumentation.ts` `onRequestError` → `reportError` (structured stderr → captured by Vercel Logs). Sentry-ready — auto-forwards if `SENTRY_DSN` is set and `@sentry/nextjs` is installed, via a runtime-assembled import specifier so nothing is added to the bundle/build. Auth 500s route through it.
+
+**2. Fee trust loop.**
+- `recordSaving` now emails the customer an automatic confirmation when a fee is charged: full breakdown (original → new → documented saving → 18% fee), a **14-day dispute window** (`FEE_DISPUTE_WINDOW_DAYS`), and a support contact. Verified live in the Outbox (120→90, saving 30, fee 5.40).
+- Dispute policy documented on the Trust page and in the email; the mechanism in the MVP is the confirmation email + support channel (full in-app dispute + PSP refund are in BACKLOG).
+
+**3. Public Hebrew Trust/Security page (`/trust`).**
+- Sections: data security (7 concrete measures), the success-fee-only model, disputing a charge, and a security contact (`security@`), plus a footer link wired into the layout so it's reachable everywhere. he/en. Verified: `/he/trust` → 200 with the expected content.
+
+Backlog updated with the full Stage-0/1/2 production-readiness list (account recovery, deletion/export, WCAG AA, DPO, SOC 2, insurance-licensing review, etc.), marking what's already done.

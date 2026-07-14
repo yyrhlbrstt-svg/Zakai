@@ -165,7 +165,9 @@ export function CheckFlow() {
     const res = await fetch(`/api/cases/${rec.caseId}/ownership/send`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setOwnErr(data.error === "cooldown" ? "codeSent" : "genericError");
+      if (data.error === "cooldown") setOwnErr("codeSent");
+      else if (data.error === "tooManyRequests") setOwnErr("tooManyAttempts");
+      else setOwnErr("genericError");
       return;
     }
     setCodeSent(true);
@@ -187,6 +189,7 @@ export function CheckFlow() {
         invalid: "codeInvalid",
         expired: "codeExpired",
         too_many_attempts: "tooManyAttempts",
+        tooManyRequests: "tooManyAttempts",
         no_code: "codeExpired",
       };
       setOwnErr(map[data.error] || "codeInvalid");

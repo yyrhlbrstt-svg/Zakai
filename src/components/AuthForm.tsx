@@ -14,6 +14,7 @@ const AUTH_ERROR_KEYS = new Set([
   "invalidPhone",
   "nameRequired",
   "mustLogin",
+  "tooManyRequests",
 ]);
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {

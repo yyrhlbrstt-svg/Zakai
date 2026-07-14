@@ -172,3 +172,14 @@ model Fee {
   status        FeeStatus @default(PENDING)
   createdAt     DateTime  @default(now())
 }
+
+// Durable fixed-window rate limiting for auth/OTP endpoints. Serverless
+// functions don't share memory, so the window counter lives in the database.
+model RateLimit {
+  key       String   @id // "<bucket>:<identifier>:<windowStart>"
+  count     Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

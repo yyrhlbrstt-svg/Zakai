@@ -4,8 +4,15 @@ import { hashPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { signupSchema, firstError } from "@/lib/validation";
 import { normalizeIsraeliMobile } from "@/lib/phone";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { reportError } from "@/lib/report-error";
 
 export async function POST(request: Request) {
+  const limited = await rateLimit("signup", clientIp(request), 10, 3600);
+  if (!limited.ok) {
+    return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = signupSchema.safeParse(body);
   if (!parsed.success) {
@@ -36,7 +43,7 @@ export async function POST(request: Request) {
     // Unexpected failure — almost always a missing DATABASE_URL/AUTH_SECRET or an
     // unreachable database in a misconfigured deployment. Log it server-side and
     // return a structured error the client renders as a proper message.
-    console.error("[signup] failed:", err);
+    await reportError(err, { route: "signup" });
     return NextResponse.json({ error: "genericError" }, { status: 500 });
   }
 }

@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { dir, isLocale, type Locale } from "@/i18n/config";
 import { Background } from "@/components/Background";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { getCurrentUser } from "@/lib/auth/user";
 import "../globals.css";
 
@@ -63,6 +64,7 @@ export default async function LocaleLayout({
           <Background />
           <Header user={user ? { name: user.name } : null} />
           {children}
+          <Footer />
         </NextIntlClientProvider>
       </body>
     </html>

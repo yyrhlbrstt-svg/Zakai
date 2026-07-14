@@ -1,12 +1,19 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { shekelsToAgorot } from "@/lib/money";
+import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { computeFee } from "@/lib/fee";
 import { sendEmail } from "@/lib/messaging";
-import { providerContactEmail } from "@/lib/providers";
+import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { createAuthorization } from "./authorization";
 
 export class CaseError extends Error {}
+
+/** Days a customer has to dispute a success-fee charge (see Trust page). */
+export const FEE_DISPUTE_WINDOW_DAYS = 14;
+
+function supportEmail(): string {
+  return process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
+}
 
 interface CreateCaseInput {
   userId: string;
@@ -133,7 +140,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   const newAmount = shekelsToAgorot(newAmountShekels);
   const fee = computeFee(kase.amountOriginal, newAmount);
 
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     await tx.savingsProof.create({
       data: {
         caseId,
@@ -158,4 +165,57 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     });
     return { case: updated, fee };
   });
+
+  // After the fee is committed, send the customer an automatic confirmation
+  // (dev: lands in the Outbox). Only when a fee is actually charged.
+  if (fee.chargeable) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, name: true },
+    });
+    if (user) {
+      await sendEmail({
+        to: user.email,
+        subject: `זכאי — אישור חיסכון ועמלת הצלחה (${providerHebrewName(kase.provider)})`,
+        body: feeConfirmationBody({
+          name: user.name,
+          provider: kase.provider,
+          originalAgorot: kase.amountOriginal,
+          newAgorot: newAmount,
+          savingAgorot: fee.savingMonthly,
+          feeAgorot: fee.amount,
+        }),
+        caseId,
+      });
+    }
+  }
+
+  return result;
+}
+
+function feeConfirmationBody(p: {
+  name: string;
+  provider: string;
+  originalAgorot: number;
+  newAgorot: number;
+  savingAgorot: number;
+  feeAgorot: number;
+}): string {
+  const f = (a: number) => formatAgorot(a, "he-IL");
+  return `שלום ${p.name},
+
+תיעדנו חיסכון בפנייה שביצע זכאי בשמך מול ${providerHebrewName(p.provider)}, ובהתאם למודל עמלת ההצלחה נגבית עמלה של 18% מהחיסכון המתועד בלבד.
+
+פירוט:
+• סכום חודשי מקורי: ${f(p.originalAgorot)}
+• סכום חודשי חדש: ${f(p.newAgorot)}
+• חיסכון חודשי מתועד: ${f(p.savingAgorot)}
+• עמלת הצלחה (18%): ${f(p.feeAgorot)}
+
+ערעור על החיוב: אם לדעתך החיסכון לא מומש בפועל, יש לך ${FEE_DISPUTE_WINDOW_DAYS} ימים מתאריך הודעה זו לפנות אלינו לבדיקה, ואם יתברר שהחיסכון לא נכנס לתוקף — העמלה תבוטל או תוחזר. לפנייה: ${supportEmail()}
+
+זכאי הוא שירות סוכן דיגיטלי אוטומטי הפועל מטעמך בהרשאתך. אין באמור ייעוץ משפטי, פיננסי או ביטוחי.
+
+בברכה,
+צוות זכאי`;
 }

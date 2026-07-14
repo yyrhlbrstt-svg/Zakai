@@ -61,7 +61,8 @@
     "invalidEmail": "Invalid email address.",
     "invalidPhone": "Invalid Israeli phone number (e.g. 0501234567).",
     "nameRequired": "Please enter your full name.",
-    "mustLogin": "Please log in to continue."
+    "mustLogin": "Please log in to continue.",
+    "tooManyRequests": "Too many attempts. Try again in a few minutes."
   },
   "onboarding": {
     "title": "What Zakai does for you",
@@ -224,6 +225,35 @@
       "Your data is processed only for the service, encrypted, and never sold to third parties.",
       "The service is not legal, financial or insurance advice, and does not claim to be a negotiation expert."
     ]
+  },
+  "trustPage": {
+    "title": "Security & Trust",
+    "intro": "Zakai is built around trust: we act on your behalf toward companies and handle sensitive financial data. This page explains, transparently, how we protect your data and how the fee model works.",
+    "securityHeading": "Data security",
+    "security": [
+      "Encryption in transit: all communication with the site is encrypted over HTTPS/TLS, with an HSTS policy that enforces a secure connection.",
+      "Encryption at rest: data is stored in a managed database with storage-layer encryption.",
+      "Secrets & keys: API keys and secrets are never in the code — they are injected only as secure environment variables.",
+      "Verification codes: the SMS ownership code is stored hashed only (never in the clear), with expiry and an attempt cap.",
+      "Rate limiting: login, signup and code-sending endpoints are rate-limited to prevent abuse.",
+      "Monitoring: system errors are logged and monitored so issues are detected and fixed quickly.",
+      "Dependency scanning: software dependencies are scanned automatically for known vulnerabilities."
+    ],
+    "trustHeading": "The model — success fee only",
+    "trust": [
+      "We charge an 18% fee only from documented actual savings (a documented difference between the original and new amount). No saving — no charge.",
+      "Every request is sent only after your explicit approval, and after account-ownership verification plus an authorization document with a code the company can check.",
+      "Every request discloses to the company that Zakai is a digital agent acting on your behalf — we never impersonate you.",
+      "No overblown promises: Zakai is an automated tool that drafts and sends requests, not an 'expert' with human experience."
+    ],
+    "disputeHeading": "Disputing a charge",
+    "dispute": "When a fee is charged, we email you an automatic confirmation with a full breakdown (original amount, new amount, saving and fee). If you believe the saving did not actually materialize, you have {days} days from receiving the email to contact us for review — and if the saving turns out not to have taken effect, the fee is cancelled or refunded. Contact: {email}",
+    "contactHeading": "Security contact",
+    "contact": "Found a security issue or have a question? We'd like to hear from you: {email}",
+    "disclaimer": "This document describes the prototype's security and trust policy. A commercial version will be accompanied by full legal documents (Terms of Use and Privacy Policy) drafted by a lawyer. Nothing here is legal advice."
+  },
+  "footer": {
+    "trust": "Security & Trust"
   },
   "providers": {
     "cellcom": "Cellcom",
