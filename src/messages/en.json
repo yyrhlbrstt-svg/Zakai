@@ -26,7 +26,9 @@
     "signup": "Sign up",
     "settings": "My account",
     "scan": "What am I paying for",
-    "pricing": "Plans"
+    "pricing": "Plans",
+    "assistant": "My agent",
+    "electricity": "Electricity"
   },
   "settings": {
     "title": "My account",
@@ -368,10 +370,78 @@
       "insurance": "Insurance",
       "fitness": "Fitness",
       "digital": "Digital subscriptions",
-      "other": "Other"
+      "other": "Other",
+      "electricity": "Electricity"
     },
     "upgradeTitle": "{count} more recurring charges found",
     "upgradeSub": "The full list is available on Pro and Max.",
-    "upgradeCta": "See plans"
+    "upgradeCta": "See plans",
+    "electricityCta": "Compare electricity plans"
+  },
+  "assistant": {
+    "title": "My agent",
+    "subtitle": "Zakai looks at your data and points to the next thing worth money. The agent proposes — you approve; nothing runs without your explicit confirmation.",
+    "chatTitle": "Ask Zakai",
+    "chatOffline": "Free-form chat activates once the AI connection is configured on the server. Until then — the insights above are computed directly from your data and always available.",
+    "freeQuotaNote": "Free plan: 5 questions per month.",
+    "upgradeLink": "Upgrade",
+    "thinking": "Zakai is thinking…",
+    "quotaError": "You've reached your plan's monthly question quota.",
+    "chatGenericError": "Something went wrong. Try again in a moment.",
+    "inputPlaceholder": "e.g.: How much have I saved so far? What should I check next?",
+    "send": "Send",
+    "disclaimer": "The agent answers from your own data only, never executes actions itself, and is not legal, financial, or insurance advice.",
+    "insights": {
+      "pendingCase": "{count, plural, one {You have a recommendation awaiting approval} other {You have # recommendations awaiting approval}} — {potential}/month in potential savings already identified, one confirmation away.",
+      "awaitingReply": "{count, plural, one {One request was sent to the provider and awaits a reply} other {# requests were sent to the provider and await replies}}. When it arrives, record the new amount to document the saving.",
+      "firstCheck": "You haven't run a check yet. Uploading one bill takes a minute — and that's all it takes to know if you're overpaying.",
+      "proPaysOff": "You've paid {fees} in success fees so far. Pro costs {price}/month and halves the fee — at your volume it already pays for itself.",
+      "savedSoFar": "Your documented saving: {monthly}/month — {yearly} a year. Worth checking your other bills too.",
+      "invite": "No active checks right now. Invite a friend — after their first successful check you'll earn a credit toward your next fee."
+    },
+    "insightCta": {
+      "pendingCase": "To dashboard",
+      "awaitingReply": "Record outcome",
+      "firstCheck": "First check",
+      "proPaysOff": "See plans",
+      "savedSoFar": "To dashboard",
+      "invite": "Invite a friend"
+    }
+  },
+  "electricity": {
+    "title": "How much can you save on electricity?",
+    "subtitle": "Since July 2024 every Israeli household can switch to a private electricity supplier. Enter your monthly bill and usage profile — Zakai ranks the plans by your estimated saving. The math runs in your browser only.",
+    "billLabel": "Monthly electricity bill (₪)",
+    "profileLabel": "When do you use the most electricity?",
+    "profiles": {
+      "spread": "Spread across the day",
+      "day_home": "At home by day (WFH)",
+      "evening_family": "Mostly evenings (family)",
+      "ev_night": "At night (EV / boiler)"
+    },
+    "smartMeter": "We have a smart meter (or will install one)",
+    "noMeterNote": "Without a smart meter only flat-discount plans are available. Installing one (one-time ~₪260) unlocks plans of up to 21% off.",
+    "best": "Best for you",
+    "effective": "Estimated effective discount: {pct}% of the whole bill",
+    "perMonth": "/month",
+    "perYear": "{amount} a year",
+    "providers": {
+      "electra": "Electra Power",
+      "cellcomEnergy": "Cellcom Energy",
+      "bezeqEnergy": "Bezeq",
+      "partnerPower": "Partner Power"
+    },
+    "planNames": {
+      "nightPlus": "Night Plus",
+      "day": "Day",
+      "daySaver": "Day Saver",
+      "night": "Night",
+      "nightOwls": "Night Owls",
+      "familyEvening": "Family Evenings",
+      "nightAllWeek": "Night, All Week",
+      "flat": "Flat discount",
+      "flatTiered": "Flat, tiered"
+    },
+    "disclaimer": "Estimates assume a typical usage profile and public price lists as of July 2026 — verify the exact rate with the supplier before switching. The switch itself is currently done with the supplier; automatic switching via Zakai is in development. Not advice."
   }
 }

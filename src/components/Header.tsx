@@ -25,6 +25,7 @@ export function Header({ user }: { user: { name: string } | null }) {
         <NavLink href="/">{t("nav.home")}</NavLink>
         {user ? (
           <>
+            <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
             <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
             <NavLink href="/check">{t("nav.newCheck")}</NavLink>
             <NavLink href="/scan">{t("nav.scan")}</NavLink>
@@ -44,6 +45,7 @@ export function Header({ user }: { user: { name: string } | null }) {
           </>
         ) : (
           <>
+            <NavLink href="/electricity">{t("nav.electricity")}</NavLink>
             <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
             <NavLink href="/login">{t("nav.login")}</NavLink>
             <NavLink href="/signup">{t("nav.signup")}</NavLink>

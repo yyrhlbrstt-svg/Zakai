@@ -21,6 +21,7 @@ export interface StatementTxn {
 export type ChargeCategory =
   | "cellular"
   | "tv_internet"
+  | "electricity"
   | "insurance"
   | "fitness"
   | "digital"
@@ -167,6 +168,12 @@ export function parseStatement(text: string): StatementTxn[] {
 /* ------------------------------------------------------------------ */
 
 const CATEGORY_PATTERNS: Array<[ChargeCategory, RegExp]> = [
+  // Electricity FIRST: brands like "סלקום אנרג'י" and "פרטנר פאוור" contain a
+  // telecom brand name and would otherwise be swallowed by the cellular rule.
+  [
+    "electricity",
+    /(חברת החשמל|חשמל|אלקטרה פאוור|electra ?power|אנרג'?י|energy|פאוור|power|נגה)/i,
+  ],
   [
     "cellular",
     /(סלקום|cellcom|פרטנר|partner|פלאפון|pelephone|הוט מובייל|hot ?mobile|גולן|golan|019|012 ?מובייל|רמי לוי תקשורת|we4g|wecom|וואלה מובייל)/i,
@@ -195,7 +202,7 @@ export function categorize(merchant: string): ChargeCategory {
   return "other";
 }
 
-/** Categories Zakai can act on today (Stage-1 scope: telecom). */
+/** Categories with a Zakai flow today (telecom → check; electricity → compare). */
 const ACTIONABLE: ChargeCategory[] = ["cellular", "tv_internet"];
 
 /* ------------------------------------------------------------------ */

@@ -10,8 +10,9 @@ import { formatAgorot } from "@/lib/money";
 const CATEGORY_COLOR: Record<ChargeCategory, string> = {
   cellular: "#3FCB9B",
   tv_internet: "#3EC6FF",
+  electricity: "#F0B45C",
   insurance: "#8B5CF6",
-  fitness: "#F0B45C",
+  fitness: "#F08A6B",
   digital: "#93A6A5",
   other: "#93A6A5",
 };
@@ -134,6 +135,13 @@ export function StatementScan({ fullScan, bcp47 }: { fullScan: boolean; bcp47: s
                       <Link href="/check" className="no-underline">
                         <Button variant="ghost" className="!px-4 !py-2 !text-[13px]">
                           {t("checkCta")}
+                        </Button>
+                      </Link>
+                    )}
+                    {r.category === "electricity" && (
+                      <Link href="/electricity" className="no-underline">
+                        <Button variant="ghost" className="!px-4 !py-2 !text-[13px]">
+                          {t("electricityCta")}
                         </Button>
                       </Link>
                     )}
