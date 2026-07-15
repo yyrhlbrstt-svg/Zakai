@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { computeFee } from "@/lib/fee";
+import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { createAuthorization } from "./authorization";
@@ -141,6 +142,14 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   const fee = computeFee(kase.amountOriginal, newAmount);
 
   const result = await prisma.$transaction(async (tx) => {
+    // Apply this user's own referral credit (earned by inviting others) to the
+    // gross fee. Net is what we actually charge; unused credit stays on balance.
+    const owner = await tx.user.findUnique({
+      where: { id: userId },
+      select: { referralCreditAgorot: true, referredById: true },
+    });
+    const credit = applyCredit(fee.amount, owner?.referralCreditAgorot ?? 0);
+
     await tx.savingsProof.create({
       data: {
         caseId,
@@ -155,15 +164,46 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
         caseId,
         savingMonthly: fee.savingMonthly,
         rateBps: fee.rateBps,
-        amount: fee.amount,
+        amount: credit.net,
+        referralCreditApplied: credit.applied,
         status: fee.chargeable ? "PENDING" : "WAIVED",
       },
     });
+    if (credit.applied > 0) {
+      await tx.user.update({
+        where: { id: userId },
+        data: { referralCreditAgorot: credit.remainingCredit },
+      });
+    }
+
+    // If this is the referred user's FIRST documented saving, reward the person
+    // who invited them. The unique constraint on referredUserId guarantees at
+    // most one reward per referred user, so repeat successes never re-trigger.
+    if (fee.chargeable && owner?.referredById) {
+      const already = await tx.referralReward.findUnique({
+        where: { referredUserId: userId },
+      });
+      if (!already) {
+        await tx.referralReward.create({
+          data: {
+            referrerId: owner.referredById,
+            referredUserId: userId,
+            triggeringCaseId: caseId,
+            amountAgorot: REFERRAL_REWARD_AGOROT,
+          },
+        });
+        await tx.user.update({
+          where: { id: owner.referredById },
+          data: { referralCreditAgorot: { increment: REFERRAL_REWARD_AGOROT } },
+        });
+      }
+    }
+
     const updated = await tx.case.update({
       where: { id: caseId },
       data: { status: fee.chargeable ? "SAVED" : "NO_SAVING" },
     });
-    return { case: updated, fee };
+    return { case: updated, fee, feeNet: credit.net, creditApplied: credit.applied };
   });
 
   // After the fee is committed, send the customer an automatic confirmation
@@ -183,7 +223,9 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
           originalAgorot: kase.amountOriginal,
           newAgorot: newAmount,
           savingAgorot: fee.savingMonthly,
-          feeAgorot: fee.amount,
+          grossFeeAgorot: fee.amount,
+          creditAgorot: result.creditApplied,
+          netFeeAgorot: result.feeNet,
         }),
         caseId,
       });
@@ -199,9 +241,17 @@ function feeConfirmationBody(p: {
   originalAgorot: number;
   newAgorot: number;
   savingAgorot: number;
-  feeAgorot: number;
+  grossFeeAgorot: number;
+  creditAgorot: number;
+  netFeeAgorot: number;
 }): string {
   const f = (a: number) => formatAgorot(a, "he-IL");
+  const creditLines =
+    p.creditAgorot > 0
+      ? `• עמלת הצלחה (18%): ${f(p.grossFeeAgorot)}
+• זיכוי חבר מביא חבר: −${f(p.creditAgorot)}
+• סה"כ לחיוב: ${f(p.netFeeAgorot)}`
+      : `• עמלת הצלחה (18%): ${f(p.netFeeAgorot)}`;
   return `שלום ${p.name},
 
 תיעדנו חיסכון בפנייה שביצע זכאי בשמך מול ${providerHebrewName(p.provider)}, ובהתאם למודל עמלת ההצלחה נגבית עמלה של 18% מהחיסכון המתועד בלבד.
@@ -210,7 +260,7 @@ function feeConfirmationBody(p: {
 • סכום חודשי מקורי: ${f(p.originalAgorot)}
 • סכום חודשי חדש: ${f(p.newAgorot)}
 • חיסכון חודשי מתועד: ${f(p.savingAgorot)}
-• עמלת הצלחה (18%): ${f(p.feeAgorot)}
+${creditLines}
 
 ערעור על החיוב: אם לדעתך החיסכון לא מומש בפועל, יש לך ${FEE_DISPUTE_WINDOW_DAYS} ימים מתאריך הודעה זו לפנות אלינו לבדיקה, ואם יתברר שהחיסכון לא נכנס לתוקף — העמלה תבוטל או תוחזר. לפנייה: ${supportEmail()}
 

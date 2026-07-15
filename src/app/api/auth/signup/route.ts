@@ -4,6 +4,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { signupSchema, firstError } from "@/lib/validation";
 import { normalizeIsraeliMobile } from "@/lib/phone";
+import { generateReferralCode } from "@/lib/codes";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: firstError(parsed.error) }, { status: 400 });
   }
-  const { name, email, password, phone } = parsed.data;
+  const { name, email, password, phone, referralCode } = parsed.data;
   const normalizedPhone = normalizeIsraeliMobile(phone)!;
 
   try {
@@ -27,12 +28,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "emailTaken" }, { status: 409 });
     }
 
+    // Resolve the invite code to a referrer, if any. Unknown codes are ignored
+    // silently — a bad ?ref never blocks signup.
+    let referredById: string | undefined;
+    if (referralCode) {
+      const referrer = await prisma.user.findUnique({
+        where: { referralCode },
+        select: { id: true },
+      });
+      if (referrer) referredById = referrer.id;
+    }
+
     const user = await prisma.user.create({
       data: {
         name,
         email,
         phone: normalizedPhone,
         passwordHash: await hashPassword(password),
+        referralCode: generateReferralCode(),
+        referredById,
       },
       select: { id: true },
     });

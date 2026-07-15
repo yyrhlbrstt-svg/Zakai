@@ -62,14 +62,24 @@
     "invalidPhone": "Invalid Israeli phone number (e.g. 0501234567).",
     "nameRequired": "Please enter your full name.",
     "mustLogin": "Please log in to continue.",
-    "tooManyRequests": "Too many attempts. Try again in a few minutes."
+    "tooManyRequests": "Too many attempts. Try again in a few minutes.",
+    "invitedNote": "You were invited by a friend 🎁"
   },
   "onboarding": {
     "title": "What Zakai does for you",
     "steps": {
-      "upload": { "title": "Upload a bill", "sub": "One photo — Zakai detects provider, amount and plan" },
-      "act": { "title": "Zakai acts for you", "sub": "Drafts and sends a professional request, with your explicit approval each time" },
-      "pay": { "title": "Pay only on success", "sub": "18% fee from actual savings. No documented saving — no charge" }
+      "upload": {
+        "title": "Upload a bill",
+        "sub": "One photo — Zakai detects provider, amount and plan"
+      },
+      "act": {
+        "title": "Zakai acts for you",
+        "sub": "Drafts and sends a professional request, with your explicit approval each time"
+      },
+      "pay": {
+        "title": "Pay only on success",
+        "sub": "18% fee from actual savings. No documented saving — no charge"
+      }
     },
     "start": "Let's start"
   },
@@ -80,7 +90,11 @@
     "sub": "Zakai detects inflated mobile bills, drafts a professional request and acts on your behalf — taking a fee only from money that actually returns to you.",
     "cta": "Check a bill now",
     "howTitle": "How it works",
-    "trust": ["Pay only on success — 18% of savings", "Full disclosure — a digital agent, with your authorization", "Your data is encrypted"],
+    "trust": [
+      "Pay only on success — 18% of savings",
+      "Full disclosure — a digital agent, with your authorization",
+      "Your data is encrypted"
+    ],
     "scopeNote": "At this stage Zakai handles mobile bills only, over a messaging channel (email/form). More categories and channels come only once this path has proven itself."
   },
   "calc": {
@@ -91,7 +105,14 @@
     "note": "Estimate only, based on a typical 10%–25% negotiation range. Actual results depend on provider and plan, and are not guaranteed."
   },
   "flow": {
-    "steps": ["Upload", "Analyze", "Approve", "Verify", "Send", "Result"],
+    "steps": [
+      "Upload",
+      "Analyze",
+      "Approve",
+      "Verify",
+      "Send",
+      "Result"
+    ],
     "dropTitle": "Upload a photo of your mobile bill",
     "dropSub": "Drag it here or click — analysis starts instantly",
     "orManual": "No photo? Enter manually",
@@ -262,5 +283,16 @@
     "hot": "HOT",
     "yes": "YES",
     "other": "Other"
+  },
+  "referral": {
+    "title": "Refer a friend",
+    "subtitle": "Invite friends to Zakai. After each friend's first successful check through your link, you get a {amount} credit applied automatically to your next success fee.",
+    "yourLink": "Your invite link",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "creditLabel": "Credit earned",
+    "creditValue": "{amount} off your next success fee",
+    "creditNone": "No credit yet — invite a friend to start earning.",
+    "note": "Credit only reduces a future fee; it is never paid out in cash."
   }
 }

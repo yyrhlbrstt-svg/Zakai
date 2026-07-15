@@ -25,6 +25,17 @@ export function generateAuthorizationCode(): string {
   return `ZK-${group()}-${group()}`;
 }
 
+/**
+ * Short, shareable referral code (default 8 chars) from the same unambiguous
+ * alphabet — goes into a user's invite link (?ref=...).
+ */
+export function generateReferralCode(length = 8): string {
+  return Array.from(
+    { length },
+    () => CODE_ALPHABET[randomInt(0, CODE_ALPHABET.length)],
+  ).join("");
+}
+
 /** Constant-time-ish comparison for hashed OTP checks. */
 export function safeEqualHex(a: string, b: string): boolean {
   if (a.length !== b.length) return false;

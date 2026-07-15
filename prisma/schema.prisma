@@ -24,8 +24,37 @@ model User {
   phone        String
   createdAt    DateTime @default(now())
 
+  // Referrals. `referralCode` is the short, shareable code in this user's
+  // invite link; a DB default keeps the NOT NULL/UNIQUE column safe if a row is
+  // ever created without one. `referredById` is who invited this user (set once
+  // at signup). `referralCreditAgorot` is unspent reward credit that reduces the
+  // user's next success fee — we only ever forgo fee revenue, never pay cash.
+  referralCode         String   @unique @default(cuid())
+  referredById         String?
+  referredBy           User?    @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals            User[]   @relation("Referrals")
+  referralCreditAgorot Int      @default(0)
+
   cases             Case[]
   phoneVerifications PhoneVerification[]
+  referralRewards   ReferralReward[] @relation("Referrer")
+  referralRewardFor ReferralReward?  @relation("ReferredUser")
+}
+
+// One reward per referred user, granted when that user's FIRST check documents
+// a real saving. Append-only audit record; the credit itself lives on the
+// referrer's User.referralCreditAgorot.
+model ReferralReward {
+  id               String   @id @default(cuid())
+  referrerId       String
+  referrer         User     @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUserId   String   @unique
+  referredUser     User     @relation("ReferredUser", fields: [referredUserId], references: [id], onDelete: Cascade)
+  triggeringCaseId String
+  amountAgorot     Int
+  createdAt        DateTime @default(now())
+
+  @@index([referrerId])
 }
 
 enum CaseStatus {
@@ -168,9 +197,13 @@ model Fee {
 
   savingMonthly Int // agorot
   rateBps       Int       @default(1800) // 18.00%
-  amount        Int // agorot, = round(savingMonthly * rateBps / 10000)
-  status        FeeStatus @default(PENDING)
-  createdAt     DateTime  @default(now())
+  // `amount` is the NET fee actually charged. Gross = round(saving*rate/10000);
+  // `referralCreditApplied` is how much referral credit reduced it (>= 0), so
+  // gross = amount + referralCreditApplied.
+  amount                Int // agorot, net of referral credit
+  referralCreditApplied Int       @default(0) // agorot
+  status                FeeStatus @default(PENDING)
+  createdAt             DateTime  @default(now())
 }
 
 // Durable fixed-window rate limiting for auth/OTP endpoints. Serverless

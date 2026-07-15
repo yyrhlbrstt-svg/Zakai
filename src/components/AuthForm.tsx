@@ -17,7 +17,13 @@ const AUTH_ERROR_KEYS = new Set([
   "tooManyRequests",
 ]);
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({
+  mode,
+  referralCode,
+}: {
+  mode: "login" | "signup";
+  referralCode?: string;
+}) {
   const t = useTranslations("auth");
   const tc = useTranslations("common");
   const tl = useTranslations("legal");
@@ -39,7 +45,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       const payload =
         mode === "login"
           ? { email: form.email, password: form.password }
-          : form;
+          : { ...form, ...(referralCode ? { referralCode } : {}) };
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,6 +80,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <h1 className="font-display text-[27px] text-center mb-6">
         {mode === "login" ? t("loginTitle") : t("signupTitle")}
       </h1>
+      {mode === "signup" && referralCode && (
+        <div className="text-center text-[13.5px] text-emerald font-bold bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-xl px-4 py-2.5 mb-4">
+          {t("invitedNote")}
+        </div>
+      )}
       <Card className="p-6">
         <form onSubmit={submit} className="flex flex-col gap-3.5">
           {mode === "signup" && (

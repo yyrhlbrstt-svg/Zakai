@@ -1,8 +1,12 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
+import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui";
 import { LogoutButton } from "@/components/LogoutButton";
+import { ReferralCard } from "@/components/ReferralCard";
+import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
+import { bcp47, type Locale } from "@/i18n/config";
 
 export default async function SettingsPage({
   params,
@@ -15,6 +19,13 @@ export default async function SettingsPage({
   if (!user) redirect({ href: "/login", locale });
 
   const t = await getTranslations("settings");
+
+  const referral = await prisma.user.findUnique({
+    where: { id: user!.id },
+    select: { referralCode: true, referralCreditAgorot: true },
+  });
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const invitePath = `/${locale}/signup?ref=${referral?.referralCode ?? ""}`;
 
   const rows = [
     { label: t("name"), value: user!.name, ltr: false },
@@ -48,6 +59,16 @@ export default async function SettingsPage({
           ))}
         </dl>
       </Card>
+
+      <div className="mt-6">
+        <ReferralCard
+          path={invitePath}
+          fallbackLink={`${appUrl}${invitePath}`}
+          creditAgorot={referral?.referralCreditAgorot ?? 0}
+          rewardAgorot={REFERRAL_REWARD_AGOROT}
+          bcp47={bcp47[locale as Locale]}
+        />
+      </div>
 
       <div className="mt-6">
         <LogoutButton />

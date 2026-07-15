@@ -9,6 +9,8 @@ export const signupSchema = z.object({
     .string()
     .trim()
     .refine((v) => normalizeIsraeliMobile(v) !== null, "invalidPhone"),
+  // Optional invite code from a referral link (?ref=...). Ignored if unknown.
+  referralCode: z.string().trim().max(64).optional(),
 });
 
 export const loginSchema = z.object({
