@@ -30,7 +30,7 @@ function client(): Anthropic {
   return new Anthropic({ apiKey });
 }
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5";
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
 function extractJson(text: string): unknown {
   const cleaned = text.replace(/```json|```/g, "").trim();

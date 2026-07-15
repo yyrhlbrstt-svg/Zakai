@@ -44,7 +44,14 @@ export async function POST(request: Request) {
   let plan: string;
 
   if (data.mode === "image") {
-    if (!aiAvailable()) return badRequest("aiUnavailable", 503);
+    if (!aiAvailable()) {
+      // Surfaces the real reason in the host's Logs (Vercel) instead of the
+      // generic user-facing message: the API key is not configured.
+      console.warn(
+        "[analyze] image OCR unavailable: ANTHROPIC_API_KEY is not set in this environment.",
+      );
+      return badRequest("aiUnavailable", 503);
+    }
     try {
       const analysis = await analyzeBillImage(data.imageBase64, data.mediaType);
       if (!analysis.readable) return badRequest("readError", 422);
