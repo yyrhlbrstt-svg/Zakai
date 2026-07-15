@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
-import { Heebo, Suez_One } from "next/font/google";
+import { Heebo, Suez_One, Manrope } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { dir, isLocale, type Locale } from "@/i18n/config";
 import { Background } from "@/components/Background";
@@ -22,6 +22,14 @@ const display = Suez_One({
   subsets: ["hebrew", "latin"],
   weight: "400",
   variable: "--font-display",
+  display: "swap",
+});
+
+// Geometric bold face for the "ZAKAI" wordmark.
+const wordmark = Manrope({
+  subsets: ["latin"],
+  weight: ["800"],
+  variable: "--font-wordmark",
   display: "swap",
 });
 
@@ -52,7 +60,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={dir[locale as Locale]}>
-      <body className={`${body.variable} ${display.variable} font-body text-ink`}>
+      <body className={`${body.variable} ${display.variable} ${wordmark.variable} font-body text-ink`}>
         {/* Mark JS as available before paint so scroll-reveal only hides content
             when it can actually reveal it (no-JS keeps everything visible). */}
         <script

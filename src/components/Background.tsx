@@ -14,7 +14,7 @@ export function Background() {
         style={{
           width: 640,
           height: 640,
-          background: "radial-gradient(circle, #2CE5A7, transparent 70%)",
+          background: "radial-gradient(circle, #3FCB9B, transparent 70%)",
           top: -200,
           insetInlineEnd: -160,
           opacity: 0.3,
@@ -25,7 +25,7 @@ export function Background() {
         style={{
           width: 460,
           height: 460,
-          background: "radial-gradient(circle, #2CE5A7, transparent 70%)",
+          background: "radial-gradient(circle, #3FCB9B, transparent 70%)",
           bottom: -220,
           insetInlineStart: -180,
           opacity: 0.16,

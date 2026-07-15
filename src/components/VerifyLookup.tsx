@@ -76,15 +76,15 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
           style={{
             border:
               result.status === "ACTIVE"
-                ? "1px solid rgba(44,229,167,0.4)"
+                ? "1px solid rgba(63,203,155,0.4)"
                 : "1px solid rgba(240,138,107,0.4)",
           }}
         >
           <div
             className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold mb-4"
             style={{
-              color: result.status === "ACTIVE" ? "#2CE5A7" : "#F08A6B",
-              background: result.status === "ACTIVE" ? "rgba(44,229,167,0.13)" : "rgba(240,138,107,0.13)",
+              color: result.status === "ACTIVE" ? "#3FCB9B" : "#F08A6B",
+              background: result.status === "ACTIVE" ? "rgba(63,203,155,0.13)" : "rgba(240,138,107,0.13)",
             }}
           >
             {result.status === "ACTIVE" ? `✓ ${t("found")}` : `✕ ${t("revoked")}`}

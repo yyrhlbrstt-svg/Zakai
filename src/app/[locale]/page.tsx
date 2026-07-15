@@ -22,7 +22,7 @@ export default async function HomePage({
       <div className="flex flex-wrap gap-12 items-center">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
-            <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(44,229,167,0.1)] border border-[rgba(44,229,167,0.3)] rounded-full px-3.5 py-1.5 mb-6">
+            <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-6">
               {t("home.kicker")}
             </div>
           </Reveal>

@@ -15,7 +15,7 @@
   --dur: 220ms;
 
   /* Signature accent: emerald. Cyan/violet are rare accents only. */
-  --emerald: #2ce5a7;
+  --emerald: #3FCB9B;
   --cyan: #3ec6ff;
   --violet: #8b5cf6;
   --amber: #f0b45c;
@@ -71,7 +71,7 @@ select option {
    brand wordmark — the one place emerald, cyan and violet blend rather than
    compete. Everywhere else, use emerald. */
 .grad-text {
-  background: linear-gradient(100deg, #2ce5a7, #3ec6ff 50%, #8b5cf6);
+  background: linear-gradient(100deg, #3FCB9B, #3ec6ff 50%, #8b5cf6);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -80,7 +80,7 @@ select option {
 /* Primary surfaces (CTAs, brand chip) commit to emerald: emerald → teal,
    staying in the green family instead of a rainbow. */
 .grad-bg {
-  background: linear-gradient(105deg, #2ce5a7, #23cbb6 55%, #1fb6c9);
+  background: linear-gradient(105deg, #3FCB9B, #23cbb6 55%, #1fb6c9);
 }
 
 /* Ambient background blobs. Emerald dominant; cyan/violet faint and small. */
@@ -106,8 +106,8 @@ select option {
   border-radius: inherit;
   background: radial-gradient(
     240px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(44, 229, 167, 0.16),
-    rgba(44, 229, 167, 0) 60%
+    rgba(63,203,155, 0.16),
+    rgba(63,203,155, 0) 60%
   );
   opacity: 0;
   transition: opacity var(--dur) var(--ease-out);
@@ -167,7 +167,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: var(--emerald);
   cursor: pointer;
   border: 2px solid #06121a;
-  box-shadow: 0 0 14px rgba(44, 229, 167, 0.5);
+  box-shadow: 0 0 14px rgba(63,203,155, 0.5);
 }
 input[type="range"]::-moz-range-thumb {
   width: 22px;

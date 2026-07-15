@@ -267,7 +267,7 @@ export function CheckFlow() {
             {i < steps.length - 1 && (
               <div
                 className="flex-1 h-0.5 rounded mb-4"
-                style={{ background: i < stepIndex ? "#2CE5A7" : "rgba(255,255,255,0.08)" }}
+                style={{ background: i < stepIndex ? "#3FCB9B" : "rgba(255,255,255,0.08)" }}
               />
             )}
           </li>
@@ -302,8 +302,8 @@ export function CheckFlow() {
               "bg-[rgba(255,255,255,0.045)] rounded-2xl backdrop-blur-xl cursor-pointer transition-all"
             } text-center px-6 py-11`}
             style={{
-              border: `2px dashed ${dragOver ? "#2CE5A7" : "rgba(255,255,255,0.09)"}`,
-              background: dragOver ? "rgba(44,229,167,0.07)" : "rgba(255,255,255,0.045)",
+              border: `2px dashed ${dragOver ? "#3FCB9B" : "rgba(255,255,255,0.09)"}`,
+              background: dragOver ? "rgba(63,203,155,0.07)" : "rgba(255,255,255,0.045)",
             }}
           >
             <div className="text-[38px] mb-3">📄</div>
@@ -558,7 +558,7 @@ export function CheckFlow() {
           <Card className="text-center px-7 py-14 relative overflow-hidden">
             <div
               className="absolute top-1/2 left-1/2 w-[340px] h-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-              style={{ background: "#2CE5A7", filter: "blur(95px)", opacity: 0.3 }}
+              style={{ background: "#3FCB9B", filter: "blur(95px)", opacity: 0.3 }}
               aria-hidden
             />
             <div className="relative">
@@ -601,7 +601,7 @@ export function CheckFlow() {
           </Card>
 
           {outcome.chargeable && (
-            <Card className="p-5 mt-3.5 border border-[rgba(44,229,167,0.35)]">
+            <Card className="p-5 mt-3.5 border border-[rgba(63,203,155,0.35)]">
               <div className="flex justify-between items-center">
                 <div className="text-sm font-bold">{t("feeNote")}</div>
                 <div className="font-display grad-text text-2xl">₪{nf.format(outcome.fee)}</div>

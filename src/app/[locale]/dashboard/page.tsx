@@ -23,7 +23,7 @@ const STATUS_COLOR: Record<string, string> = {
   APPROVED: "#3EC6FF",
   VERIFIED: "#8B5CF6",
   SENT: "#F0B45C",
-  SAVED: "#2CE5A7",
+  SAVED: "#3FCB9B",
   NO_SAVING: "#93A6A5",
   REVOKED: "#F08A6B",
 };
@@ -67,7 +67,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             <SpotlightCard className="p-7 relative overflow-hidden">
               <div
                 className="absolute -top-[70px] -start-[50px] w-60 h-60 rounded-full"
-                style={{ background: "#2CE5A7", filter: "blur(80px)", opacity: 0.26 }}
+                style={{ background: "#3FCB9B", filter: "blur(80px)", opacity: 0.26 }}
                 aria-hidden
               />
               <div className="relative">

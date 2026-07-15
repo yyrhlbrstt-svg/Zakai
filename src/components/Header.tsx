@@ -3,6 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname, Link } from "@/i18n/routing";
 import { activeLocales, localeLabel, type Locale } from "@/i18n/config";
+import { Logo } from "@/components/Logo";
 
 export function Header({ user }: { user: { name: string } | null }) {
   const t = useTranslations();
@@ -16,11 +17,8 @@ export function Header({ user }: { user: { name: string } | null }) {
 
   return (
     <header className="flex justify-between items-center px-5 py-4 max-w-[1080px] mx-auto flex-wrap gap-3">
-      <Link href="/" className="font-display text-[22px] flex items-center gap-2 no-underline text-ink">
-        <span className="w-7 h-7 rounded-[9px] grad-bg inline-flex items-center justify-center text-[#06121A] text-[15px] font-black">
-          ₪
-        </span>
-        <span className="grad-text">{t("brand")}</span>
+      <Link href="/" className="flex items-center no-underline" aria-label={t("brand")}>
+        <Logo height={22} />
       </Link>
 
       <nav className="flex gap-1.5 items-center flex-wrap">
@@ -32,7 +30,7 @@ export function Header({ user }: { user: { name: string } | null }) {
             {/* Logged-in user's name — also the entry point to account settings. */}
             <Link
               href="/settings"
-              className="flex items-center gap-2 no-underline rounded-full ps-1.5 pe-3 py-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)] hover:border-[rgba(44,229,167,0.4)] transition-colors duration-200"
+              className="flex items-center gap-2 no-underline rounded-full ps-1.5 pe-3 py-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)] hover:border-[rgba(63,203,155,0.4)] transition-colors duration-200"
               aria-label={t("nav.settings")}
             >
               <span className="w-6 h-6 rounded-full grad-bg text-[#06121A] inline-flex items-center justify-center text-[12px] font-black">

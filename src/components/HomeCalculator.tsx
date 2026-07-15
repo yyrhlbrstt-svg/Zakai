@@ -20,7 +20,7 @@ export function HomeCalculator() {
     <Card className="p-6 relative overflow-hidden">
       <div
         className="absolute -top-16 -end-16 w-52 h-52 rounded-full"
-        style={{ background: "#2CE5A7", filter: "blur(70px)", opacity: 0.22 }}
+        style={{ background: "#3FCB9B", filter: "blur(70px)", opacity: 0.22 }}
         aria-hidden
       />
       <div className="relative">

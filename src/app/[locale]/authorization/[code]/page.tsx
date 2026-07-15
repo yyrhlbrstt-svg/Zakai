@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getPublicAuthorization } from "@/lib/services/authorization";
 import { bcp47, type Locale } from "@/i18n/config";
 import { PrintButton } from "@/components/PrintButton";
+import { Logo } from "@/components/Logo";
 
 export default async function AuthorizationDocPage({
   params,
@@ -32,8 +33,9 @@ export default async function AuthorizationDocPage({
         className="bg-white text-[#0d1622] rounded-2xl p-8 md:p-10 shadow-[0_24px_60px_rgba(0,0,0,0.45)] leading-relaxed"
         style={{ fontFamily: "var(--font-body)" }}
       >
-        <div className="flex items-center justify-between border-b-2 border-[#0d1622] pb-4 mb-6">
+        <div className="flex items-start justify-between border-b-2 border-[#0d1622] pb-4 mb-6">
           <div>
+            <Logo tone="light" height={20} className="mb-3" />
             <div className="text-2xl font-extrabold">{t("docTitle")}</div>
             <div className="text-sm text-[#5a6b6a] mt-1">{t("subtitle")}</div>
           </div>
