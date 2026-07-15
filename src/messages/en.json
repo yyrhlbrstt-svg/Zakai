@@ -24,7 +24,9 @@
     "login": "Log in",
     "logout": "Log out",
     "signup": "Sign up",
-    "settings": "My account"
+    "settings": "My account",
+    "scan": "What am I paying for",
+    "pricing": "Plans"
   },
   "settings": {
     "title": "My account",
@@ -33,7 +35,14 @@
     "email": "Email address",
     "phone": "Mobile phone",
     "logout": "Log out",
-    "loggingOut": "Logging out..."
+    "loggingOut": "Logging out...",
+    "plan": "Plan",
+    "changePlan": "Change plan & pricing",
+    "planNames": {
+      "FREE": "Free",
+      "PRO": "Pro",
+      "MAX": "Max"
+    }
   },
   "disclosure": {
     "agent": "Zakai is a digital agent acting on the customer's behalf, with explicit authorization.",
@@ -153,7 +162,8 @@
     "feeExplain": "You pay only because it worked. No saving, no fee.",
     "noSaving": "No saving was documented for this request — so there is no fee. You can try another provider or plan.",
     "newCase": "Check another bill",
-    "toDash": "To dashboard"
+    "toDash": "To dashboard",
+    "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan."
   },
   "verify": {
     "title": "Verification before acting",
@@ -294,5 +304,74 @@
     "creditValue": "{amount} off your next success fee",
     "creditNone": "No credit yet — invite a friend to start earning.",
     "note": "Credit only reduces a future fee; it is never paid out in cash."
+  },
+  "pricing": {
+    "title": "Plans that only win when you save",
+    "subtitle": "Start free with a success fee only. Subscriptions buy the fee down — and on Max, every shekel saved stays yours.",
+    "popular": "Best value",
+    "freePrice": "₪0",
+    "perMonth": "/month",
+    "choose": "Choose plan",
+    "currentPlan": "Your current plan",
+    "billingNote": "Plan changes take effect immediately. Subscription billing starts once payments are connected — until then plans are active with no subscription charge, and success fees are recorded per the selected plan.",
+    "plans": {
+      "FREE": {
+        "name": "Free",
+        "fee": "18% success fee",
+        "features": [
+          "One active check at a time",
+          "An agent acting for you with a verified authorization",
+          "Recurring-charges scan preview (3 findings)",
+          "Pay only on a documented saving"
+        ]
+      },
+      "PRO": {
+        "name": "Pro",
+        "fee": "Only 9% success fee",
+        "features": [
+          "Up to 5 active checks in parallel",
+          "Full recurring-charges scan — every finding",
+          "Success fee cut in half",
+          "Everything in Free"
+        ]
+      },
+      "MAX": {
+        "name": "Max",
+        "fee": "0% fee — all savings are yours",
+        "features": [
+          "Unlimited checks",
+          "Zero success fee — forever",
+          "Full recurring-charges scan",
+          "Priority access to new features"
+        ]
+      }
+    }
+  },
+  "scan": {
+    "title": "What am I paying for?",
+    "subtitle": "Paste or upload your card/bank statement export (CSV) — Zakai detects recurring charges: mobile, TV, insurance and subscriptions you forgot about.",
+    "privacyNote": "The analysis runs entirely in your browser. Your statement is never uploaded, stored, or sent anywhere.",
+    "pasteLabel": "Paste statement rows",
+    "pastePlaceholder": "05/03/2026, Cellcom Ltd, 89.90 ...",
+    "scanBtn": "Scan",
+    "uploadBtn": "Upload CSV file",
+    "noneFound": "No recurring charges detected",
+    "parsed": "{count} transactions analyzed",
+    "totalLabel": "Estimated recurring total",
+    "totalSub": "{count} recurring charges found",
+    "perMonth": "/month",
+    "occurrences": "{count} charges in statement",
+    "checkCta": "Check with Zakai",
+    "categories": {
+      "cellular": "Mobile",
+      "tv_internet": "TV & Internet",
+      "insurance": "Insurance",
+      "fitness": "Fitness",
+      "digital": "Digital subscriptions",
+      "other": "Other"
+    },
+    "upgradeTitle": "{count} more recurring charges found",
+    "upgradeSub": "The full list is available on Pro and Max.",
+    "upgradeCta": "See plans"
   }
 }

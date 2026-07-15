@@ -27,6 +27,7 @@ export function Header({ user }: { user: { name: string } | null }) {
           <>
             <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
             <NavLink href="/check">{t("nav.newCheck")}</NavLink>
+            <NavLink href="/scan">{t("nav.scan")}</NavLink>
             {/* Logged-in user's name — also the entry point to account settings. */}
             <Link
               href="/settings"
@@ -43,6 +44,7 @@ export function Header({ user }: { user: { name: string } | null }) {
           </>
         ) : (
           <>
+            <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
             <NavLink href="/login">{t("nav.login")}</NavLink>
             <NavLink href="/signup">{t("nav.signup")}</NavLink>
           </>

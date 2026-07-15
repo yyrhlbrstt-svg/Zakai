@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { computeFee } from "@/lib/fee";
+import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
@@ -29,6 +30,16 @@ interface CreateCaseInput {
 }
 
 export async function createCase(input: CreateCaseInput) {
+  // Enforce the plan's active-case allowance (Free: 1, Pro: 5, Max: unlimited).
+  const user = await prisma.user.findUnique({
+    where: { id: input.userId },
+    select: { plan: true },
+  });
+  const activeCount = await prisma.case.count({
+    where: { userId: input.userId, status: { in: [...ACTIVE_CASE_STATUSES] } },
+  });
+  if (!canOpenCase(user?.plan, activeCount)) throw new CaseError("CASE_LIMIT");
+
   return prisma.case.create({
     data: {
       userId: input.userId,
@@ -139,15 +150,19 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   if (existing) throw new CaseError("ALREADY_SETTLED");
 
   const newAmount = shekelsToAgorot(newAmountShekels);
-  const fee = computeFee(kase.amountOriginal, newAmount);
 
   const result = await prisma.$transaction(async (tx) => {
-    // Apply this user's own referral credit (earned by inviting others) to the
-    // gross fee. Net is what we actually charge; unused credit stays on balance.
     const owner = await tx.user.findUnique({
       where: { id: userId },
-      select: { referralCreditAgorot: true, referredById: true },
+      select: { plan: true, referralCreditAgorot: true, referredById: true },
     });
+
+    // The success-fee rate comes from the user's plan (Free 18%, Pro 9%, Max 0%).
+    const fee = computeFee(kase.amountOriginal, newAmount, planConfig(owner?.plan).feeRateBps);
+    const saved = fee.savingMonthly > 0;
+
+    // Apply this user's own referral credit (earned by inviting others) to the
+    // gross fee. Net is what we actually charge; unused credit stays on balance.
     const credit = applyCredit(fee.amount, owner?.referralCreditAgorot ?? 0);
 
     await tx.savingsProof.create({
@@ -166,7 +181,9 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
         rateBps: fee.rateBps,
         amount: credit.net,
         referralCreditApplied: credit.applied,
-        status: fee.chargeable ? "PENDING" : "WAIVED",
+        // PENDING only when there is actually something left to collect; a fee
+        // fully covered by plan rate (Max: 0%) or referral credit is WAIVED.
+        status: credit.net > 0 ? "PENDING" : "WAIVED",
       },
     });
     if (credit.applied > 0) {
@@ -179,7 +196,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     // If this is the referred user's FIRST documented saving, reward the person
     // who invited them. The unique constraint on referredUserId guarantees at
     // most one reward per referred user, so repeat successes never re-trigger.
-    if (fee.chargeable && owner?.referredById) {
+    if (saved && owner?.referredById) {
       const already = await tx.referralReward.findUnique({
         where: { referredUserId: userId },
       });
@@ -199,16 +216,20 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
       }
     }
 
+    // A documented saving is a SAVED case even when the fee is zero (Max plan
+    // or referral credit) — the outcome is about the saving, not our fee.
     const updated = await tx.case.update({
       where: { id: caseId },
-      data: { status: fee.chargeable ? "SAVED" : "NO_SAVING" },
+      data: { status: saved ? "SAVED" : "NO_SAVING" },
     });
     return { case: updated, fee, feeNet: credit.net, creditApplied: credit.applied };
   });
 
+  const fee = result.fee;
+
   // After the fee is committed, send the customer an automatic confirmation
   // (dev: lands in the Outbox). Only when a fee is actually charged.
-  if (fee.chargeable) {
+  if (result.feeNet > 0) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { email: true, name: true },
@@ -223,6 +244,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
           originalAgorot: kase.amountOriginal,
           newAgorot: newAmount,
           savingAgorot: fee.savingMonthly,
+          rateBps: fee.rateBps,
           grossFeeAgorot: fee.amount,
           creditAgorot: result.creditApplied,
           netFeeAgorot: result.feeNet,
@@ -241,20 +263,22 @@ function feeConfirmationBody(p: {
   originalAgorot: number;
   newAgorot: number;
   savingAgorot: number;
+  rateBps: number;
   grossFeeAgorot: number;
   creditAgorot: number;
   netFeeAgorot: number;
 }): string {
   const f = (a: number) => formatAgorot(a, "he-IL");
+  const pct = `${(p.rateBps / 100).toLocaleString("he-IL", { maximumFractionDigits: 2 })}%`;
   const creditLines =
     p.creditAgorot > 0
-      ? `• עמלת הצלחה (18%): ${f(p.grossFeeAgorot)}
+      ? `• עמלת הצלחה (${pct}): ${f(p.grossFeeAgorot)}
 • זיכוי חבר מביא חבר: −${f(p.creditAgorot)}
 • סה"כ לחיוב: ${f(p.netFeeAgorot)}`
-      : `• עמלת הצלחה (18%): ${f(p.netFeeAgorot)}`;
+      : `• עמלת הצלחה (${pct}): ${f(p.netFeeAgorot)}`;
   return `שלום ${p.name},
 
-תיעדנו חיסכון בפנייה שביצע זכאי בשמך מול ${providerHebrewName(p.provider)}, ובהתאם למודל עמלת ההצלחה נגבית עמלה של 18% מהחיסכון המתועד בלבד.
+תיעדנו חיסכון בפנייה שביצע זכאי בשמך מול ${providerHebrewName(p.provider)}, ובהתאם למסלול שלך נגבית עמלת הצלחה של ${pct} מהחיסכון המתועד בלבד.
 
 פירוט:
 • סכום חודשי מקורי: ${f(p.originalAgorot)}

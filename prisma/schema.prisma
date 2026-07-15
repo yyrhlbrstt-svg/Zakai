@@ -14,11 +14,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Plan {
+  FREE
+  PRO
+  MAX
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String
   name         String
+  // Product tier. Determines the success-fee rate, active-case allowance and
+  // access to the recurring-charges scan. Billing collection is a later stage
+  // (PSP); the tier itself is enforced in code from day one.
+  plan          Plan      @default(FREE)
+  planChangedAt DateTime?
   // E.164 Israeli mobile, e.g. +972501234567. The number the user's bills are
   // registered to; ownership verification sends a code here.
   phone        String

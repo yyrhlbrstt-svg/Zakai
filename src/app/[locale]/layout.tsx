@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
@@ -37,6 +37,22 @@ export const metadata: Metadata = {
   title: "זכאי — Zakai",
   description:
     "סוכן AI צרכני שמזהה חיובי סלולר מנופחים, פועל בשמך מול החברה, וגובה עמלה רק מחיסכון מתועד.",
+  // PWA: iOS ignores the web manifest for install, so give Safari its own
+  // "add to home screen" affordances explicitly.
+  appleWebApp: {
+    capable: true,
+    title: "זכאי",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#070B12",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export function generateStaticParams() {

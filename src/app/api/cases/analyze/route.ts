@@ -8,7 +8,8 @@ import {
   aiAvailable,
   AiUnavailableError,
 } from "@/lib/ai";
-import { createCase } from "@/lib/services/cases";
+import { createCase, CaseError } from "@/lib/services/cases";
+import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { PROVIDERS, isProviderKey, resolveProviderKey, providerHebrewName } from "@/lib/providers";
 
 const schema = z.union([
@@ -38,6 +39,12 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
+
+  // Plan allowance check up front, before any expensive AI work.
+  const activeCount = await prisma.case.count({
+    where: { userId: auth.userId, status: { in: [...ACTIVE_CASE_STATUSES] } },
+  });
+  if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
   let providerKey: string;
   let amountShekels: number;
@@ -78,17 +85,25 @@ export async function POST(request: Request) {
     customerName: user.name,
   });
 
-  const kase = await createCase({
-    userId: auth.userId,
-    provider: providerKey,
-    amountShekels,
-    plan,
-    strategy: rec.strategy,
-    targetShekels: rec.targetShekels,
-    marketLowShekels: rec.marketLowShekels,
-    marketHighShekels: rec.marketHighShekels,
-    draftMessage: rec.draftMessage,
-  });
+  let kase;
+  try {
+    kase = await createCase({
+      userId: auth.userId,
+      provider: providerKey,
+      amountShekels,
+      plan,
+      strategy: rec.strategy,
+      targetShekels: rec.targetShekels,
+      marketLowShekels: rec.marketLowShekels,
+      marketHighShekels: rec.marketHighShekels,
+      draftMessage: rec.draftMessage,
+    });
+  } catch (err) {
+    if (err instanceof CaseError && err.message === "CASE_LIMIT") {
+      return badRequest("caseLimit", 403);
+    }
+    throw err;
+  }
 
   return NextResponse.json({
     caseId: kase.id,

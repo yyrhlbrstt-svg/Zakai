@@ -1,5 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { redirect } from "@/i18n/routing";
+import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui";
@@ -31,6 +31,7 @@ export default async function SettingsPage({
     { label: t("name"), value: user!.name, ltr: false },
     { label: t("email"), value: user!.email, ltr: true },
     { label: t("phone"), value: user!.phone, ltr: true },
+    { label: t("plan"), value: t(`planNames.${user!.plan}`), ltr: false },
   ];
 
   return (
@@ -58,6 +59,11 @@ export default async function SettingsPage({
             </div>
           ))}
         </dl>
+        <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+          <Link href="/pricing" className="text-emerald font-bold text-[13.5px] no-underline">
+            {t("changePlan")}
+          </Link>
+        </div>
       </Card>
 
       <div className="mt-6">
