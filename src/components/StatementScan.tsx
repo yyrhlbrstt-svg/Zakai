@@ -23,11 +23,23 @@ const CATEGORY_COLOR: Record<ChargeCategory, string> = {
  * uploaded, stored, or sent anywhere. Free plan sees the top 3 results as a
  * preview; Pro/Max see everything.
  */
-export function StatementScan({ fullScan, bcp47 }: { fullScan: boolean; bcp47: string }) {
+export function StatementScan({
+  fullScan,
+  bcp47,
+  screenshotEnabled = false,
+}: {
+  fullScan: boolean;
+  bcp47: string;
+  /** Server-side vision available → allow bank-app screenshot extraction. */
+  screenshotEnabled?: boolean;
+}) {
   const t = useTranslations("scan");
   const [text, setText] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
+  const [shotBusy, setShotBusy] = useState(false);
+  const [shotError, setShotError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const shotRef = useRef<HTMLInputElement>(null);
 
   function runScan(input: string) {
     setResult(scanStatement(input));
@@ -38,6 +50,37 @@ export function StatementScan({ fullScan, bcp47 }: { fullScan: boolean; bcp47: s
     const content = await file.text();
     setText(content);
     runScan(content);
+  }
+
+  // Screenshot path: bank-app screenshot → server-side extraction → the same
+  // deterministic engine. The zero-friction path for people who never export.
+  async function onScreenshot(file?: File | null) {
+    if (!file) return;
+    setShotError(false);
+    setShotBusy(true);
+    try {
+      const buf = await file.arrayBuffer();
+      let bin = "";
+      const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      const res = await fetch("/api/scan/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: btoa(bin), mediaType: file.type || "image/jpeg" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.csv) {
+        setShotError(true);
+        return;
+      }
+      const merged = text.trim() ? `${text}\n${data.csv}` : data.csv;
+      setText(merged);
+      runScan(merged);
+    } catch {
+      setShotError(true);
+    } finally {
+      setShotBusy(false);
+    }
   }
 
   const visible = result ? (fullScan ? result.recurring : result.recurring.slice(0, 3)) : [];
@@ -70,6 +113,11 @@ export function StatementScan({ fullScan, bcp47 }: { fullScan: boolean; bcp47: s
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
             {t("uploadBtn")}
           </Button>
+          {screenshotEnabled && (
+            <Button variant="ghost" disabled={shotBusy} onClick={() => shotRef.current?.click()}>
+              {shotBusy ? t("shotBusy") : t("screenshotBtn")}
+            </Button>
+          )}
           <input
             ref={fileRef}
             type="file"
@@ -77,7 +125,27 @@ export function StatementScan({ fullScan, bcp47 }: { fullScan: boolean; bcp47: s
             className="hidden"
             onChange={(e) => onFile(e.target.files?.[0])}
           />
+          <input
+            ref={shotRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => onScreenshot(e.target.files?.[0])}
+          />
         </div>
+        {shotError && (
+          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotError")}</p>
+        )}
+
+        {/* Guided export — the "I never exported a CSV" bridge. */}
+        <details className="mt-5 text-[13px] text-ink-soft">
+          <summary className="cursor-pointer font-bold text-emerald">{t("exportGuideTitle")}</summary>
+          <ul className="mt-2.5 ps-4 list-disc space-y-2 leading-relaxed">
+            {(t.raw("exportGuide") as string[]).map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </details>
       </Card>
 
       {result && (

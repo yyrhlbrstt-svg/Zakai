@@ -177,6 +177,50 @@ Respond ONLY with JSON: {"strategy":"...","targetAmount":number,"marketLow":numb
   };
 }
 
+// ---------- Statement screenshot extraction ----------
+
+/**
+ * Extract transaction rows from a SCREENSHOT of a bank/credit-card app —
+ * the zero-friction path for users who never exported a CSV in their life.
+ * Returns CSV text ("dd/mm/yyyy,merchant,amount" lines) that feeds the same
+ * deterministic recurring-charges engine as pasted exports. Extraction only —
+ * the detection logic stays deterministic and tested.
+ */
+export async function extractStatementImage(
+  base64: string,
+  mediaType: string,
+): Promise<string> {
+  const anthropic = client();
+  const msg = await anthropic.messages.create({
+    model: EXTRACT_MODEL,
+    max_tokens: 1500,
+    system: cachedSystem(
+      `You extract transaction rows from screenshots of Israeli banking / credit-card apps and statements (Hebrew UI common). Output ONLY CSV lines, one per visible transaction, in the exact format: dd/mm/yyyy,merchant name,amount
+- amount is the charged amount as a plain number (no currency symbol).
+- Skip balances, totals, headers, buttons and any non-transaction text.
+- If a year is missing assume the current year visible elsewhere on screen, else 2026.
+- If NO transactions are visible, output exactly: NONE`,
+    ),
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
+          },
+          { type: "text", text: "Extract the transactions." },
+        ],
+      },
+    ],
+  });
+  const text = msg.content
+    .map((b) => (b.type === "text" ? b.text : ""))
+    .join("\n")
+    .trim();
+  return text === "NONE" ? "" : text;
+}
+
 // ---------- In-app assistant ("הסוכן שלי") ----------
 
 /**

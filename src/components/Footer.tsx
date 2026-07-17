@@ -12,12 +12,23 @@ export function Footer() {
         <Logo height={15} />
         <span>© {new Date().getFullYear()}</span>
       </span>
-      <Link
-        href="/trust"
-        className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
-      >
-        {t("footer.trust")}
-      </Link>
+      <span className="flex flex-wrap gap-4">
+        {(
+          [
+            { href: "/trust", key: "footer.trust" },
+            { href: "/terms", key: "footer.terms" },
+            { href: "/privacy", key: "footer.privacy" },
+          ] as const
+        ).map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
+          >
+            {t(l.key)}
+          </Link>
+        ))}
+      </span>
     </footer>
   );
 }

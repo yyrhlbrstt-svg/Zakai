@@ -1,0 +1,135 @@
+/**
+ * The Rights Engine — the literal meaning of the brand: "זכאי" = entitled.
+ *
+ * A deterministic catalog of Israeli entitlements and benefits, filtered by a
+ * short household profile. This is the breadth play done honestly: one
+ * engine, 40+ real rights across tax, national insurance, municipal, banking,
+ * consumer, army, family, seniors and housing — each with an eligibility
+ * rule, an (optional, conservative) value estimate, and a how-to-claim hint.
+ *
+ * Amounts are only attached where they are stable and well-known; everything
+ * else is marked "varies" rather than invented. Nothing here is legal advice
+ * and the UI says so. Money in agorot.
+ */
+
+export interface RightsProfile {
+  ageGroup: "18_24" | "25_44" | "45_66" | "67_plus";
+  employment: "employee" | "self_employed" | "unemployed" | "student" | "soldier" | "retired";
+  children: number;
+  childrenUnder6: number;
+  renting: boolean;
+  lowIncome: boolean;
+  newImmigrant: boolean;
+  dischargedSoldier: boolean;
+  reservist: boolean;
+  disability: boolean;
+}
+
+export type RightCategory =
+  | "tax"
+  | "bituach"
+  | "municipal"
+  | "banking"
+  | "consumer"
+  | "army"
+  | "family"
+  | "senior"
+  | "housing";
+
+export interface Entitlement {
+  id: string;
+  category: RightCategory;
+  eligible: (p: RightsProfile) => boolean;
+  /** Conservative yearly value in agorot, when honestly quantifiable. */
+  yearlyAgorot?: number;
+  /** One-time value in agorot, when honestly quantifiable. */
+  oneTimeAgorot?: number;
+}
+
+const senior = (p: RightsProfile) => p.ageGroup === "67_plus" || p.employment === "retired";
+const working = (p: RightsProfile) => p.employment === "employee" || p.employment === "self_employed";
+const parent = (p: RightsProfile) => p.children > 0;
+
+export const ENTITLEMENTS: Entitlement[] = [
+  // ---- Tax (מס הכנסה) ----
+  { id: "tax_refund", category: "tax", eligible: working },
+  { id: "work_grant", category: "tax", eligible: (p) => working(p) && p.lowIncome },
+  { id: "credit_children", category: "tax", eligible: (p) => working(p) && parent(p) },
+  { id: "credit_degree", category: "tax", eligible: (p) => working(p) && p.ageGroup !== "67_plus" },
+  { id: "credit_oleh", category: "tax", eligible: (p) => p.newImmigrant && working(p) },
+  { id: "credit_discharged", category: "tax", eligible: (p) => p.dischargedSoldier && working(p) },
+  { id: "credit_donations", category: "tax", eligible: working },
+  { id: "credit_pension_deposit", category: "tax", eligible: working },
+  { id: "tax_disability_exemption", category: "tax", eligible: (p) => p.disability },
+
+  // ---- National insurance (ביטוח לאומי) ----
+  { id: "child_allowance", category: "bituach", eligible: parent },
+  { id: "maternity_grant", category: "bituach", eligible: (p) => p.childrenUnder6 > 0 },
+  { id: "unemployment_benefit", category: "bituach", eligible: (p) => p.employment === "unemployed" },
+  { id: "income_support", category: "bituach", eligible: (p) => p.lowIncome && !working(p) },
+  { id: "old_age_pension", category: "bituach", eligible: senior },
+  { id: "miluim_pay", category: "bituach", eligible: (p) => p.reservist },
+  { id: "disability_allowance", category: "bituach", eligible: (p) => p.disability },
+
+  // ---- Municipal (ארנונה ומים) ----
+  { id: "arnona_income", category: "municipal", eligible: (p) => p.lowIncome },
+  { id: "arnona_oleh", category: "municipal", eligible: (p) => p.newImmigrant },
+  { id: "arnona_senior", category: "municipal", eligible: senior },
+  { id: "arnona_disability", category: "municipal", eligible: (p) => p.disability },
+  { id: "arnona_soldier", category: "municipal", eligible: (p) => p.employment === "soldier" },
+  { id: "water_disability", category: "municipal", eligible: (p) => p.disability },
+
+  // ---- Banking (בנקים ואשראי) ----
+  { id: "bank_basic_track", category: "banking", eligible: () => true, yearlyAgorot: 15_000 },
+  { id: "bank_senior_track", category: "banking", eligible: (p) => senior(p) || p.disability },
+  { id: "bank_soldier_student", category: "banking", eligible: (p) => p.employment === "soldier" || p.employment === "student" },
+  { id: "credit_report_free", category: "banking", eligible: () => true },
+  { id: "dormant_money", category: "banking", eligible: () => true },
+
+  // ---- Consumer (הבית של זכאי) ----
+  { id: "mobile_check", category: "consumer", eligible: () => true },
+  { id: "electricity_switch", category: "consumer", eligible: () => true },
+  { id: "electricity_social", category: "consumer", eligible: (p) => p.lowIncome || p.disability || senior(p) },
+  { id: "flight_comp", category: "consumer", eligible: () => true },
+  { id: "subscription_audit", category: "consumer", eligible: () => true },
+  { id: "insurance_duplicates", category: "consumer", eligible: () => true },
+  { id: "pension_fees", category: "consumer", eligible: working },
+
+  // ---- Army (חיילים ומילואים) ----
+  { id: "discharged_deposit", category: "army", eligible: (p) => p.dischargedSoldier },
+  { id: "reservist_benefits", category: "army", eligible: (p) => p.reservist },
+
+  // ---- Family ----
+  { id: "daycare_subsidy", category: "family", eligible: (p) => p.childrenUnder6 > 0 && working(p) },
+  { id: "child_savings", category: "family", eligible: parent },
+
+  // ---- Seniors ----
+  { id: "senior_card", category: "senior", eligible: senior },
+  { id: "heating_grant", category: "senior", eligible: (p) => senior(p) && p.lowIncome },
+
+  // ---- Housing ----
+  { id: "rent_assistance", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "mortgage_refinance", category: "housing", eligible: (p) => !p.renting },
+];
+
+export interface RightsResult {
+  matches: Entitlement[];
+  /** Sum of the conservatively-quantifiable yearly values only. */
+  quantifiedYearlyAgorot: number;
+  byCategory: Map<RightCategory, Entitlement[]>;
+}
+
+export function evaluateRights(p: RightsProfile): RightsResult {
+  const matches = ENTITLEMENTS.filter((e) => e.eligible(p));
+  const byCategory = new Map<RightCategory, Entitlement[]>();
+  for (const e of matches) {
+    const arr = byCategory.get(e.category);
+    if (arr) arr.push(e);
+    else byCategory.set(e.category, [e]);
+  }
+  return {
+    matches,
+    quantifiedYearlyAgorot: matches.reduce((s, e) => s + (e.yearlyAgorot ?? 0), 0),
+    byCategory,
+  };
+}

@@ -29,7 +29,8 @@
     "pricing": "Plans",
     "assistant": "My agent",
     "electricity": "Electricity",
-    "flights": "Flights"
+    "flights": "Flights",
+    "rights": "Rights"
   },
   "settings": {
     "title": "My account",
@@ -138,6 +139,10 @@
       "subs": {
         "title": "Recurring charges",
         "sub": "Scan your card statement in the browser and surface every monthly charge."
+      },
+      "rights": {
+        "title": "Rights maximization",
+        "sub": "42 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       }
     }
   },
@@ -319,7 +324,9 @@
     "disclaimer": "This document describes the prototype's security and trust policy. A commercial version will be accompanied by full legal documents (Terms of Use and Privacy Policy) drafted by a lawyer. Nothing here is legal advice."
   },
   "footer": {
-    "trust": "Security & Trust"
+    "trust": "Security & Trust",
+    "terms": "Terms",
+    "privacy": "Privacy"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -409,7 +416,19 @@
     "upgradeTitle": "{count} more recurring charges found",
     "upgradeSub": "The full list is available on Pro and Max.",
     "upgradeCta": "See plans",
-    "electricityCta": "Compare electricity plans"
+    "electricityCta": "Compare electricity plans",
+    "screenshotBtn": "Bank-app screenshot 📸",
+    "shotBusy": "Extracting charges from the screenshot…",
+    "shotError": "Couldn't read charges from that image. Try a clearer screenshot of the transactions list.",
+    "exportGuideTitle": "How do I get my statement? (per-issuer guide)",
+    "exportGuide": [
+      "Easiest: screenshot the transactions list in your bank/card app and upload it here — Zakai extracts the rows.",
+      "Isracard: site/app → charge details → download icon → Excel/CSV.",
+      "Max: My charges → pick a month → export to Excel.",
+      "Cal: transaction details → download as file.",
+      "Hapoalim/Leumi/Discount: account → transactions → export/print → Excel.",
+      "Or just select rows on the site, copy, and paste here — the parser is forgiving."
+    ]
   },
   "assistant": {
     "title": "My agent",
@@ -528,5 +547,352 @@
     },
     "cta": "Start getting it back",
     "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results."
+  },
+  "rights": {
+    "title": "The Big Rights Check",
+    "subtitle": "42 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "q": {
+      "age": "Age",
+      "ages": {
+        "18_24": "18–24",
+        "25_44": "25–44",
+        "45_66": "45–66",
+        "67_plus": "67+"
+      },
+      "employment": "Employment",
+      "employments": {
+        "employee": "Employee",
+        "self_employed": "Self-employed",
+        "unemployed": "Not working",
+        "student": "Student",
+        "soldier": "Conscript",
+        "retired": "Retired"
+      },
+      "children": "Children under 18",
+      "childrenUnder6": "Of them, under 6",
+      "flags": "What else applies to you?",
+      "renting": "Renting",
+      "lowIncome": "Relatively low income",
+      "newImmigrant": "New immigrant (≤10 years)",
+      "dischargedSoldier": "Discharged from the IDF in the last 5 years",
+      "reservist": "Active reservist",
+      "disability": "Recognized disability"
+    },
+    "resultsTitle": "{count} relevant rights found",
+    "quantified": "Of these, conservatively quantifiable: at least {amount} a year — plus many whose value depends on your case.",
+    "howTo": "How to claim:",
+    "valueYearly": "~{amount}/year",
+    "valueOneTime": "One-time",
+    "valueVaries": "Varies",
+    "categories": {
+      "tax": "Income tax",
+      "bituach": "National insurance",
+      "municipal": "Arnona & water",
+      "banking": "Banking & credit",
+      "consumer": "Consumer — Zakai's home turf",
+      "army": "Soldiers & reserves",
+      "family": "Family",
+      "senior": "Seniors",
+      "housing": "Housing"
+    },
+    "disclaimer": "General orientation only — not legal/tax advice; actual eligibility is decided by the competent authority. Amounts are conservative estimates; exact terms on official sites.",
+    "items": {
+      "tax_refund": {
+        "title": "Income-tax refund",
+        "desc": "Worked part of the year, switched jobs, or never coordinated tax? You may have overpaid.",
+        "how": "Free check and filing at the Tax Authority portal, up to 6 years back."
+      },
+      "work_grant": {
+        "title": "Work grant (negative income tax)",
+        "desc": "A yearly top-up for low-wage workers — paid straight to your account.",
+        "how": "Check eligibility on the Tax Authority site."
+      },
+      "credit_children": {
+        "title": "Tax credit points for children",
+        "desc": "Parents get credit points that lower monthly tax.",
+        "how": "Make sure your employer's Form 101 lists all your children."
+      },
+      "credit_degree": {
+        "title": "Credit point for graduates",
+        "desc": "Finished a degree or vocational program? A credit point applies after graduation.",
+        "how": "File Form 119 with your degree certificate."
+      },
+      "credit_oleh": {
+        "title": "New-immigrant credit points",
+        "desc": "Olim get graduated credit points in their first years.",
+        "how": "Update your aliyah date on Form 101."
+      },
+      "credit_discharged": {
+        "title": "Discharged-soldier credit points",
+        "desc": "Credit points for three years after discharge.",
+        "how": "Update your discharge date on Form 101 — it's not automatic."
+      },
+      "credit_donations": {
+        "title": "Donation tax credit",
+        "desc": "Donations to recognized charities above the threshold earn a 35% credit.",
+        "how": "Keep Section-46 receipts and claim via employer or annual return."
+      },
+      "credit_pension_deposit": {
+        "title": "Pension deposit tax benefit",
+        "desc": "Independent pension deposits earn deductions and credits.",
+        "how": "Deposit up to the benefit ceiling and claim in your return."
+      },
+      "tax_disability_exemption": {
+        "title": "Tax exemption for qualifying disability",
+        "desc": "A qualifying medical disability may exempt income from tax.",
+        "how": "Medical committee via the Tax Authority; check retroactively."
+      },
+      "child_allowance": {
+        "title": "Child allowance",
+        "desc": "Paid automatically — verify all children are registered.",
+        "how": "Check your National Insurance personal area."
+      },
+      "maternity_grant": {
+        "title": "Birth grant & maternity pay",
+        "desc": "One-time grant plus paid leave for the parent.",
+        "how": "Grant is automatic; maternity pay needs a claim."
+      },
+      "unemployment_benefit": {
+        "title": "Unemployment benefits",
+        "desc": "Laid off or finished a job? You may qualify.",
+        "how": "Register at the Employment Service immediately, then claim."
+      },
+      "income_support": {
+        "title": "Income support",
+        "desc": "A safety net when there's no sufficient income.",
+        "how": "Claim at National Insurance with income documents."
+      },
+      "old_age_pension": {
+        "title": "Old-age (senior) pension",
+        "desc": "Monthly pension from retirement age, with income supplement.",
+        "how": "Claim about six months before eligibility age."
+      },
+      "miluim_pay": {
+        "title": "Reserve-duty pay & grants",
+        "desc": "Pay per service day plus grants for active reservists.",
+        "how": "Via employer/National Insurance; grants in the Miluim portal."
+      },
+      "disability_allowance": {
+        "title": "General disability allowance",
+        "desc": "Monthly allowance when earning capacity is impaired.",
+        "how": "Claim + medical committee at National Insurance."
+      },
+      "arnona_income": {
+        "title": "Income-based arnona discount",
+        "desc": "Up to 90% off by per-person income test.",
+        "how": "Application + payslips at your municipality."
+      },
+      "arnona_oleh": {
+        "title": "New-immigrant arnona discount",
+        "desc": "Up to 90% off the first 100m² for one year.",
+        "how": "Apply at city hall with your immigrant certificate."
+      },
+      "arnona_senior": {
+        "title": "Senior arnona discount",
+        "desc": "30%+ off the first 100m², more with benefits.",
+        "how": "One-time application with your senior card."
+      },
+      "arnona_disability": {
+        "title": "Disability arnona discount",
+        "desc": "Significant discounts by disability type and degree.",
+        "how": "Apply with National Insurance confirmations."
+      },
+      "arnona_soldier": {
+        "title": "Soldier arnona exemption",
+        "desc": "Conscripts get an exemption/deep discount until discharge.",
+        "how": "Apply with a service certificate."
+      },
+      "water_disability": {
+        "title": "Extra discounted water quota",
+        "desc": "National Insurance beneficiaries get a larger low-rate quota.",
+        "how": "Verify it appears on your water bill."
+      },
+      "bank_basic_track": {
+        "title": "Bank basic fee track",
+        "desc": "By law: a low flat-fee track instead of per-action fees. Most people never switch.",
+        "how": "One notice to your bank — it must comply."
+      },
+      "bank_senior_track": {
+        "title": "Senior bank-fee discount",
+        "desc": "Seniors and disabled get 50% off the basic track.",
+        "how": "Ask at your branch or in the app."
+      },
+      "bank_soldier_student": {
+        "title": "Soldier/student fee exemption",
+        "desc": "Soldier and student accounts are exempt from most fees.",
+        "how": "Verify your account classification."
+      },
+      "credit_report_free": {
+        "title": "Free annual credit report",
+        "desc": "One free credit-data report a year — check for errors.",
+        "how": "Order at the Bank of Israel credit-data system."
+      },
+      "dormant_money": {
+        "title": "Dormant money (\"Har HaKesef\")",
+        "desc": "Forgotten accounts and deposits — billions await owners.",
+        "how": "Free search on the Treasury's Har HaKesef site."
+      },
+      "mobile_check": {
+        "title": "Mobile bill check",
+        "desc": "Typical proactive saving: ~18% of the bill. Zakai does it for you.",
+        "how": "Upload a bill — we act with a power of attorney."
+      },
+      "electricity_switch": {
+        "title": "Electricity supplier switch",
+        "desc": "Guaranteed 5–7% flat discount, up to 21% with a smart meter.",
+        "how": "Compare in Zakai's calculator and switch — no technician."
+      },
+      "electricity_social": {
+        "title": "Statutory electricity discount",
+        "desc": "Certain benefit recipients get a discounted tariff.",
+        "how": "Verify it's applied on your bill."
+      },
+      "flight_comp": {
+        "title": "Flight disruption compensation",
+        "desc": "Up to ₪3,580 statutory compensation.",
+        "how": "Check in Zakai's flight-rights checker."
+      },
+      "subscription_audit": {
+        "title": "Recurring-subscription audit",
+        "desc": "An average forgotten subscription costs ~₪35/month.",
+        "how": "Run Zakai's statement scan — data never leaves your device."
+      },
+      "insurance_duplicates": {
+        "title": "Duplicate insurance check (\"Har HaBituach\")",
+        "desc": "Duplicate health/accident coverage is very common.",
+        "how": "Free check on Har HaBituach; cancel the duplicate."
+      },
+      "pension_fees": {
+        "title": "Pension management fees",
+        "desc": "Half a percent difference is worth hundreds of thousands by retirement.",
+        "how": "Check your annual report; negotiate or move to a default fund."
+      },
+      "discharged_deposit": {
+        "title": "Discharged-soldier deposit",
+        "desc": "Personal money waiting in a deposit; freely usable after 5 years.",
+        "how": "Redeem via the discharged-soldiers unit."
+      },
+      "reservist_benefits": {
+        "title": "Active reservist benefits",
+        "desc": "Yearly grants, credit points and more.",
+        "how": "Check the Miluim portal — some require application."
+      },
+      "daycare_subsidy": {
+        "title": "Daycare subsidy",
+        "desc": "Significant income-tested subsidy for working parents.",
+        "how": "Apply via the Labor Ministry at the start of the school year."
+      },
+      "child_savings": {
+        "title": "Savings for Every Child",
+        "desc": "The state deposits monthly; you can double it.",
+        "how": "Choose a track and matching deposit at National Insurance."
+      },
+      "senior_card": {
+        "title": "Senior citizen card",
+        "desc": "50% off public transport, medicine and culture discounts.",
+        "how": "Sent automatically; request it if missing."
+      },
+      "heating_grant": {
+        "title": "Heating grant",
+        "desc": "Yearly automatic grant for eligible seniors.",
+        "how": "Paid with the Oct–Nov pension — verify receipt."
+      },
+      "rent_assistance": {
+        "title": "Rent assistance",
+        "desc": "Monthly participation in rent for the eligible.",
+        "how": "Eligibility via Housing Ministry contractors."
+      },
+      "mortgage_refinance": {
+        "title": "Mortgage refinance check",
+        "desc": "Rate changes can save hundreds monthly.",
+        "how": "Get a balance report and compare offers — free."
+      }
+    }
+  },
+  "legalPages": {
+    "termsTitle": "Terms of Service",
+    "privacyTitle": "Privacy Policy",
+    "updated": "Last updated: July 2026",
+    "legalNote": "Drafted carefully but not yet attorney-reviewed; full legal review will precede any real charging.",
+    "terms": [
+      {
+        "h": "Nature of the service",
+        "p": "Zakai is an automated digital-agent service acting on the user's behalf, only with their explicit authorization, alongside free comparison and eligibility tools. Zakai is not a lawyer, tax adviser, pension adviser, insurance agent or investment adviser, and provides no professional advice."
+      },
+      {
+        "h": "No promised outcome",
+        "p": "All estimates and recommendations are orientation only. Zakai does not guarantee savings, compensation or any outcome; actual results depend on factors beyond our control."
+      },
+      {
+        "h": "Fees",
+        "p": "A success fee is charged only on savings documented in the system, at the rate of the user's plan at documentation time. Users have 14 days to dispute a charge; if the saving did not materialize, the fee is cancelled or refunded."
+      },
+      {
+        "h": "Authorization",
+        "p": "Outreach on the user's behalf happens only after ownership verification and explicit authorization, revocable at any time."
+      },
+      {
+        "h": "User obligations",
+        "p": "Provide accurate information, use the service only for accounts you own, and make no unlawful, abusive or infringing use."
+      },
+      {
+        "h": "Termination",
+        "p": "Zakai may suspend or terminate accounts for breach, abuse or suspected fraud, with notice where possible. Users may delete their account at any time from Settings."
+      },
+      {
+        "h": "Limitation of liability",
+        "p": "The service is provided AS IS. To the maximum extent permitted by law, Zakai's liability is capped at the fees actually paid by the user in the 12 months preceding the event. Nothing here limits liability that cannot be limited by law."
+      },
+      {
+        "h": "Intellectual property",
+        "p": "All rights in the service, code, design and content belong to Zakai."
+      },
+      {
+        "h": "Changes",
+        "p": "We may update these terms; material changes will be surfaced in the product. Continued use constitutes acceptance."
+      },
+      {
+        "h": "Law & jurisdiction",
+        "p": "Israeli law governs; exclusive jurisdiction lies with the competent courts in Israel."
+      }
+    ],
+    "privacy": [
+      {
+        "h": "What we collect",
+        "p": "Account details (name, email, phone), information you upload for checks (bills, amounts), and records of actions taken on your behalf. Providing it is not a legal obligation — but the service cannot run without it."
+      },
+      {
+        "h": "What we do NOT collect",
+        "p": "No third-party tracking, advertising or analytics cookies. One essential session cookie only. The public tools — subscription scan, electricity calculator, flight checker, rights check and the Zakameter — run entirely in your browser; their inputs are never sent or stored."
+      },
+      {
+        "h": "Purposes",
+        "p": "Operating the service only: bill analysis, authorized outreach, savings documentation and fee calculation, security and fraud prevention, and legal compliance. We do not sell personal data or share it for marketing."
+      },
+      {
+        "h": "Sharing",
+        "p": "Only as required to operate: with the provider being contacted on your behalf (minimum necessary), secured infrastructure vendors (hosting, messaging, server-side AI), or a competent authority under law."
+      },
+      {
+        "h": "Your rights",
+        "p": "Access, correction and deletion. Account deletion — one click in Settings — permanently erases all personal data, checks, authorizations and history."
+      },
+      {
+        "h": "Security",
+        "p": "Encrypted transport (HTTPS/HSTS), one-way password hashing, hashed expiring rate-limited verification codes, restricted and logged access. Material incidents are reported as required by law."
+      },
+      {
+        "h": "Retention",
+        "p": "Data is kept while the account is active or as required by law; deletion erases personal data permanently."
+      },
+      {
+        "h": "Consent",
+        "p": "Consent to the terms and this policy is recorded at signup and shown in Settings. Material changes will be surfaced in the product."
+      },
+      {
+        "h": "Contact",
+        "p": "Privacy questions and rights requests: support@zakai.example (to be updated). We respond within the statutory timeframe."
+      }
+    ]
   }
 }

@@ -72,6 +72,7 @@ export default async function HomePage({
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
         {(
           [
+            { key: "rights", href: "/rights", icon: "🎯" },
             { key: "mobile", href: "/check", icon: "📱" },
             { key: "electricity", href: "/electricity", icon: "⚡" },
             { key: "flights", href: "/flights", icon: "✈️" },

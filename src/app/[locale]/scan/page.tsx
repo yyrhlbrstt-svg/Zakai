@@ -3,6 +3,7 @@ import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { StatementScan } from "@/components/StatementScan";
 import { planConfig } from "@/lib/plans";
+import { aiAvailable } from "@/lib/ai";
 import { bcp47, type Locale } from "@/i18n/config";
 
 export default async function ScanPage({
@@ -26,6 +27,7 @@ export default async function ScanPage({
       <StatementScan
         fullScan={planConfig(user!.plan).fullScan}
         bcp47={bcp47[locale as Locale]}
+        screenshotEnabled={aiAvailable()}
       />
     </main>
   );
