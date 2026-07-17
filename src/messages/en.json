@@ -120,7 +120,26 @@
       "Full disclosure — a digital agent, with your authorization",
       "Your data is encrypted"
     ],
-    "scopeNote": "At this stage Zakai handles mobile bills only, over a messaging channel (email/form). More categories and channels come only once this path has proven itself."
+    "scopeNote": "At this stage Zakai handles mobile bills only, over a messaging channel (email/form). More categories and channels come only once this path has proven itself.",
+    "verticalsTitle": "What Zakai checks for you",
+    "verticals": {
+      "mobile": {
+        "title": "Mobile bill",
+        "sub": "Bill analysis, outreach on your behalf with a power of attorney, fee only on documented savings."
+      },
+      "electricity": {
+        "title": "Electricity supplier",
+        "sub": "Compare every private supplier plan by your usage profile."
+      },
+      "flights": {
+        "title": "Flight compensation",
+        "sub": "Cancelled or delayed? Check your statutory entitlement — up to ₪3,580."
+      },
+      "subs": {
+        "title": "Recurring charges",
+        "sub": "Scan your card statement in the browser and surface every monthly charge."
+      }
+    }
   },
   "calc": {
     "title": "How much could you save?",
@@ -493,5 +512,21 @@
       "indexed": "Statutory amounts (2023 base) are index-linked — the exact figure is set at claim time."
     },
     "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai files the demand with the airline for you — with a verified power of attorney, like telecom."
+  },
+  "zakameter": {
+    "title": "How much money is waiting for you? 30-second check",
+    "mobileQ": "Monthly mobile bill (household)",
+    "electricityQ": "Monthly electricity bill",
+    "flightsQ": "Flights cancelled / delayed 8h+ in recent years",
+    "subsQ": "Subscriptions you're not sure you need",
+    "totalLabel": "Estimated money waiting for you this year",
+    "lines": {
+      "mobile": "Mobile",
+      "electricity": "Electricity",
+      "flights": "Flight compensation",
+      "subs": "Subscriptions"
+    },
+    "cta": "Start getting it back",
+    "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results."
   }
 }

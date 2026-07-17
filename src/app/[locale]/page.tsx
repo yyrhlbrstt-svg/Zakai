@@ -1,9 +1,10 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
-import { HomeCalculator } from "@/components/HomeCalculator";
+import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { bcp47, type Locale } from "@/i18n/config";
 
 export default async function HomePage({
   params,
@@ -60,8 +61,39 @@ export default async function HomePage({
         </div>
 
         <Reveal delay={160} className="flex-1 min-w-[320px] basis-[380px]">
-          <HomeCalculator />
+          <Zakameter bcp47={bcp47[locale as Locale]} />
         </Reveal>
+      </div>
+
+      {/* The breadth answer: everything Zakai checks for you, one tap each. */}
+      <Reveal>
+        <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.verticalsTitle")}</h2>
+      </Reveal>
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
+        {(
+          [
+            { key: "mobile", href: "/check", icon: "📱" },
+            { key: "electricity", href: "/electricity", icon: "⚡" },
+            { key: "flights", href: "/flights", icon: "✈️" },
+            { key: "subs", href: "/scan", icon: "🔁" },
+          ] as const
+        ).map((v, i) => (
+          <Reveal key={v.key} delay={i * 80}>
+            <Link href={v.href} className="no-underline text-ink block h-full">
+              <SpotlightCard className="p-5 h-full transition-colors duration-200 hover:border-[rgba(63,203,155,0.4)]">
+                <div className="text-[26px]" aria-hidden>
+                  {v.icon}
+                </div>
+                <div className="font-extrabold text-[15px] mt-2.5">
+                  {t(`home.verticals.${v.key}.title`)}
+                </div>
+                <div className="text-ink-soft text-[12.5px] mt-1 leading-relaxed">
+                  {t(`home.verticals.${v.key}.sub`)}
+                </div>
+              </SpotlightCard>
+            </Link>
+          </Reveal>
+        ))}
       </div>
 
       <Reveal>
