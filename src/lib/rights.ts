@@ -31,6 +31,10 @@ export type RightCategory =
   | "municipal"
   | "banking"
   | "consumer"
+  | "health"
+  | "work"
+  | "transport"
+  | "education"
   | "army"
   | "family"
   | "senior"
@@ -94,6 +98,36 @@ export const ENTITLEMENTS: Entitlement[] = [
   { id: "subscription_audit", category: "consumer", eligible: () => true },
   { id: "insurance_duplicates", category: "consumer", eligible: () => true },
   { id: "pension_fees", category: "consumer", eligible: working },
+
+  // ---- Health (בריאות) ----
+  { id: "health_dental_kids", category: "health", eligible: parent },
+  { id: "health_glasses_kids", category: "health", eligible: parent },
+  { id: "health_er_exemption", category: "health", eligible: () => true },
+
+  // ---- Work (זכויות בעבודה) ----
+  { id: "work_havraa", category: "work", eligible: (p) => p.employment === "employee" },
+  { id: "work_pension_mandatory", category: "work", eligible: (p) => p.employment === "employee" },
+  { id: "work_travel", category: "work", eligible: (p) => p.employment === "employee" },
+  { id: "work_overtime", category: "work", eligible: (p) => p.employment === "employee" },
+  { id: "work_sick", category: "work", eligible: (p) => p.employment === "employee" },
+
+  // ---- Transport (תחבורה) ----
+  {
+    id: "transport_youth",
+    category: "transport",
+    eligible: (p) =>
+      p.ageGroup === "18_24" || p.employment === "student" || p.employment === "soldier",
+  },
+
+  // ---- Education (השכלה) ----
+  { id: "student_scholarships", category: "education", eligible: (p) => p.employment === "student" },
+
+  // ---- More consumer rights ----
+  { id: "consumer_cancel14", category: "consumer", eligible: () => true },
+  { id: "consumer_telecom_exit", category: "consumer", eligible: () => true },
+
+  // ---- More national insurance ----
+  { id: "mobility_allowance", category: "bituach", eligible: (p) => p.disability },
 
   // ---- Army (חיילים ומילואים) ----
   { id: "discharged_deposit", category: "army", eligible: (p) => p.dischargedSoldier },

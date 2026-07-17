@@ -83,6 +83,44 @@ select option {
   background: linear-gradient(105deg, #3FCB9B, #23cbb6 55%, #1fb6c9);
 }
 
+/* Signature button micro-interaction: a light "sheen" sweeps across primary
+   CTAs on hover — one pass, compositor-only (transform), clipped to the
+   button radius. Calm by design; disabled under reduced motion (global kill
+   switch below zeroes the transition). */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-sheen::after {
+  content: "";
+  position: absolute;
+  inset: -40% auto;
+  top: -40%;
+  bottom: -40%;
+  width: 34%;
+  inset-inline-start: -60%;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.42) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-18deg) translateX(0);
+  transition: transform 0s;
+  pointer-events: none;
+  z-index: 1;
+}
+.btn-sheen:hover::after,
+.btn-sheen:focus-visible::after {
+  transform: skewX(-18deg) translateX(520%);
+  transition: transform 700ms var(--ease-snappy);
+}
+[dir="rtl"] .btn-sheen:hover::after,
+[dir="rtl"] .btn-sheen:focus-visible::after {
+  transform: skewX(-18deg) translateX(-520%);
+}
+
 /* Ambient background blobs. Emerald dominant; cyan/violet faint and small. */
 .blob {
   position: absolute;

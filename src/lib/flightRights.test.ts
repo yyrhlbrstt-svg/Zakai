@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { computeEntitlement, COMPENSATION_AGOROT } from "./flightRights";
+import {
+  computeEntitlement,
+  computeEntitlementEU,
+  COMPENSATION_AGOROT,
+  EU_COMPENSATION_EUR,
+} from "./flightRights";
 
 describe("computeEntitlement", () => {
   it("cancellation with 14+ days notice: refund only, no compensation", () => {
@@ -47,5 +52,26 @@ describe("computeEntitlement", () => {
     const e = computeEntitlement({ kind: "delay", delayHours: -5, tier: "short" });
     expect(e.compensationAgorot).toBe(0);
     expect(e.assistance).toBe(false);
+  });
+});
+
+describe("computeEntitlementEU (EC261)", () => {
+  it("compensates from a 3h arrival delay (Sturgeon), refund from 5h", () => {
+    expect(computeEntitlementEU({ kind: "delay", delayHours: 2.5, tier: "medium" }).compensationEur).toBe(0);
+    const at4 = computeEntitlementEU({ kind: "delay", delayHours: 4, tier: "medium" });
+    expect(at4.compensationEur).toBe(400);
+    expect(at4.refundOrAlternative).toBe(false);
+    const at6 = computeEntitlementEU({ kind: "delay", delayHours: 6, tier: "long" });
+    expect(at6.compensationEur).toBe(600);
+    expect(at6.refundOrAlternative).toBe(true);
+  });
+
+  it("cancellation: 14+ days notice exempts compensation; short notice pays by tier", () => {
+    expect(
+      computeEntitlementEU({ kind: "cancelled", noticeDaysAhead: 20, tier: "long" }).compensationEur,
+    ).toBe(0);
+    expect(
+      computeEntitlementEU({ kind: "cancelled", noticeDaysAhead: 2, tier: "short" }).compensationEur,
+    ).toBe(EU_COMPENSATION_EUR.short);
   });
 });

@@ -3,33 +3,64 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
-import { computeEntitlement, type DistanceTier } from "@/lib/flightRights";
+import {
+  computeEntitlement,
+  computeEntitlementEU,
+  type DistanceTier,
+  type EuDistanceTier,
+} from "@/lib/flightRights";
 import { formatAgorot } from "@/lib/money";
 
-const TIERS: DistanceTier[] = ["short", "medium", "long"];
-const DELAYS = [1, 3, 6, 9] as const;
+const IL_TIERS: DistanceTier[] = ["short", "medium", "long"];
+const EU_TIERS: EuDistanceTier[] = ["short", "medium", "long"];
+const IL_DELAYS = [1, 3, 6, 9] as const;
+const EU_DELAYS = [1, 2.5, 4, 6] as const;
 
 /**
- * Statutory flight-rights checker (Aviation Services Law 2012). Pure
- * client-side; three taps to an answer. Acting on the claim (demand letter
- * with power of attorney, like telecom) is the next stage — BACKLOG.
+ * Statutory flight-rights checker. Two jurisdictions, both deterministic:
+ * the Israeli Aviation Services Law and EU Regulation EC 261/2004 (flights
+ * from the EU, or into the EU on an EU carrier) — for connections via
+ * Europe and for users from abroad. Pure client-side.
  */
 export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("flights");
+  const [jurisdiction, setJurisdiction] = useState<"il" | "eu">("il");
   const [kind, setKind] = useState<"cancelled" | "delay">("cancelled");
   const [tier, setTier] = useState<DistanceTier>("medium");
-  const [delayHours, setDelayHours] = useState<number>(9);
+  const [ilDelay, setIlDelay] = useState<number>(9);
+  const [euDelay, setEuDelay] = useState<number>(6);
   const [shortNotice, setShortNotice] = useState(true);
 
-  const result = useMemo(
+  const il = useMemo(
     () =>
       computeEntitlement(
         kind === "cancelled"
           ? { kind, noticeDaysAhead: shortNotice ? 0 : 14, tier }
-          : { kind, delayHours, tier },
+          : { kind, delayHours: ilDelay, tier },
       ),
-    [kind, tier, delayHours, shortNotice],
+    [kind, tier, ilDelay, shortNotice],
   );
+  const eu = useMemo(
+    () =>
+      computeEntitlementEU(
+        kind === "cancelled"
+          ? { kind, noticeDaysAhead: shortNotice ? 0 : 14, tier }
+          : { kind, delayHours: euDelay, tier },
+      ),
+    [kind, tier, euDelay, shortNotice],
+  );
+
+  const isEU = jurisdiction === "eu";
+  const result = isEU ? eu : il;
+  const compensationLabel = isEU
+    ? eu.compensationEur > 0
+      ? `€${eu.compensationEur}`
+      : ""
+    : il.compensationAgorot > 0
+      ? formatAgorot(il.compensationAgorot, bcp47)
+      : "";
+  const entitled =
+    result.assistance || result.refundOrAlternative || compensationLabel !== "";
 
   const chip = (active: boolean) =>
     `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
@@ -38,57 +69,49 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
     }`;
 
-  const entitled =
-    result.assistance || result.refundOrAlternative || result.compensationAgorot > 0;
+  const radios = <T extends string | number | boolean>(
+    label: string,
+    options: readonly T[],
+    value: T,
+    set: (v: T) => void,
+    render: (v: T) => string,
+  ) => (
+    <div className="mt-5 first:mt-0">
+      <span className="text-[13.5px] text-ink-soft block mb-2">{label}</span>
+      <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={label}>
+        {options.map((o) => (
+          <button key={String(o)} type="button" role="radio" aria-checked={value === o}
+            onClick={() => set(o)} className={chip(value === o)}>
+            {render(o)}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div>
       <Card className="p-6">
-        <span className="text-[13.5px] text-ink-soft block mb-2">{t("whatHappened")}</span>
-        <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("whatHappened")}>
-          <button type="button" role="radio" aria-checked={kind === "cancelled"} onClick={() => setKind("cancelled")} className={chip(kind === "cancelled")}>
-            {t("cancelled")}
-          </button>
-          <button type="button" role="radio" aria-checked={kind === "delay"} onClick={() => setKind("delay")} className={chip(kind === "delay")}>
-            {t("delayed")}
-          </button>
-        </div>
-
-        {kind === "cancelled" ? (
-          <div className="mt-5">
-            <span className="text-[13.5px] text-ink-soft block mb-2">{t("noticeQ")}</span>
-            <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("noticeQ")}>
-              <button type="button" role="radio" aria-checked={shortNotice} onClick={() => setShortNotice(true)} className={chip(shortNotice)}>
-                {t("noticeShort")}
-              </button>
-              <button type="button" role="radio" aria-checked={!shortNotice} onClick={() => setShortNotice(false)} className={chip(!shortNotice)}>
-                {t("noticeLong")}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-5">
-            <span className="text-[13.5px] text-ink-soft block mb-2">{t("delayQ")}</span>
-            <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("delayQ")}>
-              {DELAYS.map((h) => (
-                <button key={h} type="button" role="radio" aria-checked={delayHours === h} onClick={() => setDelayHours(h)} className={chip(delayHours === h)}>
-                  {t(`delayOptions.${h}`)}
-                </button>
-              ))}
-            </div>
-          </div>
+        {radios(t("jurisdictionQ"), ["il", "eu"] as const, jurisdiction, setJurisdiction, (j) =>
+          t(`jurisdictions.${j}`),
         )}
-
-        <div className="mt-5">
-          <span className="text-[13.5px] text-ink-soft block mb-2">{t("distanceQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("distanceQ")}>
-            {TIERS.map((tr) => (
-              <button key={tr} type="button" role="radio" aria-checked={tier === tr} onClick={() => setTier(tr)} className={chip(tier === tr)}>
-                {t(`tiers.${tr}`)}
-              </button>
-            ))}
-          </div>
-        </div>
+        {radios(t("whatHappened"), ["cancelled", "delay"] as const, kind, setKind, (k) =>
+          k === "cancelled" ? t("cancelled") : t("delayed"),
+        )}
+        {kind === "cancelled"
+          ? radios(t("noticeQ"), [true, false] as const, shortNotice, setShortNotice, (v) =>
+              v ? t("noticeShort") : t("noticeLong"),
+            )
+          : isEU
+            ? radios(t("delayQ"), EU_DELAYS, euDelay as (typeof EU_DELAYS)[number], setEuDelay, (h) =>
+                t(`euDelayOptions.${h}`),
+              )
+            : radios(t("delayQ"), IL_DELAYS, ilDelay as (typeof IL_DELAYS)[number], setIlDelay, (h) =>
+                t(`delayOptions.${h}`),
+              )}
+        {radios(t("distanceQ"), (isEU ? EU_TIERS : IL_TIERS) as readonly DistanceTier[], tier, setTier, (tr) =>
+          t(`${isEU ? "euTiers" : "tiers"}.${tr}`),
+        )}
       </Card>
 
       <Card className="mt-5 p-6">
@@ -98,13 +121,13 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
           <>
             <div className="text-[13px] text-ink-soft font-bold mb-3">{t("resultTitle")}</div>
             <ul className="m-0 p-0 list-none flex flex-col gap-2.5">
-              {result.compensationAgorot > 0 && (
+              {compensationLabel && (
                 <li className="flex gap-2.5 items-baseline">
                   <span className="text-emerald font-black" aria-hidden>✓</span>
                   <span className="text-[15px]">
                     {t("compensation")}{" "}
-                    <strong className="font-display text-xl text-emerald">
-                      {formatAgorot(result.compensationAgorot, bcp47)}
+                    <strong className="font-display text-xl text-emerald" dir="ltr">
+                      {compensationLabel}
                     </strong>
                   </span>
                 </li>
@@ -133,7 +156,9 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
         </div>
       </Card>
 
-      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
+      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">
+        {isEU ? t("euDisclaimer") : t("disclaimer")}
+      </p>
     </div>
   );
 }

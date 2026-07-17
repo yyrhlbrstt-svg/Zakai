@@ -142,7 +142,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "42 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "55 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       }
     }
   },
@@ -528,9 +528,28 @@
       "shortDelay": "A delay under two hours grants no entitlement under the law.",
       "longDelayAsCancellation": "A delay of more than 8 hours counts as a cancelled flight under the law.",
       "exceptions": "Airlines have narrow statutory exemptions (e.g. extraordinary circumstances beyond their control). Compensation is not automatic in those cases.",
-      "indexed": "Statutory amounts (2023 base) are index-linked — the exact figure is set at claim time."
+      "indexed": "Statutory amounts (2023 base) are index-linked — the exact figure is set at claim time.",
+      "eu3h": "Under EU case law, a 3h+ arrival delay is compensated like a cancellation.",
+      "euExceptions": "Airlines are exempt in 'extraordinary circumstances' (extreme weather, certain strikes); ordinary technical faults usually are NOT exempt."
     },
-    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai files the demand with the airline for you — with a verified power of attorney, like telecom."
+    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai files the demand with the airline for you — with a verified power of attorney, like telecom.",
+    "jurisdictionQ": "Which law applies?",
+    "jurisdictions": {
+      "il": "Flight under Israeli law",
+      "eu": "Flight from the EU (EC261)"
+    },
+    "euDelayOptions": {
+      "1": "Up to 2 hours",
+      "2.5": "2–3 hours",
+      "4": "3–5 hours",
+      "6": "Over 5 hours"
+    },
+    "euTiers": {
+      "short": "Up to 1,500 km (Cyprus, Athens)",
+      "medium": "1,500–3,500 km (Rome, Paris)",
+      "long": "Over 3,500 km (New York, Bangkok)"
+    },
+    "euDisclaimer": "Based on Regulation (EC) 261/2004 — flights departing the EU, or arriving in the EU on an EU carrier. Not legal advice. Coming soon: Zakai files the demand for you."
   },
   "zakameter": {
     "title": "How much money is waiting for you? 30-second check",
@@ -550,7 +569,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "42 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "55 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {
@@ -593,7 +612,11 @@
       "army": "Soldiers & reserves",
       "family": "Family",
       "senior": "Seniors",
-      "housing": "Housing"
+      "housing": "Housing",
+      "health": "Health",
+      "work": "Work rights",
+      "transport": "Transport",
+      "education": "Education"
     },
     "disclaimer": "General orientation only — not legal/tax advice; actual eligibility is decided by the competent authority. Amounts are conservative estimates; exact terms on official sites.",
     "items": {
@@ -806,8 +829,74 @@
         "title": "Mortgage refinance check",
         "desc": "Rate changes can save hundreds monthly.",
         "how": "Get a balance report and compare offers — free."
+      },
+      "health_dental_kids": {
+        "title": "Free kids' dental care",
+        "desc": "Preventive/restorative dental care for under-18s is in the health basket — many parents pay privately unaware.",
+        "how": "Book at your HMO's dental clinics; token copay only."
+      },
+      "health_glasses_kids": {
+        "title": "Kids' glasses reimbursement",
+        "desc": "Under-18s get funded or reimbursed glasses/lenses via the HMO.",
+        "how": "Check the HMO arrangement before buying."
+      },
+      "health_er_exemption": {
+        "title": "ER fee exemption",
+        "desc": "With a referral, admission, or defined cases (fracture, birth) — no ER fee.",
+        "how": "Arrive with a referral or claim reimbursement with documents."
+      },
+      "work_havraa": {
+        "title": "Convalescence pay (havra'a)",
+        "desc": "After a year of employment you're owed yearly havra'a by seniority.",
+        "how": "Look for it in summer payslips; missing = claim it."
+      },
+      "work_pension_mandatory": {
+        "title": "Mandatory pension",
+        "desc": "Every employee is insured by law — ~12.5% employer contributions.",
+        "how": "Verify contributions on the payslip and that you chose a fund."
+      },
+      "work_travel": {
+        "title": "Commute reimbursement",
+        "desc": "Employers must share commute costs up to the daily cap.",
+        "how": "Compare the payslip line to actual costs."
+      },
+      "work_overtime": {
+        "title": "Overtime pay",
+        "desc": "Hours beyond the full day/week earn 125–150% — 'global' arrangements aren't always legal.",
+        "how": "Compare attendance to payslip; systematic gaps are claimable 7 years back."
+      },
+      "work_sick": {
+        "title": "Sick pay",
+        "desc": "1.5 sick days accrue monthly; paid partially from day 2, fully from day 4.",
+        "how": "Check your balance — it's money when needed."
+      },
+      "transport_youth": {
+        "title": "Youth public-transport discounts",
+        "desc": "Youth/student/soldier Rav-Kav profiles cut fares by tens of percent.",
+        "how": "Update your profile at Rav-Kav stations or the app."
+      },
+      "student_scholarships": {
+        "title": "Student scholarships",
+        "desc": "Hundreds of scholarships by field, need, residence and volunteering — many go unclaimed.",
+        "how": "Check your institution, Mifal HaPayis and student-union databases."
+      },
+      "consumer_cancel14": {
+        "title": "14-day remote-purchase cancellation",
+        "desc": "Online/phone purchases cancel within 14 days for a full refund (limited deduction).",
+        "how": "Written notice to the business; the law beats 'store policy'."
+      },
+      "consumer_telecom_exit": {
+        "title": "Friction-free telecom disconnection",
+        "desc": "Mobile/internet disconnection must be simple, without exit fines beyond the law.",
+        "how": "Demand in writing; stalling is grounds for a ministry complaint."
+      },
+      "mobility_allowance": {
+        "title": "Mobility allowance",
+        "desc": "Mobility impairment entitles a monthly allowance and car benefits.",
+        "how": "Medical committee via the health bureau + National Insurance claim."
       }
-    }
+    },
+    "moreInfo": "Full details on Kol-Zchut →"
   },
   "legalPages": {
     "termsTitle": "Terms of Service",

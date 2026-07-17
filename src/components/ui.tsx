@@ -25,7 +25,7 @@ export function Button({ variant = "primary", className = "", ...rest }: ButtonP
     "rounded-[14px] font-extrabold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,box-shadow,filter,background-color,border-color] duration-200 ease-[var(--ease-snappy)] focus-visible:outline-none";
   const styles =
     variant === "primary"
-      ? "grad-bg text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_10px_30px_rgba(63,203,155,0.28)] hover:-translate-y-0.5 hover:brightness-[1.06] hover:shadow-[0_16px_42px_rgba(63,203,155,0.42)] active:translate-y-0 active:brightness-100"
+      ? "grad-bg btn-sheen text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_10px_30px_rgba(63,203,155,0.28)] hover:-translate-y-0.5 hover:brightness-[1.06] hover:shadow-[0_16px_42px_rgba(63,203,155,0.42)] active:translate-y-0 active:scale-[0.98] active:brightness-100"
       : "bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.09)] px-6 py-3.5 text-[15px] font-bold hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(63,203,155,0.4)] active:bg-[rgba(255,255,255,0.08)]";
   return <button className={`${base} ${styles} ${className}`} {...rest} />;
 }

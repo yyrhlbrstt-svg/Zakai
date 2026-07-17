@@ -40,6 +40,73 @@ export interface FlightEntitlement {
   noteKeys: string[];
 }
 
+/* ------------------------------------------------------------------ */
+/* EU Regulation EC 261/2004 — flights departing the EU, or arriving   */
+/* in the EU on an EU carrier. The relevant international right for    */
+/* Israelis flying via Europe and for visitors from abroad.            */
+/* ------------------------------------------------------------------ */
+
+export type EuDistanceTier = "short" | "medium" | "long"; // ≤1,500 / 1,500–3,500 / >3,500 km
+
+/** Fixed EC261 amounts in whole euros. */
+export const EU_COMPENSATION_EUR: Record<EuDistanceTier, number> = {
+  short: 250,
+  medium: 400,
+  long: 600,
+};
+
+export type EuDisruption =
+  | { kind: "cancelled"; noticeDaysAhead: number; tier: EuDistanceTier }
+  | { kind: "delay"; delayHours: number; tier: EuDistanceTier };
+
+export interface EuFlightEntitlement {
+  assistance: boolean;
+  refundOrAlternative: boolean;
+  compensationEur: number;
+  noteKeys: string[];
+}
+
+/**
+ * EC261 ladder: assistance from ~2h; fixed compensation from a 3h ARRIVAL
+ * delay (Sturgeon doctrine) or a cancellation announced <14 days ahead;
+ * refund/re-routing from 5h or on cancellation. Extraordinary-circumstances
+ * exemptions disclosed via note keys.
+ */
+export function computeEntitlementEU(d: EuDisruption): EuFlightEntitlement {
+  if (d.kind === "cancelled") {
+    if (d.noticeDaysAhead >= 14) {
+      return { assistance: false, refundOrAlternative: true, compensationEur: 0, noteKeys: ["noticeExempt"] };
+    }
+    return {
+      assistance: true,
+      refundOrAlternative: true,
+      compensationEur: EU_COMPENSATION_EUR[d.tier],
+      noteKeys: ["euExceptions"],
+    };
+  }
+  const h = Math.max(0, d.delayHours);
+  if (h < 2) {
+    return { assistance: false, refundOrAlternative: false, compensationEur: 0, noteKeys: ["shortDelay"] };
+  }
+  if (h < 3) {
+    return { assistance: true, refundOrAlternative: false, compensationEur: 0, noteKeys: ["euExceptions"] };
+  }
+  if (h < 5) {
+    return {
+      assistance: true,
+      refundOrAlternative: false,
+      compensationEur: EU_COMPENSATION_EUR[d.tier],
+      noteKeys: ["eu3h", "euExceptions"],
+    };
+  }
+  return {
+    assistance: true,
+    refundOrAlternative: true,
+    compensationEur: EU_COMPENSATION_EUR[d.tier],
+    noteKeys: ["eu3h", "euExceptions"],
+  };
+}
+
 export function computeEntitlement(d: Disruption): FlightEntitlement {
   if (d.kind === "cancelled") {
     if (d.noticeDaysAhead >= 14) {
