@@ -577,7 +577,22 @@
       "medium": "1,500–3,500 km (Rome, Paris)",
       "long": "Over 3,500 km (New York, Bangkok)"
     },
-    "euDisclaimer": "Based on Regulation (EC) 261/2004 — flights departing the EU, or arriving in the EU on an EU carrier. Not legal advice. Coming soon: Zakai files the demand for you."
+    "euDisclaimer": "Based on Regulation (EC) 261/2004 — flights departing the EU, or arriving in the EU on an EU carrier. Not legal advice. Coming soon: Zakai files the demand for you.",
+    "letter": {
+      "title": "Zakai drafts your demand letter",
+      "sub": "A ready-to-send legal demand to the airline — with the remedies and amounts the law entitles you to.",
+      "openBtn": "Draft my demand letter",
+      "name": "Full name (as on the ticket)",
+      "airline": "Airline",
+      "flightNumber": "Flight number (e.g. LY315)",
+      "flightDate": "Flight date",
+      "route": "Route (e.g. Tel Aviv – Rome)",
+      "generateBtn": "Generate the letter",
+      "copyBtn": "Copy letter",
+      "copied": "Copied ✓",
+      "sendHint": "Send it to the airline's customer service email or contact form, and keep a copy.",
+      "privacy": "Generated in your browser only — details are never sent or stored. Not legal advice."
+    }
   },
   "zakameter": {
     "title": "How much money is waiting for you? 30-second check",

@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, Button, Input, Textarea } from "@/components/ui";
 import {
   computeEntitlement,
   computeEntitlementEU,
   type DistanceTier,
   type EuDistanceTier,
 } from "@/lib/flightRights";
+import { buildFlightDemandLetter } from "@/lib/flightLetter";
 import { formatAgorot } from "@/lib/money";
 
 const IL_TIERS: DistanceTier[] = ["short", "medium", "long"];
@@ -30,6 +31,10 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   const [ilDelay, setIlDelay] = useState<number>(9);
   const [euDelay, setEuDelay] = useState<number>(6);
   const [shortNotice, setShortNotice] = useState(true);
+  const [letterOpen, setLetterOpen] = useState(false);
+  const [letter, setLetter] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [form, setForm] = useState({ name: "", airline: "", flightNumber: "", flightDate: "", route: "" });
 
   const il = useMemo(
     () =>
@@ -155,6 +160,94 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
           ))}
         </div>
       </Card>
+
+      {/* Demand-letter generator: Zakai drafts, the passenger sends in their
+          own name. Everything renders in the browser — nothing is uploaded. */}
+      {entitled && (
+        <Card className="mt-5 p-6">
+          {!letterOpen ? (
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex-1 basis-[240px]">
+                <div className="font-extrabold text-[15px]">{t("letter.title")}</div>
+                <p className="text-ink-soft text-[13px] mt-1 mb-0 leading-relaxed">{t("letter.sub")}</p>
+              </div>
+              <Button variant="ghost" onClick={() => setLetterOpen(true)}>
+                {t("letter.openBtn")}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="font-extrabold text-[15px] mb-3">{t("letter.title")}</div>
+              <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
+                {(
+                  [
+                    ["name", "letter.name"],
+                    ["airline", "letter.airline"],
+                    ["flightNumber", "letter.flightNumber"],
+                    ["flightDate", "letter.flightDate"],
+                    ["route", "letter.route"],
+                  ] as const
+                ).map(([field, key]) => (
+                  <label key={field} className="block">
+                    <span className="text-[12.5px] text-ink-soft">{t(key)}</span>
+                    <Input
+                      value={form[field]}
+                      onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+                      className="mt-1 !py-2.5 !text-[14px]"
+                    />
+                  </label>
+                ))}
+              </div>
+              <Button
+                className="mt-4 !px-5 !py-3 !text-[14.5px]"
+                disabled={Object.values(form).some((v) => v.trim().length === 0)}
+                onClick={() =>
+                  setLetter(
+                    buildFlightDemandLetter({
+                      passengerName: form.name,
+                      airline: form.airline,
+                      flightNumber: form.flightNumber,
+                      flightDate: form.flightDate,
+                      route: form.route,
+                      jurisdiction,
+                      disruption:
+                        kind === "cancelled"
+                          ? { kind, noticeDaysAhead: shortNotice ? 0 : 14, tier }
+                          : { kind, delayHours: isEU ? euDelay : ilDelay, tier },
+                    }),
+                  )
+                }
+              >
+                {t("letter.generateBtn")}
+              </Button>
+
+              {letter && (
+                <div className="mt-4">
+                  <Textarea readOnly value={letter} rows={14} className="!text-[13px]" dir="rtl" />
+                  <div className="flex gap-3 mt-3 flex-wrap items-center">
+                    <Button
+                      variant="ghost"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(letter);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        } catch {
+                          /* text stays selectable */
+                        }
+                      }}
+                    >
+                      {copied ? t("letter.copied") : t("letter.copyBtn")}
+                    </Button>
+                    <span className="text-[12px] text-ink-soft">{t("letter.sendHint")}</span>
+                  </div>
+                </div>
+              )}
+              <p className="text-[11px] text-ink-soft mt-3 mb-0 leading-snug">{t("letter.privacy")}</p>
+            </>
+          )}
+        </Card>
+      )}
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">
         {isEU ? t("euDisclaimer") : t("disclaimer")}
