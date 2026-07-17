@@ -47,6 +47,9 @@ export async function POST(request: Request) {
         passwordHash: await hashPassword(password),
         referralCode: generateReferralCode(),
         referredById,
+        // The signup form requires an explicit terms/privacy checkbox; record
+        // that consent durably (Amendment 13 — documented informed consent).
+        consents: { create: { purpose: "terms_privacy_v1" } },
       },
       select: { id: true },
     });

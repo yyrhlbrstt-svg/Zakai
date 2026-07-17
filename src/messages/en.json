@@ -28,7 +28,8 @@
     "scan": "What am I paying for",
     "pricing": "Plans",
     "assistant": "My agent",
-    "electricity": "Electricity"
+    "electricity": "Electricity",
+    "flights": "Flights"
   },
   "settings": {
     "title": "My account",
@@ -44,6 +45,19 @@
       "FREE": "Free",
       "PRO": "Pro",
       "MAX": "Max"
+    },
+    "consent": "Terms consent",
+    "consentValue": "Granted on {date}",
+    "deleteAccount": {
+      "title": "Delete account",
+      "explain": "Deleting your account permanently erases all your data: checks, authorization documents, verifications, credits and history. Irreversible — and your full right under privacy law.",
+      "openBtn": "I want to delete my account",
+      "passwordLabel": "Enter your password to confirm",
+      "confirmBtn": "Delete permanently",
+      "deleting": "Deleting...",
+      "cancel": "Cancel",
+      "wrongPassword": "Wrong password.",
+      "failed": "Deletion failed. Try again."
     }
   },
   "disclosure": {
@@ -443,5 +457,41 @@
       "flatTiered": "Flat, tiered"
     },
     "disclaimer": "Estimates assume a typical usage profile and public price lists as of July 2026 — verify the exact rate with the supplier before switching. The switch itself is currently done with the supplier; automatic switching via Zakai is in development. Not advice."
+  },
+  "flights": {
+    "title": "Flight cancelled or delayed? You're owed money.",
+    "subtitle": "Israel's Aviation Services Law obligates airlines to fixed compensation, an alternative ticket and assistance — low-cost carriers included. Three taps to know what you're owed.",
+    "whatHappened": "What happened to the flight?",
+    "cancelled": "Cancelled",
+    "delayed": "Delayed",
+    "noticeQ": "When were you notified of the cancellation?",
+    "noticeShort": "Less than 14 days before the flight",
+    "noticeLong": "14 days or more in advance",
+    "delayQ": "How late was the arrival?",
+    "delayOptions": {
+      "1": "Up to 2 hours",
+      "3": "2–5 hours",
+      "6": "5–8 hours",
+      "9": "Over 8 hours"
+    },
+    "distanceQ": "Flight distance",
+    "tiers": {
+      "short": "Short — up to 2,000 km (Cyprus, Greece)",
+      "medium": "Medium — 2,000–4,500 km (London, Paris)",
+      "long": "Long — over 4,500 km (New York, Bangkok)"
+    },
+    "resultTitle": "What the law entitles you to",
+    "compensation": "Fixed monetary compensation:",
+    "refund": "Ticket refund or an alternative flight — your choice",
+    "assistance": "Airport assistance: food and drink, communication, and lodging when needed",
+    "notEntitled": "In this case the law grants no automatic entitlement. If you suffered real damages, other grounds may exist — keep your receipts.",
+    "notes": {
+      "noticeExempt": "With 14+ days notice there is no automatic monetary compensation, but you are owed a refund or an alternative ticket.",
+      "shortDelay": "A delay under two hours grants no entitlement under the law.",
+      "longDelayAsCancellation": "A delay of more than 8 hours counts as a cancelled flight under the law.",
+      "exceptions": "Airlines have narrow statutory exemptions (e.g. extraordinary circumstances beyond their control). Compensation is not automatic in those cases.",
+      "indexed": "Statutory amounts (2023 base) are index-linked — the exact figure is set at claim time."
+    },
+    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai files the demand with the airline for you — with a verified power of attorney, like telecom."
   }
 }

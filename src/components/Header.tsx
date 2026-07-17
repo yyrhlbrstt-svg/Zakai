@@ -46,6 +46,7 @@ export function Header({ user }: { user: { name: string } | null }) {
         ) : (
           <>
             <NavLink href="/electricity">{t("nav.electricity")}</NavLink>
+            <NavLink href="/flights">{t("nav.flights")}</NavLink>
             <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
             <NavLink href="/login">{t("nav.login")}</NavLink>
             <NavLink href="/signup">{t("nav.signup")}</NavLink>

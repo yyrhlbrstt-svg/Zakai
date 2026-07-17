@@ -50,6 +50,21 @@ model User {
   phoneVerifications PhoneVerification[]
   referralRewards   ReferralReward[] @relation("Referrer")
   referralRewardFor ReferralReward?  @relation("ReferredUser")
+  consents          Consent[]
+}
+
+// Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
+// WHAT the user agreed to and WHEN. Append-only; revocation is a timestamp,
+// never a delete — the history itself is the compliance artifact.
+model Consent {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   String // e.g. "terms_privacy_v1"
+  grantedAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  @@index([userId])
 }
 
 // One reward per referred user, granted when that user's FIRST check documents

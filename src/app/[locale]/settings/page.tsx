@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui";
 import { LogoutButton } from "@/components/LogoutButton";
+import { DeleteAccount } from "@/components/DeleteAccount";
 import { ReferralCard } from "@/components/ReferralCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -24,6 +25,11 @@ export default async function SettingsPage({
     where: { id: user!.id },
     select: { referralCode: true, referralCreditAgorot: true },
   });
+  const consent = await prisma.consent.findFirst({
+    where: { userId: user!.id, purpose: "terms_privacy_v1", revokedAt: null },
+    orderBy: { grantedAt: "desc" },
+  });
+  const loc = bcp47[locale as Locale];
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const invitePath = `/${locale}/signup?ref=${referral?.referralCode ?? ""}`;
 
@@ -32,6 +38,9 @@ export default async function SettingsPage({
     { label: t("email"), value: user!.email, ltr: true },
     { label: t("phone"), value: user!.phone, ltr: true },
     { label: t("plan"), value: t(`planNames.${user!.plan}`), ltr: false },
+    ...(consent
+      ? [{ label: t("consent"), value: t("consentValue", { date: consent.grantedAt.toLocaleDateString(loc) }), ltr: false }]
+      : []),
   ];
 
   return (
@@ -78,6 +87,10 @@ export default async function SettingsPage({
 
       <div className="mt-6">
         <LogoutButton />
+      </div>
+
+      <div className="mt-6">
+        <DeleteAccount />
       </div>
     </main>
   );
