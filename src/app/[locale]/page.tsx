@@ -120,6 +120,38 @@ export default async function HomePage({
         ))}
       </div>
 
+      {/* Honest positioning vs the alternatives — no competitor names, just
+          the structural differences a reader can verify. */}
+      <Reveal>
+        <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.whyTitle")}</h2>
+      </Reveal>
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
+        {(["alone", "services", "zakai"] as const).map((col, i) => (
+          <Reveal key={col} delay={i * 90}>
+            <SpotlightCard
+              className={`p-6 h-full ${col === "zakai" ? "border-[rgba(63,203,155,0.45)]" : ""}`}
+            >
+              <div className={`font-extrabold text-[15px] ${col === "zakai" ? "text-emerald" : ""}`}>
+                {t(`home.why.${col}.title`)}
+              </div>
+              <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
+                {(t.raw(`home.why.${col}.points`) as string[]).map((p) => (
+                  <li key={p} className="flex gap-2.5 items-start text-[13px] text-ink-soft leading-relaxed">
+                    <span
+                      className={`font-black shrink-0 ${col === "zakai" ? "text-emerald" : "text-[rgba(147,166,165,0.6)]"}`}
+                      aria-hidden
+                    >
+                      {col === "zakai" ? "✓" : "•"}
+                    </span>
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </SpotlightCard>
+          </Reveal>
+        ))}
+      </div>
+
       <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[560px] mx-auto">
         {t("home.scopeNote")}
       </p>

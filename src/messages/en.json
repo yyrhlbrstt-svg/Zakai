@@ -144,6 +144,34 @@
         "title": "Rights maximization",
         "sub": "55 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       }
+    },
+    "whyTitle": "Why Zakai and not the other ways?",
+    "why": {
+      "alone": {
+        "title": "Doing it yourself",
+        "points": [
+          "An hour on hold, then a retention rep trained against you",
+          "You must know what to ask, market prices, and your legal rights",
+          "Most people give up after one try — and keep overpaying"
+        ]
+      },
+      "services": {
+        "title": "Traditional bill-cutting services",
+        "points": [
+          "Fees up to 35% of your annual savings",
+          "Human back-office: days-weeks, business hours only",
+          "You hand over everything, with no way to verify what's done in your name"
+        ]
+      },
+      "zakai": {
+        "title": "Zakai",
+        "points": [
+          "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
+          "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
+          "Free no-signup toolset: 55 rights, electricity, flights, subscriptions",
+          "Privacy by default: no trackers, in-browser scans, one-click deletion"
+        ]
+      }
     }
   },
   "calc": {
