@@ -116,6 +116,7 @@ export default async function HomePage({
         {(
           [
             { key: "rights", href: "/rights", icon: "🎯" },
+            { key: "payslip", href: "/payslip", icon: "🧾" },
             { key: "miluim", href: "/miluim", icon: "🎖️" },
             { key: "mobile", href: "/check", icon: "📱" },
             { key: "electricity", href: "/electricity", icon: "⚡" },
@@ -149,7 +150,6 @@ export default async function HomePage({
       <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
         {(
           [
-            { key: "payslip", icon: "🧾" },
             { key: "taxrefund", icon: "💸" },
             { key: "severance", icon: "📄" },
             { key: "maternity", icon: "👶" },

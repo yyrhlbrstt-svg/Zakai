@@ -32,7 +32,60 @@
     "flights": "Flights",
     "rights": "Rights",
     "miluim": "Reserve duty",
-    "entitlements": "What am I owed?"
+    "entitlements": "What am I owed?",
+    "payslip": "Payslip check"
+  },
+  "payslip": {
+    "title": "Payslip check",
+    "subtitle": "The three things most often missed on a payslip: minimum wage, pension contributions and convalescence pay. Enter a few numbers from your slip — Zakai checks whether money is missing. Runs in your browser, no documents uploaded.",
+    "scopeQ": "Employment scope",
+    "fullTime": "Full-time",
+    "partTime": "Part-time",
+    "scopePctQ": "Percent of a full position",
+    "baseQ": "Monthly base salary (gross, before deductions) — ₪",
+    "pensionQ": "Are pension contributions shown on the slip?",
+    "employerPensionQ": "Employer pension contribution this month (benefits + severance) — ₪",
+    "seniorityQ": "Seniority with this employer (years)",
+    "havraaQ": "Did you receive convalescence pay in the last 12 months?",
+    "havraaAmountQ": "Convalescence amount received in the last year — ₪",
+    "yes": "Yes",
+    "no": "No / not sure",
+    "enterBase": "Enter your base salary to see the check.",
+    "gapTitle": "Estimated money possibly missing per year",
+    "gapSub": "{count, plural, one {1 item to check} other {# items to check}}",
+    "allOk": "The payslip looks fine",
+    "allOkSub": "Based on what you entered, the three items we checked are in order. Worth re-checking after any change in pay or seniority.",
+    "estimatedGap": "Estimated gap",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "status": {
+      "ok": "OK",
+      "shortfall": "Below expected",
+      "missing": "Not shown",
+      "unknown": "Missing info"
+    },
+    "items": {
+      "minWage": {
+        "title": "Minimum wage",
+        "desc": "Base pay cannot be below the minimum wage (₪6,443.85 for a full position, 2026), pro-rated to your employment scope."
+      },
+      "pension": {
+        "title": "Pension contributions",
+        "desc": "An employer must contribute 12.5% of pay to pension (6.5% benefits + 6% severance), usually after a waiting period. Missing pension compounds over years."
+      },
+      "havraa": {
+        "title": "Convalescence pay",
+        "desc": "Due to every employee after one year, by seniority (₪451.5/day in 2026). From 5 days in year one up to 10 days."
+      }
+    },
+    "howTitle": "Found a gap? Here's how to act",
+    "howSteps": [
+      "Contact the employer in writing (email to payroll / your manager) and ask for an explanation and correction — usually a mistake fixed at once.",
+      "Keep a copy of the request and the relevant payslips.",
+      "If unresolved — you can approach the Labor Rights Commissioner at the Labor Ministry, or consult an employment lawyer. Wage claims are possible up to 7 years back.",
+      "Missing pension — also verify with the pension fund that deposits actually arrived."
+    ],
+    "disclaimer": "The check is based on the minimum wage, the pension extension order and the convalescence order in the private sector, and on the data you enter. Not legal or payroll advice; exact entitlement depends on your employment contract, sector and applicable order. Conservative estimates; for a binding check contact your employer or a qualified adviser."
   },
   "entitlements": {
     "title": "What are you owed?",
@@ -167,6 +220,10 @@
       "miluim": {
         "title": "Reserve-duty pay",
         "sub": "Exact entitlement math — including the 20% supplement most employers miss."
+      },
+      "payslip": {
+        "title": "Payslip check",
+        "sub": "Minimum wage, pension and convalescence — the three most-missed items on a slip, in a one-minute check."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
