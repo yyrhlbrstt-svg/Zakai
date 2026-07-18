@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { aiAvailable } from "@/lib/ai";
+import { aiAvailable, aiProvider } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +24,7 @@ export async function GET() {
     ok: db,
     db,
     ai: aiAvailable(),
+    aiProvider: aiProvider(),
     time: new Date().toISOString(),
   });
 }

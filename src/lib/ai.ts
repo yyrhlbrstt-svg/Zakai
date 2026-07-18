@@ -20,14 +20,77 @@ export class AiUnavailableError extends Error {
   }
 }
 
+/**
+ * Provider selection. Anthropic (Claude) is the primary, recommended
+ * provider; Google Gemini is supported as a fallback because its API keys
+ * are obtainable without a credit card — pragmatic for this project's
+ * founder. When both keys exist, Anthropic wins.
+ */
+export type AiProvider = "anthropic" | "gemini";
+
+export function aiProvider(): AiProvider | null {
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  return null;
+}
+
 export function aiAvailable(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return aiProvider() !== null;
 }
 
 function client(): Anthropic {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new AiUnavailableError();
   return new Anthropic({ apiKey });
+}
+
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
+/**
+ * Minimal Gemini REST call (no extra SDK dependency). Mirrors the shape we
+ * need from the Anthropic paths: system instruction + user text (+ optional
+ * inline image) → plain text out.
+ */
+async function geminiGenerate(opts: {
+  system: string;
+  userText: string;
+  imageBase64?: string;
+  mediaType?: string;
+  maxTokens: number;
+}): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new AiUnavailableError();
+
+  const parts: Array<Record<string, unknown>> = [];
+  if (opts.imageBase64) {
+    parts.push({ inline_data: { mime_type: opts.mediaType || "image/jpeg", data: opts.imageBase64 } });
+  }
+  parts.push({ text: opts.userText });
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: opts.system }] },
+        contents: [{ role: "user", parts }],
+        generationConfig: { maxOutputTokens: opts.maxTokens },
+      }),
+    },
+  );
+  if (!res.ok) {
+    throw new Error(`Gemini API error: ${res.status}`);
+  }
+  const data = (await res.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  const text = (data.candidates?.[0]?.content?.parts ?? [])
+    .map((p) => p.text ?? "")
+    .join("\n")
+    .trim();
+  if (!text) throw new Error("Gemini API returned no text");
+  return text;
 }
 
 /**
@@ -64,32 +127,43 @@ export interface BillAnalysis {
   readable: boolean;
 }
 
+const BILL_EXTRACT_SYSTEM = `You extract data from photos of Israeli MOBILE phone bills. Extract the provider name, the monthly charge as a plain ILS number, and a short Hebrew plan description if visible. If the image is not a readable bill, set readable=false. Respond ONLY with JSON: {"provider":"...","amount":number_or_null,"plan":"...","readable":boolean}`;
+
 export async function analyzeBillImage(
   base64: string,
   mediaType: string,
 ): Promise<BillAnalysis> {
-  const anthropic = client();
-  const msg = await anthropic.messages.create({
-    model: EXTRACT_MODEL,
-    max_tokens: 400,
-    // Stable instructions in a cached system block; only the image is dynamic.
-    system: cachedSystem(
-      `You extract data from photos of Israeli MOBILE phone bills. Extract the provider name, the monthly charge as a plain ILS number, and a short Hebrew plan description if visible. If the image is not a readable bill, set readable=false. Respond ONLY with JSON: {"provider":"...","amount":number_or_null,"plan":"...","readable":boolean}`,
-    ),
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
-          },
-          { type: "text", text: "Extract this bill." },
-        ],
-      },
-    ],
-  });
-  const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+  let text: string;
+  if (aiProvider() === "gemini") {
+    text = await geminiGenerate({
+      system: BILL_EXTRACT_SYSTEM,
+      userText: "Extract this bill.",
+      imageBase64: base64,
+      mediaType,
+      maxTokens: 400,
+    });
+  } else {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: EXTRACT_MODEL,
+      max_tokens: 400,
+      // Stable instructions in a cached system block; only the image is dynamic.
+      system: cachedSystem(BILL_EXTRACT_SYSTEM),
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
+            },
+            { type: "text", text: "Extract this bill." },
+          ],
+        },
+      ],
+    });
+    text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+  }
   const parsed = extractJson(text) as {
     provider?: string;
     amount?: number | null;
@@ -135,31 +209,33 @@ export async function generateRecommendation(
   }
 }
 
-async function aiRecommendation(input: RecommendationInput): Promise<Recommendation> {
-  const anthropic = client();
-  const langName =
-    { he: "Hebrew", en: "English", ar: "Arabic", ru: "Russian" }[input.locale] ?? "Hebrew";
-  const msg = await anthropic.messages.create({
-    model: DRAFT_MODEL,
-    max_tokens: 900,
-    // Stable persona + format contract, cached; customer specifics go last.
-    system: cachedSystem(
-      `You are Zakai, a consumer-advocacy AI agent for Israeli consumers (an automated tool, NOT a claimed human-level negotiation expert).
+const RECOMMENDATION_SYSTEM = `You are Zakai, a consumer-advocacy AI agent for Israeli consumers (an automated tool, NOT a claimed human-level negotiation expert).
 Given a customer's current mobile bill, produce:
 1. A one-sentence strategy in the requested language (loyalty discount / downgrade / retention pricing). Framed as an approach, not a promise.
 2. A realistic target monthly amount (plain number, lower than the current amount).
 3. A low-high ILLUSTRATIVE market range (two plain numbers) for comparison context only — clearly an estimate, not scraped live pricing.
 4. A polite, professional outreach message in HEBREW (120-160 words) written as Zakai on the customer's behalf. It MUST state Zakai is a digital agent acting with the customer's authorization, must NOT impersonate the customer, and must invite the provider to contact the customer directly. Do NOT promise any outcome.
-Respond ONLY with JSON: {"strategy":"...","targetAmount":number,"marketLow":number,"marketHigh":number,"message":"..."}`,
-    ),
-    messages: [
-      {
-        role: "user",
-        content: `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel} for: "${input.plan || "a standard mobile plan"}". Customer name: "${input.customerName}". Strategy language: ${langName}.`,
-      },
-    ],
-  });
-  const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+Respond ONLY with JSON: {"strategy":"...","targetAmount":number,"marketLow":number,"marketHigh":number,"message":"..."}`;
+
+async function aiRecommendation(input: RecommendationInput): Promise<Recommendation> {
+  const langName =
+    { he: "Hebrew", en: "English", ar: "Arabic", ru: "Russian" }[input.locale] ?? "Hebrew";
+  const userText = `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel} for: "${input.plan || "a standard mobile plan"}". Customer name: "${input.customerName}". Strategy language: ${langName}.`;
+
+  let text: string;
+  if (aiProvider() === "gemini") {
+    text = await geminiGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900 });
+  } else {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: DRAFT_MODEL,
+      max_tokens: 900,
+      // Stable persona + format contract, cached; customer specifics go last.
+      system: cachedSystem(RECOMMENDATION_SYSTEM),
+      messages: [{ role: "user", content: userText }],
+    });
+    text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+  }
   const p = extractJson(text) as {
     strategy: string;
     targetAmount: number;
@@ -186,38 +262,50 @@ Respond ONLY with JSON: {"strategy":"...","targetAmount":number,"marketLow":numb
  * deterministic recurring-charges engine as pasted exports. Extraction only —
  * the detection logic stays deterministic and tested.
  */
+const STATEMENT_EXTRACT_SYSTEM = `You extract transaction rows from screenshots of Israeli banking / credit-card apps and statements (Hebrew UI common). Output ONLY CSV lines, one per visible transaction, in the exact format: dd/mm/yyyy,merchant name,amount
+- amount is the charged amount as a plain number (no currency symbol).
+- Skip balances, totals, headers, buttons and any non-transaction text.
+- If a year is missing assume the current year visible elsewhere on screen, else 2026.
+- If NO transactions are visible, output exactly: NONE`;
+
 export async function extractStatementImage(
   base64: string,
   mediaType: string,
 ): Promise<string> {
-  const anthropic = client();
-  const msg = await anthropic.messages.create({
-    model: EXTRACT_MODEL,
-    max_tokens: 1500,
-    system: cachedSystem(
-      `You extract transaction rows from screenshots of Israeli banking / credit-card apps and statements (Hebrew UI common). Output ONLY CSV lines, one per visible transaction, in the exact format: dd/mm/yyyy,merchant name,amount
-- amount is the charged amount as a plain number (no currency symbol).
-- Skip balances, totals, headers, buttons and any non-transaction text.
-- If a year is missing assume the current year visible elsewhere on screen, else 2026.
-- If NO transactions are visible, output exactly: NONE`,
-    ),
-    messages: [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
-          },
-          { type: "text", text: "Extract the transactions." },
-        ],
-      },
-    ],
-  });
-  const text = msg.content
-    .map((b) => (b.type === "text" ? b.text : ""))
-    .join("\n")
-    .trim();
+  let text: string;
+  if (aiProvider() === "gemini") {
+    text = await geminiGenerate({
+      system: STATEMENT_EXTRACT_SYSTEM,
+      userText: "Extract the transactions.",
+      imageBase64: base64,
+      mediaType,
+      maxTokens: 1500,
+    });
+  } else {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: EXTRACT_MODEL,
+      max_tokens: 1500,
+      system: cachedSystem(STATEMENT_EXTRACT_SYSTEM),
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
+            },
+            { type: "text", text: "Extract the transactions." },
+          ],
+        },
+      ],
+    });
+    text = msg.content
+      .map((b) => (b.type === "text" ? b.text : ""))
+      .join("\n")
+      .trim();
+  }
+  text = text.trim();
   return text === "NONE" ? "" : text;
 }
 
@@ -250,17 +338,18 @@ export interface AssistantContext {
 }
 
 export async function askZakai(question: string, ctx: AssistantContext): Promise<string> {
+  const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
+
+  if (aiProvider() === "gemini") {
+    return geminiGenerate({ system: ASSISTANT_SYSTEM, userText, maxTokens: 700 });
+  }
+
   const anthropic = client();
   const msg = await anthropic.messages.create({
     model: DRAFT_MODEL,
     max_tokens: 700,
     system: cachedSystem(ASSISTANT_SYSTEM),
-    messages: [
-      {
-        role: "user",
-        content: `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`,
-      },
-    ],
+    messages: [{ role: "user", content: userText }],
   });
   return msg.content
     .map((b) => (b.type === "text" ? b.text : ""))

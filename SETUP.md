@@ -3,7 +3,14 @@
 *הפעולות שרק בעל החשבונות יכול לעשות, לפי סדר. כל השאר — בקוד וכבר בנוי.*
 
 ## 1. מפתח AI (מדליק צ'אט + ניתוח תמונות + סריקת צילומי מסך) — ~10 דק'
-דורש כרטיס אשראי (משימת "המבוגר").
+
+**מסלול מהיר בלי כרטיס אשראי — Gemini (נתמך):**
+1. aistudio.google.com → Get API Key → Create API Key → מעתיקים את ה-`AIza...`.
+2. Vercel → Settings → Environment Variables → Key: `GEMINI_API_KEY`, Value: המפתח → Save → Redeploy.
+3. `/api/health` יראה `"ai": true, "aiProvider": "gemini"`.
+הערה: למפתח החינמי יש מגבלות קצב; לשדרוג איכות ויציבות עוברים ל-Anthropic בהמשך.
+
+**המסלול המומלץ לפרודקשן — Anthropic (Claude):** דורש כרטיס אשראי (משימת "המבוגר").
 1. console.anthropic.com → הרשמה עם Google.
 2. Billing → הוספת כרטיס → טעינת 5$ → הגדרת Spend Limit (מומלץ 10$/חודש).
 3. API Keys → Create Key → העתקת ה-`sk-ant-...` (מוצג פעם אחת!).
