@@ -31,7 +31,26 @@
     "electricity": "Electricity",
     "flights": "Flights",
     "rights": "Rights",
-    "miluim": "Reserve duty"
+    "miluim": "Reserve duty",
+    "entitlements": "What am I owed?"
+  },
+  "entitlements": {
+    "title": "What are you owed?",
+    "sub": "6 short questions, and you'll instantly see which rights, grants and refunds you're entitled to in Israel — based on your profile. No signup, no documents.",
+    "start": "Let's start",
+    "step": "Question {n} of {total}",
+    "next": "Next",
+    "back": "Back",
+    "findBtn": "Show me what I'm owed",
+    "privacy": "The quiz runs in your browser only — answers are never sent or stored.",
+    "resultKicker": "Based on what you told us",
+    "worthFrom": "worth from ",
+    "perYear": "a year, at least",
+    "worthNote": "A conservative estimate of the quantifiable part only — the real value is almost always higher.",
+    "foundCount": "{count, plural, one {1 relevant right to check} other {# relevant rights to check}}",
+    "ctaSignup": "Open an account and let's claim it",
+    "ctaRights": "The full list with explanations",
+    "restart": "Start over"
   },
   "settings": {
     "title": "My account",

@@ -63,9 +63,14 @@ export default async function HomePage({
             </p>
           </Reveal>
           <Reveal delay={240}>
-            <Link href="/check">
-              <Button>{t("home.cta")}</Button>
-            </Link>
+            <div className="flex flex-wrap gap-3 items-center">
+              <Link href="/check">
+                <Button>{t("home.cta")}</Button>
+              </Link>
+              <Link href="/entitlements">
+                <Button variant="ghost">{t("nav.entitlements")}</Button>
+              </Link>
+            </div>
           </Reveal>
 
           {/* Trust signals, above the fold, as first-class content. */}
