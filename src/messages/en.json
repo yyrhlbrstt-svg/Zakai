@@ -178,7 +178,44 @@
         ]
       }
     },
-    "proof": "Documented monthly savings Zakai has achieved so far, across {count} completed checks. Straight from the proof ledger — never typed in."
+    "proof": "Documented monthly savings Zakai has achieved so far, across {count} completed checks. Straight from the proof ledger — never typed in.",
+    "soonTitle": "Coming soon to Zakai — more money coming back",
+    "soonSub": "The pipeline we're building now. Each vertical opens when it's exact — not before.",
+    "soonBadge": "Soon",
+    "soon": {
+      "payslip": {
+        "title": "Payslip audit",
+        "sub": "Minimum wage, overtime, havra'a, pension, travel — every payslip gap is employer debt, claimable 7 years back."
+      },
+      "severance": {
+        "title": "Severance pay",
+        "sub": "Laid off? Exact severance, notice-period and the rights that get forgotten."
+      },
+      "maternity": {
+        "title": "Maternity pay",
+        "sub": "What each parent is owed, including extensions most parents never claim."
+      },
+      "unemployment": {
+        "title": "Unemployment benefits",
+        "sub": "How much, for how long, and what breaks eligibility — before the bureau."
+      },
+      "taxrefund": {
+        "title": "Automatic tax refund",
+        "sub": "Switched jobs? Partial year? We compute, prepare and file — up to 6 years back."
+      },
+      "parking": {
+        "title": "Parking-ticket appeal",
+        "sub": "Grounds check + a ready-to-file appeal letter — before paying blindly."
+      },
+      "arnona_refund": {
+        "title": "Overpaid arnona refund",
+        "sub": "Measurement errors are shockingly common — check if you've paid for meters that don't exist."
+      },
+      "deposit": {
+        "title": "Rental deposit recovery",
+        "sub": "Landlord sitting on your deposit? A reasoned demand per law and contract."
+      }
+    }
   },
   "calc": {
     "title": "How much could you save?",
