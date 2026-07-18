@@ -45,17 +45,62 @@ function client(): Anthropic {
 }
 
 /**
- * Model candidates, tried in order: env override first, then progressively
- * older Flash models — free AI Studio keys don't always have the newest one.
- * A 404 (unknown model for this key) advances to the next candidate; any
- * other error is real and surfaces with Google's message for diagnosis.
+ * Static fallback candidates (env override first). flash-lite variants carry
+ * the largest free-tier quotas, so they follow the full flash models.
  */
-const GEMINI_MODELS = [
+const GEMINI_FALLBACK_MODELS = [
   ...(process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL] : []),
   "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-flash-latest",
   "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
   "gemini-1.5-flash",
 ];
+
+/**
+ * Rank a key's actual model list: prefer our known-good order, then any other
+ * flash-family generateContent model, newest-looking first. Pure — tested.
+ */
+export function rankGeminiModels(available: string[]): string[] {
+  const usable = available.filter(
+    (m) => /flash/i.test(m) && !/(embedding|tts|image|live|audio|thinking)/i.test(m),
+  );
+  const preferred = GEMINI_FALLBACK_MODELS.filter((m) => usable.includes(m));
+  const rest = usable.filter((m) => !preferred.includes(m)).sort((a, b) => b.localeCompare(a));
+  return [...preferred, ...rest];
+}
+
+/** Discover which models THIS key can use; cached per server instance. */
+let geminiModelCache: { models: string[]; at: number } | null = null;
+
+async function geminiCandidateModels(apiKey: string): Promise<string[]> {
+  if (geminiModelCache && Date.now() - geminiModelCache.at < 10 * 60 * 1000) {
+    return geminiModelCache.models;
+  }
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key=${apiKey}`,
+    );
+    if (res.ok) {
+      const data = (await res.json()) as {
+        models?: Array<{ name?: string; supportedGenerationMethods?: string[] }>;
+      };
+      const names = (data.models ?? [])
+        .filter((m) => (m.supportedGenerationMethods ?? []).includes("generateContent"))
+        .map((m) => (m.name ?? "").replace(/^models\//, ""))
+        .filter(Boolean);
+      const ranked = rankGeminiModels(names);
+      if (ranked.length > 0) {
+        geminiModelCache = { models: ranked, at: Date.now() };
+        return ranked;
+      }
+    }
+  } catch {
+    /* fall through to the static list */
+  }
+  return GEMINI_FALLBACK_MODELS;
+}
 
 /**
  * Minimal Gemini REST call (no extra SDK dependency). Mirrors the shape we
@@ -78,8 +123,9 @@ async function geminiGenerate(opts: {
   }
   parts.push({ text: opts.userText });
 
+  const candidates = await geminiCandidateModels(apiKey);
   let lastError = "no model candidates";
-  for (const model of GEMINI_MODELS) {
+  for (const model of candidates) {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
@@ -111,8 +157,10 @@ async function geminiGenerate(opts: {
     const errBody = (await res.json().catch(() => null)) as {
       error?: { message?: string; status?: string };
     } | null;
-    lastError = `Gemini ${model}: ${res.status} ${errBody?.error?.status ?? ""} ${errBody?.error?.message ?? ""}`.trim();
-    if (res.status !== 404) break; // only an unknown model warrants trying the next one
+    lastError = `Gemini ${model}: ${res.status} ${errBody?.error?.status ?? ""} ${(errBody?.error?.message ?? "").slice(0, 160)}`.trim();
+    // 404 = this key doesn't have the model; 429 = THIS model's quota is
+    // spent (quotas are per-model!) — both warrant trying the next candidate.
+    if (res.status !== 404 && res.status !== 429) break;
   }
   throw new Error(lastError);
 }
