@@ -21,16 +21,26 @@ export class AiUnavailableError extends Error {
 }
 
 /**
- * Provider selection. Anthropic (Claude) is the primary, recommended
- * provider; Google Gemini is supported as a fallback because its API keys
- * are obtainable without a credit card — pragmatic for this project's
- * founder. When both keys exist, Anthropic wins.
+ * Provider selection. Three options, in priority order:
+ *  1. Anthropic (Claude) — primary, recommended (best quality).
+ *  2. Google Gemini — keys obtainable without a credit card; pragmatic
+ *     fallback for this project's founder.
+ *  3. Ollama — a LOCAL model server (self-hosted, no API key, no per-call
+ *     cost). Opt-in: set OLLAMA_BASE_URL (and optionally OLLAMA_MODEL). Runs
+ *     on your own machine, so it's used only when no cloud key is present.
+ * When several are configured, the highest-priority one wins.
  */
-export type AiProvider = "anthropic" | "gemini";
+export type AiProvider = "anthropic" | "gemini" | "ollama";
+
+/** Ollama is enabled only when explicitly pointed at a server. */
+function ollamaConfigured(): boolean {
+  return Boolean(process.env.OLLAMA_BASE_URL || process.env.OLLAMA_MODEL);
+}
 
 export function aiProvider(): AiProvider | null {
   if (process.env.ANTHROPIC_API_KEY) return "anthropic";
   if (process.env.GEMINI_API_KEY) return "gemini";
+  if (ollamaConfigured()) return "ollama";
   return null;
 }
 
@@ -166,6 +176,64 @@ async function geminiGenerate(opts: {
 }
 
 /**
+ * Local model via Ollama (self-hosted, no API key, no per-call cost). Uses the
+ * native /api/chat endpoint, which accepts base64 images for vision models
+ * (e.g. llava, llama3.2-vision). Point OLLAMA_BASE_URL at the machine running
+ * `ollama serve`; set OLLAMA_MODEL to the pulled model (default: llama3.1).
+ *
+ * Note on hosting: Ollama runs on YOUR computer, so a cloud deployment (Vercel)
+ * can only reach it if that machine is exposed to the internet (e.g. a tunnel).
+ * Locally, or on a self-hosted server, it works out of the box.
+ */
+async function ollamaGenerate(opts: {
+  system: string;
+  userText: string;
+  imageBase64?: string;
+  mediaType?: string;
+  maxTokens: number;
+}): Promise<string> {
+  const base = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/+$/, "");
+  const model = process.env.OLLAMA_MODEL || "llama3.1";
+
+  const userMessage: Record<string, unknown> = { role: "user", content: opts.userText };
+  if (opts.imageBase64) userMessage.images = [opts.imageBase64];
+
+  const res = await fetch(`${base}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model,
+      stream: false,
+      messages: [{ role: "system", content: opts.system }, userMessage],
+      options: { num_predict: opts.maxTokens },
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = (await res.text().catch(() => "")).slice(0, 160);
+    throw new Error(`Ollama ${model}: ${res.status} ${detail}`.trim());
+  }
+  const data = (await res.json()) as { message?: { content?: string } };
+  const text = (data.message?.content ?? "").trim();
+  if (!text) throw new Error(`Ollama ${model}: empty response`);
+  return text;
+}
+
+/**
+ * Dispatch a text/vision generation to whichever non-Anthropic provider is
+ * active. Keeps the four call sites below to a single branch each.
+ */
+async function fallbackGenerate(opts: {
+  system: string;
+  userText: string;
+  imageBase64?: string;
+  mediaType?: string;
+  maxTokens: number;
+}): Promise<string> {
+  return aiProvider() === "ollama" ? ollamaGenerate(opts) : geminiGenerate(opts);
+}
+
+/**
  * LLM FinOps — two levers, applied to every call in this file:
  *
  * 1. MODEL ROUTING: mechanical extraction (bill OCR → JSON) goes to a small,
@@ -206,8 +274,8 @@ export async function analyzeBillImage(
   mediaType: string,
 ): Promise<BillAnalysis> {
   let text: string;
-  if (aiProvider() === "gemini") {
-    text = await geminiGenerate({
+  if (aiProvider() !== "anthropic") {
+    text = await fallbackGenerate({
       system: BILL_EXTRACT_SYSTEM,
       userText: "Extract this bill.",
       imageBase64: base64,
@@ -295,8 +363,8 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
   const userText = `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel} for: "${input.plan || "a standard mobile plan"}". Customer name: "${input.customerName}". Strategy language: ${langName}.`;
 
   let text: string;
-  if (aiProvider() === "gemini") {
-    text = await geminiGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900 });
+  if (aiProvider() !== "anthropic") {
+    text = await fallbackGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900 });
   } else {
     const anthropic = client();
     const msg = await anthropic.messages.create({
@@ -345,8 +413,8 @@ export async function extractStatementImage(
   mediaType: string,
 ): Promise<string> {
   let text: string;
-  if (aiProvider() === "gemini") {
-    text = await geminiGenerate({
+  if (aiProvider() !== "anthropic") {
+    text = await fallbackGenerate({
       system: STATEMENT_EXTRACT_SYSTEM,
       userText: "Extract the transactions.",
       imageBase64: base64,
@@ -412,8 +480,8 @@ export interface AssistantContext {
 export async function askZakai(question: string, ctx: AssistantContext): Promise<string> {
   const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
 
-  if (aiProvider() === "gemini") {
-    return geminiGenerate({ system: ASSISTANT_SYSTEM, userText, maxTokens: 700 });
+  if (aiProvider() !== "anthropic") {
+    return fallbackGenerate({ system: ASSISTANT_SYSTEM, userText, maxTokens: 700 });
   }
 
   const anthropic = client();

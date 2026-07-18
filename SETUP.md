@@ -19,6 +19,13 @@
 5. Deployments → ⋯ → Redeploy → לחכות ל-Ready.
 6. בדיקה: `/api/health` מציג `"ai": true`.
 
+**מסלול מקומי בלי מפתח ובלי עלות — Ollama (נתמך):** להרצה על מחשב שלך (ה"מחשב שתביא").
+1. מתקינים Ollama מ-ollama.com, ואז בטרמינל: `ollama pull llama3.1` (לניתוח תמונות: `ollama pull llama3.2-vision`).
+2. מריצים `ollama serve` (רץ על `http://localhost:11434`).
+3. מגדירים משתני סביבה: `OLLAMA_BASE_URL=http://localhost:11434` ו-`OLLAMA_MODEL=llama3.1`.
+4. אם אין `ANTHROPIC_API_KEY`/`GEMINI_API_KEY` — זכאי ישתמש אוטומטית ב-Ollama. `/api/health` יראה `"aiProvider": "ollama"`.
+> ⚠️ חשוב: Ollama רץ על **המחשב שלך**. הפריסה בענן (Vercel) תגיע אליו רק אם המחשב חשוף לאינטרנט (מנהרה כמו ngrok/cloudflared, ואז `OLLAMA_BASE_URL` = כתובת המנהרה). להרצה מקומית מלאה (`npm run dev` על אותו מחשב) — עובד מיד. זו הסיבה שלפרודקשן ענן, מפתח ענן (Gemini/Anthropic) עדיין הכי פשוט.
+
 ## 2. דומיין (אמינות — ביקורת מוצדקת: vercel.app נראה זמני) — ~50-90 ₪/שנה
 1. קונים `zakai.co.il` (רשמים ישראלים: domains.co.il / interspace / box) או `getzakai.com` וכד'.
 2. Vercel → פרויקט → Settings → Domains → Add → מזינים את הדומיין → מקבלים רשומות DNS (A/CNAME) → מגדירים אצל הרשם.

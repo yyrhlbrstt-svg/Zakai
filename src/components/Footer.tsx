@@ -42,6 +42,12 @@ export function Footer() {
         ))}
       </span>
       </div>
+
+      {/* Sitewide legal position: self-help tool, not a law firm. Keeps the
+          "unauthorized practice of law" line clearly on the right side. */}
+      <p className="text-[11px] text-[rgba(147,166,165,0.7)] leading-relaxed text-center max-w-[640px] mx-auto">
+        {t("footer.legalLine")}
+      </p>
     </footer>
   );
 }

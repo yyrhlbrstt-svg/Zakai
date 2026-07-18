@@ -244,6 +244,9 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
                 </div>
               )}
               <p className="text-[11px] text-ink-soft mt-3 mb-0 leading-snug">{t("letter.privacy")}</p>
+              <p className="text-[11.5px] text-ink-soft mt-2 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">
+                {t("letter.legal")}
+              </p>
             </>
           )}
         </Card>

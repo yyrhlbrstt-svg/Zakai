@@ -611,7 +611,7 @@
       "eu3h": "Under EU case law, a 3h+ arrival delay is compensated like a cancellation.",
       "euExceptions": "Airlines are exempt in 'extraordinary circumstances' (extreme weather, certain strikes); ordinary technical faults usually are NOT exempt."
     },
-    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai files the demand with the airline for you — with a verified power of attorney, like telecom.",
+    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai prepares the full demand for you — ready for you to send yourself.",
     "jurisdictionQ": "Which law applies?",
     "jurisdictions": {
       "il": "Flight under Israeli law",
@@ -628,11 +628,11 @@
       "medium": "1,500–3,500 km (Rome, Paris)",
       "long": "Over 3,500 km (New York, Bangkok)"
     },
-    "euDisclaimer": "Based on Regulation (EC) 261/2004 — flights departing the EU, or arriving in the EU on an EU carrier. Not legal advice. Coming soon: Zakai files the demand for you.",
+    "euDisclaimer": "Based on Regulation (EC) 261/2004 — flights departing the EU, or arriving in the EU on an EU carrier. Not legal advice. Coming soon: Zakai prepares the full demand for you — ready for you to send yourself.",
     "letter": {
-      "title": "Zakai drafts your demand letter",
-      "sub": "A ready-to-send legal demand to the airline — with the remedies and amounts the law entitles you to.",
-      "openBtn": "Draft my demand letter",
+      "title": "Zakai prepares your demand letter",
+      "sub": "A ready letter for you to send to the airline in your own name — with the remedies and amounts the law entitles you to.",
+      "openBtn": "Prepare my demand letter",
       "name": "Full name (as on the ticket)",
       "airline": "Airline",
       "flightNumber": "Flight number (e.g. LY315)",
@@ -642,7 +642,8 @@
       "copyBtn": "Copy letter",
       "copied": "Copied ✓",
       "sendHint": "Send it to the airline's customer service email or contact form, and keep a copy.",
-      "privacy": "Generated in your browser only — details are never sent or stored. Not legal advice."
+      "privacy": "Generated in your browser only — details are never sent or stored. Not legal advice.",
+      "legal": "Zakai is not a law firm, does not provide legal advice, and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the demand is refused or heads to legal proceedings, consult a lawyer."
     }
   },
   "zakameter": {
@@ -1000,19 +1001,23 @@
     "terms": [
       {
         "h": "Nature of the service",
-        "p": "Zakai is an automated digital-agent service acting on the user's behalf, only with their explicit authorization, alongside free comparison and eligibility tools. Zakai is not a lawyer, tax adviser, pension adviser, insurance agent or investment adviser, and provides no professional advice."
+        "p": "Zakai is a consumer self-help digital service: it checks bills and entitlements, builds comparisons and generates outreach letters — and for consumer matters (such as a mobile or electricity bill) it may relay a request to the provider as the user's messenger, with explicit per-request authorization. Zakai is not a lawyer, tax adviser, pension adviser, insurance agent or investment adviser; provides no legal or professional advice of any kind; does not represent the user in any legal or quasi-judicial proceeding; and does not perform acts reserved by law to lawyers. Demand letters and legal checks are self-help templates — the user reviews, adopts and sends them, in their own name and on their own responsibility."
       },
       {
         "h": "No promised outcome",
-        "p": "All estimates and recommendations are orientation only. Zakai does not guarantee savings, compensation or any outcome; actual results depend on factors beyond our control."
+        "p": "All estimates and recommendations are orientation only. Zakai does not guarantee savings, compensation or any outcome; actual results depend on factors beyond our control. Calculations are based on the data the user enters — wrong, partial or outdated input may produce a wrong result, and responsibility for the accuracy of the data rests solely with the user. Results are not a substitute for checking with the competent body (the provider, the authority, an accountant or a lawyer) or for professional advice."
       },
       {
         "h": "Fees",
         "p": "A success fee is charged only on savings documented in the system, at the rate of the user's plan at documentation time. Users have 14 days to dispute a charge; if the saving did not materialize, the fee is cancelled or refunded."
       },
       {
+        "h": "Cancellation and subscription",
+        "p": "A subscription (Pro/Max) is a continuing transaction, cancellable at any time from the settings screen with no penalty; cancellation takes effect from the next cycle and does not affect what was already provided. Under the Consumer Protection Law, 1981, a distance transaction carries a 14-day cancellation right from receipt of the service or the disclosure document, whichever is later. To cancel: the settings screen or the support address."
+      },
+      {
         "h": "Authorization",
-        "p": "Outreach on the user's behalf happens only after ownership verification and explicit authorization, revocable at any time."
+        "p": "Relaying a request to a provider in consumer matters is done as a messenger only — in the user's name, after ownership verification and explicit authorization limited to that request. The authorization is not a power of attorney for legal representation, does not empower Zakai to conduct proceedings or bind the user, and is revocable at any time — from which point no new outreach is made."
       },
       {
         "h": "User obligations",
