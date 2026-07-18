@@ -44,7 +44,18 @@ function client(): Anthropic {
   return new Anthropic({ apiKey });
 }
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+/**
+ * Model candidates, tried in order: env override first, then progressively
+ * older Flash models — free AI Studio keys don't always have the newest one.
+ * A 404 (unknown model for this key) advances to the next candidate; any
+ * other error is real and surfaces with Google's message for diagnosis.
+ */
+const GEMINI_MODELS = [
+  ...(process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL] : []),
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+];
 
 /**
  * Minimal Gemini REST call (no extra SDK dependency). Mirrors the shape we
@@ -67,30 +78,43 @@ async function geminiGenerate(opts: {
   }
   parts.push({ text: opts.userText });
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: opts.system }] },
-        contents: [{ role: "user", parts }],
-        generationConfig: { maxOutputTokens: opts.maxTokens },
-      }),
-    },
-  );
-  if (!res.ok) {
-    throw new Error(`Gemini API error: ${res.status}`);
+  let lastError = "no model candidates";
+  for (const model of GEMINI_MODELS) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: opts.system }] },
+          contents: [{ role: "user", parts }],
+          generationConfig: { maxOutputTokens: opts.maxTokens },
+        }),
+      },
+    );
+
+    if (res.ok) {
+      const data = (await res.json()) as {
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      };
+      const text = (data.candidates?.[0]?.content?.parts ?? [])
+        .map((p) => p.text ?? "")
+        .join("\n")
+        .trim();
+      if (text) return text;
+      lastError = `Gemini ${model}: empty response`;
+      continue;
+    }
+
+    // Pull Google's own message — the difference between "invalid key",
+    // "quota exceeded" and "model not found" is everything when debugging.
+    const errBody = (await res.json().catch(() => null)) as {
+      error?: { message?: string; status?: string };
+    } | null;
+    lastError = `Gemini ${model}: ${res.status} ${errBody?.error?.status ?? ""} ${errBody?.error?.message ?? ""}`.trim();
+    if (res.status !== 404) break; // only an unknown model warrants trying the next one
   }
-  const data = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-  };
-  const text = (data.candidates?.[0]?.content?.parts ?? [])
-    .map((p) => p.text ?? "")
-    .join("\n")
-    .trim();
-  if (!text) throw new Error("Gemini API returned no text");
-  return text;
+  throw new Error(lastError);
 }
 
 /**
