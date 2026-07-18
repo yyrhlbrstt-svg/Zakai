@@ -194,6 +194,93 @@ select option {
   }
 }
 
+/* ---- Brand intro splash ----------------------------------------------------
+   A short, once-per-session opening (like a real app boot): the Z mark pops,
+   the wordmark settles, the "return" arc draws, then the whole overlay fades
+   to reveal the app. Server-rendered so it's painted on the very first frame
+   (no flash of app-then-splash); a tiny inline script hides it on repeat
+   navigations. Fully disabled under reduced-motion. Compositor-only props. */
+#zakai-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: radial-gradient(120% 90% at 50% 40%, #0c1626 0%, #070b12 60%);
+  animation: splashOut 0.62s var(--ease-out) 1.2s forwards;
+}
+#zakai-splash.splash-skip {
+  display: none;
+}
+@keyframes splashOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+.splash-mark {
+  animation: splashPop 0.72s var(--ease-spring) both;
+  filter: drop-shadow(0 12px 40px rgba(63, 203, 155, 0.4));
+}
+@keyframes splashPop {
+  from {
+    opacity: 0;
+    transform: scale(0.68) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.splash-word {
+  font-family: var(--font-wordmark), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 30px;
+  color: #3fcb9b;
+  letter-spacing: 0.16em;
+  animation: splashWord 0.6s var(--ease-out) 0.34s both;
+}
+@keyframes splashWord {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.splash-arc {
+  width: 150px;
+  height: 16px;
+  display: block;
+  color: #3fcb9b;
+}
+.splash-arc path {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: splashDraw 0.85s var(--ease-out) 0.45s forwards;
+}
+@keyframes splashDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.splash-tag {
+  font-size: 13.5px;
+  color: rgba(147, 166, 165, 0.85);
+  animation: splashWord 0.6s var(--ease-out) 0.72s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  #zakai-splash {
+    display: none !important;
+  }
+}
+
 /* Range input, used by the savings calculator. */
 input[type="range"] {
   -webkit-appearance: none;
