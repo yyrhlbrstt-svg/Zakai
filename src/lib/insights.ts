@@ -14,7 +14,12 @@ export interface CaseLite {
   targetAmount: number; // agorot
   feeAgorot: number;
   savedMonthlyAgorot: number;
+  /** Days since the saving was documented (settled cases only). */
+  settledAgeDays?: number;
 }
+
+/** Promotional prices in Israeli telecom typically expire around here. */
+export const RECHECK_AFTER_DAYS = 180;
 
 export interface InsightInput {
   plan: "FREE" | "PRO" | "MAX";
@@ -66,6 +71,15 @@ export function computeInsights(input: InsightInput): Insight[] {
     if (feesTotal > input.proPriceAgorot) {
       out.push({ key: "proPaysOff", params: { fees: feesTotal, price: input.proPriceAgorot }, href: "/pricing", weight: 70 });
     }
+  }
+
+  // 4.5 The retention engine's core nudge: a documented saving whose promo
+  //     window has likely expired — prices creep back; time to re-check.
+  const stale = input.cases.filter(
+    (c) => c.status === "SAVED" && (c.settledAgeDays ?? 0) >= RECHECK_AFTER_DAYS,
+  );
+  if (stale.length > 0) {
+    out.push({ key: "recheck", params: { count: stale.length }, href: "/check", weight: 85 });
   }
 
   // 5. Documented monthly savings so far — reinforce the outcome (trust loop).

@@ -16,7 +16,7 @@ export async function buildInsights(userId: string) {
       amountOriginal: true,
       targetAmount: true,
       fee: { select: { amount: true } },
-      savingsProof: { select: { savingMonthly: true } },
+      savingsProof: { select: { savingMonthly: true, recordedAt: true } },
     },
   });
 
@@ -31,6 +31,9 @@ export async function buildInsights(userId: string) {
         targetAmount: c.targetAmount,
         feeAgorot: c.fee?.amount ?? 0,
         savedMonthlyAgorot: c.savingsProof?.savingMonthly ?? 0,
+        settledAgeDays: c.savingsProof
+          ? Math.floor((Date.now() - c.savingsProof.recordedAt.getTime()) / 86_400_000)
+          : undefined,
       }),
     ),
   };

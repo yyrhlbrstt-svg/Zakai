@@ -489,7 +489,8 @@
       "firstCheck": "You haven't run a check yet. Uploading one bill takes a minute — and that's all it takes to know if you're overpaying.",
       "proPaysOff": "You've paid {fees} in success fees so far. Pro costs {price}/month and halves the fee — at your volume it already pays for itself.",
       "savedSoFar": "Your documented saving: {monthly}/month — {yearly} a year. Worth checking your other bills too.",
-      "invite": "No active checks right now. Invite a friend — after their first successful check you'll earn a credit toward your next fee."
+      "invite": "No active checks right now. Invite a friend — after their first successful check you'll earn a credit toward your next fee.",
+      "recheck": "{count, plural, one {It's been over 6 months since your documented saving} other {# of your checks are over 6 months old}} — promo prices tend to snap back right about now. A one-minute re-check is worth it."
     },
     "insightCta": {
       "pendingCase": "To dashboard",
@@ -497,7 +498,8 @@
       "firstCheck": "First check",
       "proPaysOff": "See plans",
       "savedSoFar": "To dashboard",
-      "invite": "Invite a friend"
+      "invite": "Invite a friend",
+      "recheck": "Re-check now"
     }
   },
   "electricity": {

@@ -51,6 +51,22 @@ describe("computeInsights", () => {
     expect(out.some((i) => i.key === "invite")).toBe(false);
   });
 
+  it("nudges a re-check when a documented saving is older than the promo window", () => {
+    const fresh = computeInsights({
+      ...base,
+      cases: [{ status: "SAVED", amountOriginal: 10000, targetAmount: 8000, feeAgorot: 360, savedMonthlyAgorot: 2000, settledAgeDays: 30 }],
+    });
+    expect(fresh.some((i) => i.key === "recheck")).toBe(false);
+
+    const stale = computeInsights({
+      ...base,
+      cases: [{ status: "SAVED", amountOriginal: 10000, targetAmount: 8000, feeAgorot: 360, savedMonthlyAgorot: 2000, settledAgeDays: 200 }],
+    });
+    const nudge = stale.find((i) => i.key === "recheck")!;
+    expect(nudge.href).toBe("/check");
+    expect(nudge.params.count).toBe(1);
+  });
+
   it("suggests inviting a friend only when idle and creditless", () => {
     const idle = computeInsights(base);
     expect(idle.some((i) => i.key === "invite")).toBe(true);
