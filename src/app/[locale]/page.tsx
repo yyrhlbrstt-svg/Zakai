@@ -111,6 +111,7 @@ export default async function HomePage({
         {(
           [
             { key: "rights", href: "/rights", icon: "🎯" },
+            { key: "miluim", href: "/miluim", icon: "🎖️" },
             { key: "mobile", href: "/check", icon: "📱" },
             { key: "electricity", href: "/electricity", icon: "⚡" },
             { key: "flights", href: "/flights", icon: "✈️" },

@@ -30,7 +30,8 @@
     "assistant": "My agent",
     "electricity": "Electricity",
     "flights": "Flights",
-    "rights": "Rights"
+    "rights": "Rights",
+    "miluim": "Reserve duty"
   },
   "settings": {
     "title": "My account",
@@ -143,6 +144,10 @@
       "rights": {
         "title": "Rights maximization",
         "sub": "55 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+      },
+      "miluim": {
+        "title": "Reserve-duty pay",
+        "sub": "Exact entitlement math — including the 20% supplement most employers miss."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1033,5 +1038,30 @@
         "p": "Privacy questions and rights requests: support@zakai.example (to be updated). We respond within the statutory timeframe."
       }
     ]
+  },
+  "miluim": {
+    "title": "Served in the reserves? Let's verify you were paid right.",
+    "subtitle": "Hundreds of thousands have served since October 2023 — and most calculations miss the 20% supplement almost nobody knows. Estimate in seconds; the math runs in your browser only.",
+    "employmentQ": "Status during service",
+    "employment": {
+      "employee": "Employee",
+      "self_employed": "Self-employed"
+    },
+    "salaryQ": "Average monthly gross (3 months before service)",
+    "incomeQ": "Average monthly insured income (3 months before)",
+    "daysQ": "Reserve days in the claim",
+    "resultTitle": "Your estimated entitlement",
+    "daily": "Daily rate",
+    "base": "Base pay",
+    "supplement": "20% supplement (widely missed)",
+    "howTitle": "How to actually get the money",
+    "howSteps": [
+      "Employee: your employer must pay your regular salary during service and claim reimbursement (form BL/501).",
+      "Check your payslip covers the service period in full — including the supplement. A gap = money your employer owes you.",
+      "Not paid within ~3 weeks of the service's end? File a personal claim (form BL/502) on the National Insurance site.",
+      "Self-employed: paid directly to you — verify it arrived and used insured income + 25%.",
+      "Keep your service confirmations (3010) — they anchor every claim."
+    ],
+    "disclaimer": "Estimate per National Insurance rules (3-month basis ÷ 90 + 20% supplement). Index-linked daily minimums/maximums may adjust the figure; the NII calculation governs. Not advice. Coming soon: Zakai prepares the forms for you."
   }
 }
