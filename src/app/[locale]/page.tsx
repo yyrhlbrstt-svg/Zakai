@@ -1,10 +1,32 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
+
+/** Refresh the live proof numbers hourly (ISR) — fast page, honest data. */
+export const revalidate = 3600;
+
+/**
+ * Live social proof from the append-only savings ledger. Returns zeros (and
+ * the section hides) until real documented savings exist — an honest counter
+ * or none at all. Build-safe: a missing DB just hides the section.
+ */
+async function loadProof() {
+  try {
+    const [agg, count] = await Promise.all([
+      prisma.savingsProof.aggregate({ _sum: { savingMonthly: true } }),
+      prisma.savingsProof.count({ where: { savingMonthly: { gt: 0 } } }),
+    ]);
+    return { monthlyAgorot: agg._sum.savingMonthly ?? 0, count };
+  } catch {
+    return { monthlyAgorot: 0, count: 0 };
+  }
+}
 
 export default async function HomePage({
   params,
@@ -14,6 +36,7 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
+  const proof = await loadProof();
 
   const steps = ["upload", "act", "pay"] as const;
   const trust = t.raw("home.trust") as string[];
@@ -64,6 +87,21 @@ export default async function HomePage({
           <Zakameter bcp47={bcp47[locale as Locale]} />
         </Reveal>
       </div>
+
+      {/* Live social proof — appears only once real documented savings exist.
+          Numbers come from the append-only proof ledger, never typed in. */}
+      {proof.count > 0 && (
+        <Reveal>
+          <div className="mt-14 text-center rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-5">
+            <span className="font-display grad-text text-3xl">
+              {formatAgorot(proof.monthlyAgorot, bcp47[locale as Locale])}
+            </span>
+            <span className="block text-[13px] text-ink-soft mt-1.5">
+              {t("home.proof", { count: proof.count })}
+            </span>
+          </div>
+        </Reveal>
+      )}
 
       {/* The breadth answer: everything Zakai checks for you, one tap each. */}
       <Reveal>
