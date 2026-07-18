@@ -24,6 +24,12 @@
 html {
   /* Reserve scrollbar space so RTL layouts don't shift when it appears. */
   scrollbar-gutter: stable;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Instant, crisp taps on all interactive elements (no double-tap-zoom wait). */
+button, a, input, select, textarea, summary, [role="radio"] {
+  touch-action: manipulation;
 }
 
 /* Financial discipline: the display face carries every large money figure, so
@@ -125,7 +131,8 @@ select option {
 .blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  /* No filter: blur() here — the radial-gradient fades on its own, and
+     live blur is a per-frame GPU tax on phones. */
   pointer-events: none;
 }
 
@@ -161,8 +168,8 @@ select option {
    forced visible under reduced-motion. */
 .js .reveal {
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out);
+  transform: translateY(10px);
+  transition: opacity 440ms var(--ease-out), transform 440ms var(--ease-out);
   will-change: opacity, transform;
 }
 .js .reveal.is-visible {

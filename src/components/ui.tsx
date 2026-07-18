@@ -2,7 +2,7 @@ import * as React from "react";
 
 /** Shared class fragments for the glass/dark design language. */
 export const glass =
-  "bg-[rgba(255,255,255,0.045)] border border-[rgba(255,255,255,0.09)] rounded-2xl backdrop-blur-xl shadow-[0_24px_60px_rgba(0,0,0,0.45)]";
+  "bg-[rgba(255,255,255,0.045)] border border-[rgba(255,255,255,0.09)] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.45)]";
 
 export function Card({
   className = "",
