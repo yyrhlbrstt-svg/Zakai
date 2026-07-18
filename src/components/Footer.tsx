@@ -7,7 +7,19 @@ import { Logo } from "@/components/Logo";
 export function Footer() {
   const t = useTranslations();
   return (
-    <footer className="max-w-[1080px] mx-auto px-5 py-8 mt-8 border-t border-[rgba(255,255,255,0.07)] flex flex-wrap items-center justify-between gap-3">
+    <footer className="max-w-[1080px] mx-auto px-5 py-8 mt-8 border-t border-[rgba(255,255,255,0.07)] flex flex-col gap-5">
+      {/* Trust strip — four verifiable security facts, sitewide. Every claim
+          here is enforced in code; nothing aspirational. */}
+      <ul className="flex flex-wrap gap-x-5 gap-y-2 list-none p-0 m-0 justify-center">
+        {(["encrypted", "noTrackers", "deletion", "verifiablePoa"] as const).map((k) => (
+          <li key={k} className="flex items-center gap-1.5 text-[11.5px] text-ink-soft">
+            <span className="text-emerald" aria-hidden>●</span>
+            {t(`footer.trustStrip.${k}`)}
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
       <span className="flex items-center gap-2 text-[12.5px] text-ink-soft">
         <Logo height={15} />
         <span>© {new Date().getFullYear()}</span>
@@ -29,6 +41,7 @@ export function Footer() {
           </Link>
         ))}
       </span>
+      </div>
     </footer>
   );
 }

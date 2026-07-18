@@ -355,7 +355,13 @@
   "footer": {
     "trust": "Security & Trust",
     "terms": "Terms",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "trustStrip": {
+      "encrypted": "Encrypted transport (HTTPS/HSTS)",
+      "noTrackers": "Zero tracking or ad cookies",
+      "deletion": "Full one-click account deletion",
+      "verifiablePoa": "Publicly verifiable power of attorney"
+    }
   },
   "providers": {
     "cellcom": "Cellcom",

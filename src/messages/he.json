@@ -355,7 +355,13 @@
   "footer": {
     "trust": "אבטחה ואמון",
     "terms": "תנאי שימוש",
-    "privacy": "פרטיות"
+    "privacy": "פרטיות",
+    "trustStrip": {
+      "encrypted": "תעבורה מוצפנת (HTTPS/HSTS)",
+      "noTrackers": "אפס עוגיות מעקב ופרסום",
+      "deletion": "מחיקת חשבון מלאה בקליק",
+      "verifiablePoa": "ייפוי כוח עם קוד אימות ציבורי"
+    }
   },
   "providers": {
     "cellcom": "סלקום",
