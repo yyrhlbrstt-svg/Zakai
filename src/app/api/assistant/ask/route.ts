@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId, badRequest } from "@/lib/api";
 import { askZakai, aiAvailable } from "@/lib/ai";
 import { planConfig } from "@/lib/plans";
-import { rateLimit } from "@/lib/ratelimit";
+import { rateLimit, refundRateLimit } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 
 const schema = z.object({
@@ -77,6 +77,8 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ answer });
   } catch (err) {
+    // A failed model call must not burn the user's monthly question quota.
+    await refundRateLimit("assistant", auth.userId, WINDOW_SECONDS);
     await reportError(err, { route: "assistant-ask" });
     return badRequest("aiUnavailable", 503);
   }

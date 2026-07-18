@@ -31,6 +31,29 @@ export async function rateLimit(
   }
 }
 
+/**
+ * Refund one unit in the current window — used when the metered operation
+ * FAILED after the check (e.g. the AI provider errored): a failed question
+ * must not burn the user's quota. Best-effort; never throws.
+ */
+export async function refundRateLimit(
+  bucket: string,
+  identifier: string,
+  windowSeconds: number,
+): Promise<void> {
+  const windowMs = windowSeconds * 1000;
+  const windowStart = Math.floor(Date.now() / windowMs) * windowMs;
+  const key = `${bucket}:${identifier}:${windowStart}`;
+  try {
+    await prisma.rateLimit.updateMany({
+      where: { key, count: { gt: 0 } },
+      data: { count: { decrement: 1 } },
+    });
+  } catch {
+    /* best-effort */
+  }
+}
+
 /** Best-effort client IP from proxy headers (Vercel sets x-forwarded-for). */
 export function clientIp(request: Request): string {
   const xff = request.headers.get("x-forwarded-for");
