@@ -39,7 +39,8 @@
     "tools": "Tools",
     "taxrefund": "Tax refund",
     "unemployment": "Unemployment",
-    "olim": "New immigrants"
+    "olim": "New immigrants",
+    "parking": "Parking appeal"
   },
   "payslip": {
     "title": "Payslip check",
@@ -1365,5 +1366,46 @@
       "error": "Something went wrong. Please try again.",
       "privacy": "Details are used for business contact only and never shared with third parties."
     }
+  },
+  "parking": {
+    "title": "Parking-ticket appeal",
+    "subtitle": "Many parking tickets fall on defects — unclear signage, a broken meter, wrong details. Fill a few fields and Zakai prepares an objection letter for you to send in your own name. Runs in your browser.",
+    "name": "Full name",
+    "ticket": "Ticket number",
+    "city": "City / authority",
+    "reasonQ": "Reason for appeal",
+    "reasons": {
+      "signage": {
+        "label": "Unclear signage",
+        "body": "There was no clear, legible sign prohibiting parking at the location, or the sign was hidden/damaged — so it was not possible to know parking was forbidden."
+      },
+      "machine": {
+        "label": "Broken payment meter",
+        "body": "I paid or attempted to pay for parking, but the meter / app did not work properly at the time — so the ticket is not justified."
+      },
+      "loading": {
+        "label": "Loading/unloading",
+        "body": "I stopped briefly only for loading and unloading, which is permitted in these circumstances, not for extended parking."
+      },
+      "disabled": {
+        "label": "Disabled / permit",
+        "body": "I hold a valid disabled tag / parking permit that was displayed as required, so parking was permitted."
+      },
+      "details": {
+        "label": "Wrong details on ticket",
+        "body": "The ticket contains incorrect details (vehicle number / location / time), a defect that justifies cancelling it."
+      },
+      "other": {
+        "label": "Other",
+        "body": "I dispute the justification of the ticket in the circumstances, as detailed below."
+      }
+    },
+    "details": "Short additional detail (optional)",
+    "generate": "Prepare my appeal letter",
+    "copy": "Copy letter",
+    "copied": "Copied ✓",
+    "sendHint": "Send it to the local authority within 90 days of receiving the ticket (email / online form / post), and keep a copy.",
+    "legal": "Zakai is not a lawyer and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the appeal is refused, you have the right to a hearing at the local-affairs court.",
+    "disclaimer": "The letter is generated in your browser only and is never sent or stored. Not legal advice; appeal grounds and deadlines vary by authority and circumstances."
   }
 }
