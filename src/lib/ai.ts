@@ -123,6 +123,7 @@ async function geminiGenerate(opts: {
   imageBase64?: string;
   mediaType?: string;
   maxTokens: number;
+  temperature?: number;
 }): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new AiUnavailableError();
@@ -147,6 +148,7 @@ async function geminiGenerate(opts: {
           contents: [{ role: "user", parts }],
           generationConfig: {
             maxOutputTokens: opts.maxTokens,
+            ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
             ...(noThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
           },
         }),
@@ -203,6 +205,7 @@ async function ollamaGenerate(opts: {
   imageBase64?: string;
   mediaType?: string;
   maxTokens: number;
+  temperature?: number;
 }): Promise<string> {
   const base = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/+$/, "");
   const model = process.env.OLLAMA_MODEL || "llama3.1";
@@ -217,7 +220,10 @@ async function ollamaGenerate(opts: {
       model,
       stream: false,
       messages: [{ role: "system", content: opts.system }, userMessage],
-      options: { num_predict: opts.maxTokens },
+      options: {
+        num_predict: opts.maxTokens,
+        ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
+      },
     }),
   });
 
@@ -241,6 +247,7 @@ async function fallbackGenerate(opts: {
   imageBase64?: string;
   mediaType?: string;
   maxTokens: number;
+  temperature?: number;
 }): Promise<string> {
   return aiProvider() === "ollama" ? ollamaGenerate(opts) : geminiGenerate(opts);
 }
@@ -293,12 +300,14 @@ export async function analyzeBillImage(
       imageBase64: base64,
       mediaType,
       maxTokens: 400,
+      temperature: 0,
     });
   } else {
     const anthropic = client();
     const msg = await anthropic.messages.create({
       model: EXTRACT_MODEL,
       max_tokens: 400,
+      temperature: 0,
       // Stable instructions in a cached system block; only the image is dynamic.
       system: cachedSystem(BILL_EXTRACT_SYSTEM),
       messages: [
@@ -376,12 +385,13 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
 
   let text: string;
   if (aiProvider() !== "anthropic") {
-    text = await fallbackGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900 });
+    text = await fallbackGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900, temperature: 0.5 });
   } else {
     const anthropic = client();
     const msg = await anthropic.messages.create({
       model: DRAFT_MODEL,
       max_tokens: 900,
+      temperature: 0.5,
       // Stable persona + format contract, cached; customer specifics go last.
       system: cachedSystem(RECOMMENDATION_SYSTEM),
       messages: [{ role: "user", content: userText }],
@@ -432,12 +442,14 @@ export async function extractStatementImage(
       imageBase64: base64,
       mediaType,
       maxTokens: 1500,
+      temperature: 0,
     });
   } else {
     const anthropic = client();
     const msg = await anthropic.messages.create({
       model: EXTRACT_MODEL,
       max_tokens: 1500,
+      temperature: 0,
       system: cachedSystem(STATEMENT_EXTRACT_SYSTEM),
       messages: [
         {
@@ -499,13 +511,14 @@ export async function askZakai(question: string, ctx: AssistantContext): Promise
   const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
 
   if (aiProvider() !== "anthropic") {
-    return fallbackGenerate({ system: ASSISTANT_SYSTEM, userText, maxTokens: 1024 });
+    return fallbackGenerate({ system: ASSISTANT_SYSTEM, userText, maxTokens: 1024, temperature: 0.4 });
   }
 
   const anthropic = client();
   const msg = await anthropic.messages.create({
     model: DRAFT_MODEL,
     max_tokens: 1024,
+    temperature: 0.4,
     system: cachedSystem(ASSISTANT_SYSTEM),
     messages: [{ role: "user", content: userText }],
   });

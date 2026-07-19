@@ -208,12 +208,30 @@ select option {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  background: radial-gradient(120% 90% at 50% 40%, #0c1626 0%, #070b12 60%);
-  animation: splashOut 0.62s var(--ease-out) 1.2s forwards;
+  gap: 22px;
+  background: radial-gradient(120% 90% at 50% 42%, #0c1626 0%, #070b12 62%);
+  animation: splashOut 0.7s var(--ease-out) 1.55s forwards;
 }
 #zakai-splash.splash-skip {
   display: none;
+}
+/* A soft emerald glow breathes out behind the mark as it lands. */
+#zakai-splash::before {
+  content: "";
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%) scale(0.5);
+  background: radial-gradient(circle, rgba(63, 203, 155, 0.28), rgba(63, 203, 155, 0) 68%);
+  animation: splashGlow 1.6s var(--ease-out) both;
+  pointer-events: none;
+}
+@keyframes splashGlow {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  45% { opacity: 1; }
+  100% { opacity: 0.65; transform: translate(-50%, -50%) scale(1.1); }
 }
 @keyframes splashOut {
   to {
@@ -223,13 +241,13 @@ select option {
   }
 }
 .splash-mark {
-  animation: splashPop 0.72s var(--ease-spring) both;
-  filter: drop-shadow(0 12px 40px rgba(63, 203, 155, 0.4));
+  animation: splashPop 0.8s var(--ease-spring) both;
+  filter: drop-shadow(0 14px 46px rgba(63, 203, 155, 0.45));
 }
 @keyframes splashPop {
   from {
     opacity: 0;
-    transform: scale(0.68) translateY(10px);
+    transform: scale(0.64) translateY(12px);
   }
   to {
     opacity: 1;
@@ -239,18 +257,21 @@ select option {
 .splash-word {
   font-family: var(--font-wordmark), system-ui, sans-serif;
   font-weight: 800;
-  font-size: 30px;
+  font-size: 32px;
   color: #3fcb9b;
   letter-spacing: 0.16em;
-  animation: splashWord 0.6s var(--ease-out) 0.34s both;
+  animation: splashWord 0.72s var(--ease-snappy) 0.36s both;
 }
+/* The wordmark settles from wide, faint tracking to its resting spacing. */
 @keyframes splashWord {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    letter-spacing: 0.5em;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
+    letter-spacing: 0.16em;
     transform: none;
   }
 }
@@ -273,7 +294,11 @@ select option {
 .splash-tag {
   font-size: 13.5px;
   color: rgba(147, 166, 165, 0.85);
-  animation: splashWord 0.6s var(--ease-out) 0.72s both;
+  animation: splashFade 0.6s var(--ease-out) 0.8s both;
+}
+@keyframes splashFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   #zakai-splash {
