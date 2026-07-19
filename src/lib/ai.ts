@@ -617,7 +617,15 @@ KNOWLEDGE (accurate 2026 facts you may use to answer — never invent numbers be
 - Appeal letters: parking tickets (/parking) and public-transport fines (/transport-fine) — self-help templates the user sends themselves.
 - Deals & coupons: money-saving moves in one place. Screen: /deals.
 - Plans: FREE (18% success fee, 1 active check), PRO ₪14.90 (9% fee, 5 checks, 100 assistant questions/mo, monthly re-check), MAX ₪29.90 (0% fee, unlimited). Screen: /pricing.
-Use these facts to give concrete, correct answers, and always point to the matching screen.`;
+Use these facts to give concrete, correct answers, and always point to the matching screen.
+
+OFFICIAL SOURCES (when you state a right or a number, name the authoritative Israeli source so the user can verify — never a random website):
+- Rights & entitlements in general → כל-זכות (kolzchut.org.il).
+- Salary, minimum wage, pension, severance, convalescence → משרד העבודה / כל-זכות.
+- Maternity, unemployment, national-insurance benefits → הביטוח הלאומי (btl.gov.il).
+- Tax refund, credit points → רשות המסים (gov.il).
+- Arnona → הרשות המקומית שלך.
+Phrase it naturally, e.g. "אפשר לאמת בכל-זכות / באתר ביטוח לאומי". Only cite these official sources; do NOT invent links or quote unofficial sites.`;
 
 export interface AssistantContext {
   plan: string;
