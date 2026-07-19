@@ -27,6 +27,7 @@ export function Footer() {
       <span className="flex flex-wrap gap-4">
         {(
           [
+            { href: "/business", key: "footer.business" },
             { href: "/trust", key: "footer.trust" },
             { href: "/terms", key: "footer.terms" },
             { href: "/privacy", key: "footer.privacy" },

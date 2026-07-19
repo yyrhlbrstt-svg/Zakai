@@ -506,7 +506,8 @@
       "deletion": "Full one-click account deletion",
       "verifiablePoa": "Publicly verifiable power of attorney"
     },
-    "legalLine": "Zakai is a consumer self-help tool. It is not a law firm, gives no legal advice, and does not represent you in any proceeding. The checks, calculators and letters are here to help you act for yourself."
+    "legalLine": "Zakai is a consumer self-help tool. It is not a law firm, gives no legal advice, and does not represent you in any proceeding. The checks, calculators and letters are here to help you act for yourself.",
+    "business": "For business"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -1305,5 +1306,64 @@
     "listTitle": "Rights worth checking as an oleh",
     "badge": "Olim",
     "disclaimer": "General orientation only, not advice. Exact eligibility is set by the authorities (Tax Authority, Ministry of Aliyah and Integration, your municipality) and depends on your aliyah date and circumstances."
+  },
+  "business": {
+    "kicker": "Zakai for Business 🏢",
+    "title": "The wellbeing perk that puts real money back in employees' pockets.",
+    "sub": "Instead of another gift card — give employees a tool that finds the money they're owed: payslip checks, rights, tax refunds, bills and taxes. No setup cost, no HR effort, and employees who feel cared for.",
+    "cta": "Book a call",
+    "valuesTitle": "Why employers choose Zakai",
+    "values": [
+      {
+        "icon": "💰",
+        "title": "Real money for employees",
+        "sub": "Not a gadget — employees find hundreds and thousands of shekels they never knew were owed."
+      },
+      {
+        "icon": "🎁",
+        "title": "Zero setup cost",
+        "sub": "Live in minutes, no complex integration. Simple per-employee pricing."
+      },
+      {
+        "icon": "🔒",
+        "title": "Full privacy",
+        "sub": "An employee's data is theirs alone — the employer sees no personal info. Amendment 13 compliant."
+      },
+      {
+        "icon": "😊",
+        "title": "Happier employees",
+        "sub": "A perk felt in the wallet every month — not another holiday gift that's forgotten."
+      }
+    ],
+    "howTitle": "How it works",
+    "steps": [
+      {
+        "title": "Activate",
+        "sub": "Give employees access to Zakai as a benefit — one link, no installs."
+      },
+      {
+        "title": "Employees check",
+        "sub": "Each employee checks what they're owed themselves — payslip, rights, taxes — fully private."
+      },
+      {
+        "title": "Money comes back",
+        "sub": "Zakai helps claim it. A success fee only on what actually returns — or an org subscription."
+      }
+    ],
+    "form": {
+      "title": "Let's talk",
+      "sub": "Leave your details and we'll get back with an offer tailored to your organization.",
+      "company": "Company name",
+      "contact": "Contact person",
+      "email": "Email",
+      "employees": "Number of employees (approx.)",
+      "note": "Anything we should know (optional)",
+      "submit": "Send",
+      "sending": "Sending...",
+      "doneTitle": "Got it, thank you!",
+      "doneSub": "We'll be in touch soon with a tailored offer.",
+      "error": "Something went wrong. Please try again.",
+      "privacy": "Details are used for business contact only and never shared with third parties."
+    }
   }
 }

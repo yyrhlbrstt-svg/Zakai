@@ -12,7 +12,7 @@ import { rateLimit, clientIp } from "@/lib/ratelimit";
  */
 export async function GET(request: Request, ctx: { params: Promise<{ code: string }> }) {
   const limited = await rateLimit("authz-verify", clientIp(request), 40, 3600);
-  if (limited) {
+  if (!limited.ok) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
