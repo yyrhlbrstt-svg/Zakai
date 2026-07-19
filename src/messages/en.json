@@ -553,20 +553,26 @@
         "name": "Pro",
         "fee": "Only 9% success fee",
         "features": [
-          "Up to 5 active checks in parallel",
+          "Success fee just 9% — half of Free",
+          "Up to 5 active checks at once",
           "Full recurring-charges scan — every finding",
-          "Success fee cut in half",
-          "Everything in Free"
+          "\"Stealth price-hike\" radar: automatic monthly re-check + alert when a price quietly jumps",
+          "The smart assistant — up to 100 questions a month",
+          "Priority handling of your cases",
+          "Exclusive coupons & deals for savers (coming soon)"
         ]
       },
       "MAX": {
         "name": "Max",
         "fee": "0% fee — all savings are yours",
         "features": [
+          "0% fee — all your savings stay yours, forever",
           "Unlimited checks",
-          "Zero success fee — forever",
-          "Full recurring-charges scan",
-          "Priority access to new features"
+          "The smart assistant — up to 300 questions a month",
+          "Everything in Pro",
+          "Zakai Family — protect your parents and grandparents too (coming soon)",
+          "Premium coupons & deals (coming soon)",
+          "Full priority + first access to new features"
         ]
       }
     }
