@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   // "add to home screen" affordances explicitly.
   appleWebApp: {
     capable: true,
-    title: "זכאי",
+    title: "ZAKAI",
     statusBarStyle: "black-translucent",
   },
   icons: {

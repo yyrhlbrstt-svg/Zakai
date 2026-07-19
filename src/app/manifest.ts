@@ -7,8 +7,8 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "זכאי — הכסף שמגיע לך חוזר אליך",
-    short_name: "זכאי",
+    name: "ZAKAI — הכסף שמגיע לך חוזר אליך",
+    short_name: "ZAKAI",
     description:
       "סוכן דיגיטלי שבודק את החשבונות שלך, פועל בשמך מול הספקים, וגובה עמלה רק על חיסכון מתועד.",
     id: "/he",

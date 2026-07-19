@@ -249,6 +249,10 @@
       "unemployment": {
         "title": "Unemployment",
         "sub": "Estimate your unemployment benefit by salary and age — how much per day and for how long, 2026 rules."
+      },
+      "deals": {
+        "title": "Deals & coupons",
+        "sub": "Every benefit and money-saving move in one place — and exclusive coupons coming soon."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
