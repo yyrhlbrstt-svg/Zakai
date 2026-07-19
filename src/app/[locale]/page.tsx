@@ -93,6 +93,20 @@ export default async function HomePage({
         </Reveal>
       </div>
 
+      {/* Scope stat strip — the breadth is the pitch: many checks, one place. */}
+      <Reveal delay={80}>
+        <div className="mt-12 grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
+          {(t.raw("home.stats") as Array<{ n: string; label: string }>).map((s) => (
+            <div key={s.label} className="text-center">
+              <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
+                {s.n}
+              </div>
+              <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+
       {/* Live social proof — appears only once real documented savings exist.
           Numbers come from the append-only proof ledger, never typed in. */}
       {proof.count > 0 && (

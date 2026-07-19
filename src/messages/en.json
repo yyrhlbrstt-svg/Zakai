@@ -315,7 +315,21 @@
         "title": "Rental deposit recovery",
         "sub": "Landlord sitting on your deposit? A reasoned demand per law and contract."
       }
-    }
+    },
+    "stats": [
+      {
+        "n": "12+",
+        "label": "money checks"
+      },
+      {
+        "n": "55",
+        "label": "statutory rights"
+      },
+      {
+        "n": "₪0",
+        "label": "until savings are proven"
+      }
+    ]
   },
   "calc": {
     "title": "How much could you save?",
