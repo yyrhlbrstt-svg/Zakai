@@ -37,7 +37,8 @@
     "severance": "Severance",
     "maternity": "Maternity",
     "tools": "Tools",
-    "taxrefund": "Tax refund"
+    "taxrefund": "Tax refund",
+    "unemployment": "Unemployment"
   },
   "payslip": {
     "title": "Payslip check",
@@ -240,6 +241,10 @@
       "taxrefund": {
         "title": "Tax refund",
         "sub": "Worked part of the year? A quick refund estimate using the 2026 brackets and credit points."
+      },
+      "unemployment": {
+        "title": "Unemployment",
+        "sub": "Estimate your unemployment benefit by salary and age — how much per day and for how long, 2026 rules."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1269,5 +1274,24 @@
     "iosHint": "Tap the Share button, then \"Add to Home Screen\".",
     "cta": "Install",
     "dismiss": "Dismiss"
+  },
+  "unemployment": {
+    "title": "Unemployment benefit estimator",
+    "subtitle": "Dismissed or finished a job? You may be owed unemployment benefit from Bituach Leumi. Enter salary and age for an estimate — how much per day and for how many days. Runs in your browser.",
+    "salaryQ": "Average monthly salary (last 6 months)",
+    "ageQ": "Age",
+    "dailyTitle": "Estimated daily benefit",
+    "perDay": "per day (range by the benefit tiers)",
+    "days": "Entitlement days",
+    "estTotal": "Estimated for the period",
+    "capped": "High salary — the benefit is limited to the cap (₪550.76/day for the first 125 days, 2026).",
+    "howTitle": "How to claim",
+    "howSteps": [
+      "Register at the Employment Service immediately after leaving work, and check in as required.",
+      "Open an unemployment claim on the Bituach Leumi site (needs 12 of the prior 18 months worked).",
+      "Attach the employment-termination form (BL/1500) from your employer.",
+      "For an exact figure — the official unemployment calculator on the Bituach Leumi site."
+    ],
+    "disclaimer": "This is an estimate only: the benefit is computed on a regressive scale (80/50/45/30 percent of wage) up to a cap, and depends on age, dependents and exact wage. Shown as a range on purpose. Not advice; the binding amount is set by Bituach Leumi."
   }
 }

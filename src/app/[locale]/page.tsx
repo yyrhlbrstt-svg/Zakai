@@ -120,6 +120,7 @@ export default async function HomePage({
             { key: "severance", href: "/severance", icon: "📄" },
             { key: "maternity", href: "/maternity", icon: "👶" },
             { key: "taxrefund", href: "/taxrefund", icon: "💸" },
+            { key: "unemployment", href: "/unemployment", icon: "🧭" },
             { key: "miluim", href: "/miluim", icon: "🎖️" },
             { key: "mobile", href: "/check", icon: "📱" },
             { key: "electricity", href: "/electricity", icon: "⚡" },
@@ -153,7 +154,6 @@ export default async function HomePage({
       <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
         {(
           [
-            { key: "unemployment", icon: "🧭" },
             { key: "parking", icon: "🅿️" },
             { key: "arnona_refund", icon: "🏠" },
             { key: "deposit", icon: "🔑" },

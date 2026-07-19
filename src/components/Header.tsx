@@ -14,6 +14,7 @@ const TOOLS = [
   { href: "/severance", key: "severance", icon: "📄" },
   { href: "/maternity", key: "maternity", icon: "👶" },
   { href: "/taxrefund", key: "taxrefund", icon: "💸" },
+  { href: "/unemployment", key: "unemployment", icon: "🧭" },
   { href: "/miluim", key: "miluim", icon: "🎖️" },
   { href: "/rights", key: "rights", icon: "📚" },
   { href: "/electricity", key: "electricity", icon: "⚡" },
