@@ -38,7 +38,8 @@
     "maternity": "Maternity",
     "tools": "Tools",
     "taxrefund": "Tax refund",
-    "unemployment": "Unemployment"
+    "unemployment": "Unemployment",
+    "olim": "New immigrants"
   },
   "payslip": {
     "title": "Payslip check",
@@ -504,7 +505,8 @@
       "noTrackers": "Zero tracking or ad cookies",
       "deletion": "Full one-click account deletion",
       "verifiablePoa": "Publicly verifiable power of attorney"
-    }
+    },
+    "legalLine": "Zakai is a consumer self-help tool. It is not a law firm, gives no legal advice, and does not represent you in any proceeding. The checks, calculators and letters are here to help you act for yourself."
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -1293,5 +1295,15 @@
       "For an exact figure — the official unemployment calculator on the Bituach Leumi site."
     ],
     "disclaimer": "This is an estimate only: the benefit is computed on a regressive scale (80/50/45/30 percent of wage) up to a cap, and depends on age, dependents and exact wage. Shown as a range on purpose. Not advice; the binding amount is set by Bituach Leumi."
+  },
+  "olim": {
+    "kicker": "New immigrants (Olim) 🇮🇱",
+    "title": "New to Israel? You're owed more than you think.",
+    "sub": "New immigrants are entitled to tax breaks, an absorption basket, arnona discounts and credit points — most go unclaimed because the bureaucracy is in Hebrew and complex. Zakai checks what you're owed, in English.",
+    "cta": "Check what I'm owed",
+    "ctaTax": "Tax-refund calculator",
+    "listTitle": "Rights worth checking as an oleh",
+    "badge": "Olim",
+    "disclaimer": "General orientation only, not advice. Exact eligibility is set by the authorities (Tax Authority, Ministry of Aliyah and Integration, your municipality) and depends on your aliyah date and circumstances."
   }
 }
