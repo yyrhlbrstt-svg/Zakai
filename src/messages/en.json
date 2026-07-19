@@ -36,7 +36,8 @@
     "payslip": "Payslip check",
     "severance": "Severance",
     "maternity": "Maternity",
-    "tools": "Tools"
+    "tools": "Tools",
+    "taxrefund": "Tax refund"
   },
   "payslip": {
     "title": "Payslip check",
@@ -235,6 +236,10 @@
       "maternity": {
         "title": "Maternity pay",
         "sub": "Maternity allowance from Bituach Leumi by salary and qualifying period — up to the 2026 ceiling."
+      },
+      "taxrefund": {
+        "title": "Tax refund",
+        "sub": "Worked part of the year? A quick refund estimate using the 2026 brackets and credit points."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1237,5 +1242,25 @@
       "Missing or wrong? File a written objection with Bituach Leumi."
     ],
     "disclaimer": "The calculation is based on Bituach Leumi's maternity rules (salary/30 per day, up to the ceiling) and the data you enter. The exact entitlement and number of days depend on your qualifying period and circumstances. Not advice; a conservative estimate."
+  },
+  "taxrefund": {
+    "title": "Tax-refund estimator",
+    "subtitle": "The most common reason for a refund: you worked only part of the year. Tax was withheld as if you'd earn all year — but you earned less, so a refund is due. A quick estimate, in your browser.",
+    "salaryQ": "Gross monthly salary (while working)",
+    "monthsQ": "Months you worked this year",
+    "pointsQ": "Base credit points",
+    "pointsMan": "2.25 (man)",
+    "pointsWoman": "2.75 (woman)",
+    "resultTitle": "Estimated refund",
+    "resultSub": "An estimate using the 2026 brackets and credit-point value. The exact amount is set when you file with the Tax Authority.",
+    "noRefund": "No refund from this reason given your input — but you may have one from other reasons (pension deposits, donations, a job change). Worth checking.",
+    "howTitle": "How to get the money",
+    "howSteps": [
+      "Open a personal area on the Tax Authority site and file a refund request (form 135) — checking and filing are free.",
+      "You can file up to 6 years back — each year separately.",
+      "Attach the 106 forms from every employer that year.",
+      "Other refund reasons: pension/study-fund deposits, donations to recognized institutions, unused credit points (degree, immigrant, discharged soldier, children)."
+    ],
+    "disclaimer": "The estimate is based on the 2026 brackets and credit-point value and the data you enter, and covers only the 'worked part of the year' reason. It excludes other reasons, other income and personal deductions, and is not tax advice. The binding amount is set by the Tax Authority."
   }
 }
