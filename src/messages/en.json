@@ -1262,5 +1262,12 @@
       "Other refund reasons: pension/study-fund deposits, donations to recognized institutions, unused credit points (degree, immigrant, discharged soldier, children)."
     ],
     "disclaimer": "The estimate is based on the 2026 brackets and credit-point value and the data you enter, and covers only the 'worked part of the year' reason. It excludes other reasons, other income and personal deductions, and is not tax advice. The binding amount is set by the Tax Authority."
+  },
+  "install": {
+    "title": "Install Zakai",
+    "sub": "Add it to your home screen — opens like an app, no store.",
+    "iosHint": "Tap the Share button, then \"Add to Home Screen\".",
+    "cta": "Install",
+    "dismiss": "Dismiss"
   }
 }

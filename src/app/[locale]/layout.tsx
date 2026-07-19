@@ -8,6 +8,7 @@ import { dir, isLocale, type Locale } from "@/i18n/config";
 import { Background } from "@/components/Background";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { getCurrentUser } from "@/lib/auth/user";
 import "../globals.css";
 
@@ -124,6 +125,7 @@ export default async function LocaleLayout({
           <Header user={user ? { name: user.name, plan: user.plan } : null} />
           {children}
           <Footer />
+          <InstallPrompt />
         </NextIntlClientProvider>
       </body>
     </html>
