@@ -100,6 +100,10 @@ model Case {
 
   provider        String // provider key: cellcom | partner | bezeq | hot | yes | other
   planDescription String @default("")
+  // Family mode: an optional label for whom this check is run ("אמא", "אבא"…).
+  // Empty = the account owner themselves. Purely a display grouping; the case
+  // stays owned by, and scoped to, the userId — no extra access surface.
+  beneficiaryLabel String @default("")
 
   // amounts in agorot
   amountOriginal Int // documented "before" amount, snapshotted at analysis time

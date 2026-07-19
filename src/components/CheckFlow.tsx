@@ -72,6 +72,9 @@ export function CheckFlow() {
   const [provider, setProvider] = useState("");
   const [amount, setAmount] = useState("");
   const [plan, setPlan] = useState("");
+  // Family mode: an optional label for whom this check is ("אמא", "אבא"…).
+  // Empty means the check is for the account owner themselves.
+  const [beneficiary, setBeneficiary] = useState("");
 
   const [rec, setRec] = useState<Rec | null>(null);
   const [draft, setDraft] = useState("");
@@ -109,7 +112,7 @@ export function CheckFlow() {
       const res = await fetch("/api/cases/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, locale }),
+        body: JSON.stringify({ ...payload, beneficiary: beneficiary.trim() || undefined, locale }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 401) {
@@ -283,6 +286,20 @@ export function CheckFlow() {
             onChange={(e) => onFile(e.target.files?.[0])}
             className="hidden"
           />
+
+          {/* Family mode — an optional "who is this for?" so one account can
+              handle a parent's or partner's bills, grouped on the dashboard. */}
+          <div className="mb-3.5">
+            <Input
+              value={beneficiary}
+              onChange={(e) => setBeneficiary(e.target.value)}
+              placeholder={t("beneficiaryPlaceholder")}
+              aria-label={t("beneficiaryLabel")}
+              maxLength={40}
+            />
+            <div className="text-[11.5px] text-ink-soft mt-1.5">{t("beneficiaryHint")}</div>
+          </div>
+
           <div
             role="button"
             tabIndex={0}

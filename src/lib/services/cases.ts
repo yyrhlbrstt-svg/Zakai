@@ -27,6 +27,7 @@ interface CreateCaseInput {
   marketLowShekels?: number;
   marketHighShekels?: number;
   draftMessage: string;
+  beneficiaryLabel?: string;
 }
 
 export async function createCase(input: CreateCaseInput) {
@@ -51,6 +52,7 @@ export async function createCase(input: CreateCaseInput) {
       marketHigh: input.marketHighShekels != null ? shekelsToAgorot(input.marketHighShekels) : null,
       strategy: input.strategy,
       draftMessage: input.draftMessage,
+      beneficiaryLabel: (input.beneficiaryLabel ?? "").slice(0, 40),
       status: "ANALYZED",
     },
   });

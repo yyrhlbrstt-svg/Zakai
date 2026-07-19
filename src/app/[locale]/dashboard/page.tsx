@@ -51,6 +51,76 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     0,
   );
 
+  // Family mode: group checks by whom they were run for. Cases with an empty
+  // label belong to the account owner and render first, ungrouped.
+  const ownCases = cases.filter((c) => !c.beneficiaryLabel);
+  const familyGroups = new Map<string, typeof cases>();
+  for (const c of cases) {
+    if (!c.beneficiaryLabel) continue;
+    const arr = familyGroups.get(c.beneficiaryLabel) ?? [];
+    arr.push(c);
+    familyGroups.set(c.beneficiaryLabel, arr);
+  }
+  const hasFamily = familyGroups.size > 0;
+
+  // One check row + the Card wrapper. Shared by the owner list and each
+  // family-member group so the markup stays identical everywhere.
+  const renderCaseCard = (list: typeof cases) => (
+    <Card className="py-1.5">
+      {list.map((c, i) => {
+        const settled = c.status === "SAVED" || c.status === "NO_SAVING";
+        const effectiveNew = c.savingsProof ? c.savingsProof.newAmount : c.targetAmount;
+        const delta = Math.max(0, c.amountOriginal - effectiveNew);
+        return (
+          <div
+            key={c.id}
+            className="flex items-center gap-3.5 px-5 py-4 flex-wrap"
+            style={{
+              borderBottom: i < list.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+            }}
+          >
+            <div className="flex-1 basis-[140px]">
+              <div className="font-extrabold text-[15.5px]">{t(`providers.${c.provider}`)}</div>
+              <div className="text-xs text-ink-soft mt-0.5">
+                {c.createdAt.toLocaleDateString(loc)}
+              </div>
+            </div>
+            <div className="text-[14.5px]">
+              <span className="font-display text-lg">{formatAgorot(c.amountOriginal, loc)}</span>
+              <span className="text-ink-soft"> → </span>
+              <span className="font-display grad-text text-lg">
+                {formatAgorot(effectiveNew, loc)}
+              </span>
+            </div>
+            <div className="text-[12.5px] text-emerald font-extrabold">
+              −{formatAgorot(delta, loc)}
+              {c.status === "SAVED"
+                ? ` (${t("dashboard.verifiedSavedTag")})`
+                : !settled
+                  ? ` (${t("dashboard.savedTag")})`
+                  : ""}
+            </div>
+            {c.fee && c.fee.status !== "WAIVED" && (
+              <div className="text-[12px] text-ink-soft">
+                {t("dashboard.feeTag")}: {formatAgorot(c.fee.amount, loc)}
+              </div>
+            )}
+            <div
+              className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
+              style={{
+                color: STATUS_COLOR[c.status],
+                background: `${STATUS_COLOR[c.status]}18`,
+                border: `1px solid ${STATUS_COLOR[c.status]}44`,
+              }}
+            >
+              {t(`dashboard.status.${STATUS_KEY[c.status]}`)}
+            </div>
+          </div>
+        );
+      })}
+    </Card>
+  );
+
   // Money Health Score — the recurring-need hook, from measurable activity.
   const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
   const lastActivity = cases[0]?.createdAt ?? null;
@@ -124,60 +194,25 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             </SpotlightCard>
           </Reveal>
 
-          <h2 className="text-[17px] font-extrabold mt-6 mb-3.5">{t("dashboard.checks")}</h2>
-          <Card className="py-1.5">
-            {cases.map((c, i) => {
-              const settled = c.status === "SAVED" || c.status === "NO_SAVING";
-              const effectiveNew = c.savingsProof ? c.savingsProof.newAmount : c.targetAmount;
-              const delta = Math.max(0, c.amountOriginal - effectiveNew);
-              return (
-                <div
-                  key={c.id}
-                  className="flex items-center gap-3.5 px-5 py-4 flex-wrap"
-                  style={{
-                    borderBottom: i < cases.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
-                  }}
-                >
-                  <div className="flex-1 basis-[140px]">
-                    <div className="font-extrabold text-[15.5px]">{t(`providers.${c.provider}`)}</div>
-                    <div className="text-xs text-ink-soft mt-0.5">
-                      {c.createdAt.toLocaleDateString(loc)}
-                    </div>
-                  </div>
-                  <div className="text-[14.5px]">
-                    <span className="font-display text-lg">{formatAgorot(c.amountOriginal, loc)}</span>
-                    <span className="text-ink-soft"> → </span>
-                    <span className="font-display grad-text text-lg">
-                      {formatAgorot(effectiveNew, loc)}
-                    </span>
-                  </div>
-                  <div className="text-[12.5px] text-emerald font-extrabold">
-                    −{formatAgorot(delta, loc)}
-                    {c.status === "SAVED"
-                      ? ` (${t("dashboard.verifiedSavedTag")})`
-                      : !settled
-                        ? ` (${t("dashboard.savedTag")})`
-                        : ""}
-                  </div>
-                  {c.fee && c.fee.status !== "WAIVED" && (
-                    <div className="text-[12px] text-ink-soft">
-                      {t("dashboard.feeTag")}: {formatAgorot(c.fee.amount, loc)}
-                    </div>
-                  )}
-                  <div
-                    className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
-                    style={{
-                      color: STATUS_COLOR[c.status],
-                      background: `${STATUS_COLOR[c.status]}18`,
-                      border: `1px solid ${STATUS_COLOR[c.status]}44`,
-                    }}
-                  >
-                    {t(`dashboard.status.${STATUS_KEY[c.status]}`)}
-                  </div>
-                </div>
-              );
-            })}
-          </Card>
+          {ownCases.length > 0 && (
+            <>
+              <h2 className="text-[17px] font-extrabold mt-6 mb-3.5">
+                {hasFamily ? t("dashboard.checksMine") : t("dashboard.checks")}
+              </h2>
+              {renderCaseCard(ownCases)}
+            </>
+          )}
+
+          {hasFamily &&
+            [...familyGroups.entries()].map(([label, list]) => (
+              <div key={label}>
+                <h2 className="text-[17px] font-extrabold mt-7 mb-3.5 flex items-center gap-2">
+                  <span aria-hidden>👤</span>
+                  {t("dashboard.checksFor", { name: label })}
+                </h2>
+                {renderCaseCard(list)}
+              </div>
+            ))}
 
           <div className="mt-6">
             <Link href="/check">

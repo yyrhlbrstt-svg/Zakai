@@ -17,6 +17,7 @@ const schema = z.union([
     mode: z.literal("image"),
     imageBase64: z.string().min(10),
     mediaType: z.string().default("image/jpeg"),
+    beneficiary: z.string().max(40).optional(),
     locale: z.string().default("he"),
   }),
   z.object({
@@ -24,6 +25,7 @@ const schema = z.union([
     provider: z.string().min(1),
     amountShekels: z.number().positive().max(100000),
     plan: z.string().default(""),
+    beneficiary: z.string().max(40).optional(),
     locale: z.string().default("he"),
   }),
 ]);
@@ -97,6 +99,7 @@ export async function POST(request: Request) {
       marketLowShekels: rec.marketLowShekels,
       marketHighShekels: rec.marketHighShekels,
       draftMessage: rec.draftMessage,
+      beneficiaryLabel: data.beneficiary,
     });
   } catch (err) {
     if (err instanceof CaseError && err.message === "CASE_LIMIT") {

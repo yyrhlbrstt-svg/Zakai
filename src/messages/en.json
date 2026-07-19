@@ -193,7 +193,7 @@
     "start": "Let's start"
   },
   "home": {
-    "kicker": "Consumer AI Agent · Israel · Stage 1: Mobile",
+    "kicker": "The AI agent that gets back the money you are owed · Israel",
     "title1": "You're overpaying.",
     "title2": "Zakai gets it back.",
     "sub": "Zakai detects inflated mobile bills, drafts a professional request and acts on your behalf — taking a fee only from money that actually returns to you.",
@@ -398,7 +398,10 @@
     "noSaving": "No saving was documented for this request — so there is no fee. You can try another provider or plan.",
     "newCase": "Check another bill",
     "toDash": "To dashboard",
-    "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan."
+    "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan.",
+    "beneficiaryLabel": "Who is this for?",
+    "beneficiaryPlaceholder": "Who is this for? (e.g. Mom, Dad) — optional",
+    "beneficiaryHint": "Checking a family member’s bill? Give them a name and it’s grouped on your dashboard. Leave empty if it’s for you."
   },
   "verify": {
     "title": "Verification before acting",
@@ -481,7 +484,9 @@
     "memberTitle": "Zakai {plan} member",
     "memberPro": "Reduced success fee (9%), up to 5 active cases, and a full scan of every charge.",
     "memberMax": "Zero fee — all savings stay yours. Unlimited cases and every capability unlocked.",
-    "memberManage": "Manage plan"
+    "memberManage": "Manage plan",
+    "checksMine": "My checks",
+    "checksFor": "{name}'s checks"
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",
@@ -533,7 +538,8 @@
       "verifiablePoa": "Publicly verifiable power of attorney"
     },
     "legalLine": "Zakai is a consumer self-help tool. It is not a law firm, gives no legal advice, and does not represent you in any proceeding. The checks, calculators and letters are here to help you act for yourself.",
-    "business": "For business"
+    "business": "For business",
+    "results": "Results"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -755,9 +761,9 @@
     },
     "euDelayOptions": {
       "1": "Up to 2 hours",
-      "2.5": "2–3 hours",
       "4": "3–5 hours",
-      "6": "Over 5 hours"
+      "6": "Over 5 hours",
+      "2.5": "2–3 hours"
     },
     "euTiers": {
       "short": "Up to 1,500 km (Cyprus, Athens)",
@@ -1587,5 +1593,49 @@
       "plan": "Upgrade your plan (lower fee)",
       "invite": "Invite a friend for credit"
     }
+  },
+  "results": {
+    "metaTitle": "Results & transparency — Zakai",
+    "metaDesc": "How much Zakai has identified and recovered, and how every shekel is documented and proven. Real numbers from the ledger, no promises.",
+    "kicker": "Full transparency",
+    "title": "Every shekel — documented, proven, verifiable",
+    "subStarted": "These are real numbers from Zakai's proof ledger — not estimates, not promises. Every saving here is backed by a before-and-after bill.",
+    "subEmpty": "Zakai is just getting started, and we don't fake numbers. Instead of invented 'success stories', here's exactly how every shekel we recover gets documented and proven. Be among the first.",
+    "stats": {
+      "documented": "Documented monthly savings",
+      "count": "Proven savings",
+      "checks": "Checks run",
+      "potential": "Monthly potential identified",
+      "note": "Numbers are pulled automatically from the append-only proof ledger — never typed in by hand."
+    },
+    "proof": {
+      "title": "How we prove every shekel",
+      "intro": "The mechanism that separates a 'promise' from 'proof' — and why we only charge a fee on real savings.",
+      "steps": [
+        {
+          "title": "The 'before' snapshot",
+          "body": "Your original bill amount is captured the moment you run a check — a starting point that can't be changed after the fact."
+        },
+        {
+          "title": "The 'after' snapshot",
+          "body": "Once the price drops, the new bill documents the new amount. The difference is your saving — not an estimate."
+        },
+        {
+          "title": "Append-only ledger",
+          "body": "Every proof of saving is written to a ledger that's only ever added to, never edited. It's the record of truth you can check too."
+        },
+        {
+          "title": "Fee only on savings + 14-day appeal",
+          "body": "No documented saving, no fee. And if something looks off, you have 14 days to dispute any charge."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Be among the first Zakai gets money back for",
+      "body": "A first check takes a minute and is completely free. If we don't find you a saving — you pay nothing, and that's perfectly fine.",
+      "primary": "Free check",
+      "secondary": "What am I owed?"
+    },
+    "disclaimer": "Zakai is a consumer self-help tool. It is not a lawyer, accountant or professional advice, and does not promise any outcome or amount. Every check depends on the data you enter and the provider's policy."
   }
 }
