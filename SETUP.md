@@ -29,7 +29,15 @@
 2. טוענים קרדיט קטן (בדרך כלל $2 מספיקים להמון שימוש — DeepSeek זול מאוד).
 3. Vercel → Environment Variables → Key: `DEEPSEEK_API_KEY`, Value: המפתח → Save → Redeploy.
 4. `/api/health` יראה `"aiProvider": "openai"`. הצ'אט יהיה חכם משמעותית.
-> אפשר גם כל endpoint תואם-OpenAI (OpenRouter, Together, Groq) עם `OPENAI_COMPAT_API_KEY` + `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_MODEL`. OpenRouter מציע חלק מהמודלים בחינם.
+> אפשר גם כל endpoint תואם-OpenAI (OpenRouter, Together, Groq) עם `OPENAI_COMPAT_API_KEY` + `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_MODEL`.
+
+**מסלול חינמי לגמרי — OpenRouter (מודלים חכמים בחינם):**
+1. openrouter.ai → הרשמה → Keys → Create Key (חינם).
+2. Vercel → Environment Variables:
+   - `OPENAI_COMPAT_API_KEY` = המפתח
+   - `OPENAI_COMPAT_BASE_URL` = `https://openrouter.ai/api/v1`
+   - `OPENAI_COMPAT_MODEL` = `deepseek/deepseek-chat-v3.1:free` (או מודל חינמי אחר, למשל `meta-llama/llama-3.3-70b-instruct:free`)
+3. Save → Redeploy. הסוכן יהיה חכם, בחינם. (למודלים ה"חינמיים" יש מגבלות קצב — לפרודקשן כבד עוברים ל-DeepSeek בתשלום זעום.)
 
 > ⚠️ חשוב: Ollama רץ על **המחשב שלך**. הפריסה בענן (Vercel) תגיע אליו רק אם המחשב חשוף לאינטרנט (מנהרה כמו ngrok/cloudflared, ואז `OLLAMA_BASE_URL` = כתובת המנהרה). להרצה מקומית מלאה (`npm run dev` על אותו מחשב) — עובד מיד. זו הסיבה שלפרודקשן ענן, מפתח ענן (Gemini/Anthropic) עדיין הכי פשוט.
 
