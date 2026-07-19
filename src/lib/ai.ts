@@ -1,6 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { resolveProviderKey, type ProviderKey } from "./providers";
+import { faqDigest } from "./faq";
 
 /**
  * Server-side AI. The API key never reaches the browser.
@@ -638,7 +639,9 @@ OFFICIAL SOURCES (when you state a right or a number, name the authoritative Isr
 - Maternity, unemployment, national-insurance benefits → הביטוח הלאומי (btl.gov.il).
 - Tax refund, credit points → רשות המסים (gov.il).
 - Arnona → הרשות המקומית שלך.
-Phrase it naturally, e.g. "אפשר לאמת בכל-זכות / באתר ביטוח לאומי". Only cite these official sources; do NOT invent links or quote unofficial sites.`;
+Phrase it naturally, e.g. "אפשר לאמת בכל-זכות / באתר ביטוח לאומי". Only cite these official sources; do NOT invent links or quote unofficial sites.
+
+${faqDigest()}`;
 
 export interface AssistantContext {
   plan: string;

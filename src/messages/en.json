@@ -43,7 +43,8 @@
     "parking": "Parking appeal",
     "deals": "Deals",
     "menu": "Menu",
-    "transportFine": "Transport fine"
+    "transportFine": "Transport fine",
+    "faq": "FAQ"
   },
   "payslip": {
     "title": "Payslip check",
@@ -539,7 +540,8 @@
     },
     "legalLine": "Zakai is a consumer self-help tool. It is not a law firm, gives no legal advice, and does not represent you in any proceeding. The checks, calculators and letters are here to help you act for yourself.",
     "business": "For business",
-    "results": "Results"
+    "results": "Results",
+    "faq": "FAQ"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -1637,5 +1639,18 @@
       "secondary": "What am I owed?"
     },
     "disclaimer": "Zakai is a consumer self-help tool. It is not a lawyer, accountant or professional advice, and does not promise any outcome or amount. Every check depends on the data you enter and the provider's policy."
+  },
+  "faqPage": {
+    "metaTitle": "FAQ — Zakai",
+    "metaDesc": "Clear answers to the common questions about Zakai: cost, trust, rights, pay, savings and privacy.",
+    "kicker": "FAQ",
+    "title": "Everything you wanted to ask — answered",
+    "sub": "These answers grow from real user questions and also power the smart assistant — so everything stays correct, consistent and up to date.",
+    "more": {
+      "title": "Didn’t find your answer?",
+      "body": "Zakai’s assistant answers personal questions based on your situation — with the same vetted answers.",
+      "askBtn": "Ask the assistant",
+      "checkBtn": "Free check"
+    }
   }
 }
