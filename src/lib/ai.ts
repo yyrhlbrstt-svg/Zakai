@@ -152,6 +152,12 @@ async function geminiGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /**
+   * Try this model FIRST (e.g. a smarter "pro" model for open-ended reasoning).
+   * If the key can't use it, or its quota is spent, we fall through to the
+   * normal ranked candidates — quality upgrade, never a reliability regression.
+   */
+  preferModel?: string;
 }): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new AiUnavailableError();
@@ -183,7 +189,12 @@ async function geminiGenerate(opts: {
       },
     );
 
-  const candidates = await geminiCandidateModels(apiKey);
+  const discovered = await geminiCandidateModels(apiKey);
+  // Prepend the preferred model (deduped) so quality-sensitive calls try it
+  // first, then gracefully degrade through the discovered flash candidates.
+  const candidates = opts.preferModel
+    ? [opts.preferModel, ...discovered.filter((m) => m !== opts.preferModel)]
+    : discovered;
   let lastError = "no model candidates";
   for (const model of candidates) {
     let res = await callModel(model, true);
@@ -332,11 +343,13 @@ async function fallbackGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /** Gemini-only: a stronger model to try first (ignored by other providers). */
+  geminiPreferModel?: string;
 }): Promise<string> {
   const provider = aiProvider();
   if (provider === "openai") return openaiCompatGenerate(opts);
   if (provider === "ollama") return ollamaGenerate(opts);
-  return geminiGenerate(opts);
+  return geminiGenerate({ ...opts, preferModel: opts.geminiPreferModel });
 }
 
 /**
@@ -637,7 +650,16 @@ export async function askZakai(question: string, ctx: AssistantContext): Promise
   const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
 
   if (aiProvider() !== "anthropic") {
-    return fallbackGenerate({ system: ASSISTANT_SYSTEM, userText, maxTokens: 1024, temperature: 0.3 });
+    // The assistant is the most reasoning-heavy call in the app, so on Gemini
+    // we reach for the smarter "pro" model first (still cheap against a prepaid
+    // credit) and fall back to flash automatically if it's unavailable.
+    return fallbackGenerate({
+      system: ASSISTANT_SYSTEM,
+      userText,
+      maxTokens: 1024,
+      temperature: 0.3,
+      geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
+    });
   }
 
   const anthropic = client();
