@@ -1563,5 +1563,25 @@
     "sendHint": "Send it to the operator's appeals department within the deadline on the report (usually 30–90 days), attaching a card/Rav-Kav history screenshot if relevant.",
     "legal": "Zakai is not a lawyer and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If refused, you have the right to a hearing or an appeals committee.",
     "disclaimer": "The letter is generated in your browser only and is never sent or stored. Not legal advice; appeal grounds and deadlines vary by operator and circumstances."
+  },
+  "moneyScore": {
+    "title": "Your Money Health Score",
+    "levels": {
+      "start": "Getting started 🌱",
+      "onTrack": "On track 💪",
+      "good": "Doing well 🔥",
+      "excellent": "Excellent! 🏆"
+    },
+    "nextMission": "Your next mission",
+    "pts": "pts",
+    "perfect": "Nicely done — you've covered it all. We'll ping you when something new is owed to you.",
+    "missions": {
+      "firstCheck": "Run your first check",
+      "breadth": "Check more areas (3+)",
+      "saving": "Document a first saving",
+      "fresh": "Come back for a re-check",
+      "plan": "Upgrade your plan (lower fee)",
+      "invite": "Invite a friend for credit"
+    }
   }
 }

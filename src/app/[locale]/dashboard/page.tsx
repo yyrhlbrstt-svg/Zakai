@@ -5,7 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { PlanBadge } from "@/components/PlanBadge";
+import { MoneyScoreCard } from "@/components/MoneyScoreCard";
 import { Reveal } from "@/components/Reveal";
+import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -49,6 +51,19 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     0,
   );
 
+  // Money Health Score — the recurring-need hook, from measurable activity.
+  const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
+  const lastActivity = cases[0]?.createdAt ?? null;
+  const scoreResult = computeMoneyScore({
+    casesCount: cases.length,
+    hasDocumentedSaving: cases.some((c) => c.savingsProof != null),
+    daysSinceActivity: lastActivity
+      ? Math.floor((Date.now() - lastActivity.getTime()) / 86_400_000)
+      : null,
+    plan: user!.plan,
+    hasReferred: referredCount > 0,
+  });
+
   return (
     <main className="max-w-[900px] mx-auto px-5 pb-20 pt-1">
       <div className="flex items-center gap-3 flex-wrap my-3 mb-5">
@@ -78,6 +93,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
           </div>
         </div>
       )}
+
+      <MoneyScoreCard result={scoreResult} />
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
