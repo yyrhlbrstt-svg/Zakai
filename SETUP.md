@@ -24,6 +24,13 @@
 2. מריצים `ollama serve` (רץ על `http://localhost:11434`).
 3. מגדירים משתני סביבה: `OLLAMA_BASE_URL=http://localhost:11434` ו-`OLLAMA_MODEL=llama3.1`.
 4. אם אין `ANTHROPIC_API_KEY`/`GEMINI_API_KEY` — זכאי ישתמש אוטומטית ב-Ollama. `/api/health` יראה `"aiProvider": "ollama"`.
+**מסלול "חכם וזול" — DeepSeek (מומלץ לשדרוג הצ'אט):** מודל חזק בהרבה מ-Gemini החינמי, בפרוטות.
+1. נרשמים ב-platform.deepseek.com → API Keys → Create → מעתיקים את המפתח.
+2. טוענים קרדיט קטן (בדרך כלל $2 מספיקים להמון שימוש — DeepSeek זול מאוד).
+3. Vercel → Environment Variables → Key: `DEEPSEEK_API_KEY`, Value: המפתח → Save → Redeploy.
+4. `/api/health` יראה `"aiProvider": "openai"`. הצ'אט יהיה חכם משמעותית.
+> אפשר גם כל endpoint תואם-OpenAI (OpenRouter, Together, Groq) עם `OPENAI_COMPAT_API_KEY` + `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_MODEL`. OpenRouter מציע חלק מהמודלים בחינם.
+
 > ⚠️ חשוב: Ollama רץ על **המחשב שלך**. הפריסה בענן (Vercel) תגיע אליו רק אם המחשב חשוף לאינטרנט (מנהרה כמו ngrok/cloudflared, ואז `OLLAMA_BASE_URL` = כתובת המנהרה). להרצה מקומית מלאה (`npm run dev` על אותו מחשב) — עובד מיד. זו הסיבה שלפרודקשן ענן, מפתח ענן (Gemini/Anthropic) עדיין הכי פשוט.
 
 ## 2. דומיין (אמינות — ביקורת מוצדקת: vercel.app נראה זמני) — ~50-90 ₪/שנה

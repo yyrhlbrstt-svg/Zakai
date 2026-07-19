@@ -30,15 +30,43 @@ export class AiUnavailableError extends Error {
  *     on your own machine, so it's used only when no cloud key is present.
  * When several are configured, the highest-priority one wins.
  */
-export type AiProvider = "anthropic" | "gemini" | "ollama";
+export type AiProvider = "anthropic" | "openai" | "gemini" | "ollama";
 
 /** Ollama is enabled only when explicitly pointed at a server. */
 function ollamaConfigured(): boolean {
   return Boolean(process.env.OLLAMA_BASE_URL || process.env.OLLAMA_MODEL);
 }
 
+/**
+ * Any OpenAI-compatible chat endpoint — DeepSeek, OpenRouter, Together, Groq,
+ * etc. DeepSeek in particular is far stronger than the free Gemini tier and
+ * very cheap, so it's the recommended "make the assistant smart" upgrade.
+ * Enabled by DEEPSEEK_API_KEY (sets sensible DeepSeek defaults) or the generic
+ * OPENAI_COMPAT_API_KEY (bring your own base URL + model).
+ */
+function openaiCompatConfig(): { apiKey: string; baseUrl: string; model: string } | null {
+  const deepseek = process.env.DEEPSEEK_API_KEY;
+  if (deepseek) {
+    return {
+      apiKey: deepseek,
+      baseUrl: process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com/v1",
+      model: process.env.DEEPSEEK_MODEL || "deepseek-chat",
+    };
+  }
+  const key = process.env.OPENAI_COMPAT_API_KEY;
+  if (key && process.env.OPENAI_COMPAT_BASE_URL) {
+    return {
+      apiKey: key,
+      baseUrl: process.env.OPENAI_COMPAT_BASE_URL,
+      model: process.env.OPENAI_COMPAT_MODEL || "gpt-4o-mini",
+    };
+  }
+  return null;
+}
+
 export function aiProvider(): AiProvider | null {
   if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (openaiCompatConfig()) return "openai";
   if (process.env.GEMINI_API_KEY) return "gemini";
   if (ollamaConfigured()) return "ollama";
   return null;
@@ -238,6 +266,62 @@ async function ollamaGenerate(opts: {
 }
 
 /**
+ * OpenAI-compatible chat endpoint (DeepSeek / OpenRouter / Together / …).
+ * DeepSeek's `deepseek-chat` is a strong, cheap model — the recommended way to
+ * make the assistant genuinely smart without an Anthropic key.
+ */
+async function openaiCompatGenerate(opts: {
+  system: string;
+  userText: string;
+  imageBase64?: string;
+  mediaType?: string;
+  maxTokens: number;
+  temperature?: number;
+}): Promise<string> {
+  const cfg = openaiCompatConfig();
+  if (!cfg) throw new AiUnavailableError();
+
+  // Vision uses the OpenAI content-array shape; text-only models ignore it.
+  const userContent: unknown = opts.imageBase64
+    ? [
+        { type: "text", text: opts.userText },
+        {
+          type: "image_url",
+          image_url: { url: `data:${opts.mediaType || "image/jpeg"};base64,${opts.imageBase64}` },
+        },
+      ]
+    : opts.userText;
+
+  const res = await fetch(`${cfg.baseUrl.replace(/\/+$/, "")}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${cfg.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: cfg.model,
+      messages: [
+        { role: "system", content: opts.system },
+        { role: "user", content: userContent },
+      ],
+      max_tokens: opts.maxTokens,
+      ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = (await res.text().catch(() => "")).slice(0, 200);
+    throw new Error(`OpenAI-compat ${cfg.model}: ${res.status} ${detail}`.trim());
+  }
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  const text = (data.choices?.[0]?.message?.content ?? "").trim();
+  if (!text) throw new Error(`OpenAI-compat ${cfg.model}: empty response`);
+  return text;
+}
+
+/**
  * Dispatch a text/vision generation to whichever non-Anthropic provider is
  * active. Keeps the four call sites below to a single branch each.
  */
@@ -249,7 +333,10 @@ async function fallbackGenerate(opts: {
   maxTokens: number;
   temperature?: number;
 }): Promise<string> {
-  return aiProvider() === "ollama" ? ollamaGenerate(opts) : geminiGenerate(opts);
+  const provider = aiProvider();
+  if (provider === "openai") return openaiCompatGenerate(opts);
+  if (provider === "ollama") return ollamaGenerate(opts);
+  return geminiGenerate(opts);
 }
 
 /**
