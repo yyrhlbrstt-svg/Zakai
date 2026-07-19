@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card, Input } from "@/components/ui";
 import { auditPayslip, type Finding, type FindingStatus } from "@/lib/payslip";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { ShareResult } from "@/components/ShareResult";
 
 /**
  * Payslip audit — pure client-side (nothing leaves the browser), same pattern
@@ -13,6 +14,7 @@ import { formatAgorot, shekelsToAgorot } from "@/lib/money";
  */
 export function PayslipChecker({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("payslip");
+  const tShare = useTranslations("share");
   const [fullTime, setFullTime] = useState(true);
   const [scopePct, setScopePct] = useState(100);
   const [base, setBase] = useState(""); // ₪ base salary
@@ -156,6 +158,8 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
               <FindingRow key={f.id} f={f} t={t} money={money} />
             ))}
           </div>
+
+          {audit.flagged > 0 && <ShareResult message={tShare("msgPayslip")} path="/payslip" />}
 
           <Card className="mt-5 p-6">
             <div className="font-extrabold text-[15px] mb-3">{t("howTitle")}</div>

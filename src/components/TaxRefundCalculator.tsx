@@ -5,10 +5,12 @@ import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
 import { estimatePartialYearRefund } from "@/lib/tax";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { ShareResult } from "@/components/ShareResult";
 
 /** Partial-year tax-refund estimator — pure client-side. */
 export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("taxrefund");
+  const tShare = useTranslations("share");
   const [monthly, setMonthly] = useState(12000); // ₪/month
   const [months, setMonths] = useState(5);
   const [points, setPoints] = useState(2.25);
@@ -75,6 +77,7 @@ export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
         ) : (
           <div className="text-[12.5px] text-ink-soft mt-2">{t("noRefund")}</div>
         )}
+        {r.refundAgorot > 0 && <ShareResult message={tShare("msgTax")} path="/taxrefund" />}
       </Card>
 
       <Card className="mt-5 p-6">

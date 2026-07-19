@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
+import { ShareResult } from "@/components/ShareResult";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
 
 const AGES = ["18_24", "25_44", "45_66", "67_plus"] as const;
@@ -153,6 +154,9 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
             <Button variant="ghost">{t("entitlements.ctaRights")}</Button>
           </Link>
         </div>
+
+        <ShareResult message={t("share.msgEntitlements", { count: result.matches.length })} />
+
         <button
           type="button"
           onClick={() => {
