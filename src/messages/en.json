@@ -34,7 +34,8 @@
     "miluim": "Reserve duty",
     "entitlements": "What am I owed?",
     "payslip": "Payslip check",
-    "severance": "Severance"
+    "severance": "Severance",
+    "maternity": "Maternity"
   },
   "payslip": {
     "title": "Payslip check",
@@ -229,6 +230,10 @@
       "severance": {
         "title": "Severance pay",
         "sub": "One month's salary per year of work — exact math in a second, including the Section 14 check."
+      },
+      "maternity": {
+        "title": "Maternity pay",
+        "sub": "Maternity allowance from Bituach Leumi by salary and qualifying period — up to the 2026 ceiling."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1209,5 +1214,27 @@
       "Unresolved? Approach the Labor Rights Commissioner or an employment lawyer. Severance claims are possible up to 7 years back."
     ],
     "disclaimer": "The calculation is based on the Severance Pay Law (one month's salary per year) and the data you enter. The exact base and entitlement depend on your agreement, qualifying pay components and circumstances of termination. Not legal advice; a conservative estimate."
+  },
+  "maternity": {
+    "title": "Maternity allowance calculator",
+    "subtitle": "Bituach Leumi pays maternity allowance based on your pre-birth salary. Enter your monthly salary and qualifying period — Zakai computes what you're owed. Runs in your browser, no documents.",
+    "eligibilityQ": "Qualifying period you accrued",
+    "eligibility": {
+      "full": "105 days (10 of 14 months)",
+      "partial": "56 days (6 of 14 months)"
+    },
+    "salaryQ": "Average monthly salary (3 months before birth)",
+    "resultTitle": "Estimated maternity allowance",
+    "daily": "per day",
+    "days": "days",
+    "capped": "Salary exceeded the ceiling — the allowance is limited to the maximum (₪1,730.33/day, 2026).",
+    "howTitle": "How to make sure it's right",
+    "howSteps": [
+      "Maternity allowance is paid automatically after birth — check in your Bituach Leumi account that the amount matches your salary.",
+      "If you worked for several employers — make sure all income was counted.",
+      "The determining wage is the 3 months before stopping work; if those were unusually low, alternative rules apply — worth checking with a representative.",
+      "Missing or wrong? File a written objection with Bituach Leumi."
+    ],
+    "disclaimer": "The calculation is based on Bituach Leumi's maternity rules (salary/30 per day, up to the ceiling) and the data you enter. The exact entitlement and number of days depend on your qualifying period and circumstances. Not advice; a conservative estimate."
   }
 }
