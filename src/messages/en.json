@@ -40,7 +40,8 @@
     "taxrefund": "Tax refund",
     "unemployment": "Unemployment",
     "olim": "New immigrants",
-    "parking": "Parking appeal"
+    "parking": "Parking appeal",
+    "deals": "Deals"
   },
   "payslip": {
     "title": "Payslip check",
@@ -1423,5 +1424,83 @@
     "msgEntitlements": "I checked on Zakai and found {count} rights I'm owed 💰 How much are you owed? (free, a minute)",
     "msgPayslip": "I checked my payslip on Zakai and money might be missing 😮 Check yours free:",
     "msgTax": "Zakai showed I might be owed a tax refund 💸 Check how much you're owed, free:"
+  },
+  "deals": {
+    "title": "Deals & benefits — money you can save now",
+    "sub": "A collection of real benefits and moves that save you money right away. Free for everyone. Exclusive partner coupons — coming soon for Pro members.",
+    "soon": "Exclusive coupons",
+    "soonSub": "We're connecting to affiliate networks to bring you real store discount codes — exclusive to Pro and Max members.",
+    "items": [
+      {
+        "icon": "📱",
+        "title": "Cellular loyalty discount",
+        "desc": "Long-time customers quietly pay more. One call to retention usually cuts 20–40%.",
+        "action": "Check your bill",
+        "href": "/check"
+      },
+      {
+        "icon": "⚡",
+        "title": "Switch electricity supplier",
+        "desc": "The reform lets you get a fixed discount on electricity — up to ~7%, no rewiring.",
+        "action": "Compare electricity",
+        "href": "/electricity"
+      },
+      {
+        "icon": "🔁",
+        "title": "Cancel duplicate subscriptions",
+        "desc": "Streaming, gym, apps — most of us pay for things we forgot. A scan finds them all.",
+        "action": "Scan charges",
+        "href": "/scan"
+      },
+      {
+        "icon": "🏦",
+        "title": "Free credit report",
+        "desc": "You're entitled to one free report a year from the Bank of Israel. Spots charges and loans you didn't know about.",
+        "action": "Learn more",
+        "href": "/rights"
+      },
+      {
+        "icon": "💳",
+        "title": "Cancel bank fees",
+        "desc": "You can request a waiver of common account fees and move to a cheaper basic track by law.",
+        "action": "Check rights",
+        "href": "/rights"
+      },
+      {
+        "icon": "🎓",
+        "title": "Student benefits",
+        "desc": "Discounts in banking, transport and culture — many go unclaimed. Worth checking by profile.",
+        "action": "What am I owed",
+        "href": "/entitlements"
+      },
+      {
+        "icon": "🎖️",
+        "title": "Soldier & veteran benefits",
+        "desc": "Grants, a personal deposit and discounts — up to 5 years after discharge.",
+        "action": "What am I owed",
+        "href": "/entitlements"
+      },
+      {
+        "icon": "🏠",
+        "title": "Arnona discount",
+        "desc": "By income, age, disability or family status — a discount worth hundreds of shekels a year.",
+        "action": "Check rights",
+        "href": "/rights"
+      },
+      {
+        "icon": "🅿️",
+        "title": "Parking-ticket appeal",
+        "desc": "Many tickets fall on defects. You can appeal free — and we'll prepare the letter.",
+        "action": "Prepare appeal",
+        "href": "/parking"
+      },
+      {
+        "icon": "💸",
+        "title": "Tax refund",
+        "desc": "Worked part of the year or switched jobs? You're likely owed a refund, up to 6 years back.",
+        "action": "Check refund",
+        "href": "/taxrefund"
+      }
+    ]
   }
 }
