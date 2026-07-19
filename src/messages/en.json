@@ -35,7 +35,8 @@
     "entitlements": "What am I owed?",
     "payslip": "Payslip check",
     "severance": "Severance",
-    "maternity": "Maternity"
+    "maternity": "Maternity",
+    "tools": "Tools"
   },
   "payslip": {
     "title": "Payslip check",

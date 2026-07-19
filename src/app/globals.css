@@ -210,7 +210,7 @@ select option {
   justify-content: center;
   gap: 22px;
   background: radial-gradient(120% 90% at 50% 42%, #0c1626 0%, #070b12 62%);
-  animation: splashOut 0.7s var(--ease-out) 1.55s forwards;
+  animation: splashOut 0.7s var(--ease-out) 2.5s forwards;
 }
 #zakai-splash.splash-skip {
   display: none;
