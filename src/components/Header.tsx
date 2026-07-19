@@ -4,8 +4,9 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, usePathname, Link } from "@/i18n/routing";
 import { activeLocales, localeLabel, type Locale } from "@/i18n/config";
 import { Logo } from "@/components/Logo";
+import { PlanBadge } from "@/components/PlanBadge";
 
-export function Header({ user }: { user: { name: string } | null }) {
+export function Header({ user }: { user: { name: string; plan?: string } | null }) {
   const t = useTranslations();
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -35,12 +36,13 @@ export function Header({ user }: { user: { name: string } | null }) {
               className="flex items-center gap-2 no-underline rounded-full ps-1.5 pe-3 py-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)] hover:border-[rgba(63,203,155,0.4)] transition-colors duration-200"
               aria-label={t("nav.settings")}
             >
-              <span className="w-6 h-6 rounded-full grad-bg text-[#06121A] inline-flex items-center justify-center text-[12px] font-black">
+              <span className="account-avatar w-6 h-6 rounded-full grad-bg text-[#06121A] inline-flex items-center justify-center text-[12px] font-black">
                 {user.name.trim().charAt(0)}
               </span>
               <span className="text-ink text-[13.5px] font-bold max-w-[120px] truncate">
                 {user.name}
               </span>
+              <PlanBadge plan={user.plan} />
             </Link>
           </>
         ) : (

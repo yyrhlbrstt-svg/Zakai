@@ -429,7 +429,11 @@
       "saved": "Saving documented",
       "no_saving": "No saving",
       "revoked": "Revoked"
-    }
+    },
+    "memberTitle": "Zakai {plan} member",
+    "memberPro": "Reduced success fee (9%), up to 5 active cases, and a full scan of every charge.",
+    "memberMax": "Zero fee — all savings stay yours. Unlimited cases and every capability unlocked.",
+    "memberManage": "Manage plan"
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",

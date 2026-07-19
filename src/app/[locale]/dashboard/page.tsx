@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { PlanBadge } from "@/components/PlanBadge";
 import { Reveal } from "@/components/Reveal";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -50,7 +51,33 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
   return (
     <main className="max-w-[900px] mx-auto px-5 pb-20 pt-1">
-      <h1 className="font-display text-3xl my-3 mb-5">{t("dashboard.title")}</h1>
+      <div className="flex items-center gap-3 flex-wrap my-3 mb-5">
+        <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
+        <PlanBadge plan={user!.plan} />
+      </div>
+      {(user!.plan === "PRO" || user!.plan === "MAX") && (
+        <div
+          className={`rounded-2xl p-[1px] mb-6 ${
+            user!.plan === "MAX"
+              ? "bg-[linear-gradient(105deg,#f7d98a,#f0b45c_55%,#e79a3c)]"
+              : "bg-[linear-gradient(105deg,#3fcb9b,#23cbb6_55%,#1fb6c9)]"
+          }`}
+        >
+          <div className="rounded-2xl bg-[#0a1119] px-5 py-4 flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div className="font-extrabold text-[15px]">
+                {t("dashboard.memberTitle", { plan: user!.plan })}
+              </div>
+              <div className="text-ink-soft text-[12.5px] mt-0.5">
+                {t(user!.plan === "MAX" ? "dashboard.memberMax" : "dashboard.memberPro")}
+              </div>
+            </div>
+            <Link href="/pricing" className="text-emerald text-[13px] font-bold no-underline shrink-0">
+              {t("dashboard.memberManage")}
+            </Link>
+          </div>
+        </div>
+      )}
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">

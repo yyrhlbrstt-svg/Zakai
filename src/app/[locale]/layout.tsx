@@ -76,7 +76,7 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale });
 
   return (
-    <html lang={locale} dir={dir[locale as Locale]}>
+    <html lang={locale} dir={dir[locale as Locale]} data-plan={user?.plan ?? "FREE"}>
       <body className={`${body.variable} ${display.variable} ${wordmark.variable} font-body text-ink`}>
         {/* Mark JS as available before paint so scroll-reveal only hides content
             when it can actually reveal it (no-JS keeps everything visible). */}
@@ -121,7 +121,7 @@ export default async function LocaleLayout({
         />
         <NextIntlClientProvider messages={messages}>
           <Background />
-          <Header user={user ? { name: user.name } : null} />
+          <Header user={user ? { name: user.name, plan: user.plan } : null} />
           {children}
           <Footer />
         </NextIntlClientProvider>

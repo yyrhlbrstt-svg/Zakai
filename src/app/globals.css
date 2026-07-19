@@ -281,6 +281,61 @@ select option {
   }
 }
 
+/* ---- Premium plan badges (PRO / MAX) --------------------------------------- */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-wordmark), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #06121a;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.plan-badge-pro {
+  background: linear-gradient(105deg, #3fcb9b, #23cbb6 55%, #1fb6c9);
+  box-shadow: 0 4px 14px rgba(63, 203, 155, 0.35);
+}
+.plan-badge-max {
+  background: linear-gradient(105deg, #f7d98a, #f0b45c 55%, #e79a3c);
+  box-shadow: 0 4px 16px rgba(240, 180, 92, 0.4);
+}
+/* A slow sheen sweeps the MAX badge — one continuous, calm pass. */
+.plan-badge-max::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: translateX(-120%);
+  animation: badgeSheen 3.6s var(--ease-out) 1.2s infinite;
+  z-index: 1;
+}
+@keyframes badgeSheen {
+  0% { transform: translateX(-120%); }
+  22%, 100% { transform: translateX(220%); }
+}
+/* Members get a warmer avatar ring in the header account chip. */
+:root[data-plan="MAX"] .account-avatar {
+  background: linear-gradient(105deg, #f7d98a, #f0b45c 55%, #e79a3c) !important;
+  box-shadow: 0 0 0 2px rgba(240, 180, 92, 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .plan-badge-max::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* Range input, used by the savings calculator. */
 input[type="range"] {
   -webkit-appearance: none;
