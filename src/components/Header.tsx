@@ -18,6 +18,7 @@ const TOOLS = [
   { href: "/unemployment", key: "unemployment", icon: "🧭" },
   { href: "/olim", key: "olim", icon: "🇮🇱" },
   { href: "/parking", key: "parking", icon: "🅿️" },
+  { href: "/transport-fine", key: "transportFine", icon: "🚌" },
   { href: "/miluim", key: "miluim", icon: "🎖️" },
   { href: "/rights", key: "rights", icon: "📚" },
   { href: "/electricity", key: "electricity", icon: "⚡" },

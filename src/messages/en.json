@@ -42,7 +42,8 @@
     "olim": "New immigrants",
     "parking": "Parking appeal",
     "deals": "Deals",
-    "menu": "Menu"
+    "menu": "Menu",
+    "transportFine": "Transport fine"
   },
   "payslip": {
     "title": "Payslip check",
@@ -1521,5 +1522,46 @@
         "href": "/taxrefund"
       }
     ]
+  },
+  "transportFine": {
+    "title": "Public-transport fine appeal",
+    "subtitle": "Got an inspector fine on a bus or train (riding without validation)? Many are cancellable — a broken validator, a valid Rav-Kav balance, or a wrong detail. Fill a few fields and Zakai prepares an appeal letter for you to send in your own name.",
+    "name": "Full name",
+    "report": "Fine number",
+    "operator": "Operator (Egged/Dan/Israel Railways...)",
+    "reasonQ": "Reason for appeal",
+    "reasons": {
+      "validator": {
+        "label": "Validator wasn't working",
+        "body": "The validator on the line/at the station did not work or read the card, so validation was impossible despite my attempt."
+      },
+      "balance": {
+        "label": "I had a valid ticket/balance",
+        "body": "I hold a Rav-Kav with balance or a valid ride at the time, as shown in the attached card history."
+      },
+      "notime": {
+        "label": "Didn't manage to validate",
+        "body": "I boarded and had not yet completed validation when checked, with no intention of avoiding payment."
+      },
+      "details": {
+        "label": "Wrong details on the report",
+        "body": "The report contains incorrect details (line number / time / identifying details), a defect that justifies cancelling it."
+      },
+      "student": {
+        "label": "Entitled to a discount",
+        "body": "I'm entitled to a reduced fare (student/youth/senior/disabled) that was valid, and the fine was issued in error."
+      },
+      "other": {
+        "label": "Other",
+        "body": "I dispute the justification of the fine in the circumstances, as detailed below."
+      }
+    },
+    "details": "Short additional detail (optional)",
+    "generate": "Prepare my appeal letter",
+    "copy": "Copy letter",
+    "copied": "Copied ✓",
+    "sendHint": "Send it to the operator's appeals department within the deadline on the report (usually 30–90 days), attaching a card/Rav-Kav history screenshot if relevant.",
+    "legal": "Zakai is not a lawyer and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If refused, you have the right to a hearing or an appeals committee.",
+    "disclaimer": "The letter is generated in your browser only and is never sent or stored. Not legal advice; appeal grounds and deadlines vary by operator and circumstances."
   }
 }
