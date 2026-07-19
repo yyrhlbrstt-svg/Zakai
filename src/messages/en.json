@@ -33,7 +33,8 @@
     "rights": "Rights",
     "miluim": "Reserve duty",
     "entitlements": "What am I owed?",
-    "payslip": "Payslip check"
+    "payslip": "Payslip check",
+    "severance": "Severance"
   },
   "payslip": {
     "title": "Payslip check",
@@ -224,6 +225,10 @@
       "payslip": {
         "title": "Payslip check",
         "sub": "Minimum wage, pension and convalescence — the three most-missed items on a slip, in a one-minute check."
+      },
+      "severance": {
+        "title": "Severance pay",
+        "sub": "One month's salary per year of work — exact math in a second, including the Section 14 check."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1187,5 +1192,22 @@
       "Keep your service confirmations (3010) — they anchor every claim."
     ],
     "disclaimer": "Estimate per National Insurance rules (3-month basis ÷ 90 + 20% supplement). Index-linked daily minimums/maximums may adjust the figure; the NII calculation governs. Not advice. Coming soon: Zakai prepares the forms for you."
+  },
+  "severance": {
+    "title": "Severance calculator",
+    "subtitle": "An employee dismissed after a year is entitled to one month's salary per year of work. Enter your last salary and tenure — Zakai computes what you're owed. Runs in your browser, no documents.",
+    "salaryQ": "Last monthly salary (gross)",
+    "yearsQ": "Years with the employer",
+    "monthsQ": "Additional months",
+    "resultTitle": "Estimated severance",
+    "notEligible": "Under one year — severance entitlement usually begins after a full year of work (barring exceptions).",
+    "howTitle": "How to make sure you got it all",
+    "howSteps": [
+      "Under a Section 14 arrangement, much of the severance is already accrued in your pension/managers-insurance and released to you even on resignation. Check with the fund.",
+      "Compare what you received (release letter / final payslip) to the figure here.",
+      "If short — ask the employer in writing to correct and complete it.",
+      "Unresolved? Approach the Labor Rights Commissioner or an employment lawyer. Severance claims are possible up to 7 years back."
+    ],
+    "disclaimer": "The calculation is based on the Severance Pay Law (one month's salary per year) and the data you enter. The exact base and entitlement depend on your agreement, qualifying pay components and circumstances of termination. Not legal advice; a conservative estimate."
   }
 }

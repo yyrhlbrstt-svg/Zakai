@@ -117,6 +117,7 @@ export default async function HomePage({
           [
             { key: "rights", href: "/rights", icon: "🎯" },
             { key: "payslip", href: "/payslip", icon: "🧾" },
+            { key: "severance", href: "/severance", icon: "📄" },
             { key: "miluim", href: "/miluim", icon: "🎖️" },
             { key: "mobile", href: "/check", icon: "📱" },
             { key: "electricity", href: "/electricity", icon: "⚡" },
@@ -151,7 +152,6 @@ export default async function HomePage({
         {(
           [
             { key: "taxrefund", icon: "💸" },
-            { key: "severance", icon: "📄" },
             { key: "maternity", icon: "👶" },
             { key: "unemployment", icon: "🧭" },
             { key: "parking", icon: "🅿️" },
