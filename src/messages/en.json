@@ -54,7 +54,8 @@
     "arnona": "Arnona appeal",
     "dupinsurance": "Duplicate insurance",
     "pension": "Pension fees",
-    "mortgage": "Mortgage refinance"
+    "mortgage": "Mortgage refinance",
+    "whatAmIOwed": "What am I owed?"
   },
   "payslip": {
     "title": "Payslip check",
@@ -591,7 +592,8 @@
     "business": "For business",
     "results": "Results",
     "faq": "FAQ",
-    "feedback": "Improve Zakai"
+    "feedback": "Improve Zakai",
+    "whatAmIOwed": "What am I owed?"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -2053,5 +2055,28 @@
     "shareMsg": "I checked on Zakai and refinancing my mortgage could save me up to {amount} in interest 🏠 worth it for every homeowner to check:",
     "assumption": "This is a fixed-rate estimate for illustration. A real mortgage mixes tracks (prime, fixed, index-linked) and has an early-repayment fee — so actual savings may differ.",
     "disclaimer": "Zakai is a self-help tool, not a licensed mortgage advisor. This is an orientation estimate, not advice. Before refinancing, consult a licensed mortgage advisor and check early-repayment fees with the bank."
+  },
+  "potential": {
+    "metaTitle": "How much am I owed? — the check everyone needs | Zakai",
+    "metaDesc": "A few taps and you get an estimate of how much is worth checking — tax, pension, mortgage, arnona, insurance and more. Free, no signup.",
+    "kicker": "The check everyone needs",
+    "title": "How much money are you really owed?",
+    "sub": "Answer a few quick questions and we'll show an estimate of how much is worth checking — and exactly where. Free, no signup, and it all runs in your browser.",
+    "q": "Which of these fit you? (tick all that apply)",
+    "options": {
+      "employed": "I'm employed",
+      "ownsHome": "I own a home",
+      "hasMortgage": "I have a mortgage",
+      "hasPension": "I have a pension",
+      "hasPrivateInsurance": "I have private insurance",
+      "flewDelayed": "I flew and a flight was delayed/cancelled",
+      "rents": "I rent a home"
+    },
+    "calc": "How much am I owed?",
+    "resultLabel": "Based on your answers, it's worth checking:",
+    "upTo": "up to",
+    "resultSub": "(at least about {low}, on a conservative estimate). This is a ceiling of potential to check — not a promise. Tap any row to actually check it.",
+    "shareMsg": "I checked on Zakai and found I might be owed up to {amount} 😳 worth it for everyone to check, takes a minute:",
+    "honest": "These are potential estimates based on public data, mixing one-time, annual and multi-year amounts — to give you a picture of what's worth checking. The actual amount depends on your personal details."
   }
 }

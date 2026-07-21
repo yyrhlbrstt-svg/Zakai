@@ -74,8 +74,8 @@ export default async function HomePage({
               <Link href="/check">
                 <Button>{t("home.cta")}</Button>
               </Link>
-              <Link href="/entitlements">
-                <Button variant="ghost">{t("nav.entitlements")}</Button>
+              <Link href="/what-am-i-owed">
+                <Button variant="ghost">{t("nav.whatAmIOwed")}</Button>
               </Link>
             </div>
           </Reveal>
