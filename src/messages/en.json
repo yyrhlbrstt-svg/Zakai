@@ -46,7 +46,8 @@
     "transportFine": "Transport fine",
     "faq": "FAQ",
     "lostmoney": "Lost money",
-    "baggage": "Baggage payout"
+    "baggage": "Baggage payout",
+    "bankfees": "Bank fees"
   },
   "payslip": {
     "title": "Payslip check",
@@ -269,6 +270,10 @@
       "baggage": {
         "title": "Baggage payout",
         "sub": "Delayed or lost bag? You're owed up to thousands most travelers never claim."
+      },
+      "bankfees": {
+        "title": "Bank fees",
+        "sub": "Hundreds a year in waivable fees — with a ready-to-send letter."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1750,5 +1755,48 @@
       "secondary": "FAQ"
     },
     "disclaimer": "Zakai is a self-help tool, not legal advice. Compensation depends on circumstances, route and carrier policy, and is not guaranteed. The Montreal Convention applies to most international flights; check your flight details."
+  },
+  "bankFees": {
+    "metaTitle": "Bank fees & late charges — how to get them waived | Zakai",
+    "metaDesc": "Households pay hundreds a year in bank fees that can be reduced or waived. Here's how to ask, with a ready-to-send letter.",
+    "kicker": "Money sitting in your account",
+    "title": "You're paying bank fees you could simply cancel",
+    "sub": "Transaction fees, account fees, overdraft charges and late-payment interest add up to hundreds a year. Most banks have a waiver policy on request — but only if you ask. Here's how, with a ready letter.",
+    "feesTitle": "Fees worth checking",
+    "fees": [
+      {
+        "name": "Teller / transaction fees",
+        "note": "You can usually move to a cheaper fixed fee plan, or waive fees on actions you can do yourself in the app."
+      },
+      {
+        "name": "Account / securities management fees",
+        "note": "Negotiable, especially for a long-standing customer or one considering switching banks."
+      },
+      {
+        "name": "Overdraft / late-payment interest",
+        "note": "A one-time goodwill waiver is often granted if you have a clean payment history."
+      },
+      {
+        "name": "FX conversion & card-abroad fees",
+        "note": "Compare no-conversion-fee plans/cards — the gap adds up on every trip."
+      }
+    ],
+    "stepsTitle": "How to request a waiver",
+    "steps": [
+      "Download your recent months' fee breakdown (in the bank's site/app) and mark the anomalies.",
+      "Write to the bank's customer service or via the app — in writing it's documented and easier to escalate.",
+      "Show a clean payment history and ask for a cheaper fee plan + a waiver of the anomalous charges.",
+      "No answer? You can escalate to the Bank of Israel ombudsman — just mentioning it usually speeds a reply."
+    ],
+    "templateTitle": "Ready-to-copy letter",
+    "templateSub": "Copy it, fill in the details in brackets, and send it yourself to your bank. This is a letter you send in your own name — Zakai does not represent you.",
+    "template": "To Customer Service / Public Inquiries, [Bank name],\n\nMy name is [full name], account holder no. [account number] at branch [branch number].\n\nReviewing my fee breakdown for recent months I found the following charges I'd like reconsidered: [list the fees and dates]. I am a long-standing customer with a clean payment history.\n\nI request: (1) to waive the overdraft/late fees listed as part of customer-retention policy; (2) to move to the most cost-effective fee plan for me; (3) a written breakdown of management fees and reduction options.\n\nI'd appreciate a written reply within a reasonable time. Thank you,\n[full name] · [phone] · [date]",
+    "cta": {
+      "title": "Want us to find more needless charges?",
+      "body": "A statement scan spots duplicate subscriptions, forgotten recurring charges and anomalous fees — in one place.",
+      "primary": "Scan charges",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not financial advice. A waiver is at the bank's discretion and subject to your account terms; no outcome is guaranteed. The letter is sent by you, in your name."
   }
 }
