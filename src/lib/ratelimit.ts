@@ -54,9 +54,24 @@ export async function refundRateLimit(
   }
 }
 
-/** Best-effort client IP from proxy headers (Vercel sets x-forwarded-for). */
+/**
+ * Client IP for rate-limit keying, resistant to header spoofing.
+ *
+ * SECURITY: the LEFTMOST `x-forwarded-for` value is client-controllable — a
+ * caller can prepend a forged IP and the edge appends the real one after it.
+ * Keying on that first value lets an attacker rotate it to bypass every rate
+ * limit (OTP brute force, feedback/lead spam). So we prefer `x-real-ip`, which
+ * the platform (Vercel) sets to the true connecting IP and overwrites on
+ * inbound requests, and otherwise fall back to the LAST `x-forwarded-for` hop —
+ * the one appended by the nearest trusted proxy — never the spoofable first.
+ */
 export function clientIp(request: Request): string {
+  const real = request.headers.get("x-real-ip")?.trim();
+  if (real) return real;
   const xff = request.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0].trim();
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+  if (xff) {
+    const hops = xff.split(",").map((s) => s.trim()).filter(Boolean);
+    if (hops.length > 0) return hops[hops.length - 1];
+  }
+  return "unknown";
 }
