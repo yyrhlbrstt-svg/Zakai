@@ -1486,7 +1486,8 @@
     "copied": "Copied ✓",
     "msgEntitlements": "I checked on Zakai and found {count} rights I'm owed 💰 How much are you owed? (free, a minute)",
     "msgPayslip": "I checked my payslip on Zakai and money might be missing 😮 Check yours free:",
-    "msgTax": "Zakai showed I might be owed a tax refund 💸 Check how much you're owed, free:"
+    "msgTax": "Zakai showed I might be owed a tax refund 💸 Check how much you're owed, free:",
+    "msgReferral": "I found Zakai — a free app that finds money you are owed (tax refunds, rights, savings). Worth a look:"
   },
   "deals": {
     "title": "Deals & benefits — money you can save now",

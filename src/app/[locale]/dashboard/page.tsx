@@ -6,6 +6,7 @@ import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
+import { ShareResult } from "@/components/ShareResult";
 import { Reveal } from "@/components/Reveal";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
@@ -123,6 +124,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
   // Money Health Score — the recurring-need hook, from measurable activity.
   const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
+  const referralCode =
+    (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
+      ?.referralCode ?? "";
   const lastActivity = cases[0]?.createdAt ?? null;
   const scoreResult = computeMoneyScore({
     casesCount: cases.length,
@@ -165,6 +169,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
       )}
 
       <MoneyScoreCard result={scoreResult} />
+
+      {/* Close the growth loop: sharing from here carries the user's referral
+          code, so every "look what Zakai found me" also credits the sharer. */}
+      <ShareResult message={t("share.msgReferral")} referralCode={referralCode} />
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
