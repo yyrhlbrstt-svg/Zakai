@@ -35,10 +35,30 @@ const wordmark = Manrope({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
+const SITE_TITLE = "זכאי — הכסף שמגיע לך חוזר אליך";
+const SITE_DESC =
+  "סוכן ה-AI שמחזיר לך את הכסף שמגיע לך: החזרי מס, כסף אבוד (הר הכסף), פיצויי טיסות, זכויות, הוזלת חשבונות ועוד — עמלה רק מחיסכון מתועד.";
+
 export const metadata: Metadata = {
-  title: "זכאי — Zakai",
-  description:
-    "סוכן AI צרכני שמזהה חיובי סלולר מנופחים, פועל בשמך מול החברה, וגובה עמלה רק מחיסכון מתועד.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESC,
+  // Rich previews when the link is shared (WhatsApp, X, etc.) — the viral loop
+  // lives on these, so every shared link carries the brand image + pitch.
+  openGraph: {
+    type: "website",
+    siteName: "ZAKAI",
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "ZAKAI" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: ["/og.png"],
+  },
   // PWA: iOS ignores the web manifest for install, so give Safari its own
   // "add to home screen" affordances explicitly.
   appleWebApp: {
