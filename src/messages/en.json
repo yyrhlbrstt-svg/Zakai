@@ -52,7 +52,8 @@
     "warranty": "Product warranty",
     "feedback": "Improve Zakai",
     "arnona": "Arnona appeal",
-    "dupinsurance": "Duplicate insurance"
+    "dupinsurance": "Duplicate insurance",
+    "pension": "Pension fees"
   },
   "payslip": {
     "title": "Payslip check",
@@ -295,6 +296,10 @@
       "dupinsurance": {
         "title": "Duplicate insurance",
         "sub": "Paying twice, claiming once? Check and refund premiums — with a ready letter."
+      },
+      "pension": {
+        "title": "Pension fees",
+        "sub": "A small % = tens of thousands ₪ by retirement. See how much you lose."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2001,5 +2006,27 @@
       "secondary": "What am I owed?"
     },
     "disclaimer": "Zakai is a self-help tool, not an insurance agent or pension adviser. The letter is a template you send in your own name. Do not cancel cover before confirming you don't need it — sometimes duplication is worthwhile, and the check is your responsibility with the authorized parties."
+  },
+  "pensionFees": {
+    "metaTitle": "Pension management fees — what they cost you | Zakai",
+    "metaDesc": "Pension management fees sound small, but over the years they cost you tens of thousands of shekels. Check how much you'd save by lowering them — and how.",
+    "title": "Your pension management fees — what do they really cost you?",
+    "subtitle": "A small fee percentage looks negligible, but it compounds into tens of thousands of shekels by retirement because it's charged every year on your whole balance. Check the gap in seconds; the fee-reduction letter is at the end.",
+    "balance": "Current pension balance",
+    "balanceHint": "Roughly how much is already saved",
+    "monthly": "Monthly contribution",
+    "monthlyHint": "Total monthly deposit (employee + employer)",
+    "years": "Years to retirement",
+    "yearsHint": "Roughly how many years are left",
+    "curDeposit": "Fee on deposits",
+    "curDepositHint": "Shown on your pension report (up to 6% by law)",
+    "curBalance": "Fee on balance",
+    "curBalanceHint": "Annual, shown on the report (up to 0.5% by law)",
+    "calc": "See how much I'm losing",
+    "resultLabel": "Your savings by retirement ({years} years) if you lower to competitive fees (1% / 0.1%)",
+    "resultSub": "Projected balance at current fees: {current} · at reduced fees: {target}. The difference is money that stays with you instead of the investment house.",
+    "shareMsg": "I found on Zakai that my pension fees cost me up to {amount} by retirement 😳 worth checking for everyone:",
+    "assumption": "The calculation assumes a 4% average annual return for illustration only — the real gap depends on returns. The fees are the lever you control.",
+    "disclaimer": "Zakai is a self-help tool, not a pension adviser. This is an illustrative estimate, not advice. To lower fees, contact the body managing your pension, or compare tracks via the pension clearing-house / Har HaKesef."
   }
 }
