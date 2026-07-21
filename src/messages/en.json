@@ -49,7 +49,8 @@
     "baggage": "Baggage payout",
     "bankfees": "Bank fees",
     "priceprotection": "Price protection",
-    "warranty": "Product warranty"
+    "warranty": "Product warranty",
+    "feedback": "Improve Zakai"
   },
   "payslip": {
     "title": "Payslip check",
@@ -572,7 +573,8 @@
     "legalLine": "Zakai is a consumer self-help tool. It is not a lawyer, does not provide legal advice, and does not represent you in any proceeding. The checks, calculators and letters are meant to help you act on your own. Zakai is not affiliated with or endorsed by the companies mentioned (Cellcom, Partner, Bezeq, HOT, yes, etc.) — their names are used for identification only.",
     "business": "For business",
     "results": "Results",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "feedback": "Improve Zakai"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -712,7 +714,10 @@
       "savedSoFar": "To dashboard",
       "invite": "Invite a friend",
       "recheck": "Re-check now"
-    }
+    },
+    "suggestTitle": "Common questions — tap to ask:",
+    "moreFaq": "See all FAQ",
+    "leaveFeedback": "Have an idea to improve?"
   },
   "electricity": {
     "title": "How much can you save on electricity?",
@@ -1885,5 +1890,21 @@
       "secondary": "FAQ"
     },
     "disclaimer": "Zakai is a self-help tool, not legal advice. A warranty claim depends on the warranty terms, the type of fault and applicable law; no outcome is guaranteed. The request is sent by you, in your name."
+  },
+  "feedback": {
+    "title": "What would you improve in Zakai?",
+    "sub": "Any idea, bug or request — it comes straight to us and helps us improve. We read everything.",
+    "placeholder": "Tell us what's missing, what's annoying, or which tool you'd want us to add…",
+    "emailPlaceholder": "Email (optional — only if you'd like a reply)",
+    "send": "Send feedback",
+    "sending": "Sending…",
+    "doneTitle": "Thank you! Got it.",
+    "doneSub": "Every word is read and helps us build a better Zakai.",
+    "error": "Something went wrong. Try again in a moment.",
+    "tooShort": "Tell us a little more so we understand.",
+    "privacy": "We keep only the feedback itself. No tracking, no spam.",
+    "navCta": "Have an idea for Zakai?",
+    "pageTitle": "Help us improve Zakai",
+    "pageSub": "Zakai is built for you — and you know best what's missing. Tell us what you'd change, add or fix. Every note goes straight to the team."
   }
 }

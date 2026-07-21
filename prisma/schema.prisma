@@ -246,3 +246,17 @@ model RateLimit {
 
   @@index([expiresAt])
 }
+
+// Product feedback — "what would you improve in Zakai?". Stored so the team
+// can read real user suggestions and prioritise from them. Email is optional
+// (only if the user wants a reply); `context` records which screen it came
+// from. Not linked to a user account — a logged-out visitor can leave it too.
+model Feedback {
+  id        String   @id @default(cuid())
+  message   String
+  email     String? // optional, only if they want a reply
+  context   String   @default("") // e.g. the path the widget was opened from
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
