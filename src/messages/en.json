@@ -47,7 +47,8 @@
     "faq": "FAQ",
     "lostmoney": "Lost money",
     "baggage": "Baggage payout",
-    "bankfees": "Bank fees"
+    "bankfees": "Bank fees",
+    "priceprotection": "Price protection"
   },
   "payslip": {
     "title": "Payslip check",
@@ -274,6 +275,10 @@
       "bankfees": {
         "title": "Bank fees",
         "sub": "Hundreds a year in waivable fees — with a ready-to-send letter."
+      },
+      "priceprotection": {
+        "title": "Price protection",
+        "sub": "Hotel/flight/product dropped after you bought? You're often owed the difference."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1798,5 +1803,44 @@
       "secondary": "What else am I owed?"
     },
     "disclaimer": "Zakai is a self-help tool, not financial advice. A waiver is at the bank's discretion and subject to your account terms; no outcome is guaranteed. The letter is sent by you, in your name."
+  },
+  "priceProtection": {
+    "metaTitle": "Price dropped after you bought? You may be owed the difference | Zakai",
+    "metaDesc": "Hotels, flights and online orders drop in price after booking. In many cases you're owed a refund of the difference. Here's how to check and claim.",
+    "kicker": "The money you left behind",
+    "title": "Price dropped after you bought? You're often owed the difference",
+    "sub": "Hotel, flight and product prices change daily. If the price dropped a few days after you booked — in many cases you're owed a refund, a cheaper rebook-and-cancel, or a credit. Most people simply never check.",
+    "wheresTitle": "Where it happens most",
+    "wheres": [
+      {
+        "icon": "🏨",
+        "title": "Hotels (free cancellation)",
+        "body": "In ~30%–40% of flexible-cancellation bookings the price drops at least once before arrival. Just rebook at the new price and cancel the old one."
+      },
+      {
+        "icon": "✈️",
+        "title": "Flights",
+        "body": "Some airlines credit the difference or a voucher if the price drops within a window after purchase — check the carrier's price policy."
+      },
+      {
+        "icon": "🛒",
+        "title": "Online shopping",
+        "body": "Many sites (and some credit cards) offer 'price protection' and refund the difference if the item drops within 7–14 days of purchase."
+      }
+    ],
+    "stepsTitle": "How to catch it",
+    "steps": [
+      "Keep the booking confirmation (email) with the price and date — that's your reference point.",
+      "Re-check the price of the same room/flight/product in the following days (especially 7–14 days).",
+      "Price dropped? If there's free cancellation — rebook cheaper and cancel the expensive one. Otherwise ask the seller for a difference refund under their price-protection policy.",
+      "Not sure? Screenshot the new price (with date) and send a written credit request to customer service."
+    ],
+    "cta": {
+      "title": "Want more moves that save you money right away?",
+      "body": "We gathered real money-saving moves in one place — mobile, electricity, bank, rights and more.",
+      "primary": "Deals & savings",
+      "secondary": "FAQ"
+    },
+    "disclaimer": "Zakai is a self-help tool. The right to a difference refund depends on the seller's/issuer's policy and the deal terms, and is not guaranteed. The check and the request are done by you."
   }
 }

@@ -22,6 +22,7 @@ const TOOLS = [
   { href: "/transport-fine", key: "transportFine", icon: "🚌" },
   { href: "/baggage", key: "baggage", icon: "🧳" },
   { href: "/bank-fees", key: "bankfees", icon: "🏦" },
+  { href: "/price-protection", key: "priceprotection", icon: "🏷️" },
   { href: "/miluim", key: "miluim", icon: "🎖️" },
   { href: "/rights", key: "rights", icon: "📚" },
   { href: "/electricity", key: "electricity", icon: "⚡" },
