@@ -27,17 +27,20 @@ const EMPTY: ImpactStats = {
 
 export async function computeImpact(): Promise<ImpactStats> {
   try {
-    const [savingAgg, documentedCount, checksRun, cases] = await Promise.all([
+    // Sum the per-row, floored-at-zero potential in the DB rather than loading
+    // every Case row into memory — the marketing page must stay O(1) as the
+    // table grows. GREATEST(...,0) mirrors the old Math.max(0, ...) per row.
+    const [savingAgg, documentedCount, checksRun, potentialRows] = await Promise.all([
       prisma.savingsProof.aggregate({ _sum: { savingMonthly: true } }),
       prisma.savingsProof.count({ where: { savingMonthly: { gt: 0 } } }),
       prisma.case.count(),
-      prisma.case.findMany({ select: { amountOriginal: true, targetAmount: true } }),
+      prisma.$queryRaw<{ total: bigint | null }[]>`
+        SELECT COALESCE(SUM(GREATEST("amountOriginal" - "targetAmount", 0)), 0) AS total
+        FROM "Case"
+      `,
     ]);
 
-    const potentialMonthlyAgorot = cases.reduce(
-      (sum, c) => sum + Math.max(0, c.amountOriginal - c.targetAmount),
-      0,
-    );
+    const potentialMonthlyAgorot = Number(potentialRows[0]?.total ?? 0);
 
     return {
       documentedMonthlyAgorot: savingAgg._sum.savingMonthly ?? 0,
