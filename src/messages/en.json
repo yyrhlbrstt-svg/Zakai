@@ -45,7 +45,8 @@
     "menu": "Menu",
     "transportFine": "Transport fine",
     "faq": "FAQ",
-    "lostmoney": "Lost money"
+    "lostmoney": "Lost money",
+    "baggage": "Baggage payout"
   },
   "payslip": {
     "title": "Payslip check",
@@ -264,6 +265,10 @@
       "lostmoney": {
         "title": "Lost money",
         "sub": "Billions in forgotten pensions, insurance and accounts. Some may be yours."
+      },
+      "baggage": {
+        "title": "Baggage payout",
+        "sub": "Delayed or lost bag? You're owed up to thousands most travelers never claim."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1708,5 +1713,42 @@
       "secondary": "Check a bill"
     },
     "disclaimer": "Zakai points you to the state's free official tools and does not charge for it. We have no access to your accounts, and this is not pension or financial advice — the search and withdrawal are done by you with the official bodies."
+  },
+  "baggage": {
+    "metaTitle": "Delayed or lost baggage? You're owed compensation | Zakai",
+    "metaDesc": "Under the Montreal Convention you may be owed up to ~$2,175 for baggage delay or loss. Most travelers never claim it. Here's how to claim right.",
+    "kicker": "Money the law owes you",
+    "title": "Baggage delayed or lost? You're owed far more than you think",
+    "sub": "Almost every international flight is covered by the Montreal Convention, which entitles you to compensation for expenses caused by baggage delay or loss. Airlines offer a small voucher — but you're owed much more.",
+    "capLabel": "Montreal Convention compensation cap",
+    "capAmount": "up to ~$2,175",
+    "capNote": "(1,519 SDR) per passenger — for essential expenses caused by the delay or loss. It's a cap, not a fixed sum; you claim actual expenses.",
+    "rightsTitle": "What you're owed",
+    "rights": [
+      "Reimbursement for essential purchases (clothes, toiletries) you had to make while your bag was delayed — up to the cap.",
+      "Total loss of a bag (usually after 21 days) entitles you to compensation for the full contents, up to the cap.",
+      "A refund of baggage fees you paid if the service wasn't properly provided.",
+      "The right stands on its own — even if the airline offered you a voucher or small 'goodwill' payment."
+    ],
+    "stepsTitle": "How to claim right",
+    "steps": [
+      "At the airport immediately: file a Property Irregularity Report (PIR) at the airline desk. Without that number claiming is hard.",
+      "Keep every receipt for essential purchases made because of the delay — photograph them.",
+      "Submit a written compensation claim to the airline with the PIR and receipts, within the Convention's window (21 days for delay).",
+      "Don't sign a 'full and final' settlement for a low sum before checking what you're owed on actual expenses."
+    ],
+    "trapsTitle": "The airlines' tricks",
+    "traps": [
+      "They present an internal '~$50/day guideline' as if it's the legal cap — it isn't. The cap is far higher.",
+      "They treat a reimbursement as an 'advance' and deduct it from the final payout — insist it's separate.",
+      "They demand original receipts only and reject photos — keep both the original and a digital copy."
+    ],
+    "cta": {
+      "title": "Flew recently? Check compensation for the flight delay too",
+      "body": "Beyond baggage, a delay or cancellation of the flight itself can entitle you to hundreds of euros more under EC261 and Israel's Aviation Services Law.",
+      "primary": "Check flight compensation",
+      "secondary": "FAQ"
+    },
+    "disclaimer": "Zakai is a self-help tool, not legal advice. Compensation depends on circumstances, route and carrier policy, and is not guaranteed. The Montreal Convention applies to most international flights; check your flight details."
   }
 }

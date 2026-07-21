@@ -142,6 +142,7 @@ export default async function HomePage({
             { key: "mobile", href: "/check", icon: "📱" },
             { key: "electricity", href: "/electricity", icon: "⚡" },
             { key: "flights", href: "/flights", icon: "✈️" },
+            { key: "baggage", href: "/baggage", icon: "🧳" },
             { key: "subs", href: "/scan", icon: "🔁" },
           ] as const
         ).map((v, i) => (

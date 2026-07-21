@@ -20,6 +20,7 @@ const TOOLS = [
   { href: "/olim", key: "olim", icon: "🇮🇱" },
   { href: "/parking", key: "parking", icon: "🅿️" },
   { href: "/transport-fine", key: "transportFine", icon: "🚌" },
+  { href: "/baggage", key: "baggage", icon: "🧳" },
   { href: "/miluim", key: "miluim", icon: "🎖️" },
   { href: "/rights", key: "rights", icon: "📚" },
   { href: "/electricity", key: "electricity", icon: "⚡" },
