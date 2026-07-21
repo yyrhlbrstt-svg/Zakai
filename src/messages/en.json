@@ -56,7 +56,8 @@
     "pension": "Pension fees",
     "mortgage": "Mortgage refinance",
     "whatAmIOwed": "What am I owed?",
-    "companies": "Zakai Score"
+    "companies": "Zakai Score",
+    "deposit": "Rental deposit"
   },
   "payslip": {
     "title": "Payslip check",
@@ -307,6 +308,10 @@
       "mortgage": {
         "title": "Mortgage refinance",
         "sub": "Rates dropped? Refinancing can save tens of thousands ₪ in interest."
+      },
+      "deposit": {
+        "title": "Rental deposit",
+        "sub": "Landlord holding your deposit? Only proven damage is deductible. Ready demand letter."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -365,10 +370,6 @@
       "parking": {
         "title": "Parking-ticket appeal",
         "sub": "Grounds check + a ready-to-file appeal letter — before paying blindly."
-      },
-      "deposit": {
-        "title": "Rental deposit recovery",
-        "sub": "Landlord sitting on your deposit? A reasoned demand per law and contract."
       }
     },
     "stats": [
@@ -2094,5 +2095,48 @@
     "savedRateTag": "{pct}% succeeded",
     "avgTag": "avg saving {amount}",
     "disclaimer": "The data are aggregate facts from documented cases, shown only for providers with a sufficient sample. This is not a subjective rating or recommendation, and any outcome depends on your personal details."
+  },
+  "deposit": {
+    "metaTitle": "Rental deposit refund — landlord won't return it? | Zakai",
+    "metaDesc": "Landlord withholding your deposit? They may only deduct proven damage, not reasonable wear. Here's how to demand it back, with a ready letter.",
+    "kicker": "Money the landlord is holding",
+    "title": "Landlord not returning your deposit? You're owed it back",
+    "sub": "A rental deposit secures your obligations — it's not the landlord's property. Only a proven debt may be deducted (unpaid rent, an open bill, real damage) — never reasonable wear or 'just because'. Here's how to get it back.",
+    "rulesTitle": "What the landlord may deduct — and may not",
+    "rules": [
+      {
+        "name": "Reasonable wear — not deductible",
+        "note": "Ordinary use (faded paint, picture holes) is natural wear and can't be deducted from the deposit."
+      },
+      {
+        "name": "Proven damage — only with evidence",
+        "note": "Real damage beyond wear can be deducted, but only against proof and a repair invoice."
+      },
+      {
+        "name": "Open debts only",
+        "note": "Unpaid rent or bills (electricity/water/arnona) left open in your name — a legitimate deduction."
+      },
+      {
+        "name": "Holding it 'as security' — unlawful",
+        "note": "The landlord can't keep the deposit as pressure or 'just in case' without a proven debt."
+      }
+    ],
+    "stepsTitle": "How to demand your deposit back",
+    "steps": [
+      "Document the apartment's condition on move-out (photos + meters) — your proof you left no damage.",
+      "Send the landlord a written demand to return the deposit within 14 days (ready letter below).",
+      "Demand a breakdown and evidence for any deduction — a deduction without proof isn't legitimate.",
+      "Not returned? You can file a small-claims case (up to the statutory cap) yourself, no lawyer needed."
+    ],
+    "templateTitle": "Ready-to-copy demand letter",
+    "templateSub": "Fill in your details and send it to the landlord. Keep a copy and proof of delivery.",
+    "template": "To\n____ (the landlord)\n\nRe: Demand to return the rental deposit — apartment at ____\n\nMy name is ____. I rented the apartment above from ____ to ____. I vacated it and\nreturned the keys on ____. To date my deposit of ILS ____ has not been returned.\n\nUnder the Rental and Borrowing Law, 1971 (including the Fair Rental amendment),\nthe deposit secures my obligations only and is not your property. Only a\ngenuinely proven debt may be deducted (unpaid rent, open bills in my name, or\ndamage beyond reasonable wear) — and only against supporting evidence.\n\nI therefore demand the full deposit of ILS ____ be returned within 14 days. If\nyou wish to deduct any amount, please provide a written breakdown and evidence\nfor each deduction. Absent a return or a reasoned reply, I will consider small-\nclaims proceedings to recover the sum plus costs.\n\nRespectfully,\n____\nDate: ____",
+    "cta": {
+      "title": "Want to check what else you're owed?",
+      "body": "A deposit is just one thing. Check in a few taps how much in total is worth checking for you.",
+      "primary": "What am I owed?",
+      "secondary": "All rights"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer. The letter is a template you send in your own name, and is not legal advice. The outcome depends on your contract terms and the circumstances."
   }
 }

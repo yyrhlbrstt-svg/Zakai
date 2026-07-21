@@ -171,6 +171,7 @@ export default async function HomePage({
               { key: "subs", href: "/scan", icon: "🔁" },
               { key: "bankfees", href: "/bank-fees", icon: "🏦" },
               { key: "warranty", href: "/warranty", icon: "🛠️" },
+              { key: "deposit", href: "/deposit", icon: "🔑" },
               { key: "deals", href: "/deals", icon: "🎟️" },
             ],
           },
@@ -203,36 +204,6 @@ export default async function HomePage({
           </div>
         </div>
       ))}
-
-      {/* The public pipeline — momentum on display, expectations honest. */}
-      <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-1.5">{t("home.soonTitle")}</h2>
-        <p className="text-ink-soft text-[13px] mt-0 mb-4">{t("home.soonSub")}</p>
-      </Reveal>
-      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-        {(
-          [
-            { key: "deposit", icon: "🔑" },
-          ] as const
-        ).map((v, i) => (
-          <Reveal key={v.key} delay={i * 50}>
-            <div className="h-full rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.025)] p-4">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[22px]" aria-hidden>
-                  {v.icon}
-                </span>
-                <span className="text-[10.5px] font-extrabold text-ink-soft border border-[rgba(255,255,255,0.14)] rounded-full px-2 py-0.5">
-                  {t("home.soonBadge")}
-                </span>
-              </div>
-              <div className="font-extrabold text-[14px] mt-2">{t(`home.soon.${v.key}.title`)}</div>
-              <div className="text-ink-soft text-[12px] mt-1 leading-relaxed">
-                {t(`home.soon.${v.key}.sub`)}
-              </div>
-            </div>
-          </Reveal>
-        ))}
-      </div>
 
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.howTitle")}</h2>
