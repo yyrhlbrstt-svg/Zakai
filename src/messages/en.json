@@ -50,7 +50,8 @@
     "bankfees": "Bank fees",
     "priceprotection": "Price protection",
     "warranty": "Product warranty",
-    "feedback": "Improve Zakai"
+    "feedback": "Improve Zakai",
+    "arnona": "Arnona appeal"
   },
   "payslip": {
     "title": "Payslip check",
@@ -285,6 +286,10 @@
       "warranty": {
         "title": "Product warranty",
         "sub": "Broke within warranty? You're owed a free repair or replacement — even without the receipt."
+      },
+      "arnona": {
+        "title": "Arnona appeal",
+        "sub": "1 in 3 properties is over-charged. Hundreds–thousands ₪/yr, with a ready objection letter."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -343,10 +348,6 @@
       "parking": {
         "title": "Parking-ticket appeal",
         "sub": "Grounds check + a ready-to-file appeal letter — before paying blindly."
-      },
-      "arnona_refund": {
-        "title": "Overpaid arnona refund",
-        "sub": "Measurement errors are shockingly common — check if you've paid for meters that don't exist."
       },
       "deposit": {
         "title": "Rental deposit recovery",
@@ -1907,5 +1908,48 @@
     "navCta": "Have an idea for Zakai?",
     "pageTitle": "Help us improve Zakai",
     "pageSub": "Zakai is built for you — and you know best what's missing. Tell us what you'd change, add or fix. Every note goes straight to the team."
+  },
+  "arnona": {
+    "metaTitle": "Arnona appeal — refund an over-charge | Zakai",
+    "metaDesc": "Roughly 1 in 3 properties is over-charged arnona — wrong measurement, wrong classification, or a missed discount. Here's how to check and file an objection, with a ready letter.",
+    "kicker": "Your biggest fixed cost",
+    "title": "You may be over-paying arnona — and you can get it back",
+    "sub": "Arnona (municipal property tax) is one of a household's largest fixed costs, and measurement and classification errors are very common. One correction is worth hundreds to thousands of shekels a year — every year. Here's exactly what to check and how to file an objection.",
+    "errorsTitle": "Where it usually goes against you",
+    "errors": [
+      {
+        "name": "Over-measured area",
+        "note": "The city charges for a larger area than the real one — the most common and most worthwhile error to check."
+      },
+      {
+        "name": "Wrong classification",
+        "note": "Residential charged as business, or a service area (storage/balcony) charged as primary area at a higher rate."
+      },
+      {
+        "name": "Missed discount",
+        "note": "Senior, single parent, disability or low income — discounts you're owed that weren't applied automatically."
+      },
+      {
+        "name": "Wrong billing zone",
+        "note": "Each zone in the city has a different rate; a wrong assignment inflates the charge for nothing."
+      }
+    ],
+    "stepsTitle": "How to file an objection — step by step",
+    "steps": [
+      "Ask the municipality for the property's measurement and classification data (freedom-of-information request or via the authority's site).",
+      "Compare the area to the plan/actual measurement, and check whether a discount you're owed wasn't applied.",
+      "File a written objection with the Arnona Manager — usually within 90 days of the annual charge notice.",
+      "Denied? You have the right to appeal to the arnona objections committee, and then to the administrative court."
+    ],
+    "templateTitle": "Ready-to-copy objection letter",
+    "templateSub": "Fill in your details, tick the relevant reasons, and send it yourself to the municipality's Arnona Manager.",
+    "template": "To\nThe Arnona Manager, ____ Municipality\n\nRe: Objection to arnona (municipal property tax) charge — property at ____, payer no. ____\n\nMy name is ____, the occupier of the property above. Under the Local Authorities (Objection to General Arnona) Law, 1976, I hereby object to the arnona charge, on the following grounds:\n\n[ ] The charged area is incorrect / over-measured versus the actual area.\n[ ] The property classification is wrong (e.g. residential charged as business).\n[ ] Discounts/exemptions I am entitled to were not applied (senior / single parent / disability / low income).\n[ ] The billing zone does not match the property's location.\n\nPlease provide the measurement and classification data the charge is based on, correct the charge accordingly, and credit me retroactively for any overcharge.\n\nI would appreciate a reasoned written reply within the statutory period. Should the objection be denied, I reserve my right to appeal to the arnona objections committee.\n\nRespectfully,\n____\nDate: ____",
+    "cta": {
+      "title": "Want to check what else you're owed?",
+      "body": "Arnona is just one right. A short quiz shows other discounts and refunds you might be missing.",
+      "primary": "What am I owed?",
+      "secondary": "All rights"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer. The letter is a template you send in your own name, and is not legal advice. Objection outcomes depend on the property data and the municipality's policy."
   }
 }

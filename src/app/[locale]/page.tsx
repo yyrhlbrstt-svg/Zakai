@@ -141,6 +141,7 @@ export default async function HomePage({
             group: "moneyBack",
             items: [
               { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
+              { key: "arnona", href: "/arnona", icon: "🏠" },
               { key: "taxrefund", href: "/taxrefund", icon: "💸" },
               { key: "flights", href: "/flights", icon: "✈️" },
               { key: "baggage", href: "/baggage", icon: "🧳" },
@@ -208,7 +209,6 @@ export default async function HomePage({
       <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
         {(
           [
-            { key: "arnona_refund", icon: "🏠" },
             { key: "deposit", icon: "🔑" },
           ] as const
         ).map((v, i) => (
