@@ -55,7 +55,8 @@
     "dupinsurance": "Duplicate insurance",
     "pension": "Pension fees",
     "mortgage": "Mortgage refinance",
-    "whatAmIOwed": "What am I owed?"
+    "whatAmIOwed": "What am I owed?",
+    "companies": "Zakai Score"
   },
   "payslip": {
     "title": "Payslip check",
@@ -593,7 +594,8 @@
     "results": "Results",
     "faq": "FAQ",
     "feedback": "Improve Zakai",
-    "whatAmIOwed": "What am I owed?"
+    "whatAmIOwed": "What am I owed?",
+    "companies": "Zakai Score"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -2078,5 +2080,19 @@
     "resultSub": "(at least about {low}, on a conservative estimate). This is a ceiling of potential to check — not a promise. Tap any row to actually check it.",
     "shareMsg": "I checked on Zakai and found I might be owed up to {amount} 😳 worth it for everyone to check, takes a minute:",
     "honest": "These are potential estimates based on public data, mixing one-time, annual and multi-year amounts — to give you a picture of what's worth checking. The actual amount depends on your personal details."
+  },
+  "companies": {
+    "metaTitle": "Zakai Score — results by company | Zakai",
+    "metaDesc": "Factual data on outcomes with providers — how many checks, success rate, and average documented saving. Based on real cases.",
+    "kicker": "Transparency by company",
+    "title": "Zakai Score — real results with each company",
+    "sub": "As more checks flow through Zakai, we can show facts: which providers actually reduce bills, and by how much. Data only — not an opinion.",
+    "emptyTitle": "We are building this now",
+    "emptySub": "The Zakai Score is built from real, documented cases. There isn't enough data yet to show any company fairly — we only show a provider after enough checks. Be among the first to create the data.",
+    "emptyCta": "Start a check",
+    "sampleTag": "{count} checks",
+    "savedRateTag": "{pct}% succeeded",
+    "avgTag": "avg saving {amount}",
+    "disclaimer": "The data are aggregate facts from documented cases, shown only for providers with a sufficient sample. This is not a subjective rating or recommendation, and any outcome depends on your personal details."
   }
 }
