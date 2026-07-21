@@ -51,7 +51,8 @@
     "priceprotection": "Price protection",
     "warranty": "Product warranty",
     "feedback": "Improve Zakai",
-    "arnona": "Arnona appeal"
+    "arnona": "Arnona appeal",
+    "dupinsurance": "Duplicate insurance"
   },
   "payslip": {
     "title": "Payslip check",
@@ -290,6 +291,10 @@
       "arnona": {
         "title": "Arnona appeal",
         "sub": "1 in 3 properties is over-charged. Hundreds–thousands ₪/yr, with a ready objection letter."
+      },
+      "dupinsurance": {
+        "title": "Duplicate insurance",
+        "sub": "Paying twice, claiming once? Check and refund premiums — with a ready letter."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1951,5 +1956,50 @@
       "secondary": "All rights"
     },
     "disclaimer": "Zakai is a self-help tool, not a lawyer. The letter is a template you send in your own name, and is not legal advice. Objection outcomes depend on the property data and the municipality's policy."
+  },
+  "dupInsurance": {
+    "metaTitle": "Duplicate insurance — premium refund | Zakai",
+    "metaDesc": "Israelis pay ~3.5B ILS a year on duplicate insurance. With indemnity policies you pay twice but can claim once. Here's how to spot duplicates and get a refund, with a ready letter.",
+    "kicker": "3.5B ILS wasted a year",
+    "title": "You may be paying for duplicate insurance — and can only claim once",
+    "sub": "Israelis pay around 3.5 billion shekels a year on duplicate policies covering exactly the same risk. In many cases you can't even claim twice — so you pay double and receive once. Here's how to spot it and get a refund.",
+    "keyTitle": "The distinction that saves you money: indemnity vs compensation",
+    "keyBody": "With indemnity policies (surgery, health, medication) the law forbids receiving more than the actual cost — so two duplicate policies mean double payment, single payout. Compensation policies (critical illness, life) can pay from several companies. The wasted duplication concentrates in indemnity policies.",
+    "areasTitle": "Where duplication is most common",
+    "areas": [
+      {
+        "name": "Surgery cover",
+        "note": "Commonly duplicated against the HMO's supplementary insurance — you pay for the same cover twice."
+      },
+      {
+        "name": "Medication outside the basket",
+        "note": "Mostly covered by supplementary HMO cover; a parallel private policy is often redundant."
+      },
+      {
+        "name": "Long-term care",
+        "note": "A group HMO policy alongside private long-term-care cover — check there is no overlap."
+      },
+      {
+        "name": "Personal accident",
+        "note": "Duplication between workplace cover and a separately bought private policy."
+      }
+    ],
+    "stepsTitle": "How to check and get a refund",
+    "steps": [
+      "Log in to 'Har HaBituach' (harb.cma.gov.il) and pull the list of all active policies in your name.",
+      "Flag indemnity policies covering the same risk in more than one place — that's where the duplication is.",
+      "Ask the insurer to cancel the redundant cover and refund duplicated premiums (ready letter below).",
+      "Denied? Approach the company's public-enquiries officer, then the Capital Market, Insurance and Savings Authority."
+    ],
+    "templateTitle": "Ready-to-copy demand letter",
+    "templateSub": "Fill in your details and send it to the insurer. You can send it to each company where you hold overlapping cover.",
+    "template": "To\nCustomer Service / Public Enquiries, ____ (insurer)\n\nRe: Request to check duplicate insurance and refund premiums — policy no. ____\n\nMy name is ____, the insured under the policy above. I suspect I hold duplicate indemnity-type cover (e.g. surgery / health / medication / long-term care) covering the same risk in another policy with you and/or another company.\n\nWith indemnity-type policies, one cannot receive more than the actual loss, so paying duplicate premiums does not buy me additional cover. Under the Insurance Contract Law and the Capital Market Authority's rules on selling duplicate policies, I request:\n\n1. A full list of all active cover in my name with you and its type (indemnity / compensation).\n2. A review of whether duplicate cover exists, and cancellation of the redundant cover.\n3. A refund of premiums charged in duplicate, where duplicate cover was sold improperly and without informed consent.\n\nI would appreciate a reasoned written reply. I reserve my right to approach your public-enquiries officer and the Capital Market Authority.\n\nRespectfully,\n____\nDate: ____",
+    "cta": {
+      "title": "Want to find more money you're owed?",
+      "body": "Duplicate insurance is just the start. Also check lost pension, insurance and bank accounts in your name.",
+      "primary": "Lost money",
+      "secondary": "What am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an insurance agent or pension adviser. The letter is a template you send in your own name. Do not cancel cover before confirming you don't need it — sometimes duplication is worthwhile, and the check is your responsibility with the authorized parties."
   }
 }
