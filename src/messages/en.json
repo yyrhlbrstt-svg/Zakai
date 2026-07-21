@@ -372,7 +372,8 @@
       "moneyBack": "Money owed back to you",
       "rightsWork": "Rights & work",
       "consumer": "Consumer & savings"
-    }
+    },
+    "geoNote": "Looks like you are browsing from outside Israel. Some tools (lost money, cancelling subscriptions, price protection) work anywhere; rights and refunds are tuned for Israel today, and we are expanding to more regions."
   },
   "calc": {
     "title": "How much could you save?",

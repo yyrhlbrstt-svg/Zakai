@@ -6,6 +6,7 @@ import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { formatAgorot } from "@/lib/money";
+import { isIsrael } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 
 /** Refresh the live proof numbers hourly (ISR) — fast page, honest data. */
@@ -40,9 +41,15 @@ export default async function HomePage({
 
   const steps = ["upload", "act", "pay"] as const;
   const trust = t.raw("home.trust") as string[];
+  const israeliVisitor = await isIsrael();
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
+      {!israeliVisitor && (
+        <div className="mb-6 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
+          🌍 {t("home.geoNote")}
+        </div>
+      )}
       <div className="flex flex-wrap gap-12 items-center">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
