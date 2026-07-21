@@ -48,7 +48,8 @@
     "lostmoney": "Lost money",
     "baggage": "Baggage payout",
     "bankfees": "Bank fees",
-    "priceprotection": "Price protection"
+    "priceprotection": "Price protection",
+    "warranty": "Product warranty"
   },
   "payslip": {
     "title": "Payslip check",
@@ -279,6 +280,10 @@
       "priceprotection": {
         "title": "Price protection",
         "sub": "Hotel/flight/product dropped after you bought? You're often owed the difference."
+      },
+      "warranty": {
+        "title": "Product warranty",
+        "sub": "Broke within warranty? You're owed a free repair or replacement — even without the receipt."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1842,5 +1847,36 @@
       "secondary": "FAQ"
     },
     "disclaimer": "Zakai is a self-help tool. The right to a difference refund depends on the seller's/issuer's policy and the deal terms, and is not guaranteed. The check and the request are done by you."
+  },
+  "warranty": {
+    "metaTitle": "Product warranty — claim a repair or replacement | Zakai",
+    "metaDesc": "Device broke within warranty? You're owed a repair, replacement or refund. Here's how to claim, even without the receipt, with a ready letter.",
+    "kicker": "A right you already paid for",
+    "title": "Device broke within warranty? Don't pay for the repair",
+    "sub": "By law, many products come with a one-to-three-year warranty. People give up because they lost the receipt or the importer stalls. But your right stands — here's how to claim it, with a ready letter.",
+    "rightsTitle": "What you're owed",
+    "rights": [
+      "Free repair of a defect-related fault within the warranty period — no parts or labor cost.",
+      "Not fixed after a reasonable number of attempts? You're owed a replacement or refund.",
+      "The importer/manufacturer is responsible for the repair even if you bought from a store that closed — the warranty travels with them.",
+      "Some credit cards auto-extend warranty — check if you paid with one and whether extended cover applies."
+    ],
+    "stepsTitle": "How to claim",
+    "steps": [
+      "Find proof of purchase: a receipt, an email invoice, or the card charge from that date — any of them is valid.",
+      "Locate the device's serial number and document the fault (photo/video).",
+      "Write to the importer or manufacturer demanding a repair/replacement under law, with the proof attached.",
+      "No answer? You can escalate to the Consumer Protection Authority — the inquiry itself usually speeds a reply."
+    ],
+    "templateTitle": "Ready-to-copy letter",
+    "templateSub": "Copy it, fill in the details in brackets, and send it yourself to the importer/manufacturer. This is a letter you send in your own name — Zakai does not represent you.",
+    "template": "To Customer Service, [importer/manufacturer name],\n\nMy name is [full name]. On [purchase date] I bought [product name and model], serial number [serial], as shown in the attached proof of purchase.\n\nThe product is within its warranty period and recently developed a fault: [describe the fault]. I request to exercise the warranty and repair the defect at no cost, and if it cannot be repaired in a reasonable number of attempts — to replace it or refund me, as provided by law.\n\nI'd be glad to schedule a time and receive a written reply within a reasonable period. Thank you,\n[full name] · [phone] · [date]",
+    "cta": {
+      "title": "Want to see what other rights you're owed?",
+      "body": "Zakai's rights engine shows relevant rights for your situation out of dozens — tax, national insurance, consumer and more.",
+      "primary": "Check rights",
+      "secondary": "FAQ"
+    },
+    "disclaimer": "Zakai is a self-help tool, not legal advice. A warranty claim depends on the warranty terms, the type of fault and applicable law; no outcome is guaranteed. The request is sent by you, in your name."
   }
 }

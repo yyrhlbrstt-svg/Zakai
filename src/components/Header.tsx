@@ -23,6 +23,7 @@ const TOOLS = [
   { href: "/baggage", key: "baggage", icon: "🧳" },
   { href: "/bank-fees", key: "bankfees", icon: "🏦" },
   { href: "/price-protection", key: "priceprotection", icon: "🏷️" },
+  { href: "/warranty", key: "warranty", icon: "🛠️" },
   { href: "/miluim", key: "miluim", icon: "🎖️" },
   { href: "/rights", key: "rights", icon: "📚" },
   { href: "/electricity", key: "electricity", icon: "⚡" },
