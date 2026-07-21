@@ -44,7 +44,8 @@
     "deals": "Deals",
     "menu": "Menu",
     "transportFine": "Transport fine",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "lostmoney": "Lost money"
   },
   "payslip": {
     "title": "Payslip check",
@@ -259,6 +260,10 @@
       "deals": {
         "title": "Deals & coupons",
         "sub": "Every benefit and money-saving move in one place — and exclusive coupons coming soon."
+      },
+      "lostmoney": {
+        "title": "Lost money",
+        "sub": "Billions in forgotten pensions, insurance and accounts. Some may be yours."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -1652,5 +1657,56 @@
       "askBtn": "Ask the assistant",
       "checkBtn": "Free check"
     }
+  },
+  "lostMoney": {
+    "metaTitle": "Lost money — dormant pensions & insurance | Zakai",
+    "metaDesc": "Billions of shekels sit in lost pension, insurance and savings accounts in Israel. Here is how to check if some of it is yours — with the free official tools.",
+    "kicker": "Money already yours",
+    "title": "You may have lost money — and not even know it",
+    "sub": "Billions of shekels sit in forgotten pension funds, insurance policies, provident funds and bank accounts across Israel. Some of it could be yours or your family's. Here is exactly where to check — with the state's free official tools.",
+    "sources": [
+      {
+        "icon": "⛰️",
+        "title": "Har HaKesef",
+        "body": "The Finance Ministry's official search for pension accounts, provident funds, study funds and managers' insurance in your name — including ones forgotten from old employers.",
+        "cta": "Search Har HaKesef",
+        "url": "https://itur.mof.gov.il/"
+      },
+      {
+        "icon": "🛡️",
+        "title": "Har HaBituach",
+        "body": "Find every active insurance policy in your name — life, health, long-term care. People often discover they pay twice for the same cover.",
+        "cta": "Search Har HaBituach",
+        "url": "https://harb.cma.gov.il/"
+      },
+      {
+        "icon": "🏦",
+        "title": "Dormant bank accounts",
+        "body": "The Bank of Israel runs a search for dormant accounts and deposits — money that sat untouched for years and can be withdrawn.",
+        "cta": "Find dormant accounts",
+        "url": "https://www.boi.org.il/"
+      },
+      {
+        "icon": "👛",
+        "title": "National Insurance rights",
+        "body": "Sometimes benefits or grants go unclaimed. Check with National Insurance what is open in your name.",
+        "cta": "Go to Bituach Leumi",
+        "url": "https://www.btl.gov.il/"
+      }
+    ],
+    "howTitle": "How to actually claim it",
+    "steps": [
+      "Have your ID ready and log in with government identification — all official tools require identity verification.",
+      "Search each tool — Har HaKesef, Har HaBituach and dormant accounts — for yourself and, with their consent, for family members.",
+      "Found an account? Contact the body that manages it (insurer, investment house or bank) to withdraw or consolidate.",
+      "Consider consolidating scattered pension funds — lower fees, more money that stays with you."
+    ],
+    "cta": {
+      "title": "Want to know what else you are owed?",
+      "body": "Beyond lost money, there are dozens of rights and refunds you can claim. A short quiz shows what is relevant to you.",
+      "primary": "What am I owed?",
+      "secondary": "Check a bill"
+    },
+    "disclaimer": "Zakai points you to the state's free official tools and does not charge for it. We have no access to your accounts, and this is not pension or financial advice — the search and withdrawal are done by you with the official bodies."
   }
 }

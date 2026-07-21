@@ -129,6 +129,7 @@ export default async function HomePage({
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
         {(
           [
+            { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
             { key: "deals", href: "/deals", icon: "🎟️" },
             { key: "rights", href: "/rights", icon: "🎯" },
             { key: "payslip", href: "/payslip", icon: "🧾" },
