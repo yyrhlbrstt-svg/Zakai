@@ -122,50 +122,76 @@ export default async function HomePage({
         </Reveal>
       )}
 
-      {/* The breadth answer: everything Zakai checks for you, one tap each. */}
+      {/* The breadth answer, organized so it reads as a system, not a dump:
+          three families — money owed back, rights & work, consumer & savings. */}
       <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.verticalsTitle")}</h2>
+        <h2 className="text-[17px] font-extrabold mt-16 mb-1.5">{t("home.verticalsTitle")}</h2>
+        <p className="text-ink-soft text-[13px] mt-0 mb-2">{t("home.verticalsSub")}</p>
       </Reveal>
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-        {(
-          [
-            { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
-            { key: "deals", href: "/deals", icon: "🎟️" },
-            { key: "rights", href: "/rights", icon: "🎯" },
-            { key: "payslip", href: "/payslip", icon: "🧾" },
-            { key: "severance", href: "/severance", icon: "📄" },
-            { key: "maternity", href: "/maternity", icon: "👶" },
-            { key: "taxrefund", href: "/taxrefund", icon: "💸" },
-            { key: "unemployment", href: "/unemployment", icon: "🧭" },
-            { key: "parking", href: "/parking", icon: "🅿️" },
-            { key: "miluim", href: "/miluim", icon: "🎖️" },
-            { key: "mobile", href: "/check", icon: "📱" },
-            { key: "electricity", href: "/electricity", icon: "⚡" },
-            { key: "flights", href: "/flights", icon: "✈️" },
-            { key: "baggage", href: "/baggage", icon: "🧳" },
-            { key: "bankfees", href: "/bank-fees", icon: "🏦" },
-            { key: "priceprotection", href: "/price-protection", icon: "🏷️" },
-            { key: "warranty", href: "/warranty", icon: "🛠️" },
-            { key: "subs", href: "/scan", icon: "🔁" },
-          ] as const
-        ).map((v, i) => (
-          <Reveal key={v.key} delay={i * 80}>
-            <Link href={v.href} className="no-underline text-ink block h-full">
-              <SpotlightCard className="p-5 h-full transition-colors duration-200 hover:border-[rgba(63,203,155,0.4)]">
-                <div className="text-[26px]" aria-hidden>
-                  {v.icon}
-                </div>
-                <div className="font-extrabold text-[15px] mt-2.5">
-                  {t(`home.verticals.${v.key}.title`)}
-                </div>
-                <div className="text-ink-soft text-[12.5px] mt-1 leading-relaxed">
-                  {t(`home.verticals.${v.key}.sub`)}
-                </div>
-              </SpotlightCard>
-            </Link>
+      {(
+        [
+          {
+            group: "moneyBack",
+            items: [
+              { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
+              { key: "taxrefund", href: "/taxrefund", icon: "💸" },
+              { key: "flights", href: "/flights", icon: "✈️" },
+              { key: "baggage", href: "/baggage", icon: "🧳" },
+              { key: "priceprotection", href: "/price-protection", icon: "🏷️" },
+              { key: "parking", href: "/parking", icon: "🅿️" },
+            ],
+          },
+          {
+            group: "rightsWork",
+            items: [
+              { key: "rights", href: "/rights", icon: "🎯" },
+              { key: "payslip", href: "/payslip", icon: "🧾" },
+              { key: "severance", href: "/severance", icon: "📄" },
+              { key: "maternity", href: "/maternity", icon: "👶" },
+              { key: "unemployment", href: "/unemployment", icon: "🧭" },
+              { key: "miluim", href: "/miluim", icon: "🎖️" },
+            ],
+          },
+          {
+            group: "consumer",
+            items: [
+              { key: "mobile", href: "/check", icon: "📱" },
+              { key: "electricity", href: "/electricity", icon: "⚡" },
+              { key: "subs", href: "/scan", icon: "🔁" },
+              { key: "bankfees", href: "/bank-fees", icon: "🏦" },
+              { key: "warranty", href: "/warranty", icon: "🛠️" },
+              { key: "deals", href: "/deals", icon: "🎟️" },
+            ],
+          },
+        ] as const
+      ).map((section) => (
+        <div key={section.group} className="mt-8 first:mt-5">
+          <Reveal>
+            <div className="text-[12.5px] font-extrabold text-emerald uppercase tracking-wide mb-3.5">
+              {t(`home.verticalGroups.${section.group}`)}
+            </div>
           </Reveal>
-        ))}
-      </div>
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
+            {section.items.map((v, i) => (
+              <Reveal key={v.key} delay={i * 60}>
+                <Link href={v.href} className="no-underline text-ink block h-full">
+                  <SpotlightCard className="p-5 h-full transition-colors duration-200 hover:border-[rgba(63,203,155,0.4)]">
+                    <div className="text-[26px]" aria-hidden>
+                      {v.icon}
+                    </div>
+                    <div className="font-extrabold text-[15px] mt-2.5">
+                      {t(`home.verticals.${v.key}.title`)}
+                    </div>
+                    <div className="text-ink-soft text-[12.5px] mt-1 leading-relaxed">
+                      {t(`home.verticals.${v.key}.sub`)}
+                    </div>
+                  </SpotlightCard>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      ))}
 
       {/* The public pipeline — momentum on display, expectations honest. */}
       <Reveal>

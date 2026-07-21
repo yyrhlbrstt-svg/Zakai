@@ -365,7 +365,13 @@
         "n": "₪0",
         "label": "until savings are proven"
       }
-    ]
+    ],
+    "verticalsSub": "By what matters to you — each one tap away, most free and no signup.",
+    "verticalGroups": {
+      "moneyBack": "Money owed back to you",
+      "rightsWork": "Rights & work",
+      "consumer": "Consumer & savings"
+    }
   },
   "calc": {
     "title": "How much could you save?",
