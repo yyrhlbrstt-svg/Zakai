@@ -13,6 +13,7 @@ const TOOLS = [
   { href: "/arnona", key: "arnona", icon: "🏠" },
   { href: "/duplicate-insurance", key: "dupinsurance", icon: "🛡️" },
   { href: "/pension-fees", key: "pension", icon: "📊" },
+  { href: "/mortgage", key: "mortgage", icon: "🏡" },
   { href: "/deals", key: "deals", icon: "🎟️" },
   { href: "/entitlements", key: "entitlements", icon: "🎯" },
   { href: "/payslip", key: "payslip", icon: "🧾" },

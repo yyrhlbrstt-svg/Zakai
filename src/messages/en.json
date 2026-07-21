@@ -53,7 +53,8 @@
     "feedback": "Improve Zakai",
     "arnona": "Arnona appeal",
     "dupinsurance": "Duplicate insurance",
-    "pension": "Pension fees"
+    "pension": "Pension fees",
+    "mortgage": "Mortgage refinance"
   },
   "payslip": {
     "title": "Payslip check",
@@ -300,6 +301,10 @@
       "pension": {
         "title": "Pension fees",
         "sub": "A small % = tens of thousands ₪ by retirement. See how much you lose."
+      },
+      "mortgage": {
+        "title": "Mortgage refinance",
+        "sub": "Rates dropped? Refinancing can save tens of thousands ₪ in interest."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2028,5 +2033,25 @@
     "shareMsg": "I found on Zakai that my pension fees cost me up to {amount} by retirement 😳 worth checking for everyone:",
     "assumption": "The calculation assumes a 4% average annual return for illustration only — the real gap depends on returns. The fees are the lever you control.",
     "disclaimer": "Zakai is a self-help tool, not a pension adviser. This is an illustrative estimate, not advice. To lower fees, contact the body managing your pension, or compare tracks via the pension clearing-house / Har HaKesef."
+  },
+  "mortgageRefi": {
+    "metaTitle": "Mortgage refinance — how much you'd save | Zakai",
+    "metaDesc": "A lower rate on your mortgage balance can save you tens of thousands of shekels in interest. Check in seconds how much refinancing could save.",
+    "title": "Mortgage refinance — how much can you save?",
+    "subtitle": "If rates dropped since you took your mortgage, refinancing to a lower rate can save tens of thousands of shekels in interest over the loan. Check the potential in seconds — then see a licensed mortgage advisor.",
+    "balance": "Mortgage balance",
+    "balanceHint": "How much principal is left to pay",
+    "years": "Years remaining",
+    "yearsHint": "Roughly how many years are left",
+    "curRate": "Current rate",
+    "curRateHint": "Your average effective rate today",
+    "newRate": "Achievable rate",
+    "newRateHint": "A rate you estimate you could get today",
+    "calc": "See how much I'd save",
+    "resultLabel": "Interest saved over the loan",
+    "resultSub": "Plus about {monthly} less on the monthly payment. That's money that stays with you instead of the bank.",
+    "shareMsg": "I checked on Zakai and refinancing my mortgage could save me up to {amount} in interest 🏠 worth it for every homeowner to check:",
+    "assumption": "This is a fixed-rate estimate for illustration. A real mortgage mixes tracks (prime, fixed, index-linked) and has an early-repayment fee — so actual savings may differ.",
+    "disclaimer": "Zakai is a self-help tool, not a licensed mortgage advisor. This is an orientation estimate, not advice. Before refinancing, consult a licensed mortgage advisor and check early-repayment fees with the bank."
   }
 }
