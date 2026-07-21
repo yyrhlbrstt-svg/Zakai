@@ -113,14 +113,29 @@ export default async function LocaleLayout({
             repeat navigations. Reduced-motion hides it via CSS. */}
         <div id="zakai-splash" aria-hidden>
           <svg className="splash-mark" viewBox="0 0 110 110" width="76" height="76">
-            <rect x="4" y="4" width="102" height="102" rx="26" fill="#3FCB9B" />
+            <defs>
+              <linearGradient id="splashZg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#3FCB9B" />
+                <stop offset="0.5" stopColor="#3EC6FF" />
+                <stop offset="1" stopColor="#8B5CF6" />
+              </linearGradient>
+            </defs>
+            <rect x="4" y="4" width="102" height="102" rx="26" fill="url(#splashZg)" />
             <path
-              d="M 32 34 H 78 L 34 76 H 80"
+              d="M 32 32 H 78 L 34 72 H 80"
               fill="none"
-              stroke="#0E1F1A"
+              stroke="#0A1119"
               strokeWidth="9"
               strokeLinecap="round"
               strokeLinejoin="round"
+            />
+            <path
+              d="M 33 87 C 50 78, 62 78, 80 87"
+              fill="none"
+              stroke="#0A1119"
+              strokeWidth="6"
+              strokeLinecap="round"
+              opacity="0.9"
             />
           </svg>
           <span className="splash-word" dir="ltr">ZAKAI</span>
