@@ -2487,7 +2487,13 @@
       "car-value": "Car diminished value — what are you owed for the accident?",
       "mortgage-insurance": "Mortgage insurance — how much are you overpaying?",
       "arnona": "Arnona refund — how much did you overpay?",
-      "taxrefund": "Tax refund — how much is waiting for you?"
-    }
+      "taxrefund": "Tax refund — how much is waiting for you?",
+      "duplicate-insurance": "Duplicate insurance — how much are you paying twice?",
+      "pension-fees": "Pension fees — how much are you losing?",
+      "mortgage": "Mortgage refinance — how much could you save?",
+      "bank-fees": "Bank fees — how much are you owed back?"
+    },
+    "ctaTitle": "Want us to help you claim it?",
+    "ctaBody": "Leave your details and we will get back to you — review the case and connect you to someone who can claim it. A fee only if you actually get money."
   }
 }

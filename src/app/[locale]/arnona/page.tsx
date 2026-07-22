@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { LeadCta } from "@/components/LeadCta";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -103,6 +104,8 @@ export default async function ArnonaPage({
           </div>
         </div>
       </Reveal>
+      <LeadCta vertical="arnona" />
+
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { LeadCta } from "@/components/LeadCta";
 import { Reveal } from "@/components/Reveal";
 import { InsuranceChecker } from "@/components/InsuranceChecker";
 
@@ -39,6 +40,8 @@ export default async function DuplicateInsurancePage({
           <InsuranceChecker />
         </div>
       </Reveal>
+      <LeadCta vertical="duplicate-insurance" />
+
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}

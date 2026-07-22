@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { LeadCta } from "@/components/LeadCta";
 import { PensionFeesCalculator } from "@/components/PensionFeesCalculator";
 
 export async function generateMetadata({
@@ -26,6 +27,7 @@ export default async function PensionFeesPage({
       <h1 className="font-display text-3xl my-3">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[620px]">{t("subtitle")}</p>
       <PensionFeesCalculator />
+      <LeadCta vertical="pension-fees" />
     </main>
   );
 }
