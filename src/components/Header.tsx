@@ -13,6 +13,7 @@ const TOOLS = [
   { href: "/class-action", key: "classaction", icon: "⚖️" },
   { href: "/child-savings", key: "childsavings", icon: "🧒" },
   { href: "/arnona", key: "arnona", icon: "🏠" },
+  { href: "/disability-benefits", key: "disability", icon: "♿" },
   { href: "/construction-defects", key: "defects", icon: "🏗️" },
   { href: "/car-value", key: "carvalue", icon: "🚗" },
   { href: "/mortgage-insurance", key: "mortins", icon: "🏠" },

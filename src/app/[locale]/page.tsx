@@ -144,6 +144,7 @@ export default async function HomePage({
               { key: "classaction", href: "/class-action", icon: "⚖️" },
               { key: "childsavings", href: "/child-savings", icon: "🧒" },
               { key: "arnona", href: "/arnona", icon: "🏠" },
+              { key: "disability", href: "/disability-benefits", icon: "♿" },
               { key: "defects", href: "/construction-defects", icon: "🏗️" },
               { key: "carvalue", href: "/car-value", icon: "🚗" },
               { key: "mortins", href: "/mortgage-insurance", icon: "🏠" },

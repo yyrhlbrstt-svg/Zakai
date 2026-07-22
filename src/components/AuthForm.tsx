@@ -114,7 +114,7 @@ export function AuthForm({
               <Input
                 type="tel"
                 inputMode="tel"
-                placeholder="0501234567"
+                placeholder="0501234567 / +1 415 555 0123"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 autoComplete="tel"
