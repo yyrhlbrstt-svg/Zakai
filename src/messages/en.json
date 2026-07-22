@@ -61,7 +61,8 @@
     "childsavings": "Savings for Every Child",
     "insurance": "Duplicate insurance",
     "defects": "Construction defects",
-    "classaction": "Class-action money"
+    "classaction": "Class-action money",
+    "carvalue": "Car diminished value"
   },
   "payslip": {
     "title": "Payslip check",
@@ -333,6 +334,10 @@
       "classaction": {
         "title": "Class-action money",
         "sub": "Money from settlements you don't know you're owed — were you a customer? Check."
+      },
+      "carvalue": {
+        "title": "Car diminished value",
+        "sub": "Had an accident? You're owed diminished-value compensation — thousands ₪ insurers hide."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2363,5 +2368,51 @@
       "secondary": "What else am I owed?"
     },
     "disclaimer": "Zakai is a self-help tool, not a lawyer and does not represent you in proceedings. Eligibility depends on the specific settlement's terms, your membership in the class, and the deadlines set. This is not legal advice and no outcome is promised."
+  },
+  "carValue": {
+    "metaTitle": "Car diminished value after an accident — compensation your insurer won't mention | Zakai",
+    "metaDesc": "Were you in an accident? You're owed compensation for the car's diminished value — usually thousands of shekels. Insurers don't offer it. Here's how to claim.",
+    "kicker": "Don't be a sucker",
+    "title": "Were you in an accident? You're owed diminished-value compensation nobody told you about",
+    "sub": "Even after the car is repaired like new, its market value drops simply because it was in an accident — that's 'diminished value', and you're owed compensation for it. Insurers know this and don't offer it. Most drivers give up without knowing. The initial check is free.",
+    "bigNumber": "Usually thousands ₪ — sometimes tens of thousands",
+    "bigNumberSub": "Diminished value is calculated as a percentage of the car's value by severity and the parts damaged. On a newer/expensive car or a significant accident it can reach tens of thousands of shekels — money owed to you under the policy or from the at-fault party.",
+    "factsTitle": "What's important to know",
+    "facts": [
+      {
+        "icon": "📉",
+        "title": "It happens even after a perfect repair",
+        "body": "The mere accident record lowers the car's resale price. The compensation is for that gap — not the repair."
+      },
+      {
+        "icon": "🤐",
+        "title": "The insurer won't offer it",
+        "body": "Insurers pay for the repair but 'forget' to mention diminished value. You have to demand it explicitly."
+      },
+      {
+        "icon": "⚖️",
+        "title": "Owed from the at-fault party too",
+        "body": "If a third party caused the accident, you're owed full diminished-value compensation from them/their insurer, on top of the repair."
+      },
+      {
+        "icon": "⏳",
+        "title": "There's a time window",
+        "body": "A diminished-value claim has a limitation period. Best to act close to the event, while documentation is fresh."
+      }
+    ],
+    "howTitle": "How to claim it — the right way",
+    "steps": [
+      "Keep all documents: appraiser's report, repair invoice, garage confirmation and accident details.",
+      "Order an appraiser's diminished-value opinion — it quantifies how much the car's value dropped. That's the document that speaks.",
+      "Send a reasoned demand to the insurer (yours or the at-fault party's) with the appraisal.",
+      "Didn't pay what's owed? That's exactly a success-fee claim — no upfront pay."
+    ],
+    "cta": {
+      "title": "Check what you're owed for diminished value",
+      "body": "We start with a free initial check of your eligibility. The appraisal is done by a licensed appraiser — we explain, guide and help you claim.",
+      "primary": "Start a check",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an appraiser, lawyer or insurer. Quantifying diminished value requires a licensed appraiser, and compensation depends on their findings, the policy and the accident circumstances. This is not professional advice and no outcome is promised."
   }
 }
