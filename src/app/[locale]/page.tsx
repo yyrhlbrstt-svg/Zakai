@@ -142,7 +142,6 @@ export default async function HomePage({
             items: [
               { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
               { key: "childsavings", href: "/child-savings", icon: "🧒" },
-              { key: "insurance", href: "/insurance", icon: "🛡️" },
               { key: "arnona", href: "/arnona", icon: "🏠" },
               { key: "dupinsurance", href: "/duplicate-insurance", icon: "🛡️" },
               { key: "pension", href: "/pension-fees", icon: "📊" },
