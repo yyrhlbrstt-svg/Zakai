@@ -33,8 +33,15 @@ const STATUS_COLOR: Record<string, string> = {
   REVOKED: "#F08A6B",
 };
 
-export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function DashboardPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ fee?: string }>;
+}) {
   const { locale } = await params;
+  const { fee: feeStatus } = await searchParams;
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
@@ -159,6 +166,19 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
         <PlanBadge plan={user!.plan} />
       </div>
+      {feeStatus === "paid" && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] px-5 py-3.5 mb-5 flex items-center gap-2.5">
+          <span className="text-emerald text-lg" aria-hidden>
+            ✓
+          </span>
+          <span className="text-[14px] font-bold">{t("dashboard.feePaidBanner")}</span>
+        </div>
+      )}
+      {feeStatus === "error" && (
+        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[14px] font-bold">
+          {t("dashboard.feeErrorBanner")}
+        </div>
+      )}
       {(user!.plan === "PRO" || user!.plan === "MAX") && (
         <div
           className={`rounded-2xl p-[1px] mb-6 ${

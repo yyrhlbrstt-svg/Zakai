@@ -554,7 +554,9 @@
     "feePay": "Pay fee",
     "feePaying": "Redirecting…",
     "feePayError": "Try again",
-    "feePaid": "paid"
+    "feePaid": "paid",
+    "feePaidBanner": "Payment received — thank you! The fee was paid successfully.",
+    "feeErrorBanner": "Payment did not complete. You can try again from the fee below."
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",
