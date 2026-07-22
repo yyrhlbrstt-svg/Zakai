@@ -48,6 +48,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     include: { savingsProof: true, fee: true },
   });
 
+  // Total documented monthly saving (the real, proven number) — drives the
+  // most viral share: a specific "Zakai got me ₪X back" spreads far better
+  // than a generic invite.
+  const totalDocumentedMonthly = cases.reduce(
+    (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
+    0,
+  );
+
   const totalPotential = cases.reduce(
     (sum, c) => sum + Math.max(0, c.amountOriginal - c.targetAmount),
     0,
@@ -179,7 +187,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
       {/* Close the growth loop: sharing from here carries the user's referral
           code, so every "look what Zakai found me" also credits the sharer. */}
-      <ShareResult message={t("share.msgReferral")} referralCode={referralCode} />
+      <ShareResult
+        message={
+          totalDocumentedMonthly > 0
+            ? t("share.msgSaved", { amount: formatAgorot(totalDocumentedMonthly, loc) })
+            : t("share.msgReferral")
+        }
+        referralCode={referralCode}
+      />
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
