@@ -60,7 +60,8 @@
     "deposit": "Rental deposit",
     "childsavings": "Savings for Every Child",
     "insurance": "Duplicate insurance",
-    "defects": "Construction defects"
+    "defects": "Construction defects",
+    "classaction": "Class-action money"
   },
   "payslip": {
     "title": "Payslip check",
@@ -328,6 +329,10 @@
       "defects": {
         "title": "Construction defects",
         "sub": "New apartment? Up to tens of thousands ₪ from the developer, up to 7 years."
+      },
+      "classaction": {
+        "title": "Class-action money",
+        "sub": "Money from settlements you don't know you're owed — were you a customer? Check."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2291,5 +2296,51 @@
       "secondary": "What else am I owed?"
     },
     "disclaimer": "Zakai is a self-help tool, not an engineer, appraiser or lawyer. Quantifying defects requires a licensed engineer's inspection, and compensation depends on their findings, the contract and the Sale Law. This is not engineering or legal advice and no outcome is promised."
+  },
+  "classAction": {
+    "metaTitle": "Class-action settlements — money from settlements you don't know you're owed | Zakai",
+    "metaDesc": "Every year dozens of class actions in Israel end in settlement — money or benefits for those affected. Most go unclaimed. Here's how to check if you're owed.",
+    "kicker": "Money waiting for you",
+    "title": "Used a product or service that was sued? You may be owed settlement money",
+    "sub": "Every year dozens of class actions against companies (banks, telecom, insurance, retail) end in settlements — compensation or a benefit for everyone harmed. The problem: most consumers don't know they're part of the class, and never claim. The check is free.",
+    "bigNumber": "From ₪50 to thousands ₪ — sometimes automatic",
+    "bigNumberSub": "Some settlements pay out automatically; others require a short claim. If you were a customer of the company in the relevant period — you may be owed, without doing anything.",
+    "examplesTitle": "Common settlement types you might be part of",
+    "examples": [
+      {
+        "icon": "🏦",
+        "title": "Bank/credit fees",
+        "body": "Banks and credit companies sued over overcharged fees — the settlement refunds each affected customer."
+      },
+      {
+        "icon": "📱",
+        "title": "Telecom companies",
+        "body": "Charges for a service not provided, data, or plan terms — settlements refund subscribers."
+      },
+      {
+        "icon": "🛒",
+        "title": "Retail & food",
+        "body": "Misleading labels, price or weight — compensation or benefit for anyone who bought in the relevant period."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Insurance",
+        "body": "Overcharged premiums or unpaid claims — settlements refund affected policyholders."
+      }
+    ],
+    "howTitle": "How to check if you're owed",
+    "steps": [
+      "Check the official class-action registry — every claim and settlement in Israel is published there.",
+      "Search for companies you were a customer of (bank, telecom, insurance, chains) in the relevant period.",
+      "For a settlement that covers you — some are automatic (money just arrives), some need a short claim form by a deadline.",
+      "Don't miss the deadline — each settlement has a claim window. Keep proof of being a customer in the period."
+    ],
+    "cta": {
+      "title": "Check if a settlement owes you",
+      "body": "You can check the official class-action registry yourself — free. We explain how to spot a settlement that covers you and how to claim on time.",
+      "primary": "Class-action registry",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer and does not represent you in proceedings. Eligibility depends on the specific settlement's terms, your membership in the class, and the deadlines set. This is not legal advice and no outcome is promised."
   }
 }
