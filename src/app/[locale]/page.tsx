@@ -71,11 +71,11 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={240}>
             <div className="flex flex-wrap gap-3 items-center">
-              <Link href="/check">
-                <Button>{t("home.cta")}</Button>
-              </Link>
               <Link href="/what-am-i-owed">
-                <Button variant="ghost">{t("nav.whatAmIOwed")}</Button>
+                <Button>{t("nav.whatAmIOwed")}</Button>
+              </Link>
+              <Link href="/check">
+                <Button variant="ghost">{t("home.cta")}</Button>
               </Link>
             </div>
           </Reveal>
