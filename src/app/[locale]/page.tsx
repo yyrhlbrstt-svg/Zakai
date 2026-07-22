@@ -141,6 +141,7 @@ export default async function HomePage({
             group: "moneyBack",
             items: [
               { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
+              { key: "childsavings", href: "/child-savings", icon: "🧒" },
               { key: "arnona", href: "/arnona", icon: "🏠" },
               { key: "dupinsurance", href: "/duplicate-insurance", icon: "🛡️" },
               { key: "pension", href: "/pension-fees", icon: "📊" },

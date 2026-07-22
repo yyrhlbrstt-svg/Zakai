@@ -10,6 +10,7 @@ import { PlanBadge } from "@/components/PlanBadge";
 /** The public tools, grouped under one "Tools" menu so the bar stays calm. */
 const TOOLS = [
   { href: "/lost-money", key: "lostmoney", icon: "⛰️" },
+  { href: "/child-savings", key: "childsavings", icon: "🧒" },
   { href: "/arnona", key: "arnona", icon: "🏠" },
   { href: "/duplicate-insurance", key: "dupinsurance", icon: "🛡️" },
   { href: "/pension-fees", key: "pension", icon: "📊" },

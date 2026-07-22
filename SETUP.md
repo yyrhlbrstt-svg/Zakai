@@ -39,6 +39,14 @@
    - `OPENAI_COMPAT_MODEL` = `deepseek/deepseek-chat-v3.1:free` (או מודל חינמי אחר, למשל `meta-llama/llama-3.3-70b-instruct:free`)
 3. Save → Redeploy. הסוכן יהיה חכם, בחינם. (למודלים ה"חינמיים" יש מגבלות קצב — לפרודקשן כבד עוברים ל-DeepSeek בתשלום זעום.)
 
+**⭐ מומלץ ביותר לחינמי — Groq (הכי מהיר, מכסה חינמית נדיבה, Llama 3.3 70B):**
+1. console.groq.com → הרשמה → API Keys → Create (חינם, בלי כרטיס אשראי).
+2. Vercel → Environment Variables:
+   - `OPENAI_COMPAT_API_KEY` = המפתח
+   - `OPENAI_COMPAT_BASE_URL` = `https://api.groq.com/openai/v1`
+   - `OPENAI_COMPAT_MODEL` = `llama-3.3-70b-versatile`
+3. Save → Redeploy. Groq מהיר במיוחד (תשובות כמעט מיידיות) ובעל מכסה חינמית טובה — הבחירה הכי טובה לצ'אט חינמי. (מקור רשימת ספקים חינמיים: github.com/cheahjs/free-llm-api-resources.)
+
 > ⚠️ חשוב: Ollama רץ על **המחשב שלך**. הפריסה בענן (Vercel) תגיע אליו רק אם המחשב חשוף לאינטרנט (מנהרה כמו ngrok/cloudflared, ואז `OLLAMA_BASE_URL` = כתובת המנהרה). להרצה מקומית מלאה (`npm run dev` על אותו מחשב) — עובד מיד. זו הסיבה שלפרודקשן ענן, מפתח ענן (Gemini/Anthropic) עדיין הכי פשוט.
 
 ## 2. דומיין (אמינות — ביקורת מוצדקת: vercel.app נראה זמני) — ~50-90 ₪/שנה

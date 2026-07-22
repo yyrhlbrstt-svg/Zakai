@@ -57,7 +57,8 @@
     "mortgage": "Mortgage refinance",
     "whatAmIOwed": "What am I owed?",
     "companies": "Zakai Score",
-    "deposit": "Rental deposit"
+    "deposit": "Rental deposit",
+    "childsavings": "Savings for Every Child"
   },
   "payslip": {
     "title": "Payslip check",
@@ -312,6 +313,10 @@
       "deposit": {
         "title": "Rental deposit",
         "sub": "Landlord holding your deposit? Only proven damage is deductible. Ready demand letter."
+      },
+      "childsavings": {
+        "title": "Savings for Every Child",
+        "sub": "Every child has a state account. The right choice = thousands for your child."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2138,5 +2143,46 @@
       "secondary": "All rights"
     },
     "disclaimer": "Zakai is a self-help tool, not a lawyer. The letter is a template you send in your own name, and is not legal advice. The outcome depends on your contract terms and the circumstances."
+  },
+  "childSavings": {
+    "metaTitle": "Savings for Every Child — don't leave your child's money on the floor | Zakai",
+    "metaDesc": "Every child in Israel has a state savings account. With the right track it can grow by thousands of shekels. Here's how to do it, free.",
+    "kicker": "Your child's money",
+    "title": "Every child in Israel has a savings account — most lose thousands from it",
+    "sub": "Since 2015 the state deposits money every month into a 'Savings for Every Child' account for each child. Parents choose where it goes — but most leave it in the default track and miss thousands of shekels by age 18. Choosing is free and takes 5 minutes.",
+    "bigNumber": "Up to ~₪20,000",
+    "bigNumberSub": "Over 18 years, the gap between a conservative default track and an equity track can reach thousands of shekels — money that belongs to your child, without you adding a single shekel.",
+    "movesTitle": "3 moves that grow the savings",
+    "moves": [
+      {
+        "icon": "📈",
+        "title": "Pick the right investment track",
+        "body": "By default the money sits in a bank at a low rate. Moving to a provident fund on an equity track (suited to an 18-year horizon) can multiply the return. Choosing is free on the National Insurance site."
+      },
+      {
+        "icon": "➕",
+        "title": "Double the deposit",
+        "body": "You can ask the state to double the monthly deposit from the child allowance — a matching sum joins in, at no extra cost to you. The money simply grows faster."
+      },
+      {
+        "icon": "🔗",
+        "title": "Consolidate several kids' accounts",
+        "body": "Have several kids? Make sure they're all in the right body and track, watch the management fees, and don't forget the money when they turn 18."
+      }
+    ],
+    "howTitle": "How to do it — 5 minutes",
+    "steps": [
+      "Log in to the National Insurance site and go to 'Savings for Every Child'.",
+      "Check which track the money is currently in (most likely: a conservative default).",
+      "Choose a provident fund on a long-horizon track, and consider asking to double the deposit from the allowance.",
+      "Repeat for each child, and set a reminder to review once a year."
+    ],
+    "cta": {
+      "title": "Don't leave your child's money on the floor",
+      "body": "Choosing is completely free and done by you on the official site. We just explain how to maximize it — because it's your child's money.",
+      "primary": "Go to Savings for Every Child",
+      "secondary": "What else is the family owed?"
+    },
+    "disclaimer": "Zakai explains and points to the state's free official tool and does not charge for it. This is not pension or investment advice — the choice is made by you on the National Insurance site, and past returns don't guarantee future ones."
   }
 }
