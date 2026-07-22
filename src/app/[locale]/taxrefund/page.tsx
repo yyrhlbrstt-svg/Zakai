@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { TaxRefundCalculator } from "@/components/TaxRefundCalculator";
+import { TaxEligibilityCheck } from "@/components/TaxEligibilityCheck";
 import { bcp47, type Locale } from "@/i18n/config";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default async function TaxRefundPage({
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-2">
       <h1 className="font-display text-3xl my-3">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[600px]">{t("subtitle")}</p>
+      <TaxEligibilityCheck />
       <TaxRefundCalculator bcp47={bcp47[locale as Locale]} />
     </main>
   );

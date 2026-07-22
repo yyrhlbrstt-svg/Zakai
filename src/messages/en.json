@@ -1394,7 +1394,28 @@
       "Attach the 106 forms from every employer that year.",
       "Other refund reasons: pension/study-fund deposits, donations to recognized institutions, unused credit points (degree, immigrant, discharged soldier, children)."
     ],
-    "disclaimer": "The estimate is based on the 2026 brackets and credit-point value and the data you enter, and covers only the 'worked part of the year' reason. It excludes other reasons, other income and personal deductions, and is not tax advice. The binding amount is set by the Tax Authority."
+    "disclaimer": "The estimate is based on the 2026 brackets and credit-point value and the data you enter, and covers only the 'worked part of the year' reason. It excludes other reasons, other income and personal deductions, and is not tax advice. The binding amount is set by the Tax Authority.",
+    "check": {
+      "title": "Quick check: do you likely have a tax refund waiting?",
+      "sub": "Tick anything true for you in the last 6 years. Each item is a common reason for a refund.",
+      "triggers": [
+        "Worked only part of the year (started/left mid-year, or a student)",
+        "Changed jobs or worked several jobs at once",
+        "Had a period of unemployment, unpaid leave or maternity leave",
+        "Had a child (parent credit points)",
+        "Was discharged from military/national service in the last 6 years",
+        "Donated to a recognized institution (Section 46 credit)",
+        "Made independent pension or study-fund deposits",
+        "You or a family member has a recognized disability",
+        "New immigrant or returning resident",
+        "Withdrew money from a provident or severance fund",
+        "Lived in a tax-benefit locality (periphery)",
+        "Completed an academic degree (graduate credit)"
+      ],
+      "none": "Nothing ticked — you might still be owed. Worth checking the calculator below.",
+      "hit": "Good sign! {n} of these apply to you — you likely have a refund waiting. You can file up to 6 years back.",
+      "hitCta": "Check how much — calculator below"
+    }
   },
   "install": {
     "title": "Install Zakai",
