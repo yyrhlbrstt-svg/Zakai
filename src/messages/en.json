@@ -58,7 +58,8 @@
     "whatAmIOwed": "What am I owed?",
     "companies": "Zakai Score",
     "deposit": "Rental deposit",
-    "childsavings": "Savings for Every Child"
+    "childsavings": "Savings for Every Child",
+    "insurance": "Duplicate insurance"
   },
   "payslip": {
     "title": "Payslip check",
@@ -317,6 +318,10 @@
       "childsavings": {
         "title": "Savings for Every Child",
         "sub": "Every child has a state account. The right choice = thousands for your child."
+      },
+      "insurance": {
+        "title": "Duplicate insurance",
+        "sub": "You may pay twice for the same cover. A one-minute check."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2184,5 +2189,38 @@
       "secondary": "What else is the family owed?"
     },
     "disclaimer": "Zakai explains and points to the state's free official tool and does not charge for it. This is not pension or investment advice — the choice is made by you on the National Insurance site, and past returns don't guarantee future ones."
+  },
+  "insurance": {
+    "metaTitle": "Duplicate insurance — you may be paying twice for the same cover | Zakai",
+    "metaDesc": "Israelis waste ~₪3.5B a year on duplicate insurance. A one-minute check reveals if you pay twice for cover you can only ever claim once.",
+    "kicker": "Money leaking every month",
+    "title": "You may be paying twice for the same insurance — and can only claim once",
+    "sub": "In indemnity policies (health, surgery, drugs) the law only reimburses the actual cost — from one insurer. If you hold such cover both privately and through work / your kupat-cholim, you pay a double premium you can never use. Tick what you have and see the yearly cost.",
+    "policyCol": "Cover type",
+    "privateCol": "Private",
+    "collectiveCol": "Work/Kupah",
+    "checkBtn": "Check for duplication",
+    "kind": {
+      "indemnity": "indemnity",
+      "compensation": "compensation"
+    },
+    "policies": {
+      "surgery": "Surgery",
+      "drugs": "Out-of-basket drugs",
+      "transplant": "Transplants",
+      "consultations": "Consultations & tests",
+      "criticalIllness": "Critical illness",
+      "personalAccident": "Personal accident",
+      "life": "Life insurance"
+    },
+    "resultTitle": "You are likely paying twice for",
+    "resultPerYear": "a year — premium on cover you can't claim twice",
+    "resultExplain": "These are indemnity policies you hold both privately and through work / your kupah. You can only ever claim from one, so the double premium is waste. Worth checking with your insurer and cancelling the redundant one.",
+    "stackableNote": "You also have {count} overlapping compensation policies (like life / critical illness) — those can legitimately be held twice, so we didn't count them.",
+    "cta": "Have Zakai help me cancel & save",
+    "noneTitle": "No wasteful indemnity duplication found",
+    "noneSub": "Based on what you ticked, you have no duplicate indemnity cover. Great — that's exactly what we wanted to confirm.",
+    "noneStackable": "The overlaps you ticked are compensation policies, which may be held twice. No waste here.",
+    "disclaimer": "This is an illustrative first check that runs in your browser and isn't saved. Not insurance advice — before cancelling a policy, confirm with your insurer that no unique cover is lost."
   }
 }

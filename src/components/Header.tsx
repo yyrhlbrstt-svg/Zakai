@@ -11,6 +11,7 @@ import { PlanBadge } from "@/components/PlanBadge";
 const TOOLS = [
   { href: "/lost-money", key: "lostmoney", icon: "⛰️" },
   { href: "/child-savings", key: "childsavings", icon: "🧒" },
+  { href: "/insurance", key: "insurance", icon: "🛡️" },
   { href: "/arnona", key: "arnona", icon: "🏠" },
   { href: "/duplicate-insurance", key: "dupinsurance", icon: "🛡️" },
   { href: "/pension-fees", key: "pension", icon: "📊" },
