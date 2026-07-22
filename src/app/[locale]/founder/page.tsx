@@ -3,6 +3,7 @@ import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { formatAgorot } from "@/lib/money";
+import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import type { Locale } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
@@ -32,13 +33,14 @@ export default async function FounderPage({
   if (!user) redirect({ href: "/login", locale });
   if (!isAdmin(user!.email)) redirect({ href: "/dashboard", locale });
 
-  const [byStatus, savedAgg, feeAgg, paidAgg, users, checks] = await Promise.all([
+  const [byStatus, savedAgg, feeAgg, paidAgg, users, checks, recovery] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
     prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
     prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
     prisma.user.count(),
     prisma.case.count(),
+    computeRecoveryGraph(),
   ]);
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
@@ -98,6 +100,47 @@ export default async function FounderPage({
           );
         })}
       </div>
+
+      {/* The recovery graph — the moat. Per counterparty: what actually works. */}
+      <h2 className="font-display text-xl mt-10 mb-1.5">גרף ההשבה — מה עובד מול מי</h2>
+      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+        החפיר האמיתי (אפקט רשת של דאטה): לכל ספק — אחוז הצלחה, חיסכון ממוצע וזמן ממוצע לתוצאה. ככל
+        שנצבור תיקים, זה הופך ל"מה מנצח מול מי" שאף מתחרה לא יכול להעתיק.
+      </p>
+      {recovery.length === 0 ? (
+        <p className="text-ink-soft text-[13.5px]">אין עדיין תיקים לנתח.</p>
+      ) : (
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-x-auto">
+          <table className="w-full text-[13px] min-w-[440px]">
+            <thead>
+              <tr className="text-ink-soft text-[11.5px] uppercase tracking-wide">
+                <th className="text-start px-4 py-3 font-bold">ספק</th>
+                <th className="text-center px-3 py-3 font-bold">נענו</th>
+                <th className="text-center px-3 py-3 font-bold">אחוז הצלחה</th>
+                <th className="text-center px-3 py-3 font-bold">חיסכון ממוצע</th>
+                <th className="text-center px-3 py-3 font-bold">ימים לתוצאה</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recovery.map((r) => (
+                <tr key={r.provider} className="border-t border-[rgba(255,255,255,0.07)]">
+                  <td className="px-4 py-3 font-extrabold">{r.provider}</td>
+                  <td className="text-center px-3 py-3 tabular-nums text-ink-soft">{r.settled}</td>
+                  <td className="text-center px-3 py-3 tabular-nums font-extrabold text-emerald">
+                    {r.winRate === null ? "—" : `${r.winRate}%`}
+                  </td>
+                  <td className="text-center px-3 py-3 tabular-nums">
+                    {r.avgSavingAgorot > 0 ? money(r.avgSavingAgorot) : "—"}
+                  </td>
+                  <td className="text-center px-3 py-3 tabular-nums text-ink-soft">
+                    {r.avgDaysToResolve === null ? "—" : r.avgDaysToResolve}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <p className="text-[11.5px] text-[rgba(147,166,165,0.7)] mt-5 leading-relaxed">
         עמוד פנימי, גלוי רק לכתובות ב-ADMIN_EMAIL. אם אחוז ההצלחה נמוך או לא יציב על מדגם אמיתי — זו
