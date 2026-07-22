@@ -15,6 +15,7 @@ const TOOLS = [
   { href: "/arnona", key: "arnona", icon: "🏠" },
   { href: "/construction-defects", key: "defects", icon: "🏗️" },
   { href: "/car-value", key: "carvalue", icon: "🚗" },
+  { href: "/mortgage-insurance", key: "mortins", icon: "🏠" },
   { href: "/duplicate-insurance", key: "dupinsurance", icon: "🛡️" },
   { href: "/pension-fees", key: "pension", icon: "📊" },
   { href: "/mortgage", key: "mortgage", icon: "🏡" },

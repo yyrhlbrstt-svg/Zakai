@@ -96,7 +96,7 @@ export default async function ConstructionDefectsPage({
               {t("cta.body")}
             </p>
             <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <Link href="/check">
+              <Link href="/start?v=construction-defects">
                 <Button>{t("cta.primary")}</Button>
               </Link>
               <Link href="/entitlements">

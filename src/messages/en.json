@@ -62,7 +62,8 @@
     "insurance": "Duplicate insurance",
     "defects": "Construction defects",
     "classaction": "Class-action money",
-    "carvalue": "Car diminished value"
+    "carvalue": "Car diminished value",
+    "mortins": "Mortgage insurance"
   },
   "payslip": {
     "title": "Payslip check",
@@ -338,6 +339,10 @@
       "carvalue": {
         "title": "Car diminished value",
         "sub": "Had an accident? You're owed diminished-value compensation — thousands ₪ insurers hide."
+      },
+      "mortins": {
+        "title": "Mortgage insurance",
+        "sub": "The bank sells you pricey insurance. Switching saves thousands ₪ a year."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2414,5 +2419,75 @@
       "secondary": "What else am I owed?"
     },
     "disclaimer": "Zakai is a self-help tool, not an appraiser, lawyer or insurer. Quantifying diminished value requires a licensed appraiser, and compensation depends on their findings, the policy and the accident circumstances. This is not professional advice and no outcome is promised."
+  },
+  "mortgageInsurance": {
+    "metaTitle": "Overpriced mortgage insurance — you're paying the bank double | Zakai",
+    "metaDesc": "The bank sold you mortgage insurance (life + structure) marked up by tens of percent. Switching to an independent policy saves thousands ₪ a year — tens of thousands over the mortgage.",
+    "kicker": "Don't be a sucker",
+    "title": "The bank sells you overpriced mortgage insurance — you can save thousands a year",
+    "sub": "Every mortgage requires life and structure insurance. Banks sell it through themselves at a marked-up price — sometimes tens of percent above the open market. Switching to an identical independent policy saves thousands a year, and you lose nothing. The check is free.",
+    "bigNumber": "Thousands ₪ a year — tens of thousands over the mortgage",
+    "bigNumberSub": "The gap between the bank's insurance and an independent policy compounds over the 20-30 year mortgage into tens of thousands of shekels — money leaving your pocket for nothing.",
+    "factsTitle": "What's important to know",
+    "facts": [
+      {
+        "icon": "🏦",
+        "title": "The bank doesn't have to be the insurer",
+        "body": "You must have insurance — but not from the bank. You may choose any insurer, and the bank must accept it."
+      },
+      {
+        "icon": "💸",
+        "title": "The gap is huge",
+        "body": "Insurance through the bank is usually tens of percent more expensive than an identical independent policy — for the exact same cover."
+      },
+      {
+        "icon": "🔁",
+        "title": "You can switch mid-way too",
+        "body": "Not only when taking the mortgage — you can move to cheaper insurance at any stage, even years in."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Same cover, less money",
+        "body": "Switching doesn't harm your cover or mortgage — the same protection, just cheaper."
+      }
+    ],
+    "howTitle": "How to save it",
+    "steps": [
+      "Gather your current mortgage insurance details (life + structure) and the monthly cost.",
+      "Compare against an identical independent policy on the open market — that's where the gap shows.",
+      "Switch to the cheaper insurance; the law requires the bank to accept a valid external policy.",
+      "Notify the bank of the switch — and the saving starts immediately, every month to the end of the mortgage."
+    ],
+    "cta": {
+      "title": "Check how much you're overpaying on mortgage insurance",
+      "body": "We start with a free initial check of the gap vs. the open market. We explain and guide; the switch itself is with a licensed insurer.",
+      "primary": "Start a check",
+      "secondary": "Mortgage refinance check"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an insurance agent or advisor. Cover, price and eligibility depend on the insurer, the policy and your situation. This is not insurance advice and no outcome is promised."
+  },
+  "lead": {
+    "kicker": "Free initial check",
+    "pageTitle": "Leave your details and we'll check what you're owed",
+    "pageSub": "No commitment, no upfront payment. We'll get back to you, review your case, and connect you to someone who can claim it — a fee only if you actually get money.",
+    "title": "Free initial check — how much are you owed?",
+    "sub": "Leave your name and phone and we'll get back to you to review your case. Fee only on success.",
+    "name": "Full name",
+    "phone": "Phone",
+    "note": "Details about your case (optional)",
+    "required": "Need a name and a valid phone.",
+    "send": "Check what I'm owed",
+    "sending": "Sending…",
+    "doneTitle": "Got it! We'll be in touch soon.",
+    "doneSub": "We'll review your case and come back with the next steps. No commitment, no upfront payment.",
+    "error": "Something went wrong. Try again in a moment.",
+    "privacy": "Your details are kept with us only, for the check. No spam, and you can ask us to delete them anytime.",
+    "verticalTitles": {
+      "construction-defects": "Construction defects — what does the developer owe you?",
+      "car-value": "Car diminished value — what are you owed for the accident?",
+      "mortgage-insurance": "Mortgage insurance — how much are you overpaying?",
+      "arnona": "Arnona refund — how much did you overpay?",
+      "taxrefund": "Tax refund — how much is waiting for you?"
+    }
   }
 }

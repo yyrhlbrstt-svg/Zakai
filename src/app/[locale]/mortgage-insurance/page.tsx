@@ -11,7 +11,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "carValue" });
+  const t = await getTranslations({ locale, namespace: "mortgageInsurance" });
   return { title: t("metaTitle"), description: t("metaDesc") };
 }
 
@@ -21,14 +21,14 @@ interface Item {
   body: string;
 }
 
-export default async function CarValuePage({
+export default async function MortgageInsurancePage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("carValue");
+  const t = await getTranslations("mortgageInsurance");
   const facts = t.raw("facts") as Item[];
   const steps = t.raw("steps") as string[];
 
@@ -96,10 +96,10 @@ export default async function CarValuePage({
               {t("cta.body")}
             </p>
             <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <Link href="/start?v=car-value">
+              <Link href="/start?v=mortgage-insurance">
                 <Button>{t("cta.primary")}</Button>
               </Link>
-              <Link href="/entitlements">
+              <Link href="/mortgage">
                 <Button variant="ghost">{t("cta.secondary")}</Button>
               </Link>
             </div>

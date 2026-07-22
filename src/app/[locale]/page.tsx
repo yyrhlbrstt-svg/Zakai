@@ -146,6 +146,7 @@ export default async function HomePage({
               { key: "arnona", href: "/arnona", icon: "🏠" },
               { key: "defects", href: "/construction-defects", icon: "🏗️" },
               { key: "carvalue", href: "/car-value", icon: "🚗" },
+              { key: "mortins", href: "/mortgage-insurance", icon: "🏠" },
               { key: "dupinsurance", href: "/duplicate-insurance", icon: "🛡️" },
               { key: "pension", href: "/pension-fees", icon: "📊" },
               { key: "mortgage", href: "/mortgage", icon: "🏡" },

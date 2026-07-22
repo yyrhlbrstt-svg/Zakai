@@ -268,3 +268,22 @@ model Feedback {
 
   @@index([createdAt])
 }
+
+// Commissionable lead intake for the high-value verticals (construction
+// defects, car diminished-value, mortgage insurance, tax, arnona…). Zakai
+// captures the qualified lead and connects the user to a vetted professional /
+// service, monetising via a success/referral fee when the claim succeeds — the
+// standard model in these industries, and honest (we facilitate, we don't
+// impersonate the professional). `vertical` is the source screen's key.
+model Lead {
+  id        String   @id @default(cuid())
+  vertical  String // e.g. "construction-defects" | "car-value" | "mortgage-insurance"
+  name      String
+  phone     String
+  note      String   @default("")
+  status    String   @default("new") // new | contacted | matched | won | closed
+  userId    String? // set if a logged-in user submitted it
+  createdAt DateTime @default(now())
+
+  @@index([vertical, createdAt])
+}
