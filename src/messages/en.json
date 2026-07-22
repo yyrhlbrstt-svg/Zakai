@@ -59,7 +59,8 @@
     "companies": "Zakai Score",
     "deposit": "Rental deposit",
     "childsavings": "Savings for Every Child",
-    "insurance": "Duplicate insurance"
+    "insurance": "Duplicate insurance",
+    "defects": "Construction defects"
   },
   "payslip": {
     "title": "Payslip check",
@@ -323,6 +324,10 @@
       "insurance": {
         "title": "Duplicate insurance",
         "sub": "You may pay twice for the same cover. A one-minute check."
+      },
+      "defects": {
+        "title": "Construction defects",
+        "sub": "New apartment? Up to tens of thousands ₪ from the developer, up to 7 years."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -2230,5 +2235,61 @@
     "noneSub": "Based on what you ticked, you have no duplicate indemnity cover. Great — that's exactly what we wanted to confirm.",
     "noneStackable": "The overlaps you ticked are compensation policies, which may be held twice. No waste here.",
     "disclaimer": "This is an illustrative first check that runs in your browser and isn't saved. Not insurance advice — before cancelling a policy, confirm with your insurer that no unique cover is lost."
+  },
+  "constructionDefects": {
+    "metaTitle": "Construction defects — up to tens of thousands ₪ from the developer | Zakai",
+    "metaDesc": "Bought a new apartment? Under the Sale (Apartments) Law you have up to a 7-year defect-liability right. Most buyers never claim it. Here's how to check what you're owed.",
+    "kicker": "Money from the developer",
+    "title": "Bought a new apartment? You're owed compensation for every defect — up to 7 years back",
+    "sub": "The Sale (Apartments) Law requires the developer to fix construction defects, and to compensate you if they don't. The liability period runs up to 7 years depending on the defect. Most buyers give up because they don't know what they're owed — and the developer is happy. The initial check is free.",
+    "bigNumber": "Up to tens of thousands ₪",
+    "bigNumberSub": "An engineer's inspection of a new apartment typically finds dozens of defects; the repair/compensation value often reaches tens of thousands of shekels — money the developer owes you by law.",
+    "defectsTitle": "Common defects you're compensated for",
+    "defects": [
+      {
+        "icon": "💧",
+        "title": "Damp & sealing",
+        "body": "Water ingress, mold, poor sealing in wet rooms and balconies — among the most common and costly defects."
+      },
+      {
+        "icon": "📐",
+        "title": "Deviations & flooring",
+        "body": "Uneven floors, hollow or cracked tiles, wall deviations beyond the standard tolerance."
+      },
+      {
+        "icon": "🚪",
+        "title": "Carpentry & aluminum",
+        "body": "Doors and windows that don't close properly, poor insulation, faulty hardware."
+      },
+      {
+        "icon": "⚡",
+        "title": "Electrical & plumbing",
+        "body": "Missing/faulty electrical points, water pressure, drainage and sewage issues."
+      },
+      {
+        "icon": "🏗️",
+        "title": "Spec mismatch",
+        "body": "What you got differs from what the sale spec promised — inferior materials, dimensions or equipment."
+      },
+      {
+        "icon": "🌡️",
+        "title": "Insulation & acoustics",
+        "body": "Thermal/acoustic insulation below standard — cold in winter, hot in summer, and noisy."
+      }
+    ],
+    "howTitle": "How to claim it — the right way",
+    "steps": [
+      "Don't sign 'apartment handover' without reservation if there are defects — document everything in writing.",
+      "Order an engineer's inspection (bdek bayit) — it quantifies the defects and the repair value. That's the document that speaks.",
+      "Send the developer a reasoned demand with the inspection report and a legal repair timeline.",
+      "Didn't fix it in reasonable time? You're owed monetary compensation (the repair cost) — usually on a success-fee basis, no upfront pay."
+    ],
+    "cta": {
+      "title": "Check what the developer owes you",
+      "body": "We start with a free initial check of your rights under the Sale (Apartments) Law. The inspection itself is done by a licensed engineer — we explain, guide and help you claim.",
+      "primary": "Start a check",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an engineer, appraiser or lawyer. Quantifying defects requires a licensed engineer's inspection, and compensation depends on their findings, the contract and the Sale Law. This is not engineering or legal advice and no outcome is promised."
   }
 }
