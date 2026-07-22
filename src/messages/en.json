@@ -188,7 +188,8 @@
     "nameRequired": "Please enter your full name.",
     "mustLogin": "Please log in to continue.",
     "tooManyRequests": "Too many attempts. Try again in a few minutes.",
-    "invitedNote": "You were invited by a friend 🎁"
+    "invitedNote": "You were invited by a friend 🎁",
+    "paymentUnavailable": "Payment is unavailable right now. Please try again later."
   },
   "onboarding": {
     "title": "What Zakai does for you",
@@ -549,7 +550,11 @@
     "memberMax": "Zero fee — all savings stay yours. Unlimited cases and every capability unlocked.",
     "memberManage": "Manage plan",
     "checksMine": "My checks",
-    "checksFor": "{name}'s checks"
+    "checksFor": "{name}'s checks",
+    "feePay": "Pay fee",
+    "feePaying": "Redirecting…",
+    "feePayError": "Try again",
+    "feePaid": "paid"
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",

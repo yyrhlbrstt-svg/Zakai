@@ -188,7 +188,8 @@
     "nameRequired": "נא להזין שם מלא.",
     "mustLogin": "יש להתחבר כדי להמשיך.",
     "tooManyRequests": "יותר מדי ניסיונות. נסה שוב בעוד כמה דקות.",
-    "invitedNote": "הגעתם דרך הזמנה של חבר 🎁"
+    "invitedNote": "הגעתם דרך הזמנה של חבר 🎁",
+    "paymentUnavailable": "התשלום אינו זמין כרגע. נסה שוב מאוחר יותר."
   },
   "onboarding": {
     "title": "מה זכאי עושה בשבילך",
@@ -549,7 +550,11 @@
     "memberMax": "אפס עמלה — כל החיסכון נשאר אצלך. תיקים ללא הגבלה וכל היכולות פתוחות.",
     "memberManage": "ניהול המסלול",
     "checksMine": "הבדיקות שלי",
-    "checksFor": "הבדיקות של {name}"
+    "checksFor": "הבדיקות של {name}",
+    "feePay": "שלם עמלה",
+    "feePaying": "מעביר לתשלום…",
+    "feePayError": "נסה שוב",
+    "feePaid": "שולם"
   },
   "legal": {
     "termsTitle": "תנאי שימוש ופרטיות",

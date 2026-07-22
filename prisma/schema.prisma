@@ -234,6 +234,14 @@ model Fee {
   referralCreditApplied Int       @default(0) // agorot
   status                FeeStatus @default(PENDING)
   createdAt             DateTime  @default(now())
+
+  // Fee collection. `provider` is which PSP handled it (or "mock" until a real
+  // one is configured); `providerRef` is the payment/transaction id it returned;
+  // `paidAt` is when the fee was confirmed collected. All null until a payment
+  // is initiated — the fee lifecycle is: PENDING -> (checkout) -> PAID.
+  provider    String? // e.g. "mock" | "payplus" | "tranzila"
+  providerRef String?
+  paidAt      DateTime?
 }
 
 // Durable fixed-window rate limiting for auth/OTP endpoints. Serverless

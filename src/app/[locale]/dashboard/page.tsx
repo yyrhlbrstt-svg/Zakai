@@ -7,6 +7,7 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
 import { ShareResult } from "@/components/ShareResult";
+import { FeePayButton } from "@/components/FeePayButton";
 import { Reveal } from "@/components/Reveal";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
@@ -102,8 +103,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                   : ""}
             </div>
             {c.fee && c.fee.status !== "WAIVED" && (
-              <div className="text-[12px] text-ink-soft">
-                {t("dashboard.feeTag")}: {formatAgorot(c.fee.amount, loc)}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="text-[12px] text-ink-soft">
+                  {t("dashboard.feeTag")}: {formatAgorot(c.fee.amount, loc)}
+                  {c.fee.status === "PAID" && ` ✓ ${t("dashboard.feePaid")}`}
+                </div>
+                {c.fee.status === "PENDING" && c.fee.amount > 0 && (
+                  <FeePayButton caseId={c.id} />
+                )}
               </div>
             )}
             <div
