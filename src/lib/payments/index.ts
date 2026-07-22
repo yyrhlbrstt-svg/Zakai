@@ -44,7 +44,10 @@ export interface PaymentProvider {
 class MockProvider implements PaymentProvider {
   name = "mock";
   async createCheckout(input: CheckoutInput): Promise<CheckoutResult> {
-    const providerRef = `mock_${input.feeId}_${Date.now()}`;
+    // Cryptographically-random, unguessable reference. confirmFeePayment
+    // requires an exact match, so an attacker can't forge a "paid" callback by
+    // guessing a timestamp — the ref is a 128-bit secret tied to this fee.
+    const providerRef = `mock_${input.feeId}_${crypto.randomUUID()}`;
     // The internal confirm page carries the fee id + ref; confirming it there
     // calls the same webhook a real PSP would.
     const url = new URL(input.returnUrl);

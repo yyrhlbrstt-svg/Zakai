@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { confirmFeePayment } from "@/lib/services/payments";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 
 /**
@@ -31,10 +32,15 @@ async function handle(feeId: string | null, ref: string | null, redirect: boolea
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
+  // Throttle so an unguessed ref can't be brute-forced against a known feeId.
+  const limited = await rateLimit("payment-callback", clientIp(request), 20, 3600);
+  if (!limited.ok) return NextResponse.json({ ok: false }, { status: 429 });
   return handle(url.searchParams.get("feeId"), url.searchParams.get("ref"), true, url.origin);
 }
 
 export async function POST(request: Request) {
+  const limited = await rateLimit("payment-callback", clientIp(request), 20, 3600);
+  if (!limited.ok) return NextResponse.json({ ok: false }, { status: 429 });
   const url = new URL(request.url);
   const body = await request.json().catch(() => ({}) as Record<string, unknown>);
   const feeId = (body.feeId as string) ?? url.searchParams.get("feeId");
