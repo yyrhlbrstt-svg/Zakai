@@ -30,9 +30,13 @@ model User {
   // (PSP); the tier itself is enforced in code from day one.
   plan          Plan      @default(FREE)
   planChangedAt DateTime?
-  // E.164 Israeli mobile, e.g. +972501234567. The number the user's bills are
-  // registered to; ownership verification sends a code here.
+  // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
+  // are registered to; ownership verification sends a code here.
   phone        String
+  // ISO-3166 alpha-2 country the user signed up from. Israel is the launch
+  // market (active tools are IL-first); capturing country turns international
+  // signups into a real demand signal for where to expand next.
+  country      String   @default("IL")
   createdAt    DateTime @default(now())
 
   // Referrals. `referralCode` is the short, shareable code in this user's

@@ -194,7 +194,9 @@
     "mustLogin": "Please log in to continue.",
     "tooManyRequests": "Too many attempts. Try again in a few minutes.",
     "invitedNote": "You were invited by a friend 🎁",
-    "paymentUnavailable": "Payment is unavailable right now. Please try again later."
+    "paymentUnavailable": "Payment is unavailable right now. Please try again later.",
+    "country": "Country",
+    "countryNotice": "Zakai’s active tools today are Israel-first. You’re signing up early — we’ll notify you the moment we launch in your country."
   },
   "onboarding": {
     "title": "What Zakai does for you",

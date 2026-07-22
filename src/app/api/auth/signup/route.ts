@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: firstError(parsed.error) }, { status: 400 });
   }
-  const { name, email, password, phone, referralCode } = parsed.data;
+  const { name, email, password, phone, country, referralCode } = parsed.data;
   const normalizedPhone = normalizePhone(phone)!;
 
   try {
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
         name,
         email,
         phone: normalizedPhone,
+        country,
         passwordHash: await hashPassword(password),
         referralCode: generateReferralCode(),
         referredById,
