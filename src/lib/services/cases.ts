@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { computeFee } from "@/lib/fee";
+import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
@@ -159,8 +160,13 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
       select: { plan: true, referralCreditAgorot: true, referredById: true },
     });
 
-    // The success-fee rate comes from the user's plan (Free 18%, Pro 9%, Max 0%).
-    const fee = computeFee(kase.amountOriginal, newAmount, planConfig(owner?.plan).feeRateBps);
+    // The success-fee rate comes from the user's plan (Free 18%, Pro 9%, Max 0%),
+    // resolved through the vertical's rule pack. Telecom's pack overrides nothing
+    // (feeRateBps=null), so this equals the plan rate exactly — the Stage-0
+    // invariant — while giving future verticals a per-vertical rate seam.
+    const planRateBps = planConfig(owner?.plan).feeRateBps;
+    const rateBps = effectiveFeeRateBps(getRulePack("telecom"), planRateBps);
+    const fee = computeFee(kase.amountOriginal, newAmount, rateBps);
     const saved = fee.savingMonthly > 0;
 
     // Apply this user's own referral credit (earned by inviting others) to the
