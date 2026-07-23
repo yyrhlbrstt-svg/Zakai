@@ -114,9 +114,14 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <div className="ms-1">{langButtons}</div>
         </nav>
 
-        {/* Mobile: compact plan badge + hamburger */}
+        {/* Mobile: compact plan badge + hamburger. The badge links to the plans
+            page so tapping your tier opens the tracks/pricing. */}
         <div className="flex md:hidden items-center gap-2.5">
-          {user && <PlanBadge plan={user.plan} />}
+          {user && (
+            <Link href="/pricing" aria-label={t("nav.pricing")} className="no-underline">
+              <PlanBadge plan={user.plan} />
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}

@@ -6,7 +6,7 @@ import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { formatAgorot } from "@/lib/money";
-import { isIsrael } from "@/lib/geo";
+import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 
 /** Refresh the live proof numbers hourly (ISR) — fast page, honest data. */
@@ -43,6 +43,20 @@ export default async function HomePage({
   const trust = t.raw("home.trust") as string[];
   const israeliVisitor = await isIsrael();
 
+  // The kicker's country tag reflects where the visitor actually is (edge geo),
+  // not a hard-coded "Israel". Localized via Intl for ANY country; omitted when
+  // geo is unknown (e.g. local dev) so we never assert the wrong place.
+  const visitorCountry = await getCountry();
+  const countryTag = (() => {
+    if (!visitorCountry) return "";
+    try {
+      const name = new Intl.DisplayNames([locale], { type: "region" }).of(visitorCountry);
+      return name ? ` · ${name}` : "";
+    } catch {
+      return "";
+    }
+  })();
+
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       {!israeliVisitor && (
@@ -54,7 +68,7 @@ export default async function HomePage({
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
             <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-6">
-              {t("home.kicker")}
+              {t("home.kicker")}{countryTag}
             </div>
           </Reveal>
           <Reveal delay={80}>
