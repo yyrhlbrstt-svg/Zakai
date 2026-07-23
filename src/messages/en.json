@@ -64,7 +64,8 @@
     "classaction": "Class-action money",
     "carvalue": "Car diminished value",
     "mortins": "Mortgage insurance",
-    "disability": "Disability / attendance"
+    "disability": "Disability / attendance",
+    "compensation": "Insurance claims"
   },
   "payslip": {
     "title": "Payslip check",
@@ -3040,7 +3041,8 @@
       "bank-fees": "Bank fees — how much are you owed back?",
       "payslip": "Payslip errors? Your employer may owe you money",
       "severance": "Severance — did you get what you’re owed?",
-      "disability": "Disability / attendance — check if you're owed"
+      "disability": "Disability / attendance — check if you're owed",
+      "compensation-claims": "Insurance you never claimed — how much are you owed?"
     },
     "ctaTitle": "Want us to help you claim it?",
     "ctaBody": "Leave your details and we will get back to you — review the case and connect you to someone who can claim it. A fee only if you actually get money."
@@ -3090,5 +3092,54 @@
       "secondary": "What else am I owed?"
     },
     "disclaimer": "Zakai is a self-help tool, not a doctor, lawyer or National Insurance. Eligibility is decided by a medical committee and depends on your situation and documentation. This is not medical or legal advice and no outcome is promised. The information is meant to help you claim an existing right with the official bodies."
+  },
+  "compensationClaims": {
+    "metaTitle": "Insurance money you never claimed | Zakai",
+    "metaDesc": "You've paid for insurance for years — you may be owed a payout you never claimed. Free initial check; a fee only if you get money.",
+    "kicker": "Free initial eligibility check",
+    "title": "You've paid for insurance for years — you may be owed money you never claimed",
+    "sub": "Loss of working capacity, accident disability, critical illness, long-term care, mortgage insurance — many people are entitled to a payout and don't know it. Zakai checks, and connects you to a specialist lawyer. A fee only if you actually get money.",
+    "bigNumber": "10,000–200,000",
+    "bigNumberSub": "A typical range for a single claim. The insurer won't remind you — the cover you paid for doesn't pay out by itself.",
+    "typesTitle": "What we check",
+    "types": [
+      {
+        "icon": "🩺",
+        "title": "Loss of working capacity",
+        "body": "Injured or ill and couldn't work? There's cover in your pension / private policy that most people never claim."
+      },
+      {
+        "icon": "🚗",
+        "title": "Accident disability",
+        "body": "Car or personal accident — compensation from the insurer and from national insurance."
+      },
+      {
+        "icon": "🎗️",
+        "title": "Critical illness",
+        "body": "Many policies pay a lump sum on diagnosis of a serious illness."
+      },
+      {
+        "icon": "🏥",
+        "title": "Medical negligence",
+        "body": "Treatment that went wrong — a check for whether there are grounds to claim."
+      },
+      {
+        "icon": "🏠",
+        "title": "Mortgage insurance",
+        "body": "Loss-of-capacity / life cover inside your mortgage insurance that almost nobody uses."
+      },
+      {
+        "icon": "🧓",
+        "title": "Long-term care",
+        "body": "Private or state long-term-care cover — an unused entitlement."
+      }
+    ],
+    "howTitle": "How it works",
+    "steps": [
+      "Leave your name and phone — no commitment, no upfront payment.",
+      "We review the case and connect you to a specialist lawyer.",
+      "A fee only if you actually receive money."
+    ],
+    "disclaimer": "Zakai is not a law firm and does not provide legal advice. We connect you to a licensed professional and are paid a referral/success fee. No outcome is promised."
   }
 }
