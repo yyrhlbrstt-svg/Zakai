@@ -33,15 +33,20 @@ export default async function FounderPage({
   if (!user) redirect({ href: "/login", locale });
   if (!isAdmin(user!.email)) redirect({ href: "/dashboard", locale });
 
-  const [byStatus, savedAgg, feeAgg, paidAgg, users, checks, recovery] = await Promise.all([
-    prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
-    prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
-    prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
-    prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
-    prisma.user.count(),
-    prisma.case.count(),
-    computeRecoveryGraph(),
-  ]);
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [byStatus, savedAgg, feeAgg, paidAgg, users, checks, recovery, newUsers7d, leadsByVertical, feedbackCount] =
+    await Promise.all([
+      prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
+      prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
+      prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
+      prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
+      prisma.user.count(),
+      prisma.case.count(),
+      computeRecoveryGraph(),
+      prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
+      prisma.lead.groupBy({ by: ["vertical"], _count: { _all: true } }),
+      prisma.feedback.count(),
+    ]);
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
   const sent = count("SENT") + count("SAVED") + count("NO_SAVING");
@@ -54,9 +59,20 @@ export default async function FounderPage({
 
   const money = (a: number) => formatAgorot(a, "he-IL");
 
+  // Growth + pipeline signals — the scoreboard for "get users, prove it works".
+  const totalLeads = leadsByVertical.reduce((s, r) => s + r._count._all, 0);
+  const topLead = [...leadsByVertical].sort((a, b) => b._count._all - a._count._all)[0];
+  const leadsValue =
+    totalLeads === 0
+      ? "אין עדיין"
+      : `${totalLeads}${topLead ? ` · מוביל: ${topLead.vertical} (${topLead._count._all})` : ""}`;
+
   const rows: [string, string][] = [
     ["משתמשים", String(users)],
+    ["— משתמשים חדשים (7 ימים) —", String(newUsers7d)],
     ["בדיקות שנפתחו", String(checks)],
+    ["לידים לעמלה (ביטוח/וורטיקלים)", leadsValue],
+    ["משובים שהתקבלו", String(feedbackCount)],
     ["נשלחו לספק (SENT+)", String(sent)],
     ["הגיעו לתוצאה (נענו)", String(settled)],
     ["חיסכון תועד (SAVED)", String(saved)],
