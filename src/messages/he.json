@@ -1461,6 +1461,306 @@
         "title": "דוח אשראי SCHUFA חינם",
         "desc": "לפי חוק מגיע עותק חינם אחד בשנה של נתוני האשראי — לאתר ולתקן טעויות.",
         "how": "לבקש את ה-Datenkopie החינמי (סעיף 15 GDPR) מ-SCHUFA."
+      },
+      "ca_gst_credit": {
+        "title": "זיכוי GST/HST",
+        "desc": "תשלום רבעוני פטור ממס לבעלי הכנסה נמוכה-בינונית.",
+        "how": "אוטומטי בהגשת דוח מס ל-CRA."
+      },
+      "ca_canada_child_benefit": {
+        "title": "קצבת ילדים קנדית",
+        "desc": "תשלום חודשי פטור ממס למשפחות עם ילדים עד גיל 18.",
+        "how": "להגיש דרך ה-CRA."
+      },
+      "ca_canada_workers_benefit": {
+        "title": "מענק עבודה קנדי",
+        "desc": "זיכוי בר-החזר שמשלים הכנסה לעובדים בשכר נמוך.",
+        "how": "לתבוע בדוח המס."
+      },
+      "ca_ei": {
+        "title": "ביטוח תעסוקה (EI)",
+        "desc": "הכנסה זמנית לאחר אובדן עבודה, וגם דמי מחלה/הורות.",
+        "how": "להגיש דרך Service Canada."
+      },
+      "ca_oas": {
+        "title": "קצבת זקנה (OAS)",
+        "desc": "קצבה חודשית לבני 65+.",
+        "how": "להגיש דרך Service Canada."
+      },
+      "ca_gis": {
+        "title": "השלמת הכנסה (GIS)",
+        "desc": "תוספת חודשית לקשישים בהכנסה נמוכה המקבלים OAS.",
+        "how": "להגיש דרך Service Canada."
+      },
+      "ca_cpp": {
+        "title": "תוכנית הפנסיה הקנדית (CPP)",
+        "desc": "פנסיית פרישה/נכות/שארים לפי הפקדות.",
+        "how": "להגיש דרך Service Canada."
+      },
+      "ca_disability_tax_credit": {
+        "title": "זיכוי מס נכות",
+        "desc": "זיכוי מס למי שיש לו מוגבלות.",
+        "how": "לאשר בטופס T2201 ל-CRA."
+      },
+      "ca_housing_benefit": {
+        "title": "סיוע בדיור קנדי",
+        "desc": "סיוע בשכר דירה לשוכרים בהכנסה נמוכה.",
+        "how": "להגיש דרך המחוז."
+      },
+      "ca_student_grants": {
+        "title": "מענקי סטודנטים קנדיים",
+        "desc": "מענקים שאין להחזיר לסטודנטים עם צורך כלכלי.",
+        "how": "להגיש דרך סיוע הסטודנטים במחוז."
+      },
+      "ca_childcare": {
+        "title": "טיפול בילדים ב-10$ ליום",
+        "desc": "טיפול מוזל בפעוטות במסגרת התוכנית הלאומית.",
+        "how": "להירשם אצל ספק משתתף."
+      },
+      "au_family_tax_benefit": {
+        "title": "קצבת משפחה (FTB)",
+        "desc": "תשלום לסיוע בגידול ילדים.",
+        "how": "להגיש דרך Services Australia (Centrelink)."
+      },
+      "au_jobseeker": {
+        "title": "תשלום מחפשי עבודה",
+        "desc": "תמיכה בהכנסה בזמן חיפוש עבודה.",
+        "how": "להגיש דרך Centrelink."
+      },
+      "au_age_pension": {
+        "title": "קצבת זקנה",
+        "desc": "תמיכה בהכנסה לקשישים.",
+        "how": "להגיש דרך Centrelink."
+      },
+      "au_disability_support_pension": {
+        "title": "קצבת נכות",
+        "desc": "תמיכה למי שיש לו מצב קבוע שמגביל עבודה.",
+        "how": "להגיש דרך Centrelink."
+      },
+      "au_rent_assistance": {
+        "title": "סיוע בשכר דירה",
+        "desc": "תוספת לשוכרים שכבר מקבלים קצבה.",
+        "how": "אוטומטי עם קצבה זכאית."
+      },
+      "au_childcare_subsidy": {
+        "title": "סבסוד טיפול בילדים",
+        "desc": "השתתפות ממשלתית בעלות מעונות למשפחות עובדות.",
+        "how": "להגיש דרך Centrelink."
+      },
+      "au_youth_allowance": {
+        "title": "קצבת נוער",
+        "desc": "תמיכה לסטודנטים וצעירים מחפשי עבודה.",
+        "how": "להגיש דרך Centrelink."
+      },
+      "au_low_income_card": {
+        "title": "כרטיס בריאות להכנסה נמוכה",
+        "desc": "תרופות והנחות מוזלות לבעלי הכנסה נמוכה.",
+        "how": "להגיש דרך Centrelink."
+      },
+      "au_parenting_payment": {
+        "title": "תשלום הורות",
+        "desc": "תמיכת הכנסה למטפל העיקרי בילד צעיר.",
+        "how": "להגיש דרך Centrelink."
+      },
+      "au_superannuation": {
+        "title": "סופר-אנואציה (פנסיה)",
+        "desc": "מעסיקים חייבים להפקיד; מיליארדים בחשבונות אבודים.",
+        "how": "לאחד דרך myGov/ATO."
+      },
+      "fr_rsa": {
+        "title": "RSA",
+        "desc": "הכנסת מינימום למי שאין לו משאבים.",
+        "how": "להגיש ב-CAF."
+      },
+      "fr_prime_activite": {
+        "title": "Prime d'activité",
+        "desc": "תוספת חודשית לעובדים בשכר נמוך.",
+        "how": "להגיש ב-CAF."
+      },
+      "fr_allocations_familiales": {
+        "title": "קצבאות משפחה",
+        "desc": "תשלומים למשקי בית עם ילדים.",
+        "how": "להגיש ב-CAF."
+      },
+      "fr_apl": {
+        "title": "סיוע בדיור (APL)",
+        "desc": "קצבת דיור שמפחיתה את שכר הדירה.",
+        "how": "להגיש ב-CAF."
+      },
+      "fr_chomage": {
+        "title": "דמי אבטלה (ARE)",
+        "desc": "הכנסת אבטלה לפי עבודה קודמת.",
+        "how": "להירשם ב-France Travail."
+      },
+      "fr_retraite": {
+        "title": "פנסיה",
+        "desc": "קצבת פרישה ממלכתית לפי הקריירה.",
+        "how": "להגיש דרך l'Assurance retraite."
+      },
+      "fr_aah": {
+        "title": "AAH (קצבת נכות)",
+        "desc": "הכנסה למבוגרים עם מוגבלות.",
+        "how": "להגיש ב-MDPH."
+      },
+      "fr_paje": {
+        "title": "PAJE",
+        "desc": "סיוע לילדים צעירים (מענק לידה, קצבת בסיס).",
+        "how": "להגיש ב-CAF."
+      },
+      "fr_bourse": {
+        "title": "מלגת סטודנט",
+        "desc": "מלגות לפי מבחן הכנסה.",
+        "how": "להגיש דרך CROUS."
+      },
+      "fr_cheque_energie": {
+        "title": "Chèque énergie",
+        "desc": "שובר לסיוע בחשבונות אנרגיה.",
+        "how": "נשלח אוטומטית לפי דוח המס."
+      },
+      "ie_child_benefit": {
+        "title": "קצבת ילדים",
+        "desc": "תשלום חודשי לכל ילד עד 16 (או 18 בלימודים).",
+        "how": "להגיש ל-DSP."
+      },
+      "ie_jobseekers": {
+        "title": "דמי מחפשי עבודה",
+        "desc": "הכנסה בזמן אבטלה וחיפוש עבודה.",
+        "how": "להגיש ל-DSP / Intreo."
+      },
+      "ie_state_pension": {
+        "title": "פנסיית מדינה",
+        "desc": "קצבת פרישה (מבוססת דמי ביטוח או לא).",
+        "how": "להגיש ל-DSP."
+      },
+      "ie_disability_allowance": {
+        "title": "קצבת נכות",
+        "desc": "תשלום שבועי למי שיש לו מוגבלות.",
+        "how": "להגיש ל-DSP."
+      },
+      "ie_hap": {
+        "title": "סיוע בדיור (HAP)",
+        "desc": "סיוע בשכר דירה לצורך דיור ממושך.",
+        "how": "להגיש דרך הרשות המקומית."
+      },
+      "ie_working_family_payment": {
+        "title": "תשלום למשפחה עובדת",
+        "desc": "תוספת לעובדים בשכר נמוך עם ילדים.",
+        "how": "להגיש ל-DSP."
+      },
+      "ie_fuel_allowance": {
+        "title": "קצבת חימום",
+        "desc": "תשלום חורף לעלויות חימום.",
+        "how": "להגיש ל-DSP."
+      },
+      "ie_susi_grant": {
+        "title": "מלגת SUSI",
+        "desc": "מלגות מחיה ושכר לימוד לסטודנטים זכאים.",
+        "how": "להגיש דרך SUSI."
+      },
+      "ie_medical_card": {
+        "title": "כרטיס רפואי",
+        "desc": "רפואת משפחה, מרשמים ושירותי בי\"ח בחינם.",
+        "how": "להגיש ל-HSE."
+      },
+      "ie_back_to_school": {
+        "title": "קצבת חזרה לבי\"ס",
+        "desc": "סיוע בעלויות ביגוד והנעלה לבי\"ס.",
+        "how": "להגיש ל-DSP."
+      },
+      "nl_zorgtoeslag": {
+        "title": "Zorgtoeslag",
+        "desc": "סיוע בתשלום פרמיית ביטוח הבריאות החובה.",
+        "how": "להגיש ב-Belastingdienst/Toeslagen."
+      },
+      "nl_huurtoeslag": {
+        "title": "Huurtoeslag",
+        "desc": "השתתפות בשכר דירה גבוה יחסית להכנסה.",
+        "how": "להגיש ב-Belastingdienst."
+      },
+      "nl_kinderbijslag": {
+        "title": "Kinderbijslag",
+        "desc": "תשלום רבעוני להורים לילדים עד 18.",
+        "how": "להגיש ב-SVB."
+      },
+      "nl_kindgebonden_budget": {
+        "title": "Kindgebonden budget",
+        "desc": "תוספת קצבת ילדים למשפחות בהכנסה נמוכה.",
+        "how": "לרוב אוטומטי דרך Belastingdienst."
+      },
+      "nl_ww": {
+        "title": "WW (דמי אבטלה)",
+        "desc": "הכנסה לאחר אובדן עבודה, לפי היסטוריית עבודה.",
+        "how": "להגיש ב-UWV."
+      },
+      "nl_aow": {
+        "title": "AOW (פנסיית מדינה)",
+        "desc": "פנסיית המדינה ההולנדית מגיל פרישה.",
+        "how": "להגיש ב-SVB."
+      },
+      "nl_bijstand": {
+        "title": "Bijstand",
+        "desc": "הכנסת רשת ביטחון למי שלא יכול לפרנס עצמו.",
+        "how": "להגיש ברשות המקומית (gemeente)."
+      },
+      "nl_wia": {
+        "title": "WIA (נכות ותעסוקה)",
+        "desc": "הכנסה אם מחלה/נכות מגבילה עבודה.",
+        "how": "להגיש ב-UWV."
+      },
+      "nl_studiefinanciering": {
+        "title": "מימון לימודים",
+        "desc": "מלגות והלוואות להשכלה גבוהה.",
+        "how": "להגיש ב-DUO."
+      },
+      "nl_kinderopvangtoeslag": {
+        "title": "קצבת מעונות",
+        "desc": "קצבת טיפול בילדים להורים עובדים.",
+        "how": "להגיש ב-Belastingdienst."
+      },
+      "es_ingreso_minimo_vital": {
+        "title": "Ingreso Mínimo Vital",
+        "desc": "הכנסת מינימום מובטחת למשקי בית נזקקים.",
+        "how": "להגיש ל-Seguridad Social."
+      },
+      "es_prestacion_desempleo": {
+        "title": "דמי אבטלה",
+        "desc": "דמי אבטלה לפי דמי ביטוח.",
+        "how": "להגיש ל-SEPE."
+      },
+      "es_pension_jubilacion": {
+        "title": "פנסיית פרישה",
+        "desc": "קצבת פרישה ממלכתית.",
+        "how": "להגיש ל-Seguridad Social."
+      },
+      "es_ayuda_familia": {
+        "title": "סיוע למשפחה/ילדים",
+        "desc": "תשלומי תמיכה למשפחות וילדים.",
+        "how": "להגיש ל-Seguridad Social."
+      },
+      "es_ingreso_discapacidad": {
+        "title": "קצבאות נכות",
+        "desc": "קצבאות למי שיש לו מוגבלות מוכרת.",
+        "how": "להגיש ל-IMSERSO / גוף אזורי."
+      },
+      "es_bono_social_electrico": {
+        "title": "Bono Social (חשמל)",
+        "desc": "הנחה בחשבון החשמל למשקי בית זכאים.",
+        "how": "להגיש דרך ספק החשמל."
+      },
+      "es_becas": {
+        "title": "מלגות לסטודנטים",
+        "desc": "מלגות חינוך לפי מבחן הכנסה.",
+        "how": "להגיש דרך Ministerio de Educación."
+      },
+      "es_ayuda_alquiler": {
+        "title": "סיוע בשכר דירה",
+        "desc": "סיוע בשכר דירה לדיירים בהכנסה נמוכה.",
+        "how": "להגיש דרך הקהילה האוטונומית."
+      },
+      "es_prestacion_hijo": {
+        "title": "תוספת ילדים",
+        "desc": "תוספת עבור ילדים במסגרת ה-IMV.",
+        "how": "להגיש ל-Seguridad Social."
       }
     },
     "moreInfo": "למידע המלא בכל-זכות ←",
@@ -1469,7 +1769,13 @@
       "IL": "ישראל",
       "US": "ארה״ב",
       "UK": "בריטניה",
-      "DE": "גרמניה"
+      "DE": "גרמניה",
+      "CA": "קנדה",
+      "AU": "אוסטרליה",
+      "FR": "צרפת",
+      "IE": "אירלנד",
+      "NL": "הולנד",
+      "ES": "ספרד"
     }
   },
   "legalPages": {

@@ -1461,6 +1461,306 @@
         "title": "Free SCHUFA credit report",
         "desc": "By law you can get one free copy of your credit data a year — spot and fix errors.",
         "how": "Request the free Datenkopie (Art. 15 GDPR) from SCHUFA."
+      },
+      "ca_gst_credit": {
+        "title": "GST/HST Credit",
+        "desc": "A tax-free quarterly payment for low-and-modest-income individuals.",
+        "how": "Automatic when you file your taxes with the CRA."
+      },
+      "ca_canada_child_benefit": {
+        "title": "Canada Child Benefit",
+        "desc": "A tax-free monthly payment for families raising children under 18.",
+        "how": "Apply through the CRA."
+      },
+      "ca_canada_workers_benefit": {
+        "title": "Canada Workers Benefit",
+        "desc": "A refundable credit topping up low-income workers' earnings.",
+        "how": "Claim on your tax return."
+      },
+      "ca_ei": {
+        "title": "Employment Insurance",
+        "desc": "Temporary income after losing a job, plus sickness/parental benefits.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_oas": {
+        "title": "Old Age Security",
+        "desc": "A monthly pension for seniors aged 65+.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_gis": {
+        "title": "Guaranteed Income Supplement",
+        "desc": "Extra monthly money for low-income OAS pensioners.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_cpp": {
+        "title": "Canada Pension Plan",
+        "desc": "Retirement, disability and survivor pensions based on contributions.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_disability_tax_credit": {
+        "title": "Disability Tax Credit",
+        "desc": "A tax credit reducing income tax for people with a disability.",
+        "how": "Certify with Form T2201 to the CRA."
+      },
+      "ca_housing_benefit": {
+        "title": "Canada Housing Benefit",
+        "desc": "Rent support for low-income renters (province-administered).",
+        "how": "Apply through your province."
+      },
+      "ca_student_grants": {
+        "title": "Canada Student Grants",
+        "desc": "Non-repayable grants for post-secondary students in need.",
+        "how": "Apply via your province's student aid."
+      },
+      "ca_childcare": {
+        "title": "$10-a-day child care",
+        "desc": "Reduced-fee licensed child care under the national plan.",
+        "how": "Enroll at a participating provider."
+      },
+      "au_family_tax_benefit": {
+        "title": "Family Tax Benefit",
+        "desc": "A payment to help with the cost of raising children.",
+        "how": "Claim through Services Australia (Centrelink)."
+      },
+      "au_jobseeker": {
+        "title": "JobSeeker Payment",
+        "desc": "Income support while you look for work.",
+        "how": "Claim through Centrelink."
+      },
+      "au_age_pension": {
+        "title": "Age Pension",
+        "desc": "Income support for older Australians.",
+        "how": "Claim through Centrelink."
+      },
+      "au_disability_support_pension": {
+        "title": "Disability Support Pension",
+        "desc": "Support for those with a permanent condition limiting work.",
+        "how": "Claim through Centrelink."
+      },
+      "au_rent_assistance": {
+        "title": "Commonwealth Rent Assistance",
+        "desc": "Extra payment for renters already on a benefit.",
+        "how": "Automatic with an eligible payment."
+      },
+      "au_childcare_subsidy": {
+        "title": "Child Care Subsidy",
+        "desc": "Government contribution to child care fees for working families.",
+        "how": "Claim through Centrelink."
+      },
+      "au_youth_allowance": {
+        "title": "Youth Allowance",
+        "desc": "Support for students and young job seekers.",
+        "how": "Claim through Centrelink."
+      },
+      "au_low_income_card": {
+        "title": "Low Income Health Care Card",
+        "desc": "Cheaper medicines and concessions for low-income earners.",
+        "how": "Claim through Centrelink."
+      },
+      "au_parenting_payment": {
+        "title": "Parenting Payment",
+        "desc": "Main income support for the principal carer of a young child.",
+        "how": "Claim through Centrelink."
+      },
+      "au_superannuation": {
+        "title": "Superannuation (find lost super)",
+        "desc": "Employers must pay super; billions sit in lost/unclaimed accounts.",
+        "how": "Consolidate via myGov/ATO."
+      },
+      "fr_rsa": {
+        "title": "RSA (revenu de solidarité active)",
+        "desc": "Minimum income for people with little or no resources.",
+        "how": "Apply at your CAF."
+      },
+      "fr_prime_activite": {
+        "title": "Prime d'activité",
+        "desc": "A monthly top-up for low-paid workers.",
+        "how": "Apply at your CAF."
+      },
+      "fr_allocations_familiales": {
+        "title": "Allocations familiales",
+        "desc": "Family payments for households with children.",
+        "how": "Apply at your CAF."
+      },
+      "fr_apl": {
+        "title": "APL (aide au logement)",
+        "desc": "Housing benefit that lowers your rent.",
+        "how": "Apply at your CAF."
+      },
+      "fr_chomage": {
+        "title": "Allocation chômage (ARE)",
+        "desc": "Unemployment income based on prior work.",
+        "how": "Register with France Travail."
+      },
+      "fr_retraite": {
+        "title": "Retraite (pension)",
+        "desc": "State retirement pension based on your career.",
+        "how": "Apply via l'Assurance retraite."
+      },
+      "fr_aah": {
+        "title": "AAH (allocation adulte handicapé)",
+        "desc": "Income for adults with a disability.",
+        "how": "Apply at your MDPH."
+      },
+      "fr_paje": {
+        "title": "PAJE",
+        "desc": "Support for young children (birth grant, base allowance).",
+        "how": "Apply at your CAF."
+      },
+      "fr_bourse": {
+        "title": "Bourse étudiante",
+        "desc": "Means-tested student grants.",
+        "how": "Apply via CROUS."
+      },
+      "fr_cheque_energie": {
+        "title": "Chèque énergie",
+        "desc": "A voucher to help pay energy bills.",
+        "how": "Sent automatically based on your tax return."
+      },
+      "ie_child_benefit": {
+        "title": "Child Benefit",
+        "desc": "A monthly payment for each child under 16 (or 18 in education).",
+        "how": "Apply to the DSP."
+      },
+      "ie_jobseekers": {
+        "title": "Jobseeker's Allowance/Benefit",
+        "desc": "Income while unemployed and seeking work.",
+        "how": "Apply to the DSP / Intreo."
+      },
+      "ie_state_pension": {
+        "title": "State Pension",
+        "desc": "Retirement pension (contributory or non-contributory).",
+        "how": "Apply to the DSP."
+      },
+      "ie_disability_allowance": {
+        "title": "Disability Allowance",
+        "desc": "A weekly payment for people with a disability.",
+        "how": "Apply to the DSP."
+      },
+      "ie_hap": {
+        "title": "Housing Assistance Payment",
+        "desc": "Rent support for those with a long-term housing need.",
+        "how": "Apply through your local authority."
+      },
+      "ie_working_family_payment": {
+        "title": "Working Family Payment",
+        "desc": "A top-up for low-paid workers with children.",
+        "how": "Apply to the DSP."
+      },
+      "ie_fuel_allowance": {
+        "title": "Fuel Allowance",
+        "desc": "A winter payment towards heating costs.",
+        "how": "Apply to the DSP."
+      },
+      "ie_susi_grant": {
+        "title": "SUSI student grant",
+        "desc": "Maintenance and fee grants for eligible students.",
+        "how": "Apply via SUSI."
+      },
+      "ie_medical_card": {
+        "title": "Medical Card",
+        "desc": "Free GP care, prescriptions and hospital services.",
+        "how": "Apply to the HSE."
+      },
+      "ie_back_to_school": {
+        "title": "Back to School Allowance",
+        "desc": "Help with school clothing and footwear costs.",
+        "how": "Apply to the DSP."
+      },
+      "nl_zorgtoeslag": {
+        "title": "Zorgtoeslag (healthcare allowance)",
+        "desc": "Help paying your mandatory health-insurance premium.",
+        "how": "Apply at the Belastingdienst/Toeslagen."
+      },
+      "nl_huurtoeslag": {
+        "title": "Huurtoeslag (rent benefit)",
+        "desc": "A contribution towards your rent if it's high relative to income.",
+        "how": "Apply at the Belastingdienst."
+      },
+      "nl_kinderbijslag": {
+        "title": "Kinderbijslag (child benefit)",
+        "desc": "A quarterly payment for parents of children under 18.",
+        "how": "Apply at the SVB."
+      },
+      "nl_kindgebonden_budget": {
+        "title": "Kindgebonden budget",
+        "desc": "An extra child allowance for lower-income families.",
+        "how": "Often automatic via the Belastingdienst."
+      },
+      "nl_ww": {
+        "title": "WW (unemployment benefit)",
+        "desc": "Income after losing your job, based on work history.",
+        "how": "Apply at the UWV."
+      },
+      "nl_aow": {
+        "title": "AOW (state pension)",
+        "desc": "The Dutch state pension from retirement age.",
+        "how": "Apply at the SVB."
+      },
+      "nl_bijstand": {
+        "title": "Bijstand (social assistance)",
+        "desc": "A safety-net income for those who can't support themselves.",
+        "how": "Apply at your municipality (gemeente)."
+      },
+      "nl_wia": {
+        "title": "WIA (work & income disability)",
+        "desc": "Income if illness/disability limits your work.",
+        "how": "Apply at the UWV."
+      },
+      "nl_studiefinanciering": {
+        "title": "Studiefinanciering",
+        "desc": "Student grants and loans for higher education.",
+        "how": "Apply at DUO."
+      },
+      "nl_kinderopvangtoeslag": {
+        "title": "Kinderopvangtoeslag",
+        "desc": "Childcare allowance for working parents.",
+        "how": "Apply at the Belastingdienst."
+      },
+      "es_ingreso_minimo_vital": {
+        "title": "Ingreso Mínimo Vital",
+        "desc": "A guaranteed minimum income for households in need.",
+        "how": "Apply to the Seguridad Social."
+      },
+      "es_prestacion_desempleo": {
+        "title": "Prestación por desempleo",
+        "desc": "Unemployment benefit based on contributions.",
+        "how": "Apply to the SEPE."
+      },
+      "es_pension_jubilacion": {
+        "title": "Pensión de jubilación",
+        "desc": "State retirement pension.",
+        "how": "Apply to the Seguridad Social."
+      },
+      "es_ayuda_familia": {
+        "title": "Ayudas por hijo/familia",
+        "desc": "Family and child support payments.",
+        "how": "Apply to the Seguridad Social."
+      },
+      "es_ingreso_discapacidad": {
+        "title": "Prestaciones por discapacidad",
+        "desc": "Benefits for people with a recognised disability.",
+        "how": "Apply to the IMSERSO / regional body."
+      },
+      "es_bono_social_electrico": {
+        "title": "Bono Social eléctrico",
+        "desc": "A discount on your electricity bill for eligible households.",
+        "how": "Apply through your electricity supplier."
+      },
+      "es_becas": {
+        "title": "Becas para estudiantes",
+        "desc": "Means-tested education grants.",
+        "how": "Apply via the Ministerio de Educación."
+      },
+      "es_ayuda_alquiler": {
+        "title": "Ayuda al alquiler",
+        "desc": "Rent assistance for low-income tenants.",
+        "how": "Apply through your autonomous community."
+      },
+      "es_prestacion_hijo": {
+        "title": "Complemento de ayuda para la infancia",
+        "desc": "A child supplement within the Ingreso Mínimo Vital.",
+        "how": "Apply to the Seguridad Social."
       }
     },
     "moreInfo": "Full details on Kol-Zchut →",
@@ -1469,7 +1769,13 @@
       "IL": "Israel",
       "US": "United States",
       "UK": "United Kingdom",
-      "DE": "Germany"
+      "DE": "Germany",
+      "CA": "Canada",
+      "AU": "Australia",
+      "FR": "France",
+      "IE": "Ireland",
+      "NL": "Netherlands",
+      "ES": "Spain"
     }
   },
   "legalPages": {

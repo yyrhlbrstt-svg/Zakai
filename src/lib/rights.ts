@@ -223,6 +223,90 @@ export const DE_ENTITLEMENTS: Entitlement[] = [
   { id: "de_schufa_auskunft", category: "banking", eligible: () => true },
 ];
 
+/** Canada — federal programs (CRA / Service Canada). Amounts "varies". */
+export const CA_ENTITLEMENTS: Entitlement[] = [
+  { id: "ca_gst_credit", category: "tax", eligible: (p) => p.lowIncome },
+  { id: "ca_canada_child_benefit", category: "family", eligible: parent },
+  { id: "ca_canada_workers_benefit", category: "tax", eligible: (p) => working(p) && p.lowIncome },
+  { id: "ca_ei", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "ca_oas", category: "senior", eligible: senior },
+  { id: "ca_gis", category: "benefits", eligible: (p) => senior(p) && p.lowIncome },
+  { id: "ca_cpp", category: "senior", eligible: senior },
+  { id: "ca_disability_tax_credit", category: "benefits", eligible: (p) => p.disability },
+  { id: "ca_housing_benefit", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "ca_student_grants", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "ca_childcare", category: "family", eligible: (p) => p.childrenUnder6 > 0 },
+];
+
+/** Australia — Services Australia / Centrelink programs. Amounts "varies". */
+export const AU_ENTITLEMENTS: Entitlement[] = [
+  { id: "au_family_tax_benefit", category: "family", eligible: parent },
+  { id: "au_jobseeker", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "au_age_pension", category: "senior", eligible: senior },
+  { id: "au_disability_support_pension", category: "benefits", eligible: (p) => p.disability },
+  { id: "au_rent_assistance", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "au_childcare_subsidy", category: "family", eligible: (p) => p.childrenUnder6 > 0 && working(p) },
+  { id: "au_youth_allowance", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "au_low_income_card", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "au_parenting_payment", category: "family", eligible: (p) => parent(p) && p.lowIncome },
+  { id: "au_superannuation", category: "work", eligible: (p) => p.employment === "employee" },
+];
+
+/** France — service-public / CAF / Pôle emploi programs. Amounts "varies". */
+export const FR_ENTITLEMENTS: Entitlement[] = [
+  { id: "fr_rsa", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "fr_prime_activite", category: "tax", eligible: (p) => working(p) && p.lowIncome },
+  { id: "fr_allocations_familiales", category: "family", eligible: parent },
+  { id: "fr_apl", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "fr_chomage", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "fr_retraite", category: "senior", eligible: senior },
+  { id: "fr_aah", category: "benefits", eligible: (p) => p.disability },
+  { id: "fr_paje", category: "family", eligible: (p) => p.childrenUnder6 > 0 },
+  { id: "fr_bourse", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "fr_cheque_energie", category: "consumer", eligible: (p) => p.lowIncome },
+];
+
+/** Ireland — DSP / Citizens Information programs. Amounts "varies". */
+export const IE_ENTITLEMENTS: Entitlement[] = [
+  { id: "ie_child_benefit", category: "family", eligible: parent },
+  { id: "ie_jobseekers", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "ie_state_pension", category: "senior", eligible: senior },
+  { id: "ie_disability_allowance", category: "benefits", eligible: (p) => p.disability },
+  { id: "ie_hap", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "ie_working_family_payment", category: "family", eligible: (p) => working(p) && parent(p) && p.lowIncome },
+  { id: "ie_fuel_allowance", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "ie_susi_grant", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "ie_medical_card", category: "health", eligible: (p) => p.lowIncome },
+  { id: "ie_back_to_school", category: "family", eligible: (p) => parent(p) && p.lowIncome },
+];
+
+/** Netherlands — Belastingdienst / UWV / SVB programs. Amounts "varies". */
+export const NL_ENTITLEMENTS: Entitlement[] = [
+  { id: "nl_zorgtoeslag", category: "health", eligible: (p) => p.lowIncome },
+  { id: "nl_huurtoeslag", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "nl_kinderbijslag", category: "family", eligible: parent },
+  { id: "nl_kindgebonden_budget", category: "family", eligible: (p) => parent(p) && p.lowIncome },
+  { id: "nl_ww", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "nl_aow", category: "senior", eligible: senior },
+  { id: "nl_bijstand", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "nl_wia", category: "benefits", eligible: (p) => p.disability },
+  { id: "nl_studiefinanciering", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "nl_kinderopvangtoeslag", category: "family", eligible: (p) => p.childrenUnder6 > 0 && working(p) },
+];
+
+/** Spain — Seguridad Social / SEPE programs. Amounts "varies". */
+export const ES_ENTITLEMENTS: Entitlement[] = [
+  { id: "es_ingreso_minimo_vital", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "es_prestacion_desempleo", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "es_pension_jubilacion", category: "senior", eligible: senior },
+  { id: "es_ayuda_familia", category: "family", eligible: parent },
+  { id: "es_ingreso_discapacidad", category: "benefits", eligible: (p) => p.disability },
+  { id: "es_bono_social_electrico", category: "consumer", eligible: (p) => p.lowIncome },
+  { id: "es_becas", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "es_ayuda_alquiler", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "es_prestacion_hijo", category: "family", eligible: (p) => parent(p) && p.lowIncome },
+];
+
 /**
  * The rights catalog per market. Israel is the complete, money-quantified one;
  * others are the honest informational set for that country. Adding a country =
@@ -233,6 +317,12 @@ export const RIGHTS_CATALOGS: Record<CountryCode, Entitlement[]> = {
   US: US_ENTITLEMENTS,
   UK: UK_ENTITLEMENTS,
   DE: DE_ENTITLEMENTS,
+  CA: CA_ENTITLEMENTS,
+  AU: AU_ENTITLEMENTS,
+  FR: FR_ENTITLEMENTS,
+  IE: IE_ENTITLEMENTS,
+  NL: NL_ENTITLEMENTS,
+  ES: ES_ENTITLEMENTS,
 };
 
 /** Countries with a rights catalog, for a UI selector. */
@@ -252,6 +342,18 @@ export function rightsSourceUrl(country: CountryCode, title: string): string {
       return `https://www.usa.gov/search?query=${q}`;
     case "DE":
       return `https://www.bund.de/SiteGlobals/Functions/Suche/Suche_Formular.html?input_=${q}`;
+    case "CA":
+      return `https://www.canada.ca/en/sr/srb.html?q=${q}`;
+    case "AU":
+      return `https://www.servicesaustralia.gov.au/search?query=${q}`;
+    case "FR":
+      return `https://www.service-public.fr/particuliers/recherche?keyword=${q}`;
+    case "IE":
+      return `https://www.citizensinformation.ie/en/search/?query=${q}`;
+    case "NL":
+      return `https://www.government.nl/search?query=${q}`;
+    case "ES":
+      return `https://administracion.gob.es/pagBuscador/buscar.html?query=${q}`;
     case "IL":
     default:
       return `https://www.kolzchut.org.il/he/Special:Search?search=${q}`;
