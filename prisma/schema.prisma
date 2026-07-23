@@ -102,7 +102,11 @@ model Case {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  provider        String // provider key: cellcom | partner | bezeq | hot | yes | other
+  // Which full-service vertical this case belongs to (rule-pack key). Defaults
+  // to "telecom" — the one proven full-service loop — so every existing and
+  // current case is unchanged; new verticals set it explicitly.
+  vertical        String @default("telecom")
+  provider        String // counterparty key within the vertical (cellcom, hapoalim…)
   planDescription String @default("")
   // Family mode: an optional label for whom this check is run ("אמא", "אבא"…).
   // Empty = the account owner themselves. Purely a display grouping; the case

@@ -29,6 +29,8 @@ interface CreateCaseInput {
   marketHighShekels?: number;
   draftMessage: string;
   beneficiaryLabel?: string;
+  /** Rule-pack key; defaults to "telecom" (the proven full-service vertical). */
+  vertical?: string;
 }
 
 export async function createCase(input: CreateCaseInput) {
@@ -45,6 +47,7 @@ export async function createCase(input: CreateCaseInput) {
   return prisma.case.create({
     data: {
       userId: input.userId,
+      vertical: input.vertical ?? "telecom",
       provider: input.provider,
       planDescription: input.plan,
       amountOriginal: shekelsToAgorot(input.amountShekels),
@@ -165,7 +168,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     // (feeRateBps=null), so this equals the plan rate exactly — the Stage-0
     // invariant — while giving future verticals a per-vertical rate seam.
     const planRateBps = planConfig(owner?.plan).feeRateBps;
-    const rateBps = effectiveFeeRateBps(getRulePack("telecom"), planRateBps);
+    const rateBps = effectiveFeeRateBps(getRulePack(kase.vertical), planRateBps);
     const fee = computeFee(kase.amountOriginal, newAmount, rateBps);
     const saved = fee.savingMonthly > 0;
 
