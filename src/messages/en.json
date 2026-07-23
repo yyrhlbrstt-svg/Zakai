@@ -65,7 +65,8 @@
     "carvalue": "Car diminished value",
     "mortins": "Mortgage insurance",
     "disability": "Disability / attendance",
-    "compensation": "Insurance claims"
+    "compensation": "Insurance claims",
+    "spending": "Spending overview"
   },
   "payslip": {
     "title": "Payslip check",
@@ -3141,5 +3142,32 @@
       "A fee only if you actually receive money."
     ],
     "disclaimer": "Zakai is not a law firm and does not provide legal advice. We connect you to a licensed professional and are paid a referral/success fee. No outcome is promised."
+  },
+  "spending": {
+    "metaTitle": "Where does my money go? | Zakai",
+    "metaDesc": "Paste a bank or card statement and instantly see your spending by category. Runs in your browser — nothing is stored.",
+    "title": "Where does your money go?",
+    "subtitle": "You probably don't remember what you spend on. Paste a bank or card statement (or your recurring-charges export) and Zakai breaks it down by category and by your biggest merchants — instantly. It runs in your browser; nothing is uploaded or stored.",
+    "paste": "Paste your statement rows here (date, merchant, amount) — or export a CSV from your bank/card and paste it.",
+    "analyze": "Show me where my money goes",
+    "empty": "Couldn't find transactions. Paste rows with a date, a merchant and an amount.",
+    "totalLabel": "Total spend in this statement",
+    "txnsLabel": "{count} transactions",
+    "categoriesTitle": "By category",
+    "merchantsTitle": "Your biggest merchants",
+    "occurrences": "{count}×",
+    "privacy": "Runs entirely in your browser. Your statement is never uploaded or stored.",
+    "categories": {
+      "groceries": "Groceries",
+      "dining": "Eating out",
+      "transport": "Transport & fuel",
+      "shopping": "Shopping",
+      "health": "Health & pharmacy",
+      "housing": "Home & bills",
+      "bills": "Subscriptions & bills",
+      "entertainment": "Entertainment",
+      "cash": "Cash & transfers",
+      "other": "Other"
+    }
   }
 }
