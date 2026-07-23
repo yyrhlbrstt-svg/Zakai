@@ -68,6 +68,15 @@ describe("multi-country rights engine", () => {
     expect(rightsSourceUrl("IL", "x")).toContain("kolzchut.org.il");
     expect(rightsSourceUrl("UK", "x")).toContain("gov.uk");
     expect(rightsSourceUrl("US", "x")).toContain("usa.gov");
+    expect(rightsSourceUrl("DE", "x")).toContain("bund.de");
+  });
+
+  it("DE: a low-income parent stacks the right German programs, formatted in €", () => {
+    const ids = evaluateRights(
+      { ...base, lowIncome: true, children: 2, childrenUnder6: 1 },
+      "DE",
+    ).matches.map((e) => e.id);
+    expect(ids).toEqual(expect.arrayContaining(["de_buergergeld", "de_kindergeld", "de_elterngeld"]));
   });
 });
 

@@ -8,6 +8,11 @@ describe("market registry", () => {
     expect(getMarket("IL").currency).toBe("ILS");
     expect(getMarket("UK").currency).toBe("GBP");
     expect(getMarket("US").currency).toBe("USD");
+    expect(getMarket("DE").currency).toBe("EUR");
+  });
+
+  it("formats the German market in euros", () => {
+    expect(formatMoney(5000, MARKETS.DE)).toContain("€");
   });
 
   it("falls back to the default market for unknown/empty countries", () => {

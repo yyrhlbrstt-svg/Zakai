@@ -14,7 +14,7 @@
  */
 
 /** ISO-3166 alpha-2. Israel today; the type is open for expansion. */
-export type CountryCode = "IL" | "UK" | "US";
+export type CountryCode = "IL" | "UK" | "US" | "DE";
 
 /** How a vertical's outreach reaches the counterparty (stage 5, execution). */
 export type ServiceChannel = "email" | "web_form" | "gov_portal" | "phone";

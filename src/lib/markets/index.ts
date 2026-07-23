@@ -34,6 +34,7 @@ export const MARKETS: Record<CountryCode, Market> = {
   IL: { country: "IL", currency: "ILS", minorPerUnit: 100, bcp47: "he-IL", symbol: "₪" },
   UK: { country: "UK", currency: "GBP", minorPerUnit: 100, bcp47: "en-GB", symbol: "£" },
   US: { country: "US", currency: "USD", minorPerUnit: 100, bcp47: "en-US", symbol: "$" },
+  DE: { country: "DE", currency: "EUR", minorPerUnit: 100, bcp47: "de-DE", symbol: "€" },
 };
 
 /** The launch market. Unknown/unset countries fall back here. */

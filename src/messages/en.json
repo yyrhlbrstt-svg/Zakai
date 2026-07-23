@@ -1386,6 +1386,81 @@
         "title": "Help to Save",
         "desc": "A government savings account paying a 50% bonus for people on low incomes.",
         "how": "Open an account on GOV.UK."
+      },
+      "de_buergergeld": {
+        "title": "Bürgergeld (basic income support)",
+        "desc": "Germany's main support for people on a low income or out of work (replaced Hartz IV).",
+        "how": "Apply at your local Jobcenter."
+      },
+      "de_arbeitslosengeld": {
+        "title": "Arbeitslosengeld I (unemployment)",
+        "desc": "Insurance-based income after losing a job, based on your contributions.",
+        "how": "Register as unemployed with the Bundesagentur für Arbeit."
+      },
+      "de_kindergeld": {
+        "title": "Kindergeld (child benefit)",
+        "desc": "A monthly payment for every child, regardless of income.",
+        "how": "Apply at the Familienkasse."
+      },
+      "de_kinderzuschlag": {
+        "title": "Kinderzuschlag (child supplement)",
+        "desc": "An extra payment on top of Kindergeld for lower-income working families.",
+        "how": "Apply at the Familienkasse."
+      },
+      "de_elterngeld": {
+        "title": "Elterngeld (parental allowance)",
+        "desc": "Income replacement for parents caring for a newborn.",
+        "how": "Apply at your regional Elterngeldstelle."
+      },
+      "de_wohngeld": {
+        "title": "Wohngeld (housing benefit)",
+        "desc": "Help with rent for lower-income households.",
+        "how": "Apply at your local Wohngeldstelle."
+      },
+      "de_bafog": {
+        "title": "BAföG (student support)",
+        "desc": "Financial aid for students; often half grant, half interest-free loan.",
+        "how": "Apply at your school/university's BAföG office."
+      },
+      "de_gesetzliche_rente": {
+        "title": "Gesetzliche Rente (state pension)",
+        "desc": "Retirement income from the statutory pension insurance.",
+        "how": "Check your record and apply at Deutsche Rentenversicherung."
+      },
+      "de_pflegegrad": {
+        "title": "Pflegeversicherung (care benefits)",
+        "desc": "Benefits for people needing long-term care, by care level (Pflegegrad).",
+        "how": "Apply through your health insurer's care fund (Pflegekasse)."
+      },
+      "de_schwerbehinderung": {
+        "title": "Schwerbehindertenausweis (disability card)",
+        "desc": "A recognised disability brings tax relief, transport discounts and job protections.",
+        "how": "Apply at your regional Versorgungsamt."
+      },
+      "de_bildung_teilhabe": {
+        "title": "Bildung und Teilhabe (education package)",
+        "desc": "Covers school, activity and meal costs for children in low-income families.",
+        "how": "Apply at your local Jobcenter or Sozialamt."
+      },
+      "de_rundfunk_befreiung": {
+        "title": "Rundfunkbeitrag exemption",
+        "desc": "Exemption or reduction of the broadcasting fee for those on benefits or with a disability.",
+        "how": "Apply to the ARD ZDF Deutschlandradio Beitragsservice."
+      },
+      "de_riester_zulage": {
+        "title": "Riester-Zulage (pension subsidy)",
+        "desc": "Government top-ups and tax relief on a subsidised private pension.",
+        "how": "Open a certified Riester contract; claim the Zulage via your provider."
+      },
+      "de_krankenversicherung": {
+        "title": "Statutory health insurance",
+        "desc": "Comprehensive health cover; you can also switch funds to cut your Zusatzbeitrag.",
+        "how": "Compare and switch your gesetzliche Krankenkasse."
+      },
+      "de_schufa_auskunft": {
+        "title": "Free SCHUFA credit report",
+        "desc": "By law you can get one free copy of your credit data a year — spot and fix errors.",
+        "how": "Request the free Datenkopie (Art. 15 GDPR) from SCHUFA."
       }
     },
     "moreInfo": "Full details on Kol-Zchut →",
@@ -1393,7 +1468,8 @@
     "countries": {
       "IL": "Israel",
       "US": "United States",
-      "UK": "United Kingdom"
+      "UK": "United Kingdom",
+      "DE": "Germany"
     }
   },
   "legalPages": {

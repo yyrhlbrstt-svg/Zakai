@@ -1386,6 +1386,81 @@
         "title": "Help to Save",
         "desc": "חשבון חיסכון ממשלתי שמשלם בונוס 50% לבעלי הכנסה נמוכה.",
         "how": "לפתוח חשבון ב-GOV.UK."
+      },
+      "de_buergergeld": {
+        "title": "Bürgergeld (הבטחת הכנסה)",
+        "desc": "התמיכה המרכזית בגרמניה לבעלי הכנסה נמוכה או מובטלים (החליף את Hartz IV).",
+        "how": "להגיש בקשה ב-Jobcenter המקומי."
+      },
+      "de_arbeitslosengeld": {
+        "title": "Arbeitslosengeld I (דמי אבטלה)",
+        "desc": "החזר הכנסה מבוסס-ביטוח לאחר אובדן עבודה, לפי ההפקדות שלך.",
+        "how": "להירשם כמובטל ב-Bundesagentur für Arbeit."
+      },
+      "de_kindergeld": {
+        "title": "Kindergeld (קצבת ילדים)",
+        "desc": "תשלום חודשי לכל ילד, ללא תלות בהכנסה.",
+        "how": "להגיש בקשה ב-Familienkasse."
+      },
+      "de_kinderzuschlag": {
+        "title": "Kinderzuschlag (תוספת לילד)",
+        "desc": "תשלום נוסף מעבר ל-Kindergeld למשפחות עובדות בהכנסה נמוכה.",
+        "how": "להגיש בקשה ב-Familienkasse."
+      },
+      "de_elterngeld": {
+        "title": "Elterngeld (קצבת הורים)",
+        "desc": "החזר הכנסה להורים המטפלים בתינוק.",
+        "how": "להגיש בקשה ב-Elterngeldstelle האזורי."
+      },
+      "de_wohngeld": {
+        "title": "Wohngeld (סיוע בדיור)",
+        "desc": "סיוע בשכר דירה למשקי בית בהכנסה נמוכה.",
+        "how": "להגיש בקשה ב-Wohngeldstelle המקומי."
+      },
+      "de_bafog": {
+        "title": "BAföG (סיוע לסטודנטים)",
+        "desc": "סיוע כספי לסטודנטים; לרוב חצי מענק, חצי הלוואה ללא ריבית.",
+        "how": "להגיש בקשה במשרד ה-BAföG של המוסד."
+      },
+      "de_gesetzliche_rente": {
+        "title": "Gesetzliche Rente (פנסיית מדינה)",
+        "desc": "הכנסת פרישה מביטוח הפנסיה הממלכתי.",
+        "how": "לבדוק רישום ולהגיש ב-Deutsche Rentenversicherung."
+      },
+      "de_pflegegrad": {
+        "title": "Pflegeversicherung (קצבת סיעוד)",
+        "desc": "קצבאות לנזקקים לטיפול ממושך, לפי דרגת סיעוד (Pflegegrad).",
+        "how": "להגיש דרך קרן הסיעוד של המבטח (Pflegekasse)."
+      },
+      "de_schwerbehinderung": {
+        "title": "Schwerbehindertenausweis (תעודת נכה)",
+        "desc": "הכרה בנכות מזכה בהקלות מס, הנחות בתחבורה והגנות תעסוקה.",
+        "how": "להגיש בקשה ב-Versorgungsamt האזורי."
+      },
+      "de_bildung_teilhabe": {
+        "title": "Bildung und Teilhabe (חבילת חינוך)",
+        "desc": "מכסה הוצאות בית ספר, חוגים וארוחות לילדים במשפחות בהכנסה נמוכה.",
+        "how": "להגיש ב-Jobcenter או Sozialamt המקומי."
+      },
+      "de_rundfunk_befreiung": {
+        "title": "פטור מ-Rundfunkbeitrag",
+        "desc": "פטור או הנחה באגרת השידור למקבלי קצבאות או בעלי מוגבלות.",
+        "how": "להגיש ל-ARD ZDF Deutschlandradio Beitragsservice."
+      },
+      "de_riester_zulage": {
+        "title": "Riester-Zulage (סבסוד פנסיה)",
+        "desc": "השלמות ממשלתיות והקלות מס על פנסיה פרטית מסובסדת.",
+        "how": "לפתוח חוזה Riester מאושר; לתבוע את ה-Zulage דרך הספק."
+      },
+      "de_krankenversicherung": {
+        "title": "ביטוח בריאות ממלכתי",
+        "desc": "כיסוי בריאות מקיף; אפשר גם להחליף קופה כדי להוזיל את ה-Zusatzbeitrag.",
+        "how": "להשוות ולהחליף את ה-Krankenkasse."
+      },
+      "de_schufa_auskunft": {
+        "title": "דוח אשראי SCHUFA חינם",
+        "desc": "לפי חוק מגיע עותק חינם אחד בשנה של נתוני האשראי — לאתר ולתקן טעויות.",
+        "how": "לבקש את ה-Datenkopie החינמי (סעיף 15 GDPR) מ-SCHUFA."
       }
     },
     "moreInfo": "למידע המלא בכל-זכות ←",
@@ -1393,7 +1468,8 @@
     "countries": {
       "IL": "ישראל",
       "US": "ארה״ב",
-      "UK": "בריטניה"
+      "UK": "בריטניה",
+      "DE": "גרמניה"
     }
   },
   "legalPages": {

@@ -201,6 +201,29 @@ export const UK_ENTITLEMENTS: Entitlement[] = [
 ];
 
 /**
+ * Germany — real, well-known federal programs (Bund / Bundesagentur für Arbeit
+ * / Familienkasse). Amounts "varies" for the same means-tested reason; formatted
+ * in € via the DE market when a value ever is attached.
+ */
+export const DE_ENTITLEMENTS: Entitlement[] = [
+  { id: "de_buergergeld", category: "benefits", eligible: (p) => p.lowIncome || p.employment === "unemployed" },
+  { id: "de_arbeitslosengeld", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "de_kindergeld", category: "family", eligible: parent },
+  { id: "de_kinderzuschlag", category: "family", eligible: (p) => parent(p) && p.lowIncome },
+  { id: "de_elterngeld", category: "family", eligible: (p) => p.childrenUnder6 > 0 },
+  { id: "de_wohngeld", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "de_bafog", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "de_gesetzliche_rente", category: "senior", eligible: senior },
+  { id: "de_pflegegrad", category: "benefits", eligible: (p) => p.disability },
+  { id: "de_schwerbehinderung", category: "benefits", eligible: (p) => p.disability },
+  { id: "de_bildung_teilhabe", category: "family", eligible: (p) => parent(p) && p.lowIncome },
+  { id: "de_rundfunk_befreiung", category: "consumer", eligible: (p) => p.lowIncome || p.disability },
+  { id: "de_riester_zulage", category: "tax", eligible: (p) => working(p) },
+  { id: "de_krankenversicherung", category: "health", eligible: () => true },
+  { id: "de_schufa_auskunft", category: "banking", eligible: () => true },
+];
+
+/**
  * The rights catalog per market. Israel is the complete, money-quantified one;
  * others are the honest informational set for that country. Adding a country =
  * adding an entry here.
@@ -209,6 +232,7 @@ export const RIGHTS_CATALOGS: Record<CountryCode, Entitlement[]> = {
   IL: ENTITLEMENTS,
   US: US_ENTITLEMENTS,
   UK: UK_ENTITLEMENTS,
+  DE: DE_ENTITLEMENTS,
 };
 
 /** Countries with a rights catalog, for a UI selector. */
@@ -226,6 +250,8 @@ export function rightsSourceUrl(country: CountryCode, title: string): string {
       return `https://www.gov.uk/search/all?keywords=${q}`;
     case "US":
       return `https://www.usa.gov/search?query=${q}`;
+    case "DE":
+      return `https://www.bund.de/SiteGlobals/Functions/Suche/Suche_Formular.html?input_=${q}`;
     case "IL":
     default:
       return `https://www.kolzchut.org.il/he/Special:Search?search=${q}`;
