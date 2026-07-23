@@ -63,10 +63,16 @@
 ישות עסקית (עם המבוגר) → חשבון סליקה (Grow/Cardcom/Tranzila/PayPlus) → עו"ד על terms/privacy.
 
 **איך מחברים את הסליקה (הקוד כבר מוכן):** מנגנון גביית העמלה בנוי ו־PSP-אגנוסטי (`src/lib/payments`).
-עד שמחברים ספק אמיתי, הוא רץ במצב **mock** (הכפתור "שלם עמלה" בדשבורד עובד מקצה-לקצה דרך callback פנימי — בלי כסף אמיתי). כדי לעבור לגבייה אמיתית:
-1. פותחים חשבון סליקה ישראלי (PayPlus/Tranzila/Cardcom/Grow).
-2. מוסיפים adapter קטן ב-`src/lib/payments/index.ts` (מחלקה עם `createCheckout` שמחזירה URL של דף הסליקה המתארח של הספק), ומאמתים את חתימת ה-webhook ב-`/api/payments/callback`.
-3. ב-Vercel: `PAYMENT_PROVIDER` = שם הספק (למשל `payplus`) + מפתחות הספק.
+עד שמחברים ספק אמיתי, הוא רץ במצב **mock** (הכפתור "שלם עמלה" בדשבורד עובד מקצה-לקצה דרך callback פנימי — בלי כסף אמיתי).
+
+**מתאם PayPlus כבר כתוב** — לגבייה אמיתית נשאר רק למלא מפתחות ולאמת בסנדבוקס:
+1. פותחים חשבון **PayPlus** (payplus.co.il) → יוצרים "דף תשלום" (Payment Page) ומעתיקים את ה-UID שלו + api_key + secret_key.
+2. ב-Vercel Environment Variables:
+   - `PAYMENT_PROVIDER` = `payplus`
+   - `PAYPLUS_API_KEY`, `PAYPLUS_SECRET_KEY`, `PAYPLUS_PAYMENT_PAGE_UID`
+   - `PAYPLUS_BASE_URL` = כתובת הסנדבוקס לבדיקה, ואז הפרודקשן.
+3. **בודקים בסנדבוקס** תשלום מקצה-לקצה (יצירת קישור → תשלום → callback → הפיכת העמלה ל-PAID) לפני שעוברים לפרודקשן. ⚠️ לפני חיוב אמיתי — לאמת את חתימת ה-webhook ב-`/api/payments/callback` מול ה-hash של PayPlus.
+- ספק אחר (Tranzila/Cardcom/Grow)? אותו דבר — מתאם אחד ב-`src/lib/payments/index.ts` על אותה תבנית של PayPlus.
 > כלל ברזל: פרטי כרטיס אשראי **לעולם** לא עוברים דרך השרתים שלנו — תמיד דף סליקה מתארח אצל ה-PSP + webhook חתום. כך אנחנו מחוץ להיקף ה-PCI וללא סיכון דליפת אשראי.
 
 ## 4b. מדדי מייסד — אימות הלופ (העדיפות מספר 1)

@@ -43,6 +43,26 @@ describe("mock checkout", () => {
   });
 });
 
+describe("payplus adapter", () => {
+  it("refuses to create a checkout until its API keys are configured", async () => {
+    process.env.PAYMENT_PROVIDER = "payplus";
+    const savedKey = process.env.PAYPLUS_API_KEY;
+    delete process.env.PAYPLUS_API_KEY;
+    try {
+      await expect(
+        paymentProvider().createCheckout({
+          feeId: "f",
+          amountAgorot: 5000,
+          description: "d",
+          returnUrl: "https://x/y",
+        }),
+      ).rejects.toBeInstanceOf(PaymentUnavailableError);
+    } finally {
+      if (savedKey !== undefined) process.env.PAYPLUS_API_KEY = savedKey;
+    }
+  });
+});
+
 describe("unconfigured real provider", () => {
   it("throws PaymentUnavailableError until its adapter is implemented", async () => {
     process.env.PAYMENT_PROVIDER = "tranzila";

@@ -59,10 +59,72 @@ class MockProvider implements PaymentProvider {
 }
 
 /**
- * A real Israeli PSP adapter is added here (guarded by its own env vars). Left
- * as an explicit stub so the seam is obvious and going live is scoped: implement
- * `createCheckout` against the PSP's REST API (return their hosted-page URL),
- * and verify the webhook signature in the callback route.
+ * PayPlus — a real Israeli PSP adapter (hosted payment page). Returns a link on
+ * PayPlus's domain, so card data never touches our servers. Enabled with:
+ *   PAYMENT_PROVIDER=payplus
+ *   PAYPLUS_API_KEY, PAYPLUS_SECRET_KEY   (from the PayPlus dashboard)
+ *   PAYPLUS_PAYMENT_PAGE_UID              (the payment page to charge on)
+ *   PAYPLUS_BASE_URL                      (optional; sandbox vs production)
+ *
+ * Implemented against PayPlus's documented `PaymentPages/generateLink` API.
+ * ⚠️ Verify end-to-end in the PayPlus SANDBOX with real keys before charging
+ * live — field/behaviour details can shift, and the callback route must verify
+ * PayPlus's webhook hash before trusting a "paid" notification.
+ */
+class PayPlusProvider implements PaymentProvider {
+  name = "payplus";
+
+  async createCheckout(input: CheckoutInput): Promise<CheckoutResult> {
+    const apiKey = process.env.PAYPLUS_API_KEY;
+    const secretKey = process.env.PAYPLUS_SECRET_KEY;
+    const pageUid = process.env.PAYPLUS_PAYMENT_PAGE_UID;
+    if (!apiKey || !secretKey || !pageUid) {
+      throw new PaymentUnavailableError("PayPlus is selected but its API keys are not configured.");
+    }
+    const base = (process.env.PAYPLUS_BASE_URL || "https://restapi.payplus.co.il/api/v1.0").replace(
+      /\/+$/,
+      "",
+    );
+    // The webhook route reconciles by this fee id echoed in more_info.
+    const returnBase = input.returnUrl;
+    const res = await fetch(`${base}/PaymentPages/generateLink`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // PayPlus authenticates via a JSON Authorization header.
+        Authorization: JSON.stringify({ api_key: apiKey, secret_key: secretKey }),
+      },
+      body: JSON.stringify({
+        payment_page_uid: pageUid,
+        charge_method: 1, // 1 = charge (immediate)
+        amount: input.amountAgorot / 100, // PayPlus expects major units (₪)
+        currency_code: "ILS",
+        more_info: input.feeId, // echoed back on the callback for reconciliation
+        refURL_success: returnBase,
+        refURL_failure: returnBase,
+        refURL_callback: returnBase, // server-to-server webhook
+      }),
+    });
+
+    const data = (await res.json().catch(() => null)) as {
+      results?: { status?: string; description?: string };
+      data?: { payment_page_link?: string; page_request_uid?: string };
+    } | null;
+
+    const link = data?.data?.payment_page_link;
+    const ref = data?.data?.page_request_uid;
+    if (!res.ok || !link || !ref) {
+      throw new PaymentUnavailableError(
+        `PayPlus generateLink failed: ${res.status} ${data?.results?.description ?? "unknown error"}`,
+      );
+    }
+    return { checkoutUrl: link, providerRef: ref };
+  }
+}
+
+/**
+ * A selected-but-unimplemented PSP. Left so an unknown PAYMENT_PROVIDER value
+ * fails loudly instead of silently falling back to the mock in production.
  */
 class UnconfiguredProvider implements PaymentProvider {
   constructor(public name: string) {}
@@ -88,7 +150,6 @@ export function realPaymentsConfigured(): boolean {
 export function paymentProvider(): PaymentProvider {
   const name = paymentProviderName();
   if (name === "mock") return new MockProvider();
-  // Real adapters plug in here, e.g.:
-  //   if (name === "payplus") return new PayPlusProvider();
+  if (name === "payplus") return new PayPlusProvider();
   return new UnconfiguredProvider(name);
 }
