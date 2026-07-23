@@ -2,9 +2,25 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import { analyzeSpending, type SpendingSummary, type SpendCategory } from "@/lib/spending";
+import { scanStatement, type RecurringCharge } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
+
+/** Where a recurring charge routes when the user taps "lower this". */
+function actionHref(r: RecurringCharge): string {
+  if (r.category === "electricity") return "/electricity";
+  if (r.category === "insurance") return "/duplicate-insurance";
+  return "/check"; // telecom / TV+internet with a provider we can act on
+}
+
+/** Recurring charges we have a real flow to act on today. */
+function actionableCharges(text: string): RecurringCharge[] {
+  return scanStatement(text).recurring.filter(
+    (r) => r.providerKey !== null || r.category === "electricity" || r.category === "insurance",
+  );
+}
 
 /** Stable colour per category (works in both themes; matches the app palette). */
 const CATEGORY_COLOR: Record<SpendCategory, string> = {
@@ -29,6 +45,7 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("spending");
   const [text, setText] = useState("");
   const [result, setResult] = useState<SpendingSummary | null>(null);
+  const [actions, setActions] = useState<RecurringCharge[]>([]);
   const [empty, setEmpty] = useState(false);
 
   const money = (a: number) => formatAgorot(a, bcp47);
@@ -38,10 +55,12 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
     if (s.transactions === 0) {
       setEmpty(true);
       setResult(null);
+      setActions([]);
       return;
     }
     setEmpty(false);
     setResult(s);
+    setActions(actionableCharges(text));
   }
 
   return (
@@ -98,6 +117,34 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
               })}
             </Card>
           </div>
+
+          {actions.length > 0 && (
+            <div>
+              <h2 className="text-[15px] font-extrabold mb-1">{t("actionsTitle")}</h2>
+              <p className="text-ink-soft text-[13px] mb-3 leading-relaxed">{t("actionsSub")}</p>
+              <Card className="p-[1px] bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_55%,#8b5cf6)] border-0">
+                <div className="rounded-[15px] bg-[#0a1119] p-2">
+                  {actions.map((r, i, arr) => (
+                    <div
+                      key={r.merchant}
+                      className="flex justify-between items-center gap-3 px-4 py-3"
+                      style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none" }}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[13.5px] font-bold truncate">{r.merchant}</div>
+                        <div className="text-ink-soft text-[12px] tabular-nums">
+                          {money(r.monthlyAgorot)} · {t("categories.bills")}
+                        </div>
+                      </div>
+                      <Link href={actionHref(r)} className="no-underline shrink-0">
+                        <Button className="!px-4 !py-2 !text-[13px]">{t("actCta")}</Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          )}
 
           <div>
             <h2 className="text-[15px] font-extrabold mb-3">{t("merchantsTitle")}</h2>

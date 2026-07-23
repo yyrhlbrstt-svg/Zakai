@@ -3168,6 +3168,9 @@
       "entertainment": "Entertainment",
       "cash": "Cash & transfers",
       "other": "Other"
-    }
+    },
+    "actionsTitle": "Zakai can lower these for you",
+    "actionsSub": "We spotted recurring charges you can act on right now — a fee only if you actually save.",
+    "actCta": "Lower this"
   }
 }
