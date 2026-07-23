@@ -1,4 +1,5 @@
 import "server-only";
+import crypto from "node:crypto";
 
 /**
  * PSP-agnostic fee collection. Like the AI hub, the concrete provider is chosen
@@ -31,9 +32,32 @@ export interface CheckoutResult {
   providerRef: string;
 }
 
+/** The raw material a provider needs to authenticate an incoming callback. */
+export interface CallbackContext {
+  method: "GET" | "POST";
+  query: Record<string, string>;
+  body: Record<string, unknown>;
+  /** Exact request body bytes — required for signature (HMAC) verification. */
+  rawBody: string;
+  headers: Record<string, string>;
+}
+
+/** A callback the provider has authenticated as a genuine, successful payment. */
+export interface VerifiedCallback {
+  feeId: string;
+  providerRef: string;
+}
+
 export interface PaymentProvider {
   name: string;
   createCheckout(input: CheckoutInput): Promise<CheckoutResult>;
+  /**
+   * Authenticate an incoming return/webhook and extract which fee to confirm.
+   * Returns null when the callback CANNOT be trusted — the route must then
+   * refuse to mark anything paid. Real PSPs verify a signature here; the whole
+   * point is to FAIL CLOSED so a forged callback never confirms a payment.
+   */
+  verifyCallback(ctx: CallbackContext): Promise<VerifiedCallback | null>;
 }
 
 /**
@@ -55,6 +79,16 @@ class MockProvider implements PaymentProvider {
     url.searchParams.set("feeId", input.feeId);
     url.searchParams.set("ref", providerRef);
     return { checkoutUrl: url.toString(), providerRef };
+  }
+
+  async verifyCallback(ctx: CallbackContext): Promise<VerifiedCallback | null> {
+    // The mock's ref is a 128-bit secret we generated and returned only in the
+    // checkout URL; confirmFeePayment's exact-match against it is the auth. So
+    // passing the params through is safe here (dev/demo only, no real money).
+    const feeId = ctx.query.feeId ?? (ctx.body.feeId as string | undefined);
+    const providerRef = ctx.query.ref ?? (ctx.body.ref as string | undefined);
+    if (!feeId || !providerRef) return null;
+    return { feeId, providerRef };
   }
 }
 
@@ -120,6 +154,39 @@ class PayPlusProvider implements PaymentProvider {
     }
     return { checkoutUrl: link, providerRef: ref };
   }
+
+  async verifyCallback(ctx: CallbackContext): Promise<VerifiedCallback | null> {
+    // FAIL CLOSED. A PayPlus reference (page_request_uid) is NOT secret, so we
+    // must NOT trust a bare ref — we verify PayPlus's webhook HMAC over the raw
+    // body before confirming. Only a POST webhook (not a browser return) can
+    // move a fee to PAID.
+    const secret = process.env.PAYPLUS_SECRET_KEY;
+    if (!secret) return null;
+    if (ctx.method !== "POST" || !ctx.rawBody) return null;
+
+    // PayPlus signs the webhook body; the signature arrives in a header. The
+    // exact header name/algorithm MUST be confirmed against your PayPlus
+    // sandbox before going live — until then this verifier fails closed and no
+    // real payment is ever confirmed. (Common shape: base64 HMAC-SHA256.)
+    const provided = ctx.headers["hash"] || ctx.headers["user-agent-hash"] || "";
+    if (!provided) return null;
+    const expected = crypto.createHmac("sha256", secret).update(ctx.rawBody).digest("base64");
+    const a = Buffer.from(provided);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+
+    // Only an approved transaction confirms the fee. PayPlus status "000" = ok.
+    const body = ctx.body as {
+      transaction?: { status_code?: string };
+      more_info?: string;
+      page_request_uid?: string;
+    };
+    if (body.transaction?.status_code !== "000") return null;
+    const feeId = body.more_info;
+    const providerRef = body.page_request_uid;
+    if (!feeId || !providerRef) return null;
+    return { feeId, providerRef };
+  }
 }
 
 /**
@@ -132,6 +199,9 @@ class UnconfiguredProvider implements PaymentProvider {
     throw new PaymentUnavailableError(
       `Payment provider "${this.name}" is selected but not implemented/configured yet.`,
     );
+  }
+  async verifyCallback(): Promise<VerifiedCallback | null> {
+    return null; // fail closed
   }
 }
 

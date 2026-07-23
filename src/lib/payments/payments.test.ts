@@ -63,6 +63,49 @@ describe("payplus adapter", () => {
   });
 });
 
+describe("verifyCallback (fail-closed money path)", () => {
+  const ctx = (over: Partial<import("./index").CallbackContext> = {}) => ({
+    method: "POST" as const,
+    query: {},
+    body: {},
+    rawBody: "",
+    headers: {},
+    ...over,
+  });
+
+  it("mock trusts params (its ref is the secret confirmFeePayment matches)", async () => {
+    delete process.env.PAYMENT_PROVIDER;
+    const v = await paymentProvider().verifyCallback(
+      ctx({ query: { feeId: "f1", ref: "mock_secret" } }),
+    );
+    expect(v).toEqual({ feeId: "f1", providerRef: "mock_secret" });
+  });
+
+  it("mock rejects when params are missing", async () => {
+    delete process.env.PAYMENT_PROVIDER;
+    expect(await paymentProvider().verifyCallback(ctx())).toBeNull();
+  });
+
+  it("payplus fails closed on an unsigned / forged callback", async () => {
+    process.env.PAYMENT_PROVIDER = "payplus";
+    process.env.PAYPLUS_SECRET_KEY = "test_secret";
+    // No valid hash header → must NOT confirm.
+    const forged = await paymentProvider().verifyCallback(
+      ctx({
+        rawBody: JSON.stringify({ more_info: "f1", page_request_uid: "r1", transaction: { status_code: "000" } }),
+        headers: { hash: "not-the-real-hmac" },
+      }),
+    );
+    expect(forged).toBeNull();
+    // A browser GET (no signature) can never confirm a real payment either.
+    const viaGet = await paymentProvider().verifyCallback(
+      ctx({ method: "GET", query: { feeId: "f1", ref: "r1" } }),
+    );
+    expect(viaGet).toBeNull();
+    delete process.env.PAYPLUS_SECRET_KEY;
+  });
+});
+
 describe("unconfigured real provider", () => {
   it("throws PaymentUnavailableError until its adapter is implemented", async () => {
     process.env.PAYMENT_PROVIDER = "tranzila";
