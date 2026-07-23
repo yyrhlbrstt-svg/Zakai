@@ -1,16 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
-import { evaluateRights, type RightsProfile, type RightCategory } from "@/lib/rights";
+import {
+  evaluateRights,
+  rightsSourceUrl,
+  RIGHTS_COUNTRIES,
+  type RightsProfile,
+  type RightCategory,
+} from "@/lib/rights";
+import type { CountryCode } from "@/lib/verticals/types";
 import { formatAgorot } from "@/lib/money";
 
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = ["employee", "self_employed", "unemployed", "student", "soldier", "retired"] as const;
 const FLAGS = ["renting", "lowIncome", "newImmigrant", "dischargedSoldier", "reservist", "disability"] as const;
 const CATEGORY_ORDER: RightCategory[] = [
-  "consumer", "tax", "work", "bituach", "health", "municipal", "banking",
+  "consumer", "benefits", "tax", "work", "bituach", "health", "municipal", "banking",
   "transport", "education", "army", "family", "senior", "housing",
 ];
 
@@ -18,9 +25,9 @@ const CATEGORY_ORDER: RightCategory[] = [
  * The Big Rights Check — 8 quick questions, 42-entitlement personalized list.
  * Pure client-side (lib/rights); nothing is sent or stored anywhere.
  */
-export function RightsChecker({ bcp47 }: { bcp47: string }) {
+export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string; defaultCountry?: CountryCode }) {
   const t = useTranslations("rights");
-  const locale = useLocale();
+  const [country, setCountry] = useState<CountryCode>(defaultCountry);
   const [profile, setProfile] = useState<RightsProfile>({
     ageGroup: "25_44",
     employment: "employee",
@@ -34,7 +41,7 @@ export function RightsChecker({ bcp47 }: { bcp47: string }) {
     disability: false,
   });
 
-  const result = useMemo(() => evaluateRights(profile), [profile]);
+  const result = useMemo(() => evaluateRights(profile, country), [profile, country]);
   const money = (a: number) => formatAgorot(a, bcp47);
 
   const chip = (active: boolean) =>
@@ -60,6 +67,18 @@ export function RightsChecker({ bcp47 }: { bcp47: string }) {
   return (
     <div>
       <Card className="p-6 flex flex-col gap-5">
+        <div>
+          <span className="text-[13px] text-ink-soft block mb-2">{t("country")}</span>
+          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("country")}>
+            {RIGHTS_COUNTRIES.map((c) => (
+              <button key={c} type="button" role="radio" aria-checked={country === c}
+                onClick={() => setCountry(c)} className={chip(country === c)}>
+                {t(`countries.${c}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("q.age")}</span>
           <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.age")}>
@@ -140,18 +159,17 @@ export function RightsChecker({ bcp47 }: { bcp47: string }) {
                   <span className="text-emerald font-bold">{t("howTo")}</span>{" "}
                   {t(`items.${e.id}.how`)}
                 </p>
-                {locale === "he" && (
-                  // Deep link into Kol-Zchut (the national rights encyclopedia)
-                  // — "all the rights that exist" without us inventing them.
-                  <a
-                    href={`https://www.kolzchut.org.il/he/Special:Search?search=${encodeURIComponent(t(`items.${e.id}.title`))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block mt-2 text-[12px] font-bold text-emerald no-underline hover:underline"
-                  >
-                    {t("moreInfo")}
-                  </a>
-                )}
+                {/* Deep link into the country's OFFICIAL rights source
+                    (IL → Kol-Zchut, UK → GOV.UK, US → USA.gov) — real rights,
+                    never invented. */}
+                <a
+                  href={rightsSourceUrl(country, t(`items.${e.id}.title`))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 text-[12px] font-bold text-emerald no-underline hover:underline"
+                >
+                  {t("moreInfo")}
+                </a>
               </details>
             ))}
           </Card>

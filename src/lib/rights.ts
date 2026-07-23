@@ -10,7 +10,15 @@
  * Amounts are only attached where they are stable and well-known; everything
  * else is marked "varies" rather than invented. Nothing here is legal advice
  * and the UI says so. Money in agorot.
+ *
+ * World-ready: the catalog is now per-country (RIGHTS_CATALOGS). Israel is the
+ * complete one; the US and UK carry real, well-known federal/national programs
+ * so "each country has its own rights" — exactly the Israel model, per market.
+ * Adding a country is adding a catalog here, never editing the engine. Foreign
+ * catalogs attach NO money amounts (shown as "varies") — honest, and it avoids
+ * ever printing ₪ against a non-Israeli benefit.
  */
+import type { CountryCode } from "@/lib/verticals/types";
 
 export interface RightsProfile {
   ageGroup: "18_24" | "25_44" | "45_66" | "67_plus";
@@ -38,7 +46,8 @@ export type RightCategory =
   | "army"
   | "family"
   | "senior"
-  | "housing";
+  | "housing"
+  | "benefits"; // welfare / social-security programs (used by non-IL catalogs)
 
 export interface Entitlement {
   id: string;
@@ -146,6 +155,83 @@ export const ENTITLEMENTS: Entitlement[] = [
   { id: "mortgage_refinance", category: "housing", eligible: (p) => !p.renting },
 ];
 
+/**
+ * United States — real, well-known federal programs. No amounts attached: US
+ * benefit values are means-tested and state-variable, so they honestly show as
+ * "varies" (and never print ₪). IL-specific profile flags simply go unused here.
+ */
+export const US_ENTITLEMENTS: Entitlement[] = [
+  { id: "us_eitc", category: "tax", eligible: (p) => working(p) && p.lowIncome },
+  { id: "us_ctc", category: "tax", eligible: (p) => working(p) && parent(p) },
+  { id: "us_savers_credit", category: "tax", eligible: (p) => working(p) && p.lowIncome },
+  { id: "us_snap", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "us_medicaid", category: "health", eligible: (p) => p.lowIncome },
+  { id: "us_aca_subsidy", category: "health", eligible: () => true },
+  { id: "us_unemployment", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "us_ssdi", category: "benefits", eligible: (p) => p.disability },
+  { id: "us_social_security", category: "senior", eligible: senior },
+  { id: "us_liheap", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "us_section8", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "us_pell_grant", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "us_lifeline", category: "consumer", eligible: (p) => p.lowIncome },
+  { id: "us_401k_match", category: "work", eligible: (p) => p.employment === "employee" },
+  { id: "us_free_credit_report", category: "banking", eligible: () => true },
+];
+
+/**
+ * United Kingdom — real, well-known national/DWP/HMRC programs. Amounts "varies"
+ * for the same means-tested reason.
+ */
+export const UK_ENTITLEMENTS: Entitlement[] = [
+  { id: "uk_universal_credit", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "uk_child_benefit", category: "family", eligible: parent },
+  { id: "uk_marriage_allowance", category: "tax", eligible: working },
+  { id: "uk_council_tax_reduction", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "uk_jsa", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "uk_state_pension", category: "senior", eligible: senior },
+  { id: "uk_pip", category: "benefits", eligible: (p) => p.disability },
+  { id: "uk_winter_fuel", category: "senior", eligible: senior },
+  { id: "uk_warm_home_discount", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "uk_housing_benefit", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "uk_free_childcare", category: "family", eligible: (p) => p.childrenUnder6 > 0 && working(p) },
+  { id: "uk_student_finance", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "uk_pension_auto_enrolment", category: "work", eligible: (p) => p.employment === "employee" },
+  { id: "uk_free_prescriptions", category: "health", eligible: () => true },
+  { id: "uk_help_to_save", category: "banking", eligible: (p) => p.lowIncome && working(p) },
+];
+
+/**
+ * The rights catalog per market. Israel is the complete, money-quantified one;
+ * others are the honest informational set for that country. Adding a country =
+ * adding an entry here.
+ */
+export const RIGHTS_CATALOGS: Record<CountryCode, Entitlement[]> = {
+  IL: ENTITLEMENTS,
+  US: US_ENTITLEMENTS,
+  UK: UK_ENTITLEMENTS,
+};
+
+/** Countries with a rights catalog, for a UI selector. */
+export const RIGHTS_COUNTRIES = Object.keys(RIGHTS_CATALOGS) as CountryCode[];
+
+/**
+ * A deep link into the country's OFFICIAL rights/benefits source for a given
+ * entitlement title — never a third-party or invented source. IL → Kol-Zchut,
+ * UK → GOV.UK, US → USA.gov.
+ */
+export function rightsSourceUrl(country: CountryCode, title: string): string {
+  const q = encodeURIComponent(title);
+  switch (country) {
+    case "UK":
+      return `https://www.gov.uk/search/all?keywords=${q}`;
+    case "US":
+      return `https://www.usa.gov/search?query=${q}`;
+    case "IL":
+    default:
+      return `https://www.kolzchut.org.il/he/Special:Search?search=${q}`;
+  }
+}
+
 export interface RightsResult {
   matches: Entitlement[];
   /** Sum of the conservatively-quantifiable yearly values only. */
@@ -153,8 +239,9 @@ export interface RightsResult {
   byCategory: Map<RightCategory, Entitlement[]>;
 }
 
-export function evaluateRights(p: RightsProfile): RightsResult {
-  const matches = ENTITLEMENTS.filter((e) => e.eligible(p));
+export function evaluateRights(p: RightsProfile, country: CountryCode = "IL"): RightsResult {
+  const catalog = RIGHTS_CATALOGS[country] ?? ENTITLEMENTS;
+  const matches = catalog.filter((e) => e.eligible(p));
   const byCategory = new Map<RightCategory, Entitlement[]>();
   for (const e of matches) {
     const arr = byCategory.get(e.category);

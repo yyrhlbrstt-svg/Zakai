@@ -957,7 +957,8 @@
       "health": "Health",
       "work": "Work rights",
       "transport": "Transport",
-      "education": "Education"
+      "education": "Education",
+      "benefits": "Benefits & welfare"
     },
     "disclaimer": "General orientation only — not legal/tax advice; actual eligibility is decided by the competent authority. Amounts are conservative estimates; exact terms on official sites.",
     "items": {
@@ -1235,9 +1236,165 @@
         "title": "Mobility allowance",
         "desc": "Mobility impairment entitles a monthly allowance and car benefits.",
         "how": "Medical committee via the health bureau + National Insurance claim."
+      },
+      "us_eitc": {
+        "title": "Earned Income Tax Credit (EITC)",
+        "desc": "A refundable credit for low-to-moderate-income workers — worth thousands, yet millions who qualify never claim it.",
+        "how": "Claim on your federal tax return (IRS Free File); up to 3 years back."
+      },
+      "us_ctc": {
+        "title": "Child Tax Credit",
+        "desc": "Up to $2,000 per qualifying child, partly refundable.",
+        "how": "Claim on your federal return for each qualifying child."
+      },
+      "us_savers_credit": {
+        "title": "Saver's Credit",
+        "desc": "A tax credit just for contributing to a 401(k) or IRA on a modest income.",
+        "how": "File Form 8880 with your tax return."
+      },
+      "us_snap": {
+        "title": "SNAP (food assistance)",
+        "desc": "Monthly grocery benefits for low-income households.",
+        "how": "Apply through your state's SNAP agency."
+      },
+      "us_medicaid": {
+        "title": "Medicaid",
+        "desc": "Free or low-cost health coverage for eligible low-income individuals and families.",
+        "how": "Apply via your state Medicaid office or HealthCare.gov."
+      },
+      "us_aca_subsidy": {
+        "title": "ACA premium tax credit",
+        "desc": "Marketplace subsidies can cut monthly health-insurance premiums sharply — many overpay by not checking.",
+        "how": "Compare plans and subsidies at HealthCare.gov during open enrollment."
+      },
+      "us_unemployment": {
+        "title": "Unemployment insurance",
+        "desc": "Weekly income replacement after losing a job through no fault of your own.",
+        "how": "File with your state's unemployment office as soon as you're out of work."
+      },
+      "us_ssdi": {
+        "title": "Disability benefits (SSDI / SSI)",
+        "desc": "Monthly payments for people unable to work due to a disability.",
+        "how": "Apply online with the Social Security Administration (ssa.gov)."
+      },
+      "us_social_security": {
+        "title": "Social Security retirement",
+        "desc": "Retirement income based on your work history; timing your claim changes the amount.",
+        "how": "Check your estimate and apply at ssa.gov."
+      },
+      "us_liheap": {
+        "title": "LIHEAP energy assistance",
+        "desc": "Help paying heating and cooling bills for low-income households.",
+        "how": "Apply through your state's LIHEAP program."
+      },
+      "us_section8": {
+        "title": "Housing Choice Voucher (Section 8)",
+        "desc": "Rental assistance that caps your housing cost at a share of income.",
+        "how": "Apply through your local Public Housing Agency (waitlists apply)."
+      },
+      "us_pell_grant": {
+        "title": "Pell Grant",
+        "desc": "Federal college aid you don't repay, for undergraduates with financial need.",
+        "how": "Submit the FAFSA at studentaid.gov."
+      },
+      "us_lifeline": {
+        "title": "Lifeline phone/internet discount",
+        "desc": "A monthly discount on phone or broadband for eligible low-income households.",
+        "how": "Check eligibility and apply at lifelinesupport.org."
+      },
+      "us_401k_match": {
+        "title": "401(k) employer match",
+        "desc": "Free money: many employers match retirement contributions — not contributing enough leaves it on the table.",
+        "how": "Set your contribution to at least the full match with your HR/plan provider."
+      },
+      "us_free_credit_report": {
+        "title": "Free credit reports",
+        "desc": "By law you can get free reports from all three bureaus — spotting errors can save real money.",
+        "how": "Get them at annualcreditreport.com."
+      },
+      "uk_universal_credit": {
+        "title": "Universal Credit",
+        "desc": "The main monthly payment for people on a low income or out of work.",
+        "how": "Apply on GOV.UK; it replaces six older benefits."
+      },
+      "uk_child_benefit": {
+        "title": "Child Benefit",
+        "desc": "A regular payment for anyone responsible for a child — worth claiming even at higher incomes for the NI credit.",
+        "how": "Claim on GOV.UK; can be backdated 3 months."
+      },
+      "uk_marriage_allowance": {
+        "title": "Marriage Allowance",
+        "desc": "A couple can transfer part of a personal tax allowance and cut their tax bill.",
+        "how": "Apply free on GOV.UK; can be backdated 4 years."
+      },
+      "uk_council_tax_reduction": {
+        "title": "Council Tax Reduction",
+        "desc": "Up to a full discount on Council Tax for low-income or eligible households.",
+        "how": "Apply through your local council."
+      },
+      "uk_jsa": {
+        "title": "Jobseeker's Allowance",
+        "desc": "Support while you look for work, based on your National Insurance record.",
+        "how": "Apply on GOV.UK."
+      },
+      "uk_state_pension": {
+        "title": "State Pension",
+        "desc": "Regular retirement income; you can also check for gaps and top up NI years.",
+        "how": "Check your forecast and claim on GOV.UK."
+      },
+      "uk_pip": {
+        "title": "Personal Independence Payment (PIP)",
+        "desc": "Help with extra costs of a long-term health condition or disability.",
+        "how": "Start a claim on GOV.UK."
+      },
+      "uk_winter_fuel": {
+        "title": "Winter Fuel Payment",
+        "desc": "A payment to help older people with heating costs in winter.",
+        "how": "Most eligible people are paid automatically; check GOV.UK."
+      },
+      "uk_warm_home_discount": {
+        "title": "Warm Home Discount",
+        "desc": "A one-off discount off your electricity bill for eligible low-income households.",
+        "how": "Usually applied by your energy supplier; check eligibility on GOV.UK."
+      },
+      "uk_housing_benefit": {
+        "title": "Housing support",
+        "desc": "Help paying rent for those on a low income (via Universal Credit or Housing Benefit).",
+        "how": "Apply on GOV.UK or through your council."
+      },
+      "uk_free_childcare": {
+        "title": "Free childcare hours",
+        "desc": "Funded childcare hours for working parents of young children.",
+        "how": "Apply through Childcare Choices on GOV.UK."
+      },
+      "uk_student_finance": {
+        "title": "Student finance & grants",
+        "desc": "Tuition and maintenance loans, plus grants for eligible students.",
+        "how": "Apply through Student Finance on GOV.UK."
+      },
+      "uk_pension_auto_enrolment": {
+        "title": "Workplace pension (auto-enrolment)",
+        "desc": "Your employer must contribute to your pension — opting out gives up free money.",
+        "how": "Stay enrolled; check contributions with your employer."
+      },
+      "uk_free_prescriptions": {
+        "title": "Free prescriptions & NHS help",
+        "desc": "Free prescriptions, dental and eye care for eligible groups (age, income, conditions).",
+        "how": "Check entitlement on the NHS website; ask for an HC1 form for low income."
+      },
+      "uk_help_to_save": {
+        "title": "Help to Save",
+        "desc": "A government savings account paying a 50% bonus for people on low incomes.",
+        "how": "Open an account on GOV.UK."
       }
     },
-    "moreInfo": "Full details on Kol-Zchut →"
+    "moreInfo": "Full details on Kol-Zchut →",
+    "country": "Country",
+    "countries": {
+      "IL": "Israel",
+      "US": "United States",
+      "UK": "United Kingdom"
+    }
   },
   "legalPages": {
     "termsTitle": "Terms of Service",
