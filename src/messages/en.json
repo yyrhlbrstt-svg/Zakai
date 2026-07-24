@@ -67,7 +67,8 @@
     "disability": "Disability / attendance",
     "compensation": "Insurance claims",
     "spending": "Spending overview",
-    "insurancecompare": "Compare insurance"
+    "insurancecompare": "Compare insurance",
+    "debt": "Consolidate debt"
   },
   "payslip": {
     "title": "Payslip check",
@@ -3045,7 +3046,8 @@
       "severance": "Severance — did you get what you’re owed?",
       "disability": "Disability / attendance — check if you're owed",
       "compensation-claims": "Insurance you never claimed — how much are you owed?",
-      "insurance-compare": "Insurance too expensive? See how much you could save"
+      "insurance-compare": "Insurance too expensive? See how much you could save",
+      "debt-consolidation": "Too many loans? See your one lower payment"
     },
     "ctaTitle": "Want us to help you claim it?",
     "ctaBody": "Leave your details and we will get back to you — review the case and connect you to someone who can claim it. A fee only if you actually get money."
@@ -3223,5 +3225,44 @@
       "You switch only if it's genuinely better; a fee is earned as a referral, never from you."
     ],
     "disclaimer": "Zakai is not an insurer or an insurance agent and gives no insurance advice. We connect you to a licensed agent/broker and are paid a referral fee. You are never obligated to switch."
+  },
+  "debtConsolidation": {
+    "metaTitle": "Consolidate your debt — one lower payment | Zakai",
+    "metaDesc": "Paying several loans and overdraft at high interest? Zakai connects you to a licensed provider who consolidates them into one lower monthly payment. Free; commission-based.",
+    "kicker": "Free check — no upfront cost",
+    "title": "Paying several loans at high interest? Combine them into one lower payment",
+    "sub": "Overdraft, credit-card debt, car and personal loans — each at its own high rate. A single consolidated loan can cut your monthly payment sharply. Zakai connects you to a licensed provider; no upfront cost, we're paid a referral fee only.",
+    "bigNumber": "500–2,000",
+    "bigNumberSub": "A typical monthly saving from consolidating high-interest debt into one lower-rate loan.",
+    "typesTitle": "What we consolidate",
+    "types": [
+      {
+        "icon": "💳",
+        "title": "Credit-card debt",
+        "body": "The most expensive debt — the first to refinance."
+      },
+      {
+        "icon": "🔴",
+        "title": "Overdraft",
+        "body": "A permanent overdraft is a loan at the highest rate you pay."
+      },
+      {
+        "icon": "🚗",
+        "title": "Car & personal loans",
+        "body": "Several loans, several rates — merged into one."
+      },
+      {
+        "icon": "🏠",
+        "title": "Against equity",
+        "body": "Homeowners can often consolidate at a far lower secured rate."
+      }
+    ],
+    "howTitle": "How it works",
+    "steps": [
+      "Leave your name and phone — no commitment, no upfront payment.",
+      "A licensed provider reviews your debts and offers one consolidated, lower-rate loan.",
+      "You proceed only if the monthly payment genuinely drops; a fee is a referral, never from you."
+    ],
+    "disclaimer": "Zakai is not a lender or credit advisor and gives no financial advice. We connect you to a licensed provider and are paid a referral fee. Consolidating can extend a loan's term; you are never obligated to proceed."
   }
 }
