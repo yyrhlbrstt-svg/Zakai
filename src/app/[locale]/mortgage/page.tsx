@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { MortgageRefiCalculator } from "@/components/MortgageRefiCalculator";
+import { LeadCta } from "@/components/LeadCta";
 
 export async function generateMetadata({
   params,
@@ -26,6 +27,7 @@ export default async function MortgagePage({
       <h1 className="font-display text-3xl my-3">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[620px]">{t("subtitle")}</p>
       <MortgageRefiCalculator />
+      <LeadCta vertical="mortgage" />
     </main>
   );
 }
