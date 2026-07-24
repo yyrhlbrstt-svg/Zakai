@@ -207,6 +207,10 @@
     "scopeNote": "At this stage Zakai handles mobile bills only, over a messaging channel (email/form). More categories and channels come only once this path has proven itself.",
     "verticalsTitle": "What Zakai checks for you",
     "verticals": {
+      "parking": {
+        "title": "Parking-ticket appeal",
+        "sub": "Grounds check + a ready-to-file appeal letter — before paying blindly."
+      },
       "mobile": {
         "title": "Mobile bill",
         "sub": "Bill analysis, outreach on your behalf with a power of attorney, fee only on documented savings."
@@ -308,10 +312,6 @@
       "taxrefund": {
         "title": "Automatic tax refund",
         "sub": "Switched jobs? Partial year? We compute, prepare and file — up to 6 years back."
-      },
-      "parking": {
-        "title": "Parking-ticket appeal",
-        "sub": "Grounds check + a ready-to-file appeal letter — before paying blindly."
       },
       "arnona_refund": {
         "title": "Overpaid arnona refund",
@@ -751,7 +751,7 @@
     },
     "euDelayOptions": {
       "1": "Up to 2 hours",
-      "2.5": "2–3 hours",
+      "2_5": "2–3 hours",
       "4": "3–5 hours",
       "6": "Over 5 hours"
     },

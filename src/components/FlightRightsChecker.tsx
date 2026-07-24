@@ -109,7 +109,7 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
             )
           : isEU
             ? radios(t("delayQ"), EU_DELAYS, euDelay as (typeof EU_DELAYS)[number], setEuDelay, (h) =>
-                t(`euDelayOptions.${h}`),
+                t(`euDelayOptions.${String(h).replace(".", "_")}`),
               )
             : radios(t("delayQ"), IL_DELAYS, ilDelay as (typeof IL_DELAYS)[number], setIlDelay, (h) =>
                 t(`delayOptions.${h}`),
