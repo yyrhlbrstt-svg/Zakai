@@ -30,8 +30,8 @@ export interface PlanConfig {
 
 export const PLANS: Record<PlanId, PlanConfig> = {
   FREE: { id: "FREE", priceAgorot: 0, feeRateBps: 1800, maxActiveCases: 1, fullScan: false },
-  PRO: { id: "PRO", priceAgorot: 1490, feeRateBps: 900, maxActiveCases: 5, fullScan: true },
-  MAX: { id: "MAX", priceAgorot: 2990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
+  PRO: { id: "PRO", priceAgorot: 1990, feeRateBps: 900, maxActiveCases: 5, fullScan: true },
+  MAX: { id: "MAX", priceAgorot: 4990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
 };
 
 export const PLAN_IDS: PlanId[] = ["FREE", "PRO", "MAX"];
