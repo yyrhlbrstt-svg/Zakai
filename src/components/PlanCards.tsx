@@ -24,6 +24,7 @@ export function PlanCards({
   const router = useRouter();
   const [pending, setPending] = useState<PlanId | null>(null);
   const [error, setError] = useState(false);
+  const [billingComing, setBillingComing] = useState(false);
 
   async function choose(plan: PlanId) {
     if (!currentPlan) {
@@ -31,6 +32,7 @@ export function PlanCards({
       return;
     }
     setError(false);
+    setBillingComing(false);
     setPending(plan);
     try {
       const res = await fetch("/api/account/plan", {
@@ -38,6 +40,12 @@ export function PlanCards({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
       });
+      // 402 = a paid upgrade that can't be granted for free yet (billing not
+      // connected). Show the honest "coming" note, not a generic error.
+      if (res.status === 402) {
+        setBillingComing(true);
+        return;
+      }
       if (!res.ok) throw new Error();
       router.refresh();
     } catch {
@@ -99,6 +107,12 @@ export function PlanCards({
           );
         })}
       </div>
+
+      {billingComing && (
+        <Card className="mt-4 p-4 border-[rgba(63,203,155,0.35)]">
+          <p className="text-[13.5px] text-ink-soft m-0 leading-relaxed">{t("paymentComing")}</p>
+        </Card>
+      )}
 
       {error && (
         <Card className="mt-4 p-4">

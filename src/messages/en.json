@@ -711,7 +711,8 @@
           "Full priority + first access to new features"
         ]
       }
-    }
+    },
+    "paymentComing": "Paid plans open the moment we connect billing. Leave it with us — you will be first to upgrade. (Downgrading to Free works now.)"
   },
   "scan": {
     "title": "What am I paying for?",

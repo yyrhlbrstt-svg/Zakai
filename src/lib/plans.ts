@@ -44,6 +44,20 @@ export function planConfig(plan: string | null | undefined): PlanConfig {
   return isPlanId(plan ?? "") ? PLANS[plan as PlanId] : PLANS.FREE;
 }
 
+/**
+ * True when switching from `current` to `next` moves to a higher-priced tier
+ * and therefore must be PAID before it takes effect. Downgrades and same-tier
+ * switches are free and immediate. This is the guard that stops the account
+ * endpoint from handing out a paid plan (and its lower success-fee / higher
+ * limits) for nothing — without it, subscription revenue is impossible.
+ */
+export function upgradeRequiresPayment(
+  current: string | null | undefined,
+  next: PlanId,
+): boolean {
+  return PLANS[next].priceAgorot > planConfig(current).priceAgorot;
+}
+
 /** Case statuses that count against the active-case allowance. */
 export const ACTIVE_CASE_STATUSES = ["ANALYZED", "APPROVED", "VERIFIED", "SENT"] as const;
 
