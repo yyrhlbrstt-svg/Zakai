@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/routing";
-import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
+import { LeadForm } from "@/components/LeadForm";
 
 export async function generateMetadata({
   params,
@@ -11,25 +10,32 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "childSavings" });
+  const t = await getTranslations({ locale, namespace: "insuranceCompare" });
   return { title: t("metaTitle"), description: t("metaDesc") };
 }
 
-interface Move {
+interface Item {
   icon: string;
   title: string;
   body: string;
 }
 
-export default async function ChildSavingsPage({
+/**
+ * Insurance comparison / switching — the classic high-value, honest lead-gen
+ * vertical (the comparison-site model that built billion-dollar businesses).
+ * People overpay because they never re-compare; Zakai captures the lead and
+ * connects them to a LICENSED agent who re-shops the cover, for a referral fee.
+ * We are not an insurer/agent and give no insurance advice (see disclaimer).
+ */
+export default async function InsuranceComparePage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("childSavings");
-  const moves = t.raw("moves") as Move[];
+  const t = await getTranslations("insuranceCompare");
+  const types = t.raw("types") as Item[];
   const steps = t.raw("steps") as string[];
 
   return (
@@ -44,37 +50,34 @@ export default async function ChildSavingsPage({
         <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
       </Reveal>
 
-      {/* The one number that makes parents act. */}
       <Reveal delay={80}>
         <div className="mt-8 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-6 text-center">
           <div className="font-display grad-text text-[clamp(30px,7vw,44px)] leading-none tabular-nums">
-            {t("bigNumber")}
+            {t("bigNumber")} ₪
           </div>
-          <div className="text-ink-soft text-[13.5px] mt-2.5 max-w-[520px] mx-auto leading-relaxed">
+          <div className="text-ink-soft text-[13.5px] mt-2.5 max-w-[540px] mx-auto leading-relaxed">
             {t("bigNumberSub")}
           </div>
         </div>
       </Reveal>
 
-      {/* The moves that grow it — each is a free action the parent takes. */}
       <Reveal>
-        <h2 className="font-display text-2xl mt-14 mb-4">{t("movesTitle")}</h2>
+        <h2 className="font-display text-2xl mt-14 mb-4">{t("typesTitle")}</h2>
       </Reveal>
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
-        {moves.map((m, i) => (
-          <Reveal key={m.title} delay={i * 80}>
+        {types.map((d, i) => (
+          <Reveal key={d.title} delay={i * 70}>
             <SpotlightCard className="p-6 h-full">
               <div className="text-[26px]" aria-hidden>
-                {m.icon}
+                {d.icon}
               </div>
-              <div className="font-extrabold text-[15.5px] mt-3">{m.title}</div>
-              <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">{m.body}</div>
+              <div className="font-extrabold text-[15.5px] mt-3">{d.title}</div>
+              <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">{d.body}</div>
             </SpotlightCard>
           </Reveal>
         ))}
       </div>
 
-      {/* Do it in five minutes. */}
       <Reveal>
         <h2 className="font-display text-2xl mt-14 mb-4">{t("howTitle")}</h2>
       </Reveal>
@@ -92,21 +95,8 @@ export default async function ChildSavingsPage({
       </ol>
 
       <Reveal>
-        <div className="mt-12 rounded-2xl p-[1px] bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_55%,#8b5cf6)]">
-          <div className="rounded-2xl bg-[#0a1119] px-6 py-7 text-center">
-            <div className="font-display text-xl">{t("cta.title")}</div>
-            <p className="text-ink-soft text-[14px] mt-2 max-w-[520px] mx-auto leading-relaxed">
-              {t("cta.body")}
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <Link href="/what-am-i-owed">
-                <Button>{t("cta.primary")}</Button>
-              </Link>
-              <Link href="/entitlements">
-                <Button variant="ghost">{t("cta.secondary")}</Button>
-              </Link>
-            </div>
-          </div>
+        <div className="mt-12">
+          <LeadForm vertical="insurance-compare" />
         </div>
       </Reveal>
 
