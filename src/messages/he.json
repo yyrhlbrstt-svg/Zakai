@@ -1766,6 +1766,146 @@
         "title": "תוספת ילדים",
         "desc": "תוספת עבור ילדים במסגרת ה-IMV.",
         "how": "להגיש ל-Seguridad Social."
+      },
+      "it_assegno_unico": {
+        "title": "Assegno Unico (קצבת ילדים)",
+        "desc": "קצבה חודשית אחת למשפחות עם ילדים.",
+        "how": "להגיש באתר INPS."
+      },
+      "it_naspi": {
+        "title": "NASpI (אבטלה)",
+        "desc": "דמי אבטלה חודשיים לאחר אובדן עבודה שלא ברצונך.",
+        "how": "להגיש באתר INPS."
+      },
+      "it_pensione": {
+        "title": "פנסיית מדינה",
+        "desc": "קצבת פרישה לפי דמי ביטוח.",
+        "how": "להגיש דרך INPS."
+      },
+      "it_assegno_inclusione": {
+        "title": "Assegno di Inclusione",
+        "desc": "תמיכת הכנסה למשקי בית בהכנסה נמוכה.",
+        "how": "להגיש דרך INPS."
+      },
+      "it_bonus_sociale": {
+        "title": "Bonus sociale (חשבונות)",
+        "desc": "הנחה אוטומטית בחשבונות חשמל, גז ומים.",
+        "how": "אוטומטי לפי ה-ISEE; לבדוק ב-INPS."
+      },
+      "it_invalidita": {
+        "title": "קצבת נכות (Invalidità)",
+        "desc": "קצבאות למי שיש לו נכות מוכרת.",
+        "how": "להגיש דרך INPS."
+      },
+      "it_bonus_nido": {
+        "title": "Bonus asilo nido",
+        "desc": "השתתפות בעלות מעון לילדים צעירים.",
+        "how": "להגיש באתר INPS."
+      },
+      "it_borse_studio": {
+        "title": "מלגות לימוד",
+        "desc": "מלגות לפי מבחן הכנסה.",
+        "how": "להגיש דרך האזור/האוניברסיטה."
+      },
+      "it_contributo_affitto": {
+        "title": "סיוע בשכר דירה",
+        "desc": "סיוע בשכר דירה לדיירים בהכנסה נמוכה.",
+        "how": "להגיש דרך העירייה (comune)."
+      },
+      "it_detrazioni": {
+        "title": "ניכויי מס",
+        "desc": "ניכויי מס שרבים לא מנצלים במלואם.",
+        "how": "לתבוע בדוח המס השנתי (730)."
+      },
+      "se_barnbidrag": {
+        "title": "Barnbidrag (קצבת ילדים)",
+        "desc": "קצבה חודשית לכל ילד.",
+        "how": "לרוב אוטומטי דרך Försäkringskassan."
+      },
+      "se_akassa": {
+        "title": "A-kassa (אבטלה)",
+        "desc": "ביטוח אבטלה מבוסס הכנסה.",
+        "how": "להצטרף ל-a-kassa ולתבוע באבטלה."
+      },
+      "se_garantipension": {
+        "title": "Garantipension",
+        "desc": "פנסיית מינימום מובטחת מהמדינה.",
+        "how": "להגיש דרך Pensionsmyndigheten."
+      },
+      "se_bostadsbidrag": {
+        "title": "Bostadsbidrag (סיוע דיור)",
+        "desc": "סיוע בשכר דירה למשקי בית בהכנסה נמוכה וצעירים.",
+        "how": "להגיש דרך Försäkringskassan."
+      },
+      "se_sjukersattning": {
+        "title": "Sjukersättning (נכות)",
+        "desc": "הכנסה למי שכושר עבודתו ירד לצמיתות.",
+        "how": "להגיש דרך Försäkringskassan."
+      },
+      "se_studiemedel": {
+        "title": "Studiemedel (CSN)",
+        "desc": "מלגות והלוואות ללימודים גבוהים.",
+        "how": "להגיש דרך CSN."
+      },
+      "se_forsorjningsstod": {
+        "title": "Försörjningsstöd",
+        "desc": "תמיכת הכנסה אחרונה מהרשות המקומית.",
+        "how": "להגיש דרך ה-kommun."
+      },
+      "se_foraldrapenning": {
+        "title": "Föräldrapenning",
+        "desc": "חופשת הורות בתשלום להורים לילדים צעירים.",
+        "how": "להגיש דרך Försäkringskassan."
+      },
+      "se_bostadstillagg": {
+        "title": "Bostadstillägg",
+        "desc": "תוספת דיור לגמלאים בהכנסה נמוכה.",
+        "how": "להגיש דרך Pensionsmyndigheten."
+      },
+      "pl_rodzina_800": {
+        "title": "Rodzina 800+ (קצבת ילדים)",
+        "desc": "קצבה חודשית לכל ילד.",
+        "how": "להגיש ב-gov.pl / דרך ZUS."
+      },
+      "pl_zasilek_bezrobotny": {
+        "title": "דמי אבטלה",
+        "desc": "דמי אבטלה לאחר רישום כמובטל.",
+        "how": "להירשם בלשכת התעסוקה המקומית."
+      },
+      "pl_emerytura": {
+        "title": "Emerytura (פנסיה)",
+        "desc": "קצבת פרישה ממלכתית לפי דמי ביטוח.",
+        "how": "להגיש דרך ZUS."
+      },
+      "pl_dodatek_mieszkaniowy": {
+        "title": "Dodatek mieszkaniowy",
+        "desc": "סיוע דיור למשקי בית בהכנסה נמוכה.",
+        "how": "להגיש דרך ה-gmina."
+      },
+      "pl_swiadczenie_pielegnacyjne": {
+        "title": "קצבת סיעוד",
+        "desc": "קצבה למטפלים באדם עם מוגבלות.",
+        "how": "להגיש דרך המשרד המקומי."
+      },
+      "pl_stypendium": {
+        "title": "Stypendium (מלגה)",
+        "desc": "מלגות לסטודנטים.",
+        "how": "להגיש דרך האוניברסיטה."
+      },
+      "pl_zasilek_rodzinny": {
+        "title": "Zasiłek rodzinny",
+        "desc": "קצבת משפחה למשקי בית עם ילדים בהכנסה נמוכה.",
+        "how": "להגיש דרך ה-gmina."
+      },
+      "pl_dodatek_oslonowy": {
+        "title": "Dodatek osłonowy",
+        "desc": "קצבת מגן לעלויות אנרגיה.",
+        "how": "להגיש דרך ה-gmina."
+      },
+      "pl_500_niepelnosprawni": {
+        "title": "500+ לנכים",
+        "desc": "קצבה משלימה למי שאינו יכול לחיות באופן עצמאי.",
+        "how": "להגיש דרך ZUS."
       }
     },
     "moreInfo": "למידע המלא בכל-זכות ←",
@@ -1780,7 +1920,10 @@
       "FR": "צרפת",
       "IE": "אירלנד",
       "NL": "הולנד",
-      "ES": "ספרד"
+      "ES": "ספרד",
+      "IT": "איטליה",
+      "SE": "שוודיה",
+      "PL": "פולין"
     }
   },
   "legalPages": {

@@ -307,6 +307,46 @@ export const ES_ENTITLEMENTS: Entitlement[] = [
   { id: "es_prestacion_hijo", category: "family", eligible: (p) => parent(p) && p.lowIncome },
 ];
 
+/** Italy — INPS / Agenzia delle Entrate programs. Amounts "varies". */
+export const IT_ENTITLEMENTS: Entitlement[] = [
+  { id: "it_assegno_unico", category: "family", eligible: parent },
+  { id: "it_naspi", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "it_pensione", category: "senior", eligible: senior },
+  { id: "it_assegno_inclusione", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "it_bonus_sociale", category: "consumer", eligible: (p) => p.lowIncome },
+  { id: "it_invalidita", category: "benefits", eligible: (p) => p.disability },
+  { id: "it_bonus_nido", category: "family", eligible: (p) => p.childrenUnder6 > 0 },
+  { id: "it_borse_studio", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "it_contributo_affitto", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "it_detrazioni", category: "tax", eligible: working },
+];
+
+/** Sweden — Försäkringskassan / CSN / Pensionsmyndigheten programs. */
+export const SE_ENTITLEMENTS: Entitlement[] = [
+  { id: "se_barnbidrag", category: "family", eligible: parent },
+  { id: "se_akassa", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "se_garantipension", category: "senior", eligible: senior },
+  { id: "se_bostadsbidrag", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "se_sjukersattning", category: "benefits", eligible: (p) => p.disability },
+  { id: "se_studiemedel", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "se_forsorjningsstod", category: "benefits", eligible: (p) => p.lowIncome },
+  { id: "se_foraldrapenning", category: "family", eligible: (p) => p.childrenUnder6 > 0 },
+  { id: "se_bostadstillagg", category: "senior", eligible: (p) => senior(p) && p.lowIncome },
+];
+
+/** Poland — ZUS / gov.pl programs. Amounts "varies". */
+export const PL_ENTITLEMENTS: Entitlement[] = [
+  { id: "pl_rodzina_800", category: "family", eligible: parent },
+  { id: "pl_zasilek_bezrobotny", category: "benefits", eligible: (p) => p.employment === "unemployed" },
+  { id: "pl_emerytura", category: "senior", eligible: senior },
+  { id: "pl_dodatek_mieszkaniowy", category: "housing", eligible: (p) => p.renting && p.lowIncome },
+  { id: "pl_swiadczenie_pielegnacyjne", category: "benefits", eligible: (p) => p.disability },
+  { id: "pl_stypendium", category: "education", eligible: (p) => p.employment === "student" },
+  { id: "pl_zasilek_rodzinny", category: "family", eligible: (p) => parent(p) && p.lowIncome },
+  { id: "pl_dodatek_oslonowy", category: "consumer", eligible: (p) => p.lowIncome },
+  { id: "pl_500_niepelnosprawni", category: "benefits", eligible: (p) => p.disability },
+];
+
 /**
  * The rights catalog per market. Israel is the complete, money-quantified one;
  * others are the honest informational set for that country. Adding a country =
@@ -323,6 +363,9 @@ export const RIGHTS_CATALOGS: Record<CountryCode, Entitlement[]> = {
   IE: IE_ENTITLEMENTS,
   NL: NL_ENTITLEMENTS,
   ES: ES_ENTITLEMENTS,
+  IT: IT_ENTITLEMENTS,
+  SE: SE_ENTITLEMENTS,
+  PL: PL_ENTITLEMENTS,
 };
 
 /** Countries with a rights catalog, for a UI selector. */
@@ -354,6 +397,12 @@ export function rightsSourceUrl(country: CountryCode, title: string): string {
       return `https://www.government.nl/search?query=${q}`;
     case "ES":
       return `https://administracion.gob.es/pagBuscador/buscar.html?query=${q}`;
+    case "IT":
+      return `https://www.inps.it/it/it/ricerca.html?query=${q}`;
+    case "SE":
+      return `https://www.forsakringskassan.se/privatperson?query=${q}`;
+    case "PL":
+      return `https://www.gov.pl/web/rodzina/szukaj?query=${q}`;
     case "IL":
     default:
       return `https://www.kolzchut.org.il/he/Special:Search?search=${q}`;

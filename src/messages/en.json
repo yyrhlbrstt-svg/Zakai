@@ -1766,6 +1766,146 @@
         "title": "Complemento de ayuda para la infancia",
         "desc": "A child supplement within the Ingreso Mínimo Vital.",
         "how": "Apply to the Seguridad Social."
+      },
+      "it_assegno_unico": {
+        "title": "Assegno Unico Universale",
+        "desc": "A single monthly allowance for families with children.",
+        "how": "Apply on the INPS website."
+      },
+      "it_naspi": {
+        "title": "NASpI (unemployment)",
+        "desc": "Monthly unemployment benefit after involuntary job loss.",
+        "how": "Apply on the INPS website."
+      },
+      "it_pensione": {
+        "title": "Pensione (state pension)",
+        "desc": "Retirement pension based on contributions.",
+        "how": "Apply through INPS."
+      },
+      "it_assegno_inclusione": {
+        "title": "Assegno di Inclusione",
+        "desc": "Income support for low-income households (replaced Reddito di Cittadinanza).",
+        "how": "Apply through INPS."
+      },
+      "it_bonus_sociale": {
+        "title": "Bonus sociale (bills)",
+        "desc": "An automatic discount on electricity, gas and water bills.",
+        "how": "Automatic via your ISEE; check INPS."
+      },
+      "it_invalidita": {
+        "title": "Invalidità civile",
+        "desc": "Benefits for people with a recognised disability.",
+        "how": "Apply through INPS."
+      },
+      "it_bonus_nido": {
+        "title": "Bonus asilo nido",
+        "desc": "A contribution towards nursery fees for young children.",
+        "how": "Apply on the INPS website."
+      },
+      "it_borse_studio": {
+        "title": "Borse di studio",
+        "desc": "Means-tested student grants.",
+        "how": "Apply through your region / university."
+      },
+      "it_contributo_affitto": {
+        "title": "Contributo affitto",
+        "desc": "Rent support for low-income tenants.",
+        "how": "Apply through your comune."
+      },
+      "it_detrazioni": {
+        "title": "Detrazioni fiscali",
+        "desc": "Tax deductions many workers never fully claim.",
+        "how": "Claim in your annual tax return (730/Redditi)."
+      },
+      "se_barnbidrag": {
+        "title": "Barnbidrag (child allowance)",
+        "desc": "A monthly allowance for every child.",
+        "how": "Usually automatic via Försäkringskassan."
+      },
+      "se_akassa": {
+        "title": "A-kassa (unemployment)",
+        "desc": "Income-based unemployment insurance.",
+        "how": "Join an a-kassa and claim when unemployed."
+      },
+      "se_garantipension": {
+        "title": "Garantipension",
+        "desc": "A guaranteed minimum state pension.",
+        "how": "Apply through Pensionsmyndigheten."
+      },
+      "se_bostadsbidrag": {
+        "title": "Bostadsbidrag (housing allowance)",
+        "desc": "Help with rent for lower-income households and young people.",
+        "how": "Apply through Försäkringskassan."
+      },
+      "se_sjukersattning": {
+        "title": "Sjukersättning",
+        "desc": "Income for those whose work capacity is permanently reduced.",
+        "how": "Apply through Försäkringskassan."
+      },
+      "se_studiemedel": {
+        "title": "Studiemedel (CSN)",
+        "desc": "Student grants and loans for higher studies.",
+        "how": "Apply through CSN."
+      },
+      "se_forsorjningsstod": {
+        "title": "Försörjningsstöd",
+        "desc": "Last-resort income support from your municipality.",
+        "how": "Apply through your kommun."
+      },
+      "se_foraldrapenning": {
+        "title": "Föräldrapenning",
+        "desc": "Paid parental leave for parents of young children.",
+        "how": "Apply through Försäkringskassan."
+      },
+      "se_bostadstillagg": {
+        "title": "Bostadstillägg",
+        "desc": "A housing supplement for low-income pensioners.",
+        "how": "Apply through Pensionsmyndigheten."
+      },
+      "pl_rodzina_800": {
+        "title": "Rodzina 800+",
+        "desc": "A monthly child benefit for every child.",
+        "how": "Apply on gov.pl / through ZUS."
+      },
+      "pl_zasilek_bezrobotny": {
+        "title": "Zasiłek dla bezrobotnych",
+        "desc": "Unemployment benefit after registering as jobless.",
+        "how": "Register at your local labour office."
+      },
+      "pl_emerytura": {
+        "title": "Emerytura (pension)",
+        "desc": "State retirement pension based on contributions.",
+        "how": "Apply through ZUS."
+      },
+      "pl_dodatek_mieszkaniowy": {
+        "title": "Dodatek mieszkaniowy",
+        "desc": "Housing allowance for lower-income households.",
+        "how": "Apply through your gmina."
+      },
+      "pl_swiadczenie_pielegnacyjne": {
+        "title": "Świadczenie pielęgnacyjne",
+        "desc": "A benefit for carers of a person with a disability.",
+        "how": "Apply through your local office."
+      },
+      "pl_stypendium": {
+        "title": "Stypendium",
+        "desc": "Student grants and scholarships.",
+        "how": "Apply through your university."
+      },
+      "pl_zasilek_rodzinny": {
+        "title": "Zasiłek rodzinny",
+        "desc": "A family allowance for low-income households with children.",
+        "how": "Apply through your gmina."
+      },
+      "pl_dodatek_oslonowy": {
+        "title": "Dodatek osłonowy",
+        "desc": "A shielding allowance towards energy costs.",
+        "how": "Apply through your gmina."
+      },
+      "pl_500_niepelnosprawni": {
+        "title": "500+ dla niepełnosprawnych",
+        "desc": "A supplementary benefit for people unable to live independently.",
+        "how": "Apply through ZUS."
       }
     },
     "moreInfo": "Full details on Kol-Zchut →",
@@ -1780,7 +1920,10 @@
       "FR": "France",
       "IE": "Ireland",
       "NL": "Netherlands",
-      "ES": "Spain"
+      "ES": "Spain",
+      "IT": "Italy",
+      "SE": "Sweden",
+      "PL": "Poland"
     }
   },
   "legalPages": {

@@ -24,7 +24,10 @@ export type CountryCode =
   | "FR"
   | "IE"
   | "NL"
-  | "ES";
+  | "ES"
+  | "IT"
+  | "SE"
+  | "PL";
 
 /** How a vertical's outreach reaches the counterparty (stage 5, execution). */
 export type ServiceChannel = "email" | "web_form" | "gov_portal" | "phone";
