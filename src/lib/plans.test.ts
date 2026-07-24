@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PLANS, planConfig, canOpenCase, isPlanId } from "./plans";
+import { PLANS, planConfig, canOpenCase, isPlanId, upgradeRequiresPayment } from "./plans";
 import { computeFee } from "./fee";
 
 describe("plans", () => {
@@ -44,5 +44,19 @@ describe("plans", () => {
     const free = computeFee(10000, 5000, PLANS.FREE.feeRateBps);
     const pro = computeFee(10000, 5000, PLANS.PRO.feeRateBps);
     expect(pro.amount * 2).toBe(free.amount);
+  });
+
+  it("a paid upgrade requires payment; downgrades and same-tier do not", () => {
+    // Upgrades to a higher-priced tier must be paid — the anti-give-away guard.
+    expect(upgradeRequiresPayment("FREE", "PRO")).toBe(true);
+    expect(upgradeRequiresPayment("FREE", "MAX")).toBe(true);
+    expect(upgradeRequiresPayment("PRO", "MAX")).toBe(true);
+    expect(upgradeRequiresPayment(null, "MAX")).toBe(true); // unknown → FREE-priced
+    // Downgrades and no-ops are free and immediate.
+    expect(upgradeRequiresPayment("MAX", "FREE")).toBe(false);
+    expect(upgradeRequiresPayment("PRO", "FREE")).toBe(false);
+    expect(upgradeRequiresPayment("MAX", "PRO")).toBe(false);
+    expect(upgradeRequiresPayment("PRO", "PRO")).toBe(false);
+    expect(upgradeRequiresPayment("FREE", "FREE")).toBe(false);
   });
 });

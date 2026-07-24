@@ -9,6 +9,22 @@ import { PlanBadge } from "@/components/PlanBadge";
 
 /** The public tools, grouped under one "Tools" menu so the bar stays calm. */
 const TOOLS = [
+  { href: "/spending", key: "spending", icon: "📊" },
+  { href: "/insurance-compare", key: "insurancecompare", icon: "🛡️" },
+  { href: "/debt-consolidation", key: "debt", icon: "💳" },
+  { href: "/lost-money", key: "lostmoney", icon: "⛰️" },
+  { href: "/compensation-claims", key: "compensation", icon: "🛟" },
+  { href: "/class-action", key: "classaction", icon: "⚖️" },
+  { href: "/child-savings", key: "childsavings", icon: "🧒" },
+  { href: "/arnona", key: "arnona", icon: "🏠" },
+  { href: "/disability-benefits", key: "disability", icon: "♿" },
+  { href: "/construction-defects", key: "defects", icon: "🏗️" },
+  { href: "/car-value", key: "carvalue", icon: "🚗" },
+  { href: "/mortgage-insurance", key: "mortins", icon: "🏠" },
+  { href: "/duplicate-insurance", key: "dupinsurance", icon: "🛡️" },
+  { href: "/pension-fees", key: "pension", icon: "📊" },
+  { href: "/mortgage", key: "mortgage", icon: "🏡" },
+  { href: "/deposit", key: "deposit", icon: "🔑" },
   { href: "/deals", key: "deals", icon: "🎟️" },
   { href: "/entitlements", key: "entitlements", icon: "🎯" },
   { href: "/payslip", key: "payslip", icon: "🧾" },
@@ -19,6 +35,10 @@ const TOOLS = [
   { href: "/olim", key: "olim", icon: "🇮🇱" },
   { href: "/parking", key: "parking", icon: "🅿️" },
   { href: "/transport-fine", key: "transportFine", icon: "🚌" },
+  { href: "/baggage", key: "baggage", icon: "🧳" },
+  { href: "/bank-fees", key: "bankfees", icon: "🏦" },
+  { href: "/price-protection", key: "priceprotection", icon: "🏷️" },
+  { href: "/warranty", key: "warranty", icon: "🛠️" },
   { href: "/miluim", key: "miluim", icon: "🎖️" },
   { href: "/rights", key: "rights", icon: "📚" },
   { href: "/electricity", key: "electricity", icon: "⚡" },
@@ -98,9 +118,14 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <div className="ms-1">{langButtons}</div>
         </nav>
 
-        {/* Mobile: compact plan badge + hamburger */}
+        {/* Mobile: compact plan badge + hamburger. The badge links to the plans
+            page so tapping your tier opens the tracks/pricing. */}
         <div className="flex md:hidden items-center gap-2.5">
-          {user && <PlanBadge plan={user.plan} />}
+          {user && (
+            <Link href="/pricing" aria-label={t("nav.pricing")} className="no-underline">
+              <PlanBadge plan={user.plan} />
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}

@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUserId, badRequest } from "@/lib/api";
-import { isPlanId } from "@/lib/plans";
+import { isPlanId, upgradeRequiresPayment } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 
 /**
- * Switch the account's product tier. Pre-billing stage: the tier changes
- * immediately and is enforced everywhere; actual payment collection starts
- * only when a PSP is connected (see BACKLOG), and users are told so in the UI.
+ * Switch the account's product tier.
+ *
+ * A PAID upgrade (to a higher-priced tier) may NOT be granted here — that would
+ * hand out Pro/Max (a lower success fee and higher limits) for free, making
+ * subscription revenue impossible. Upgrades must go through checkout and only
+ * take effect on a verified payment. This endpoint therefore performs only
+ * free, immediate switches: a downgrade (…→ FREE) or a same-tier no-op.
  */
 export async function POST(request: Request) {
   const auth = await requireUserId();
@@ -24,6 +28,16 @@ export async function POST(request: Request) {
   if (typeof plan !== "string" || !isPlanId(plan)) return badRequest("genericError");
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: auth.userId },
+      select: { plan: true },
+    });
+
+    // The critical guard: never grant a paid tier without payment.
+    if (upgradeRequiresPayment(user?.plan, plan)) {
+      return NextResponse.json({ error: "paymentRequired", plan }, { status: 402 });
+    }
+
     await prisma.user.update({
       where: { id: auth.userId },
       data: { plan, planChangedAt: new Date() },

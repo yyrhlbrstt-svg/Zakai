@@ -6,6 +6,7 @@ import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { formatAgorot } from "@/lib/money";
+import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 
 /** Refresh the live proof numbers hourly (ISR) — fast page, honest data. */
@@ -40,14 +41,34 @@ export default async function HomePage({
 
   const steps = ["upload", "act", "pay"] as const;
   const trust = t.raw("home.trust") as string[];
+  const israeliVisitor = await isIsrael();
+
+  // The kicker's country tag reflects where the visitor actually is (edge geo),
+  // not a hard-coded "Israel". Localized via Intl for ANY country; omitted when
+  // geo is unknown (e.g. local dev) so we never assert the wrong place.
+  const visitorCountry = await getCountry();
+  const countryTag = (() => {
+    if (!visitorCountry) return "";
+    try {
+      const name = new Intl.DisplayNames([locale], { type: "region" }).of(visitorCountry);
+      return name ? ` · ${name}` : "";
+    } catch {
+      return "";
+    }
+  })();
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
+      {!israeliVisitor && (
+        <div className="mb-6 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
+          🌍 {t("home.geoNote")}
+        </div>
+      )}
       <div className="flex flex-wrap gap-12 items-center">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
             <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-6">
-              {t("home.kicker")}
+              {t("home.kicker")}{countryTag}
             </div>
           </Reveal>
           <Reveal delay={80}>
@@ -64,11 +85,11 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={240}>
             <div className="flex flex-wrap gap-3 items-center">
-              <Link href="/check">
-                <Button>{t("home.cta")}</Button>
+              <Link href="/what-am-i-owed">
+                <Button>{t("nav.whatAmIOwed")}</Button>
               </Link>
-              <Link href="/entitlements">
-                <Button variant="ghost">{t("nav.entitlements")}</Button>
+              <Link href="/check">
+                <Button variant="ghost">{t("home.cta")}</Button>
               </Link>
             </div>
           </Reveal>
@@ -122,76 +143,87 @@ export default async function HomePage({
         </Reveal>
       )}
 
-      {/* The breadth answer: everything Zakai checks for you, one tap each. */}
+      {/* The breadth answer, organized so it reads as a system, not a dump:
+          three families — money owed back, rights & work, consumer & savings. */}
       <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.verticalsTitle")}</h2>
+        <h2 className="text-[17px] font-extrabold mt-16 mb-1.5">{t("home.verticalsTitle")}</h2>
+        <p className="text-ink-soft text-[13px] mt-0 mb-2">{t("home.verticalsSub")}</p>
       </Reveal>
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-        {(
-          [
-            { key: "deals", href: "/deals", icon: "🎟️" },
-            { key: "rights", href: "/rights", icon: "🎯" },
-            { key: "payslip", href: "/payslip", icon: "🧾" },
-            { key: "severance", href: "/severance", icon: "📄" },
-            { key: "maternity", href: "/maternity", icon: "👶" },
-            { key: "taxrefund", href: "/taxrefund", icon: "💸" },
-            { key: "unemployment", href: "/unemployment", icon: "🧭" },
-            { key: "parking", href: "/parking", icon: "🅿️" },
-            { key: "miluim", href: "/miluim", icon: "🎖️" },
-            { key: "mobile", href: "/check", icon: "📱" },
-            { key: "electricity", href: "/electricity", icon: "⚡" },
-            { key: "flights", href: "/flights", icon: "✈️" },
-            { key: "subs", href: "/scan", icon: "🔁" },
-          ] as const
-        ).map((v, i) => (
-          <Reveal key={v.key} delay={i * 80}>
-            <Link href={v.href} className="no-underline text-ink block h-full">
-              <SpotlightCard className="p-5 h-full transition-colors duration-200 hover:border-[rgba(63,203,155,0.4)]">
-                <div className="text-[26px]" aria-hidden>
-                  {v.icon}
-                </div>
-                <div className="font-extrabold text-[15px] mt-2.5">
-                  {t(`home.verticals.${v.key}.title`)}
-                </div>
-                <div className="text-ink-soft text-[12.5px] mt-1 leading-relaxed">
-                  {t(`home.verticals.${v.key}.sub`)}
-                </div>
-              </SpotlightCard>
-            </Link>
-          </Reveal>
-        ))}
-      </div>
-
-      {/* The public pipeline — momentum on display, expectations honest. */}
-      <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-1.5">{t("home.soonTitle")}</h2>
-        <p className="text-ink-soft text-[13px] mt-0 mb-4">{t("home.soonSub")}</p>
-      </Reveal>
-      <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-        {(
-          [
-            { key: "arnona_refund", icon: "🏠" },
-            { key: "deposit", icon: "🔑" },
-          ] as const
-        ).map((v, i) => (
-          <Reveal key={v.key} delay={i * 50}>
-            <div className="h-full rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.025)] p-4">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[22px]" aria-hidden>
-                  {v.icon}
-                </span>
-                <span className="text-[10.5px] font-extrabold text-ink-soft border border-[rgba(255,255,255,0.14)] rounded-full px-2 py-0.5">
-                  {t("home.soonBadge")}
-                </span>
-              </div>
-              <div className="font-extrabold text-[14px] mt-2">{t(`home.soon.${v.key}.title`)}</div>
-              <div className="text-ink-soft text-[12px] mt-1 leading-relaxed">
-                {t(`home.soon.${v.key}.sub`)}
-              </div>
+      {(
+        [
+          {
+            group: "moneyBack",
+            items: [
+              { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
+              { key: "classaction", href: "/class-action", icon: "⚖️" },
+              { key: "childsavings", href: "/child-savings", icon: "🧒" },
+              { key: "arnona", href: "/arnona", icon: "🏠" },
+              { key: "disability", href: "/disability-benefits", icon: "♿" },
+              { key: "defects", href: "/construction-defects", icon: "🏗️" },
+              { key: "carvalue", href: "/car-value", icon: "🚗" },
+              { key: "mortins", href: "/mortgage-insurance", icon: "🏠" },
+              { key: "dupinsurance", href: "/duplicate-insurance", icon: "🛡️" },
+              { key: "pension", href: "/pension-fees", icon: "📊" },
+              { key: "mortgage", href: "/mortgage", icon: "🏡" },
+              { key: "taxrefund", href: "/taxrefund", icon: "💸" },
+              { key: "flights", href: "/flights", icon: "✈️" },
+              { key: "baggage", href: "/baggage", icon: "🧳" },
+              { key: "priceprotection", href: "/price-protection", icon: "🏷️" },
+              { key: "parking", href: "/parking", icon: "🅿️" },
+            ],
+          },
+          {
+            group: "rightsWork",
+            items: [
+              { key: "rights", href: "/rights", icon: "🎯" },
+              { key: "payslip", href: "/payslip", icon: "🧾" },
+              { key: "severance", href: "/severance", icon: "📄" },
+              { key: "maternity", href: "/maternity", icon: "👶" },
+              { key: "unemployment", href: "/unemployment", icon: "🧭" },
+              { key: "miluim", href: "/miluim", icon: "🎖️" },
+            ],
+          },
+          {
+            group: "consumer",
+            items: [
+              { key: "mobile", href: "/check", icon: "📱" },
+              { key: "electricity", href: "/electricity", icon: "⚡" },
+              { key: "subs", href: "/scan", icon: "🔁" },
+              { key: "bankfees", href: "/bank-fees", icon: "🏦" },
+              { key: "warranty", href: "/warranty", icon: "🛠️" },
+              { key: "deposit", href: "/deposit", icon: "🔑" },
+              { key: "deals", href: "/deals", icon: "🎟️" },
+            ],
+          },
+        ] as const
+      ).map((section) => (
+        <div key={section.group} className="mt-8 first:mt-5">
+          <Reveal>
+            <div className="text-[12.5px] font-extrabold text-emerald uppercase tracking-wide mb-3.5">
+              {t(`home.verticalGroups.${section.group}`)}
             </div>
           </Reveal>
-        ))}
-      </div>
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
+            {section.items.map((v, i) => (
+              <Reveal key={v.key} delay={i * 60}>
+                <Link href={v.href} className="no-underline text-ink block h-full">
+                  <SpotlightCard className="p-5 h-full transition-colors duration-200 hover:border-[rgba(63,203,155,0.4)]">
+                    <div className="text-[26px]" aria-hidden>
+                      {v.icon}
+                    </div>
+                    <div className="font-extrabold text-[15px] mt-2.5">
+                      {t(`home.verticals.${v.key}.title`)}
+                    </div>
+                    <div className="text-ink-soft text-[12.5px] mt-1 leading-relaxed">
+                      {t(`home.verticals.${v.key}.sub`)}
+                    </div>
+                  </SpotlightCard>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      ))}
 
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.howTitle")}</h2>

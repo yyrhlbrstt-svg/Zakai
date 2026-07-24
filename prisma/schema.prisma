@@ -30,9 +30,13 @@ model User {
   // (PSP); the tier itself is enforced in code from day one.
   plan          Plan      @default(FREE)
   planChangedAt DateTime?
-  // E.164 Israeli mobile, e.g. +972501234567. The number the user's bills are
-  // registered to; ownership verification sends a code here.
+  // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
+  // are registered to; ownership verification sends a code here.
   phone        String
+  // ISO-3166 alpha-2 country the user signed up from. Israel is the launch
+  // market (active tools are IL-first); capturing country turns international
+  // signups into a real demand signal for where to expand next.
+  country      String   @default("IL")
   createdAt    DateTime @default(now())
 
   // Referrals. `referralCode` is the short, shareable code in this user's
@@ -98,8 +102,16 @@ model Case {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  provider        String // provider key: cellcom | partner | bezeq | hot | yes | other
+  // Which full-service vertical this case belongs to (rule-pack key). Defaults
+  // to "telecom" — the one proven full-service loop — so every existing and
+  // current case is unchanged; new verticals set it explicitly.
+  vertical        String @default("telecom")
+  provider        String // counterparty key within the vertical (cellcom, hapoalim…)
   planDescription String @default("")
+  // Family mode: an optional label for whom this check is run ("אמא", "אבא"…).
+  // Empty = the account owner themselves. Purely a display grouping; the case
+  // stays owned by, and scoped to, the userId — no extra access surface.
+  beneficiaryLabel String @default("")
 
   // amounts in agorot
   amountOriginal Int // documented "before" amount, snapshotted at analysis time
@@ -230,6 +242,14 @@ model Fee {
   referralCreditApplied Int       @default(0) // agorot
   status                FeeStatus @default(PENDING)
   createdAt             DateTime  @default(now())
+
+  // Fee collection. `provider` is which PSP handled it (or "mock" until a real
+  // one is configured); `providerRef` is the payment/transaction id it returned;
+  // `paidAt` is when the fee was confirmed collected. All null until a payment
+  // is initiated — the fee lifecycle is: PENDING -> (checkout) -> PAID.
+  provider    String? // e.g. "mock" | "payplus" | "tranzila"
+  providerRef String?
+  paidAt      DateTime?
 }
 
 // Durable fixed-window rate limiting for auth/OTP endpoints. Serverless
@@ -241,4 +261,37 @@ model RateLimit {
   createdAt DateTime @default(now())
 
   @@index([expiresAt])
+}
+
+// Product feedback — "what would you improve in Zakai?". Stored so the team
+// can read real user suggestions and prioritise from them. Email is optional
+// (only if the user wants a reply); `context` records which screen it came
+// from. Not linked to a user account — a logged-out visitor can leave it too.
+model Feedback {
+  id        String   @id @default(cuid())
+  message   String
+  email     String? // optional, only if they want a reply
+  context   String   @default("") // e.g. the path the widget was opened from
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Commissionable lead intake for the high-value verticals (construction
+// defects, car diminished-value, mortgage insurance, tax, arnona…). Zakai
+// captures the qualified lead and connects the user to a vetted professional /
+// service, monetising via a success/referral fee when the claim succeeds — the
+// standard model in these industries, and honest (we facilitate, we don't
+// impersonate the professional). `vertical` is the source screen's key.
+model Lead {
+  id        String   @id @default(cuid())
+  vertical  String // e.g. "construction-defects" | "car-value" | "mortgage-insurance"
+  name      String
+  phone     String
+  note      String   @default("")
+  status    String   @default("new") // new | contacted | matched | won | closed
+  userId    String? // set if a logged-in user submitted it
+  createdAt DateTime @default(now())
+
+  @@index([vertical, createdAt])
 }

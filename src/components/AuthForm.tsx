@@ -1,9 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { Card, Button, Input, FieldError } from "@/components/ui";
+import { Card, Button, Input, Select, FieldError } from "@/components/ui";
+
+// Launch market first, then the expansion candidates the strategy names.
+const COUNTRIES: { code: string; he: string; en: string }[] = [
+  { code: "IL", he: "🇮🇱 ישראל", en: "🇮🇱 Israel" },
+  { code: "GB", he: "🇬🇧 בריטניה", en: "🇬🇧 United Kingdom" },
+  { code: "US", he: "🇺🇸 ארצות הברית", en: "🇺🇸 United States" },
+  { code: "CA", he: "🇨🇦 קנדה", en: "🇨🇦 Canada" },
+  { code: "AU", he: "🇦🇺 אוסטרליה", en: "🇦🇺 Australia" },
+  { code: "DE", he: "🇩🇪 גרמניה", en: "🇩🇪 Germany" },
+  { code: "FR", he: "🇫🇷 צרפת", en: "🇫🇷 France" },
+  { code: "ZZ", he: "🌍 אחר", en: "🌍 Other" },
+];
 
 /** Error keys the API may return that live in the `auth` message namespace. */
 const AUTH_ERROR_KEYS = new Set([
@@ -25,6 +37,7 @@ export function AuthForm({
   referralCode?: string;
 }) {
   const t = useTranslations("auth");
+  const locale = useLocale();
   const tc = useTranslations("common");
   const tl = useTranslations("legal");
   const router = useRouter();
@@ -32,7 +45,7 @@ export function AuthForm({
   const [error, setError] = useState<string | null>(null);
   const [termsOk, setTermsOk] = useState(false);
   const [showPw, setShowPw] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", phone: "", country: "IL" });
   const terms = tl.raw("terms") as string[];
 
   async function submit(e: React.FormEvent) {
@@ -114,7 +127,7 @@ export function AuthForm({
               <Input
                 type="tel"
                 inputMode="tel"
-                placeholder="0501234567"
+                placeholder="0501234567 / +1 415 555 0123"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 autoComplete="tel"
@@ -123,6 +136,27 @@ export function AuthForm({
               <span className="text-[11.5px] text-ink-soft mt-1 block leading-snug">
                 {t("phoneHint")}
               </span>
+            </label>
+          )}
+          {mode === "signup" && (
+            <label className="block">
+              <span className="text-[13.5px] text-ink-soft">{t("country")}</span>
+              <Select
+                value={form.country}
+                onChange={(e) => setForm({ ...form, country: e.target.value })}
+                aria-label={t("country")}
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {locale === "he" ? c.he : c.en}
+                  </option>
+                ))}
+              </Select>
+              {form.country !== "IL" && (
+                <span className="text-[11.5px] text-emerald mt-1 block leading-snug">
+                  {t("countryNotice")}
+                </span>
+              )}
             </label>
           )}
           <label className="block">

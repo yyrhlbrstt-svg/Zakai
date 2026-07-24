@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { LeadCta } from "@/components/LeadCta";
 import { PayslipChecker } from "@/components/PayslipChecker";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -24,6 +25,7 @@ export default async function PayslipPage({
       <h1 className="font-display text-3xl my-3">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[600px]">{t("subtitle")}</p>
       <PayslipChecker bcp47={bcp47[locale as Locale]} />
+      <LeadCta vertical="payslip" />
     </main>
   );
 }

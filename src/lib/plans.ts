@@ -30,8 +30,8 @@ export interface PlanConfig {
 
 export const PLANS: Record<PlanId, PlanConfig> = {
   FREE: { id: "FREE", priceAgorot: 0, feeRateBps: 1800, maxActiveCases: 1, fullScan: false },
-  PRO: { id: "PRO", priceAgorot: 1490, feeRateBps: 900, maxActiveCases: 5, fullScan: true },
-  MAX: { id: "MAX", priceAgorot: 2990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
+  PRO: { id: "PRO", priceAgorot: 1990, feeRateBps: 900, maxActiveCases: 5, fullScan: true },
+  MAX: { id: "MAX", priceAgorot: 4990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
 };
 
 export const PLAN_IDS: PlanId[] = ["FREE", "PRO", "MAX"];
@@ -42,6 +42,20 @@ export function isPlanId(v: string): v is PlanId {
 
 export function planConfig(plan: string | null | undefined): PlanConfig {
   return isPlanId(plan ?? "") ? PLANS[plan as PlanId] : PLANS.FREE;
+}
+
+/**
+ * True when switching from `current` to `next` moves to a higher-priced tier
+ * and therefore must be PAID before it takes effect. Downgrades and same-tier
+ * switches are free and immediate. This is the guard that stops the account
+ * endpoint from handing out a paid plan (and its lower success-fee / higher
+ * limits) for nothing — without it, subscription revenue is impossible.
+ */
+export function upgradeRequiresPayment(
+  current: string | null | undefined,
+  next: PlanId,
+): boolean {
+  return PLANS[next].priceAgorot > planConfig(current).priceAgorot;
 }
 
 /** Case statuses that count against the active-case allowance. */

@@ -43,7 +43,32 @@
     "parking": "Parking appeal",
     "deals": "Deals",
     "menu": "Menu",
-    "transportFine": "Transport fine"
+    "transportFine": "Transport fine",
+    "faq": "FAQ",
+    "lostmoney": "Lost money",
+    "baggage": "Baggage payout",
+    "bankfees": "Bank fees",
+    "priceprotection": "Price protection",
+    "warranty": "Product warranty",
+    "feedback": "Improve Zakai",
+    "arnona": "Arnona appeal",
+    "dupinsurance": "Duplicate insurance",
+    "pension": "Pension fees",
+    "mortgage": "Mortgage refinance",
+    "whatAmIOwed": "What am I owed?",
+    "companies": "Zakai Score",
+    "deposit": "Rental deposit",
+    "childsavings": "Savings for Every Child",
+    "insurance": "Duplicate insurance",
+    "defects": "Construction defects",
+    "classaction": "Class-action money",
+    "carvalue": "Car diminished value",
+    "mortins": "Mortgage insurance",
+    "disability": "Disability / attendance",
+    "compensation": "Insurance claims",
+    "spending": "Spending overview",
+    "insurancecompare": "Compare insurance",
+    "debt": "Consolidate debt"
   },
   "payslip": {
     "title": "Payslip check",
@@ -158,7 +183,7 @@
     "hidePassword": "Hide password",
     "name": "Full name",
     "phone": "Mobile phone",
-    "phoneHint": "The number your bills are registered to — used later to verify ownership",
+    "phoneHint": "Mobile number for ownership verification. From any country — local (05...) or international format with + and your country code.",
     "loginBtn": "Log in",
     "signupBtn": "Create account",
     "toSignup": "No account? Sign up",
@@ -172,7 +197,10 @@
     "nameRequired": "Please enter your full name.",
     "mustLogin": "Please log in to continue.",
     "tooManyRequests": "Too many attempts. Try again in a few minutes.",
-    "invitedNote": "You were invited by a friend 🎁"
+    "invitedNote": "You were invited by a friend 🎁",
+    "paymentUnavailable": "Payment is unavailable right now. Please try again later.",
+    "country": "Country",
+    "countryNotice": "Zakai’s active tools today are Israel-first. You’re signing up early — we’ll notify you the moment we launch in your country."
   },
   "onboarding": {
     "title": "What Zakai does for you",
@@ -193,7 +221,7 @@
     "start": "Let's start"
   },
   "home": {
-    "kicker": "Consumer AI Agent · Israel · Stage 1: Mobile",
+    "kicker": "The AI agent that gets back the money you are owed",
     "title1": "You're overpaying.",
     "title2": "Zakai gets it back.",
     "sub": "Zakai detects inflated mobile bills, drafts a professional request and acts on your behalf — taking a fee only from money that actually returns to you.",
@@ -231,6 +259,10 @@
         "title": "Reserve-duty pay",
         "sub": "Exact entitlement math — including the 20% supplement most employers miss."
       },
+      "parking": {
+        "title": "Appeal a fine",
+        "sub": "Parking ticket or a bus-inspector fine? A ready appeal letter you send yourself — in a minute."
+      },
       "payslip": {
         "title": "Payslip check",
         "sub": "Minimum wage, pension and convalescence — the three most-missed items on a slip, in a one-minute check."
@@ -254,6 +286,74 @@
       "deals": {
         "title": "Deals & coupons",
         "sub": "Every benefit and money-saving move in one place — and exclusive coupons coming soon."
+      },
+      "lostmoney": {
+        "title": "Lost money",
+        "sub": "Billions in forgotten pensions, insurance and accounts. Some may be yours."
+      },
+      "baggage": {
+        "title": "Baggage payout",
+        "sub": "Delayed or lost bag? You're owed up to thousands most travelers never claim."
+      },
+      "bankfees": {
+        "title": "Bank fees",
+        "sub": "Hundreds a year in waivable fees — with a ready-to-send letter."
+      },
+      "priceprotection": {
+        "title": "Price protection",
+        "sub": "Hotel/flight/product dropped after you bought? You're often owed the difference."
+      },
+      "warranty": {
+        "title": "Product warranty",
+        "sub": "Broke within warranty? You're owed a free repair or replacement — even without the receipt."
+      },
+      "arnona": {
+        "title": "Arnona appeal",
+        "sub": "1 in 3 properties is over-charged. Hundreds–thousands ₪/yr, with a ready objection letter."
+      },
+      "dupinsurance": {
+        "title": "Duplicate insurance",
+        "sub": "Paying twice, claiming once? Check and refund premiums — with a ready letter."
+      },
+      "pension": {
+        "title": "Pension fees",
+        "sub": "A small % = tens of thousands ₪ by retirement. See how much you lose."
+      },
+      "mortgage": {
+        "title": "Mortgage refinance",
+        "sub": "Rates dropped? Refinancing can save tens of thousands ₪ in interest."
+      },
+      "deposit": {
+        "title": "Rental deposit",
+        "sub": "Landlord holding your deposit? Only proven damage is deductible. Ready demand letter."
+      },
+      "childsavings": {
+        "title": "Savings for Every Child",
+        "sub": "Every child has a state account. The right choice = thousands for your child."
+      },
+      "insurance": {
+        "title": "Duplicate insurance",
+        "sub": "You may pay twice for the same cover. A one-minute check."
+      },
+      "defects": {
+        "title": "Construction defects",
+        "sub": "New apartment? Up to tens of thousands ₪ from the developer, up to 7 years."
+      },
+      "classaction": {
+        "title": "Class-action money",
+        "sub": "Money from settlements you don't know you're owed — were you a customer? Check."
+      },
+      "carvalue": {
+        "title": "Car diminished value",
+        "sub": "Had an accident? You're owed diminished-value compensation — thousands ₪ insurers hide."
+      },
+      "mortins": {
+        "title": "Mortgage insurance",
+        "sub": "The bank sells you pricey insurance. Switching saves thousands ₪ a year."
+      },
+      "disability": {
+        "title": "Disability / attendance",
+        "sub": "Among the most unclaimed rights — tens of thousands ₪ a year, for life."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -312,14 +412,6 @@
       "parking": {
         "title": "Parking-ticket appeal",
         "sub": "Grounds check + a ready-to-file appeal letter — before paying blindly."
-      },
-      "arnona_refund": {
-        "title": "Overpaid arnona refund",
-        "sub": "Measurement errors are shockingly common — check if you've paid for meters that don't exist."
-      },
-      "deposit": {
-        "title": "Rental deposit recovery",
-        "sub": "Landlord sitting on your deposit? A reasoned demand per law and contract."
       }
     },
     "stats": [
@@ -335,7 +427,14 @@
         "n": "₪0",
         "label": "until savings are proven"
       }
-    ]
+    ],
+    "verticalsSub": "By what matters to you — each one tap away, most free and no signup.",
+    "verticalGroups": {
+      "moneyBack": "Money owed back to you",
+      "rightsWork": "Rights & work",
+      "consumer": "Consumer & savings"
+    },
+    "geoNote": "Looks like you are browsing from outside Israel. Some tools (lost money, cancelling subscriptions, price protection) work anywhere; rights and refunds are tuned for Israel today, and we are expanding to more regions."
   },
   "calc": {
     "title": "How much could you save?",
@@ -394,7 +493,10 @@
     "noSaving": "No saving was documented for this request — so there is no fee. You can try another provider or plan.",
     "newCase": "Check another bill",
     "toDash": "To dashboard",
-    "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan."
+    "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan.",
+    "beneficiaryLabel": "Who is this for?",
+    "beneficiaryPlaceholder": "Who is this for? (e.g. Mom, Dad) — optional",
+    "beneficiaryHint": "Checking a family member’s bill? Give them a name and it’s grouped on your dashboard. Leave empty if it’s for you."
   },
   "verify": {
     "title": "Verification before acting",
@@ -477,7 +579,15 @@
     "memberTitle": "Zakai {plan} member",
     "memberPro": "Reduced success fee (9%), up to 5 active cases, and a full scan of every charge.",
     "memberMax": "Zero fee — all savings stay yours. Unlimited cases and every capability unlocked.",
-    "memberManage": "Manage plan"
+    "memberManage": "Manage plan",
+    "checksMine": "My checks",
+    "checksFor": "{name}'s checks",
+    "feePay": "Pay fee",
+    "feePaying": "Redirecting…",
+    "feePayError": "Try again",
+    "feePaid": "paid",
+    "feePaidBanner": "Payment received — thank you! The fee was paid successfully.",
+    "feeErrorBanner": "Payment did not complete. You can try again from the fee below."
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",
@@ -528,8 +638,13 @@
       "deletion": "Full one-click account deletion",
       "verifiablePoa": "Publicly verifiable power of attorney"
     },
-    "legalLine": "Zakai is a consumer self-help tool. It is not a law firm, gives no legal advice, and does not represent you in any proceeding. The checks, calculators and letters are here to help you act for yourself.",
-    "business": "For business"
+    "legalLine": "Zakai is a consumer self-help tool. It is not a lawyer, does not provide legal advice, and does not represent you in any proceeding. The checks, calculators and letters are meant to help you act on your own. Zakai is not affiliated with or endorsed by the companies mentioned (Cellcom, Partner, Bezeq, HOT, yes, etc.) — their names are used for identification only.",
+    "business": "For business",
+    "results": "Results",
+    "faq": "FAQ",
+    "feedback": "Improve Zakai",
+    "whatAmIOwed": "What am I owed?",
+    "companies": "Zakai Score"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -552,7 +667,7 @@
   },
   "pricing": {
     "title": "Plans that only win when you save",
-    "subtitle": "Start free with a success fee only. Subscriptions buy the fee down — and on Max, every shekel saved stays yours.",
+    "subtitle": "Free to start — a fee only on documented savings. A subscription turns Zakai into your always-on money guard: re-checks every month, catches price creep, covers the whole family — and lowers the fee, down to 0% on Max.",
     "popular": "Best value",
     "freePrice": "₪0",
     "perMonth": "/month",
@@ -596,7 +711,8 @@
           "Full priority + first access to new features"
         ]
       }
-    }
+    },
+    "paymentComing": "Paid plans open the moment we connect billing. Leave it with us — you will be first to upgrade. (Downgrading to Free works now.)"
   },
   "scan": {
     "title": "What am I paying for?",
@@ -669,7 +785,10 @@
       "savedSoFar": "To dashboard",
       "invite": "Invite a friend",
       "recheck": "Re-check now"
-    }
+    },
+    "suggestTitle": "Common questions — tap to ask:",
+    "moreFaq": "See all FAQ",
+    "leaveFeedback": "Have an idea to improve?"
   },
   "electricity": {
     "title": "How much can you save on electricity?",
@@ -751,9 +870,9 @@
     },
     "euDelayOptions": {
       "1": "Up to 2 hours",
-      "2.5": "2–3 hours",
       "4": "3–5 hours",
-      "6": "Over 5 hours"
+      "6": "Over 5 hours",
+      "2.5": "2–3 hours"
     },
     "euTiers": {
       "short": "Up to 1,500 km (Cyprus, Athens)",
@@ -792,7 +911,7 @@
       "subs": "Subscriptions"
     },
     "cta": "Start getting it back",
-    "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results."
+    "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
   },
   "rights": {
     "title": "The Big Rights Check",
@@ -843,7 +962,8 @@
       "health": "Health",
       "work": "Work rights",
       "transport": "Transport",
-      "education": "Education"
+      "education": "Education",
+      "benefits": "Benefits & welfare"
     },
     "disclaimer": "General orientation only — not legal/tax advice; actual eligibility is decided by the competent authority. Amounts are conservative estimates; exact terms on official sites.",
     "items": {
@@ -1121,9 +1241,690 @@
         "title": "Mobility allowance",
         "desc": "Mobility impairment entitles a monthly allowance and car benefits.",
         "how": "Medical committee via the health bureau + National Insurance claim."
+      },
+      "us_eitc": {
+        "title": "Earned Income Tax Credit (EITC)",
+        "desc": "A refundable credit for low-to-moderate-income workers — worth thousands, yet millions who qualify never claim it.",
+        "how": "Claim on your federal tax return (IRS Free File); up to 3 years back."
+      },
+      "us_ctc": {
+        "title": "Child Tax Credit",
+        "desc": "Up to $2,000 per qualifying child, partly refundable.",
+        "how": "Claim on your federal return for each qualifying child."
+      },
+      "us_savers_credit": {
+        "title": "Saver's Credit",
+        "desc": "A tax credit just for contributing to a 401(k) or IRA on a modest income.",
+        "how": "File Form 8880 with your tax return."
+      },
+      "us_snap": {
+        "title": "SNAP (food assistance)",
+        "desc": "Monthly grocery benefits for low-income households.",
+        "how": "Apply through your state's SNAP agency."
+      },
+      "us_medicaid": {
+        "title": "Medicaid",
+        "desc": "Free or low-cost health coverage for eligible low-income individuals and families.",
+        "how": "Apply via your state Medicaid office or HealthCare.gov."
+      },
+      "us_aca_subsidy": {
+        "title": "ACA premium tax credit",
+        "desc": "Marketplace subsidies can cut monthly health-insurance premiums sharply — many overpay by not checking.",
+        "how": "Compare plans and subsidies at HealthCare.gov during open enrollment."
+      },
+      "us_unemployment": {
+        "title": "Unemployment insurance",
+        "desc": "Weekly income replacement after losing a job through no fault of your own.",
+        "how": "File with your state's unemployment office as soon as you're out of work."
+      },
+      "us_ssdi": {
+        "title": "Disability benefits (SSDI / SSI)",
+        "desc": "Monthly payments for people unable to work due to a disability.",
+        "how": "Apply online with the Social Security Administration (ssa.gov)."
+      },
+      "us_social_security": {
+        "title": "Social Security retirement",
+        "desc": "Retirement income based on your work history; timing your claim changes the amount.",
+        "how": "Check your estimate and apply at ssa.gov."
+      },
+      "us_liheap": {
+        "title": "LIHEAP energy assistance",
+        "desc": "Help paying heating and cooling bills for low-income households.",
+        "how": "Apply through your state's LIHEAP program."
+      },
+      "us_section8": {
+        "title": "Housing Choice Voucher (Section 8)",
+        "desc": "Rental assistance that caps your housing cost at a share of income.",
+        "how": "Apply through your local Public Housing Agency (waitlists apply)."
+      },
+      "us_pell_grant": {
+        "title": "Pell Grant",
+        "desc": "Federal college aid you don't repay, for undergraduates with financial need.",
+        "how": "Submit the FAFSA at studentaid.gov."
+      },
+      "us_lifeline": {
+        "title": "Lifeline phone/internet discount",
+        "desc": "A monthly discount on phone or broadband for eligible low-income households.",
+        "how": "Check eligibility and apply at lifelinesupport.org."
+      },
+      "us_401k_match": {
+        "title": "401(k) employer match",
+        "desc": "Free money: many employers match retirement contributions — not contributing enough leaves it on the table.",
+        "how": "Set your contribution to at least the full match with your HR/plan provider."
+      },
+      "us_free_credit_report": {
+        "title": "Free credit reports",
+        "desc": "By law you can get free reports from all three bureaus — spotting errors can save real money.",
+        "how": "Get them at annualcreditreport.com."
+      },
+      "uk_universal_credit": {
+        "title": "Universal Credit",
+        "desc": "The main monthly payment for people on a low income or out of work.",
+        "how": "Apply on GOV.UK; it replaces six older benefits."
+      },
+      "uk_child_benefit": {
+        "title": "Child Benefit",
+        "desc": "A regular payment for anyone responsible for a child — worth claiming even at higher incomes for the NI credit.",
+        "how": "Claim on GOV.UK; can be backdated 3 months."
+      },
+      "uk_marriage_allowance": {
+        "title": "Marriage Allowance",
+        "desc": "A couple can transfer part of a personal tax allowance and cut their tax bill.",
+        "how": "Apply free on GOV.UK; can be backdated 4 years."
+      },
+      "uk_council_tax_reduction": {
+        "title": "Council Tax Reduction",
+        "desc": "Up to a full discount on Council Tax for low-income or eligible households.",
+        "how": "Apply through your local council."
+      },
+      "uk_jsa": {
+        "title": "Jobseeker's Allowance",
+        "desc": "Support while you look for work, based on your National Insurance record.",
+        "how": "Apply on GOV.UK."
+      },
+      "uk_state_pension": {
+        "title": "State Pension",
+        "desc": "Regular retirement income; you can also check for gaps and top up NI years.",
+        "how": "Check your forecast and claim on GOV.UK."
+      },
+      "uk_pip": {
+        "title": "Personal Independence Payment (PIP)",
+        "desc": "Help with extra costs of a long-term health condition or disability.",
+        "how": "Start a claim on GOV.UK."
+      },
+      "uk_winter_fuel": {
+        "title": "Winter Fuel Payment",
+        "desc": "A payment to help older people with heating costs in winter.",
+        "how": "Most eligible people are paid automatically; check GOV.UK."
+      },
+      "uk_warm_home_discount": {
+        "title": "Warm Home Discount",
+        "desc": "A one-off discount off your electricity bill for eligible low-income households.",
+        "how": "Usually applied by your energy supplier; check eligibility on GOV.UK."
+      },
+      "uk_housing_benefit": {
+        "title": "Housing support",
+        "desc": "Help paying rent for those on a low income (via Universal Credit or Housing Benefit).",
+        "how": "Apply on GOV.UK or through your council."
+      },
+      "uk_free_childcare": {
+        "title": "Free childcare hours",
+        "desc": "Funded childcare hours for working parents of young children.",
+        "how": "Apply through Childcare Choices on GOV.UK."
+      },
+      "uk_student_finance": {
+        "title": "Student finance & grants",
+        "desc": "Tuition and maintenance loans, plus grants for eligible students.",
+        "how": "Apply through Student Finance on GOV.UK."
+      },
+      "uk_pension_auto_enrolment": {
+        "title": "Workplace pension (auto-enrolment)",
+        "desc": "Your employer must contribute to your pension — opting out gives up free money.",
+        "how": "Stay enrolled; check contributions with your employer."
+      },
+      "uk_free_prescriptions": {
+        "title": "Free prescriptions & NHS help",
+        "desc": "Free prescriptions, dental and eye care for eligible groups (age, income, conditions).",
+        "how": "Check entitlement on the NHS website; ask for an HC1 form for low income."
+      },
+      "uk_help_to_save": {
+        "title": "Help to Save",
+        "desc": "A government savings account paying a 50% bonus for people on low incomes.",
+        "how": "Open an account on GOV.UK."
+      },
+      "de_buergergeld": {
+        "title": "Bürgergeld (basic income support)",
+        "desc": "Germany's main support for people on a low income or out of work (replaced Hartz IV).",
+        "how": "Apply at your local Jobcenter."
+      },
+      "de_arbeitslosengeld": {
+        "title": "Arbeitslosengeld I (unemployment)",
+        "desc": "Insurance-based income after losing a job, based on your contributions.",
+        "how": "Register as unemployed with the Bundesagentur für Arbeit."
+      },
+      "de_kindergeld": {
+        "title": "Kindergeld (child benefit)",
+        "desc": "A monthly payment for every child, regardless of income.",
+        "how": "Apply at the Familienkasse."
+      },
+      "de_kinderzuschlag": {
+        "title": "Kinderzuschlag (child supplement)",
+        "desc": "An extra payment on top of Kindergeld for lower-income working families.",
+        "how": "Apply at the Familienkasse."
+      },
+      "de_elterngeld": {
+        "title": "Elterngeld (parental allowance)",
+        "desc": "Income replacement for parents caring for a newborn.",
+        "how": "Apply at your regional Elterngeldstelle."
+      },
+      "de_wohngeld": {
+        "title": "Wohngeld (housing benefit)",
+        "desc": "Help with rent for lower-income households.",
+        "how": "Apply at your local Wohngeldstelle."
+      },
+      "de_bafog": {
+        "title": "BAföG (student support)",
+        "desc": "Financial aid for students; often half grant, half interest-free loan.",
+        "how": "Apply at your school/university's BAföG office."
+      },
+      "de_gesetzliche_rente": {
+        "title": "Gesetzliche Rente (state pension)",
+        "desc": "Retirement income from the statutory pension insurance.",
+        "how": "Check your record and apply at Deutsche Rentenversicherung."
+      },
+      "de_pflegegrad": {
+        "title": "Pflegeversicherung (care benefits)",
+        "desc": "Benefits for people needing long-term care, by care level (Pflegegrad).",
+        "how": "Apply through your health insurer's care fund (Pflegekasse)."
+      },
+      "de_schwerbehinderung": {
+        "title": "Schwerbehindertenausweis (disability card)",
+        "desc": "A recognised disability brings tax relief, transport discounts and job protections.",
+        "how": "Apply at your regional Versorgungsamt."
+      },
+      "de_bildung_teilhabe": {
+        "title": "Bildung und Teilhabe (education package)",
+        "desc": "Covers school, activity and meal costs for children in low-income families.",
+        "how": "Apply at your local Jobcenter or Sozialamt."
+      },
+      "de_rundfunk_befreiung": {
+        "title": "Rundfunkbeitrag exemption",
+        "desc": "Exemption or reduction of the broadcasting fee for those on benefits or with a disability.",
+        "how": "Apply to the ARD ZDF Deutschlandradio Beitragsservice."
+      },
+      "de_riester_zulage": {
+        "title": "Riester-Zulage (pension subsidy)",
+        "desc": "Government top-ups and tax relief on a subsidised private pension.",
+        "how": "Open a certified Riester contract; claim the Zulage via your provider."
+      },
+      "de_krankenversicherung": {
+        "title": "Statutory health insurance",
+        "desc": "Comprehensive health cover; you can also switch funds to cut your Zusatzbeitrag.",
+        "how": "Compare and switch your gesetzliche Krankenkasse."
+      },
+      "de_schufa_auskunft": {
+        "title": "Free SCHUFA credit report",
+        "desc": "By law you can get one free copy of your credit data a year — spot and fix errors.",
+        "how": "Request the free Datenkopie (Art. 15 GDPR) from SCHUFA."
+      },
+      "ca_gst_credit": {
+        "title": "GST/HST Credit",
+        "desc": "A tax-free quarterly payment for low-and-modest-income individuals.",
+        "how": "Automatic when you file your taxes with the CRA."
+      },
+      "ca_canada_child_benefit": {
+        "title": "Canada Child Benefit",
+        "desc": "A tax-free monthly payment for families raising children under 18.",
+        "how": "Apply through the CRA."
+      },
+      "ca_canada_workers_benefit": {
+        "title": "Canada Workers Benefit",
+        "desc": "A refundable credit topping up low-income workers' earnings.",
+        "how": "Claim on your tax return."
+      },
+      "ca_ei": {
+        "title": "Employment Insurance",
+        "desc": "Temporary income after losing a job, plus sickness/parental benefits.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_oas": {
+        "title": "Old Age Security",
+        "desc": "A monthly pension for seniors aged 65+.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_gis": {
+        "title": "Guaranteed Income Supplement",
+        "desc": "Extra monthly money for low-income OAS pensioners.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_cpp": {
+        "title": "Canada Pension Plan",
+        "desc": "Retirement, disability and survivor pensions based on contributions.",
+        "how": "Apply with Service Canada."
+      },
+      "ca_disability_tax_credit": {
+        "title": "Disability Tax Credit",
+        "desc": "A tax credit reducing income tax for people with a disability.",
+        "how": "Certify with Form T2201 to the CRA."
+      },
+      "ca_housing_benefit": {
+        "title": "Canada Housing Benefit",
+        "desc": "Rent support for low-income renters (province-administered).",
+        "how": "Apply through your province."
+      },
+      "ca_student_grants": {
+        "title": "Canada Student Grants",
+        "desc": "Non-repayable grants for post-secondary students in need.",
+        "how": "Apply via your province's student aid."
+      },
+      "ca_childcare": {
+        "title": "$10-a-day child care",
+        "desc": "Reduced-fee licensed child care under the national plan.",
+        "how": "Enroll at a participating provider."
+      },
+      "au_family_tax_benefit": {
+        "title": "Family Tax Benefit",
+        "desc": "A payment to help with the cost of raising children.",
+        "how": "Claim through Services Australia (Centrelink)."
+      },
+      "au_jobseeker": {
+        "title": "JobSeeker Payment",
+        "desc": "Income support while you look for work.",
+        "how": "Claim through Centrelink."
+      },
+      "au_age_pension": {
+        "title": "Age Pension",
+        "desc": "Income support for older Australians.",
+        "how": "Claim through Centrelink."
+      },
+      "au_disability_support_pension": {
+        "title": "Disability Support Pension",
+        "desc": "Support for those with a permanent condition limiting work.",
+        "how": "Claim through Centrelink."
+      },
+      "au_rent_assistance": {
+        "title": "Commonwealth Rent Assistance",
+        "desc": "Extra payment for renters already on a benefit.",
+        "how": "Automatic with an eligible payment."
+      },
+      "au_childcare_subsidy": {
+        "title": "Child Care Subsidy",
+        "desc": "Government contribution to child care fees for working families.",
+        "how": "Claim through Centrelink."
+      },
+      "au_youth_allowance": {
+        "title": "Youth Allowance",
+        "desc": "Support for students and young job seekers.",
+        "how": "Claim through Centrelink."
+      },
+      "au_low_income_card": {
+        "title": "Low Income Health Care Card",
+        "desc": "Cheaper medicines and concessions for low-income earners.",
+        "how": "Claim through Centrelink."
+      },
+      "au_parenting_payment": {
+        "title": "Parenting Payment",
+        "desc": "Main income support for the principal carer of a young child.",
+        "how": "Claim through Centrelink."
+      },
+      "au_superannuation": {
+        "title": "Superannuation (find lost super)",
+        "desc": "Employers must pay super; billions sit in lost/unclaimed accounts.",
+        "how": "Consolidate via myGov/ATO."
+      },
+      "fr_rsa": {
+        "title": "RSA (revenu de solidarité active)",
+        "desc": "Minimum income for people with little or no resources.",
+        "how": "Apply at your CAF."
+      },
+      "fr_prime_activite": {
+        "title": "Prime d'activité",
+        "desc": "A monthly top-up for low-paid workers.",
+        "how": "Apply at your CAF."
+      },
+      "fr_allocations_familiales": {
+        "title": "Allocations familiales",
+        "desc": "Family payments for households with children.",
+        "how": "Apply at your CAF."
+      },
+      "fr_apl": {
+        "title": "APL (aide au logement)",
+        "desc": "Housing benefit that lowers your rent.",
+        "how": "Apply at your CAF."
+      },
+      "fr_chomage": {
+        "title": "Allocation chômage (ARE)",
+        "desc": "Unemployment income based on prior work.",
+        "how": "Register with France Travail."
+      },
+      "fr_retraite": {
+        "title": "Retraite (pension)",
+        "desc": "State retirement pension based on your career.",
+        "how": "Apply via l'Assurance retraite."
+      },
+      "fr_aah": {
+        "title": "AAH (allocation adulte handicapé)",
+        "desc": "Income for adults with a disability.",
+        "how": "Apply at your MDPH."
+      },
+      "fr_paje": {
+        "title": "PAJE",
+        "desc": "Support for young children (birth grant, base allowance).",
+        "how": "Apply at your CAF."
+      },
+      "fr_bourse": {
+        "title": "Bourse étudiante",
+        "desc": "Means-tested student grants.",
+        "how": "Apply via CROUS."
+      },
+      "fr_cheque_energie": {
+        "title": "Chèque énergie",
+        "desc": "A voucher to help pay energy bills.",
+        "how": "Sent automatically based on your tax return."
+      },
+      "ie_child_benefit": {
+        "title": "Child Benefit",
+        "desc": "A monthly payment for each child under 16 (or 18 in education).",
+        "how": "Apply to the DSP."
+      },
+      "ie_jobseekers": {
+        "title": "Jobseeker's Allowance/Benefit",
+        "desc": "Income while unemployed and seeking work.",
+        "how": "Apply to the DSP / Intreo."
+      },
+      "ie_state_pension": {
+        "title": "State Pension",
+        "desc": "Retirement pension (contributory or non-contributory).",
+        "how": "Apply to the DSP."
+      },
+      "ie_disability_allowance": {
+        "title": "Disability Allowance",
+        "desc": "A weekly payment for people with a disability.",
+        "how": "Apply to the DSP."
+      },
+      "ie_hap": {
+        "title": "Housing Assistance Payment",
+        "desc": "Rent support for those with a long-term housing need.",
+        "how": "Apply through your local authority."
+      },
+      "ie_working_family_payment": {
+        "title": "Working Family Payment",
+        "desc": "A top-up for low-paid workers with children.",
+        "how": "Apply to the DSP."
+      },
+      "ie_fuel_allowance": {
+        "title": "Fuel Allowance",
+        "desc": "A winter payment towards heating costs.",
+        "how": "Apply to the DSP."
+      },
+      "ie_susi_grant": {
+        "title": "SUSI student grant",
+        "desc": "Maintenance and fee grants for eligible students.",
+        "how": "Apply via SUSI."
+      },
+      "ie_medical_card": {
+        "title": "Medical Card",
+        "desc": "Free GP care, prescriptions and hospital services.",
+        "how": "Apply to the HSE."
+      },
+      "ie_back_to_school": {
+        "title": "Back to School Allowance",
+        "desc": "Help with school clothing and footwear costs.",
+        "how": "Apply to the DSP."
+      },
+      "nl_zorgtoeslag": {
+        "title": "Zorgtoeslag (healthcare allowance)",
+        "desc": "Help paying your mandatory health-insurance premium.",
+        "how": "Apply at the Belastingdienst/Toeslagen."
+      },
+      "nl_huurtoeslag": {
+        "title": "Huurtoeslag (rent benefit)",
+        "desc": "A contribution towards your rent if it's high relative to income.",
+        "how": "Apply at the Belastingdienst."
+      },
+      "nl_kinderbijslag": {
+        "title": "Kinderbijslag (child benefit)",
+        "desc": "A quarterly payment for parents of children under 18.",
+        "how": "Apply at the SVB."
+      },
+      "nl_kindgebonden_budget": {
+        "title": "Kindgebonden budget",
+        "desc": "An extra child allowance for lower-income families.",
+        "how": "Often automatic via the Belastingdienst."
+      },
+      "nl_ww": {
+        "title": "WW (unemployment benefit)",
+        "desc": "Income after losing your job, based on work history.",
+        "how": "Apply at the UWV."
+      },
+      "nl_aow": {
+        "title": "AOW (state pension)",
+        "desc": "The Dutch state pension from retirement age.",
+        "how": "Apply at the SVB."
+      },
+      "nl_bijstand": {
+        "title": "Bijstand (social assistance)",
+        "desc": "A safety-net income for those who can't support themselves.",
+        "how": "Apply at your municipality (gemeente)."
+      },
+      "nl_wia": {
+        "title": "WIA (work & income disability)",
+        "desc": "Income if illness/disability limits your work.",
+        "how": "Apply at the UWV."
+      },
+      "nl_studiefinanciering": {
+        "title": "Studiefinanciering",
+        "desc": "Student grants and loans for higher education.",
+        "how": "Apply at DUO."
+      },
+      "nl_kinderopvangtoeslag": {
+        "title": "Kinderopvangtoeslag",
+        "desc": "Childcare allowance for working parents.",
+        "how": "Apply at the Belastingdienst."
+      },
+      "es_ingreso_minimo_vital": {
+        "title": "Ingreso Mínimo Vital",
+        "desc": "A guaranteed minimum income for households in need.",
+        "how": "Apply to the Seguridad Social."
+      },
+      "es_prestacion_desempleo": {
+        "title": "Prestación por desempleo",
+        "desc": "Unemployment benefit based on contributions.",
+        "how": "Apply to the SEPE."
+      },
+      "es_pension_jubilacion": {
+        "title": "Pensión de jubilación",
+        "desc": "State retirement pension.",
+        "how": "Apply to the Seguridad Social."
+      },
+      "es_ayuda_familia": {
+        "title": "Ayudas por hijo/familia",
+        "desc": "Family and child support payments.",
+        "how": "Apply to the Seguridad Social."
+      },
+      "es_ingreso_discapacidad": {
+        "title": "Prestaciones por discapacidad",
+        "desc": "Benefits for people with a recognised disability.",
+        "how": "Apply to the IMSERSO / regional body."
+      },
+      "es_bono_social_electrico": {
+        "title": "Bono Social eléctrico",
+        "desc": "A discount on your electricity bill for eligible households.",
+        "how": "Apply through your electricity supplier."
+      },
+      "es_becas": {
+        "title": "Becas para estudiantes",
+        "desc": "Means-tested education grants.",
+        "how": "Apply via the Ministerio de Educación."
+      },
+      "es_ayuda_alquiler": {
+        "title": "Ayuda al alquiler",
+        "desc": "Rent assistance for low-income tenants.",
+        "how": "Apply through your autonomous community."
+      },
+      "es_prestacion_hijo": {
+        "title": "Complemento de ayuda para la infancia",
+        "desc": "A child supplement within the Ingreso Mínimo Vital.",
+        "how": "Apply to the Seguridad Social."
+      },
+      "it_assegno_unico": {
+        "title": "Assegno Unico Universale",
+        "desc": "A single monthly allowance for families with children.",
+        "how": "Apply on the INPS website."
+      },
+      "it_naspi": {
+        "title": "NASpI (unemployment)",
+        "desc": "Monthly unemployment benefit after involuntary job loss.",
+        "how": "Apply on the INPS website."
+      },
+      "it_pensione": {
+        "title": "Pensione (state pension)",
+        "desc": "Retirement pension based on contributions.",
+        "how": "Apply through INPS."
+      },
+      "it_assegno_inclusione": {
+        "title": "Assegno di Inclusione",
+        "desc": "Income support for low-income households (replaced Reddito di Cittadinanza).",
+        "how": "Apply through INPS."
+      },
+      "it_bonus_sociale": {
+        "title": "Bonus sociale (bills)",
+        "desc": "An automatic discount on electricity, gas and water bills.",
+        "how": "Automatic via your ISEE; check INPS."
+      },
+      "it_invalidita": {
+        "title": "Invalidità civile",
+        "desc": "Benefits for people with a recognised disability.",
+        "how": "Apply through INPS."
+      },
+      "it_bonus_nido": {
+        "title": "Bonus asilo nido",
+        "desc": "A contribution towards nursery fees for young children.",
+        "how": "Apply on the INPS website."
+      },
+      "it_borse_studio": {
+        "title": "Borse di studio",
+        "desc": "Means-tested student grants.",
+        "how": "Apply through your region / university."
+      },
+      "it_contributo_affitto": {
+        "title": "Contributo affitto",
+        "desc": "Rent support for low-income tenants.",
+        "how": "Apply through your comune."
+      },
+      "it_detrazioni": {
+        "title": "Detrazioni fiscali",
+        "desc": "Tax deductions many workers never fully claim.",
+        "how": "Claim in your annual tax return (730/Redditi)."
+      },
+      "se_barnbidrag": {
+        "title": "Barnbidrag (child allowance)",
+        "desc": "A monthly allowance for every child.",
+        "how": "Usually automatic via Försäkringskassan."
+      },
+      "se_akassa": {
+        "title": "A-kassa (unemployment)",
+        "desc": "Income-based unemployment insurance.",
+        "how": "Join an a-kassa and claim when unemployed."
+      },
+      "se_garantipension": {
+        "title": "Garantipension",
+        "desc": "A guaranteed minimum state pension.",
+        "how": "Apply through Pensionsmyndigheten."
+      },
+      "se_bostadsbidrag": {
+        "title": "Bostadsbidrag (housing allowance)",
+        "desc": "Help with rent for lower-income households and young people.",
+        "how": "Apply through Försäkringskassan."
+      },
+      "se_sjukersattning": {
+        "title": "Sjukersättning",
+        "desc": "Income for those whose work capacity is permanently reduced.",
+        "how": "Apply through Försäkringskassan."
+      },
+      "se_studiemedel": {
+        "title": "Studiemedel (CSN)",
+        "desc": "Student grants and loans for higher studies.",
+        "how": "Apply through CSN."
+      },
+      "se_forsorjningsstod": {
+        "title": "Försörjningsstöd",
+        "desc": "Last-resort income support from your municipality.",
+        "how": "Apply through your kommun."
+      },
+      "se_foraldrapenning": {
+        "title": "Föräldrapenning",
+        "desc": "Paid parental leave for parents of young children.",
+        "how": "Apply through Försäkringskassan."
+      },
+      "se_bostadstillagg": {
+        "title": "Bostadstillägg",
+        "desc": "A housing supplement for low-income pensioners.",
+        "how": "Apply through Pensionsmyndigheten."
+      },
+      "pl_rodzina_800": {
+        "title": "Rodzina 800+",
+        "desc": "A monthly child benefit for every child.",
+        "how": "Apply on gov.pl / through ZUS."
+      },
+      "pl_zasilek_bezrobotny": {
+        "title": "Zasiłek dla bezrobotnych",
+        "desc": "Unemployment benefit after registering as jobless.",
+        "how": "Register at your local labour office."
+      },
+      "pl_emerytura": {
+        "title": "Emerytura (pension)",
+        "desc": "State retirement pension based on contributions.",
+        "how": "Apply through ZUS."
+      },
+      "pl_dodatek_mieszkaniowy": {
+        "title": "Dodatek mieszkaniowy",
+        "desc": "Housing allowance for lower-income households.",
+        "how": "Apply through your gmina."
+      },
+      "pl_swiadczenie_pielegnacyjne": {
+        "title": "Świadczenie pielęgnacyjne",
+        "desc": "A benefit for carers of a person with a disability.",
+        "how": "Apply through your local office."
+      },
+      "pl_stypendium": {
+        "title": "Stypendium",
+        "desc": "Student grants and scholarships.",
+        "how": "Apply through your university."
+      },
+      "pl_zasilek_rodzinny": {
+        "title": "Zasiłek rodzinny",
+        "desc": "A family allowance for low-income households with children.",
+        "how": "Apply through your gmina."
+      },
+      "pl_dodatek_oslonowy": {
+        "title": "Dodatek osłonowy",
+        "desc": "A shielding allowance towards energy costs.",
+        "how": "Apply through your gmina."
+      },
+      "pl_500_niepelnosprawni": {
+        "title": "500+ dla niepełnosprawnych",
+        "desc": "A supplementary benefit for people unable to live independently.",
+        "how": "Apply through ZUS."
       }
     },
-    "moreInfo": "Full details on Kol-Zchut →"
+    "moreInfo": "Full details on Kol-Zchut →",
+    "country": "Country",
+    "countries": {
+      "IL": "Israel",
+      "US": "United States",
+      "UK": "United Kingdom",
+      "DE": "Germany",
+      "CA": "Canada",
+      "AU": "Australia",
+      "FR": "France",
+      "IE": "Ireland",
+      "NL": "Netherlands",
+      "ES": "Spain",
+      "IT": "Italy",
+      "SE": "Sweden",
+      "PL": "Poland"
+    }
   },
   "legalPages": {
     "termsTitle": "Terms of Service",
@@ -1297,7 +2098,28 @@
       "Attach the 106 forms from every employer that year.",
       "Other refund reasons: pension/study-fund deposits, donations to recognized institutions, unused credit points (degree, immigrant, discharged soldier, children)."
     ],
-    "disclaimer": "The estimate is based on the 2026 brackets and credit-point value and the data you enter, and covers only the 'worked part of the year' reason. It excludes other reasons, other income and personal deductions, and is not tax advice. The binding amount is set by the Tax Authority."
+    "disclaimer": "The estimate is based on the 2026 brackets and credit-point value and the data you enter, and covers only the 'worked part of the year' reason. It excludes other reasons, other income and personal deductions, and is not tax advice. The binding amount is set by the Tax Authority.",
+    "check": {
+      "title": "Quick check: do you likely have a tax refund waiting?",
+      "sub": "Tick anything true for you in the last 6 years. Each item is a common reason for a refund.",
+      "triggers": [
+        "Worked only part of the year (started/left mid-year, or a student)",
+        "Changed jobs or worked several jobs at once",
+        "Had a period of unemployment, unpaid leave or maternity leave",
+        "Had a child (parent credit points)",
+        "Was discharged from military/national service in the last 6 years",
+        "Donated to a recognized institution (Section 46 credit)",
+        "Made independent pension or study-fund deposits",
+        "You or a family member has a recognized disability",
+        "New immigrant or returning resident",
+        "Withdrew money from a provident or severance fund",
+        "Lived in a tax-benefit locality (periphery)",
+        "Completed an academic degree (graduate credit)"
+      ],
+      "none": "Nothing ticked — you might still be owed. Worth checking the calculator below.",
+      "hit": "Good sign! {n} of these apply to you — you likely have a refund waiting. You can file up to 6 years back.",
+      "hitCta": "Check how much — calculator below"
+    }
   },
   "install": {
     "title": "Install Zakai",
@@ -1443,7 +2265,9 @@
     "copied": "Copied ✓",
     "msgEntitlements": "I checked on Zakai and found {count} rights I'm owed 💰 How much are you owed? (free, a minute)",
     "msgPayslip": "I checked my payslip on Zakai and money might be missing 😮 Check yours free:",
-    "msgTax": "Zakai showed I might be owed a tax refund 💸 Check how much you're owed, free:"
+    "msgTax": "Zakai showed I might be owed a tax refund 💸 Check how much you're owed, free:",
+    "msgReferral": "I found Zakai — a free app that finds money you are owed (tax refunds, rights, savings). Worth a look:",
+    "msgSaved": "Zakai found me {amount}/mo I was owed back 🤯 a free app that checks how much money you are owed — worth a look:"
   },
   "deals": {
     "title": "Deals & benefits — money you can save now",
@@ -1583,5 +2407,1007 @@
       "plan": "Upgrade your plan (lower fee)",
       "invite": "Invite a friend for credit"
     }
+  },
+  "results": {
+    "metaTitle": "Results & transparency — Zakai",
+    "metaDesc": "How much Zakai has identified and recovered, and how every shekel is documented and proven. Real numbers from the ledger, no promises.",
+    "kicker": "Full transparency",
+    "title": "Every shekel — documented, proven, verifiable",
+    "subStarted": "These are real numbers from Zakai's proof ledger — not estimates, not promises. Every saving here is backed by a before-and-after bill.",
+    "subEmpty": "Zakai is just getting started, and we don't fake numbers. Instead of invented 'success stories', here's exactly how every shekel we recover gets documented and proven. Be among the first.",
+    "stats": {
+      "documented": "Documented monthly savings",
+      "count": "Proven savings",
+      "checks": "Checks run",
+      "potential": "Monthly potential identified",
+      "note": "Numbers are pulled automatically from the append-only proof ledger — never typed in by hand."
+    },
+    "proof": {
+      "title": "How we prove every shekel",
+      "intro": "The mechanism that separates a 'promise' from 'proof' — and why we only charge a fee on real savings.",
+      "steps": [
+        {
+          "title": "The 'before' snapshot",
+          "body": "Your original bill amount is captured the moment you run a check — a starting point that can't be changed after the fact."
+        },
+        {
+          "title": "The 'after' snapshot",
+          "body": "Once the price drops, the new bill documents the new amount. The difference is your saving — not an estimate."
+        },
+        {
+          "title": "Append-only ledger",
+          "body": "Every proof of saving is written to a ledger that's only ever added to, never edited. It's the record of truth you can check too."
+        },
+        {
+          "title": "Fee only on savings + 14-day appeal",
+          "body": "No documented saving, no fee. And if something looks off, you have 14 days to dispute any charge."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Be among the first Zakai gets money back for",
+      "body": "A first check takes a minute and is completely free. If we don't find you a saving — you pay nothing, and that's perfectly fine.",
+      "primary": "Free check",
+      "secondary": "What am I owed?"
+    },
+    "disclaimer": "Zakai is a consumer self-help tool. It is not a lawyer, accountant or professional advice, and does not promise any outcome or amount. Every check depends on the data you enter and the provider's policy."
+  },
+  "faqPage": {
+    "metaTitle": "FAQ — Zakai",
+    "metaDesc": "Clear answers to the common questions about Zakai: cost, trust, rights, pay, savings and privacy.",
+    "kicker": "FAQ",
+    "title": "Everything you wanted to ask — answered",
+    "sub": "These answers grow from real user questions and also power the smart assistant — so everything stays correct, consistent and up to date.",
+    "more": {
+      "title": "Didn’t find your answer?",
+      "body": "Zakai’s assistant answers personal questions based on your situation — with the same vetted answers.",
+      "askBtn": "Ask the assistant",
+      "checkBtn": "Free check"
+    }
+  },
+  "lostMoney": {
+    "metaTitle": "Lost money — dormant pensions & insurance | Zakai",
+    "metaDesc": "Billions of shekels sit in lost pension, insurance and savings accounts in Israel. Here is how to check if some of it is yours — with the free official tools.",
+    "kicker": "Money already yours",
+    "title": "You may have lost money — and not even know it",
+    "sub": "Billions of shekels sit in forgotten pension funds, insurance policies, provident funds and bank accounts across Israel. Some of it could be yours or your family's. Here is exactly where to check — with the state's free official tools.",
+    "sources": [
+      {
+        "icon": "⛰️",
+        "title": "Har HaKesef",
+        "body": "The Finance Ministry's official search for pension accounts, provident funds, study funds and managers' insurance in your name — including ones forgotten from old employers.",
+        "cta": "Search Har HaKesef",
+        "url": "https://itur.mof.gov.il/"
+      },
+      {
+        "icon": "🛡️",
+        "title": "Har HaBituach",
+        "body": "Find every active insurance policy in your name — life, health, long-term care. People often discover they pay twice for the same cover.",
+        "cta": "Search Har HaBituach",
+        "url": "https://harb.cma.gov.il/"
+      },
+      {
+        "icon": "🏦",
+        "title": "Dormant bank accounts",
+        "body": "The Bank of Israel runs a search for dormant accounts and deposits — money that sat untouched for years and can be withdrawn.",
+        "cta": "Find dormant accounts",
+        "url": "https://www.boi.org.il/"
+      },
+      {
+        "icon": "👛",
+        "title": "National Insurance rights",
+        "body": "Sometimes benefits or grants go unclaimed. Check with National Insurance what is open in your name.",
+        "cta": "Go to Bituach Leumi",
+        "url": "https://www.btl.gov.il/"
+      }
+    ],
+    "howTitle": "How to actually claim it",
+    "steps": [
+      "Have your ID ready and log in with government identification — all official tools require identity verification.",
+      "Search each tool — Har HaKesef, Har HaBituach and dormant accounts — for yourself and, with their consent, for family members.",
+      "Found an account? Contact the body that manages it (insurer, investment house or bank) to withdraw or consolidate.",
+      "Consider consolidating scattered pension funds — lower fees, more money that stays with you."
+    ],
+    "cta": {
+      "title": "Want to know what else you are owed?",
+      "body": "Beyond lost money, there are dozens of rights and refunds you can claim. A short quiz shows what is relevant to you.",
+      "primary": "What am I owed?",
+      "secondary": "Check a bill"
+    },
+    "disclaimer": "Zakai points you to the state's free official tools and does not charge for it. We have no access to your accounts, and this is not pension or financial advice — the search and withdrawal are done by you with the official bodies."
+  },
+  "baggage": {
+    "metaTitle": "Delayed or lost baggage? You're owed compensation | Zakai",
+    "metaDesc": "Under the Montreal Convention you may be owed up to ~$2,175 for baggage delay or loss. Most travelers never claim it. Here's how to claim right.",
+    "kicker": "Money the law owes you",
+    "title": "Baggage delayed or lost? You're owed far more than you think",
+    "sub": "Almost every international flight is covered by the Montreal Convention, which entitles you to compensation for expenses caused by baggage delay or loss. Airlines offer a small voucher — but you're owed much more.",
+    "capLabel": "Montreal Convention compensation cap",
+    "capAmount": "up to ~$2,175",
+    "capNote": "(1,519 SDR) per passenger — for essential expenses caused by the delay or loss. It's a cap, not a fixed sum; you claim actual expenses.",
+    "rightsTitle": "What you're owed",
+    "rights": [
+      "Reimbursement for essential purchases (clothes, toiletries) you had to make while your bag was delayed — up to the cap.",
+      "Total loss of a bag (usually after 21 days) entitles you to compensation for the full contents, up to the cap.",
+      "A refund of baggage fees you paid if the service wasn't properly provided.",
+      "The right stands on its own — even if the airline offered you a voucher or small 'goodwill' payment."
+    ],
+    "stepsTitle": "How to claim right",
+    "steps": [
+      "At the airport immediately: file a Property Irregularity Report (PIR) at the airline desk. Without that number claiming is hard.",
+      "Keep every receipt for essential purchases made because of the delay — photograph them.",
+      "Submit a written compensation claim to the airline with the PIR and receipts, within the Convention's window (21 days for delay).",
+      "Don't sign a 'full and final' settlement for a low sum before checking what you're owed on actual expenses."
+    ],
+    "trapsTitle": "The airlines' tricks",
+    "traps": [
+      "They present an internal '~$50/day guideline' as if it's the legal cap — it isn't. The cap is far higher.",
+      "They treat a reimbursement as an 'advance' and deduct it from the final payout — insist it's separate.",
+      "They demand original receipts only and reject photos — keep both the original and a digital copy."
+    ],
+    "cta": {
+      "title": "Flew recently? Check compensation for the flight delay too",
+      "body": "Beyond baggage, a delay or cancellation of the flight itself can entitle you to hundreds of euros more under EC261 and Israel's Aviation Services Law.",
+      "primary": "Check flight compensation",
+      "secondary": "FAQ"
+    },
+    "disclaimer": "Zakai is a self-help tool, not legal advice. Compensation depends on circumstances, route and carrier policy, and is not guaranteed. The Montreal Convention applies to most international flights; check your flight details."
+  },
+  "bankFees": {
+    "metaTitle": "Bank fees & late charges — how to get them waived | Zakai",
+    "metaDesc": "Households pay hundreds a year in bank fees that can be reduced or waived. Here's how to ask, with a ready-to-send letter.",
+    "kicker": "Money sitting in your account",
+    "title": "You're paying bank fees you could simply cancel",
+    "sub": "Transaction fees, account fees, overdraft charges and late-payment interest add up to hundreds a year. Most banks have a waiver policy on request — but only if you ask. Here's how, with a ready letter.",
+    "feesTitle": "Fees worth checking",
+    "fees": [
+      {
+        "name": "Teller / transaction fees",
+        "note": "You can usually move to a cheaper fixed fee plan, or waive fees on actions you can do yourself in the app."
+      },
+      {
+        "name": "Account / securities management fees",
+        "note": "Negotiable, especially for a long-standing customer or one considering switching banks."
+      },
+      {
+        "name": "Overdraft / late-payment interest",
+        "note": "A one-time goodwill waiver is often granted if you have a clean payment history."
+      },
+      {
+        "name": "FX conversion & card-abroad fees",
+        "note": "Compare no-conversion-fee plans/cards — the gap adds up on every trip."
+      }
+    ],
+    "stepsTitle": "How to request a waiver",
+    "steps": [
+      "Download your recent months' fee breakdown (in the bank's site/app) and mark the anomalies.",
+      "Write to the bank's customer service or via the app — in writing it's documented and easier to escalate.",
+      "Show a clean payment history and ask for a cheaper fee plan + a waiver of the anomalous charges.",
+      "No answer? You can escalate to the Bank of Israel ombudsman — just mentioning it usually speeds a reply."
+    ],
+    "templateTitle": "Ready-to-copy letter",
+    "templateSub": "Copy it, fill in the details in brackets, and send it yourself to your bank. This is a letter you send in your own name — Zakai does not represent you.",
+    "template": "To Customer Service / Public Inquiries, [Bank name],\n\nMy name is [full name], account holder no. [account number] at branch [branch number].\n\nReviewing my fee breakdown for recent months I found the following charges I'd like reconsidered: [list the fees and dates]. I am a long-standing customer with a clean payment history.\n\nI request: (1) to waive the overdraft/late fees listed as part of customer-retention policy; (2) to move to the most cost-effective fee plan for me; (3) a written breakdown of management fees and reduction options.\n\nI'd appreciate a written reply within a reasonable time. Thank you,\n[full name] · [phone] · [date]",
+    "cta": {
+      "title": "Want us to find more needless charges?",
+      "body": "A statement scan spots duplicate subscriptions, forgotten recurring charges and anomalous fees — in one place.",
+      "primary": "Scan charges",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not financial advice. A waiver is at the bank's discretion and subject to your account terms; no outcome is guaranteed. The letter is sent by you, in your name."
+  },
+  "priceProtection": {
+    "metaTitle": "Price dropped after you bought? You may be owed the difference | Zakai",
+    "metaDesc": "Hotels, flights and online orders drop in price after booking. In many cases you're owed a refund of the difference. Here's how to check and claim.",
+    "kicker": "The money you left behind",
+    "title": "Price dropped after you bought? You're often owed the difference",
+    "sub": "Hotel, flight and product prices change daily. If the price dropped a few days after you booked — in many cases you're owed a refund, a cheaper rebook-and-cancel, or a credit. Most people simply never check.",
+    "wheresTitle": "Where it happens most",
+    "wheres": [
+      {
+        "icon": "🏨",
+        "title": "Hotels (free cancellation)",
+        "body": "In ~30%–40% of flexible-cancellation bookings the price drops at least once before arrival. Just rebook at the new price and cancel the old one."
+      },
+      {
+        "icon": "✈️",
+        "title": "Flights",
+        "body": "Some airlines credit the difference or a voucher if the price drops within a window after purchase — check the carrier's price policy."
+      },
+      {
+        "icon": "🛒",
+        "title": "Online shopping",
+        "body": "Many sites (and some credit cards) offer 'price protection' and refund the difference if the item drops within 7–14 days of purchase."
+      }
+    ],
+    "stepsTitle": "How to catch it",
+    "steps": [
+      "Keep the booking confirmation (email) with the price and date — that's your reference point.",
+      "Re-check the price of the same room/flight/product in the following days (especially 7–14 days).",
+      "Price dropped? If there's free cancellation — rebook cheaper and cancel the expensive one. Otherwise ask the seller for a difference refund under their price-protection policy.",
+      "Not sure? Screenshot the new price (with date) and send a written credit request to customer service."
+    ],
+    "cta": {
+      "title": "Want more moves that save you money right away?",
+      "body": "We gathered real money-saving moves in one place — mobile, electricity, bank, rights and more.",
+      "primary": "Deals & savings",
+      "secondary": "FAQ"
+    },
+    "disclaimer": "Zakai is a self-help tool. The right to a difference refund depends on the seller's/issuer's policy and the deal terms, and is not guaranteed. The check and the request are done by you."
+  },
+  "warranty": {
+    "metaTitle": "Product warranty — claim a repair or replacement | Zakai",
+    "metaDesc": "Device broke within warranty? You're owed a repair, replacement or refund. Here's how to claim, even without the receipt, with a ready letter.",
+    "kicker": "A right you already paid for",
+    "title": "Device broke within warranty? Don't pay for the repair",
+    "sub": "By law, many products come with a one-to-three-year warranty. People give up because they lost the receipt or the importer stalls. But your right stands — here's how to claim it, with a ready letter.",
+    "rightsTitle": "What you're owed",
+    "rights": [
+      "Free repair of a defect-related fault within the warranty period — no parts or labor cost.",
+      "Not fixed after a reasonable number of attempts? You're owed a replacement or refund.",
+      "The importer/manufacturer is responsible for the repair even if you bought from a store that closed — the warranty travels with them.",
+      "Some credit cards auto-extend warranty — check if you paid with one and whether extended cover applies."
+    ],
+    "stepsTitle": "How to claim",
+    "steps": [
+      "Find proof of purchase: a receipt, an email invoice, or the card charge from that date — any of them is valid.",
+      "Locate the device's serial number and document the fault (photo/video).",
+      "Write to the importer or manufacturer demanding a repair/replacement under law, with the proof attached.",
+      "No answer? You can escalate to the Consumer Protection Authority — the inquiry itself usually speeds a reply."
+    ],
+    "templateTitle": "Ready-to-copy letter",
+    "templateSub": "Copy it, fill in the details in brackets, and send it yourself to the importer/manufacturer. This is a letter you send in your own name — Zakai does not represent you.",
+    "template": "To Customer Service, [importer/manufacturer name],\n\nMy name is [full name]. On [purchase date] I bought [product name and model], serial number [serial], as shown in the attached proof of purchase.\n\nThe product is within its warranty period and recently developed a fault: [describe the fault]. I request to exercise the warranty and repair the defect at no cost, and if it cannot be repaired in a reasonable number of attempts — to replace it or refund me, as provided by law.\n\nI'd be glad to schedule a time and receive a written reply within a reasonable period. Thank you,\n[full name] · [phone] · [date]",
+    "cta": {
+      "title": "Want to see what other rights you're owed?",
+      "body": "Zakai's rights engine shows relevant rights for your situation out of dozens — tax, national insurance, consumer and more.",
+      "primary": "Check rights",
+      "secondary": "FAQ"
+    },
+    "disclaimer": "Zakai is a self-help tool, not legal advice. A warranty claim depends on the warranty terms, the type of fault and applicable law; no outcome is guaranteed. The request is sent by you, in your name."
+  },
+  "feedback": {
+    "title": "What would you improve in Zakai?",
+    "sub": "Any idea, bug or request — it comes straight to us and helps us improve. We read everything.",
+    "placeholder": "Tell us what's missing, what's annoying, or which tool you'd want us to add…",
+    "emailPlaceholder": "Email (optional — only if you'd like a reply)",
+    "send": "Send feedback",
+    "sending": "Sending…",
+    "doneTitle": "Thank you! Got it.",
+    "doneSub": "Every word is read and helps us build a better Zakai.",
+    "error": "Something went wrong. Try again in a moment.",
+    "tooShort": "Tell us a little more so we understand.",
+    "privacy": "We keep only the feedback itself. No tracking, no spam.",
+    "navCta": "Have an idea for Zakai?",
+    "pageTitle": "Help us improve Zakai",
+    "pageSub": "Zakai is built for you — and you know best what's missing. Tell us what you'd change, add or fix. Every note goes straight to the team."
+  },
+  "arnona": {
+    "metaTitle": "Arnona appeal — refund an over-charge | Zakai",
+    "metaDesc": "Roughly 1 in 3 properties is over-charged arnona — wrong measurement, wrong classification, or a missed discount. Here's how to check and file an objection, with a ready letter.",
+    "kicker": "Your biggest fixed cost",
+    "title": "You may be over-paying arnona — and you can get it back",
+    "sub": "Arnona (municipal property tax) is one of a household's largest fixed costs, and measurement and classification errors are very common. One correction is worth hundreds to thousands of shekels a year — every year. Here's exactly what to check and how to file an objection.",
+    "errorsTitle": "Where it usually goes against you",
+    "errors": [
+      {
+        "name": "Over-measured area",
+        "note": "The city charges for a larger area than the real one — the most common and most worthwhile error to check."
+      },
+      {
+        "name": "Wrong classification",
+        "note": "Residential charged as business, or a service area (storage/balcony) charged as primary area at a higher rate."
+      },
+      {
+        "name": "Missed discount",
+        "note": "Senior, single parent, disability or low income — discounts you're owed that weren't applied automatically."
+      },
+      {
+        "name": "Wrong billing zone",
+        "note": "Each zone in the city has a different rate; a wrong assignment inflates the charge for nothing."
+      }
+    ],
+    "stepsTitle": "How to file an objection — step by step",
+    "steps": [
+      "Ask the municipality for the property's measurement and classification data (freedom-of-information request or via the authority's site).",
+      "Compare the area to the plan/actual measurement, and check whether a discount you're owed wasn't applied.",
+      "File a written objection with the Arnona Manager — usually within 90 days of the annual charge notice.",
+      "Denied? You have the right to appeal to the arnona objections committee, and then to the administrative court."
+    ],
+    "templateTitle": "Ready-to-copy objection letter",
+    "templateSub": "Fill in your details, tick the relevant reasons, and send it yourself to the municipality's Arnona Manager.",
+    "template": "To\nThe Arnona Manager, ____ Municipality\n\nRe: Objection to arnona (municipal property tax) charge — property at ____, payer no. ____\n\nMy name is ____, the occupier of the property above. Under the Local Authorities (Objection to General Arnona) Law, 1976, I hereby object to the arnona charge, on the following grounds:\n\n[ ] The charged area is incorrect / over-measured versus the actual area.\n[ ] The property classification is wrong (e.g. residential charged as business).\n[ ] Discounts/exemptions I am entitled to were not applied (senior / single parent / disability / low income).\n[ ] The billing zone does not match the property's location.\n\nPlease provide the measurement and classification data the charge is based on, correct the charge accordingly, and credit me retroactively for any overcharge.\n\nI would appreciate a reasoned written reply within the statutory period. Should the objection be denied, I reserve my right to appeal to the arnona objections committee.\n\nRespectfully,\n____\nDate: ____",
+    "cta": {
+      "title": "Want to check what else you're owed?",
+      "body": "Arnona is just one right. A short quiz shows other discounts and refunds you might be missing.",
+      "primary": "What am I owed?",
+      "secondary": "All rights"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer. The letter is a template you send in your own name, and is not legal advice. Objection outcomes depend on the property data and the municipality's policy."
+  },
+  "dupInsurance": {
+    "metaTitle": "Duplicate insurance — premium refund | Zakai",
+    "metaDesc": "Israelis pay ~3.5B ILS a year on duplicate insurance. With indemnity policies you pay twice but can claim once. Here's how to spot duplicates and get a refund, with a ready letter.",
+    "kicker": "3.5B ILS wasted a year",
+    "title": "You may be paying for duplicate insurance — and can only claim once",
+    "sub": "Israelis pay around 3.5 billion shekels a year on duplicate policies covering exactly the same risk. In many cases you can't even claim twice — so you pay double and receive once. Here's how to spot it and get a refund.",
+    "keyTitle": "The distinction that saves you money: indemnity vs compensation",
+    "keyBody": "With indemnity policies (surgery, health, medication) the law forbids receiving more than the actual cost — so two duplicate policies mean double payment, single payout. Compensation policies (critical illness, life) can pay from several companies. The wasted duplication concentrates in indemnity policies.",
+    "areasTitle": "Where duplication is most common",
+    "areas": [
+      {
+        "name": "Surgery cover",
+        "note": "Commonly duplicated against the HMO's supplementary insurance — you pay for the same cover twice."
+      },
+      {
+        "name": "Medication outside the basket",
+        "note": "Mostly covered by supplementary HMO cover; a parallel private policy is often redundant."
+      },
+      {
+        "name": "Long-term care",
+        "note": "A group HMO policy alongside private long-term-care cover — check there is no overlap."
+      },
+      {
+        "name": "Personal accident",
+        "note": "Duplication between workplace cover and a separately bought private policy."
+      }
+    ],
+    "stepsTitle": "How to check and get a refund",
+    "steps": [
+      "Log in to 'Har HaBituach' (harb.cma.gov.il) and pull the list of all active policies in your name.",
+      "Flag indemnity policies covering the same risk in more than one place — that's where the duplication is.",
+      "Ask the insurer to cancel the redundant cover and refund duplicated premiums (ready letter below).",
+      "Denied? Approach the company's public-enquiries officer, then the Capital Market, Insurance and Savings Authority."
+    ],
+    "templateTitle": "Ready-to-copy demand letter",
+    "templateSub": "Fill in your details and send it to the insurer. You can send it to each company where you hold overlapping cover.",
+    "template": "To\nCustomer Service / Public Enquiries, ____ (insurer)\n\nRe: Request to check duplicate insurance and refund premiums — policy no. ____\n\nMy name is ____, the insured under the policy above. I suspect I hold duplicate indemnity-type cover (e.g. surgery / health / medication / long-term care) covering the same risk in another policy with you and/or another company.\n\nWith indemnity-type policies, one cannot receive more than the actual loss, so paying duplicate premiums does not buy me additional cover. Under the Insurance Contract Law and the Capital Market Authority's rules on selling duplicate policies, I request:\n\n1. A full list of all active cover in my name with you and its type (indemnity / compensation).\n2. A review of whether duplicate cover exists, and cancellation of the redundant cover.\n3. A refund of premiums charged in duplicate, where duplicate cover was sold improperly and without informed consent.\n\nI would appreciate a reasoned written reply. I reserve my right to approach your public-enquiries officer and the Capital Market Authority.\n\nRespectfully,\n____\nDate: ____",
+    "cta": {
+      "title": "Want to find more money you're owed?",
+      "body": "Duplicate insurance is just the start. Also check lost pension, insurance and bank accounts in your name.",
+      "primary": "Lost money",
+      "secondary": "What am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an insurance agent or pension adviser. The letter is a template you send in your own name. Do not cancel cover before confirming you don't need it — sometimes duplication is worthwhile, and the check is your responsibility with the authorized parties."
+  },
+  "pensionFees": {
+    "metaTitle": "Pension management fees — what they cost you | Zakai",
+    "metaDesc": "Pension management fees sound small, but over the years they cost you tens of thousands of shekels. Check how much you'd save by lowering them — and how.",
+    "title": "Your pension management fees — what do they really cost you?",
+    "subtitle": "A small fee percentage looks negligible, but it compounds into tens of thousands of shekels by retirement because it's charged every year on your whole balance. Check the gap in seconds; the fee-reduction letter is at the end.",
+    "balance": "Current pension balance",
+    "balanceHint": "Roughly how much is already saved",
+    "monthly": "Monthly contribution",
+    "monthlyHint": "Total monthly deposit (employee + employer)",
+    "years": "Years to retirement",
+    "yearsHint": "Roughly how many years are left",
+    "curDeposit": "Fee on deposits",
+    "curDepositHint": "Shown on your pension report (up to 6% by law)",
+    "curBalance": "Fee on balance",
+    "curBalanceHint": "Annual, shown on the report (up to 0.5% by law)",
+    "calc": "See how much I'm losing",
+    "resultLabel": "Your savings by retirement ({years} years) if you lower to competitive fees (1% / 0.1%)",
+    "resultSub": "Projected balance at current fees: {current} · at reduced fees: {target}. The difference is money that stays with you instead of the investment house.",
+    "shareMsg": "I found on Zakai that my pension fees cost me up to {amount} by retirement 😳 worth checking for everyone:",
+    "assumption": "The calculation assumes a 4% average annual return for illustration only — the real gap depends on returns. The fees are the lever you control.",
+    "disclaimer": "Zakai is a self-help tool, not a pension adviser. This is an illustrative estimate, not advice. To lower fees, contact the body managing your pension, or compare tracks via the pension clearing-house / Har HaKesef."
+  },
+  "mortgageRefi": {
+    "metaTitle": "Mortgage refinance — how much you'd save | Zakai",
+    "metaDesc": "A lower rate on your mortgage balance can save you tens of thousands of shekels in interest. Check in seconds how much refinancing could save.",
+    "title": "Mortgage refinance — how much can you save?",
+    "subtitle": "If rates dropped since you took your mortgage, refinancing to a lower rate can save tens of thousands of shekels in interest over the loan. Check the potential in seconds — then see a licensed mortgage advisor.",
+    "balance": "Mortgage balance",
+    "balanceHint": "How much principal is left to pay",
+    "years": "Years remaining",
+    "yearsHint": "Roughly how many years are left",
+    "curRate": "Current rate",
+    "curRateHint": "Your average effective rate today",
+    "newRate": "Achievable rate",
+    "newRateHint": "A rate you estimate you could get today",
+    "calc": "See how much I'd save",
+    "resultLabel": "Interest saved over the loan",
+    "resultSub": "Plus about {monthly} less on the monthly payment. That's money that stays with you instead of the bank.",
+    "shareMsg": "I checked on Zakai and refinancing my mortgage could save me up to {amount} in interest 🏠 worth it for every homeowner to check:",
+    "assumption": "This is a fixed-rate estimate for illustration. A real mortgage mixes tracks (prime, fixed, index-linked) and has an early-repayment fee — so actual savings may differ.",
+    "disclaimer": "Zakai is a self-help tool, not a licensed mortgage advisor. This is an orientation estimate, not advice. Before refinancing, consult a licensed mortgage advisor and check early-repayment fees with the bank."
+  },
+  "potential": {
+    "metaTitle": "How much am I owed? — the check everyone needs | Zakai",
+    "metaDesc": "A few taps and you get an estimate of how much is worth checking — tax, pension, mortgage, arnona, insurance and more. Free, no signup.",
+    "kicker": "The check everyone needs",
+    "title": "How much money are you really owed?",
+    "sub": "Answer a few quick questions and we'll show an estimate of how much is worth checking — and exactly where. Free, no signup, and it all runs in your browser.",
+    "q": "Which of these fit you? (tick all that apply)",
+    "options": {
+      "employed": "I'm employed",
+      "ownsHome": "I own a home",
+      "hasMortgage": "I have a mortgage",
+      "hasPension": "I have a pension",
+      "hasPrivateInsurance": "I have private insurance",
+      "flewDelayed": "I flew and a flight was delayed/cancelled",
+      "rents": "I rent a home"
+    },
+    "calc": "How much am I owed?",
+    "resultLabel": "Based on your answers, it's worth checking:",
+    "upTo": "up to",
+    "resultSub": "(at least about {low}, on a conservative estimate). This is a ceiling of potential to check — not a promise. Tap any row to actually check it.",
+    "shareMsg": "I checked on Zakai and found I might be owed up to {amount} 😳 worth it for everyone to check, takes a minute:",
+    "honest": "These are potential estimates based on public data, mixing one-time, annual and multi-year amounts — to give you a picture of what's worth checking. The actual amount depends on your personal details."
+  },
+  "companies": {
+    "metaTitle": "Zakai Score — results by company | Zakai",
+    "metaDesc": "Factual data on outcomes with providers — how many checks, success rate, and average documented saving. Based on real cases.",
+    "kicker": "Transparency by company",
+    "title": "Zakai Score — real results with each company",
+    "sub": "As more checks flow through Zakai, we can show facts: which providers actually reduce bills, and by how much. Data only — not an opinion.",
+    "emptyTitle": "We are building this now",
+    "emptySub": "The Zakai Score is built from real, documented cases. There isn't enough data yet to show any company fairly — we only show a provider after enough checks. Be among the first to create the data.",
+    "emptyCta": "Start a check",
+    "sampleTag": "{count} checks",
+    "savedRateTag": "{pct}% succeeded",
+    "avgTag": "avg saving {amount}",
+    "disclaimer": "The data are aggregate facts from documented cases, shown only for providers with a sufficient sample. This is not a subjective rating or recommendation, and any outcome depends on your personal details."
+  },
+  "deposit": {
+    "metaTitle": "Rental deposit refund — landlord won't return it? | Zakai",
+    "metaDesc": "Landlord withholding your deposit? They may only deduct proven damage, not reasonable wear. Here's how to demand it back, with a ready letter.",
+    "kicker": "Money the landlord is holding",
+    "title": "Landlord not returning your deposit? You're owed it back",
+    "sub": "A rental deposit secures your obligations — it's not the landlord's property. Only a proven debt may be deducted (unpaid rent, an open bill, real damage) — never reasonable wear or 'just because'. Here's how to get it back.",
+    "rulesTitle": "What the landlord may deduct — and may not",
+    "rules": [
+      {
+        "name": "Reasonable wear — not deductible",
+        "note": "Ordinary use (faded paint, picture holes) is natural wear and can't be deducted from the deposit."
+      },
+      {
+        "name": "Proven damage — only with evidence",
+        "note": "Real damage beyond wear can be deducted, but only against proof and a repair invoice."
+      },
+      {
+        "name": "Open debts only",
+        "note": "Unpaid rent or bills (electricity/water/arnona) left open in your name — a legitimate deduction."
+      },
+      {
+        "name": "Holding it 'as security' — unlawful",
+        "note": "The landlord can't keep the deposit as pressure or 'just in case' without a proven debt."
+      }
+    ],
+    "stepsTitle": "How to demand your deposit back",
+    "steps": [
+      "Document the apartment's condition on move-out (photos + meters) — your proof you left no damage.",
+      "Send the landlord a written demand to return the deposit within 14 days (ready letter below).",
+      "Demand a breakdown and evidence for any deduction — a deduction without proof isn't legitimate.",
+      "Not returned? You can file a small-claims case (up to the statutory cap) yourself, no lawyer needed."
+    ],
+    "templateTitle": "Ready-to-copy demand letter",
+    "templateSub": "Fill in your details and send it to the landlord. Keep a copy and proof of delivery.",
+    "template": "To\n____ (the landlord)\n\nRe: Demand to return the rental deposit — apartment at ____\n\nMy name is ____. I rented the apartment above from ____ to ____. I vacated it and\nreturned the keys on ____. To date my deposit of ILS ____ has not been returned.\n\nUnder the Rental and Borrowing Law, 1971 (including the Fair Rental amendment),\nthe deposit secures my obligations only and is not your property. Only a\ngenuinely proven debt may be deducted (unpaid rent, open bills in my name, or\ndamage beyond reasonable wear) — and only against supporting evidence.\n\nI therefore demand the full deposit of ILS ____ be returned within 14 days. If\nyou wish to deduct any amount, please provide a written breakdown and evidence\nfor each deduction. Absent a return or a reasoned reply, I will consider small-\nclaims proceedings to recover the sum plus costs.\n\nRespectfully,\n____\nDate: ____",
+    "cta": {
+      "title": "Want to check what else you're owed?",
+      "body": "A deposit is just one thing. Check in a few taps how much in total is worth checking for you.",
+      "primary": "What am I owed?",
+      "secondary": "All rights"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer. The letter is a template you send in your own name, and is not legal advice. The outcome depends on your contract terms and the circumstances."
+  },
+  "childSavings": {
+    "metaTitle": "Savings for Every Child — don't leave your child's money on the floor | Zakai",
+    "metaDesc": "Every child in Israel has a state savings account. With the right track it can grow by thousands of shekels. Here's how to do it, free.",
+    "kicker": "Your child's money",
+    "title": "Every child in Israel has a savings account — most lose thousands from it",
+    "sub": "Since 2015 the state deposits money every month into a 'Savings for Every Child' account for each child. Parents choose where it goes — but most leave it in the default track and miss thousands of shekels by age 18. Choosing is free and takes 5 minutes.",
+    "bigNumber": "Up to ~₪20,000",
+    "bigNumberSub": "Over 18 years, the gap between a conservative default track and an equity track can reach thousands of shekels — money that belongs to your child, without you adding a single shekel.",
+    "movesTitle": "3 moves that grow the savings",
+    "moves": [
+      {
+        "icon": "📈",
+        "title": "Pick the right investment track",
+        "body": "By default the money sits in a bank at a low rate. Moving to a provident fund on an equity track (suited to an 18-year horizon) can multiply the return. Choosing is free on the National Insurance site."
+      },
+      {
+        "icon": "➕",
+        "title": "Double the deposit",
+        "body": "You can ask the state to double the monthly deposit from the child allowance — a matching sum joins in, at no extra cost to you. The money simply grows faster."
+      },
+      {
+        "icon": "🔗",
+        "title": "Consolidate several kids' accounts",
+        "body": "Have several kids? Make sure they're all in the right body and track, watch the management fees, and don't forget the money when they turn 18."
+      }
+    ],
+    "howTitle": "How to do it — 5 minutes",
+    "steps": [
+      "Log in to the National Insurance site and go to 'Savings for Every Child'.",
+      "Check which track the money is currently in (most likely: a conservative default).",
+      "Choose a provident fund on a long-horizon track, and consider asking to double the deposit from the allowance.",
+      "Repeat for each child, and set a reminder to review once a year."
+    ],
+    "cta": {
+      "title": "Don't leave your child's money on the floor",
+      "body": "Choosing is completely free and done by you on the official site. We just explain how to maximize it — because it's your child's money.",
+      "primary": "Go to Savings for Every Child",
+      "secondary": "What else is the family owed?"
+    },
+    "disclaimer": "Zakai explains and points to the state's free official tool and does not charge for it. This is not pension or investment advice — the choice is made by you on the National Insurance site, and past returns don't guarantee future ones."
+  },
+  "insurance": {
+    "metaTitle": "Duplicate insurance — you may be paying twice for the same cover | Zakai",
+    "metaDesc": "Israelis waste ~₪3.5B a year on duplicate insurance. A one-minute check reveals if you pay twice for cover you can only ever claim once.",
+    "kicker": "Money leaking every month",
+    "title": "You may be paying twice for the same insurance — and can only claim once",
+    "sub": "In indemnity policies (health, surgery, drugs) the law only reimburses the actual cost — from one insurer. If you hold such cover both privately and through work / your kupat-cholim, you pay a double premium you can never use. Tick what you have and see the yearly cost.",
+    "policyCol": "Cover type",
+    "privateCol": "Private",
+    "collectiveCol": "Work/Kupah",
+    "checkBtn": "Check for duplication",
+    "kind": {
+      "indemnity": "indemnity",
+      "compensation": "compensation"
+    },
+    "policies": {
+      "surgery": "Surgery",
+      "drugs": "Out-of-basket drugs",
+      "transplant": "Transplants",
+      "consultations": "Consultations & tests",
+      "criticalIllness": "Critical illness",
+      "personalAccident": "Personal accident",
+      "life": "Life insurance"
+    },
+    "resultTitle": "You are likely paying twice for",
+    "resultPerYear": "a year — premium on cover you can't claim twice",
+    "resultExplain": "These are indemnity policies you hold both privately and through work / your kupah. You can only ever claim from one, so the double premium is waste. Worth checking with your insurer and cancelling the redundant one.",
+    "stackableNote": "You also have {count} overlapping compensation policies (like life / critical illness) — those can legitimately be held twice, so we didn't count them.",
+    "cta": "Have Zakai help me cancel & save",
+    "noneTitle": "No wasteful indemnity duplication found",
+    "noneSub": "Based on what you ticked, you have no duplicate indemnity cover. Great — that's exactly what we wanted to confirm.",
+    "noneStackable": "The overlaps you ticked are compensation policies, which may be held twice. No waste here.",
+    "disclaimer": "This is an illustrative first check that runs in your browser and isn't saved. Not insurance advice — before cancelling a policy, confirm with your insurer that no unique cover is lost."
+  },
+  "constructionDefects": {
+    "metaTitle": "Construction defects — up to tens of thousands ₪ from the developer | Zakai",
+    "metaDesc": "Bought a new apartment? Under the Sale (Apartments) Law you have up to a 7-year defect-liability right. Most buyers never claim it. Here's how to check what you're owed.",
+    "kicker": "Money from the developer",
+    "title": "Bought a new apartment? You're owed compensation for every defect — up to 7 years back",
+    "sub": "The Sale (Apartments) Law requires the developer to fix construction defects, and to compensate you if they don't. The liability period runs up to 7 years depending on the defect. Most buyers give up because they don't know what they're owed — and the developer is happy. The initial check is free.",
+    "bigNumber": "Up to tens of thousands ₪",
+    "bigNumberSub": "An engineer's inspection of a new apartment typically finds dozens of defects; the repair/compensation value often reaches tens of thousands of shekels — money the developer owes you by law.",
+    "defectsTitle": "Common defects you're compensated for",
+    "defects": [
+      {
+        "icon": "💧",
+        "title": "Damp & sealing",
+        "body": "Water ingress, mold, poor sealing in wet rooms and balconies — among the most common and costly defects."
+      },
+      {
+        "icon": "📐",
+        "title": "Deviations & flooring",
+        "body": "Uneven floors, hollow or cracked tiles, wall deviations beyond the standard tolerance."
+      },
+      {
+        "icon": "🚪",
+        "title": "Carpentry & aluminum",
+        "body": "Doors and windows that don't close properly, poor insulation, faulty hardware."
+      },
+      {
+        "icon": "⚡",
+        "title": "Electrical & plumbing",
+        "body": "Missing/faulty electrical points, water pressure, drainage and sewage issues."
+      },
+      {
+        "icon": "🏗️",
+        "title": "Spec mismatch",
+        "body": "What you got differs from what the sale spec promised — inferior materials, dimensions or equipment."
+      },
+      {
+        "icon": "🌡️",
+        "title": "Insulation & acoustics",
+        "body": "Thermal/acoustic insulation below standard — cold in winter, hot in summer, and noisy."
+      }
+    ],
+    "howTitle": "How to claim it — the right way",
+    "steps": [
+      "Don't sign 'apartment handover' without reservation if there are defects — document everything in writing.",
+      "Order an engineer's inspection (bdek bayit) — it quantifies the defects and the repair value. That's the document that speaks.",
+      "Send the developer a reasoned demand with the inspection report and a legal repair timeline.",
+      "Didn't fix it in reasonable time? You're owed monetary compensation (the repair cost) — usually on a success-fee basis, no upfront pay."
+    ],
+    "cta": {
+      "title": "Check what the developer owes you",
+      "body": "We start with a free initial check of your rights under the Sale (Apartments) Law. The inspection itself is done by a licensed engineer — we explain, guide and help you claim.",
+      "primary": "Start a check",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an engineer, appraiser or lawyer. Quantifying defects requires a licensed engineer's inspection, and compensation depends on their findings, the contract and the Sale Law. This is not engineering or legal advice and no outcome is promised."
+  },
+  "classAction": {
+    "metaTitle": "Class-action settlements — money from settlements you don't know you're owed | Zakai",
+    "metaDesc": "Every year dozens of class actions in Israel end in settlement — money or benefits for those affected. Most go unclaimed. Here's how to check if you're owed.",
+    "kicker": "Money waiting for you",
+    "title": "Used a product or service that was sued? You may be owed settlement money",
+    "sub": "Every year dozens of class actions against companies (banks, telecom, insurance, retail) end in settlements — compensation or a benefit for everyone harmed. The problem: most consumers don't know they're part of the class, and never claim. The check is free.",
+    "bigNumber": "From ₪50 to thousands ₪ — sometimes automatic",
+    "bigNumberSub": "Some settlements pay out automatically; others require a short claim. If you were a customer of the company in the relevant period — you may be owed, without doing anything.",
+    "examplesTitle": "Common settlement types you might be part of",
+    "examples": [
+      {
+        "icon": "🏦",
+        "title": "Bank/credit fees",
+        "body": "Banks and credit companies sued over overcharged fees — the settlement refunds each affected customer."
+      },
+      {
+        "icon": "📱",
+        "title": "Telecom companies",
+        "body": "Charges for a service not provided, data, or plan terms — settlements refund subscribers."
+      },
+      {
+        "icon": "🛒",
+        "title": "Retail & food",
+        "body": "Misleading labels, price or weight — compensation or benefit for anyone who bought in the relevant period."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Insurance",
+        "body": "Overcharged premiums or unpaid claims — settlements refund affected policyholders."
+      }
+    ],
+    "howTitle": "How to check if you're owed",
+    "steps": [
+      "Check the official class-action registry — every claim and settlement in Israel is published there.",
+      "Search for companies you were a customer of (bank, telecom, insurance, chains) in the relevant period.",
+      "For a settlement that covers you — some are automatic (money just arrives), some need a short claim form by a deadline.",
+      "Don't miss the deadline — each settlement has a claim window. Keep proof of being a customer in the period."
+    ],
+    "cta": {
+      "title": "Check if a settlement owes you",
+      "body": "You can check the official class-action registry yourself — free. We explain how to spot a settlement that covers you and how to claim on time.",
+      "primary": "Class-action registry",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer and does not represent you in proceedings. Eligibility depends on the specific settlement's terms, your membership in the class, and the deadlines set. This is not legal advice and no outcome is promised."
+  },
+  "carValue": {
+    "metaTitle": "Car diminished value after an accident — compensation your insurer won't mention | Zakai",
+    "metaDesc": "Were you in an accident? You're owed compensation for the car's diminished value — usually thousands of shekels. Insurers don't offer it. Here's how to claim.",
+    "kicker": "Don't be a sucker",
+    "title": "Were you in an accident? You're owed diminished-value compensation nobody told you about",
+    "sub": "Even after the car is repaired like new, its market value drops simply because it was in an accident — that's 'diminished value', and you're owed compensation for it. Insurers know this and don't offer it. Most drivers give up without knowing. The initial check is free.",
+    "bigNumber": "Usually thousands ₪ — sometimes tens of thousands",
+    "bigNumberSub": "Diminished value is calculated as a percentage of the car's value by severity and the parts damaged. On a newer/expensive car or a significant accident it can reach tens of thousands of shekels — money owed to you under the policy or from the at-fault party.",
+    "factsTitle": "What's important to know",
+    "facts": [
+      {
+        "icon": "📉",
+        "title": "It happens even after a perfect repair",
+        "body": "The mere accident record lowers the car's resale price. The compensation is for that gap — not the repair."
+      },
+      {
+        "icon": "🤐",
+        "title": "The insurer won't offer it",
+        "body": "Insurers pay for the repair but 'forget' to mention diminished value. You have to demand it explicitly."
+      },
+      {
+        "icon": "⚖️",
+        "title": "Owed from the at-fault party too",
+        "body": "If a third party caused the accident, you're owed full diminished-value compensation from them/their insurer, on top of the repair."
+      },
+      {
+        "icon": "⏳",
+        "title": "There's a time window",
+        "body": "A diminished-value claim has a limitation period. Best to act close to the event, while documentation is fresh."
+      }
+    ],
+    "howTitle": "How to claim it — the right way",
+    "steps": [
+      "Keep all documents: appraiser's report, repair invoice, garage confirmation and accident details.",
+      "Order an appraiser's diminished-value opinion — it quantifies how much the car's value dropped. That's the document that speaks.",
+      "Send a reasoned demand to the insurer (yours or the at-fault party's) with the appraisal.",
+      "Didn't pay what's owed? That's exactly a success-fee claim — no upfront pay."
+    ],
+    "cta": {
+      "title": "Check what you're owed for diminished value",
+      "body": "We start with a free initial check of your eligibility. The appraisal is done by a licensed appraiser — we explain, guide and help you claim.",
+      "primary": "Start a check",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an appraiser, lawyer or insurer. Quantifying diminished value requires a licensed appraiser, and compensation depends on their findings, the policy and the accident circumstances. This is not professional advice and no outcome is promised."
+  },
+  "mortgageInsurance": {
+    "metaTitle": "Overpriced mortgage insurance — you're paying the bank double | Zakai",
+    "metaDesc": "The bank sold you mortgage insurance (life + structure) marked up by tens of percent. Switching to an independent policy saves thousands ₪ a year — tens of thousands over the mortgage.",
+    "kicker": "Don't be a sucker",
+    "title": "The bank sells you overpriced mortgage insurance — you can save thousands a year",
+    "sub": "Every mortgage requires life and structure insurance. Banks sell it through themselves at a marked-up price — sometimes tens of percent above the open market. Switching to an identical independent policy saves thousands a year, and you lose nothing. The check is free.",
+    "bigNumber": "Thousands ₪ a year — tens of thousands over the mortgage",
+    "bigNumberSub": "The gap between the bank's insurance and an independent policy compounds over the 20-30 year mortgage into tens of thousands of shekels — money leaving your pocket for nothing.",
+    "factsTitle": "What's important to know",
+    "facts": [
+      {
+        "icon": "🏦",
+        "title": "The bank doesn't have to be the insurer",
+        "body": "You must have insurance — but not from the bank. You may choose any insurer, and the bank must accept it."
+      },
+      {
+        "icon": "💸",
+        "title": "The gap is huge",
+        "body": "Insurance through the bank is usually tens of percent more expensive than an identical independent policy — for the exact same cover."
+      },
+      {
+        "icon": "🔁",
+        "title": "You can switch mid-way too",
+        "body": "Not only when taking the mortgage — you can move to cheaper insurance at any stage, even years in."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Same cover, less money",
+        "body": "Switching doesn't harm your cover or mortgage — the same protection, just cheaper."
+      }
+    ],
+    "howTitle": "How to save it",
+    "steps": [
+      "Gather your current mortgage insurance details (life + structure) and the monthly cost.",
+      "Compare against an identical independent policy on the open market — that's where the gap shows.",
+      "Switch to the cheaper insurance; the law requires the bank to accept a valid external policy.",
+      "Notify the bank of the switch — and the saving starts immediately, every month to the end of the mortgage."
+    ],
+    "cta": {
+      "title": "Check how much you're overpaying on mortgage insurance",
+      "body": "We start with a free initial check of the gap vs. the open market. We explain and guide; the switch itself is with a licensed insurer.",
+      "primary": "Start a check",
+      "secondary": "Mortgage refinance check"
+    },
+    "disclaimer": "Zakai is a self-help tool, not an insurance agent or advisor. Cover, price and eligibility depend on the insurer, the policy and your situation. This is not insurance advice and no outcome is promised."
+  },
+  "lead": {
+    "kicker": "Free initial check",
+    "pageTitle": "Leave your details and we'll check what you're owed",
+    "pageSub": "No commitment, no upfront payment. We'll get back to you, review your case, and connect you to someone who can claim it — a fee only if you actually get money.",
+    "title": "Free initial check — how much are you owed?",
+    "sub": "Leave your name and phone and we'll get back to you to review your case. Fee only on success.",
+    "name": "Full name",
+    "phone": "Phone",
+    "note": "Details about your case (optional)",
+    "required": "Need a name and a valid phone.",
+    "send": "Check what I'm owed",
+    "sending": "Sending…",
+    "doneTitle": "Got it! We'll be in touch soon.",
+    "doneSub": "We'll review your case and come back with the next steps. No commitment, no upfront payment.",
+    "error": "Something went wrong. Try again in a moment.",
+    "privacy": "Your details are kept with us only, for the check. No spam, and you can ask us to delete them anytime.",
+    "verticalTitles": {
+      "construction-defects": "Construction defects — what does the developer owe you?",
+      "car-value": "Car diminished value — what are you owed for the accident?",
+      "mortgage-insurance": "Mortgage insurance — how much are you overpaying?",
+      "arnona": "Arnona refund — how much did you overpay?",
+      "taxrefund": "Tax refund — how much is waiting for you?",
+      "duplicate-insurance": "Duplicate insurance — how much are you paying twice?",
+      "pension-fees": "Pension fees — how much are you losing?",
+      "mortgage": "Mortgage refinance — how much could you save?",
+      "bank-fees": "Bank fees — how much are you owed back?",
+      "payslip": "Payslip errors? Your employer may owe you money",
+      "severance": "Severance — did you get what you’re owed?",
+      "disability": "Disability / attendance — check if you're owed",
+      "compensation-claims": "Insurance you never claimed — how much are you owed?",
+      "insurance-compare": "Insurance too expensive? See how much you could save",
+      "debt-consolidation": "Too many loans? See your one lower payment",
+      "flights": "Flight delayed or cancelled? Claim the compensation you are owed"
+    },
+    "ctaTitle": "Want us to help you claim it?",
+    "ctaBody": "Leave your details and we will get back to you — review the case and connect you to someone who can claim it. A fee only if you actually get money."
+  },
+  "disability": {
+    "metaTitle": "Claiming disability, attendance & mobility benefits — tens of thousands ₪ unclaimed | Zakai",
+    "metaDesc": "National Insurance disability, attendance and mobility benefits are mostly unclaimed. They're worth tens of thousands ₪ a year — for life. Here's how to check and claim.",
+    "kicker": "A right worth a lot",
+    "title": "You may be owed a disability or attendance benefit — most people don't know they qualify",
+    "sub": "National Insurance general-disability, attendance (siud) and mobility benefits are among the most unclaimed rights in Israel — the process is complex and off-putting, so many give up or are wrongly rejected. These are monthly benefits, for life. The initial check is free.",
+    "bigNumber": "Up to tens of thousands ₪ a year — a monthly benefit for life",
+    "bigNumberSub": "A full general-disability benefit, attendance allowance or mobility benefit adds up to tens of thousands of shekels a year — sometimes retroactively for a past period too. It's a right, not a favor.",
+    "kindsTitle": "The benefits people miss",
+    "kinds": [
+      {
+        "icon": "♿",
+        "title": "General disability",
+        "body": "For those whose earning capacity is reduced by 50%+ due to a medical condition — a monthly benefit and sometimes attached benefits."
+      },
+      {
+        "icon": "🧓",
+        "title": "Attendance (siud)",
+        "body": "For elderly people needing help with daily tasks — care hours or a benefit. Heavily unclaimed."
+      },
+      {
+        "icon": "🚗",
+        "title": "Mobility",
+        "body": "For those with a mobility (leg) limitation — a benefit, a car loan and perks. Depends on a medical committee."
+      },
+      {
+        "icon": "🧒",
+        "title": "Disabled child",
+        "body": "For parents of a child with special needs — a disabled-child benefit many don't know they qualify for."
+      }
+    ],
+    "howTitle": "How to claim it — the right way",
+    "steps": [
+      "Gather all medical documents (diagnoses, hospital summaries, doctors' recommendations) — the basis of the claim.",
+      "File a claim with National Insurance for the relevant benefit, with organized, reasoned medical documentation.",
+      "Proper preparation for the medical committee is critical — this is where most people get rejected without guidance.",
+      "Rejected? There's a right to appeal. Professional guidance significantly raises success odds — usually on a success fee."
+    ],
+    "cta": {
+      "title": "Check if you're owed a benefit",
+      "body": "We start with a free initial eligibility check and connect you to someone who handles National Insurance claims. A fee only if you win the benefit.",
+      "primary": "Check eligibility",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a doctor, lawyer or National Insurance. Eligibility is decided by a medical committee and depends on your situation and documentation. This is not medical or legal advice and no outcome is promised. The information is meant to help you claim an existing right with the official bodies."
+  },
+  "compensationClaims": {
+    "metaTitle": "Insurance money you never claimed | Zakai",
+    "metaDesc": "You've paid for insurance for years — you may be owed a payout you never claimed. Free initial check; a fee only if you get money.",
+    "kicker": "Free initial eligibility check",
+    "title": "You've paid for insurance for years — you may be owed money you never claimed",
+    "sub": "Loss of working capacity, accident disability, critical illness, long-term care, mortgage insurance — many people are entitled to a payout and don't know it. Zakai checks, and connects you to a specialist lawyer. A fee only if you actually get money.",
+    "bigNumber": "10,000–200,000",
+    "bigNumberSub": "A typical range for a single claim. The insurer won't remind you — the cover you paid for doesn't pay out by itself.",
+    "typesTitle": "What we check",
+    "types": [
+      {
+        "icon": "🩺",
+        "title": "Loss of working capacity",
+        "body": "Injured or ill and couldn't work? There's cover in your pension / private policy that most people never claim."
+      },
+      {
+        "icon": "🚗",
+        "title": "Accident disability",
+        "body": "Car or personal accident — compensation from the insurer and from national insurance."
+      },
+      {
+        "icon": "🎗️",
+        "title": "Critical illness",
+        "body": "Many policies pay a lump sum on diagnosis of a serious illness."
+      },
+      {
+        "icon": "🏥",
+        "title": "Medical negligence",
+        "body": "Treatment that went wrong — a check for whether there are grounds to claim."
+      },
+      {
+        "icon": "🏠",
+        "title": "Mortgage insurance",
+        "body": "Loss-of-capacity / life cover inside your mortgage insurance that almost nobody uses."
+      },
+      {
+        "icon": "🧓",
+        "title": "Long-term care",
+        "body": "Private or state long-term-care cover — an unused entitlement."
+      }
+    ],
+    "howTitle": "How it works",
+    "steps": [
+      "Leave your name and phone — no commitment, no upfront payment.",
+      "We review the case and connect you to a specialist lawyer.",
+      "A fee only if you actually receive money."
+    ],
+    "disclaimer": "Zakai is not a law firm and does not provide legal advice. We connect you to a licensed professional and are paid a referral/success fee. No outcome is promised."
+  },
+  "spending": {
+    "metaTitle": "Where does my money go? | Zakai",
+    "metaDesc": "Paste a bank or card statement and instantly see your spending by category. Runs in your browser — nothing is stored.",
+    "title": "Where does your money go?",
+    "subtitle": "You probably don't remember what you spend on. Paste a bank or card statement (or your recurring-charges export) and Zakai breaks it down by category and by your biggest merchants — instantly. It runs in your browser; nothing is uploaded or stored.",
+    "paste": "Paste your statement rows here (date, merchant, amount) — or export a CSV from your bank/card and paste it.",
+    "analyze": "Show me where my money goes",
+    "empty": "Couldn't find transactions. Paste rows with a date, a merchant and an amount.",
+    "totalLabel": "Total spend in this statement",
+    "txnsLabel": "{count} transactions",
+    "categoriesTitle": "By category",
+    "merchantsTitle": "Your biggest merchants",
+    "occurrences": "{count}×",
+    "privacy": "Runs entirely in your browser. Your statement is never uploaded or stored.",
+    "categories": {
+      "groceries": "Groceries",
+      "dining": "Eating out",
+      "transport": "Transport & fuel",
+      "shopping": "Shopping",
+      "health": "Health & pharmacy",
+      "housing": "Home & bills",
+      "bills": "Subscriptions & bills",
+      "entertainment": "Entertainment",
+      "cash": "Cash & transfers",
+      "other": "Other"
+    },
+    "actionsTitle": "Zakai can lower these for you",
+    "actionsSub": "We spotted recurring charges you can act on right now — a fee only if you actually save.",
+    "actCta": "Lower this"
+  },
+  "insuranceCompare": {
+    "metaTitle": "Compare & switch insurance — stop overpaying | Zakai",
+    "metaDesc": "Most people overpay on insurance because they never re-compare. Zakai connects you to a licensed agent who finds you a better price. Free; commission-based.",
+    "kicker": "Free comparison — no upfront cost",
+    "title": "You're probably overpaying on insurance — most people never re-compare",
+    "sub": "Car, home, health, life — prices drift up every year and loyalty is punished, not rewarded. Zakai connects you to a licensed agent who re-shops your cover and finds a better price. No upfront cost; we're paid a referral fee only.",
+    "bigNumber": "1,000–5,000",
+    "bigNumberSub": "A typical yearly saving from re-comparing a single policy. Multiply it across car + home + health.",
+    "typesTitle": "What we compare",
+    "types": [
+      {
+        "icon": "🚗",
+        "title": "Car insurance",
+        "body": "The most re-shopped policy — biggest, fastest saving."
+      },
+      {
+        "icon": "🏠",
+        "title": "Home & contents",
+        "body": "Building and contents cover, often bundled and overpriced."
+      },
+      {
+        "icon": "❤️",
+        "title": "Health & supplementary",
+        "body": "Private health and supplementary cover you may be double-paying."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Life & disability",
+        "body": "Long-term cover where a re-quote can save the most over time."
+      },
+      {
+        "icon": "✈️",
+        "title": "Travel",
+        "body": "Per-trip or annual — rarely worth the price you're quoted first."
+      },
+      {
+        "icon": "🏢",
+        "title": "Business",
+        "body": "Liability and business cover for the self-employed and small firms."
+      }
+    ],
+    "howTitle": "How it works",
+    "steps": [
+      "Leave your name and phone — no commitment, no upfront payment.",
+      "A licensed agent re-shops your cover across insurers.",
+      "You switch only if it's genuinely better; a fee is earned as a referral, never from you."
+    ],
+    "disclaimer": "Zakai is not an insurer or an insurance agent and gives no insurance advice. We connect you to a licensed agent/broker and are paid a referral fee. You are never obligated to switch."
+  },
+  "debtConsolidation": {
+    "metaTitle": "Consolidate your debt — one lower payment | Zakai",
+    "metaDesc": "Paying several loans and overdraft at high interest? Zakai connects you to a licensed provider who consolidates them into one lower monthly payment. Free; commission-based.",
+    "kicker": "Free check — no upfront cost",
+    "title": "Paying several loans at high interest? Combine them into one lower payment",
+    "sub": "Overdraft, credit-card debt, car and personal loans — each at its own high rate. A single consolidated loan can cut your monthly payment sharply. Zakai connects you to a licensed provider; no upfront cost, we're paid a referral fee only.",
+    "bigNumber": "500–2,000",
+    "bigNumberSub": "A typical monthly saving from consolidating high-interest debt into one lower-rate loan.",
+    "typesTitle": "What we consolidate",
+    "types": [
+      {
+        "icon": "💳",
+        "title": "Credit-card debt",
+        "body": "The most expensive debt — the first to refinance."
+      },
+      {
+        "icon": "🔴",
+        "title": "Overdraft",
+        "body": "A permanent overdraft is a loan at the highest rate you pay."
+      },
+      {
+        "icon": "🚗",
+        "title": "Car & personal loans",
+        "body": "Several loans, several rates — merged into one."
+      },
+      {
+        "icon": "🏠",
+        "title": "Against equity",
+        "body": "Homeowners can often consolidate at a far lower secured rate."
+      }
+    ],
+    "howTitle": "How it works",
+    "steps": [
+      "Leave your name and phone — no commitment, no upfront payment.",
+      "A licensed provider reviews your debts and offers one consolidated, lower-rate loan.",
+      "You proceed only if the monthly payment genuinely drops; a fee is a referral, never from you."
+    ],
+    "disclaimer": "Zakai is not a lender or credit advisor and gives no financial advice. We connect you to a licensed provider and are paid a referral fee. Consolidating can extend a loan's term; you are never obligated to proceed."
   }
 }

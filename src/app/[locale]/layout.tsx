@@ -35,10 +35,30 @@ const wordmark = Manrope({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
+const SITE_TITLE = "זכאי — הכסף שמגיע לך חוזר אליך";
+const SITE_DESC =
+  "סוכן ה-AI שמחזיר לך את הכסף שמגיע לך: החזרי מס, כסף אבוד (הר הכסף), פיצויי טיסות, זכויות, הוזלת חשבונות ועוד — עמלה רק מחיסכון מתועד.";
+
 export const metadata: Metadata = {
-  title: "זכאי — Zakai",
-  description:
-    "סוכן AI צרכני שמזהה חיובי סלולר מנופחים, פועל בשמך מול החברה, וגובה עמלה רק מחיסכון מתועד.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESC,
+  // Rich previews when the link is shared (WhatsApp, X, etc.) — the viral loop
+  // lives on these, so every shared link carries the brand image + pitch.
+  openGraph: {
+    type: "website",
+    siteName: "ZAKAI",
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "ZAKAI" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: ["/og.png"],
+  },
   // PWA: iOS ignores the web manifest for install, so give Safari its own
   // "add to home screen" affordances explicitly.
   appleWebApp: {
@@ -93,14 +113,29 @@ export default async function LocaleLayout({
             repeat navigations. Reduced-motion hides it via CSS. */}
         <div id="zakai-splash" aria-hidden>
           <svg className="splash-mark" viewBox="0 0 110 110" width="76" height="76">
-            <rect x="4" y="4" width="102" height="102" rx="26" fill="#3FCB9B" />
+            <defs>
+              <linearGradient id="splashZg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#3FCB9B" />
+                <stop offset="0.5" stopColor="#3EC6FF" />
+                <stop offset="1" stopColor="#8B5CF6" />
+              </linearGradient>
+            </defs>
+            <rect x="4" y="4" width="102" height="102" rx="26" fill="url(#splashZg)" />
             <path
-              d="M 32 34 H 78 L 34 76 H 80"
+              d="M 32 32 H 78 L 34 72 H 80"
               fill="none"
-              stroke="#0E1F1A"
+              stroke="#0A1119"
               strokeWidth="9"
               strokeLinecap="round"
               strokeLinejoin="round"
+            />
+            <path
+              d="M 33 87 C 50 78, 62 78, 80 87"
+              fill="none"
+              stroke="#0A1119"
+              strokeWidth="6"
+              strokeLinecap="round"
+              opacity="0.9"
             />
           </svg>
           <span className="splash-word" dir="ltr">ZAKAI</span>
