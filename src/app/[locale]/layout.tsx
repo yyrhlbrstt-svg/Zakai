@@ -78,7 +78,15 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale });
 
   return (
-    <html lang={locale} dir={dir[locale as Locale]} data-plan={user?.plan ?? "FREE"}>
+    // `suppressHydrationWarning` covers the `class="js"` that the pre-paint
+    // script below adds to <html>. We can't render it server-side (no-JS users
+    // must not get it), so the mismatch is intentional and scoped to this tag.
+    <html
+      lang={locale}
+      dir={dir[locale as Locale]}
+      data-plan={user?.plan ?? "FREE"}
+      suppressHydrationWarning
+    >
       <body className={`${body.variable} ${display.variable} ${wordmark.variable} font-body text-ink`}>
         {/* Mark JS as available before paint so scroll-reveal only hides content
             when it can actually reveal it (no-JS keeps everything visible). */}
