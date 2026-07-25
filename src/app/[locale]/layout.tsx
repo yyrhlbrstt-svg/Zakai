@@ -36,40 +36,49 @@ const wordmark = Manrope({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
-const SITE_TITLE = "זכאי — הכסף שמגיע לך חוזר אליך";
-const SITE_DESC =
-  "סוכן ה-AI שמחזיר לך את הכסף שמגיע לך: החזרי מס, כסף אבוד (הר הכסף), פיצויי טיסות, זכויות, הוזלת חשבונות ועוד — עמלה רק מחיסכון מתועד.";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: SITE_TITLE,
-  description: SITE_DESC,
-  // Rich previews when the link is shared (WhatsApp, X, etc.) — the viral loop
-  // lives on these, so every shared link carries the brand image + pitch.
-  openGraph: {
-    type: "website",
-    siteName: "ZAKAI",
-    title: SITE_TITLE,
-    description: SITE_DESC,
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "ZAKAI" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: SITE_TITLE,
-    description: SITE_DESC,
-    images: ["/og.png"],
-  },
-  // PWA: iOS ignores the web manifest for install, so give Safari its own
-  // "add to home screen" affordances explicitly.
-  appleWebApp: {
-    capable: true,
-    title: "ZAKAI",
-    statusBarStyle: "black-translucent",
-  },
-  icons: {
-    apple: "/icons/icon-192.png",
-  },
-};
+// Metadata is localized per request so /en, /ar and /ru each ship their own
+// <title>/description and share-preview text (not the Hebrew default).
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const title = t("title");
+  const description = t("desc");
+  return {
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    // Rich previews when the link is shared (WhatsApp, X, etc.) — the viral
+    // loop lives on these, so every shared link carries the brand image + pitch.
+    openGraph: {
+      type: "website",
+      siteName: "ZAKAI",
+      title,
+      description,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: "ZAKAI" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og.png"],
+    },
+    // PWA: iOS ignores the web manifest for install, so give Safari its own
+    // "add to home screen" affordances explicitly.
+    appleWebApp: {
+      capable: true,
+      title: "ZAKAI",
+      statusBarStyle: "black-translucent",
+    },
+    icons: {
+      apple: "/icons/icon-192.png",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#070B12",

@@ -3536,5 +3536,9 @@
     "detailedHint": "Detailed-report filers always report monthly.",
     "print": "Print or save as PDF",
     "disclaimer": "Zakai is a calculation engine, not professional advice. The figures assume an 18% VAT rate and the prevailing deduction regulations, and are not a substitute for review by an accountant or tax adviser. Responsibility for the filing itself rests with the business."
+  },
+  "meta": {
+    "title": "Zakai — the money you’re owed, back in your pocket",
+    "desc": "The AI agent that gets back the money you’re owed: tax refunds, lost money, flight compensation, benefits, bill reductions and more — a fee only on documented savings."
   }
 }
