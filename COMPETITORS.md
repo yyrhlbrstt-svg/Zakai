@@ -11,8 +11,9 @@
 | **RiseUp** | תזרים והרגלים פיננסיים, קהילה חזקה | ~45–55 ₪/חודש | מראים את הכסף, לא מחזירים אותו; יקרים פי 3 מ-Pro שלנו |
 | **Wobi / SmartCut / כמהזה** | השוואת מחירים ולידים | חינם (עמלת הפניה מהספק) | האינטרס אצל הספק המשלם; המשתמש עושה את העבודה בעצמו |
 | **Finupp וכד'** | החזרי מס לשכירים | עמלת הצלחה מההחזר | ורטיקל בודד; אצלנו החזר מס הוא 1 מתוך 55 זכויות |
+| **Pine AI (ארה"ב)** | האנלוג הקרוב ביותר לחזון: סוכן AI ש**מרים טלפון**, מנהל מו"מ, מבטל מנויים ומוציא החזרים בפועל. גייסו $25M (Series A, דצמבר 2025), 93% הצלחה, ~$400 חיסכון ממוצע | עמלת הצלחה (no-win-no-fee) | לא בישראל; מוכיח שהמודל ה"סוכן שפועל" שווה מאות מיליונים — **הפער שלנו: הם פועלים, אנחנו עדיין מנסחים מכתב שהמשתמש שולח לבד** |
 | **Rocket Money (ארה"ב)** | הבנצ'מרק העולמי: מנויים + משא ומתן | 35%–60% מחיסכון שנה ראשונה + פרימיום | לא בישראל; מאשר שהמודל עובד בענק |
-| **DoNotPay (ארה"ב)** | "עורך דין רובוטי" | מנוי | שיעור אזהרה: קנס FTC על הבטחות AI מנופחות — ולכן הזהירות המשפטית שבנינו היא נכס |
+| **DoNotPay (ארה"ב)** | "עורך דין רובוטי" | מנוי | שיעור אזהרה: קנס FTC של $193K על הבטחת "מחליף עורך דין" בלי הוכחה — ולכן הזהירות המשפטית שבנינו היא נכס |
 
 ## איפה אנחנו מנצחים היום (לשמר ולהגביר)
 
@@ -43,3 +44,6 @@
 - EcoBill — אודות ופלטפורמה: https://www.eco-bill.co.il/אודות , https://www.eco-bill.co.il/homepage
 - StartIsrael — פרופיל Eco-Bill: https://www.startisrael.co.il/article/2045
 - CNBC Select — שירותי הוזלת חשבונות (Rocket Money 35–60%): https://www.cnbc.com/select/best-bill-negotiation-services/
+- Pine AI — גיוס $25M Series A (דצמבר 2025): https://www.businesswire.com/news/home/20251203384902/en/ ; אתר: https://www.19pine.ai/
+- FTC — צו סופי נגד DoNotPay ($193K, פברואר 2025): https://www.ftc.gov/news-events/news/press-releases/2025/02/ftc-finalizes-order-donotpay-prohibits-deceptive-ai-lawyer-claims-imposes-monetary-relief-requires
+- RiseUp — ₪45/חודש, שיפור ~$340/חודש: https://www.letsriseup.com/how-it-works/ , https://www.jpost.com/business-and-innovation/banking-and-finance/article-714486

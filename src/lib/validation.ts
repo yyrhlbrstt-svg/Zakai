@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { normalizeIsraeliMobile } from "./phone";
+import { normalizePhone } from "./phone";
 
 export const signupSchema = z.object({
   name: z.string().trim().min(2, "nameRequired"),
@@ -8,7 +8,17 @@ export const signupSchema = z.object({
   phone: z
     .string()
     .trim()
-    .refine((v) => normalizeIsraeliMobile(v) !== null, "invalidPhone"),
+    // International: accept any valid E.164 number, not only Israeli ones —
+    // Zakai is built to serve users from every country it can help.
+    .refine((v) => normalizePhone(v) !== null, "invalidPhone"),
+  // ISO-3166 alpha-2 country of signup. Defaults to Israel (the launch market).
+  country: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{2}$/)
+    .optional()
+    .default("IL"),
   // Optional invite code from a referral link (?ref=...). Ignored if unknown.
   referralCode: z.string().trim().max(64).optional(),
 });

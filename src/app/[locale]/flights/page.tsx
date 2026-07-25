@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { FlightRightsChecker } from "@/components/FlightRightsChecker";
+import { LeadCta } from "@/components/LeadCta";
 import { bcp47, type Locale } from "@/i18n/config";
 
 /** Public page — statutory flight-disruption rights under Israeli law. */
@@ -19,6 +20,7 @@ export default async function FlightsPage({
         {t("subtitle")}
       </p>
       <FlightRightsChecker bcp47={bcp47[locale as Locale]} />
+      <LeadCta vertical="flights" />
     </main>
   );
 }

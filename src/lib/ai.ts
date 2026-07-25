@@ -1,6 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { resolveProviderKey, type ProviderKey } from "./providers";
+import { faqDigest } from "./faq";
 
 /**
  * Server-side AI. The API key never reaches the browser.
@@ -152,6 +153,12 @@ async function geminiGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /**
+   * Try this model FIRST (e.g. a smarter "pro" model for open-ended reasoning).
+   * If the key can't use it, or its quota is spent, we fall through to the
+   * normal ranked candidates — quality upgrade, never a reliability regression.
+   */
+  preferModel?: string;
 }): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new AiUnavailableError();
@@ -183,7 +190,12 @@ async function geminiGenerate(opts: {
       },
     );
 
-  const candidates = await geminiCandidateModels(apiKey);
+  const discovered = await geminiCandidateModels(apiKey);
+  // Prepend the preferred model (deduped) so quality-sensitive calls try it
+  // first, then gracefully degrade through the discovered flash candidates.
+  const candidates = opts.preferModel
+    ? [opts.preferModel, ...discovered.filter((m) => m !== opts.preferModel)]
+    : discovered;
   let lastError = "no model candidates";
   for (const model of candidates) {
     let res = await callModel(model, true);
@@ -332,11 +344,13 @@ async function fallbackGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /** Gemini-only: a stronger model to try first (ignored by other providers). */
+  geminiPreferModel?: string;
 }): Promise<string> {
   const provider = aiProvider();
   if (provider === "openai") return openaiCompatGenerate(opts);
   if (provider === "ollama") return ollamaGenerate(opts);
-  return geminiGenerate(opts);
+  return geminiGenerate({ ...opts, preferModel: opts.geminiPreferModel });
 }
 
 /**
@@ -617,7 +631,17 @@ KNOWLEDGE (accurate 2026 facts you may use to answer — never invent numbers be
 - Appeal letters: parking tickets (/parking) and public-transport fines (/transport-fine) — self-help templates the user sends themselves.
 - Deals & coupons: money-saving moves in one place. Screen: /deals.
 - Plans: FREE (18% success fee, 1 active check), PRO ₪14.90 (9% fee, 5 checks, 100 assistant questions/mo, monthly re-check), MAX ₪29.90 (0% fee, unlimited). Screen: /pricing.
-Use these facts to give concrete, correct answers, and always point to the matching screen.`;
+Use these facts to give concrete, correct answers, and always point to the matching screen.
+
+OFFICIAL SOURCES (when you state a right or a number, name the authoritative Israeli source so the user can verify — never a random website):
+- Rights & entitlements in general → כל-זכות (kolzchut.org.il).
+- Salary, minimum wage, pension, severance, convalescence → משרד העבודה / כל-זכות.
+- Maternity, unemployment, national-insurance benefits → הביטוח הלאומי (btl.gov.il).
+- Tax refund, credit points → רשות המסים (gov.il).
+- Arnona → הרשות המקומית שלך.
+Phrase it naturally, e.g. "אפשר לאמת בכל-זכות / באתר ביטוח לאומי". Only cite these official sources; do NOT invent links or quote unofficial sites.
+
+${faqDigest()}`;
 
 export interface AssistantContext {
   plan: string;
@@ -629,7 +653,16 @@ export async function askZakai(question: string, ctx: AssistantContext): Promise
   const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
 
   if (aiProvider() !== "anthropic") {
-    return fallbackGenerate({ system: ASSISTANT_SYSTEM, userText, maxTokens: 1024, temperature: 0.3 });
+    // The assistant is the most reasoning-heavy call in the app, so on Gemini
+    // we reach for the smarter "pro" model first (still cheap against a prepaid
+    // credit) and fall back to flash automatically if it's unavailable.
+    return fallbackGenerate({
+      system: ASSISTANT_SYSTEM,
+      userText,
+      maxTokens: 1024,
+      temperature: 0.3,
+      geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
+    });
   }
 
   const anthropic = client();

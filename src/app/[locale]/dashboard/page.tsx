@@ -6,6 +6,8 @@ import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
+import { ShareResult } from "@/components/ShareResult";
+import { FeePayButton } from "@/components/FeePayButton";
 import { Reveal } from "@/components/Reveal";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
@@ -31,8 +33,15 @@ const STATUS_COLOR: Record<string, string> = {
   REVOKED: "#F08A6B",
 };
 
-export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function DashboardPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ fee?: string }>;
+}) {
   const { locale } = await params;
+  const { fee: feeStatus } = await searchParams;
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
@@ -46,13 +55,100 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     include: { savingsProof: true, fee: true },
   });
 
+  // Total documented monthly saving (the real, proven number) — drives the
+  // most viral share: a specific "Zakai got me ₪X back" spreads far better
+  // than a generic invite.
+  const totalDocumentedMonthly = cases.reduce(
+    (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
+    0,
+  );
+
   const totalPotential = cases.reduce(
     (sum, c) => sum + Math.max(0, c.amountOriginal - c.targetAmount),
     0,
   );
 
+  // Family mode: group checks by whom they were run for. Cases with an empty
+  // label belong to the account owner and render first, ungrouped.
+  const ownCases = cases.filter((c) => !c.beneficiaryLabel);
+  const familyGroups = new Map<string, typeof cases>();
+  for (const c of cases) {
+    if (!c.beneficiaryLabel) continue;
+    const arr = familyGroups.get(c.beneficiaryLabel) ?? [];
+    arr.push(c);
+    familyGroups.set(c.beneficiaryLabel, arr);
+  }
+  const hasFamily = familyGroups.size > 0;
+
+  // One check row + the Card wrapper. Shared by the owner list and each
+  // family-member group so the markup stays identical everywhere.
+  const renderCaseCard = (list: typeof cases) => (
+    <Card className="py-1.5">
+      {list.map((c, i) => {
+        const settled = c.status === "SAVED" || c.status === "NO_SAVING";
+        const effectiveNew = c.savingsProof ? c.savingsProof.newAmount : c.targetAmount;
+        const delta = Math.max(0, c.amountOriginal - effectiveNew);
+        return (
+          <div
+            key={c.id}
+            className="flex items-center gap-3.5 px-5 py-4 flex-wrap"
+            style={{
+              borderBottom: i < list.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+            }}
+          >
+            <div className="flex-1 basis-[140px]">
+              <div className="font-extrabold text-[15.5px]">{t(`providers.${c.provider}`)}</div>
+              <div className="text-xs text-ink-soft mt-0.5">
+                {c.createdAt.toLocaleDateString(loc)}
+              </div>
+            </div>
+            <div className="text-[14.5px]">
+              <span className="font-display text-lg">{formatAgorot(c.amountOriginal, loc)}</span>
+              <span className="text-ink-soft"> → </span>
+              <span className="font-display grad-text text-lg">
+                {formatAgorot(effectiveNew, loc)}
+              </span>
+            </div>
+            <div className="text-[12.5px] text-emerald font-extrabold">
+              −{formatAgorot(delta, loc)}
+              {c.status === "SAVED"
+                ? ` (${t("dashboard.verifiedSavedTag")})`
+                : !settled
+                  ? ` (${t("dashboard.savedTag")})`
+                  : ""}
+            </div>
+            {c.fee && c.fee.status !== "WAIVED" && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="text-[12px] text-ink-soft">
+                  {t("dashboard.feeTag")}: {formatAgorot(c.fee.amount, loc)}
+                  {c.fee.status === "PAID" && ` ✓ ${t("dashboard.feePaid")}`}
+                </div>
+                {c.fee.status === "PENDING" && c.fee.amount > 0 && (
+                  <FeePayButton caseId={c.id} />
+                )}
+              </div>
+            )}
+            <div
+              className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
+              style={{
+                color: STATUS_COLOR[c.status],
+                background: `${STATUS_COLOR[c.status]}18`,
+                border: `1px solid ${STATUS_COLOR[c.status]}44`,
+              }}
+            >
+              {t(`dashboard.status.${STATUS_KEY[c.status]}`)}
+            </div>
+          </div>
+        );
+      })}
+    </Card>
+  );
+
   // Money Health Score — the recurring-need hook, from measurable activity.
   const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
+  const referralCode =
+    (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
+      ?.referralCode ?? "";
   const lastActivity = cases[0]?.createdAt ?? null;
   const scoreResult = computeMoneyScore({
     casesCount: cases.length,
@@ -70,6 +166,19 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
         <PlanBadge plan={user!.plan} />
       </div>
+      {feeStatus === "paid" && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] px-5 py-3.5 mb-5 flex items-center gap-2.5">
+          <span className="text-emerald text-lg" aria-hidden>
+            ✓
+          </span>
+          <span className="text-[14px] font-bold">{t("dashboard.feePaidBanner")}</span>
+        </div>
+      )}
+      {feeStatus === "error" && (
+        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[14px] font-bold">
+          {t("dashboard.feeErrorBanner")}
+        </div>
+      )}
       {(user!.plan === "PRO" || user!.plan === "MAX") && (
         <div
           className={`rounded-2xl p-[1px] mb-6 ${
@@ -95,6 +204,17 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
       )}
 
       <MoneyScoreCard result={scoreResult} />
+
+      {/* Close the growth loop: sharing from here carries the user's referral
+          code, so every "look what Zakai found me" also credits the sharer. */}
+      <ShareResult
+        message={
+          totalDocumentedMonthly > 0
+            ? t("share.msgSaved", { amount: formatAgorot(totalDocumentedMonthly, loc) })
+            : t("share.msgReferral")
+        }
+        referralCode={referralCode}
+      />
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
@@ -124,60 +244,25 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             </SpotlightCard>
           </Reveal>
 
-          <h2 className="text-[17px] font-extrabold mt-6 mb-3.5">{t("dashboard.checks")}</h2>
-          <Card className="py-1.5">
-            {cases.map((c, i) => {
-              const settled = c.status === "SAVED" || c.status === "NO_SAVING";
-              const effectiveNew = c.savingsProof ? c.savingsProof.newAmount : c.targetAmount;
-              const delta = Math.max(0, c.amountOriginal - effectiveNew);
-              return (
-                <div
-                  key={c.id}
-                  className="flex items-center gap-3.5 px-5 py-4 flex-wrap"
-                  style={{
-                    borderBottom: i < cases.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
-                  }}
-                >
-                  <div className="flex-1 basis-[140px]">
-                    <div className="font-extrabold text-[15.5px]">{t(`providers.${c.provider}`)}</div>
-                    <div className="text-xs text-ink-soft mt-0.5">
-                      {c.createdAt.toLocaleDateString(loc)}
-                    </div>
-                  </div>
-                  <div className="text-[14.5px]">
-                    <span className="font-display text-lg">{formatAgorot(c.amountOriginal, loc)}</span>
-                    <span className="text-ink-soft"> → </span>
-                    <span className="font-display grad-text text-lg">
-                      {formatAgorot(effectiveNew, loc)}
-                    </span>
-                  </div>
-                  <div className="text-[12.5px] text-emerald font-extrabold">
-                    −{formatAgorot(delta, loc)}
-                    {c.status === "SAVED"
-                      ? ` (${t("dashboard.verifiedSavedTag")})`
-                      : !settled
-                        ? ` (${t("dashboard.savedTag")})`
-                        : ""}
-                  </div>
-                  {c.fee && c.fee.status !== "WAIVED" && (
-                    <div className="text-[12px] text-ink-soft">
-                      {t("dashboard.feeTag")}: {formatAgorot(c.fee.amount, loc)}
-                    </div>
-                  )}
-                  <div
-                    className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
-                    style={{
-                      color: STATUS_COLOR[c.status],
-                      background: `${STATUS_COLOR[c.status]}18`,
-                      border: `1px solid ${STATUS_COLOR[c.status]}44`,
-                    }}
-                  >
-                    {t(`dashboard.status.${STATUS_KEY[c.status]}`)}
-                  </div>
-                </div>
-              );
-            })}
-          </Card>
+          {ownCases.length > 0 && (
+            <>
+              <h2 className="text-[17px] font-extrabold mt-6 mb-3.5">
+                {hasFamily ? t("dashboard.checksMine") : t("dashboard.checks")}
+              </h2>
+              {renderCaseCard(ownCases)}
+            </>
+          )}
+
+          {hasFamily &&
+            [...familyGroups.entries()].map(([label, list]) => (
+              <div key={label}>
+                <h2 className="text-[17px] font-extrabold mt-7 mb-3.5 flex items-center gap-2">
+                  <span aria-hidden>👤</span>
+                  {t("dashboard.checksFor", { name: label })}
+                </h2>
+                {renderCaseCard(list)}
+              </div>
+            ))}
 
           <div className="mt-6">
             <Link href="/check">

@@ -121,7 +121,10 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
             ))}
           </div>
         )}
-        <Link href="/signup" className="no-underline">
+        {/* Value before wall: send people into the FREE, no-signup breakdown of
+            what they're owed — not straight to a signup gate (real user feedback:
+            "you can't do anything / it just pushes you elsewhere"). */}
+        <Link href="/what-am-i-owed" className="no-underline">
           <Button className="mt-5 w-full">{t("cta")}</Button>
         </Link>
         <p className="text-[10.5px] text-ink-soft mt-3 mb-0 leading-snug">{t("note")}</p>

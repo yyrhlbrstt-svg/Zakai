@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { computeFee } from "@/lib/fee";
+import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
@@ -27,6 +28,9 @@ interface CreateCaseInput {
   marketLowShekels?: number;
   marketHighShekels?: number;
   draftMessage: string;
+  beneficiaryLabel?: string;
+  /** Rule-pack key; defaults to "telecom" (the proven full-service vertical). */
+  vertical?: string;
 }
 
 export async function createCase(input: CreateCaseInput) {
@@ -43,6 +47,7 @@ export async function createCase(input: CreateCaseInput) {
   return prisma.case.create({
     data: {
       userId: input.userId,
+      vertical: input.vertical ?? "telecom",
       provider: input.provider,
       planDescription: input.plan,
       amountOriginal: shekelsToAgorot(input.amountShekels),
@@ -51,6 +56,7 @@ export async function createCase(input: CreateCaseInput) {
       marketHigh: input.marketHighShekels != null ? shekelsToAgorot(input.marketHighShekels) : null,
       strategy: input.strategy,
       draftMessage: input.draftMessage,
+      beneficiaryLabel: (input.beneficiaryLabel ?? "").slice(0, 40),
       status: "ANALYZED",
     },
   });
@@ -157,8 +163,13 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
       select: { plan: true, referralCreditAgorot: true, referredById: true },
     });
 
-    // The success-fee rate comes from the user's plan (Free 18%, Pro 9%, Max 0%).
-    const fee = computeFee(kase.amountOriginal, newAmount, planConfig(owner?.plan).feeRateBps);
+    // The success-fee rate comes from the user's plan (Free 18%, Pro 9%, Max 0%),
+    // resolved through the vertical's rule pack. Telecom's pack overrides nothing
+    // (feeRateBps=null), so this equals the plan rate exactly — the Stage-0
+    // invariant — while giving future verticals a per-vertical rate seam.
+    const planRateBps = planConfig(owner?.plan).feeRateBps;
+    const rateBps = effectiveFeeRateBps(getRulePack(kase.vertical), planRateBps);
+    const fee = computeFee(kase.amountOriginal, newAmount, rateBps);
     const saved = fee.savingMonthly > 0;
 
     // Apply this user's own referral credit (earned by inviting others) to the
