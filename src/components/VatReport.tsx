@@ -492,8 +492,24 @@ function FindingItem({
 
   return (
     <li className="flex gap-3 items-start">
-      <span className={`font-black text-[15px] leading-tight shrink-0 ${tone}`} aria-hidden>
-        {finding.severity === "info" ? "•" : finding.severity === "recoverable" ? "↻" : "✕"}
+      {/* SVG rather than "↻ / ✕" text glyphs, which are missing from many
+          system fonts and render as tofu boxes (□). */}
+      <span className={`shrink-0 mt-[3px] ${tone}`} aria-hidden>
+        {finding.severity === "info" ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <circle cx="12" cy="12" r="4" />
+          </svg>
+        ) : finding.severity === "recoverable" ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M20 11a8 8 0 1 0-2.3 5.7" />
+            <polyline points="20 4 20 11 13 11" />
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden>
+            <line x1="6" y1="6" x2="18" y2="18" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+          </svg>
+        )}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">

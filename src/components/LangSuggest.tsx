@@ -65,9 +65,14 @@ export function LangSuggest() {
           type="button"
           onClick={dismiss}
           aria-label="Dismiss"
-          className="shrink-0 text-ink-soft hover:text-ink text-base leading-none px-1"
+          className="shrink-0 text-ink-soft hover:text-ink leading-none px-1"
         >
-          ✕
+          {/* SVG, not "✕": that glyph is missing from many system fonts and
+              renders as a tofu box (□). */}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+            <line x1="6" y1="6" x2="18" y2="18" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+          </svg>
         </button>
       </div>
     </div>

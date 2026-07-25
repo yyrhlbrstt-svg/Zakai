@@ -99,7 +99,10 @@ export default async function LocaleLayout({
         {/* Branded boot splash — painted on the first frame, shown once per
             session. Server-rendered markup + a gate script that hides it on
             repeat navigations. Reduced-motion hides it via CSS. */}
-        <div id="zakai-splash" aria-hidden>
+        {/* `suppressHydrationWarning`: the gate script below sets
+            className="splash-skip" on this node before React hydrates, so the
+            client markup intentionally differs from the server markup. */}
+        <div id="zakai-splash" aria-hidden suppressHydrationWarning>
           <svg className="splash-mark" viewBox="0 0 110 110" width="76" height="76">
             <rect x="4" y="4" width="102" height="102" rx="26" fill="#3FCB9B" />
             <path

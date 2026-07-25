@@ -107,9 +107,9 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             onClick={() => setMobileOpen((v) => !v)}
             aria-expanded={mobileOpen}
             aria-label={t("nav.menu")}
-            className="w-10 h-10 flex items-center justify-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-ink text-xl"
+            className="w-10 h-10 flex items-center justify-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-ink"
           >
-            {mobileOpen ? "✕" : "☰"}
+            {mobileOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
         </div>
       </div>
@@ -194,9 +194,9 @@ function ToolsMenu({ label }: { label: string }) {
         }`}
       >
         {label}
-        <span className={`text-[10px] transition-transform duration-200 ${open ? "rotate-180" : ""}`} aria-hidden>
-          ▾
-        </span>
+        <ChevronIcon
+          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open && (
@@ -218,6 +218,48 @@ function ToolsMenu({ label }: { label: string }) {
         </div>
       )}
     </div>
+  );
+}
+
+/* Inline SVG icons. These replace the bare "☰ / ✕ / ▾" text glyphs, which are
+   absent from many system fonts and rendered as tofu boxes (□). Each is
+   decorative — the parent control carries the accessible label. */
+
+function MenuIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+      <line x1="4" y1="7" x2="20" y2="7" />
+      <line x1="4" y1="12" x2="20" y2="12" />
+      <line x1="4" y1="17" x2="20" y2="17" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+      <line x1="6" y1="6" x2="18" y2="18" />
+      <line x1="18" y1="6" x2="6" y2="18" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
   );
 }
 
