@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Sparkles, Inbox, User } from "lucide-react";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
@@ -38,10 +39,10 @@ export default async function DashboardPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ fee?: string }>;
+  searchParams: Promise<{ fee?: string; intent?: string }>;
 }) {
   const { locale } = await params;
-  const { fee: feeStatus } = await searchParams;
+  const { fee: feeStatus, intent } = await searchParams;
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
@@ -166,6 +167,22 @@ export default async function DashboardPage({
         <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
         <PlanBadge plan={user!.plan} />
       </div>
+      {intent && (
+        <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)] px-5 py-4 mb-5 flex items-center gap-3">
+          <Sparkles size={20} className="text-[#3ec6ff] shrink-0" aria-hidden />
+          <div>
+            <div className="font-extrabold text-[14.5px]">{t("dashboard.intentTitle")}</div>
+            <div className="text-ink-soft text-[13px] mt-0.5">
+              {t.has(`dashboard.intents.${intent}`)
+                ? t(`dashboard.intents.${intent}`)
+                : t("dashboard.intentGeneric")}
+            </div>
+          </div>
+          <Link href="/check" className="ms-auto shrink-0">
+            <Button>{t("dashboard.intentCta")}</Button>
+          </Link>
+        </div>
+      )}
       {feeStatus === "paid" && (
         <div className="rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] px-5 py-3.5 mb-5 flex items-center gap-2.5">
           <span className="text-emerald text-lg" aria-hidden>
@@ -218,7 +235,7 @@ export default async function DashboardPage({
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
-          <div className="text-[44px] mb-3.5">📭</div>
+          <Inbox size={40} className="mx-auto mb-3.5 text-ink-soft" aria-hidden />
           <div className="font-display text-2xl">{t("dashboard.empty")}</div>
           <div className="text-ink-soft text-[14.5px] mt-2">{t("dashboard.emptySub")}</div>
           <Link href="/check">
@@ -257,7 +274,7 @@ export default async function DashboardPage({
             [...familyGroups.entries()].map(([label, list]) => (
               <div key={label}>
                 <h2 className="text-[17px] font-extrabold mt-7 mb-3.5 flex items-center gap-2">
-                  <span aria-hidden>👤</span>
+                  <User size={17} className="text-emerald" aria-hidden />
                   {t("dashboard.checksFor", { name: label })}
                 </h2>
                 {renderCaseCard(list)}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import { Search, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
@@ -16,11 +17,13 @@ export async function generateMetadata({
 }
 
 interface Source {
-  icon: string;
   title: string;
   body: string;
   cta: string;
-  url: string;
+  /** icon/url may still exist in the translation payload; both are unused now
+      that the CTA routes in-app. Kept optional so t.raw() stays type-safe. */
+  icon?: string;
+  url?: string;
 }
 
 export default async function LostMoneyPage({
@@ -46,24 +49,27 @@ export default async function LostMoneyPage({
         <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
       </Reveal>
 
-      {/* The official, free government search tools — we guide, we don't gate. */}
+      {/* We explain each place lost money hides, then Zakai does the search —
+          the customer stays inside the app instead of being sent to gov sites. */}
       <div className="mt-9 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
         {sources.map((s, i) => (
           <Reveal key={s.title} delay={i * 80}>
             <SpotlightCard className="p-6 h-full flex flex-col">
-              <div className="text-[26px]" aria-hidden>
-                {s.icon}
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center bg-[rgba(63,203,155,0.12)] border border-[rgba(63,203,155,0.25)]"
+                aria-hidden
+              >
+                <Search size={20} className="text-emerald" />
               </div>
               <div className="font-extrabold text-[16px] mt-3">{s.title}</div>
               <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed flex-1">{s.body}</div>
-              <a
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                className="inline-flex items-center gap-1.5 text-emerald font-bold text-[13.5px] mt-4 no-underline"
+              <Link
+                href="/dashboard?intent=lost_money"
+                className="inline-flex items-center gap-1.5 text-emerald font-bold text-[13.5px] mt-4 no-underline hover:underline"
               >
-                {s.cta} <span aria-hidden>↗</span>
-              </a>
+                {s.cta}
+                <ArrowLeft size={15} aria-hidden />
+              </Link>
             </SpotlightCard>
           </Reveal>
         ))}

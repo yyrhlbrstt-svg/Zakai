@@ -409,6 +409,44 @@ export function rightsSourceUrl(country: CountryCode, title: string): string {
   }
 }
 
+/**
+ * The display NAME of a country's official rights source (e.g. "כל-זכות",
+ * "GOV.UK"). Used for an in-app trust citation — we tell the user which
+ * authority an entitlement is grounded in, WITHOUT ever linking them out of
+ * Zakai. Kept in sync with rightsSourceUrl above.
+ */
+export function rightsSourceName(country: CountryCode): string {
+  switch (country) {
+    case "UK":
+      return "GOV.UK";
+    case "US":
+      return "USA.gov";
+    case "DE":
+      return "Bund.de";
+    case "CA":
+      return "Canada.ca";
+    case "AU":
+      return "Services Australia";
+    case "FR":
+      return "Service-Public.fr";
+    case "IE":
+      return "Citizens Information";
+    case "NL":
+      return "Government.nl";
+    case "ES":
+      return "Administración.gob.es";
+    case "IT":
+      return "INPS";
+    case "SE":
+      return "Försäkringskassan";
+    case "PL":
+      return "Gov.pl";
+    case "IL":
+    default:
+      return "כל-זכות";
+  }
+}
+
 export interface RightsResult {
   matches: Entitlement[];
   /** Sum of the conservatively-quantifiable yearly values only. */

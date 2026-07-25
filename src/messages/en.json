@@ -593,7 +593,14 @@
     "feePayError": "Try again",
     "feePaid": "paid",
     "feePaidBanner": "Payment received — thank you! The fee was paid successfully.",
-    "feeErrorBanner": "Payment did not complete. You can try again from the fee below."
+    "feeErrorBanner": "Payment did not complete. You can try again from the fee below.",
+    "intentTitle": "We’ve started handling your request",
+    "intentGeneric": "Zakai will check your eligibility and handle the whole claim end-to-end — without you ever leaving the app.",
+    "intentCta": "Let’s start",
+    "intents": {
+      "class_action": "We’ll check open class actions you’re owed money from and enroll you automatically — no forms.",
+      "lost_money": "We’ll scan every registry for lost money in your name and get it back to you."
+    }
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",
@@ -1930,7 +1937,9 @@
       "IT": "Italy",
       "SE": "Sweden",
       "PL": "Poland"
-    }
+    },
+    "startClaim": "Let Zakai handle it",
+    "officialSource": "Based on {source}"
   },
   "legalPages": {
     "termsTitle": "Terms of Service",

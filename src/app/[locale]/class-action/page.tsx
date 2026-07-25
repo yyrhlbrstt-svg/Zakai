@@ -95,14 +95,12 @@ export default async function ClassActionPage({
             <p className="text-ink-soft text-[14px] mt-2 max-w-[520px] mx-auto leading-relaxed">
               {t("cta.body")}
             </p>
+            {/* In-app only: the primary CTA routes into Zakai's own claim
+                flow — the customer never gets sent to a government site. */}
             <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <a
-                href="https://www.gov.il/he/departments/legalInfo/class_actions_registry"
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-              >
+              <Link href="/dashboard?intent=class_action">
                 <Button>{t("cta.primary")}</Button>
-              </a>
+              </Link>
               <Link href="/entitlements">
                 <Button variant="ghost">{t("cta.secondary")}</Button>
               </Link>

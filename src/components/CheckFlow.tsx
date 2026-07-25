@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, Link } from "@/i18n/routing";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
@@ -505,13 +505,16 @@ export function CheckFlow() {
                 <div className="text-emerald font-bold mb-2">✓ {tv("authGenerated")}</div>
                 <div className="text-ink-soft">{tv("authCode")}</div>
                 <div className="font-display text-xl tracking-wide">{auth.code}</div>
+                {/* In-app navigation only: these are Zakai's own same-origin
+                    document routes, so we keep the customer inside the app
+                    (same tab, no "leaving" affordance). */}
                 <div className="flex gap-4 mt-2.5 flex-wrap">
-                  <a href={auth.documentUrl} target="_blank" rel="noreferrer" className="text-emerald font-bold no-underline">
-                    {tv("authView")} ↗
-                  </a>
-                  <a href={auth.verifyUrl} target="_blank" rel="noreferrer" className="text-emerald font-bold no-underline">
-                    {tv("authVerifyLink")} ↗
-                  </a>
+                  <Link href={auth.documentUrl} className="text-emerald font-bold no-underline hover:underline">
+                    {tv("authView")}
+                  </Link>
+                  <Link href={`/verify?code=${encodeURIComponent(auth.code)}`} className="text-emerald font-bold no-underline hover:underline">
+                    {tv("authVerifyLink")}
+                  </Link>
                 </div>
               </div>
             )}

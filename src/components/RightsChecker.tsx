@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
+import { ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui";
 import {
   evaluateRights,
-  rightsSourceUrl,
+  rightsSourceName,
   RIGHTS_COUNTRIES,
   type RightsProfile,
   type RightCategory,
@@ -159,17 +161,22 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
                   <span className="text-emerald font-bold">{t("howTo")}</span>{" "}
                   {t(`items.${e.id}.how`)}
                 </p>
-                {/* Deep link into the country's OFFICIAL rights source
-                    (IL → Kol-Zchut, UK → GOV.UK, US → USA.gov) — real rights,
-                    never invented. */}
-                <a
-                  href={rightsSourceUrl(country, t(`items.${e.id}.title`))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-2 text-[12px] font-bold text-emerald no-underline hover:underline"
-                >
-                  {t("moreInfo")}
-                </a>
+                {/* Zero external links: the customer never leaves Zakai. The
+                    primary action routes into Zakai's own claim flow; the
+                    official source is shown only as a small trust citation
+                    (plain text, not a redirect out). */}
+                <div className="mt-3 flex items-center gap-3 flex-wrap">
+                  <Link
+                    href={`/dashboard?intent=${encodeURIComponent(e.id)}`}
+                    className="inline-flex items-center gap-1.5 text-[12.5px] font-extrabold text-base bg-emerald rounded-full px-3.5 py-1.5 no-underline hover:opacity-90 transition-opacity"
+                  >
+                    {t("startClaim")}
+                    <ArrowLeft size={14} aria-hidden />
+                  </Link>
+                  <span className="text-[11px] text-ink-soft/70">
+                    {t("officialSource", { source: rightsSourceName(country) })}
+                  </span>
+                </div>
               </details>
             ))}
           </Card>
