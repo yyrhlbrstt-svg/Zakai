@@ -68,7 +68,8 @@
     "compensation": "Insurance claims",
     "spending": "Spending overview",
     "insurancecompare": "Compare insurance",
-    "debt": "Consolidate debt"
+    "debt": "Consolidate debt",
+    "vat": "VAT return"
   },
   "payslip": {
     "title": "Payslip check",
@@ -354,6 +355,10 @@
       "disability": {
         "title": "Disability / attendance",
         "sub": "Among the most unclaimed rights — tens of thousands ₪ a year, for life."
+      },
+      "vat": {
+        "title": "VAT return for businesses",
+        "sub": "Output against input VAT, what the regulations block, and what you can reclaim."
       }
     },
     "whyTitle": "Why Zakai and not the other ways?",
@@ -432,7 +437,8 @@
     "verticalGroups": {
       "moneyBack": "Money owed back to you",
       "rightsWork": "Rights & work",
-      "consumer": "Consumer & savings"
+      "consumer": "Consumer & savings",
+      "business": "Business & self-employed"
     },
     "geoNote": "Looks like you are browsing from outside Israel. Some tools (lost money, cancelling subscriptions, price protection) work anywhere; rights and refunds are tuned for Israel today, and we are expanding to more regions."
   },
@@ -872,7 +878,7 @@
       "1": "Up to 2 hours",
       "4": "3–5 hours",
       "6": "Over 5 hours",
-      "2.5": "2–3 hours"
+      "2_5": "2–3 hours"
     },
     "euTiers": {
       "short": "Up to 1,500 km (Cyprus, Athens)",
@@ -3409,5 +3415,117 @@
       "You proceed only if the monthly payment genuinely drops; a fee is a referral, never from you."
     ],
     "disclaimer": "Zakai is not a lender or credit advisor and gives no financial advice. We connect you to a licensed provider and are paid a referral fee. Consolidating can extend a loan's term; you are never obligated to proceed."
+  },
+  "vat": {
+    "title": "Periodic VAT return",
+    "subtitle": "Build the return in a minute: output VAT against input VAT, what the regulations block, and what you can still reclaim. Everything runs in your browser — your invoices never leave the device.",
+    "direction": {
+      "payable": "Balance payable to VAT",
+      "refund": "Balance refundable from VAT",
+      "nil": "No balance for the period"
+    },
+    "dueBy": "Due by",
+    "frequencyLabel": "Frequency",
+    "frequency": {
+      "monthly": "Monthly",
+      "biMonthly": "Bi-monthly"
+    },
+    "rateLabel": "VAT rate",
+    "recoverableTitle": "Money you can still reclaim",
+    "recoverableSub": "Input VAT blocked by a missing document rather than by law. Getting the invoice or the allocation number from your supplier before you file puts this amount back in play.",
+    "salesTitle": "Output VAT",
+    "salesHint": "Your sales for the period, in amounts before VAT.",
+    "addSale": "Add a sale",
+    "inputsTitle": "Input VAT",
+    "inputsHint": "Your purchases for the period, in amounts before VAT. The classification decides how much of the VAT you can actually deduct.",
+    "addInput": "Add a purchase",
+    "netAmount": "Amount before VAT",
+    "remove": "Remove row",
+    "labelPlaceholderSale": "Description (optional)",
+    "labelPlaceholderInput": "Description (optional)",
+    "vatOnLine": "VAT on this row: {amount}",
+    "hasInvoice": "A valid tax invoice is on file",
+    "hasAllocation": "The invoice carries an allocation number",
+    "allocationHint": "Required on invoices above {amount} before VAT",
+    "sale": {
+      "standard": "Standard sale",
+      "zeroRated": "Zero-rated / export",
+      "exempt": "Exempt sale"
+    },
+    "input": {
+      "standard": "Running expense",
+      "equipment": "Equipment and fixed assets",
+      "mixedBusiness": "Mixed use — mainly business",
+      "mixedPrivate": "Mixed use — mainly private",
+      "vehicleUpkeep": "Private car running costs",
+      "vehiclePurchase": "Private car purchase or lease",
+      "hospitality": "Hospitality and entertainment"
+    },
+    "findingsTitle": "What Zakai found",
+    "findingsSub": "Every adjustment made to the figures you entered, with the reason and the regulation behind it. Each line can be checked with your accountant.",
+    "findings": {
+      "missingInvoice": {
+        "title": "Tax invoice missing",
+        "body": "Without a valid tax invoice in the business's name there is nothing to deduct. Requesting it from the supplier before filing restores the deduction."
+      },
+      "missingAllocationNumber": {
+        "title": "Allocation number missing",
+        "body": "An invoice above the threshold must carry a Tax Authority allocation number, or the input VAT cannot be deducted. Your supplier can reissue a compliant invoice."
+      },
+      "vehiclePurchaseBlocked": {
+        "title": "Private car — deduction blocked",
+        "body": "Input VAT on buying, importing or leasing a private passenger car is not deductible, except for specific trades such as driving schools, car rental and passenger transport."
+      },
+      "hospitalityBlocked": {
+        "title": "Hospitality — not deductible",
+        "body": "Input VAT on hospitality and entertainment is not deductible at all, even where income tax allows part of the expense."
+      },
+      "partialDeduction": {
+        "title": "Partial deduction under the regulations",
+        "body": "Mixed-use inputs are deducted at a reduced rate: two thirds where the use is mainly business, a quarter where it is mainly private."
+      },
+      "refundPosition": {
+        "title": "The return comes out as a refund",
+        "body": "A refund position is entirely legitimate — an equipment-heavy period, or an exporter — but it is also the most scrutinised filing there is. Make sure every invoice is on file."
+      },
+      "belowPaturCeiling": {
+        "title": "Below the exempt-dealer ceiling",
+        "body": "Annual turnover is still under the exempt-dealer ceiling. This is the headroom remaining — worth checking with your accountant which status pays off."
+      }
+    },
+    "breakdownTitle": "Return breakdown",
+    "rows": {
+      "taxableSales": "Taxable turnover",
+      "zeroRated": "Zero-rated sales",
+      "exempt": "Exempt sales",
+      "outputVat": "Output VAT",
+      "equipmentVat": "Input VAT on equipment",
+      "otherVat": "Input VAT on other inputs",
+      "deductibleVat": "Total deductible input VAT",
+      "disallowedVat": "Input VAT not deductible",
+      "payable": "Balance payable",
+      "refund": "Balance refundable"
+    },
+    "periodTitle": "Reporting period",
+    "month": "Month",
+    "year": "Year",
+    "months": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    },
+    "detailedLabel": "I file the detailed report (PCN874)",
+    "detailedHint": "Detailed-report filers always report monthly.",
+    "print": "Print or save as PDF",
+    "disclaimer": "Zakai is a calculation engine, not professional advice. The figures assume an 18% VAT rate and the prevailing deduction regulations, and are not a substitute for review by an accountant or tax adviser. Responsibility for the filing itself rests with the business."
   }
 }

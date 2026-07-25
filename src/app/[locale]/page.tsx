@@ -5,6 +5,8 @@ import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { ToolIconTile } from "@/components/ToolIcon";
+import { Globe } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -60,8 +62,9 @@ export default async function HomePage({
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       {!israeliVisitor && (
-        <div className="mb-6 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
-          🌍 {t("home.geoNote")}
+        <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
+          <Globe size={18} className="shrink-0 text-[#3ec6ff]" aria-hidden />
+          <span>{t("home.geoNote")}</span>
         </div>
       )}
       <div className="flex flex-wrap gap-12 items-center">
@@ -154,46 +157,50 @@ export default async function HomePage({
           {
             group: "moneyBack",
             items: [
-              { key: "lostmoney", href: "/lost-money", icon: "⛰️" },
-              { key: "classaction", href: "/class-action", icon: "⚖️" },
-              { key: "childsavings", href: "/child-savings", icon: "🧒" },
-              { key: "arnona", href: "/arnona", icon: "🏠" },
-              { key: "disability", href: "/disability-benefits", icon: "♿" },
-              { key: "defects", href: "/construction-defects", icon: "🏗️" },
-              { key: "carvalue", href: "/car-value", icon: "🚗" },
-              { key: "mortins", href: "/mortgage-insurance", icon: "🏠" },
-              { key: "dupinsurance", href: "/duplicate-insurance", icon: "🛡️" },
-              { key: "pension", href: "/pension-fees", icon: "📊" },
-              { key: "mortgage", href: "/mortgage", icon: "🏡" },
-              { key: "taxrefund", href: "/taxrefund", icon: "💸" },
-              { key: "flights", href: "/flights", icon: "✈️" },
-              { key: "baggage", href: "/baggage", icon: "🧳" },
-              { key: "priceprotection", href: "/price-protection", icon: "🏷️" },
-              { key: "parking", href: "/parking", icon: "🅿️" },
+              { key: "lostmoney", href: "/lost-money" },
+              { key: "classaction", href: "/class-action" },
+              { key: "childsavings", href: "/child-savings" },
+              { key: "arnona", href: "/arnona" },
+              { key: "disability", href: "/disability-benefits" },
+              { key: "defects", href: "/construction-defects" },
+              { key: "carvalue", href: "/car-value" },
+              { key: "mortins", href: "/mortgage-insurance" },
+              { key: "dupinsurance", href: "/duplicate-insurance" },
+              { key: "pension", href: "/pension-fees" },
+              { key: "mortgage", href: "/mortgage" },
+              { key: "taxrefund", href: "/taxrefund" },
+              { key: "flights", href: "/flights" },
+              { key: "baggage", href: "/baggage" },
+              { key: "priceprotection", href: "/price-protection" },
+              { key: "parking", href: "/parking" },
             ],
           },
           {
             group: "rightsWork",
             items: [
-              { key: "rights", href: "/rights", icon: "🎯" },
-              { key: "payslip", href: "/payslip", icon: "🧾" },
-              { key: "severance", href: "/severance", icon: "📄" },
-              { key: "maternity", href: "/maternity", icon: "👶" },
-              { key: "unemployment", href: "/unemployment", icon: "🧭" },
-              { key: "miluim", href: "/miluim", icon: "🎖️" },
+              { key: "rights", href: "/rights" },
+              { key: "payslip", href: "/payslip" },
+              { key: "severance", href: "/severance" },
+              { key: "maternity", href: "/maternity" },
+              { key: "unemployment", href: "/unemployment" },
+              { key: "miluim", href: "/miluim" },
             ],
           },
           {
             group: "consumer",
             items: [
-              { key: "mobile", href: "/check", icon: "📱" },
-              { key: "electricity", href: "/electricity", icon: "⚡" },
-              { key: "subs", href: "/scan", icon: "🔁" },
-              { key: "bankfees", href: "/bank-fees", icon: "🏦" },
-              { key: "warranty", href: "/warranty", icon: "🛠️" },
-              { key: "deposit", href: "/deposit", icon: "🔑" },
-              { key: "deals", href: "/deals", icon: "🎟️" },
+              { key: "mobile", href: "/check" },
+              { key: "electricity", href: "/electricity" },
+              { key: "subs", href: "/scan" },
+              { key: "bankfees", href: "/bank-fees" },
+              { key: "warranty", href: "/warranty" },
+              { key: "deposit", href: "/deposit" },
+              { key: "deals", href: "/deals" },
             ],
+          },
+          {
+            group: "business",
+            items: [{ key: "vat", href: "/vat" }],
           },
         ] as const
       ).map((section) => (
@@ -208,9 +215,7 @@ export default async function HomePage({
               <Reveal key={v.key} delay={i * 60}>
                 <Link href={v.href} className="no-underline text-ink block h-full">
                   <SpotlightCard className="p-5 h-full transition-colors duration-200 hover:border-[rgba(63,203,155,0.4)]">
-                    <div className="text-[26px]" aria-hidden>
-                      {v.icon}
-                    </div>
+                    <ToolIconTile name={v.key} />
                     <div className="font-extrabold text-[15px] mt-2.5">
                       {t(`home.verticals.${v.key}.title`)}
                     </div>
