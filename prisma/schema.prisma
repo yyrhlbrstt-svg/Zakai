@@ -9,9 +9,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// The Neon integration injects NEON_*-prefixed variables in both dev and
+// production, so we read those directly instead of a hand-copied DATABASE_URL.
+// `url` is the pooled (PgBouncer) endpoint used by the app at runtime;
+// `directUrl` is the unpooled endpoint, which `prisma migrate` requires because
+// migrations need a real session (advisory locks don't survive pooling).
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("NEON_DATABASE_URL")
+  directUrl = env("NEON_DATABASE_URL_UNPOOLED")
 }
 
 enum Plan {

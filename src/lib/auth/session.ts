@@ -5,14 +5,41 @@ import { SignJWT, jwtVerify } from "jose";
 const COOKIE_NAME = "zakai_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
+/**
+ * Fixed, non-secret key used ONLY when AUTH_SECRET is absent in local
+ * development. It is a hard error in production (see `secretKey`), so this can
+ * never sign a real user's session. It exists so a fresh clone / preview boots
+ * with working auth instead of 500-ing before any env setup.
+ */
+const DEV_ONLY_FALLBACK_SECRET =
+  "zakai-insecure-development-only-secret-do-not-use-in-production";
+
+let warnedAboutFallback = false;
+
 function secretKey(): Uint8Array {
   const secret = process.env.AUTH_SECRET;
-  if (!secret || secret.length < 16) {
+
+  if (secret && secret.length >= 32) {
+    return new TextEncoder().encode(secret);
+  }
+
+  // In production a weak or missing signing key would let anyone forge a
+  // session cookie, so refuse to run rather than degrade silently.
+  if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "AUTH_SECRET is missing or too short. Set a 32+ char secret in the environment.",
+      "AUTH_SECRET is missing or shorter than 32 characters. Set a strong secret " +
+        "in the environment (e.g. `openssl rand -base64 32`).",
     );
   }
-  return new TextEncoder().encode(secret);
+
+  if (!warnedAboutFallback) {
+    warnedAboutFallback = true;
+    console.warn(
+      "[zakai] AUTH_SECRET is not set — signing sessions with an INSECURE " +
+        "development-only key. Set AUTH_SECRET before deploying.",
+    );
+  }
+  return new TextEncoder().encode(DEV_ONLY_FALLBACK_SECRET);
 }
 
 export interface SessionPayload {
