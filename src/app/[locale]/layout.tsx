@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale, getMessages, getTranslations } from "next-intl/server";
-import { Heebo, Suez_One, Manrope } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { dir, isLocale, type Locale } from "@/i18n/config";
 import { Background } from "@/components/Background";
@@ -13,27 +12,11 @@ import { LangSuggest } from "@/components/LangSuggest";
 import { getCurrentUser } from "@/lib/auth/user";
 import "../globals.css";
 
-const body = Heebo({
-  subsets: ["hebrew", "latin"],
-  weight: ["400", "500", "700", "800"],
-  variable: "--font-body",
-  display: "swap",
-});
-
-const display = Suez_One({
-  subsets: ["hebrew", "latin"],
-  weight: "400",
-  variable: "--font-display",
-  display: "swap",
-});
-
-// Geometric bold face for the "ZAKAI" wordmark.
-const wordmark = Manrope({
-  subsets: ["latin"],
-  weight: ["800"],
-  variable: "--font-wordmark",
-  display: "swap",
-});
+// Local font variables avoid build-time network calls to Google Fonts.
+// The fonts are loaded via CSS so the app builds offline and in restricted CI.
+const body = { variable: "--font-body" };
+const display = { variable: "--font-display" };
+const wordmark = { variable: "--font-wordmark" };
 
 export const metadata: Metadata = {
   title: "זכאי — Zakai",
