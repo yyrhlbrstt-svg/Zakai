@@ -6,7 +6,7 @@
  * used in dev (see messaging.ts); production uses confirmed channels.
  */
 
-export type ProviderCategory = "mobile" | "electricity";
+export type ProviderCategory = "mobile" | "electricity" | "travel";
 
 export type MobileProviderKey = "cellcom" | "partner" | "bezeq" | "hot" | "yes" | "other";
 export type ElectricityProviderKey =
@@ -16,8 +16,9 @@ export type ElectricityProviderKey =
   | "partnerPower"
   | "iec"
   | "otherElectricity";
+export type TravelProviderKey = "airline";
 
-export type ProviderKey = MobileProviderKey | ElectricityProviderKey;
+export type ProviderKey = MobileProviderKey | ElectricityProviderKey | TravelProviderKey;
 
 export interface ProviderInfo {
   key: ProviderKey;
@@ -43,6 +44,8 @@ export const PROVIDERS: Record<ProviderKey, ProviderInfo> = {
   partnerPower: { key: "partnerPower", labelKey: "partnerPower", contactEmail: "service@partner-power.example", category: "electricity" },
   iec: { key: "iec", labelKey: "iec", contactEmail: "service@iec.example", category: "electricity" },
   otherElectricity: { key: "otherElectricity", labelKey: "otherElectricity", contactEmail: "service@electricity.example", category: "electricity" },
+  // Travel
+  airline: { key: "airline", labelKey: "airline", contactEmail: "claims@airline.example", category: "travel" },
 };
 
 export const PROVIDER_KEYS = Object.keys(PROVIDERS) as ProviderKey[];
@@ -64,6 +67,7 @@ export const PROVIDER_HE_NAME: Record<ProviderKey, string> = {
   partnerPower: "פאוור פרטנר",
   iec: "חברת החשמל",
   otherElectricity: "ספק החשמל",
+  airline: "חברת התעופה",
 };
 
 export function providerHebrewName(key: string): string {

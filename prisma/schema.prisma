@@ -52,6 +52,7 @@ model User {
   referralRewardFor ReferralReward?  @relation("ReferredUser")
   consents          Consent[]
   rightsProfile     UserRightsProfile?
+  mailConnections   MailConnection[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -241,6 +242,35 @@ enum FeeStatus {
   PENDING // saving documented, fee owed, not yet collected
   WAIVED // no saving -> no fee
   PAID
+}
+
+enum MailConnectionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+/**
+ * OAuth connection to a user's mailbox, used (with explicit consent) to read
+ * provider replies and verify post-discount bills automatically.
+ * Tokens must be encrypted at rest in production; here we store the
+ * scaffolding for the trust architecture.
+ */
+model MailConnection {
+  id            String              @id @default(cuid())
+  userId        String
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider      String              // gmail | microsoft
+  refreshToken  String
+  accessToken   String?
+  expiresAt     DateTime?
+  scope         String
+  status        MailConnectionStatus @default(ACTIVE)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
 }
 
 model Fee {

@@ -82,6 +82,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           {user ? (
             <>
               <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
+              <NavLink href="/my-rights">{t("nav.myRights")}</NavLink>
               <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
               <ToolsMenu label={t("nav.tools")} />
               <NavLink href="/check">{t("nav.newCheck")}</NavLink>

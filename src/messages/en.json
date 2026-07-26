@@ -28,6 +28,7 @@
     "scan": "What am I paying for",
     "pricing": "Plans",
     "assistant": "My agent",
+    "myRights": "My rights",
     "electricity": "Electricity",
     "flights": "Flights",
     "rights": "Rights",
@@ -482,6 +483,22 @@
     "memberPro": "Reduced success fee (9%), up to 5 active cases, and a full scan of every charge.",
     "memberMax": "Zero fee — all savings stay yours. Unlimited cases and every capability unlocked.",
     "memberManage": "Manage plan"
+  },
+  "myRights": {
+    "title": "My rights",
+    "subtitle": "All your entitlements, cases, and potential savings in one place.",
+    "potentialYearly": "Yearly potential",
+    "documentedMonthly": "Documented monthly saving",
+    "activeCases": "Active cases",
+    "eligibleRights": "Entitlements for you",
+    "noProfile": "You haven't filled the short quiz yet.",
+    "fillProfile": "Fill quiz",
+    "cases": "Your cases",
+    "noCases": "No open cases yet.",
+    "check": "Check",
+    "eligible": "Verified eligible",
+    "upToYearly": "Up to {amount}/year",
+    "checkAgain": "New check"
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",
