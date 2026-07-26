@@ -32,11 +32,28 @@ button, a, input, select, textarea, summary, [role="radio"] {
   touch-action: manipulation;
 }
 
+/* Local font stack: avoids build-time network calls to Google Fonts and keeps
+   the app working offline or in restricted CI. Hebrew is prioritized for the
+   primary Israeli market, with system fallbacks for all locales. */
+:root {
+  --font-body: "Heebo", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Suez One", "Heebo", "Georgia", "Times New Roman", serif;
+  --font-wordmark: "Manrope", "Heebo", "Segoe UI", sans-serif;
+}
+
 /* Financial discipline: the display face carries every large money figure, so
    give it tabular (fixed-width) digits. Numbers never jitter as they animate or
    change, and columns of figures line up — standard for fintech UIs. */
 .font-display {
   font-variant-numeric: tabular-nums;
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-wordmark {
+  font-family: var(--font-wordmark);
 }
 
 html,
