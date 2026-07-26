@@ -1,19 +1,23 @@
 /**
- * Provider registry — Stage 1 is mobile only (spec: one category first).
+ * Provider registry.
  *
- * `contactEmail` is where outreach is dispatched. These are placeholders for
- * the prototype; a production deployment would confirm the correct
- * cancellations/retention channel per carrier. Outreach never leaves the system
- * in dev anyway (see messaging.ts), so no placeholder address is ever mailed.
+ * Stage 1 started with mobile only; electricity is now a full Case category.
+ * `contactEmail` is where outreach is dispatched. Placeholder addresses are
+ * used in dev (see messaging.ts); production uses confirmed channels.
  */
 
-export type ProviderKey =
-  | "cellcom"
-  | "partner"
-  | "bezeq"
-  | "hot"
-  | "yes"
-  | "other";
+export type ProviderCategory = "mobile" | "electricity";
+
+export type MobileProviderKey = "cellcom" | "partner" | "bezeq" | "hot" | "yes" | "other";
+export type ElectricityProviderKey =
+  | "electra"
+  | "cellcomEnergy"
+  | "bezeqEnergy"
+  | "partnerPower"
+  | "iec"
+  | "otherElectricity";
+
+export type ProviderKey = MobileProviderKey | ElectricityProviderKey;
 
 export interface ProviderInfo {
   key: ProviderKey;
@@ -21,16 +25,24 @@ export interface ProviderInfo {
   labelKey: string;
   /** Outreach destination (placeholder in the prototype). */
   contactEmail: string;
-  category: "mobile";
+  category: ProviderCategory;
 }
 
 export const PROVIDERS: Record<ProviderKey, ProviderInfo> = {
+  // Mobile
   cellcom: { key: "cellcom", labelKey: "cellcom", contactEmail: "service@cellcom.example", category: "mobile" },
   partner: { key: "partner", labelKey: "partner", contactEmail: "service@partner.example", category: "mobile" },
   bezeq: { key: "bezeq", labelKey: "bezeq", contactEmail: "service@bezeq.example", category: "mobile" },
   hot: { key: "hot", labelKey: "hot", contactEmail: "service@hot.example", category: "mobile" },
   yes: { key: "yes", labelKey: "yes", contactEmail: "service@yes.example", category: "mobile" },
   other: { key: "other", labelKey: "other", contactEmail: "service@provider.example", category: "mobile" },
+  // Electricity
+  electra: { key: "electra", labelKey: "electra", contactEmail: "service@electra.example", category: "electricity" },
+  cellcomEnergy: { key: "cellcomEnergy", labelKey: "cellcomEnergy", contactEmail: "service@cellcom-energy.example", category: "electricity" },
+  bezeqEnergy: { key: "bezeqEnergy", labelKey: "bezeqEnergy", contactEmail: "service@bezeq-energy.example", category: "electricity" },
+  partnerPower: { key: "partnerPower", labelKey: "partnerPower", contactEmail: "service@partner-power.example", category: "electricity" },
+  iec: { key: "iec", labelKey: "iec", contactEmail: "service@iec.example", category: "electricity" },
+  otherElectricity: { key: "otherElectricity", labelKey: "otherElectricity", contactEmail: "service@electricity.example", category: "electricity" },
 };
 
 export const PROVIDER_KEYS = Object.keys(PROVIDERS) as ProviderKey[];
@@ -46,6 +58,12 @@ export const PROVIDER_HE_NAME: Record<ProviderKey, string> = {
   hot: "הוט",
   yes: "YES",
   other: "הספק",
+  electra: "אלקטרה",
+  cellcomEnergy: "סלקום אנרג'י",
+  bezeqEnergy: "בזק אנרג'י",
+  partnerPower: "פאוור פרטנר",
+  iec: "חברת החשמל",
+  otherElectricity: "ספק החשמל",
 };
 
 export function providerHebrewName(key: string): string {
@@ -60,16 +78,32 @@ export function providerContactEmail(key: string): string {
   return isProviderKey(key) ? PROVIDERS[key].contactEmail : PROVIDERS.other.contactEmail;
 }
 
+export function providerCategory(key: string): ProviderCategory | null {
+  return isProviderKey(key) ? PROVIDERS[key].category : null;
+}
+
 /**
  * Map a free-text provider name (e.g. from AI extraction) to a known key.
  * Handles Hebrew and English variants; falls back to "other".
  */
 export function resolveProviderKey(name: string): ProviderKey {
   const n = name.trim().toLowerCase();
+  // Mobile
   if (/(cellcom|סלקום)/.test(n)) return "cellcom";
   if (/(partner|פרטנר|orange)/.test(n)) return "partner";
   if (/(bezeq|בזק|pelephone|פלאפון)/.test(n)) return "bezeq";
   if (/(hot|הוט)/.test(n)) return "hot";
   if (/(yes|יס)/.test(n)) return "yes";
+  // Electricity
+  if (/(electra|אלקטרה)/.test(n)) return "electra";
+  if (/(cellcom energy|סלקום אנרג'י|סלקום אנרגי)/.test(n)) return "cellcomEnergy";
+  if (/(bezeq energy|בזק אנרג'י|בזק אנרגי)/.test(n)) return "bezeqEnergy";
+  if (/(partner power|פאוור פרטנר|power partner)/.test(n)) return "partnerPower";
+  if (/(iec|חברת החשמל|חשמל ישראל)/.test(n)) return "iec";
   return "other";
+}
+
+export function resolveElectricityProviderKey(name: string): ElectricityProviderKey {
+  const key = resolveProviderKey(name);
+  return providerCategory(key) === "electricity" ? (key as ElectricityProviderKey) : "otherElectricity";
 }

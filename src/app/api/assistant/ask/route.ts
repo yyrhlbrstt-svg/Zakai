@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId, badRequest } from "@/lib/api";
-import { askZakai, aiAvailable } from "@/lib/ai";
+import { askZakai, aiAvailable, classifyIntent } from "@/lib/ai";
 import { planConfig } from "@/lib/plans";
 import { rateLimit, refundRateLimit } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
@@ -70,16 +70,34 @@ export async function POST(request: Request) {
           .join("\n");
 
   try {
-    const answer = await askZakai(parsed.data.question, {
-      plan,
-      casesSummary,
-      locale: parsed.data.locale,
-    });
-    return NextResponse.json({ answer });
+    const [answer, action] = await Promise.all([
+      askZakai(parsed.data.question, {
+        plan,
+        casesSummary,
+        locale: parsed.data.locale,
+      }),
+      classifyIntent(parsed.data.question, parsed.data.locale),
+    ]);
+    return NextResponse.json({ answer, intent: action.intent, navigateTo: intentRoute(action.intent) });
   } catch (err) {
     // A failed model call must not burn the user's monthly question quota.
     await refundRateLimit("assistant", auth.userId, WINDOW_SECONDS);
     await reportError(err, { route: "assistant-ask" });
     return badRequest("aiUnavailable", 503);
   }
+}
+
+function intentRoute(intent: string): string | null {
+  const routes: Record<string, string> = {
+    new_check: "/check",
+    show_dashboard: "/dashboard",
+    show_pricing: "/pricing",
+    show_scan: "/scan",
+    show_rights: "/entitlements",
+    show_payslip: "/payslip",
+    show_miluim: "/miluim",
+    show_flights: "/flights",
+    show_electricity: "/electricity",
+  };
+  return routes[intent] ?? null;
 }

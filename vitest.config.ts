@@ -5,6 +5,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
+    env: {
+      AUTH_SECRET: "test-secret-that-is-long-enough-for-jwt-signing-32chars",
+    },
   },
   resolve: {
     alias: {

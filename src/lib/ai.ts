@@ -445,6 +445,16 @@ export interface RecommendationInput {
   customerName: string;
 }
 
+export interface ElectricityRecommendationInput {
+  providerLabel: string;
+  amountShekels: number;
+  bestPlanName: string;
+  bestPlanProvider: string;
+  estimatedMonthlySavingShekels: number;
+  locale: string;
+  customerName: string;
+}
+
 export async function generateRecommendation(
   input: RecommendationInput,
 ): Promise<Recommendation> {
@@ -454,6 +464,17 @@ export async function generateRecommendation(
   } catch {
     // Any AI failure degrades to the honest template rather than blocking.
     return templateRecommendation(input);
+  }
+}
+
+export async function generateElectricityRecommendation(
+  input: ElectricityRecommendationInput,
+): Promise<Recommendation> {
+  if (!aiAvailable()) return templateElectricityRecommendation(input);
+  try {
+    return await aiElectricityRecommendation(input);
+  } catch {
+    return templateElectricityRecommendation(input);
   }
 }
 
@@ -697,4 +718,239 @@ function hebrewOutreach(
 
 בברכה,
 זכאי — בשם ${customerName}`;
+}
+
+function hebrewElectricityOutreach(
+  customerName: string,
+  currentProvider: string,
+  currentBill: number,
+  bestPlanName: string,
+  bestPlanProvider: string,
+  estimatedSaving: number,
+): string {
+  return `לכבוד שירות הלקוחות של ${currentProvider},
+
+שמי זכאי, שירות סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${customerName} ובהרשאתו/ה המפורשת. אינני הלקוח/ה עצמו/ה.
+
+הלקוח/ה משלם/ת כיום כ-₪${currentBill} בחודש עבור חשמל. על סמך נתוני צריכה גסים, אנו מבקשים לבדוק מעבר לספק אחר או הנחה ללקוח קיים שתביא לחיסכון משוער של כ-₪${estimatedSaving} בחודש (לדוג' מסלול ${bestPlanName} של ${bestPlanProvider}).
+
+מצורף מסמך הרשאה עם קוד אימות שניתן לבדוק. הלקוח/ה זמין/ה ליצירת קשר ישיר לאישור פרטים והגשת הצעת מחיר.
+
+אודה לחזרתכם עם האפשרויות הרלוונטיות.
+
+בברכה,
+זכאי — בשם ${customerName}`;
+}
+
+const ELECTRICITY_RECOMMENDATION_SYSTEM = `You are Zakai, a consumer-advocacy AI agent for Israeli households comparing electricity suppliers.
+Given a current monthly bill, the best alternative plan name, its provider, and estimated monthly saving, produce:
+1. A one-sentence strategy in the requested language (switch supplier / request retention discount).
+2. A realistic target monthly amount (current bill minus saving).
+3. A low-high ILLUSTRATIVE market range (two plain numbers) for comparison context only.
+4. A polite, professional outreach message in HEBREW (120-160 words) written as Zakai on the customer's behalf. It MUST state Zakai is a digital agent acting with authorization, must NOT impersonate the customer, and must invite the provider to contact the customer directly.
+Respond ONLY with JSON: {"strategy":"...","targetAmount":number,"marketLow":number,"marketHigh":number,"message":"..."}`;
+
+async function aiElectricityRecommendation(input: ElectricityRecommendationInput): Promise<Recommendation> {
+  const langName =
+    { he: "Hebrew", en: "English", ar: "Arabic", ru: "Russian" }[input.locale] ?? "Hebrew";
+  const userText = `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel}. Best alternative: ${input.bestPlanName} from ${input.bestPlanProvider}, estimated monthly saving ${input.estimatedMonthlySavingShekels} ILS. Customer name: "${input.customerName}". Strategy language: ${langName}.`;
+
+  let text: string;
+  if (aiProvider() !== "anthropic") {
+    text = await fallbackGenerate({
+      system: ELECTRICITY_RECOMMENDATION_SYSTEM,
+      userText,
+      maxTokens: 900,
+      temperature: 0.5,
+    });
+  } else {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: DRAFT_MODEL,
+      max_tokens: 900,
+      temperature: 0.5,
+      system: cachedSystem(ELECTRICITY_RECOMMENDATION_SYSTEM),
+      messages: [{ role: "user", content: userText }],
+    });
+    text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+  }
+  const p = extractJson(text) as {
+    strategy: string;
+    targetAmount: number;
+    marketLow: number;
+    marketHigh: number;
+    message: string;
+  };
+  return {
+    strategy: p.strategy,
+    targetShekels: Math.round(p.targetAmount),
+    marketLowShekels: Math.round(p.marketLow),
+    marketHighShekels: Math.round(p.marketHigh),
+    draftMessage: p.message,
+    source: "ai",
+  };
+}
+
+export function templateElectricityRecommendation(input: ElectricityRecommendationInput): Recommendation {
+  const target = Math.max(1, Math.round(input.amountShekels - input.estimatedMonthlySavingShekels));
+  const marketLow = Math.max(1, Math.round(input.amountShekels * 0.88));
+  const marketHigh = Math.max(marketLow + 1, Math.round(input.amountShekels * 0.97));
+  const strategy =
+    input.locale === "en"
+      ? `Compare your current ${input.providerLabel} bill against ${input.bestPlanProvider}'s ${input.bestPlanName} and request a switch or retention discount.`
+      : `להשוות את חשבון החשמל הנוכחי מול מסלול ${input.bestPlanName} של ${input.bestPlanProvider} ולבקש מעבר ספק או הנחת שימור.`;
+  return {
+    strategy,
+    targetShekels: target,
+    marketLowShekels: marketLow,
+    marketHighShekels: marketHigh,
+    draftMessage: hebrewElectricityOutreach(
+      input.customerName,
+      input.providerLabel,
+      input.amountShekels,
+      input.bestPlanName,
+      input.bestPlanProvider,
+      input.estimatedMonthlySavingShekels,
+    ),
+    source: "template",
+  };
+}
+
+// ---------- Intent-aware assistant actions ----------
+
+export type AssistantIntent =
+  | "chat" // default: just answer
+  | "new_check" // open a new bill check
+  | "show_dashboard" // go to dashboard
+  | "show_pricing" // go to pricing
+  | "show_scan" // recurring charges scan
+  | "show_rights" // entitlements screen
+  | "show_payslip" // payslip check
+  | "show_miluim" // reserve duty
+  | "show_flights" // flight compensation
+  | "show_electricity"; // electricity check
+
+export interface AssistantAction {
+  intent: AssistantIntent;
+  reply: string;
+  params?: Record<string, unknown>;
+}
+
+const INTENT_SYSTEM = `You classify the user's message into ONE intent for an Israeli consumer-rights app. Respond ONLY with JSON: {"intent":"...","reply":"short friendly Hebrew reply"}
+
+Allowed intents:
+- chat: general question or greeting
+- new_check: user wants to check a bill (cell/mobile/electricity/provider)
+- show_dashboard: user wants status/overview/cases
+- show_pricing: user asks about plans/fees/subscription
+- show_scan: recurring charges / subscriptions scan
+- show_rights: statutory rights / what am I owed
+- show_payslip: payslip / salary check
+- show_miluim: reserve duty pay
+- show_flights: flight compensation
+- show_electricity: electricity bill / switching supplier
+
+Rules:
+- Default to "chat" if unsure.
+- Reply in Hebrew, warm and concise (1 sentence).
+- Never invent numbers or facts.`;
+
+export async function classifyIntent(
+  question: string,
+  locale: string,
+): Promise<AssistantAction> {
+  if (!aiAvailable()) {
+    return deterministicIntent(question);
+  }
+  const userText = `Locale: ${locale}\nMessage: ${question}`;
+  try {
+    let text: string;
+    if (aiProvider() !== "anthropic") {
+      text = await fallbackGenerate({
+        system: INTENT_SYSTEM,
+        userText,
+        maxTokens: 200,
+        temperature: 0,
+      });
+    } else {
+      const anthropic = client();
+      const msg = await anthropic.messages.create({
+        model: EXTRACT_MODEL,
+        max_tokens: 200,
+        temperature: 0,
+        system: cachedSystem(INTENT_SYSTEM),
+        messages: [{ role: "user", content: userText }],
+      });
+      text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n").trim();
+    }
+    const parsed = extractJson(text) as { intent?: string; reply?: string };
+    const intent = isAssistantIntent(parsed.intent) ? parsed.intent : "chat";
+    return { intent, reply: parsed.reply || fallbackReply(intent, locale) };
+  } catch {
+    return deterministicIntent(question);
+  }
+}
+
+function isAssistantIntent(value: unknown): value is AssistantIntent {
+  return (
+    typeof value === "string" &&
+    [
+      "chat",
+      "new_check",
+      "show_dashboard",
+      "show_pricing",
+      "show_scan",
+      "show_rights",
+      "show_payslip",
+      "show_miluim",
+      "show_flights",
+      "show_electricity",
+    ].includes(value)
+  );
+}
+
+export function deterministicIntent(question: string): AssistantAction {
+  const q = question.toLowerCase();
+  // Category-specific screens take precedence.
+  if (/חשמל|נגה|פל"א/.test(q)) return { intent: "show_electricity", reply: "נבדוק אם אפשר לחסוך בחשמל — במסך השוואת ספקים." };
+  if (/מילואים|מילואימניק/.test(q)) return { intent: "show_miluim", reply: "נבדוק תגמולי מילואים — במסך המילואים." };
+  if (/טיסה|טיסות|פיצוי|delay|flight/.test(q)) return { intent: "show_flights", reply: "נבדוק זכאות לפיצוי טיסה — במסך פיצויי טיסות." };
+  if (/תלוש|משכורת|פנסיה|הבראה/.test(q)) return { intent: "show_payslip", reply: "נבדוק את התלוש שלך — במסך בדיקת משכורת." };
+  if (/זכויות|מגיע לי|מה מגיע|entitlements/.test(q)) return { intent: "show_rights", reply: "נבדוק אילו זכויות מגיעות לך — במסך 'מה מגיע לי'." };
+  if (/דשבורד|תיקים|סטטוס|מה קורה/.test(q)) return { intent: "show_dashboard", reply: "הנה הדשבורד שלך — שם רואים את כל התיקים והסטטוס." };
+  // Pricing intent beats subscriptions when the user asks about cost/plan.
+  if (/כמה עולה|מחיר|עלות|תוכנית|plan/.test(q)) return { intent: "show_pricing", reply: "הסברים על התוכניות והעמלות — במסך התמחור." };
+  if (/מנוי|מנויים|חיוב חוזר|subscriptions/.test(q)) return { intent: "show_scan", reply: "סריקת חיובים חוזרים תמצא דברים ששכחת — נעבור למסך הסריקה." };
+  if (/חשבון|בדיקה|סלולר|פלאפון|נייד/.test(q)) return { intent: "new_check", reply: "בוא נבדוק — העלה חשבונית או מלא פרטים במסך הבדיקה החדשה." };
+  return { intent: "chat", reply: "אני כאן לעזור. מה תרצה לבדוק?" };
+}
+
+const INTENT_REPLY_HE: Record<AssistantIntent, string> = {
+  chat: "אני כאן לעזור. מה תרצה לבדוק?",
+  new_check: "בוא נבדוק — העלה חשבונית או מלא פרטים במסך הבדיקה החדשה.",
+  show_dashboard: "הנה הדשבורד שלך — שם רואים את כל התיקים והסטטוס.",
+  show_pricing: "הסברים על התוכניות והעמלות — במסך התמחור.",
+  show_scan: "סריקת חיובים חוזרים תמצא דברים ששכחת — נעבור למסך הסריקה.",
+  show_rights: "נבדוק אילו זכויות מגיעות לך — במסך 'מה מגיע לי'.",
+  show_payslip: "נבדוק את התלוש שלך — במסך בדיקת משכורת.",
+  show_miluim: "נבדוק תגמולי מילואים — במסך המילואים.",
+  show_flights: "נבדוק זכאות לפיצוי טיסה — במסך פיצויי טיסות.",
+  show_electricity: "נבדוק אם אפשר לחסוך בחשמל — במסך השוואת ספקים.",
+};
+
+const INTENT_REPLY_EN: Record<AssistantIntent, string> = {
+  chat: "How can I help?",
+  new_check: "Let's start a new check — upload a bill or enter details.",
+  show_dashboard: "Here's your dashboard with all active cases.",
+  show_pricing: "Check the pricing page for plan details.",
+  show_scan: "Let's scan your recurring charges.",
+  show_rights: "Let's see what you're entitled to.",
+  show_payslip: "Let's review your payslip.",
+  show_miluim: "Let's check your reserve-duty pay.",
+  show_flights: "Let's check your flight compensation.",
+  show_electricity: "Let's compare electricity suppliers.",
+};
+
+function fallbackReply(intent: AssistantIntent, locale: string): string {
+  return locale === "en" ? INTENT_REPLY_EN[intent] || INTENT_REPLY_EN.chat : INTENT_REPLY_HE[intent];
 }

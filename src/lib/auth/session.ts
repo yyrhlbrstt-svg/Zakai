@@ -19,12 +19,16 @@ export interface SessionPayload {
   userId: string;
 }
 
-export async function createSession(userId: string): Promise<void> {
-  const token = await new SignJWT({ userId })
+export async function createSessionToken(userId: string): Promise<string> {
+  return new SignJWT({ userId })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE_SECONDS}s`)
     .sign(secretKey());
+}
+
+export async function createSession(userId: string): Promise<void> {
+  const token = await createSessionToken(userId);
 
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
