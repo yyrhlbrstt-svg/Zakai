@@ -1,0 +1,137 @@
+import "server-only";
+import { prisma } from "@/lib/prisma";
+import { selectVariant, seededRng } from "./selector";
+import { VARIANTS, describeVariant, variantById } from "./variants";
+import type { Observation, Selection, StrategyContext } from "./types";
+
+/**
+ * The database side of the Strategy Engine — the part that makes the flywheel
+ * actually turn.
+ *
+ * Two calls, at the two ends of a case's life:
+ *
+ *   chooseStance()  — before drafting, pick how to file this one
+ *   recordOutcome() — when it closes, feed back what happened
+ *
+ * Without both, the engine is a dashboard again.
+ *
+ * Everything here fails open. A claim must never be blocked because the
+ * evidence table is slow or unreachable: the cost of that failure is a
+ * customer's letter not going out, against the benefit of a marginally better
+ * stance. So on any error the caller gets the default stance and the case
+ * proceeds exactly as it did before this engine existed.
+ */
+
+/** How many recent observations inform a choice. Bounded so the query stays cheap. */
+const EVIDENCE_WINDOW = 5000;
+
+/**
+ * The stance used when nothing can be loaded. `firm_statutory` rather than the
+ * softest option: citing the statute and asking for a reply by a date is the
+ * baseline a consumer body would consider competent, and an unmeasured default
+ * should be defensible rather than merely inoffensive.
+ */
+export const DEFAULT_VARIANT_ID = "firm_statutory";
+
+export interface Stance {
+  variantId: string;
+  seed: number;
+  /** Instructions handed to the drafting model. */
+  instructions: string[];
+  evidenceLevel: Selection["evidenceLevel"];
+  trials: number;
+}
+
+function stanceFrom(variantId: string, seed: number, level: Stance["evidenceLevel"], trials: number): Stance {
+  const variant = variantById(variantId) ?? variantById(DEFAULT_VARIANT_ID)!;
+  return {
+    variantId: variant.id,
+    seed,
+    instructions: describeVariant(variant),
+    evidenceLevel: level,
+    trials,
+  };
+}
+
+/**
+ * Choose how to file this claim, from what has actually been getting paid.
+ *
+ * The seed is drawn here and returned so it can be stored on the case: the
+ * selection is then reproducible from (seed + observations), which is what
+ * makes "why did this customer get this letter" an answerable question rather
+ * than an appeal to a model's mood.
+ */
+export async function chooseStance(context: StrategyContext): Promise<Stance> {
+  const seed = (Math.random() * 2 ** 31) >>> 0;
+  try {
+    const rows = await prisma.strategyOutcome.findMany({
+      where: { market: context.market },
+      orderBy: { createdAt: "desc" },
+      take: EVIDENCE_WINDOW,
+      select: {
+        market: true,
+        vertical: true,
+        counterparty: true,
+        variantId: true,
+        paid: true,
+        recoveredMinor: true,
+        days: true,
+      },
+    });
+
+    const observations: Observation[] = rows.map((r) => ({
+      context: { market: r.market, vertical: r.vertical, counterparty: r.counterparty },
+      variantId: r.variantId,
+      paid: r.paid,
+      recoveredMinor: r.recoveredMinor,
+      days: r.days,
+    }));
+
+    const picked = selectVariant(VARIANTS, observations, context, { rng: seededRng(seed) });
+    return stanceFrom(picked.variant.id, seed, picked.evidenceLevel, picked.trials);
+  } catch (err) {
+    console.warn("[strategy] falling back to the default stance:", err);
+    return stanceFrom(DEFAULT_VARIANT_ID, seed, "prior", 0);
+  }
+}
+
+/**
+ * Record what a closed case taught us.
+ *
+ * Called for successes *and* failures. Recording only wins is the mistake that
+ * quietly destroys the dataset: a variant's win rate is meaningless without its
+ * losses, and a system trained on wins alone concludes everything works.
+ */
+export async function recordOutcome(input: {
+  context: StrategyContext;
+  variantId: string | null;
+  paid: boolean;
+  recoveredMinor: number;
+  days: number;
+}): Promise<void> {
+  // Cases opened before the engine carry no stance; attributing them to a
+  // variant would be inventing evidence.
+  if (!input.variantId) return;
+  try {
+    await prisma.strategyOutcome.create({
+      data: {
+        market: input.context.market,
+        vertical: input.context.vertical,
+        counterparty: input.context.counterparty,
+        variantId: input.variantId,
+        paid: input.paid,
+        recoveredMinor: Math.max(0, Math.round(input.recoveredMinor)),
+        days: Math.max(0, Math.round(input.days)),
+      },
+    });
+  } catch (err) {
+    // Never let bookkeeping break a settlement the customer is waiting on.
+    console.warn("[strategy] could not record outcome:", err);
+  }
+}
+
+/** Whole days between two instants, floored at zero. */
+export function daysBetween(from: Date | null | undefined, to: Date): number {
+  if (!from) return 0;
+  return Math.max(0, Math.round((to.getTime() - from.getTime()) / 86_400_000));
+}

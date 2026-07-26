@@ -457,6 +457,12 @@ export interface RecommendationInput {
   plan: string;
   locale: string;
   customerName: string;
+  /**
+   * How to pitch this one, chosen by the Strategy Engine from what has
+   * actually been getting paid by this counterparty. Absent = the model's own
+   * default, which is what every draft used before the engine existed.
+   */
+  stance?: string[];
 }
 
 export async function generateRecommendation(
@@ -482,7 +488,10 @@ Respond ONLY with JSON: {"strategy":"...","targetAmount":number,"marketLow":numb
 async function aiRecommendation(input: RecommendationInput): Promise<Recommendation> {
   const langName =
     { he: "Hebrew", en: "English", ar: "Arabic", ru: "Russian" }[input.locale] ?? "Hebrew";
-  const userText = `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel} for: "${input.plan || "a standard mobile plan"}". Customer name: "${input.customerName}". Strategy language: ${langName}.`;
+  const stance = input.stance?.length
+    ? `\n\nHow to pitch this one (chosen from what has actually been getting paid by this counterparty — follow it):\n- ${input.stance.join("\n- ")}`
+    : "";
+  const userText = `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel} for: "${input.plan || "a standard mobile plan"}". Customer name: "${input.customerName}". Strategy language: ${langName}.${stance}`;
 
   let text: string;
   if (aiProvider() !== "anthropic") {
