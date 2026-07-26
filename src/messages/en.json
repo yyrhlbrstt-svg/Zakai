@@ -3540,5 +3540,25 @@
   "meta": {
     "title": "Zakai — the money you’re owed, back in your pocket",
     "desc": "The AI agent that gets back the money you’re owed: tax refunds, lost money, flight compensation, benefits, bill reductions and more — a fee only on documented savings."
+  },
+  "claim": {
+    "intro": "Fill in the details and Zakai prepares the formal letter here — ready to send. Nothing leaves the app.",
+    "generate": "Prepare the letter",
+    "subject": "Subject",
+    "copy": "Copy",
+    "copied": "Copied ✓",
+    "print": "Print / save PDF",
+    "openTool": "Open the tool",
+    "disclaimer": "The letter is drafted from the relevant rules and is not legal advice. Eligibility and the amount are determined by the body the request is filed with.",
+    "fields": {
+      "name": "Full name",
+      "id": "ID number",
+      "municipality": "Local authority",
+      "counterparty": "Company / body",
+      "accountNumber": "Account / customer number",
+      "period": "Year / period",
+      "amount": "Amount",
+      "details": "Details"
+    }
   }
 }

@@ -2,9 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
-import { ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui";
+import { ClaimDocument } from "@/components/ClaimDocument";
 import {
   evaluateRights,
   rightsSourceName,
@@ -161,22 +160,13 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
                   <span className="text-emerald font-bold">{t("howTo")}</span>{" "}
                   {t(`items.${e.id}.how`)}
                 </p>
-                {/* Zero external links: the customer never leaves Zakai. The
-                    primary action routes into Zakai's own claim flow; the
-                    official source is shown only as a small trust citation
-                    (plain text, not a redirect out). */}
-                <div className="mt-3 flex items-center gap-3 flex-wrap">
-                  <Link
-                    href={`/dashboard?intent=${encodeURIComponent(e.id)}`}
-                    className="inline-flex items-center gap-1.5 text-[12.5px] font-extrabold text-base bg-emerald rounded-full px-3.5 py-1.5 no-underline hover:opacity-90 transition-opacity"
-                  >
-                    {t("startClaim")}
-                    <ArrowLeft size={14} aria-hidden />
-                  </Link>
-                  <span className="text-[11px] text-ink-soft/70">
-                    {t("officialSource", { source: rightsSourceName(country) })}
-                  </span>
-                </div>
+                {/* Zero external links, and no promise without a product
+                    behind it. The action expands in place: an in-app tool for
+                    rights a tool already covers, the finished letter generated
+                    right here for the rest. Rights with no action defined —
+                    foreign catalogs today — render nothing rather than a
+                    "we'll handle it" button with nothing behind it. */}
+                <ClaimDocument rightId={e.id} />
               </details>
             ))}
           </Card>
