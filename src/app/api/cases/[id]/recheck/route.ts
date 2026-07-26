@@ -5,6 +5,7 @@ import { createCase, CaseError } from "@/lib/services/cases";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { generateRecommendation } from "@/lib/ai";
 import { providerHebrewName } from "@/lib/providers";
+import { agorotToShekels } from "@/lib/money";
 
 /**
  * Re-open a new check for an existing saved case. The original case is kept as
@@ -35,7 +36,7 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
   });
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
-  const amountShekels = (original.savingsProof?.newAmount ?? original.targetAmount) / 100;
+  const amountShekels = agorotToShekels(original.savingsProof?.newAmount ?? original.targetAmount);
   const rec = await generateRecommendation({
     providerLabel: providerHebrewName(original.provider),
     amountShekels,

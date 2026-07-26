@@ -425,8 +425,12 @@ async function analyzeBillWithSystem(
     provider: resolveProviderKey(parsed.provider ?? "other"),
     amountShekels: parsed.amount ?? 0,
     plan: includePlan ? (parsed.plan ?? "") : "",
-    readable: Boolean(parsed.readable) && typeof parsed.amount === "number" && parsed.amount >= 0,
+    readable: isReadableBill(parsed.readable, parsed.amount),
   };
+}
+
+function isReadableBill(readable: unknown, amount: unknown): boolean {
+  return Boolean(readable) && typeof amount === "number" && amount >= 0;
 }
 
 export async function analyzeBillImage(

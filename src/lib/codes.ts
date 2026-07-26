@@ -19,6 +19,8 @@ export function hashCode(code: string): string {
  */
 const CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 
+export const AUTHORIZATION_CODE_RE = /ZK-[0-9A-Z]{4}-[0-9A-Z]{4}/;
+
 export function generateAuthorizationCode(): string {
   const group = () =>
     Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(0, CODE_ALPHABET.length)]).join("");

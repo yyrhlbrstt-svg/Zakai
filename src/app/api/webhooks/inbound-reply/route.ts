@@ -5,7 +5,9 @@ import { reportError } from "@/lib/report-error";
 
 export const dynamic = "force-dynamic";
 
-const CODE_RE = /ZK-[0-9A-Z]{4}-[0-9A-Z]{4}/;
+import { AUTHORIZATION_CODE_RE } from "@/lib/codes";
+
+const CODE_RE = AUTHORIZATION_CODE_RE;
 
 interface InboundPayload {
   from: string;

@@ -30,12 +30,12 @@ export default async function MyRightsPage({ params }: { params: Promise<{ local
   const { locale } = await params;
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login", locale });
+  if (!user) return redirect({ href: "/login", locale });
 
   const t = await getTranslations();
   const loc = bcp47[locale as Locale];
 
-  const userId = user!.id;
+  const userId = user.id;
   const [cases, profileRow] = await Promise.all([
     prisma.case.findMany({
       where: { userId },
