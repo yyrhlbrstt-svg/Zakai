@@ -142,7 +142,12 @@ export async function sendOutreach(caseId: string, userId: string) {
  * non-saving still records a proof (audit trail) and a WAIVED fee.
  * Idempotent guard: a case can only be settled once.
  */
-export async function recordSaving(caseId: string, userId: string, newAmountShekels: number) {
+export async function recordSaving(
+  caseId: string,
+  userId: string,
+  newAmountShekels: number,
+  source: "manual" | "upload" | "ai_verified" = "manual",
+) {
   const kase = await ownedCase(caseId, userId);
   if (kase.status !== "SENT") throw new CaseError("NOT_SENT");
 
@@ -171,7 +176,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
         originalAmount: kase.amountOriginal,
         newAmount,
         savingMonthly: fee.savingMonthly,
-        source: "manual",
+        source,
       },
     });
     await tx.fee.create({

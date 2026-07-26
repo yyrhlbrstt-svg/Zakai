@@ -373,16 +373,20 @@ export interface BillAnalysis {
   readable: boolean;
 }
 
-const BILL_EXTRACT_SYSTEM = `You extract data from photos of Israeli MOBILE phone bills. Extract the provider name, the monthly charge as a plain ILS number, and a short Hebrew plan description if visible. If the image is not a readable bill, set readable=false. Respond ONLY with JSON: {"provider":"...","amount":number_or_null,"plan":"...","readable":boolean}`;
+const BILL_EXTRACT_SYSTEM = `You extract data from photos of Israeli MOBILE or ELECTRICITY bills. Extract the provider name, the monthly charge as a plain ILS number, and a short Hebrew plan description if visible. If the image is not a readable bill, set readable=false. Respond ONLY with JSON: {"provider":"...","amount":number_or_null,"plan":"...","readable":boolean}`;
 
-export async function analyzeBillImage(
+const POST_SAVE_BILL_SYSTEM = `You extract the NEW monthly charge from a photo of an Israeli bill AFTER a discount/switch was applied. Extract the provider name and the final monthly charge as a plain ILS number. If unreadable, set readable=false. Respond ONLY with JSON: {"provider":"...","amount":number_or_null,"readable":boolean}`;
+
+async function analyzeBillWithSystem(
   base64: string,
   mediaType: string,
+  system: string,
+  includePlan: boolean,
 ): Promise<BillAnalysis> {
   let text: string;
   if (aiProvider() !== "anthropic") {
     text = await fallbackGenerate({
-      system: BILL_EXTRACT_SYSTEM,
+      system,
       userText: "Extract this bill.",
       imageBase64: base64,
       mediaType,
@@ -395,8 +399,7 @@ export async function analyzeBillImage(
       model: EXTRACT_MODEL,
       max_tokens: 400,
       temperature: 0,
-      // Stable instructions in a cached system block; only the image is dynamic.
-      system: cachedSystem(BILL_EXTRACT_SYSTEM),
+      system: cachedSystem(system),
       messages: [
         {
           role: "user",
@@ -421,9 +424,30 @@ export async function analyzeBillImage(
   return {
     provider: resolveProviderKey(parsed.provider ?? "other"),
     amountShekels: parsed.amount ?? 0,
-    plan: parsed.plan ?? "",
-    readable: Boolean(parsed.readable) && Boolean(parsed.amount),
+    plan: includePlan ? (parsed.plan ?? "") : "",
+    readable: Boolean(parsed.readable) && typeof parsed.amount === "number" && parsed.amount >= 0,
   };
+}
+
+export async function analyzeBillImage(
+  base64: string,
+  mediaType: string,
+): Promise<BillAnalysis> {
+  return analyzeBillWithSystem(base64, mediaType, BILL_EXTRACT_SYSTEM, true);
+}
+
+export interface PostSaveBillAnalysis {
+  provider: string;
+  amountShekels: number;
+  readable: boolean;
+}
+
+export async function analyzePostSaveBill(
+  base64: string,
+  mediaType: string,
+): Promise<PostSaveBillAnalysis> {
+  const result = await analyzeBillWithSystem(base64, mediaType, POST_SAVE_BILL_SYSTEM, false);
+  return { provider: result.provider, amountShekels: result.amountShekels, readable: result.readable };
 }
 
 // ---------- Recommendation + outreach draft ----------
