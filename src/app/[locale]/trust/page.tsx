@@ -22,6 +22,7 @@ export default async function TrustPage({
 
   const security = t.raw("security") as string[];
   const trust = t.raw("trust") as string[];
+  const safety = t.raw("safety") as string[];
 
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-4">
@@ -36,6 +37,10 @@ export default async function TrustPage({
 
       <Section heading={t("trustHeading")}>
         <Bullets items={trust} />
+      </Section>
+
+      <Section heading={t("safetyHeading")}>
+        <Bullets items={safety} />
       </Section>
 
       <Section heading={t("disputeHeading")}>

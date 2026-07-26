@@ -12,6 +12,8 @@ import { LangSuggest } from "@/components/LangSuggest";
 import { getCurrentUser } from "@/lib/auth/user";
 import "../globals.css";
 
+const PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai.co.il";
+
 // Local font variables avoid build-time network calls to Google Fonts.
 // The fonts are loaded via CSS so the app builds offline and in restricted CI.
 const body = { variable: "--font-body" };
@@ -19,9 +21,40 @@ const display = { variable: "--font-display" };
 const wordmark = { variable: "--font-wordmark" };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(PUBLIC_BASE_URL),
   title: "זכאי — Zakai",
   description:
     "סוכן AI צרכני שמזהה חיובי סלולר מנופחים, פועל בשמך מול החברה, וגובה עמלה רק מחיסכון מתועד.",
+  applicationName: "ZAKAI",
+  keywords: ["חיסכון", "חשבון סלולר", "זכויות צרכנים", "עמלת הצלחה", "AI צרכני"],
+  authors: [{ name: "Zakai" }],
+  robots: { index: true, follow: true },
+  alternates: {
+    canonical: "/",
+    languages: {
+      "he-IL": "/he",
+      "en-GB": "/en",
+      "ar-IL": "/ar",
+      "ru-RU": "/ru",
+    },
+  },
+  openGraph: {
+    type: "website",
+    siteName: "ZAKAI",
+    locale: "he_IL",
+    url: "/",
+    title: "זכאי — Zakai",
+    description:
+      "סוכן AI צרכני שמזהה חיובי סלולר מנופחים, פועל בשמך מול החברה, וגובה עמלה רק מחיסכון מתועד.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "ZAKAI" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "זכאי — Zakai",
+    description:
+      "סוכן AI צרכני שמזהה חיובי סלולר מנופחים, פועל בשמך מול החברה, וגובה עמלה רק מחיסכון מתועד.",
+    images: ["/og-image.png"],
+  },
   // PWA: iOS ignores the web manifest for install, so give Safari its own
   // "add to home screen" affordances explicitly.
   appleWebApp: {
@@ -31,6 +64,9 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: "/icons/icon-192.png",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
 };
 
