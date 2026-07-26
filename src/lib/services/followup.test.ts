@@ -31,14 +31,7 @@ async function makeUserAndCase() {
     where: { id: kase.id },
     data: { status: "SENT", ownershipVerifiedAt: new Date() },
   });
-  const auth = await createAuthorization({
-    caseId: kase.id,
-    principalName: user.name,
-    principalPhone: user.phone,
-    principalEmail: user.email,
-    provider: "cellcom",
-    scope: "discount request",
-  });
+  const auth = await createAuthorization(kase.id);
   return { user, kase, auth };
 }
 

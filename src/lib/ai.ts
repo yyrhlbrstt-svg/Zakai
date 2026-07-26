@@ -896,7 +896,8 @@ export type AssistantIntent =
   | "show_tax_refund" // tax refund check
   | "show_unemployment" // unemployment benefits
   | "show_severance" // severance check
-  | "show_maternity"; // maternity benefits
+  | "show_maternity" // maternity benefits
+  | "show_my_rights"; // unified rights dashboard
 
 export interface AssistantAction {
   intent: AssistantIntent;
@@ -982,6 +983,7 @@ function isAssistantIntent(value: unknown): value is AssistantIntent {
       "show_unemployment",
       "show_severance",
       "show_maternity",
+      "show_my_rights",
     ].includes(value)
   );
 }
@@ -1000,6 +1002,7 @@ export function deterministicIntent(question: string): AssistantAction {
   if (/תלוש|משכורת|פנסיה|הבראה|שכר/.test(q)) return { intent: "show_payslip", reply: "נבדוק את התלוש שלך — במסך בדיקת משכורת." };
   if (/זכויות|מגיע לי|מה מגיע|entitlements/.test(q)) return { intent: "show_rights", reply: "נבדוק אילו זכויות מגיעות לך — במסך 'מה מגיע לי'." };
   if (/דשבורד|תיקים|סטטוס|מה קורה/.test(q)) return { intent: "show_dashboard", reply: "הנה הדשבורד שלך — שם רואים את כל התיקים והסטטוס." };
+  if (/הזכויות שלי|my rights|כל הזכויות|זכויות שלי/.test(q)) return { intent: "show_my_rights", reply: "הנה מסך כל הזכויות והתיקים שלך — במקום אחד." };
   // Pricing intent beats subscriptions when the user asks about cost/plan.
   if (/כמה עולה|מחיר|עלות|תוכנית|plan/.test(q)) return { intent: "show_pricing", reply: "הסברים על התוכניות והעמלות — במסך התמחור." };
   if (/מנוי|מנויים|חיוב חוזר|subscriptions/.test(q)) return { intent: "show_scan", reply: "סריקת חיובים חוזרים תמצא דברים ששכחת — נעבור למסך הסריקה." };
@@ -1022,6 +1025,7 @@ const INTENT_REPLY_HE: Record<AssistantIntent, string> = {
   show_unemployment: "נבדוק זכאות לדמי אבטלה — במסך דמי האבטלה.",
   show_severance: "נבדוק פיצויי פיטורים — במסך המיועד.",
   show_maternity: "נבדוק זכאות לדמי לידה — במסך דמי הלידה.",
+  show_my_rights: "הנה מסך כל הזכויות והתיקים שלך — במקום אחד.",
 };
 
 const INTENT_REPLY_EN: Record<AssistantIntent, string> = {
@@ -1039,6 +1043,7 @@ const INTENT_REPLY_EN: Record<AssistantIntent, string> = {
   show_unemployment: "Let's check your unemployment benefits.",
   show_severance: "Let's check your severance pay.",
   show_maternity: "Let's check your maternity benefits.",
+  show_my_rights: "Here's your unified rights and cases screen.",
 };
 
 function fallbackReply(intent: AssistantIntent, locale: string): string {

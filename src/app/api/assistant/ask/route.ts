@@ -122,6 +122,7 @@ function intentRoute(intent: string): string | null {
     show_unemployment: "/unemployment",
     show_severance: "/severance",
     show_maternity: "/maternity",
+    show_my_rights: "/my-rights",
   };
   return routes[intent] ?? null;
 }
