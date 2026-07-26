@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { LangSuggest } from "@/components/LangSuggest";
+import { TrustBanner } from "@/components/TrustBanner";
 import { getCurrentUser } from "@/lib/auth/user";
 import "../globals.css";
 
@@ -147,6 +148,7 @@ export default async function LocaleLayout({
           {children}
           <Footer />
           <InstallPrompt />
+          <TrustBanner />
         </NextIntlClientProvider>
       </body>
     </html>

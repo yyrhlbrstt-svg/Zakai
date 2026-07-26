@@ -46,8 +46,12 @@ export default async function HomePage({
       <div className="flex flex-wrap gap-12 items-center">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
-            <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-6">
-              {t("home.kicker")}
+            <div className="inline-flex items-center gap-2 text-[12px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-4">
+              <span aria-hidden>🔒</span>
+              <span>{t("home.kicker")}</span>
+              <Link href="/trust" className="text-emerald underline underline-offset-2 decoration-emerald/40 hover:decoration-emerald">
+                {t("home.trustLink")}
+              </Link>
             </div>
           </Reveal>
           <Reveal delay={80}>
