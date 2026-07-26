@@ -1,10 +1,17 @@
 import { z } from "zod";
 import { normalizePhone } from "./phone";
 
+/**
+ * The one place a new password's strength is defined. Shared by signup and by
+ * password reset so the two can never drift — a reset path that quietly accepts
+ * a weaker password than signup becomes the way in.
+ */
+export const passwordField = z.string().min(8, "weakPassword");
+
 export const signupSchema = z.object({
   name: z.string().trim().min(2, "nameRequired"),
   email: z.string().trim().toLowerCase().email("invalidEmail"),
-  password: z.string().min(8, "weakPassword"),
+  password: passwordField,
   phone: z
     .string()
     .trim()

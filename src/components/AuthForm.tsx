@@ -115,6 +115,16 @@ export function AuthForm({
             <span className="text-[13.5px] text-ink-soft">{t("email")}</span>
             <Input
               type="email"
+              inputMode="email"
+              // An email is a left-to-right string. Without this it reorders
+              // around the "@" and the dots as it is typed inside the RTL
+              // layout, which reads as the field being broken. autoCapitalize
+              // and spellCheck are off because some Android keyboards still
+              // capitalise and underline addresses despite type="email".
+              dir="ltr"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               autoComplete="email"
@@ -127,6 +137,7 @@ export function AuthForm({
               <Input
                 type="tel"
                 inputMode="tel"
+                dir="ltr"
                 placeholder="0501234567 / +1 415 555 0123"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -229,6 +240,16 @@ export function AuthForm({
           {mode === "login" ? t("toSignup") : t("toLogin")}
         </Link>
       </p>
+
+      {/* Until now there was no way back into an account at all. A forgotten
+          password locked someone out of their own money permanently. */}
+      {mode === "login" && (
+        <p className="text-center mt-2 text-[13px]">
+          <Link href="/forgot" className="text-ink-soft no-underline hover:text-emerald">
+            {t("forgotPassword")}
+          </Link>
+        </p>
+      )}
     </main>
   );
 }

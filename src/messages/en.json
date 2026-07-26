@@ -201,7 +201,8 @@
     "invitedNote": "You were invited by a friend 🎁",
     "paymentUnavailable": "Payment is unavailable right now. Please try again later.",
     "country": "Country",
-    "countryNotice": "Zakai’s active tools today are Israel-first. You’re signing up early — we’ll notify you the moment we launch in your country."
+    "countryNotice": "Zakai’s active tools today are Israel-first. You’re signing up early — we’ll notify you the moment we launch in your country.",
+    "forgotPassword": "Forgot your password?"
   },
   "onboarding": {
     "title": "What Zakai does for you",
@@ -3560,5 +3561,32 @@
       "amount": "Amount",
       "details": "Details"
     }
+  },
+  "reset": {
+    "requestTitle": "Forgot your password?",
+    "requestBody": "Enter the email address on the account and we'll send a link to set a new password.",
+    "email": "Email",
+    "requestBtn": "Send reset link",
+    "sending": "Sending…",
+    "sentTitle": "Check your inbox",
+    "sentBody": "If an account exists for that address, we've sent it a link to set a new password. The link is valid for an hour and can be used once. If it hasn't arrived, check your spam folder.",
+    "backToLogin": "Back to sign in",
+    "setTitle": "Set a new password",
+    "setBody": "Choose a new password for your account. You'll sign in with it after saving.",
+    "newPassword": "New password",
+    "passwordHint": "At least 8 characters.",
+    "setBtn": "Save and sign in",
+    "saving": "Saving…",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "invalidTitle": "That link isn't valid",
+    "requestAgain": "Request a new link",
+    "reset_invalid": "That link isn't valid. It may have been copied incompletely — request a new one.",
+    "reset_expired": "That link has expired.",
+    "reset_used": "That link has already been used.",
+    "weakPassword": "The password must be at least 8 characters.",
+    "invalidEmail": "That email address isn't valid.",
+    "tooManyRequests": "Too many requests. Try again in a few minutes.",
+    "genericError": "Something went wrong. Please try again."
   }
 }

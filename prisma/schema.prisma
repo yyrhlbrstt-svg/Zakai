@@ -61,6 +61,7 @@ model User {
   referralRewards    ReferralReward[]    @relation("Referrer")
   referralRewardFor  ReferralReward?     @relation("ReferredUser")
   consents           Consent[]
+  passwordResets     PasswordReset[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -332,4 +333,23 @@ model StrategyOutcome {
 
   @@index([market, vertical, counterparty])
   @@index([market, vertical])
+}
+
+/**
+ * A single-use password-reset token.
+ * Only the SHA-256 of the token is stored, never the token itself — the same
+ * discipline PhoneVerification already uses. A leaked database must not hand
+ * an attacker working reset links for every account in it.
+ */
+model PasswordReset {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
 }
