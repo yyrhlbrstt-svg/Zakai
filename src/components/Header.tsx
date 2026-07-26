@@ -12,6 +12,9 @@ import { Menu, X, ChevronDown } from "lucide-react";
 /** The public tools, grouped under one "Tools" menu so the bar stays calm.
     Each `key` maps to a real vector icon via <ToolIcon>. */
 const TOOLS = [
+  { href: "/score", key: "score" },
+  { href: "/what-am-i-owed", key: "whatAmIOwed" },
+  { href: "/scan", key: "scan" },
   { href: "/vat", key: "vat" },
   { href: "/spending", key: "spending" },
   { href: "/insurance-compare", key: "insurancecompare" },

@@ -1,4 +1,6 @@
 import {
+  Gauge,
+  ScanLine,
   Wallet,
   ShieldCheck,
   ShieldHalf,
@@ -87,6 +89,9 @@ const ICONS: Record<string, LucideIcon> = {
   mobile: Smartphone,
   subs: Repeat,
   vat: Calculator,
+  score: Gauge,
+  whatAmIOwed: Target,
+  scan: ScanLine,
 };
 
 /** Plain inline icon (currentColor), used in dense lists like the nav menu. */
