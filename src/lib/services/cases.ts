@@ -7,6 +7,7 @@ import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { createAuthorization } from "./authorization";
+import { dispatchPartnerWebhook } from "./webhooks";
 
 export class CaseError extends Error {}
 
@@ -133,6 +134,7 @@ export async function sendOutreach(caseId: string, userId: string) {
   });
 
   await prisma.case.update({ where: { id: caseId }, data: { status: "SENT" } });
+  dispatchPartnerWebhook(caseId, "case.sent");
   return email;
 }
 
@@ -229,6 +231,8 @@ export async function recordSaving(
     });
     return { case: updated, fee, feeNet: credit.net, creditApplied: credit.applied };
   });
+
+  dispatchPartnerWebhook(caseId, result.fee.savingMonthly > 0 ? "case.saved" : "case.no_saving");
 
   const fee = result.fee;
 
