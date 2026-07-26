@@ -3,30 +3,30 @@
   "tagline": "кто этого заслуживает",
   "assistant": {
     "insights": {
-      "taxRefund": "You may be owed a tax refund — up to {yearly}/year.",
-      "mobileCheck": "Your mobile bill is one of the easiest places to save — up to {yearly}/year.",
-      "electricitySwitch": "You can switch electricity supplier — up to {yearly}/year.",
-      "flightComp": "You may claim flight compensation — up to {yearly} per flight.",
-      "miluimPay": "As a reservist you may have unpaid benefits.",
-      "subscriptionAudit": "A subscription scan may find forgotten charges — up to {yearly}/year.",
-      "pensionFees": "Pension fees affect long-term savings — check your payslip.",
-      "workGrant": "You may qualify for a work grant.",
-      "bankTrack": "Your bank may owe you a cheaper account plan — up to {yearly}/year.",
-      "arnonaDiscount": "You may qualify for an arnona discount.",
-      "moreRights": "We found {count} more rights worth checking."
+      "taxRefund": "Вам может быть положен налоговый возврат — до {yearly} в год.",
+      "mobileCheck": "Мобильный счёт — одно из самых простых мест для экономии — до {yearly} в год.",
+      "electricitySwitch": "Вы можете перейти к частному поставщику электроэнергии — до {yearly} в год.",
+      "flightComp": "Вы имеете право на компенсацию за рейс — до {yearly} за рейс.",
+      "miluimPay": "Как резервист, вам могут быть причитающиеся выплаты.",
+      "subscriptionAudit": "Скан периодических платежей найдёт забытые подписки — до {yearly} в год.",
+      "pensionFees": "Пенсионные сборы влияют на десятки тысяч шекелей в долгосрочной перспективе — проверьте зарплатную ведомость.",
+      "workGrant": "Похоже, вы соответствуете требованиям рабочего гранта.",
+      "bankTrack": "Банк обязан предложить вам более дешёвый план — до {yearly} в год.",
+      "arnonaDiscount": "Вам может быть положена скидка на арнону.",
+      "moreRights": "Мы нашли ещё {count} прав, которые стоит проверить."
     },
     "insightCta": {
-      "taxRefund": "Check tax refund",
-      "mobileCheck": "Check mobile",
-      "electricitySwitch": "Compare electricity",
-      "flightComp": "Check flight",
-      "miluimPay": "Check reserve duty",
-      "subscriptionAudit": "Scan subscriptions",
-      "pensionFees": "Check payslip",
-      "workGrant": "See rights",
-      "bankTrack": "See rights",
-      "arnonaDiscount": "Arnona calculator",
-      "moreRights": "All rights"
+      "taxRefund": "Проверить возврат налога",
+      "mobileCheck": "Проверить мобильный",
+      "electricitySwitch": "Сравнить электричество",
+      "flightComp": "Проверить рейс",
+      "miluimPay": "Проверить резервиста",
+      "subscriptionAudit": "Скан подписок",
+      "pensionFees": "Проверить зарплатную ведомость",
+      "workGrant": "Список прав",
+      "bankTrack": "Список прав",
+      "arnonaDiscount": "Калькулятор арноны",
+      "moreRights": "Все права"
     }
   }
 }

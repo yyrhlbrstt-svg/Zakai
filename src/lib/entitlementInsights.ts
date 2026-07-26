@@ -58,7 +58,7 @@ const CONFIG: EntitlementConfig[] = [
     key: "mobileCheck",
     href: "/check",
     weight: 88,
-    estimatedYearlyAgorot: 40_000, // ~₪330/mo at 18% saving × 12 (very conservative)
+    estimatedYearlyAgorot: 40_000, // ₪400/yr ≈ ₪185/mo bill at 18% saving × 12
   },
   {
     ids: ["electricity_switch"],
