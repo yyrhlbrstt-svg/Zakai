@@ -6,6 +6,7 @@ import { askZakai, aiAvailable, classifyIntent } from "@/lib/ai";
 import { planConfig } from "@/lib/plans";
 import { rateLimit, refundRateLimit } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { computeEntitlementInsights, profileFromRow } from "@/lib/entitlementInsights";
 
 const schema = z.object({
   question: z.string().trim().min(2).max(1000),
@@ -38,6 +39,13 @@ export async function POST(request: Request) {
   });
   const plan = planConfig(user?.plan).id;
 
+  const rightsProfile = await prisma.userRightsProfile.findUnique({
+    where: { userId: auth.userId },
+  });
+  const entitlementInsights = rightsProfile
+    ? computeEntitlementInsights(profileFromRow(rightsProfile))
+    : [];
+
   const limited = await rateLimit("assistant", auth.userId, QUOTA[plan], WINDOW_SECONDS);
   if (!limited.ok) {
     return NextResponse.json({ error: "quotaExceeded", plan }, { status: 429 });
@@ -69,11 +77,23 @@ export async function POST(request: Request) {
           )
           .join("\n");
 
+  const entitlementSummary =
+    entitlementInsights.length === 0
+      ? "No entitlement profile yet."
+      : entitlementInsights
+          .slice(0, 6)
+          .map(
+            (i) =>
+              `${i.key}: ${i.params.yearly ? `up to ₪${(i.params.yearly / 100).toFixed(0)}/yr` : "eligible"} → ${i.href}`,
+          )
+          .join("\n");
+
   try {
     const [answer, action] = await Promise.all([
       askZakai(parsed.data.question, {
         plan,
         casesSummary,
+        entitlementSummary,
         locale: parsed.data.locale,
       }),
       classifyIntent(parsed.data.question, parsed.data.locale),
