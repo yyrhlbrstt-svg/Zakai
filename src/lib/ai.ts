@@ -450,6 +450,44 @@ export async function analyzePostSaveBill(
   return { provider: result.provider, amountShekels: result.amountShekels, readable: result.readable };
 }
 
+// ---------- Generic text generation (used by agents) ----------
+
+export interface GenerateTextOptions {
+  maxTokens: number;
+  temperature?: number;
+}
+
+/**
+ * Generic text generation. Used by autonomous agents that need a plain LLM
+ * response rather than a structured bill/recommendation extraction.
+ * Degrades to null when no AI is configured; callers should handle that.
+ */
+export async function generateText(
+  userText: string,
+  opts: GenerateTextOptions,
+): Promise<string> {
+  if (!aiAvailable()) throw new AiUnavailableError();
+  if (aiProvider() !== "anthropic") {
+    return fallbackGenerate({
+      system: "You are Zakai, a helpful consumer-rights AI agent. Reply concisely in the same language as the user.",
+      userText,
+      maxTokens: opts.maxTokens,
+      temperature: opts.temperature ?? 0.3,
+    });
+  }
+  const anthropic = client();
+  const msg = await anthropic.messages.create({
+    model: DRAFT_MODEL,
+    max_tokens: opts.maxTokens,
+    temperature: opts.temperature ?? 0.3,
+    system: cachedSystem(
+      "You are Zakai, a helpful consumer-rights AI agent. Reply concisely in the same language as the user.",
+    ),
+    messages: [{ role: "user", content: userText }],
+  });
+  return msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n").trim();
+}
+
 // ---------- Recommendation + outreach draft ----------
 
 export interface Recommendation {
