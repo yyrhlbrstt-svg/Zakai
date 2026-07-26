@@ -118,6 +118,10 @@ function intentRoute(intent: string): string | null {
     show_miluim: "/miluim",
     show_flights: "/flights",
     show_electricity: "/electricity",
+    show_tax_refund: "/taxrefund",
+    show_unemployment: "/unemployment",
+    show_severance: "/severance",
+    show_maternity: "/maternity",
   };
   return routes[intent] ?? null;
 }

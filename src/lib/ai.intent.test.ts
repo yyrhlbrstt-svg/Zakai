@@ -13,6 +13,10 @@ describe("deterministicIntent", () => {
     ["תגמולי מילואים", "show_miluim"],
     ["פיצוי על טיסה", "show_flights"],
     ["השוואת ספקי חשמל", "show_electricity"],
+    ["החזר מס", "show_tax_refund"],
+    ["דמי אבטלה", "show_unemployment"],
+    ["פיצויי פיטורים", "show_severance"],
+    ["דמי לידה", "show_maternity"],
     ["שלום", "chat"],
   ];
 

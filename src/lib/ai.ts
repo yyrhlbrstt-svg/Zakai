@@ -854,7 +854,11 @@ export type AssistantIntent =
   | "show_payslip" // payslip check
   | "show_miluim" // reserve duty
   | "show_flights" // flight compensation
-  | "show_electricity"; // electricity check
+  | "show_electricity" // electricity check
+  | "show_tax_refund" // tax refund check
+  | "show_unemployment" // unemployment benefits
+  | "show_severance" // severance check
+  | "show_maternity"; // maternity benefits
 
 export interface AssistantAction {
   intent: AssistantIntent;
@@ -870,13 +874,18 @@ Allowed intents:
 - show_dashboard: user wants status/overview/cases
 - show_pricing: user asks about plans/fees/subscription
 - show_scan: recurring charges / subscriptions scan
-- show_rights: statutory rights / what am I owed
+- show_rights: statutory rights / what am I owed / general entitlements
 - show_payslip: payslip / salary check
 - show_miluim: reserve duty pay
 - show_flights: flight compensation
 - show_electricity: electricity bill / switching supplier
+- show_tax_refund: tax refund specifically
+- show_unemployment: unemployment benefits specifically
+- show_severance: severance pay specifically
+- show_maternity: maternity benefits specifically
 
 Rules:
+- Prefer the SPECIFIC intent when the user names a vertical (e.g. "החזר מס" → show_tax_refund, not show_rights).
 - Default to "chat" if unsure.
 - Reply in Hebrew, warm and concise (1 sentence).
 - Never invent numbers or facts.`;
@@ -931,17 +940,26 @@ function isAssistantIntent(value: unknown): value is AssistantIntent {
       "show_miluim",
       "show_flights",
       "show_electricity",
+      "show_tax_refund",
+      "show_unemployment",
+      "show_severance",
+      "show_maternity",
     ].includes(value)
   );
 }
 
 export function deterministicIntent(question: string): AssistantAction {
   const q = question.toLowerCase();
+  // Specific statutory-rights screens first, before broader keywords collide.
+  if (/החזר מס|מס הכנסה|tax refund/.test(q)) return { intent: "show_tax_refund", reply: "נבדוק אם מגיע לך החזר מס — במסך החזר המס." };
+  if (/אבטלה|דמי אבטלה|unemployment/.test(q)) return { intent: "show_unemployment", reply: "נבדוק זכאות לדמי אבטלה — במסך דמי האבטלה." };
+  if (/פיצויי פיטורים|פיטורין|פוטרתי|severance/.test(q)) return { intent: "show_severance", reply: "נבדוק פיצויי פיטורים — במסך המיועד." };
+  if (/לידה|דמי לידה|maternity/.test(q)) return { intent: "show_maternity", reply: "נבדוק זכאות לדמי לידה — במסך דמי הלידה." };
   // Category-specific screens take precedence.
   if (/חשמל|נגה|פל"א/.test(q)) return { intent: "show_electricity", reply: "נבדוק אם אפשר לחסוך בחשמל — במסך השוואת ספקים." };
-  if (/מילואים|מילואימניק/.test(q)) return { intent: "show_miluim", reply: "נבדוק תגמולי מילואים — במסך המילואים." };
-  if (/טיסה|טיסות|פיצוי|delay|flight/.test(q)) return { intent: "show_flights", reply: "נבדוק זכאות לפיצוי טיסה — במסך פיצויי טיסות." };
-  if (/תלוש|משכורת|פנסיה|הבראה/.test(q)) return { intent: "show_payslip", reply: "נבדוק את התלוש שלך — במסך בדיקת משכורת." };
+  if (/מילואים|מילואימניק|תגמולי מילואים/.test(q)) return { intent: "show_miluim", reply: "נבדוק תגמולי מילואים — במסך המילואים." };
+  if (/טיסה|טיסות|flight|delay/.test(q)) return { intent: "show_flights", reply: "נבדוק זכאות לפיצוי טיסה — במסך פיצויי טיסות." };
+  if (/תלוש|משכורת|פנסיה|הבראה|שכר/.test(q)) return { intent: "show_payslip", reply: "נבדוק את התלוש שלך — במסך בדיקת משכורת." };
   if (/זכויות|מגיע לי|מה מגיע|entitlements/.test(q)) return { intent: "show_rights", reply: "נבדוק אילו זכויות מגיעות לך — במסך 'מה מגיע לי'." };
   if (/דשבורד|תיקים|סטטוס|מה קורה/.test(q)) return { intent: "show_dashboard", reply: "הנה הדשבורד שלך — שם רואים את כל התיקים והסטטוס." };
   // Pricing intent beats subscriptions when the user asks about cost/plan.
@@ -962,6 +980,10 @@ const INTENT_REPLY_HE: Record<AssistantIntent, string> = {
   show_miluim: "נבדוק תגמולי מילואים — במסך המילואים.",
   show_flights: "נבדוק זכאות לפיצוי טיסה — במסך פיצויי טיסות.",
   show_electricity: "נבדוק אם אפשר לחסוך בחשמל — במסך השוואת ספקים.",
+  show_tax_refund: "נבדוק אם מגיע לך החזר מס — במסך החזר המס.",
+  show_unemployment: "נבדוק זכאות לדמי אבטלה — במסך דמי האבטלה.",
+  show_severance: "נבדוק פיצויי פיטורים — במסך המיועד.",
+  show_maternity: "נבדוק זכאות לדמי לידה — במסך דמי הלידה.",
 };
 
 const INTENT_REPLY_EN: Record<AssistantIntent, string> = {
@@ -975,6 +997,10 @@ const INTENT_REPLY_EN: Record<AssistantIntent, string> = {
   show_miluim: "Let's check your reserve-duty pay.",
   show_flights: "Let's check your flight compensation.",
   show_electricity: "Let's compare electricity suppliers.",
+  show_tax_refund: "Let's check your tax refund eligibility.",
+  show_unemployment: "Let's check your unemployment benefits.",
+  show_severance: "Let's check your severance pay.",
+  show_maternity: "Let's check your maternity benefits.",
 };
 
 function fallbackReply(intent: AssistantIntent, locale: string): string {

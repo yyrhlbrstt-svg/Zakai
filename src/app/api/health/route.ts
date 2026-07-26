@@ -42,6 +42,7 @@ export async function GET(request: Request) {
       const answer = await askZakai("Reply with the single word: ok", {
         plan: "FREE",
         casesSummary: "No checks yet.",
+        entitlementSummary: "No entitlement profile yet.",
         locale: "en",
       });
       return NextResponse.json({ ...base, aiCheck: "ok", sample: answer.slice(0, 40) });
