@@ -663,7 +663,18 @@
       "proPaysOff": "You've paid {fees} in success fees so far. Pro costs {price}/month and halves the fee — at your volume it already pays for itself.",
       "savedSoFar": "Your documented saving: {monthly}/month — {yearly} a year. Worth checking your other bills too.",
       "invite": "No active checks right now. Invite a friend — after their first successful check you'll earn a credit toward your next fee.",
-      "recheck": "{count, plural, one {It's been over 6 months since your documented saving} other {# of your checks are over 6 months old}} — promo prices tend to snap back right about now. A one-minute re-check is worth it."
+      "recheck": "{count, plural, one {It's been over 6 months since your documented saving} other {# of your checks are over 6 months old}} — promo prices tend to snap back right about now. A one-minute re-check is worth it.",
+      "taxRefund": "You may be owed a tax refund — up to {yearly}/year in typical part-year work cases. Worth a 2-minute check.",
+      "mobileCheck": "Your mobile bill is one of the easiest places to save. Estimated potential up to {yearly}/year.",
+      "electricitySwitch": "You can switch to a private electricity supplier — estimated potential up to {yearly}/year, and the switch is free.",
+      "flightComp": "You're eligible for flight compensation — up to {yearly} per delayed/cancelled flight. Let's check in the flight screen.",
+      "miluimPay": "As a reservist you may have unpaid benefits. Let's check the reserve-duty screen.",
+      "subscriptionAudit": "A recurring-charge scan finds subscriptions you forgot — estimated potential up to {yearly}/year.",
+      "pensionFees": "Management fees and pension deposits affect tens of thousands of shekels over time — let's check your payslip.",
+      "workGrant": "You appear to qualify for a state work grant. Worth checking if money is owed to you.",
+      "bankTrack": "Your bank must offer you a cheaper account plan for your status — up to {yearly}/year, free.",
+      "arnonaDiscount": "You may qualify for an arnona discount — let's check the discount and appeal calculator.",
+      "moreRights": "We found {count} more rights worth checking — full list on the 'What am I owed?' screen."
     },
     "insightCta": {
       "pendingCase": "To dashboard",
@@ -672,7 +683,18 @@
       "proPaysOff": "See plans",
       "savedSoFar": "To dashboard",
       "invite": "Invite a friend",
-      "recheck": "Re-check now"
+      "recheck": "Re-check now",
+      "taxRefund": "Check tax refund",
+      "mobileCheck": "Check mobile bill",
+      "electricitySwitch": "Compare electricity",
+      "flightComp": "Check flight claim",
+      "miluimPay": "Check reserve duty",
+      "subscriptionAudit": "Scan subscriptions",
+      "pensionFees": "Check payslip",
+      "workGrant": "See rights list",
+      "bankTrack": "See rights list",
+      "arnonaDiscount": "Arnona calculator",
+      "moreRights": "All rights"
     }
   },
   "electricity": {

@@ -2,13 +2,23 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { PLANS, planConfig } from "@/lib/plans";
 import { computeInsights, type CaseLite, type InsightInput } from "@/lib/insights";
+import {
+  computeEntitlementInsights,
+  profileFromRow,
+} from "@/lib/entitlementInsights";
 
 /** Load the user's data and derive rule-based insights (pure logic in lib/insights). */
 export async function buildInsights(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { plan: true, referralCreditAgorot: true },
-  });
+  const [user, rightsProfile] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true, referralCreditAgorot: true },
+    }),
+    prisma.userRightsProfile.findUnique({
+      where: { userId },
+    }),
+  ]);
+
   const cases = await prisma.case.findMany({
     where: { userId },
     select: {
@@ -19,6 +29,10 @@ export async function buildInsights(userId: string) {
       savingsProof: { select: { savingMonthly: true, recordedAt: true } },
     },
   });
+
+  const entitlements = rightsProfile
+    ? computeEntitlementInsights(profileFromRow(rightsProfile))
+    : [];
 
   const input: InsightInput = {
     plan: planConfig(user?.plan).id,
@@ -36,6 +50,7 @@ export async function buildInsights(userId: string) {
           : undefined,
       }),
     ),
+    entitlements,
   };
   return computeInsights(input);
 }

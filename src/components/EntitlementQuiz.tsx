@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
@@ -47,13 +47,31 @@ const DEFAULT_PROFILE: RightsProfile = {
 
 type Phase = "intro" | number | "result";
 
-export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
+export function EntitlementQuiz({
+  bcp47,
+  saveEnabled = false,
+}: {
+  bcp47: string;
+  saveEnabled?: boolean;
+}) {
   const t = useTranslations();
   const [phase, setPhase] = useState<Phase>("intro");
   const [profile, setProfile] = useState<RightsProfile>(DEFAULT_PROFILE);
 
   const result = useMemo(() => evaluateRights(profile), [profile]);
   const yearly = Math.round(result.quantifiedYearlyAgorot / 100); // agorot → ₪
+
+  // Persist the profile for logged-in users so the assistant can use it.
+  useEffect(() => {
+    if (!saveEnabled || phase !== "result") return;
+    fetch("/api/user/rights-profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+    }).catch(() => {
+      // Silent: the quiz result is still valid in the browser.
+    });
+  }, [saveEnabled, phase, profile]);
 
   // Steps: 0 age · 1 employment · 2 children · 3 flags. childrenUnder6 folds
   // into step 2 only when relevant, so the flow stays short.

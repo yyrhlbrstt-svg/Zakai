@@ -1,4 +1,32 @@
 {
   "brand": "زكاي",
-  "tagline": "من يستحق ذلك"
+  "tagline": "من يستحق ذلك",
+  "assistant": {
+    "insights": {
+      "taxRefund": "You may be owed a tax refund — up to {yearly}/year.",
+      "mobileCheck": "Your mobile bill is one of the easiest places to save — up to {yearly}/year.",
+      "electricitySwitch": "You can switch electricity supplier — up to {yearly}/year.",
+      "flightComp": "You may claim flight compensation — up to {yearly} per flight.",
+      "miluimPay": "As a reservist you may have unpaid benefits.",
+      "subscriptionAudit": "A subscription scan may find forgotten charges — up to {yearly}/year.",
+      "pensionFees": "Pension fees affect long-term savings — check your payslip.",
+      "workGrant": "You may qualify for a work grant.",
+      "bankTrack": "Your bank may owe you a cheaper account plan — up to {yearly}/year.",
+      "arnonaDiscount": "You may qualify for an arnona discount.",
+      "moreRights": "We found {count} more rights worth checking."
+    },
+    "insightCta": {
+      "taxRefund": "Check tax refund",
+      "mobileCheck": "Check mobile",
+      "electricitySwitch": "Compare electricity",
+      "flightComp": "Check flight",
+      "miluimPay": "Check reserve duty",
+      "subscriptionAudit": "Scan subscriptions",
+      "pensionFees": "Check payslip",
+      "workGrant": "See rights",
+      "bankTrack": "See rights",
+      "arnonaDiscount": "Arnona calculator",
+      "moreRights": "All rights"
+    }
+  }
 }

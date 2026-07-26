@@ -21,11 +21,20 @@ export interface CaseLite {
 /** Promotional prices in Israeli telecom typically expire around here. */
 export const RECHECK_AFTER_DAYS = 180;
 
+export interface EntitlementInsightLite {
+  key: string;
+  params: Record<string, number>;
+  href: string;
+  weight: number;
+}
+
 export interface InsightInput {
   plan: "FREE" | "PRO" | "MAX";
   referralCreditAgorot: number;
   proPriceAgorot: number;
   cases: CaseLite[];
+  /** Entitlement nudges surfaced from the user's rights profile, if any. */
+  entitlements?: EntitlementInsightLite[];
 }
 
 export interface Insight {
@@ -91,6 +100,12 @@ export function computeInsights(input: InsightInput): Insight[] {
   // 6. Nothing active and no referral credit — suggest inviting a friend.
   if (!input.cases.some((c) => active(c.status)) && input.referralCreditAgorot === 0) {
     out.push({ key: "invite", params: {}, href: "/settings", weight: 30 });
+  }
+
+  // 7. Entitlement-aware nudges: money the user is likely owed but has not
+  //    acted on. Inserted after active cases but before generic social nudges.
+  for (const e of input.entitlements ?? []) {
+    out.push(e);
   }
 
   return out.sort((a, b) => b.weight - a.weight);

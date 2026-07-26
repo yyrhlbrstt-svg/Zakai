@@ -51,6 +51,7 @@ model User {
   referralRewards   ReferralReward[] @relation("Referrer")
   referralRewardFor ReferralReward?  @relation("ReferredUser")
   consents          Consent[]
+  rightsProfile     UserRightsProfile?
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -146,6 +147,31 @@ model PhoneVerification {
 enum AuthorizationStatus {
   ACTIVE
   REVOKED
+}
+
+// A sparse, user-editable profile used to personalize the rights/entitlements
+// engine in the assistant and on the "what am I owed" screen. Stored separately
+// from User so it can be created/updated without touching auth fields.
+model UserRightsProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ageGroup          String   @default("25_44") // 18_24 | 25_44 | 45_66 | 67_plus
+  employment        String   @default("employee") // employee | self_employed | unemployed | student | soldier | retired
+  children          Int      @default(0)
+  childrenUnder6    Int      @default(0)
+  renting           Boolean  @default(false)
+  lowIncome         Boolean  @default(false)
+  newImmigrant      Boolean  @default(false)
+  dischargedSoldier Boolean  @default(false)
+  reservist         Boolean  @default(false)
+  disability        Boolean  @default(false)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 // The power-of-attorney-style authorization document a provider can verify.
