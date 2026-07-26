@@ -209,6 +209,10 @@ export function computeEntitlementInsights(profile: RightsProfile): EntitlementI
 }
 
 function buildInsight(cfg: EntitlementConfig, matched: Entitlement[]): EntitlementInsight {
+  // The rights engine only attaches a quantified yearly value when it is
+  // stable and well-known. If it did quantify this entitlement, use that
+  // exact figure; otherwise fall back to the conservative estimate configured
+  // here, never summing both to avoid inflating the number.
   const quantified = matched.reduce((s, e) => s + (e.yearlyAgorot ?? 0), 0);
   const estimated = cfg.estimatedYearlyAgorot ?? 0;
   const yearlyAgorot = quantified > 0 ? quantified : estimated;
