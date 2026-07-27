@@ -5,7 +5,6 @@ import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { ToolIconTile } from "@/components/ToolIcon";
 import { Globe } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
@@ -58,29 +57,29 @@ export default async function HomePage({
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
-      {/* Deploy verification strip — if you see this, production is on the new build */}
+      {/* Deploy verification strip — Money OS single path */}
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "בלי מוקד · בלי לחכות לטלפון · פעולה מיידית באפליקציה · גרסה 0.2.1"
-          : "No call center · Instant in-app action · Build 0.2.1"}
+          ? "Money OS · בלי מוקד · בלי לחכות לטלפון · הסוכן פועל בשבילך · גרסה 0.2.3"
+          : "Money OS · No call center · Instant in-app action · Agent acts for you · Build 0.2.3"}
         <div className="flex flex-wrap gap-2 mt-2.5">
           <Link
-            href="/leaks"
-            className="rounded-lg bg-[rgba(63,203,155,0.25)] px-3 py-1.5 text-[12.5px] text-emerald no-underline font-extrabold"
+            href="/money"
+            className="rounded-lg bg-[rgba(63,203,155,0.35)] px-3 py-1.5 text-[12.5px] text-emerald no-underline font-extrabold"
           >
-            {he ? "מפת נזילות" : "Leaks map"}
+            {moneyLabel}
           </Link>
           <Link
             href="/cancel"
             className="rounded-lg bg-[rgba(62,198,255,0.2)] px-3 py-1.5 text-[12.5px] text-[#3ec6ff] no-underline font-extrabold"
           >
-            {he ? "ביטול מנוי" : "Cancel sub"}
+            {he ? "ביטול מנוי עם סוכן" : "Cancel with agent"}
           </Link>
           <Link
-            href="/money"
+            href="/dashboard"
             className="rounded-lg bg-[rgba(139,92,246,0.2)] px-3 py-1.5 text-[12.5px] text-[#c4b5fd] no-underline font-extrabold"
           >
-            {moneyLabel}
+            {he ? "הדשבורד שלי" : "My dashboard"}
           </Link>
         </div>
       </div>
@@ -108,19 +107,18 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={160}>
             <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[480px]">
-              {t("home.sub")}
+              {he
+                ? "מעלים צילום מסך מהבנק — זכאי מזהה חיובים קבועים, פותח תיק עם Mandate, שולח ומעקוב. בלי להשאיר טלפון. בלי מוקד."
+                : "Upload a bank screenshot — Zakai finds recurring charges, opens a Mandate case, sends and follows up. No phone number left. No call center."}
             </p>
           </Reveal>
           <Reveal delay={240}>
             <div className="flex flex-wrap gap-3 items-center">
               <Link href="/money">
-                <Button>{moneyLabel}</Button>
+                <Button className="!text-[16px] !px-6 !py-3.5">{moneyLabel} →</Button>
               </Link>
-              <Link href="/leaks">
-                <Button variant="ghost">{he ? "מפת נזילות" : "Leaks"}</Button>
-              </Link>
-              <Link href="/check">
-                <Button variant="ghost">{t("home.cta")}</Button>
+              <Link href="/cancel">
+                <Button variant="ghost">{he ? "ביטול מנוי עכשיו" : "Cancel a sub now"}</Button>
               </Link>
             </div>
           </Reveal>
@@ -170,88 +168,7 @@ export default async function HomePage({
         </Reveal>
       )}
 
-      <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-1.5">{t("home.verticalsTitle")}</h2>
-        <p className="text-ink-soft text-[13px] mt-0 mb-2">{t("home.verticalsSub")}</p>
-      </Reveal>
-      {(
-        [
-          {
-            group: "moneyBack",
-            items: [
-              { key: "lostmoney", href: "/lost-money" },
-              { key: "classaction", href: "/class-action" },
-              { key: "childsavings", href: "/child-savings" },
-              { key: "arnona", href: "/arnona" },
-              { key: "disability", href: "/disability-benefits" },
-              { key: "defects", href: "/construction-defects" },
-              { key: "carvalue", href: "/car-value" },
-              { key: "mortins", href: "/mortgage-insurance" },
-              { key: "dupinsurance", href: "/duplicate-insurance" },
-              { key: "pension", href: "/pension-fees" },
-              { key: "mortgage", href: "/mortgage" },
-              { key: "taxrefund", href: "/taxrefund" },
-              { key: "flights", href: "/flights" },
-              { key: "baggage", href: "/baggage" },
-              { key: "priceprotection", href: "/price-protection" },
-              { key: "parking", href: "/parking" },
-            ],
-          },
-          {
-            group: "rightsWork",
-            items: [
-              { key: "rights", href: "/rights" },
-              { key: "payslip", href: "/payslip" },
-              { key: "severance", href: "/severance" },
-              { key: "maternity", href: "/maternity" },
-              { key: "unemployment", href: "/unemployment" },
-              { key: "miluim", href: "/miluim" },
-            ],
-          },
-          {
-            group: "consumer",
-            items: [
-              { key: "mobile", href: "/check" },
-              { key: "subs", href: "/money" },
-              { key: "electricity", href: "/electricity" },
-              { key: "bankfees", href: "/bank-fees" },
-              { key: "warranty", href: "/warranty" },
-              { key: "deposit", href: "/deposit" },
-              { key: "deals", href: "/deals" },
-            ],
-          },
-          {
-            group: "business",
-            items: [{ key: "vat", href: "/vat" }],
-          },
-        ] as const
-      ).map((section) => (
-        <div key={section.group} className="mt-8 first:mt-5">
-          <Reveal>
-            <div className="text-[12.5px] font-extrabold text-emerald uppercase tracking-wide mb-3.5">
-              {t(`home.verticalGroups.${section.group}`)}
-            </div>
-          </Reveal>
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-            {section.items.map((v, i) => (
-              <Reveal key={v.key} delay={i * 60}>
-                <Link href={v.href} className="no-underline text-ink block h-full">
-                  <SpotlightCard className="p-5 h-full transition-colors duration-200 hover:border-[rgba(63,203,155,0.4)]">
-                    <ToolIconTile name={v.key} />
-                    <div className="font-extrabold text-[15px] mt-2.5">
-                      {t(`home.verticals.${v.key}.title`)}
-                    </div>
-                    <div className="text-ink-soft text-[12.5px] mt-1 leading-relaxed">
-                      {t(`home.verticals.${v.key}.sub`)}
-                    </div>
-                  </SpotlightCard>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      ))}
-
+      {/* Single path — 3 steps only */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.howTitle")}</h2>
       </Reveal>
@@ -273,6 +190,7 @@ export default async function HomePage({
         ))}
       </div>
 
+      {/* Why Zakai — keep the comparison */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.whyTitle")}</h2>
       </Reveal>
@@ -302,6 +220,28 @@ export default async function HomePage({
           </Reveal>
         ))}
       </div>
+
+      {/* Final conversion — no tool grid */}
+      <Reveal>
+        <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
+          <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
+            {he ? "הכול עובר דרך זכאי" : "Everything goes through Zakai"}
+          </div>
+          <p className="text-ink-soft text-[15px] mt-3 max-w-[480px] mx-auto leading-relaxed">
+            {he
+              ? "סרוק → תיק עם Mandate → הסוכן שולח ומעקוב → חיסכון מתועד. עמלה רק אם נחסך בפועל."
+              : "Scan → Mandate case → agent sends & follows up → documented saving. Fee only when money is actually saved."}
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center mt-6">
+            <Link href="/money">
+              <Button className="!text-[15px] !px-6 !py-3">{moneyLabel}</Button>
+            </Link>
+            <Link href="/cancel">
+              <Button variant="ghost">{he ? "ביטול מנוי עם סוכן" : "Agent cancel"}</Button>
+            </Link>
+          </div>
+        </div>
+      </Reveal>
 
       <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[560px] mx-auto">
         {t("home.scopeNote")}
