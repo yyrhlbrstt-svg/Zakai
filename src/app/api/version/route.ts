@@ -3,7 +3,6 @@ import { aiAvailable, aiProvider } from "@/lib/ai";
 
 /**
  * Deploy probe — open this URL after Redeploy to confirm production is on latest main.
- * Expected: version >= 0.2.3 and buildId present.
  */
 export const dynamic = "force-dynamic";
 
@@ -11,19 +10,19 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.2.3",
-    buildMarker: "money-os-single-path-2026-07-27",
+    version: "0.2.4",
+    buildMarker: "scan-to-case-viral-2026-07-28",
     ai: { available: aiAvailable(), provider: aiProvider() },
     features: {
       leaks: true,
       cancel: true,
       moneyHub: true,
-      moneyOsSinglePath: true,
+      fromScanCase: true,
       mandateOnAuthorization: true,
       selfServeStart: true,
       negotiationFollowUp: true,
       strategyOutcome: true,
-      agenticCancel: true,
+      viralAfterSaved: true,
     },
     time: new Date().toISOString(),
   });
