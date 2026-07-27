@@ -11,14 +11,8 @@ import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 
-/** Refresh the live proof numbers hourly (ISR) — fast page, honest data. */
 export const revalidate = 3600;
 
-/**
- * Live social proof from the append-only savings ledger. Returns zeros (and
- * the section hides) until real documented savings exist — an honest counter
- * or none at all. Build-safe: a missing DB just hides the section.
- */
 async function loadProof() {
   try {
     const [agg, count] = await Promise.all([
@@ -45,9 +39,6 @@ export default async function HomePage({
   const trust = t.raw("home.trust") as string[];
   const israeliVisitor = await isIsrael();
 
-  // The kicker's country tag reflects where the visitor actually is (edge geo),
-  // not a hard-coded "Israel". Localized via Intl for ANY country; omitted when
-  // geo is unknown (e.g. local dev) so we never assert the wrong place.
   const visitorCountry = await getCountry();
   const countryTag = (() => {
     if (!visitorCountry) return "";
@@ -58,6 +49,9 @@ export default async function HomePage({
       return "";
     }
   })();
+
+  const moneyLabel =
+    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
@@ -71,7 +65,8 @@ export default async function HomePage({
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
             <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-6">
-              {t("home.kicker")}{countryTag}
+              {t("home.kicker")}
+              {countryTag}
             </div>
           </Reveal>
           <Reveal delay={80}>
@@ -88,8 +83,11 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={240}>
             <div className="flex flex-wrap gap-3 items-center">
+              <Link href="/money">
+                <Button>{moneyLabel}</Button>
+              </Link>
               <Link href="/what-am-i-owed">
-                <Button>{t("nav.whatAmIOwed")}</Button>
+                <Button variant="ghost">{t("nav.whatAmIOwed")}</Button>
               </Link>
               <Link href="/check">
                 <Button variant="ghost">{t("home.cta")}</Button>
@@ -97,7 +95,6 @@ export default async function HomePage({
             </div>
           </Reveal>
 
-          {/* Trust signals, above the fold, as first-class content. */}
           <Reveal delay={320}>
             <ul className="flex flex-col gap-2 mt-7 list-none p-0 m-0">
               {trust.map((line) => (
@@ -117,7 +114,6 @@ export default async function HomePage({
         </Reveal>
       </div>
 
-      {/* Scope stat strip — the breadth is the pitch: many checks, one place. */}
       <Reveal delay={80}>
         <div className="mt-12 grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
           {(t.raw("home.stats") as Array<{ n: string; label: string }>).map((s) => (
@@ -131,8 +127,6 @@ export default async function HomePage({
         </div>
       </Reveal>
 
-      {/* Live social proof — appears only once real documented savings exist.
-          Numbers come from the append-only proof ledger, never typed in. */}
       {proof.count > 0 && (
         <Reveal>
           <div className="mt-14 text-center rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-5">
@@ -146,8 +140,6 @@ export default async function HomePage({
         </Reveal>
       )}
 
-      {/* The breadth answer, organized so it reads as a system, not a dump:
-          three families — money owed back, rights & work, consumer & savings. */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-1.5">{t("home.verticalsTitle")}</h2>
         <p className="text-ink-soft text-[13px] mt-0 mb-2">{t("home.verticalsSub")}</p>
@@ -190,8 +182,8 @@ export default async function HomePage({
             group: "consumer",
             items: [
               { key: "mobile", href: "/check" },
+              { key: "subs", href: "/money" },
               { key: "electricity", href: "/electricity" },
-              { key: "subs", href: "/scan" },
               { key: "bankfees", href: "/bank-fees" },
               { key: "warranty", href: "/warranty" },
               { key: "deposit", href: "/deposit" },
@@ -242,9 +234,7 @@ export default async function HomePage({
                   {i + 1}
                 </div>
               </div>
-              <div className="font-extrabold text-base mt-3">
-                {t(`onboarding.steps.${key}.title`)}
-              </div>
+              <div className="font-extrabold text-base mt-3">{t(`onboarding.steps.${key}.title`)}</div>
               <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
                 {t(`onboarding.steps.${key}.sub`)}
               </div>
@@ -253,8 +243,6 @@ export default async function HomePage({
         ))}
       </div>
 
-      {/* Honest positioning vs the alternatives — no competitor names, just
-          the structural differences a reader can verify. */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.whyTitle")}</h2>
       </Reveal>

@@ -5,6 +5,7 @@ import { IL_PACK } from "./packs/il";
 import { US_PACK } from "./packs/us";
 import { DE_PACK } from "./packs/de";
 import { FR_PACK } from "./packs/fr";
+import { CA_PACK } from "./packs/ca";
 import type { RightsProfile } from "../rights";
 
 export interface Market {
@@ -20,6 +21,7 @@ export const MARKETS: Record<string, Market> = {
   US: { code: "US", pack: US_PACK, uiLocales: ["en"], label: "United States" },
   DE: { code: "DE", pack: DE_PACK, uiLocales: ["en"], label: "Deutschland" },
   FR: { code: "FR", pack: FR_PACK, uiLocales: ["en"], label: "France" },
+  CA: { code: "CA", pack: CA_PACK, uiLocales: ["en"], label: "Canada" },
 };
 
 export const DEFAULT_MARKET = "IL";
