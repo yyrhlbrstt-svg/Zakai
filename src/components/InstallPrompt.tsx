@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { LogoMark } from "@/components/Logo";
 
 interface BIPEvent extends Event {
   prompt: () => Promise<void>;
@@ -10,12 +11,6 @@ interface BIPEvent extends Event {
 
 const DISMISS_KEY = "zk_install_dismissed";
 
-/**
- * "Add to home screen" prompt — the last mile to feeling like a real app.
- * On Android/Chrome we capture `beforeinstallprompt` and offer a one-tap
- * install. On iOS Safari (no such event) we show the manual Share → Add
- * instruction. Hidden when already installed, or once dismissed.
- */
 export function InstallPrompt() {
   const t = useTranslations("install");
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
@@ -23,7 +18,6 @@ export function InstallPrompt() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    // Already installed (running standalone) or previously dismissed → never show.
     const standalone =
       window.matchMedia?.("(display-mode: standalone)").matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
@@ -41,7 +35,6 @@ export function InstallPrompt() {
     };
     window.addEventListener("beforeinstallprompt", onBIP);
 
-    // iOS Safari has no beforeinstallprompt — offer manual instructions.
     const ua = window.navigator.userAgent;
     const isIOS = /iphone|ipad|ipod/i.test(ua);
     const isSafari = /safari/i.test(ua) && !/crios|fxios|edgios/i.test(ua);
@@ -79,9 +72,7 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed inset-x-3 bottom-3 z-[9998] mx-auto max-w-[520px] rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] p-4 flex items-center gap-3">
-      <div className="w-10 h-10 shrink-0 rounded-[11px] grad-bg text-[#06121A] flex items-center justify-center font-black text-lg">
-        Z
-      </div>
+      <LogoMark size={40} className="shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="font-extrabold text-[14px]">{t("title")}</div>
         <div className="text-ink-soft text-[12px] mt-0.5 leading-snug">
@@ -101,7 +92,7 @@ export function InstallPrompt() {
         type="button"
         onClick={dismiss}
         aria-label={t("dismiss")}
-        className="shrink-0 text-ink-soft hover:text-ink text-lg leading-none px-1"
+        className="shrink-0 text-ink-soft hover:text-ink text-lg leading-none px-1 bg-transparent border-0 cursor-pointer"
       >
         ✕
       </button>
