@@ -1,5 +1,6 @@
 import "server-only";
 import { randomUUID } from "crypto";
+import type { Authorization } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { generateAuthorizationCode } from "@/lib/codes";
 import { maskPhone } from "@/lib/phone";
@@ -23,9 +24,8 @@ const CASE_MANDATE_SCOPES = [
   "settle:receive",
 ] as const;
 
-export type AuthorizationWithMandate = Awaited<
-  ReturnType<typeof createAuthorization>
-> & {
+/** Human Authorization row plus optional machine-verifiable Mandate fields. */
+export type AuthorizationWithMandate = Authorization & {
   mandateJti?: string;
   mandateToken?: string;
 };
@@ -47,7 +47,7 @@ export async function createAuthorization(caseId: string): Promise<Authorization
   });
   if (!kase) throw new Error("case not found");
 
-  let doc;
+  let doc: Authorization | undefined;
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateAuthorizationCode();
     const clash = await prisma.authorization.findUnique({ where: { code } });
@@ -120,13 +120,9 @@ async function tryIssueCaseMandate(input: {
       key,
     );
 
-    // Persist jti on the revocation table's "absence means active" model only
-    // when revoked. Link case → jti via internal note on a sentinel is avoided;
-    // the auth API returns the token once for the client to present.
     return { mandateJti: jti, mandateToken: token };
   } catch (err) {
     if (err instanceof MandateKeyUnavailableError) return {};
-    // Do not fail the human authorization path for mandate errors.
     console.error("mandate_issue_failed", err);
     return {};
   }
