@@ -1,0 +1,80 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireUserId, badRequest } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
+import { createCase, CaseError } from "@/lib/services/cases";
+import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
+import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
+import { rateLimit } from "@/lib/ratelimit";
+
+const schema = z.object({
+  customerName: z.string().max(80).default(""),
+  bank: z.string().min(1).max(120),
+  accountLast4: z.string().max(8).optional(),
+  feeKind: z.enum(["account_mgmt", "atm", "foreign_fx", "check", "rejected", "other"]),
+  feeDescription: z.string().max(160).optional(),
+  amountShekels: z.number().min(0).max(50000).optional(),
+  chargeDate: z.string().max(40).optional(),
+});
+
+export async function POST(request: Request) {
+  const auth = await requireUserId();
+  if ("response" in auth) return auth.response;
+
+  const limited = await rateLimit("cases-bank-fees", auth.userId, 20, 24 * 3600);
+  if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
+
+  const body = await request.json().catch(() => null);
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) return badRequest("genericError");
+  const data = parsed.data;
+
+  const user = await prisma.user.findUnique({ where: { id: auth.userId } });
+  if (!user) return badRequest("mustLogin", 401);
+
+  const activeCount = await prisma.case.count({
+    where: { userId: auth.userId, status: { in: [...ACTIVE_CASE_STATUSES] } },
+  });
+  if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
+
+  const letter = buildBankFeeLetter({
+    customerName: data.customerName || user.name || "",
+    bank: data.bank,
+    accountLast4: data.accountLast4,
+    feeKind: data.feeKind as BankFeeKind,
+    feeDescription: data.feeDescription,
+    amountShekels: data.amountShekels,
+    chargeDate: data.chargeDate,
+  });
+
+  const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 30;
+
+  let kase;
+  try {
+    kase = await createCase({
+      userId: auth.userId,
+      provider: data.bank.slice(0, 80),
+      amountShekels: amount,
+      plan: data.feeDescription || data.feeKind,
+      strategy: "ערעור על עמלת בנק עם Mandate",
+      targetShekels: 0,
+      draftMessage: `${letter.subject}\n\n${letter.body}`,
+      vertical: "bank-fees",
+      beneficiaryLabel: data.customerName || undefined,
+      autoApprove: true,
+    });
+  } catch (err) {
+    if (err instanceof CaseError && err.message === "CASE_LIMIT") {
+      return badRequest("caseLimit", 403);
+    }
+    throw err;
+  }
+
+  return NextResponse.json({
+    caseId: kase.id,
+    subject: letter.subject,
+    body: letter.body,
+    status: kase.status,
+    message: "case_opened",
+  });
+}

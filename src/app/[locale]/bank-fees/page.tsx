@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
+import { BankFeesTool } from "@/components/BankFeesTool";
 
 export async function generateMetadata({
   params,
@@ -31,6 +32,7 @@ export default async function BankFeesPage({
   const t = await getTranslations("bankFees");
   const fees = t.raw("fees") as FeeItem[];
   const steps = t.raw("steps") as string[];
+  const he = locale === "he" || locale === "ar";
 
   return (
     <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
@@ -43,6 +45,18 @@ export default async function BankFeesPage({
         </h1>
         <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
       </Reveal>
+
+      <Reveal>
+        <h2 className="font-display text-2xl mt-10 mb-3">
+          {he ? "הסוכן מערער בשמך" : "The agent disputes for you"}
+        </h2>
+        <p className="text-ink-soft text-[14px] mb-4 leading-relaxed">
+          {he
+            ? "מלא פרטים → הסוכן פותח תיק מאושר → Mandate → שליחה ומעקב. עמלה רק אם תועד ביטול/החזר."
+            : "Fill details → agent opens an approved case → Mandate → send & track. Fee only if a waiver/refund is documented."}
+        </p>
+      </Reveal>
+      <BankFeesTool />
 
       <Reveal>
         <h2 className="font-display text-2xl mt-11 mb-4">{t("feesTitle")}</h2>
@@ -75,17 +89,6 @@ export default async function BankFeesPage({
         ))}
       </ol>
 
-      {/* Copy-paste self-help template — the user sends it themselves. */}
-      <Reveal>
-        <h2 className="font-display text-2xl mt-12 mb-3">{t("templateTitle")}</h2>
-        <p className="text-ink-soft text-[14px] mb-4">{t("templateSub")}</p>
-        <div className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-5">
-          <pre className="whitespace-pre-wrap font-sans text-[14px] leading-relaxed text-ink m-0">
-            {t("template")}
-          </pre>
-        </div>
-      </Reveal>
-
       <Reveal>
         <div className="mt-12 rounded-2xl p-[1px] bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_55%,#8b5cf6)]">
           <div className="rounded-2xl bg-[#0a1119] px-6 py-7 text-center">
@@ -94,18 +97,17 @@ export default async function BankFeesPage({
               {t("cta.body")}
             </p>
             <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <Link href="/scan">
-                <Button>{t("cta.primary")}</Button>
+              <Link href="/money">
+                <Button>{he ? "הכסף שלי" : "My money"}</Button>
               </Link>
-              <Link href="/entitlements">
-                <Button variant="ghost">{t("cta.secondary")}</Button>
+              <Link href="/scan">
+                <Button variant="ghost">{t("cta.primary")}</Button>
               </Link>
             </div>
           </div>
         </div>
       </Reveal>
       <LeadCta vertical="bank-fees" />
-
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}
