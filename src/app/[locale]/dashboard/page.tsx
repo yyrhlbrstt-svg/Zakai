@@ -10,6 +10,7 @@ import { MoneyScoreCard } from "@/components/MoneyScoreCard";
 import { ShareResult } from "@/components/ShareResult";
 import { FeePayButton } from "@/components/FeePayButton";
 import { CaseNextStep } from "@/components/CaseNextStep";
+import { ReminderBanner } from "@/components/ReminderBanner";
 import { Reveal } from "@/components/Reveal";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
@@ -85,12 +86,23 @@ export default async function DashboardPage({
   }
   const hasFamily = familyGroups.size > 0;
 
+  const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
+  const referralCode =
+    (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
+      ?.referralCode ?? "";
+
   const renderCaseCard = (list: typeof cases) => (
     <Card className="py-1.5">
       {list.map((c, i) => {
         const settled = c.status === "SAVED" || c.status === "NO_SAVING";
         const effectiveNew = c.savingsProof ? c.savingsProof.newAmount : c.targetAmount;
         const delta = Math.max(0, c.amountOriginal - effectiveNew);
+        const shareMsg =
+          c.status === "SAVED" && c.savingsProof && c.savingsProof.savingMonthly > 0
+            ? t("share.msgSaved", {
+                amount: formatAgorot(c.savingsProof.savingMonthly, loc),
+              })
+            : undefined;
         return (
           <div
             key={c.id}
@@ -144,10 +156,21 @@ export default async function DashboardPage({
             <div className="basis-full">
               <CaseNextStep
                 caseId={c.id}
-                status={c.status as "ANALYZED" | "APPROVED" | "VERIFIED" | "SENT" | "SAVED" | "NO_SAVING" | "REVOKED"}
+                status={
+                  c.status as
+                    | "ANALYZED"
+                    | "APPROVED"
+                    | "VERIFIED"
+                    | "SENT"
+                    | "SAVED"
+                    | "NO_SAVING"
+                    | "REVOKED"
+                }
                 ownershipVerified={Boolean(c.ownershipVerifiedAt)}
                 hasAuthorization={Boolean(c.authorization && c.authorization.status === "ACTIVE")}
                 amountOriginalShekels={Math.round(c.amountOriginal / 100)}
+                shareMessage={shareMsg}
+                referralCode={referralCode}
               />
             </div>
           </div>
@@ -156,10 +179,6 @@ export default async function DashboardPage({
     </Card>
   );
 
-  const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
-  const referralCode =
-    (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
-      ?.referralCode ?? "";
   const lastActivity = cases[0]?.createdAt ?? null;
   const scoreResult = computeMoneyScore({
     casesCount: cases.length,
@@ -171,12 +190,17 @@ export default async function DashboardPage({
     hasReferred: referredCount > 0,
   });
 
+  const moneyLabel =
+    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
+
   return (
     <main className="max-w-[900px] mx-auto px-5 pb-20 pt-1">
       <div className="flex items-center gap-3 flex-wrap my-3 mb-5">
         <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
         <PlanBadge plan={user!.plan} />
       </div>
+
+      <ReminderBanner />
 
       {pendingActions > 0 && (
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[14px] font-bold">
@@ -260,14 +284,14 @@ export default async function DashboardPage({
           <div className="font-display text-2xl">{t("dashboard.empty")}</div>
           <div className="text-ink-soft text-[14.5px] mt-2">{t("dashboard.emptySub")}</div>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
+            <Link href="/money">
+              <Button>{moneyLabel}</Button>
+            </Link>
             <Link href="/check">
-              <Button>{t("home.cta")}</Button>
+              <Button variant="ghost">{t("home.cta")}</Button>
             </Link>
             <Link href="/what-am-i-owed">
               <Button variant="ghost">{t("nav.whatAmIOwed")}</Button>
-            </Link>
-            <Link href="/rights">
-              <Button variant="ghost">{t("nav.rights")}</Button>
             </Link>
           </div>
         </Card>
@@ -314,11 +338,11 @@ export default async function DashboardPage({
             <Link href="/check">
               <Button>{t("home.cta")}</Button>
             </Link>
+            <Link href="/money">
+              <Button variant="ghost">{moneyLabel}</Button>
+            </Link>
             <Link href="/rights">
               <Button variant="ghost">{t("nav.rights")}</Button>
-            </Link>
-            <Link href="/scan">
-              <Button variant="ghost">{t("nav.scan")}</Button>
             </Link>
           </div>
         </>

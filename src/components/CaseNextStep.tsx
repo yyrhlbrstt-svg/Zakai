@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { Button, Input, FieldError } from "@/components/ui";
 import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
+import { scheduleFollowUpReminder } from "@/lib/reminders";
 
 type Status =
   | "ANALYZED"
@@ -118,12 +119,6 @@ export function CaseNextStep({
       (he
         ? "חסכתי כסף עם זכאי — בלי מוקד ובלי לחכות לאף אחד."
         : "I saved money with Zakai — no call center.");
-    const shareUrl =
-      typeof window !== "undefined"
-        ? referralCode
-          ? `${window.location.origin}/signup?ref=${encodeURIComponent(referralCode)}`
-          : `${window.location.origin}/`
-        : "https://zakai-3uxj.vercel.app";
     return (
       <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] p-3">
         <div className="text-[12.5px] font-bold mb-2">{t(locale, "shareTitle")}</div>
@@ -131,6 +126,10 @@ export function CaseNextStep({
           type="button"
           className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
           onClick={() => {
+            const origin = window.location.origin;
+            const shareUrl = referralCode
+              ? `${origin}/signup?ref=${encodeURIComponent(referralCode)}`
+              : `${origin}/`;
             window.open(
               `https://wa.me/?text=${encodeURIComponent(`${msg}\n${shareUrl}`)}`,
               "_blank",
@@ -242,6 +241,7 @@ export function CaseNextStep({
               run(async () => {
                 const res = await fetch(`/api/cases/${caseId}/send`, { method: "POST" });
                 if (!res.ok) throw new Error("send");
+                scheduleFollowUpReminder(caseId);
               })
             }
           >

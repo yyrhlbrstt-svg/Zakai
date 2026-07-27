@@ -12,16 +12,20 @@ const schema = z.object({
   locale: z.string().default("he"),
 });
 
-/** Monthly question quota per plan (30-day fixed window). */
 const QUOTA: Record<string, number> = { FREE: 5, PRO: 100, MAX: 300 };
 const WINDOW_SECONDS = 30 * 24 * 3600;
 
-/**
- * The assistant's ask endpoint. Control-plane separation: the model only ever
- * returns text; nothing here mutates state. Quotas are enforced per plan so
- * the free tier gets a real taste (5 questions/month) and Pro/Max get fair-use
- * allowances — the FinOps guardrail against runaway token spend.
- */
+const NEGOTIATION_COACH = `
+NEGOTIATION COACHING (use when the user has SENT cases or asks how to lower a price):
+- Prefer written offers over phone-only deals so the saving can be documented.
+- If the provider refused: ask for a short written reason + any retention options.
+- If the offer is too low: thank them and request a bridge toward the target amount.
+- If no reply: send a polite written reminder with a 5 business-day ask.
+- After any new price: tell the user to open Dashboard → enter the new monthly amount → Record saving.
+- Screens: /dashboard (follow-up + record), /money (see charges), /check (new case).
+- Never promise a specific outcome. Never invent savings numbers.
+`.trim();
+
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
@@ -43,7 +47,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "quotaExceeded", plan }, { status: 429 });
   }
 
-  // Compact snapshot of the user's own data — the ONLY data the model sees.
   const cases = await prisma.case.findMany({
     where: { userId: auth.userId },
     orderBy: { createdAt: "desc" },
@@ -57,17 +60,25 @@ export async function POST(request: Request) {
       fee: { select: { amount: true, status: true } },
     },
   });
+
+  const sentCount = cases.filter((c) => c.status === "SENT").length;
   const casesSummary =
     cases.length === 0
-      ? "No checks yet."
+      ? "No checks yet. Suggest /money or /check as first step."
       : cases
           .map(
             (c) =>
               `${c.provider}: status=${c.status}, pays ₪${(c.amountOriginal / 100).toFixed(0)}/mo, target ₪${(c.targetAmount / 100).toFixed(0)}` +
-              (c.savingsProof ? `, documented saving ₪${(c.savingsProof.savingMonthly / 100).toFixed(0)}/mo` : "") +
+              (c.savingsProof
+                ? `, documented saving ₪${(c.savingsProof.savingMonthly / 100).toFixed(0)}/mo`
+                : "") +
               (c.fee ? `, fee ₪${(c.fee.amount / 100).toFixed(2)} (${c.fee.status})` : ""),
           )
-          .join("\n");
+          .join("\n") +
+        (sentCount > 0
+          ? `\n\n${sentCount} case(s) awaiting provider reply — user can draft follow-ups on /dashboard.`
+          : "") +
+        `\n\n${NEGOTIATION_COACH}`;
 
   try {
     const answer = await askZakai(parsed.data.question, {
@@ -77,7 +88,6 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ answer });
   } catch (err) {
-    // A failed model call must not burn the user's monthly question quota.
     await refundRateLimit("assistant", auth.userId, WINDOW_SECONDS);
     await reportError(err, { route: "assistant-ask" });
     return badRequest("aiUnavailable", 503);
