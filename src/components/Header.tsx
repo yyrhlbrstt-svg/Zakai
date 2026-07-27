@@ -12,6 +12,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 const TOOLS = [
   { href: "/money", key: "money" },
   { href: "/leaks", key: "leaks" },
+  { href: "/proofs", key: "proofs" },
   { href: "/cancel", key: "cancel" },
   { href: "/credit-card", key: "creditcard" },
   { href: "/refund-chase", key: "refundchase" },
@@ -59,6 +60,7 @@ const TOOLS = [
 const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   money: { he: "הכסף שלי", en: "My money" },
   leaks: { he: "מפת נזילות", en: "Leaks map" },
+  proofs: { he: "קיר חיסכונות", en: "Savings wall" },
   cancel: { he: "ביטול מנוי", en: "Cancel sub" },
   creditcard: { he: "ריבית כרטיס", en: "Card interest" },
   refundchase: { he: "החזר שלא הגיע", en: "Missing refund" },
@@ -130,6 +132,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <NavLink href="/">{t("nav.home")}</NavLink>
           <NavLink href="/money">{he ? "הכסף שלי" : "My money"}</NavLink>
           <NavLink href="/leaks">{he ? "נזילות" : "Leaks"}</NavLink>
+          <NavLink href="/proofs">{he ? "חיסכונות" : "Proofs"}</NavLink>
           {user ? (
             <>
               <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
@@ -172,6 +175,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <MobileLink href="/">{t("nav.home")}</MobileLink>
           <MobileLink href="/money">{he ? "הכסף שלי" : "My money"}</MobileLink>
           <MobileLink href="/leaks">{he ? "מפת נזילות" : "Leaks map"}</MobileLink>
+          <MobileLink href="/proofs">{he ? "קיר חיסכונות" : "Savings wall"}</MobileLink>
           {user && (
             <>
               <MobileLink href="/assistant">{t("nav.assistant")}</MobileLink>
