@@ -336,7 +336,7 @@ Please refund any credit balance held, and correct any charge based on an estima
     },
   ),
 
-  // ---- Consumer ------------------------------------------------------------
+  // ---- Consumer — wired to agent tools ------------------------------------
   right(
     "flight_comp_uk261",
     "consumer",
@@ -349,22 +349,21 @@ Please refund any credit balance held, and correct any charge based on an estima
     "consumer",
     always,
     "Consumer Rights Act 2015; Payment Services Regulations 2017, reg. 79 (cancelling a continuous payment authority)",
-    { kind: "tool", tool: "/scan" },
+    { kind: "tool", tool: "/cancel" },
   ),
   right(
     "bank_charges_review",
     "banking",
     always,
     "FCA Handbook, BCOBS and CONC 5D (persistent debt and overdraft charges)",
-    {
-      kind: "letter",
-      recipient: "bank",
-      fields: ["counterparty", "accountNumber"],
-      subject: "Request for a charges statement and refund — account {accountNumber}",
-      body: `${IDENTITY} Please provide a full schedule of the fees, overdraft interest and charges applied to account {accountNumber} over the last six years.
-
-Where charges were applied in circumstances of financial difficulty, or in a manner inconsistent with your published tariff, please refund them. Please treat this as a formal complaint if it is not resolved within eight weeks, so that I may refer it to the Financial Ombudsman Service.`,
-    },
+    { kind: "tool", tool: "/bank-fees" },
+  ),
+  right(
+    "missing_refund",
+    "consumer",
+    always,
+    "Consumer Rights Act 2015; Payment Services Regulations 2017",
+    { kind: "tool", tool: "/refund-chase" },
   ),
   right(
     "mortgage_refinance",
@@ -495,8 +494,8 @@ If the deposit was not protected within the statutory period, please confirm how
 
 export const GB_PACK: JurisdictionPack = {
   market: "GB",
-  version: "2026.07.1",
-  reviewed: "2026-07-26",
+  version: "2026.07.2",
+  reviewed: "2026-07-28",
   docLocale: "en-GB",
   currency: "GBP",
   minorUnits: 100,
