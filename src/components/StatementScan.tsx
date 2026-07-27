@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
-import { scanStatement, type ScanResult, type ChargeCategory } from "@/lib/subscriptions";
+import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
 
 const CATEGORY_COLOR: Record<ChargeCategory, string> = {
@@ -18,10 +18,8 @@ const CATEGORY_COLOR: Record<ChargeCategory, string> = {
 };
 
 /**
- * Recurring-charges scan. Privacy-first by construction: parsing and detection
- * run entirely IN THE BROWSER (see subscriptions.ts) — the statement is never
- * uploaded, stored, or sent anywhere. Free plan sees the top 3 results as a
- * preview; Pro/Max see everything.
+ * Recurring-charges scan for logged-in users.
+ * Privacy-first: parse in browser. After scan → one-click agent Case (same path as MoneyHub).
  */
 export function StatementScan({
   fullScan,
@@ -30,19 +28,24 @@ export function StatementScan({
 }: {
   fullScan: boolean;
   bcp47: string;
-  /** Server-side vision available → allow bank-app screenshot extraction. */
   screenshotEnabled?: boolean;
 }) {
   const t = useTranslations("scan");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
+  const router = useRouter();
   const [text, setText] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
+  const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const shotRef = useRef<HTMLInputElement>(null);
 
   function runScan(input: string) {
     setResult(scanStatement(input));
+    setErr(null);
   }
 
   async function onFile(file?: File | null) {
@@ -52,8 +55,6 @@ export function StatementScan({
     runScan(content);
   }
 
-  // Screenshot path: bank-app screenshot → server-side extraction → the same
-  // deterministic engine. The zero-friction path for people who never export.
   async function onScreenshot(file?: File | null) {
     if (!file) return;
     setShotError(false);
@@ -83,8 +84,52 @@ export function StatementScan({
     }
   }
 
+  async function openCase(r: RecurringCharge) {
+    setErr(null);
+    setBusyMerchant(r.merchant);
+    try {
+      const monthlyShekels = Math.max(1, Math.round(r.monthlyAgorot / 100));
+      const res = await fetch("/api/cases/from-scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant: r.merchant,
+          product: r.merchant,
+          monthlyShekels,
+          category: r.category,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.replace(`/login?return=/scan`);
+        return;
+      }
+      if (!res.ok) {
+        setErr(
+          data.error === "caseLimit"
+            ? he
+              ? "הגעת למגבלת התיקים. שדרג או סגור תיק."
+              : "Case limit reached."
+            : he
+              ? "משהו השתבש."
+              : "Something went wrong.",
+        );
+        return;
+      }
+      router.push("/dashboard");
+    } catch {
+      setErr(he ? "משהו השתבש." : "Something went wrong.");
+    } finally {
+      setBusyMerchant(null);
+    }
+  }
+
   const visible = result ? (fullScan ? result.recurring : result.recurring.slice(0, 3)) : [];
   const hidden = result ? result.recurring.length - visible.length : 0;
+  const best =
+    result && result.recurring.length > 0
+      ? [...result.recurring].sort((a, b) => b.monthlyAgorot - a.monthlyAgorot)[0]
+      : null;
 
   return (
     <div>
@@ -137,7 +182,6 @@ export function StatementScan({
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotError")}</p>
         )}
 
-        {/* Guided export — the "I never exported a CSV" bridge. */}
         <details className="mt-5 text-[13px] text-ink-soft">
           <summary className="cursor-pointer font-bold text-emerald">{t("exportGuideTitle")}</summary>
           <ul className="mt-2.5 ps-4 list-disc space-y-2 leading-relaxed">
@@ -169,6 +213,33 @@ export function StatementScan({
                 </div>
               </Card>
 
+              {best && (
+                <Card className="mt-4 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
+                  <div className="text-[12px] font-extrabold text-emerald uppercase tracking-wide">
+                    {he ? "הכי כדאי עכשיו" : "Best next move"}
+                  </div>
+                  <div className="font-extrabold text-[17px] mt-1.5">{best.merchant}</div>
+                  <div className="text-ink-soft text-[13px] mt-0.5">
+                    {formatAgorot(best.monthlyAgorot, bcp47)} {t("perMonth")}
+                  </div>
+                  <Button
+                    className="mt-3 w-full"
+                    disabled={busyMerchant === best.merchant}
+                    onClick={() => openCase(best)}
+                  >
+                    {busyMerchant === best.merchant
+                      ? he
+                        ? "פותח תיק…"
+                        : "Opening…"
+                      : he
+                        ? "הסוכן פותח תיק עכשיו"
+                        : "Agent opens case now"}
+                  </Button>
+                </Card>
+              )}
+
+              {err && <p className="text-[13px] text-amber font-semibold mt-3">{err}</p>}
+
               <Card className="mt-4 py-1.5">
                 {visible.map((r, i) => (
                   <div
@@ -199,20 +270,20 @@ export function StatementScan({
                       {formatAgorot(r.monthlyAgorot, bcp47)}
                       <span className="text-ink-soft text-[12px] font-sans"> {t("perMonth")}</span>
                     </div>
-                    {r.providerKey && (
-                      <Link href="/check" className="no-underline">
-                        <Button variant="ghost" className="!px-4 !py-2 !text-[13px]">
-                          {t("checkCta")}
-                        </Button>
-                      </Link>
-                    )}
-                    {r.category === "electricity" && (
-                      <Link href="/electricity" className="no-underline">
-                        <Button variant="ghost" className="!px-4 !py-2 !text-[13px]">
-                          {t("electricityCta")}
-                        </Button>
-                      </Link>
-                    )}
+                    <Button
+                      variant="ghost"
+                      className="!px-4 !py-2 !text-[13px]"
+                      disabled={busyMerchant === r.merchant}
+                      onClick={() => openCase(r)}
+                    >
+                      {busyMerchant === r.merchant
+                        ? he
+                          ? "פותח…"
+                          : "…"
+                        : he
+                          ? "הסוכן פותח תיק"
+                          : "Open case"}
+                    </Button>
                   </div>
                 ))}
               </Card>
