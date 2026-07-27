@@ -24,36 +24,41 @@
 | Household CTA + grouping | ✅ 0.3.5 |
 | Airline Case + Mandate | ✅ 0.3.6 |
 | B2B embed widget | ✅ 0.3.6 |
+| Refund-chase Case | ✅ 0.3.6 |
+| Bank-fees Case + Mandate | ✅ 0.3.7 |
 
 ---
 
-## גל רעיונות חדש — ערך × מאמץ
+## גל רעיונות — ערך × מאמץ
 
-### 🟢 לבנות בקרוב (מתלבש על הקיים)
+### 🟢 סגור
 
-1–8 + 11–12 ✅
+כל פריטי ה-green + airline + B2B embed + refund + bank-fees.
 
 ### 🟡 דורש תשתית / רגולציה
 
-9. **Forward-email inbox**  
+1. **Forward-email inbox**  
    המשתמש מעביר מייל מהספק ל-`cases@zakai…` → AI מחלץ סכום חדש → מציע "רשום חיסכון". סוגר הוכחה בלי Open Banking. דורש inbound email (SendGrid Inbound / Cloudflare Email).
 
-10. **Web Push ב-PWA**  
-    "הספק ענה? / הגיע זמן recheck". iOS 16.4+ תומך. דורש VAPID + service worker.
+2. **Web Push ב-PWA**  
+   "הספק ענה? / הגיע זמן recheck". iOS 16.4+ תומך. דורש VAPID + service worker.
 
-### 🔴 לא בונים (קווים אדומים)
+3. **העמקת global packs**  
+   GB/US/DE/FR/CA — eligibility copy + provider lists אמיתיים מעבר לשלד.
+
+4. **העלאת bank-fees ל-full**  
+   אחרי proof אמיתי על תיקים שנסגרו (level: assisted → full).
+
+### 🔴 לא בונים
 
 - בוט שמאיים בתביעה / מייצג משפטית  
 - ניטור כרטיס אשראי של צד ג' בלי הסכמה מפורשת  
-- הבטחות "טריליון" כמטריקת מוצר — רק כחזון פנימי; החוץ: מוביל קטגוריה + ARR אמיתי
+- הבטחות "טריליון" כמטריקת מוצר חיצונית
 
 ---
 
 ## סדר ביצוע מומלץ (הבא)
 
-1. Forward-email inbox (SendGrid/Cloudflare) — סוגר proof loop  
-2. Web Push PWA  
-3. העמקת global packs (GB/US copy + eligibility)  
-4. העלאת bank-fees ל-full service אחרי proof אמיתי  
-
-הכל בלי תלויות חיצוניות חדשות עד עכשיו.
+1. העמקת global packs (GB קודם) — בלי תלות חיצונית  
+2. Forward-email inbox  
+3. Web Push PWA  
