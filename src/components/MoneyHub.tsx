@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
-import { scanStatement, type ScanResult, type ChargeCategory } from "@/lib/subscriptions";
+import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
@@ -21,9 +21,8 @@ const CATEGORY_COLOR: Record<ChargeCategory, string> = {
 
 const copy: Record<string, Record<string, string>> = {
   he: {
-    title: "הכסף שלי",
-    sub: "זכאי רואה מה יורד לך כל חודש — ואומר מה לעשות. בלי סיסמת בנק. בלי לצאת לאתרים.",
-    privacy: "אנחנו לא מבקשים ולא שומרים סיסמה לבנק. צילום מסך או קובץ תנועות — והניתוח אצלך במכשיר (או חילוץ מאובטח לצילום).",
+    privacy:
+      "אנחנו לא מבקשים ולא שומרים סיסמה לבנק. צילום מסך או קובץ תנועות — והניתוח אצלך במכשיר (או חילוץ מאובטח לצילום).",
     shotTitle: "הכי קל: צילום מסך מאפליקציית הבנק",
     shotSub: "פתח את רשימת החיובים / תנועות באפליקציה → צלם מסך → העלה כאן. זכאי יזהה חיובים קבועים.",
     shotBtn: "העלה צילום מסך",
@@ -36,25 +35,26 @@ const copy: Record<string, Record<string, string>> = {
     perMonth: "לחודש",
     none: "לא מצאנו חיובים חוזרים ברורים. נסה צילום עם יותר שורות או קובץ מלא יותר.",
     act: "מה זכאי ממליץ — הסוכן פועל",
-    checkBill: "בדוק חשבון / הורד מחיר",
-    agentCancel: "הסוכן מבטל / מוריד מחיר",
-    electricity: "בדוק חשמל",
-    insurance: "בדוק ביטוח כפול",
-    rights: "מה מגיע לי",
+    openCase: "הסוכן פותח תיק עכשיו",
+    opening: "פותח תיק…",
+    opened: "✓ תיק נפתח — לדשבורד",
+    bestRoi: "הכי כדאי עכשיו",
     remember: "נשמר במכשיר שלך — בפעם הבאה תראה את הסיכום גם בלי להעלות שוב",
     lastSaved: "סיכום אחרון מהמכשיר",
     clear: "נקה סיכום שמור",
-    openBankSoon: "חיבור בנק רשמי (Open Banking) בדרך — כשיהיה, בלי סיסמה אצלנו, רק אישור מאובטח מהבנק.",
+    openBankSoon:
+      "חיבור בנק רשמי (Open Banking) בדרך — כשיהיה, בלי סיסמה אצלנו, רק אישור מאובטח מהבנק.",
     feeNote: "עמלה רק אם נחסך בפועל ותועד — לא על הסריקה עצמה.",
     occurrences: "הופיע {n} פעמים",
-    nextStep: "השלב הבא: פתח תיק עם הסוכן",
+    nextStep: "לחץ על תיק — הסוכן מכין מכתב + Mandate ועוקב",
+    errGeneric: "משהו השתבש. נסה שוב.",
+    errLimit: "הגעת למגבלת התיקים. שדרג או סגור תיק קיים.",
   },
   en: {
-    title: "My money",
-    sub: "Zakai shows what leaves your account every month — and what to do next. No bank password. No hopping between sites.",
-    privacy: "We never ask for or store your bank password. Screenshot or transaction file — analysis stays on-device (or secure extract for screenshots).",
+    privacy:
+      "We never ask for or store your bank password. Screenshot or transaction file — analysis stays on-device.",
     shotTitle: "Easiest: screenshot from your bank app",
-    shotSub: "Open charges / transactions in the bank app → screenshot → upload here. Zakai finds recurring payments.",
+    shotSub: "Open charges in the bank app → screenshot → upload here. Zakai finds recurring payments.",
     shotBtn: "Upload screenshot",
     shotBusy: "Reading screenshot…",
     pasteTitle: "Or paste / upload a statement file",
@@ -65,22 +65,21 @@ const copy: Record<string, Record<string, string>> = {
     perMonth: "per month",
     none: "No clear recurring charges found. Try a longer screenshot or fuller file.",
     act: "What Zakai recommends — agent acts",
-    checkBill: "Check bill / lower price",
-    agentCancel: "Agent cancels / lowers price",
-    electricity: "Check electricity",
-    insurance: "Check duplicate insurance",
-    rights: "What am I owed",
-    remember: "Saved on this device — next visit you still see the summary",
+    openCase: "Agent opens case now",
+    opening: "Opening case…",
+    opened: "✓ Case opened — dashboard",
+    bestRoi: "Best next move",
+    remember: "Saved on this device",
     lastSaved: "Last summary on this device",
     clear: "Clear saved summary",
-    openBankSoon: "Official open-banking link is coming — bank consent only, never your password with us.",
+    openBankSoon: "Official open-banking link is coming — bank consent only.",
     feeNote: "A success fee only if a real saving is documented — not for the scan itself.",
     occurrences: "Seen {n} times",
-    nextStep: "Next: open a case with the agent",
+    nextStep: "Tap a case — agent drafts letter + Mandate and tracks",
+    errGeneric: "Something went wrong. Try again.",
+    errLimit: "Case limit reached. Upgrade or close an open case.",
   },
   ar: {
-    title: "أموالي",
-    sub: "زكاي يعرض ما يُخصم شهرياً وما يجب فعله. بدون كلمة مرور للبنك.",
     privacy: "لا نطلب كلمة مرور البنك.",
     shotTitle: "الأسهل: لقطة من تطبيق البنك",
     shotSub: "افتح الحركات → لقطة شاشة → ارفع هنا.",
@@ -94,22 +93,21 @@ const copy: Record<string, Record<string, string>> = {
     perMonth: "شهرياً",
     none: "لم نجد مدفوعات متكررة واضحة.",
     act: "توصية زكاي",
-    checkBill: "فحص الفاتورة",
-    agentCancel: "الوكيل يلغي / يخفض",
-    electricity: "فحص الكهرباء",
-    insurance: "تأمين مكرر",
-    rights: "ما يُستحق لي",
+    openCase: "الوكيل يفتح ملفاً الآن",
+    opening: "جارٍ الفتح…",
+    opened: "✓ تم فتح الملف",
+    bestRoi: "الأفضل الآن",
     remember: "يُحفظ على جهازك",
     lastSaved: "آخر ملخص",
     clear: "مسح",
     openBankSoon: "ربط بنكي رسمي قريباً.",
     feeNote: "عمولة فقط عند توفير موثّق.",
     occurrences: "ظهر {n} مرات",
-    nextStep: "الخطوة التالية: افتح ملفاً مع الوكيل",
+    nextStep: "اضغط لفتح ملف مع الوكيل",
+    errGeneric: "حدث خطأ.",
+    errLimit: "وصلت للحد.",
   },
   ru: {
-    title: "Мои деньги",
-    sub: "Zakai показывает регулярные списания и что делать. Без пароля от банка.",
     privacy: "Мы не просим пароль банка.",
     shotTitle: "Проще всего: скрин из банковского приложения",
     shotSub: "Откройте операции → скрин → загрузите сюда.",
@@ -123,18 +121,19 @@ const copy: Record<string, Record<string, string>> = {
     perMonth: "в месяц",
     none: "Явных регулярных платежей не найдено.",
     act: "Рекомендация Zakai",
-    checkBill: "Проверить счёт",
-    agentCancel: "Агент отменяет / снижает",
-    electricity: "Электричество",
-    insurance: "Двойная страховка",
-    rights: "Что мне должны",
+    openCase: "Агент открывает дело",
+    opening: "Открываем…",
+    opened: "✓ Дело открыто",
+    bestRoi: "Лучший шаг сейчас",
     remember: "Сохраняется на устройстве",
     lastSaved: "Последняя сводка",
     clear: "Очистить",
     openBankSoon: "Официальный open banking скоро.",
     feeNote: "Комиссия только с подтверждённой экономии.",
     occurrences: "Раз: {n}",
-    nextStep: "Далее: откройте дело с агентом",
+    nextStep: "Нажмите — агент откроет дело",
+    errGeneric: "Ошибка.",
+    errLimit: "Лимит дел.",
   },
 };
 
@@ -149,12 +148,9 @@ interface SavedSummary {
   savedAt: string;
 }
 
-function actionFor(r: { category: ChargeCategory; providerKey: string | null; merchant: string }) {
-  if (r.category === "cellular" || r.providerKey) return { href: "/check", labelKey: "checkBill" as const };
-  if (r.category === "electricity") return { href: "/electricity", labelKey: "electricity" as const };
-  if (r.category === "insurance") return { href: "/duplicate-insurance", labelKey: "insurance" as const };
-  // digital, fitness, tv, other → agent cancel path
-  return { href: "/cancel", labelKey: "agentCancel" as const };
+function topRoi(recurring: RecurringCharge[]): RecurringCharge | null {
+  if (recurring.length === 0) return null;
+  return [...recurring].sort((a, b) => b.monthlyAgorot - a.monthlyAgorot)[0];
 }
 
 export function MoneyHub({
@@ -165,11 +161,16 @@ export function MoneyHub({
   screenshotEnabled: boolean;
 }) {
   const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
+  const router = useRouter();
   const [text, setText] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
   const [saved, setSaved] = useState<SavedSummary | null>(null);
+  const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
+  const [openedId, setOpenedId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const shotRef = useRef<HTMLInputElement>(null);
 
@@ -200,6 +201,8 @@ export function MoneyHub({
   function runScan(input: string) {
     const scan = scanStatement(input);
     setResult(scan);
+    setOpenedId(null);
+    setError(null);
     if (scan.recurring.length > 0) persist(scan);
   }
 
@@ -239,6 +242,41 @@ export function MoneyHub({
     }
   }
 
+  async function openCase(r: RecurringCharge) {
+    setError(null);
+    setBusyMerchant(r.merchant);
+    try {
+      const monthlyShekels = Math.max(1, Math.round(r.monthlyAgorot / 100));
+      const res = await fetch("/api/cases/from-scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant: r.merchant,
+          product: r.merchant,
+          monthlyShekels,
+          category: r.category,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.replace(`/login?return=/money`);
+        return;
+      }
+      if (!res.ok) {
+        setError(data.error === "caseLimit" ? tx(locale, "errLimit") : tx(locale, "errGeneric"));
+        return;
+      }
+      setOpenedId(data.caseId);
+      router.push("/dashboard");
+    } catch {
+      setError(tx(locale, "errGeneric"));
+    } finally {
+      setBusyMerchant(null);
+    }
+  }
+
+  const best = result ? topRoi(result.recurring) : null;
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-start gap-2.5 text-[13px] text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3">
@@ -274,16 +312,12 @@ export function MoneyHub({
         <div className="font-extrabold text-[16px]">{tx(locale, "shotTitle")}</div>
         <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">{tx(locale, "shotSub")}</p>
         {screenshotEnabled ? (
-          <Button
-            className="mt-4"
-            disabled={shotBusy}
-            onClick={() => shotRef.current?.click()}
-          >
+          <Button className="mt-4" disabled={shotBusy} onClick={() => shotRef.current?.click()}>
             {shotBusy ? tx(locale, "shotBusy") : tx(locale, "shotBtn")}
           </Button>
         ) : (
           <p className="text-[13px] text-ink-soft mt-3">
-            {locale === "he"
+            {he
               ? "חילוץ מצילום ידלק כשחיבור ה-AI פעיל בשרת."
               : "Screenshot extract needs AI configured on the server."}
           </p>
@@ -298,7 +332,9 @@ export function MoneyHub({
         />
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
-            {locale === "he" ? "לא הצלחנו לקרוא את הצילום. נסה תמונה חדה יותר או קובץ CSV." : "Could not read screenshot. Try a clearer image or a CSV."}
+            {he
+              ? "לא הצלחנו לקרוא את הצילום. נסה תמונה חדה יותר או קובץ CSV."
+              : "Could not read screenshot. Try a clearer image or a CSV."}
           </p>
         )}
       </Card>
@@ -349,65 +385,88 @@ export function MoneyHub({
                 <p className="text-[12px] text-ink-soft mt-3">{tx(locale, "remember")}</p>
               </Card>
 
-              <div className="rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13.5px] font-bold">
+              {best && (
+                <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
+                  <div className="text-[12px] font-extrabold text-emerald uppercase tracking-wide">
+                    {tx(locale, "bestRoi")}
+                  </div>
+                  <div className="font-extrabold text-[17px] mt-1.5">{best.merchant}</div>
+                  <div className="text-ink-soft text-[13px] mt-0.5">
+                    {formatAgorot(best.monthlyAgorot, bcp47)} {tx(locale, "perMonth")} · {best.category}
+                  </div>
+                  <Button
+                    className="mt-3 w-full"
+                    disabled={busyMerchant === best.merchant}
+                    onClick={() => openCase(best)}
+                  >
+                    {busyMerchant === best.merchant
+                      ? tx(locale, "opening")
+                      : openedId
+                        ? tx(locale, "opened")
+                        : tx(locale, "openCase")}
+                  </Button>
+                </Card>
+              )}
+
+              <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13.5px] font-bold">
                 {tx(locale, "nextStep")}
               </div>
 
+              {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
+
               <div className="text-[13px] font-extrabold text-emerald">{tx(locale, "act")}</div>
+
+              <Card className="py-1.5">
+                {result.recurring.map((r, i) => (
+                  <div
+                    key={`${r.merchant}-${i}`}
+                    className="flex items-center gap-3 px-5 py-3.5 flex-wrap"
+                    style={{
+                      borderBottom:
+                        i < result.recurring.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+                    }}
+                  >
+                    <div className="flex-1 basis-[140px]">
+                      <div className="font-extrabold text-[15px]">{r.merchant}</div>
+                      <div className="text-[11.5px] text-ink-soft mt-0.5">
+                        {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
+                      </div>
+                    </div>
+                    <div
+                      className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
+                      style={{
+                        color: CATEGORY_COLOR[r.category],
+                        background: `${CATEGORY_COLOR[r.category]}18`,
+                        border: `1px solid ${CATEGORY_COLOR[r.category]}44`,
+                      }}
+                    >
+                      {r.category}
+                    </div>
+                    <div className="font-display text-lg">{formatAgorot(r.monthlyAgorot, bcp47)}</div>
+                    <Button
+                      variant="ghost"
+                      className="!px-3 !py-1.5 !text-[12.5px]"
+                      disabled={busyMerchant === r.merchant}
+                      onClick={() => openCase(r)}
+                    >
+                      {busyMerchant === r.merchant ? tx(locale, "opening") : tx(locale, "openCase")}
+                    </Button>
+                  </div>
+                ))}
+              </Card>
+
               <div className="flex flex-wrap gap-2">
-                <Link href="/cancel" className="no-underline">
-                  <Button className="!text-[13px] !py-2">{tx(locale, "agentCancel")}</Button>
-                </Link>
-                <Link href="/check" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">{tx(locale, "checkBill")}</Button>
-                </Link>
                 <Link href="/dashboard" className="no-underline">
                   <Button variant="ghost" className="!text-[13px] !py-2">
-                    {locale === "he" ? "הדשבורד" : "Dashboard"}
+                    {he ? "הדשבורד שלי" : "My dashboard"}
+                  </Button>
+                </Link>
+                <Link href="/cancel" className="no-underline">
+                  <Button variant="ghost" className="!text-[13px] !py-2">
+                    {he ? "ביטול ידני" : "Manual cancel"}
                   </Button>
                 </Link>
               </div>
-
-              <Card className="py-1.5">
-                {result.recurring.map((r, i) => {
-                  const action = actionFor(r);
-                  return (
-                    <div
-                      key={`${r.merchant}-${i}`}
-                      className="flex items-center gap-3 px-5 py-3.5 flex-wrap"
-                      style={{
-                        borderBottom:
-                          i < result.recurring.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
-                      }}
-                    >
-                      <div className="flex-1 basis-[140px]">
-                        <div className="font-extrabold text-[15px]">{r.merchant}</div>
-                        <div className="text-[11.5px] text-ink-soft mt-0.5">
-                          {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
-                        </div>
-                      </div>
-                      <div
-                        className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
-                        style={{
-                          color: CATEGORY_COLOR[r.category],
-                          background: `${CATEGORY_COLOR[r.category]}18`,
-                          border: `1px solid ${CATEGORY_COLOR[r.category]}44`,
-                        }}
-                      >
-                        {r.category}
-                      </div>
-                      <div className="font-display text-lg">
-                        {formatAgorot(r.monthlyAgorot, bcp47)}
-                      </div>
-                      <Link href={action.href} className="no-underline">
-                        <Button variant="ghost" className="!px-3 !py-1.5 !text-[12.5px]">
-                          {tx(locale, action.labelKey)}
-                        </Button>
-                      </Link>
-                    </div>
-                  );
-                })}
-              </Card>
 
               <p className="text-[12px] text-ink-soft">{tx(locale, "feeNote")}</p>
             </>
