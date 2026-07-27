@@ -1,19 +1,17 @@
 /**
  * i18n configuration.
  *
- * Hebrew is the primary, default locale and ships fully translated. The other
- * locales are wired into the architecture from day one (per spec) so that
- * adding a language is a translation task, never a rewrite. Only Hebrew is
- * marked `active`; inactive locales fall back to Hebrew messages until their
- * catalog is complete.
+ * Hebrew is the primary, default locale. English, Arabic and Russian are active
+ * in the UI switcher. Incomplete catalog keys deep-merge from Hebrew via
+ * `request.ts` so a partial translation never crashes the page.
  */
 export const locales = ["he", "en", "ar", "ru"] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = "he";
 
-/** Locales whose catalogs are complete enough to expose in the UI switcher. */
-export const activeLocales: Locale[] = ["he", "en"];
+/** Locales exposed in the UI language switcher. */
+export const activeLocales: Locale[] = ["he", "en", "ar", "ru"];
 
 /** Text direction per locale. */
 export const dir: Record<Locale, "rtl" | "ltr"> = {
@@ -26,7 +24,7 @@ export const dir: Record<Locale, "rtl" | "ltr"> = {
 export const localeLabel: Record<Locale, string> = {
   he: "עב",
   en: "EN",
-  ar: "AR",
+  ar: "ع",
   ru: "RU",
 };
 

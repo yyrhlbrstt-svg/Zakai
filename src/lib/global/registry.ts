@@ -12,17 +12,17 @@
  *   - A Russian speaker in Israel  → UI `ru`, market IL, letters in Hebrew.
  *   - An Arabic speaker in Israel  → UI `ar`, market IL, letters in Hebrew.
  *   - An Israeli living in London  → UI `he`, market GB, letters in English.
+ *   - A Spanish speaker in the US  → UI `en` (es later), market US, letters in English.
  *
  * Collapsing them into one setting is what makes a product monolingual and
- * mono-country by construction. Roughly a third of Israel speaks Russian or
- * Arabic at home; the same conflation that locks them out is the one that locks
- * out every country after the first.
+ * mono-country by construction.
  */
 
 import type { Locale } from "../../i18n/config";
 import type { JurisdictionPack, UniversalProfile } from "./types";
 import { GB_PACK } from "./packs/gb";
 import { IL_PACK } from "./packs/il";
+import { US_PACK } from "./packs/us";
 import type { RightsProfile } from "../rights";
 
 export interface Market {
@@ -42,6 +42,7 @@ export interface Market {
 export const MARKETS: Record<string, Market> = {
   IL: { code: "IL", pack: IL_PACK, uiLocales: ["he", "ar", "ru", "en"], label: "ישראל" },
   GB: { code: "GB", pack: GB_PACK, uiLocales: ["en"], label: "United Kingdom" },
+  US: { code: "US", pack: US_PACK, uiLocales: ["en"], label: "United States" },
 };
 
 export const DEFAULT_MARKET = "IL";
