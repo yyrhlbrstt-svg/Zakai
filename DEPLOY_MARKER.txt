@@ -1,0 +1,7 @@
+zakai-production-deploy-marker
+version=0.2.1
+prisma=6.19.0
+ts=2026-07-27T22:56:00+03:00
+
+If you see home banner "גרסה 0.2.1" on https://zakai-3uxj.vercel.app/he
+then this commit is live in Production.
