@@ -12,6 +12,7 @@ import { FeePayButton } from "@/components/FeePayButton";
 import { CaseNextStep } from "@/components/CaseNextStep";
 import { ReminderBanner } from "@/components/ReminderBanner";
 import { Reveal } from "@/components/Reveal";
+import { EmptyDashboardActions } from "@/components/EmptyDashboardActions";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -206,11 +207,7 @@ export default async function DashboardPage({
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[14px] font-bold">
           {locale === "he"
             ? `יש ${pendingActions} בדיקות שמחכות להמשך — לחץ על השלב הבא בכל אחת`
-            : locale === "ar"
-              ? `${pendingActions} فحوصات بانتظار المتابعة`
-              : locale === "ru"
-                ? `${pendingActions} проверок ждут продолжения`
-                : `${pendingActions} check${pendingActions > 1 ? "s" : ""} waiting for your next step`}
+            : `${pendingActions} check${pendingActions > 1 ? "s" : ""} waiting for your next step`}
         </div>
       )}
 
@@ -290,10 +287,11 @@ export default async function DashboardPage({
             <Link href="/check">
               <Button variant="ghost">{t("home.cta")}</Button>
             </Link>
-            <Link href="/what-am-i-owed">
-              <Button variant="ghost">{t("nav.whatAmIOwed")}</Button>
+            <Link href="/leaks">
+              <Button variant="ghost">{locale === "he" ? "מפת נזילות" : "Leaks map"}</Button>
             </Link>
           </div>
+          <EmptyDashboardActions />
         </Card>
       ) : (
         <>
@@ -341,8 +339,8 @@ export default async function DashboardPage({
             <Link href="/money">
               <Button variant="ghost">{moneyLabel}</Button>
             </Link>
-            <Link href="/rights">
-              <Button variant="ghost">{t("nav.rights")}</Button>
+            <Link href="/leaks">
+              <Button variant="ghost">{locale === "he" ? "נזילות" : "Leaks"}</Button>
             </Link>
           </div>
         </>
