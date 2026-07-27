@@ -16,7 +16,7 @@ A feature that does not strengthen one of these three is usually the wrong featu
 
 - Next.js App Router, TypeScript, Tailwind, next-intl (he / en / ar / ru)
 - Prisma + Neon Postgres
-- Money: **integer agorot only** (never float)
+- Money: **integer agorot / minor units only** (never float)
 - Mandate: Ed25519 JWS (`src/lib/mandate/`), public JWKS at `/.well-known/zakai-jwks.json`
 
 ## Non-negotiables
@@ -26,38 +26,59 @@ A feature that does not strengthen one of these three is usually the wrong featu
 3. **StrategyOutcome must stay de-identified** — no FK to User or Case.
 4. **Password reset and auth errors** must never leak whether an email exists beyond what the existing flow already does.
 5. **Mandate keys** come only from env (`MANDATE_SIGNING_JWK`, `MANDATE_SIGNING_KID`). Never generate ephemeral signing keys in production paths.
-6. **i18n**: user-facing strings go through next-intl message files; do not hard-code Hebrew in components unless the string is already a message key.
+6. **i18n**: user-facing strings go through next-intl message files; incomplete locales deep-merge from Hebrew.
 
 ## Layout map
 
 | Path | Role |
 |------|------|
 | `src/lib/mandate/` | Issue / verify / scopes / JWKS helpers |
-| `src/lib/global/` | Country packs + registry |
+| `src/lib/global/` | Country packs + registry (IL, GB, US) |
 | `src/lib/rights*.ts` | IL rights catalog + actions |
 | `src/app/.well-known/zakai-jwks.json/` | Public verification keys |
 | `src/app/api/mandate/status/` | Revocation / recency for institutions |
+| `src/app/api/mandate/issue/` | Issue signed Mandate JWS |
+| `src/messages/{he,en,ar,ru}.json` | UI catalogs |
 | `prisma/schema.prisma` | Source of truth for persistence |
 
 ## How to extend
 
-- **New country**: add a pack under `src/lib/global/packs/`, register it, add message namespaces. Do not fork the eligibility engine.
+- **New country**: add `src/lib/global/packs/xx.ts`, register in `registry.ts`. Do not fork the eligibility engine.
 - **New right (IL)**: data in the rights catalog + action in rightsActions — no dead "Zakai will handle it" buttons.
 - **New Mandate scope**: add to the closed set in `scopes.ts` with tests; never accept free-text scopes.
-- **Agent changes**: prefer small PRs; one concern per commit; keep comments explaining *why*, not *what*.
+- **New UI strings**: add keys to he.json first, then en/ar/ru; missing keys fall back via deepMerge.
 
-## Env required for Mandate
+## Env — Mandate
 
 ```
 MANDATE_SIGNING_KID=zakai-2026-1
 MANDATE_SIGNING_JWK=<Ed25519 private JWK JSON>
+MANDATE_ISSUE_KEY=<secret for POST /api/mandate/issue>
+MANDATE_REVOKE_KEY=<secret for POST /api/mandate/status/[jti]>
+MANDATE_ISSUER=https://zakai-3uxj.vercel.app
 ```
 
 JWKS must serve only the public half. Private `d` never leaves the server.
 
-## Definition of done for institutional trust
+## DB
+
+Apply `prisma/migrations/20260727_mandate_revocation/migration.sql` on Neon if migrate is not run in CI.
+
+## Institutional trust checklist
 
 - [x] JWKS live and cacheable
-- [ ] Status endpoint returns active/revoked by `jti`
-- [ ] Issue path persists `jti` for later revocation
-- [ ] Bank can verify signature offline + status online without a Zakai login
+- [x] Status endpoint returns active/revoked by `jti`
+- [x] Issue API returns JWS + jti + status path
+- [x] Markets: IL, GB, US (data packs)
+- [x] UI locales active: he, en, ar, ru (partial ar/ru, deep-merge fallback)
+- [ ] Product UI wires issue Mandate into case APPROVED flow
+- [ ] Session-auth on issue/revoke (replace shared secrets)
+- [ ] Full ar/ru message catalogs
+- [ ] ES/FR/DE packs when demand signal justifies
+
+## Definition of done for a new market
+
+1. Pack file with cited rights and letter templates in `docLocale`
+2. Registered in `MARKETS`
+3. At least one e2e path: profile → matches → letter or tool
+4. No `if (market === "XX")` branches outside the pack/registry
