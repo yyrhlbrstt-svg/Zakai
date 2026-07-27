@@ -35,8 +35,9 @@ const copy: Record<string, Record<string, string>> = {
     total: "סה״כ חיובים קבועים שזוהו",
     perMonth: "לחודש",
     none: "לא מצאנו חיובים חוזרים ברורים. נסה צילום עם יותר שורות או קובץ מלא יותר.",
-    act: "מה זכאי ממליץ",
+    act: "מה זכאי ממליץ — הסוכן פועל",
     checkBill: "בדוק חשבון / הורד מחיר",
+    agentCancel: "הסוכן מבטל / מוריד מחיר",
     electricity: "בדוק חשמל",
     insurance: "בדוק ביטוח כפול",
     rights: "מה מגיע לי",
@@ -46,6 +47,7 @@ const copy: Record<string, Record<string, string>> = {
     openBankSoon: "חיבור בנק רשמי (Open Banking) בדרך — כשיהיה, בלי סיסמה אצלנו, רק אישור מאובטח מהבנק.",
     feeNote: "עמלה רק אם נחסך בפועל ותועד — לא על הסריקה עצמה.",
     occurrences: "הופיע {n} פעמים",
+    nextStep: "השלב הבא: פתח תיק עם הסוכן",
   },
   en: {
     title: "My money",
@@ -62,8 +64,9 @@ const copy: Record<string, Record<string, string>> = {
     total: "Recurring charges found",
     perMonth: "per month",
     none: "No clear recurring charges found. Try a longer screenshot or fuller file.",
-    act: "What Zakai recommends",
+    act: "What Zakai recommends — agent acts",
     checkBill: "Check bill / lower price",
+    agentCancel: "Agent cancels / lowers price",
     electricity: "Check electricity",
     insurance: "Check duplicate insurance",
     rights: "What am I owed",
@@ -73,6 +76,7 @@ const copy: Record<string, Record<string, string>> = {
     openBankSoon: "Official open-banking link is coming — bank consent only, never your password with us.",
     feeNote: "A success fee only if a real saving is documented — not for the scan itself.",
     occurrences: "Seen {n} times",
+    nextStep: "Next: open a case with the agent",
   },
   ar: {
     title: "أموالي",
@@ -91,6 +95,7 @@ const copy: Record<string, Record<string, string>> = {
     none: "لم نجد مدفوعات متكررة واضحة.",
     act: "توصية زكاي",
     checkBill: "فحص الفاتورة",
+    agentCancel: "الوكيل يلغي / يخفض",
     electricity: "فحص الكهرباء",
     insurance: "تأمين مكرر",
     rights: "ما يُستحق لي",
@@ -100,6 +105,7 @@ const copy: Record<string, Record<string, string>> = {
     openBankSoon: "ربط بنكي رسمي قريباً.",
     feeNote: "عمولة فقط عند توفير موثّق.",
     occurrences: "ظهر {n} مرات",
+    nextStep: "الخطوة التالية: افتح ملفاً مع الوكيل",
   },
   ru: {
     title: "Мои деньги",
@@ -118,6 +124,7 @@ const copy: Record<string, Record<string, string>> = {
     none: "Явных регулярных платежей не найдено.",
     act: "Рекомендация Zakai",
     checkBill: "Проверить счёт",
+    agentCancel: "Агент отменяет / снижает",
     electricity: "Электричество",
     insurance: "Двойная страховка",
     rights: "Что мне должны",
@@ -127,6 +134,7 @@ const copy: Record<string, Record<string, string>> = {
     openBankSoon: "Официальный open banking скоро.",
     feeNote: "Комиссия только с подтверждённой экономии.",
     occurrences: "Раз: {n}",
+    nextStep: "Далее: откройте дело с агентом",
   },
 };
 
@@ -139,6 +147,14 @@ interface SavedSummary {
   count: number;
   merchants: string[];
   savedAt: string;
+}
+
+function actionFor(r: { category: ChargeCategory; providerKey: string | null; merchant: string }) {
+  if (r.category === "cellular" || r.providerKey) return { href: "/check", labelKey: "checkBill" as const };
+  if (r.category === "electricity") return { href: "/electricity", labelKey: "electricity" as const };
+  if (r.category === "insurance") return { href: "/duplicate-insurance", labelKey: "insurance" as const };
+  // digital, fitness, tv, other → agent cancel path
+  return { href: "/cancel", labelKey: "agentCancel" as const };
 }
 
 export function MoneyHub({
@@ -333,60 +349,64 @@ export function MoneyHub({
                 <p className="text-[12px] text-ink-soft mt-3">{tx(locale, "remember")}</p>
               </Card>
 
+              <div className="rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13.5px] font-bold">
+                {tx(locale, "nextStep")}
+              </div>
+
               <div className="text-[13px] font-extrabold text-emerald">{tx(locale, "act")}</div>
               <div className="flex flex-wrap gap-2">
+                <Link href="/cancel" className="no-underline">
+                  <Button className="!text-[13px] !py-2">{tx(locale, "agentCancel")}</Button>
+                </Link>
                 <Link href="/check" className="no-underline">
-                  <Button className="!text-[13px] !py-2">{tx(locale, "checkBill")}</Button>
+                  <Button variant="ghost" className="!text-[13px] !py-2">{tx(locale, "checkBill")}</Button>
                 </Link>
-                <Link href="/electricity" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">{tx(locale, "electricity")}</Button>
-                </Link>
-                <Link href="/duplicate-insurance" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">{tx(locale, "insurance")}</Button>
-                </Link>
-                <Link href="/what-am-i-owed" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">{tx(locale, "rights")}</Button>
+                <Link href="/dashboard" className="no-underline">
+                  <Button variant="ghost" className="!text-[13px] !py-2">
+                    {locale === "he" ? "הדשבורד" : "Dashboard"}
+                  </Button>
                 </Link>
               </div>
 
               <Card className="py-1.5">
-                {result.recurring.map((r, i) => (
-                  <div
-                    key={`${r.merchant}-${i}`}
-                    className="flex items-center gap-3 px-5 py-3.5 flex-wrap"
-                    style={{
-                      borderBottom:
-                        i < result.recurring.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
-                    }}
-                  >
-                    <div className="flex-1 basis-[140px]">
-                      <div className="font-extrabold text-[15px]">{r.merchant}</div>
-                      <div className="text-[11.5px] text-ink-soft mt-0.5">
-                        {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
-                      </div>
-                    </div>
+                {result.recurring.map((r, i) => {
+                  const action = actionFor(r);
+                  return (
                     <div
-                      className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
+                      key={`${r.merchant}-${i}`}
+                      className="flex items-center gap-3 px-5 py-3.5 flex-wrap"
                       style={{
-                        color: CATEGORY_COLOR[r.category],
-                        background: `${CATEGORY_COLOR[r.category]}18`,
-                        border: `1px solid ${CATEGORY_COLOR[r.category]}44`,
+                        borderBottom:
+                          i < result.recurring.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
                       }}
                     >
-                      {r.category}
-                    </div>
-                    <div className="font-display text-lg">
-                      {formatAgorot(r.monthlyAgorot, bcp47)}
-                    </div>
-                    {r.providerKey && (
-                      <Link href="/check" className="no-underline">
+                      <div className="flex-1 basis-[140px]">
+                        <div className="font-extrabold text-[15px]">{r.merchant}</div>
+                        <div className="text-[11.5px] text-ink-soft mt-0.5">
+                          {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
+                        </div>
+                      </div>
+                      <div
+                        className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
+                        style={{
+                          color: CATEGORY_COLOR[r.category],
+                          background: `${CATEGORY_COLOR[r.category]}18`,
+                          border: `1px solid ${CATEGORY_COLOR[r.category]}44`,
+                        }}
+                      >
+                        {r.category}
+                      </div>
+                      <div className="font-display text-lg">
+                        {formatAgorot(r.monthlyAgorot, bcp47)}
+                      </div>
+                      <Link href={action.href} className="no-underline">
                         <Button variant="ghost" className="!px-3 !py-1.5 !text-[12.5px]">
-                          {tx(locale, "checkBill")}
+                          {tx(locale, action.labelKey)}
                         </Button>
                       </Link>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </Card>
 
               <p className="text-[12px] text-ink-soft">{tx(locale, "feeNote")}</p>
