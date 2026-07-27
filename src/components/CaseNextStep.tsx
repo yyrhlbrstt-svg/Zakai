@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { Button, Input, FieldError } from "@/components/ui";
+import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
 
 type Status =
   | "ANALYZED"
@@ -20,6 +21,8 @@ interface Props {
   ownershipVerified: boolean;
   hasAuthorization: boolean;
   amountOriginalShekels: number;
+  shareMessage?: string;
+  referralCode?: string;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -29,14 +32,19 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "קוד מ-6 ספרות",
     verifyCode: "אמת",
     genAuth: "צור הרשאה",
-    send: "שלח לספק",
+    send: "סמן כנשלח לספק",
     newAmt: "סכום חדש אחרי התשובה (₪)",
     record: "רשום חיסכון",
     noChange: "לא השתנה",
     working: "רגע…",
-    done: "עודכן",
     err: "משהו השתבש. נסה שוב.",
     nextHint: "השלב הבא",
+    followTitle: "מה ענו? — הסוכן מכין תשובה",
+    followGen: "הכן הודעת המשך",
+    copyMsg: "העתק הודעה",
+    copied: "הועתק",
+    shareTitle: "שתף את החיסכון — שיביאו עוד",
+    whatsapp: "וואטסאפ",
   },
   en: {
     approve: "Approve & continue",
@@ -44,44 +52,19 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "6-digit code",
     verifyCode: "Verify",
     genAuth: "Create authorization",
-    send: "Send to provider",
+    send: "Mark sent to provider",
     newAmt: "New amount after reply (₪)",
     record: "Record saving",
     noChange: "No change",
     working: "One moment…",
-    done: "Updated",
-    err: "Something went wrong. Try again.",
+    err: "Something went wrong.",
     nextHint: "Next step",
-  },
-  ar: {
-    approve: "موافق ومتابعة",
-    sendCode: "أرسل رمز SMS",
-    codePh: "رمز من 6 أرقام",
-    verifyCode: "تحقق",
-    genAuth: "إنشاء تفويض",
-    send: "أرسل للمزوّد",
-    newAmt: "المبلغ الجديد (₪)",
-    record: "سجّل التوفير",
-    noChange: "بدون تغيير",
-    working: "لحظة…",
-    done: "تم",
-    err: "حدث خطأ. حاول مجدداً.",
-    nextHint: "الخطوة التالية",
-  },
-  ru: {
-    approve: "Подтвердить и продолжить",
-    sendCode: "Отправить SMS-код",
-    codePh: "Код из 6 цифр",
-    verifyCode: "Проверить",
-    genAuth: "Создать доверенность",
-    send: "Отправить провайдеру",
-    newAmt: "Новая сумма (₪)",
-    record: "Записать экономию",
-    noChange: "Без изменений",
-    working: "Секунду…",
-    done: "Готово",
-    err: "Ошибка. Попробуйте ещё раз.",
-    nextHint: "Следующий шаг",
+    followTitle: "What did they say? — agent drafts reply",
+    followGen: "Draft follow-up",
+    copyMsg: "Copy message",
+    copied: "Copied",
+    shareTitle: "Share the saving",
+    whatsapp: "WhatsApp",
   },
 };
 
@@ -90,18 +73,17 @@ function t(locale: string, key: string): string {
   return table[key] || copy.he[key] || key;
 }
 
-/**
- * In-dashboard continuation of a case so users never hit a dead-end status badge.
- * Success fee is only created when a real saving is recorded later.
- */
 export function CaseNextStep({
   caseId,
   status,
   ownershipVerified,
   hasAuthorization,
   amountOriginalShekels,
+  shareMessage,
+  referralCode,
 }: Props) {
   const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -110,10 +92,10 @@ export function CaseNextStep({
   const [newAmt, setNewAmt] = useState("");
   const [localOwn, setLocalOwn] = useState(ownershipVerified);
   const [localAuth, setLocalAuth] = useState(hasAuthorization);
-
-  if (status === "SAVED" || status === "NO_SAVING" || status === "REVOKED") {
-    return null;
-  }
+  const [replyKind, setReplyKind] = useState<ProviderReplyKind>("delay");
+  const [followBody, setFollowBody] = useState<string | null>(null);
+  const [followTip, setFollowTip] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function run(fn: () => Promise<void>) {
     setErr(null);
@@ -126,6 +108,40 @@ export function CaseNextStep({
     } finally {
       setBusy(false);
     }
+  }
+
+  if (status === "REVOKED" || status === "NO_SAVING") return null;
+
+  if (status === "SAVED") {
+    const msg =
+      shareMessage ||
+      (he
+        ? "חסכתי כסף עם זכאי — בלי מוקד ובלי לחכות לאף אחד."
+        : "I saved money with Zakai — no call center.");
+    const shareUrl =
+      typeof window !== "undefined"
+        ? referralCode
+          ? `${window.location.origin}/signup?ref=${encodeURIComponent(referralCode)}`
+          : `${window.location.origin}/`
+        : "https://zakai-3uxj.vercel.app";
+    return (
+      <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] p-3">
+        <div className="text-[12.5px] font-bold mb-2">{t(locale, "shareTitle")}</div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
+          onClick={() => {
+            window.open(
+              `https://wa.me/?text=${encodeURIComponent(`${msg}\n${shareUrl}`)}`,
+              "_blank",
+              "noopener,noreferrer",
+            );
+          }}
+        >
+          {t(locale, "whatsapp")}
+        </button>
+      </div>
+    );
   }
 
   if (status === "ANALYZED") {
@@ -165,9 +181,7 @@ export function CaseNextStep({
                 className="text-[13px] py-2 px-3"
                 onClick={() =>
                   run(async () => {
-                    const res = await fetch(`/api/cases/${caseId}/ownership/send`, {
-                      method: "POST",
-                    });
+                    const res = await fetch(`/api/cases/${caseId}/ownership/send`, { method: "POST" });
                     if (!res.ok) throw new Error("send");
                     setCodeSent(true);
                   })
@@ -211,9 +225,7 @@ export function CaseNextStep({
             className="text-[13px] py-2 px-3 self-start"
             onClick={() =>
               run(async () => {
-                const res = await fetch(`/api/cases/${caseId}/authorization`, {
-                  method: "POST",
-                });
+                const res = await fetch(`/api/cases/${caseId}/authorization`, { method: "POST" });
                 if (!res.ok) throw new Error("auth");
                 setLocalAuth(true);
               })
@@ -243,8 +255,66 @@ export function CaseNextStep({
 
   if (status === "SENT") {
     return (
-      <div className="w-full mt-2 flex flex-col gap-2">
+      <div className="w-full mt-2 flex flex-col gap-3">
         <div className="text-[11px] text-ink-soft">{t(locale, "nextHint")}</div>
+
+        <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
+          <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>
+          <select
+            value={replyKind}
+            onChange={(e) => setReplyKind(e.target.value as ProviderReplyKind)}
+            className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] px-3 py-2 mb-2"
+          >
+            {REPLY_KIND_OPTIONS.map((o) => (
+              <option key={o.id} value={o.id}>
+                {he ? o.he : o.en}
+              </option>
+            ))}
+          </select>
+          <Button
+            disabled={busy}
+            className="text-[13px] py-2 px-3"
+            onClick={() =>
+              run(async () => {
+                const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ replyKind, round: 2 }),
+                });
+                if (!res.ok) throw new Error("follow");
+                const data = await res.json();
+                setFollowBody(data.body || "");
+                setFollowTip(data.tip || null);
+              })
+            }
+          >
+            {busy ? t(locale, "working") : t(locale, "followGen")}
+          </Button>
+          {followTip && <p className="text-[12px] text-ink-soft mt-2 mb-0">{followTip}</p>}
+          {followBody && (
+            <div className="mt-2">
+              <pre className="whitespace-pre-wrap text-[12px] leading-relaxed bg-[#060b12] rounded-lg p-3 border border-[rgba(255,255,255,0.08)] max-h-48 overflow-y-auto">
+                {followBody}
+              </pre>
+              <Button
+                variant="ghost"
+                className="text-[13px] py-2 px-3 mt-2"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(followBody);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  } catch {
+                    /* ignore */
+                  }
+                }}
+              >
+                {copied ? t(locale, "copied") : t(locale, "copyMsg")}
+              </Button>
+            </div>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-2 items-center">
           <Input
             type="number"
