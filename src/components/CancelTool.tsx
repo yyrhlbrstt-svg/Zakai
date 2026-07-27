@@ -1,15 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
+
+const INTENTS: CancelIntent[] = ["cancel", "retention", "downgrade", "pause"];
+
+function parseIntent(v: string | null): CancelIntent {
+  if (v && INTENTS.includes(v as CancelIntent)) return v as CancelIntent;
+  return "cancel";
+}
 
 export function CancelTool() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const router = useRouter();
+  const search = useSearchParams();
+
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [product, setProduct] = useState("");
@@ -22,6 +32,23 @@ export function CancelTool() {
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [prefilled, setPrefilled] = useState(false);
+
+  // Prefill from ?company=&product=&monthly=&intent=&name=
+  useEffect(() => {
+    const c = search.get("company") || search.get("merchant");
+    const p = search.get("product") || search.get("plan");
+    const m = search.get("monthly") || search.get("amount");
+    const i = search.get("intent");
+    const n = search.get("name");
+    if (c) setCompany(c.slice(0, 120));
+    if (p) setProduct(p.slice(0, 120));
+    else if (c) setProduct(c.slice(0, 120));
+    if (m && !Number.isNaN(Number(m))) setMonthly(String(Math.round(Number(m))));
+    if (i) setIntent(parseIntent(i));
+    if (n) setName(n.slice(0, 80));
+    if (c || p || m) setPrefilled(true);
+  }, [search]);
 
   function generate() {
     setError(null);
@@ -84,6 +111,14 @@ export function CancelTool() {
 
   return (
     <div className="flex flex-col gap-4">
+      {prefilled && (
+        <div className="rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13px] font-bold">
+          {he
+            ? "מילאנו מהסריקה / הקישור — בדקו ולחצו על הסוכן"
+            : "Prefilled from scan / link — review and let the agent act"}
+        </div>
+      )}
+
       <Card className="p-5 flex flex-col gap-3">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={he ? "השם שלך" : "Your name"} />
         <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={he ? "שם החברה (נטפליקס, חדר כושר…)" : "Company name"} />
