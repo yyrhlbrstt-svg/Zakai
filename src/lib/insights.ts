@@ -60,9 +60,9 @@ export function computeInsights(input: InsightInput): Insight[] {
     out.push({ key: "awaitingReply", params: { count: sent.length }, href: "/dashboard", weight: 80 });
   }
 
-  // 3. No cases at all — the first check is the whole point.
+  // 3. No cases at all — Money OS is the single entry (scan → agent case).
   if (input.cases.length === 0) {
-    out.push({ key: "firstCheck", params: {}, href: "/check", weight: 90 });
+    out.push({ key: "firstCheck", params: {}, href: "/money", weight: 90 });
   }
 
   // 4. Fees paid on FREE exceed Pro's price — upgrading pays for itself.
@@ -79,7 +79,7 @@ export function computeInsights(input: InsightInput): Insight[] {
     (c) => c.status === "SAVED" && (c.settledAgeDays ?? 0) >= RECHECK_AFTER_DAYS,
   );
   if (stale.length > 0) {
-    out.push({ key: "recheck", params: { count: stale.length }, href: "/check", weight: 85 });
+    out.push({ key: "recheck", params: { count: stale.length }, href: "/money", weight: 85 });
   }
 
   // 5. Documented monthly savings so far — reinforce the outcome (trust loop).
