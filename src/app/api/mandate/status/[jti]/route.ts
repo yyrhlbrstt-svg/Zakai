@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -69,9 +69,9 @@ export async function GET(
       },
     );
   } catch {
-    // Table missing (migration not applied yet) or DB blip: fail closed for
-    // revoke queries would lock every mandate; fail open with unknown so the
-    // institution can decide policy. Documented in CLAUDE.md.
+    // Table missing (migration not applied yet) or DB blip: fail with unknown
+    // so the institution can decide policy rather than treating every mandate
+    // as revoked during an outage.
     return NextResponse.json(
       {
         jti: id,
