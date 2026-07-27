@@ -1,33 +1,36 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const cors = {
+  "Cache-Control": "no-store",
+  "Access-Control-Allow-Origin": "*",
+};
+
 /**
- * Public Mandate status — the recency half of institutional verification.
- *
- * Flow for a bank / insurer / municipality:
- *   1. Verify the JWS offline against /.well-known/zakai-jwks.json
- *   2. GET this endpoint with the mandate's `jti`
- *   3. Accept only if signature is valid AND status is "active"
- *
- * No auth on GET by design: the jti is high-entropy (cuid/uuid), and the
- * response reveals nothing about the principal — only whether that token
- * was withdrawn. Enumeration is not useful without a valid signature.
+ * Public Mandate status — recency half of institutional verification.
+ * Rate-limited per IP to deter noisy probing; jti remains high-entropy.
  */
 export async function GET(
-  _req: Request,
+  req: Request,
   ctx: { params: Promise<{ jti: string }> },
 ) {
+  const limited = await rateLimit("mandate-status", clientIp(req), 120, 60);
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: cors },
+    );
+  }
+
   const { jti } = await ctx.params;
   const id = (jti || "").trim();
 
   if (!id || id.length < 8 || id.length > 128) {
-    return NextResponse.json(
-      { error: "invalid_jti" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "invalid_jti" }, { status: 400, headers: cors });
   }
 
   try {
@@ -44,34 +47,19 @@ export async function GET(
           revokedAt: row.revokedAt.toISOString(),
           checkedAt: new Date().toISOString(),
         },
-        {
-          headers: {
-            "Cache-Control": "no-store",
-            "Access-Control-Allow-Origin": "*",
-          },
-        },
+        { headers: cors },
       );
     }
 
-    // No revocation row means active from our side. Expiry is enforced by the
-    // verifier from the `exp` claim in the JWS — we do not re-check clocks here.
     return NextResponse.json(
       {
         jti: id,
         status: "active",
         checkedAt: new Date().toISOString(),
       },
-      {
-        headers: {
-          "Cache-Control": "no-store",
-          "Access-Control-Allow-Origin": "*",
-        },
-      },
+      { headers: cors },
     );
   } catch {
-    // Table missing (migration not applied yet) or DB blip: fail with unknown
-    // so the institution can decide policy rather than treating every mandate
-    // as revoked during an outage.
     return NextResponse.json(
       {
         jti: id,
@@ -79,24 +67,11 @@ export async function GET(
         checkedAt: new Date().toISOString(),
         hint: "status_store_unavailable",
       },
-      {
-        status: 503,
-        headers: {
-          "Cache-Control": "no-store",
-          "Access-Control-Allow-Origin": "*",
-        },
-      },
+      { status: 503, headers: cors },
     );
   }
 }
 
-/**
- * Revoke a mandate by jti. Intended for authenticated product paths only
- * (user cancels, support, or case REVOKED). Body: { reason?: string }.
- * Until a session helper is wired here, this accepts a shared secret header
- * so the route is not a public kill-switch:
- *   X-Zakai-Revoke-Key: process.env.MANDATE_REVOKE_KEY
- */
 export async function POST(
   req: Request,
   ctx: { params: Promise<{ jti: string }> },
@@ -120,7 +95,7 @@ export async function POST(
       reason = body.reason.slice(0, 120);
     }
   } catch {
-    // keep default
+    /* default */
   }
 
   try {
@@ -138,9 +113,6 @@ export async function POST(
       reason: row.reason,
     });
   } catch {
-    return NextResponse.json(
-      { error: "status_store_unavailable" },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: "status_store_unavailable" }, { status: 503 });
   }
 }

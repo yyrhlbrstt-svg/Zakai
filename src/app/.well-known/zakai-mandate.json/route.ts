@@ -3,10 +3,6 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/**
- * Machine discovery document for the Zakai Mandate.
- * Institutions cache this once, then verify offline against JWKS.
- */
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin;
 
@@ -25,9 +21,12 @@ export async function GET(request: Request) {
     jwks_uri: `${origin}/.well-known/zakai-jwks.json`,
     status_uri_template: `${origin}/api/mandate/status/{jti}`,
     verify_uri: `${origin}/api/mandate/verify`,
+    scopes_uri: `${origin}/api/mandate/scopes`,
+    openapi_uri: `${origin}/api/mandate/openapi.json`,
     human_verify_uri: `${origin}/verify`,
     integration_doc: `${origin}/en/institutions`,
     security_contact: `${origin}/.well-known/security.txt`,
+    markets: ["IL", "GB", "US", "DE"],
     constraints: {
       outbound_payments: false,
       forbidden_scopes: [

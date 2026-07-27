@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Institutional discovery — must stay crawlable / fetchable
+Allow: /.well-known/zakai-jwks.json
+Allow: /.well-known/zakai-mandate.json
+Allow: /.well-known/security.txt
+Allow: /api/mandate/scopes
+Allow: /api/mandate/openapi.json
+Allow: /api/health
+
+Sitemap: https://zakai-3uxj.vercel.app/sitemap.xml

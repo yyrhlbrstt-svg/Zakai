@@ -3,13 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { aiAvailable, aiProvider, askZakai } from "@/lib/ai";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
+import { allMarkets } from "@/lib/global/registry";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Public self-diagnostic — founder-on-a-phone check of deployment wiring.
- * Never exposes secrets.
- */
 export async function GET(request: Request) {
   let db = false;
   try {
@@ -23,8 +20,8 @@ export async function GET(request: Request) {
   try {
     loadSigningKeyFromEnv();
     mandateKeys = true;
-  } catch (err) {
-    mandateKeys = !(err instanceof MandateKeyUnavailableError) ? false : false;
+  } catch {
+    mandateKeys = false;
   }
 
   let mandateRevocationTable = false;
@@ -36,14 +33,23 @@ export async function GET(request: Request) {
   }
 
   const base = {
-    ok: db,
+    ok: db && mandateKeys,
     db,
     ai: aiAvailable(),
     aiProvider: aiProvider(),
     mandateKeys,
     mandateRevocationTable,
-    markets: ["IL", "GB", "US"],
+    markets: allMarkets().map((m) => m.code),
     locales: ["he", "en", "ar", "ru"],
+    endpoints: {
+      discovery: "/.well-known/zakai-mandate.json",
+      jwks: "/.well-known/zakai-jwks.json",
+      status: "/api/mandate/status/{jti}",
+      verify: "/api/mandate/verify",
+      scopes: "/api/mandate/scopes",
+      openapi: "/api/mandate/openapi.json",
+      institutions: "/en/institutions",
+    },
     time: new Date().toISOString(),
   };
 
