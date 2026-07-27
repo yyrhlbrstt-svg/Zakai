@@ -45,6 +45,13 @@ interface CreateCaseInput {
   /** The stance the Strategy Engine chose, and the seed it was drawn with. */
   strategyVariant?: string;
   strategySeed?: number;
+  /**
+   * When true the case starts as APPROVED (approvedAt = now).
+   * Use only when the user has already given explicit consent by clicking
+   * "agent sends" / "open case now" — the click IS the approval of the draft.
+   * Skips the ANALYZED step so the user lands on ownership + Mandate faster.
+   */
+  autoApprove?: boolean;
 }
 
 export async function createCase(input: CreateCaseInput) {
@@ -58,6 +65,7 @@ export async function createCase(input: CreateCaseInput) {
   });
   if (!canOpenCase(user?.plan, activeCount)) throw new CaseError("CASE_LIMIT");
 
+  const now = new Date();
   return prisma.case.create({
     data: {
       userId: input.userId,
@@ -73,7 +81,8 @@ export async function createCase(input: CreateCaseInput) {
       beneficiaryLabel: (input.beneficiaryLabel ?? "").slice(0, 40),
       strategyVariant: input.strategyVariant ?? null,
       strategySeed: input.strategySeed ?? null,
-      status: "ANALYZED",
+      status: input.autoApprove ? "APPROVED" : "ANALYZED",
+      approvedAt: input.autoApprove ? now : null,
     },
   });
 }
