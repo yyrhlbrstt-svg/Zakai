@@ -58,7 +58,7 @@ export const subscriptionIL: VerticalRulePack = {
   feeRateBps: null,
   channel: "email",
   verification: {
-    method: "reply_or_screenshot",
+    method: "statement_line_gone",
     proofDescription: "אישור ביטול או חשבונית עם מחיר נמוך יותר / אפס",
   },
   regulated: false,
