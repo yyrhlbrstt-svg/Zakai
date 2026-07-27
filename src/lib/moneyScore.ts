@@ -47,12 +47,12 @@ export function computeMoneyScore(input: MoneyScoreInput): MoneyScoreResult {
   const fresh = input.daysSinceActivity !== null && input.daysSinceActivity <= FRESH_WINDOW_DAYS;
 
   const components: ScoreComponent[] = [
-    { key: "firstCheck", points: 25, earned: input.casesCount >= 1, href: "/check" },
-    { key: "breadth", points: 15, earned: input.casesCount >= 3, href: "/check" },
+    { key: "firstCheck", points: 25, earned: input.casesCount >= 1, href: "/money" },
+    { key: "breadth", points: 15, earned: input.casesCount >= 3, href: "/money" },
     { key: "saving", points: 30, earned: input.hasDocumentedSaving, href: "/dashboard" },
-    { key: "fresh", points: 10, earned: fresh, href: "/check" },
+    { key: "fresh", points: 10, earned: fresh, href: "/money" },
     { key: "plan", points: 10, earned: plan === "PRO" || plan === "MAX", href: "/pricing" },
-    { key: "invite", points: 10, earned: input.hasReferred, href: "/dashboard" },
+    { key: "invite", points: 10, earned: input.hasReferred, href: "/settings" },
   ];
 
   const score = components.reduce((s, c) => s + (c.earned ? c.points : 0), 0);

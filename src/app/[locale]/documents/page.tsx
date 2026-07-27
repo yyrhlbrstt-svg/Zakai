@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
-import { FileText, Shield } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { Card, Button } from "@/components/ui";
@@ -10,8 +9,8 @@ import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 
 export const metadata: Metadata = {
-  title: "מסמכים — זכאי",
-  description: "ייפויי כוח, Mandate והוכחות חיסכון במקום אחד.",
+  title: "מרכז מסמכים — זכאי",
+  description: "Mandates, מכתבים והוכחות חיסכון — להורדה והדפסה.",
 };
 
 export default async function DocumentsPage({
@@ -24,12 +23,13 @@ export default async function DocumentsPage({
   const he = locale === "he" || locale === "ar";
   const loc = bcp47[locale as Locale];
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login", locale });
+  if (!user) redirect({ href: "/login?return=/documents", locale });
 
   const cases = await prisma.case.findMany({
-    where: { userId: user!.id },
+    where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     include: { authorization: true, savingsProof: true },
+    take: 50,
   });
 
   const withAuth = cases.filter((c) => c.authorization);
@@ -41,26 +41,20 @@ export default async function DocumentsPage({
         {he ? "כספת מסמכים" : "Document vault"}
       </div>
       <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">
-        {he ? "מסמכים והרשאות" : "Documents & mandates"}
+        {he ? "Mandates · מכתבים · הוכחות" : "Mandates · letters · proofs"}
       </h1>
-      <p className="text-ink-soft text-[15px] leading-relaxed mt-3 max-w-[520px]">
+      <p className="text-ink-soft text-[15px] mt-3 leading-relaxed max-w-[520px]">
         {he
-          ? "ייפויי כוח, קודי Mandate והוכחות חיסכון — להדפסה, שיתוף או אימות מול ספק."
-          : "Power-of-attorney docs, Mandate codes and savings proofs — print, share or verify with a provider."}
+          ? "הכול במקום אחד, עם חותמת זמן. להדפסה, לשיתוף עם ספק, או לארכיון."
+          : "Everything in one place, timestamped. Print, share with a provider, or archive."}
       </p>
 
-      <h2 className="text-[16px] font-extrabold mt-10 mb-3 flex items-center gap-2">
-        <Shield size={16} className="text-emerald" aria-hidden />
-        {he ? "הרשאות פעילות" : "Active authorizations"}
+      <h2 className="text-[16px] font-extrabold mt-10 mb-3">
+        {he ? `הרשאות Mandate (${withAuth.length})` : `Mandate authorizations (${withAuth.length})`}
       </h2>
       {withAuth.length === 0 ? (
-        <Card className="p-6 text-center text-ink-soft text-[14px]">
-          {he ? "עדיין אין הרשאות. פתח תיק ב-Money OS." : "No authorizations yet. Open a case in Money OS."}
-          <div className="mt-3">
-            <Link href="/money">
-              <Button variant="ghost">{he ? "הכסף שלי" : "My money"}</Button>
-            </Link>
-          </div>
+        <Card className="p-5 text-ink-soft text-[14px]">
+          {he ? "עדיין אין הרשאות. פתח תיק והנפק Mandate מהדשבורד." : "No authorizations yet. Open a case and issue a Mandate from the dashboard."}
         </Card>
       ) : (
         <Card className="py-1.5">
@@ -77,7 +71,8 @@ export default async function DocumentsPage({
                   {providerHebrewName(c.provider) !== "הספק" ? providerHebrewName(c.provider) : c.provider}
                 </div>
                 <div className="text-[12px] text-ink-soft mt-0.5">
-                  {c.authorization!.code} · {c.authorization!.status}
+                  {c.authorization!.code} · {c.authorization!.status} ·{" "}
+                  {c.authorization!.issuedAt.toLocaleDateString(loc)}
                 </div>
               </div>
               <Link href={`/authorization/${c.authorization!.code}`}>
@@ -90,13 +85,12 @@ export default async function DocumentsPage({
         </Card>
       )}
 
-      <h2 className="text-[16px] font-extrabold mt-10 mb-3 flex items-center gap-2">
-        <FileText size={16} className="text-emerald" aria-hidden />
-        {he ? "הוכחות חיסכון" : "Savings proofs"}
+      <h2 className="text-[16px] font-extrabold mt-10 mb-3">
+        {he ? `הוכחות חיסכון (${withProof.length})` : `Savings proofs (${withProof.length})`}
       </h2>
       {withProof.length === 0 ? (
-        <Card className="p-6 text-center text-ink-soft text-[14px]">
-          {he ? "עדיין אין חיסכון מתועד." : "No documented savings yet."}
+        <Card className="p-5 text-ink-soft text-[14px]">
+          {he ? "עדיין אין חיסכון מתועד. אחרי שהספק מוריד מחיר — רשום בדשבורד." : "No documented savings yet. After the provider lowers the price — record it on the dashboard."}
         </Card>
       ) : (
         <Card className="py-1.5">
@@ -113,24 +107,28 @@ export default async function DocumentsPage({
                   {providerHebrewName(c.provider) !== "הספק" ? providerHebrewName(c.provider) : c.provider}
                 </div>
                 <div className="text-[12px] text-ink-soft mt-0.5">
-                  {c.savingsProof!.recordedAt.toLocaleDateString(loc)}
+                  {c.savingsProof!.recordedAt.toLocaleDateString(loc)} · source:{" "}
+                  {c.savingsProof!.source}
                 </div>
               </div>
-              <div className="font-display text-lg text-emerald">
+              <div className="font-display text-emerald text-lg">
                 −{formatAgorot(c.savingsProof!.savingMonthly, loc)}
-                <span className="text-[12px] text-ink-soft font-sans"> {he ? "/ח׳" : "/mo"}</span>
+                <span className="text-[12px] text-ink-soft font-sans"> /{he ? "ח׳" : "mo"}</span>
               </div>
             </div>
           ))}
         </Card>
       )}
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-10 flex flex-wrap gap-3">
         <Link href="/dashboard">
-          <Button variant="ghost">{he ? "לדשבורד" : "Dashboard"}</Button>
+          <Button>{he ? "דשבורד" : "Dashboard"}</Button>
         </Link>
         <Link href="/wrapped">
-          <Button variant="ghost">{he ? "שנה עם זכאי" : "Year with Zakai"}</Button>
+          <Button variant="ghost">{he ? "Wrapped שנתי" : "Yearly Wrapped"}</Button>
+        </Link>
+        <Link href="/money">
+          <Button variant="ghost">{he ? "הכסף שלי" : "My money"}</Button>
         </Link>
       </div>
     </main>
