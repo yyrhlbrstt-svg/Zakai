@@ -1,8 +1,8 @@
 {
   "name": "zakai",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "private": true,
-  "description": "זכאי — consumer AI agent that finds inflated bills, acts with verifiable mandate, success fee only on documented savings.",
+  "description": "זכאי — the standard consumer money agent. Mandate, scan-to-case, success fee only on documented savings.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && node scripts/prebuild-migrate.mjs && next build",
