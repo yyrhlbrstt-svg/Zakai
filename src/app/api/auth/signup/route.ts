@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { signupSchema, firstError } from "@/lib/validation";
-import { normalizeIsraeliMobile } from "@/lib/phone";
+import { normalizePhone } from "@/lib/phone";
 import { generateReferralCode } from "@/lib/codes";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
@@ -19,8 +19,8 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: firstError(parsed.error) }, { status: 400 });
   }
-  const { name, email, password, phone, referralCode } = parsed.data;
-  const normalizedPhone = normalizeIsraeliMobile(phone)!;
+  const { name, email, password, phone, country, referralCode } = parsed.data;
+  const normalizedPhone = normalizePhone(phone)!;
 
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
         name,
         email,
         phone: normalizedPhone,
+        country,
         passwordHash: await hashPassword(password),
         referralCode: generateReferralCode(),
         referredById,

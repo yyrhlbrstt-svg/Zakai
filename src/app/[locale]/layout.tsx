@@ -35,21 +35,50 @@ const wordmark = Manrope({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "זכאי — Zakai",
-  description:
-    "סוכן AI צרכני שמזהה חיובי סלולר מנופחים, פועל בשמך מול החברה, וגובה עמלה רק מחיסכון מתועד.",
-  // PWA: iOS ignores the web manifest for install, so give Safari its own
-  // "add to home screen" affordances explicitly.
-  appleWebApp: {
-    capable: true,
-    title: "ZAKAI",
-    statusBarStyle: "black-translucent",
-  },
-  icons: {
-    apple: "/icons/icon-192.png",
-  },
-};
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
+
+// Metadata is localized per request so /en, /ar and /ru each ship their own
+// <title>/description and share-preview text (not the Hebrew default).
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const title = t("title");
+  const description = t("desc");
+  return {
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    // Rich previews when the link is shared (WhatsApp, X, etc.) — the viral
+    // loop lives on these, so every shared link carries the brand image + pitch.
+    openGraph: {
+      type: "website",
+      siteName: "ZAKAI",
+      title,
+      description,
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: "ZAKAI" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og.png"],
+    },
+    // PWA: iOS ignores the web manifest for install, so give Safari its own
+    // "add to home screen" affordances explicitly.
+    appleWebApp: {
+      capable: true,
+      title: "ZAKAI",
+      statusBarStyle: "black-translucent",
+    },
+    icons: {
+      apple: "/icons/icon-192.png",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#070B12",
@@ -78,7 +107,15 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale });
 
   return (
-    <html lang={locale} dir={dir[locale as Locale]} data-plan={user?.plan ?? "FREE"}>
+    // `suppressHydrationWarning` covers the `class="js"` that the pre-paint
+    // script below adds to <html>. We can't render it server-side (no-JS users
+    // must not get it), so the mismatch is intentional and scoped to this tag.
+    <html
+      lang={locale}
+      dir={dir[locale as Locale]}
+      data-plan={user?.plan ?? "FREE"}
+      suppressHydrationWarning
+    >
       <body className={`${body.variable} ${display.variable} ${wordmark.variable} font-body text-ink`}>
         {/* Mark JS as available before paint so scroll-reveal only hides content
             when it can actually reveal it (no-JS keeps everything visible). */}
@@ -91,16 +128,34 @@ export default async function LocaleLayout({
         {/* Branded boot splash — painted on the first frame, shown once per
             session. Server-rendered markup + a gate script that hides it on
             repeat navigations. Reduced-motion hides it via CSS. */}
-        <div id="zakai-splash" aria-hidden>
+        {/* `suppressHydrationWarning`: the gate script below sets
+            className="splash-skip" on this node before React hydrates, so the
+            client markup intentionally differs from the server markup. */}
+        <div id="zakai-splash" aria-hidden suppressHydrationWarning>
           <svg className="splash-mark" viewBox="0 0 110 110" width="76" height="76">
-            <rect x="4" y="4" width="102" height="102" rx="26" fill="#3FCB9B" />
+            <defs>
+              <linearGradient id="splashZg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#3FCB9B" />
+                <stop offset="0.5" stopColor="#3EC6FF" />
+                <stop offset="1" stopColor="#8B5CF6" />
+              </linearGradient>
+            </defs>
+            <rect x="4" y="4" width="102" height="102" rx="26" fill="url(#splashZg)" />
             <path
-              d="M 32 34 H 78 L 34 76 H 80"
+              d="M 32 32 H 78 L 34 72 H 80"
               fill="none"
-              stroke="#0E1F1A"
+              stroke="#0A1119"
               strokeWidth="9"
               strokeLinecap="round"
               strokeLinejoin="round"
+            />
+            <path
+              d="M 33 87 C 50 78, 62 78, 80 87"
+              fill="none"
+              stroke="#0A1119"
+              strokeWidth="6"
+              strokeLinecap="round"
+              opacity="0.9"
             />
           </svg>
           <span className="splash-word" dir="ltr">ZAKAI</span>

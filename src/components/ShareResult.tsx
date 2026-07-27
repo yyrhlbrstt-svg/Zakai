@@ -10,12 +10,28 @@ import { useTranslations } from "next-intl";
  * WhatsApp groups, so this is the zero-cost growth engine: every user who
  * finds money invites the next few.
  */
-export function ShareResult({ message, path = "/entitlements" }: { message: string; path?: string }) {
+export function ShareResult({
+  message,
+  path = "/entitlements",
+  referralCode,
+}: {
+  message: string;
+  path?: string;
+  /**
+   * When present, the shared link becomes a referral invite (/signup?ref=CODE),
+   * so every "look what Zakai found me" share also credits the sharer — closing
+   * the loop between the viral share and the referral reward.
+   */
+  referralCode?: string;
+}) {
   const t = useTranslations("share");
   const [copied, setCopied] = useState(false);
 
   function url() {
     if (typeof window === "undefined") return "";
+    if (referralCode) {
+      return `${window.location.origin}/signup?ref=${encodeURIComponent(referralCode)}`;
+    }
     return `${window.location.origin}${path}`;
   }
   function fullText() {

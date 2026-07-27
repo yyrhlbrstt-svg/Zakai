@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { normalizeIsraeliMobile, isValidIsraeliMobile, maskPhone } from "./phone";
+import {
+  normalizeIsraeliMobile,
+  isValidIsraeliMobile,
+  normalizePhone,
+  isValidPhone,
+  maskPhone,
+} from "./phone";
 
 describe("normalizeIsraeliMobile", () => {
   it("normalizes local, dashed, and international forms to E.164", () => {
@@ -26,9 +32,43 @@ describe("normalizeIsraeliMobile", () => {
   });
 });
 
+describe("normalizePhone (international)", () => {
+  it("keeps Israeli local convenience", () => {
+    expect(normalizePhone("0501234567")).toBe("+972501234567");
+    expect(normalizePhone("050-123-4567")).toBe("+972501234567");
+  });
+
+  it("accepts international numbers from any country", () => {
+    expect(normalizePhone("+14155550123")).toBe("+14155550123"); // US
+    expect(normalizePhone("+44 7700 900123")).toBe("+447700900123"); // UK
+    expect(normalizePhone("0044 7700 900123")).toBe("+447700900123"); // 00 prefix
+    expect(normalizePhone("447700900123")).toBe("+447700900123"); // bare intl digits
+    expect(normalizePhone("+33 6 12 34 56 78")).toBe("+33612345678"); // FR
+  });
+
+  it("rejects implausible numbers", () => {
+    expect(normalizePhone("")).toBeNull();
+    expect(normalizePhone("abc")).toBeNull();
+    expect(normalizePhone("+123")).toBeNull(); // too short
+    expect(normalizePhone("+0123456789")).toBeNull(); // country code can't start with 0
+    expect(normalizePhone("021234567")).toBeNull(); // Israeli landline, not mobile
+  });
+
+  it("isValidPhone agrees", () => {
+    expect(isValidPhone("+14155550123")).toBe(true);
+    expect(isValidPhone("0501234567")).toBe(true);
+    expect(isValidPhone("nope")).toBe(false);
+  });
+});
+
 describe("maskPhone", () => {
-  it("hides the middle digits", () => {
-    expect(maskPhone("+972501234567")).toBe("+972-50-***-4567");
-    expect(maskPhone("0501234567")).toBe("+972-50-***-4567");
+  it("masks the middle digits, keeping the lead and last four", () => {
+    expect(maskPhone("+972501234567")).toBe("+972*****-4567");
+    expect(maskPhone("0501234567")).toBe("+972*****-4567");
+    expect(maskPhone("+14155550123")).toBe("+141****-0123");
+  });
+
+  it("returns a safe placeholder for junk", () => {
+    expect(maskPhone("nonsense")).toBe("***");
   });
 });

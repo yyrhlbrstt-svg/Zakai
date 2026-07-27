@@ -11,12 +11,14 @@ import {
 import { createCase, CaseError } from "@/lib/services/cases";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { PROVIDERS, isProviderKey, resolveProviderKey, providerHebrewName } from "@/lib/providers";
+import { chooseStance } from "@/lib/strategy/store";
 
 const schema = z.union([
   z.object({
     mode: z.literal("image"),
     imageBase64: z.string().min(10),
     mediaType: z.string().default("image/jpeg"),
+    beneficiary: z.string().max(40).optional(),
     locale: z.string().default("he"),
   }),
   z.object({
@@ -24,6 +26,7 @@ const schema = z.union([
     provider: z.string().min(1),
     amountShekels: z.number().positive().max(100000),
     plan: z.string().default(""),
+    beneficiary: z.string().max(40).optional(),
     locale: z.string().default("he"),
   }),
 ]);
@@ -77,12 +80,22 @@ export async function POST(request: Request) {
 
   const providerLabelKey = PROVIDERS[providerKey as keyof typeof PROVIDERS]?.labelKey ?? "other";
 
+  // Ask the Strategy Engine how this one should be pitched, from what has
+  // actually been getting paid by this counterparty. Fails open to a sane
+  // default stance — a customer's claim never waits on the evidence table.
+  const stance = await chooseStance({
+    market: "IL",
+    vertical: "telecom",
+    counterparty: providerKey,
+  });
+
   const rec = await generateRecommendation({
     providerLabel: providerHebrewName(providerKey),
     amountShekels,
     plan,
     locale: data.locale,
     customerName: user.name,
+    stance: stance.instructions,
   });
 
   let kase;
@@ -97,6 +110,9 @@ export async function POST(request: Request) {
       marketLowShekels: rec.marketLowShekels,
       marketHighShekels: rec.marketHighShekels,
       draftMessage: rec.draftMessage,
+      beneficiaryLabel: data.beneficiary,
+      strategyVariant: stance.variantId,
+      strategySeed: stance.seed,
     });
   } catch (err) {
     if (err instanceof CaseError && err.message === "CASE_LIMIT") {

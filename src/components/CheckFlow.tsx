@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, Link } from "@/i18n/routing";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
@@ -72,6 +72,9 @@ export function CheckFlow() {
   const [provider, setProvider] = useState("");
   const [amount, setAmount] = useState("");
   const [plan, setPlan] = useState("");
+  // Family mode: an optional label for whom this check is ("אמא", "אבא"…).
+  // Empty means the check is for the account owner themselves.
+  const [beneficiary, setBeneficiary] = useState("");
 
   const [rec, setRec] = useState<Rec | null>(null);
   const [draft, setDraft] = useState("");
@@ -109,7 +112,7 @@ export function CheckFlow() {
       const res = await fetch("/api/cases/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, locale }),
+        body: JSON.stringify({ ...payload, beneficiary: beneficiary.trim() || undefined, locale }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 401) {
@@ -283,6 +286,20 @@ export function CheckFlow() {
             onChange={(e) => onFile(e.target.files?.[0])}
             className="hidden"
           />
+
+          {/* Family mode — an optional "who is this for?" so one account can
+              handle a parent's or partner's bills, grouped on the dashboard. */}
+          <div className="mb-3.5">
+            <Input
+              value={beneficiary}
+              onChange={(e) => setBeneficiary(e.target.value)}
+              placeholder={t("beneficiaryPlaceholder")}
+              aria-label={t("beneficiaryLabel")}
+              maxLength={40}
+            />
+            <div className="text-[11.5px] text-ink-soft mt-1.5">{t("beneficiaryHint")}</div>
+          </div>
+
           <div
             role="button"
             tabIndex={0}
@@ -488,13 +505,16 @@ export function CheckFlow() {
                 <div className="text-emerald font-bold mb-2">✓ {tv("authGenerated")}</div>
                 <div className="text-ink-soft">{tv("authCode")}</div>
                 <div className="font-display text-xl tracking-wide">{auth.code}</div>
+                {/* In-app navigation only: these are Zakai's own same-origin
+                    document routes, so we keep the customer inside the app
+                    (same tab, no "leaving" affordance). */}
                 <div className="flex gap-4 mt-2.5 flex-wrap">
-                  <a href={auth.documentUrl} target="_blank" rel="noreferrer" className="text-emerald font-bold no-underline">
-                    {tv("authView")} ↗
-                  </a>
-                  <a href={auth.verifyUrl} target="_blank" rel="noreferrer" className="text-emerald font-bold no-underline">
-                    {tv("authVerifyLink")} ↗
-                  </a>
+                  <Link href={auth.documentUrl} className="text-emerald font-bold no-underline hover:underline">
+                    {tv("authView")}
+                  </Link>
+                  <Link href={`/verify?code=${encodeURIComponent(auth.code)}`} className="text-emerald font-bold no-underline hover:underline">
+                    {tv("authVerifyLink")}
+                  </Link>
                 </div>
               </div>
             )}

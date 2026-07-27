@@ -2,16 +2,28 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
 import { computeFee } from "@/lib/fee";
+import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { createAuthorization } from "./authorization";
+import { recordOutcome, daysBetween } from "@/lib/strategy/store";
 
 export class CaseError extends Error {}
 
 /** Days a customer has to dispute a success-fee charge (see Trust page). */
 export const FEE_DISPUTE_WINDOW_DAYS = 14;
+
+/**
+ * Which market a case belongs to. Israel today — read from the rule pack so
+ * that when a vertical ships for a second country the evidence separates by
+ * itself, rather than silently pooling Israeli and foreign outcomes into one
+ * misleading average.
+ */
+function marketForCase(vertical: string): string {
+  return getRulePack(vertical)?.country ?? "IL";
+}
 
 function supportEmail(): string {
   return process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
@@ -27,6 +39,12 @@ interface CreateCaseInput {
   marketLowShekels?: number;
   marketHighShekels?: number;
   draftMessage: string;
+  beneficiaryLabel?: string;
+  /** Rule-pack key; defaults to "telecom" (the proven full-service vertical). */
+  vertical?: string;
+  /** The stance the Strategy Engine chose, and the seed it was drawn with. */
+  strategyVariant?: string;
+  strategySeed?: number;
 }
 
 export async function createCase(input: CreateCaseInput) {
@@ -43,6 +61,7 @@ export async function createCase(input: CreateCaseInput) {
   return prisma.case.create({
     data: {
       userId: input.userId,
+      vertical: input.vertical ?? "telecom",
       provider: input.provider,
       planDescription: input.plan,
       amountOriginal: shekelsToAgorot(input.amountShekels),
@@ -51,6 +70,9 @@ export async function createCase(input: CreateCaseInput) {
       marketHigh: input.marketHighShekels != null ? shekelsToAgorot(input.marketHighShekels) : null,
       strategy: input.strategy,
       draftMessage: input.draftMessage,
+      beneficiaryLabel: (input.beneficiaryLabel ?? "").slice(0, 40),
+      strategyVariant: input.strategyVariant ?? null,
+      strategySeed: input.strategySeed ?? null,
       status: "ANALYZED",
     },
   });
@@ -157,8 +179,13 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
       select: { plan: true, referralCreditAgorot: true, referredById: true },
     });
 
-    // The success-fee rate comes from the user's plan (Free 18%, Pro 9%, Max 0%).
-    const fee = computeFee(kase.amountOriginal, newAmount, planConfig(owner?.plan).feeRateBps);
+    // The success-fee rate comes from the user's plan (Free 18%, Pro 9%, Max 0%),
+    // resolved through the vertical's rule pack. Telecom's pack overrides nothing
+    // (feeRateBps=null), so this equals the plan rate exactly — the Stage-0
+    // invariant — while giving future verticals a per-vertical rate seam.
+    const planRateBps = planConfig(owner?.plan).feeRateBps;
+    const rateBps = effectiveFeeRateBps(getRulePack(kase.vertical), planRateBps);
+    const fee = computeFee(kase.amountOriginal, newAmount, rateBps);
     const saved = fee.savingMonthly > 0;
 
     // Apply this user's own referral credit (earned by inviting others) to the
@@ -226,6 +253,26 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   });
 
   const fee = result.fee;
+
+  // Feed the outcome back to the Strategy Engine — wins AND losses. Recording
+  // only successes is the mistake that quietly destroys the dataset: a stance's
+  // win rate is meaningless without its losses, and a system trained on wins
+  // alone concludes that everything works. Best-effort and non-blocking; the
+  // customer's settlement never waits on bookkeeping.
+  await recordOutcome({
+    context: {
+      market: marketForCase(kase.vertical),
+      vertical: kase.vertical,
+      counterparty: kase.provider,
+    },
+    variantId: kase.strategyVariant,
+    paid: fee.savingMonthly > 0,
+    // The saving is monthly and recurring; a year of it is the honest measure
+    // of what this claim was worth, and it is the figure the engine compares
+    // against one-off recoveries in other verticals.
+    recoveredMinor: fee.savingMonthly * 12,
+    days: daysBetween(kase.approvedAt ?? kase.createdAt, new Date()),
+  });
 
   // After the fee is committed, send the customer an automatic confirmation
   // (dev: lands in the Outbox). Only when a fee is actually charged.

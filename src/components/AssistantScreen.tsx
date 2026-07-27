@@ -6,6 +6,10 @@ import { Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import type { Insight } from "@/lib/insights";
+import { FAQ } from "@/lib/faq";
+
+// A few high-signal starter questions surfaced as chips under the chat.
+const SUGGESTED_IDS = ["fee", "taxrefund", "payslip", "family"] as const;
 
 interface ChatMsg {
   role: "user" | "assistant";
@@ -112,6 +116,30 @@ export function AssistantScreen({
                 </Link>
               </p>
             )}
+            {/* Suggested questions — shown before the first message, pulled
+                from the vetted FAQ so the agent starts on solid ground. */}
+            {messages.length === 0 && (
+              <div className="mb-4">
+                <div className="text-[12px] text-ink-soft font-bold mb-2">{t("suggestTitle")}</div>
+                <div className="flex flex-wrap gap-2">
+                  {SUGGESTED_IDS.map((id) => {
+                    const entry = FAQ.find((f) => f.id === id);
+                    if (!entry) return null;
+                    const q = locale === "he" ? entry.q_he : entry.q_en;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setInput(q)}
+                        className="text-[12.5px] font-semibold text-ink-soft border border-[rgba(255,255,255,0.12)] rounded-full px-3 py-1.5 hover:border-[rgba(63,203,155,0.5)] hover:text-emerald transition-colors text-start"
+                      >
+                        {q}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             {messages.length > 0 && (
               <div
                 ref={listRef}
@@ -160,6 +188,19 @@ export function AssistantScreen({
           </>
         )}
       </Card>
+
+      {/* Under the assistant: the full FAQ, and the improve-Zakai box. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-[13px]">
+        <Link href="/faq" className="text-emerald font-bold no-underline">
+          {t("moreFaq")}
+        </Link>
+        <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
+          ·
+        </span>
+        <Link href="/feedback" className="text-ink-soft font-bold no-underline hover:text-emerald transition-colors">
+          {t("leaveFeedback")}
+        </Link>
+      </div>
     </div>
   );
 }

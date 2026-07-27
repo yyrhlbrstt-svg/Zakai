@@ -9,9 +9,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// The Neon integration injects NEON_*-prefixed variables in both dev and
+// production, so we read those directly instead of a hand-copied DATABASE_URL.
+// `url` is the pooled (PgBouncer) endpoint used by the app at runtime;
+// `directUrl` is the unpooled endpoint, which `prisma migrate` requires because
+// migrations need a real session (advisory locks don't survive pooling).
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("NEON_DATABASE_URL")
+  directUrl = env("NEON_DATABASE_URL_UNPOOLED")
 }
 
 enum Plan {
@@ -21,36 +27,41 @@ enum Plan {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
   // Product tier. Determines the success-fee rate, active-case allowance and
   // access to the recurring-charges scan. Billing collection is a later stage
   // (PSP); the tier itself is enforced in code from day one.
   plan          Plan      @default(FREE)
   planChangedAt DateTime?
-  // E.164 Israeli mobile, e.g. +972501234567. The number the user's bills are
-  // registered to; ownership verification sends a code here.
-  phone        String
-  createdAt    DateTime @default(now())
+  // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
+  // are registered to; ownership verification sends a code here.
+  phone         String
+  // ISO-3166 alpha-2 country the user signed up from. Israel is the launch
+  // market (active tools are IL-first); capturing country turns international
+  // signups into a real demand signal for where to expand next.
+  country       String    @default("IL")
+  createdAt     DateTime  @default(now())
 
   // Referrals. `referralCode` is the short, shareable code in this user's
   // invite link; a DB default keeps the NOT NULL/UNIQUE column safe if a row is
   // ever created without one. `referredById` is who invited this user (set once
   // at signup). `referralCreditAgorot` is unspent reward credit that reduces the
   // user's next success fee — we only ever forgo fee revenue, never pay cash.
-  referralCode         String   @unique @default(cuid())
+  referralCode         String  @unique @default(cuid())
   referredById         String?
-  referredBy           User?    @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
-  referrals            User[]   @relation("Referrals")
-  referralCreditAgorot Int      @default(0)
+  referredBy           User?   @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals            User[]  @relation("Referrals")
+  referralCreditAgorot Int     @default(0)
 
-  cases             Case[]
+  cases              Case[]
   phoneVerifications PhoneVerification[]
-  referralRewards   ReferralReward[] @relation("Referrer")
-  referralRewardFor ReferralReward?  @relation("ReferredUser")
-  consents          Consent[]
+  referralRewards    ReferralReward[]    @relation("Referrer")
+  referralRewardFor  ReferralReward?     @relation("ReferredUser")
+  consents           Consent[]
+  passwordResets     PasswordReset[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -98,8 +109,16 @@ model Case {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  provider        String // provider key: cellcom | partner | bezeq | hot | yes | other
-  planDescription String @default("")
+  // Which full-service vertical this case belongs to (rule-pack key). Defaults
+  // to "telecom" — the one proven full-service loop — so every existing and
+  // current case is unchanged; new verticals set it explicitly.
+  vertical         String @default("telecom")
+  provider         String // counterparty key within the vertical (cellcom, hapoalim…)
+  planDescription  String @default("")
+  // Family mode: an optional label for whom this check is run ("אמא", "אבא"…).
+  // Empty = the account owner themselves. Purely a display grouping; the case
+  // stays owned by, and scoped to, the userId — no extra access surface.
+  beneficiaryLabel String @default("")
 
   // amounts in agorot
   amountOriginal Int // documented "before" amount, snapshotted at analysis time
@@ -107,16 +126,23 @@ model Case {
   marketLow      Int?
   marketHigh     Int?
 
-  strategy      String @default("") // one-sentence plan shown to the user
-  draftMessage  String @default("") // exact outreach text the user approves
+  strategy     String @default("") // one-sentence plan shown to the user
+  draftMessage String @default("") // exact outreach text the user approves
+
+  // Which stance the Strategy Engine chose for this case, and the seed it was
+  // drawn with. Stored so "why was this customer's claim worded this way" is
+  // answerable months later, and so the outcome can be attributed back to the
+  // stance when the case closes. Null on cases opened before the engine.
+  strategyVariant String?
+  strategySeed    Int?
 
   status CaseStatus @default(ANALYZED)
 
   // trust timeline
-  approvedAt           DateTime?
-  ownershipVerifiedAt  DateTime?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  approvedAt          DateTime?
+  ownershipVerifiedAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   authorization Authorization?
   savingsProof  SavingsProof?
@@ -128,16 +154,16 @@ model Case {
 
 // SMS ownership verification: a hashed one-time code sent to the user's phone.
 model PhoneVerification {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  caseId    String? // optional: which case this verification unlocks
-  phone     String
-  codeHash  String // sha-256 of the 6-digit code; never stored in the clear
-  expiresAt DateTime
-  attempts  Int       @default(0)
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  caseId     String? // optional: which case this verification unlocks
+  phone      String
+  codeHash   String // sha-256 of the 6-digit code; never stored in the clear
+  expiresAt  DateTime
+  attempts   Int       @default(0)
   consumedAt DateTime?
-  createdAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
 
   @@index([userId])
 }
@@ -181,18 +207,18 @@ enum OutboxStatus {
 // Every outbound message (real send or dev log) is recorded here. In dev, with
 // no SMTP/SMS provider configured, messages land here and nothing leaves.
 model Outbox {
-  id        String        @id @default(cuid())
-  caseId    String?
-  case      Case?         @relation(fields: [caseId], references: [id], onDelete: SetNull)
-  channel   OutboxChannel
-  toAddress String
-  subject   String?
-  body      String
-  status    OutboxStatus  @default(QUEUED)
+  id                String        @id @default(cuid())
+  caseId            String?
+  case              Case?         @relation(fields: [caseId], references: [id], onDelete: SetNull)
+  channel           OutboxChannel
+  toAddress         String
+  subject           String?
+  body              String
+  status            OutboxStatus  @default(QUEUED)
   providerMessageId String?
-  error     String?
-  createdAt DateTime      @default(now())
-  sentAt    DateTime?
+  error             String?
+  createdAt         DateTime      @default(now())
+  sentAt            DateTime?
 
   @@index([caseId])
 }
@@ -221,8 +247,8 @@ model Fee {
   caseId String @unique
   case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
-  savingMonthly Int // agorot
-  rateBps       Int       @default(1800) // 18.00%
+  savingMonthly         Int // agorot
+  rateBps               Int       @default(1800) // 18.00%
   // `amount` is the NET fee actually charged. Gross = round(saving*rate/10000);
   // `referralCreditApplied` is how much referral credit reduced it (>= 0), so
   // gross = amount + referralCreditApplied.
@@ -230,6 +256,14 @@ model Fee {
   referralCreditApplied Int       @default(0) // agorot
   status                FeeStatus @default(PENDING)
   createdAt             DateTime  @default(now())
+
+  // Fee collection. `provider` is which PSP handled it (or "mock" until a real
+  // one is configured); `providerRef` is the payment/transaction id it returned;
+  // `paidAt` is when the fee was confirmed collected. All null until a payment
+  // is initiated — the fee lifecycle is: PENDING -> (checkout) -> PAID.
+  provider    String? // e.g. "mock" | "payplus" | "tranzila"
+  providerRef String?
+  paidAt      DateTime?
 }
 
 // Durable fixed-window rate limiting for auth/OTP endpoints. Serverless
@@ -241,4 +275,81 @@ model RateLimit {
   createdAt DateTime @default(now())
 
   @@index([expiresAt])
+}
+
+// Product feedback — "what would you improve in Zakai?". Stored so the team
+// can read real user suggestions and prioritise from them. Email is optional
+// (only if the user wants a reply); `context` records which screen it came
+// from. Not linked to a user account — a logged-out visitor can leave it too.
+model Feedback {
+  id        String   @id @default(cuid())
+  message   String
+  email     String? // optional, only if they want a reply
+  context   String   @default("") // e.g. the path the widget was opened from
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Commissionable lead intake for the high-value verticals (construction
+// defects, car diminished-value, mortgage insurance, tax, arnona…). Zakai
+// captures the qualified lead and connects the user to a vetted professional /
+// service, monetising via a success/referral fee when the claim succeeds — the
+// standard model in these industries, and honest (we facilitate, we don't
+// impersonate the professional). `vertical` is the source screen's key.
+model Lead {
+  id        String   @id @default(cuid())
+  vertical  String // e.g. "construction-defects" | "car-value" | "mortgage-insurance"
+  name      String
+  phone     String
+  note      String   @default("")
+  status    String   @default("new") // new | contacted | matched | won | closed
+  userId    String? // set if a logged-in user submitted it
+  createdAt DateTime @default(now())
+
+  @@index([vertical, createdAt])
+}
+
+/**
+ * One closed claim, reduced to what can be learned from without identifying
+ * anyone. Deliberately NOT related to Case or User: this table is the
+ * aggregate evidence base, and the moment it carries a foreign key to a person
+ * it stops being publishable, shareable with an institution, or sellable to a
+ * regulator without a privacy rewrite.
+ */
+model StrategyOutcome {
+  id String @id @default(cuid())
+
+  market       String // ISO-3166 alpha-2
+  vertical     String // rule-pack key
+  counterparty String // normalised provider key, never free text
+  variantId    String
+
+  paid           Boolean
+  recoveredMinor Int // minor units; 0 when nothing came back
+  days           Int // send -> resolution
+
+  createdAt DateTime @default(now())
+
+  @@index([market, vertical, counterparty])
+  @@index([market, vertical])
+}
+
+/**
+ * A single-use password-reset token.
+ * Only the SHA-256 of the token is stored, never the token itself — the same
+ * discipline PhoneVerification already uses. A leaked database must not hand
+ * an attacker working reset links for every account in it.
+ */
+model PasswordReset {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
 }

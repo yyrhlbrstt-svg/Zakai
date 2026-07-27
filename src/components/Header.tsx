@@ -6,23 +6,50 @@ import { useRouter, usePathname, Link } from "@/i18n/routing";
 import { activeLocales, localeLabel, type Locale } from "@/i18n/config";
 import { Logo } from "@/components/Logo";
 import { PlanBadge } from "@/components/PlanBadge";
+import { ToolIcon } from "@/components/ToolIcon";
+import { Menu, X, ChevronDown } from "lucide-react";
 
-/** The public tools, grouped under one "Tools" menu so the bar stays calm. */
+/** The public tools, grouped under one "Tools" menu so the bar stays calm.
+    Each `key` maps to a real vector icon via <ToolIcon>. */
 const TOOLS = [
-  { href: "/deals", key: "deals", icon: "🎟️" },
-  { href: "/entitlements", key: "entitlements", icon: "🎯" },
-  { href: "/payslip", key: "payslip", icon: "🧾" },
-  { href: "/severance", key: "severance", icon: "📄" },
-  { href: "/maternity", key: "maternity", icon: "👶" },
-  { href: "/taxrefund", key: "taxrefund", icon: "💸" },
-  { href: "/unemployment", key: "unemployment", icon: "🧭" },
-  { href: "/olim", key: "olim", icon: "🇮🇱" },
-  { href: "/parking", key: "parking", icon: "🅿️" },
-  { href: "/transport-fine", key: "transportFine", icon: "🚌" },
-  { href: "/miluim", key: "miluim", icon: "🎖️" },
-  { href: "/rights", key: "rights", icon: "📚" },
-  { href: "/electricity", key: "electricity", icon: "⚡" },
-  { href: "/flights", key: "flights", icon: "✈️" },
+  { href: "/score", key: "score" },
+  { href: "/what-am-i-owed", key: "whatAmIOwed" },
+  { href: "/scan", key: "scan" },
+  { href: "/vat", key: "vat" },
+  { href: "/spending", key: "spending" },
+  { href: "/insurance-compare", key: "insurancecompare" },
+  { href: "/debt-consolidation", key: "debt" },
+  { href: "/lost-money", key: "lostmoney" },
+  { href: "/compensation-claims", key: "compensation" },
+  { href: "/class-action", key: "classaction" },
+  { href: "/child-savings", key: "childsavings" },
+  { href: "/arnona", key: "arnona" },
+  { href: "/disability-benefits", key: "disability" },
+  { href: "/construction-defects", key: "defects" },
+  { href: "/car-value", key: "carvalue" },
+  { href: "/mortgage-insurance", key: "mortins" },
+  { href: "/duplicate-insurance", key: "dupinsurance" },
+  { href: "/pension-fees", key: "pension" },
+  { href: "/mortgage", key: "mortgage" },
+  { href: "/deposit", key: "deposit" },
+  { href: "/deals", key: "deals" },
+  { href: "/entitlements", key: "entitlements" },
+  { href: "/payslip", key: "payslip" },
+  { href: "/severance", key: "severance" },
+  { href: "/maternity", key: "maternity" },
+  { href: "/taxrefund", key: "taxrefund" },
+  { href: "/unemployment", key: "unemployment" },
+  { href: "/olim", key: "olim" },
+  { href: "/parking", key: "parking" },
+  { href: "/transport-fine", key: "transportFine" },
+  { href: "/baggage", key: "baggage" },
+  { href: "/bank-fees", key: "bankfees" },
+  { href: "/price-protection", key: "priceprotection" },
+  { href: "/warranty", key: "warranty" },
+  { href: "/miluim", key: "miluim" },
+  { href: "/rights", key: "rights" },
+  { href: "/electricity", key: "electricity" },
+  { href: "/flights", key: "flights" },
 ] as const;
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {
@@ -98,17 +125,22 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <div className="ms-1">{langButtons}</div>
         </nav>
 
-        {/* Mobile: compact plan badge + hamburger */}
+        {/* Mobile: compact plan badge + hamburger. The badge links to the plans
+            page so tapping your tier opens the tracks/pricing. */}
         <div className="flex md:hidden items-center gap-2.5">
-          {user && <PlanBadge plan={user.plan} />}
+          {user && (
+            <Link href="/pricing" aria-label={t("nav.pricing")} className="no-underline">
+              <PlanBadge plan={user.plan} />
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
             aria-expanded={mobileOpen}
             aria-label={t("nav.menu")}
-            className="w-10 h-10 flex items-center justify-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-ink text-xl"
+            className="w-10 h-10 flex items-center justify-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-ink"
           >
-            {mobileOpen ? "✕" : "☰"}
+            {mobileOpen ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}
           </button>
         </div>
       </div>
@@ -135,7 +167,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
                 href={tool.href}
                 className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
               >
-                <span className="text-[16px]" aria-hidden>{tool.icon}</span>
+                <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
                 <span className="text-[13px] font-bold leading-tight">{t(`nav.${tool.key}`)}</span>
               </Link>
             ))}
@@ -193,9 +225,11 @@ function ToolsMenu({ label }: { label: string }) {
         }`}
       >
         {label}
-        <span className={`text-[10px] transition-transform duration-200 ${open ? "rotate-180" : ""}`} aria-hidden>
-          ▾
-        </span>
+        <ChevronDown
+          size={14}
+          aria-hidden
+          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open && (
@@ -210,7 +244,7 @@ function ToolsMenu({ label }: { label: string }) {
               role="menuitem"
               className="flex items-center gap-2.5 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
             >
-              <span className="text-[17px]" aria-hidden>{tool.icon}</span>
+              <ToolIcon name={tool.key} size={18} className="text-emerald shrink-0" />
               <span className="text-[13px] font-bold leading-tight">{t(`nav.${tool.key}`)}</span>
             </Link>
           ))}
