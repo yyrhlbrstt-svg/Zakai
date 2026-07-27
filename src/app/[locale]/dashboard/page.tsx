@@ -222,8 +222,8 @@ export default async function DashboardPage({
                 : t("dashboard.intentGeneric")}
             </div>
           </div>
-          <Link href="/check" className="ms-auto shrink-0">
-            <Button>{t("dashboard.intentCta")}</Button>
+          <Link href="/money" className="ms-auto shrink-0">
+            <Button>{moneyLabel}</Button>
           </Link>
         </div>
       )}
@@ -279,16 +279,17 @@ export default async function DashboardPage({
         <Card className="text-center px-8 py-14">
           <Inbox size={40} className="mx-auto mb-3.5 text-ink-soft" aria-hidden />
           <div className="font-display text-2xl">{t("dashboard.empty")}</div>
-          <div className="text-ink-soft text-[14.5px] mt-2">{t("dashboard.emptySub")}</div>
+          <div className="text-ink-soft text-[14.5px] mt-2">
+            {locale === "he"
+              ? "התחל ב-Money OS: סרוק חיובים, פתח תיק עם הסוכן — בלי להשאיר טלפון."
+              : "Start with Money OS: scan charges, open an agent case — no phone left behind."}
+          </div>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
-              <Button>{moneyLabel}</Button>
+              <Button className="!text-[15px] !px-6">{moneyLabel} →</Button>
             </Link>
-            <Link href="/check">
-              <Button variant="ghost">{t("home.cta")}</Button>
-            </Link>
-            <Link href="/leaks">
-              <Button variant="ghost">{locale === "he" ? "מפת נזילות" : "Leaks map"}</Button>
+            <Link href="/cancel">
+              <Button variant="ghost">{locale === "he" ? "ביטול מנוי עם סוכן" : "Cancel with agent"}</Button>
             </Link>
           </div>
           <EmptyDashboardActions />
@@ -333,14 +334,14 @@ export default async function DashboardPage({
             ))}
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/check">
-              <Button>{t("home.cta")}</Button>
-            </Link>
             <Link href="/money">
-              <Button variant="ghost">{moneyLabel}</Button>
+              <Button>{moneyLabel}</Button>
             </Link>
-            <Link href="/leaks">
-              <Button variant="ghost">{locale === "he" ? "נזילות" : "Leaks"}</Button>
+            <Link href="/cancel">
+              <Button variant="ghost">{locale === "he" ? "ביטול מנוי" : "Cancel sub"}</Button>
+            </Link>
+            <Link href="/check">
+              <Button variant="ghost">{t("home.cta")}</Button>
             </Link>
           </div>
         </>
