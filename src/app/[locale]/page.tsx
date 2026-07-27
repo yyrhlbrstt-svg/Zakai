@@ -60,8 +60,8 @@ export default async function HomePage({
       {/* Deploy verification strip — Money OS single path */}
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "Money OS · בלי מוקד · בלי לחכות לטלפון · הסוכן פועל בשבילך · גרסה 0.2.3"
-          : "Money OS · No call center · Instant in-app action · Agent acts for you · Build 0.2.3"}
+          ? "Money OS · בלי מוקד · בלי לחכות לטלפון · הסוכן פועל בשבילך · גרסה 0.2.4"
+          : "Money OS · No call center · Instant in-app action · Agent acts for you · Build 0.2.4"}
         <div className="flex flex-wrap gap-2 mt-2.5">
           <Link
             href="/money"
