@@ -54,6 +54,8 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
     sentBanner: "הסוכן שלח. עכשיו: אם ענו — רשום סכום חדש. אם לא — הכן תזכורת.",
+    competitorName: "שם המתחרה",
+    competitorPrice: "מחיר המתחרה ₪",
   },
   en: {
     approve: "Approve & continue",
@@ -82,6 +84,8 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
     sentBanner: "Agent sent. Next: if they replied — record new amount. If not — draft a reminder.",
+    competitorName: "Competitor name",
+    competitorPrice: "Competitor price ₪",
   },
 };
 
@@ -112,6 +116,8 @@ export function CaseNextStep({
   const [authCode, setAuthCode] = useState<string | null>(null);
   const [mandateInfo, setMandateInfo] = useState<string | null>(null);
   const [replyKind, setReplyKind] = useState<ProviderReplyKind>("delay");
+  const [competitorName, setCompetitorName] = useState("");
+  const [competitorPrice, setCompetitorPrice] = useState("");
   const [followBody, setFollowBody] = useState<string | null>(null);
   const [followTip, setFollowTip] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -327,6 +333,23 @@ export function CaseNextStep({
               </option>
             ))}
           </select>
+          {replyKind === "competitor" && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              <Input
+                value={competitorName}
+                onChange={(e) => setCompetitorName(e.target.value)}
+                placeholder={t(locale, "competitorName")}
+                className="flex-1 min-w-[140px] text-[13px]"
+              />
+              <Input
+                type="number"
+                value={competitorPrice}
+                onChange={(e) => setCompetitorPrice(e.target.value)}
+                placeholder={t(locale, "competitorPrice")}
+                className="max-w-[140px] text-[13px]"
+              />
+            </div>
+          )}
           <Button
             disabled={busy}
             className="text-[13px] py-2 px-3"
@@ -335,7 +358,12 @@ export function CaseNextStep({
                 const res = await fetch(`/api/cases/${caseId}/follow-up`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ replyKind, round: 2 }),
+                  body: JSON.stringify({
+                    replyKind,
+                    round: 2,
+                    competitorName: competitorName || undefined,
+                    competitorPriceShekels: competitorPrice ? Number(competitorPrice) : undefined,
+                  }),
                 });
                 if (!res.ok) throw new Error("follow");
                 const data = await res.json();
@@ -390,7 +418,6 @@ export function CaseNextStep({
                   body: JSON.stringify({ newAmountShekels: Number(newAmt) }),
                 });
                 if (!res.ok) throw new Error("save");
-                // Persistence: promo windows expire ~6 months — schedule recheck.
                 scheduleRecheckReminder(caseId);
               })
             }
