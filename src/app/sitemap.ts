@@ -6,6 +6,10 @@ const LOCALES = ["he", "en", "ar", "ru"] as const;
 const PATHS = [
   "",
   "/money",
+  "/leaks",
+  "/cancel",
+  "/credit-card",
+  "/refund-chase",
   "/check",
   "/what-am-i-owed",
   "/rights",
@@ -31,8 +35,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       entries.push({
         url: `${SITE}/${locale}${path}`,
         lastModified: now,
-        changeFrequency: path === "" || path === "/money" ? "daily" : "weekly",
-        priority: path === "" ? 1 : path === "/money" || path === "/check" ? 0.9 : 0.6,
+        changeFrequency: path === "" || path === "/money" || path === "/leaks" ? "daily" : "weekly",
+        priority: path === "" ? 1 : path === "/money" || path === "/leaks" ? 0.95 : 0.6,
       });
     }
   }
