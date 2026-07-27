@@ -1,12 +1,6 @@
 import { PROVIDER_KEYS } from "@/lib/providers";
 import type { VerticalRulePack } from "./types";
 
-/**
- * Telecom, Israel — the proven full-service vertical. This pack encodes what
- * the core flow does today, so wiring the core to read it changes NOTHING for
- * the end user (the Stage-0 regression guarantee). Fee rate is `null` = the
- * user's plan rate, preserving "the subscription buys the fee down".
- */
 export const telecomIL: VerticalRulePack = {
   key: "telecom",
   country: "IL",
@@ -22,13 +16,6 @@ export const telecomIL: VerticalRulePack = {
   counterparties: PROVIDER_KEYS,
 };
 
-/**
- * Bank fees, Israel — the next vertical to become full-service (Group A: simple
- * verification, low regulatory risk). Starts at `assisted` — it acts as a
- * drafter + guide until the "the charge disappears from the next statement"
- * verification and a real case flow are wired and proven on real cases. This is
- * the honest gate: it does NOT charge a fee while `level !== "full"`.
- */
 export const bankFeesIL: VerticalRulePack = {
   key: "bank-fees",
   country: "IL",
@@ -44,12 +31,6 @@ export const bankFeesIL: VerticalRulePack = {
   counterparties: ["hapoalim", "leumi", "discount", "mizrahi", "fibi", "onezero", "other"],
 };
 
-/**
- * Subscriptions / digital services (Netflix, Spotify, gym, cloud…) — agentic
- * letter + Mandate send + follow-up. Level assisted until we have reliable
- * provider contact channels and reply verification at scale. Fee only on
- * documented SavingsProof (price drop or successful cancel recorded).
- */
 export const subscriptionIL: VerticalRulePack = {
   key: "subscription",
   country: "IL",
@@ -65,12 +46,6 @@ export const subscriptionIL: VerticalRulePack = {
   counterparties: ["netflix", "spotify", "other"],
 };
 
-/**
- * Airline disruption compensation (IL Aviation Services Law + EU261).
- * Assisted: agent drafts demand + issues Mandate + tracks. Fee only when a
- * transfer lands and is recorded as SavingsProof (one-shot recovery).
- * amountOriginal = statutory compensation; target = 0 (full recovery).
- */
 export const airlineIL: VerticalRulePack = {
   key: "airline",
   country: "IL",
@@ -86,10 +61,26 @@ export const airlineIL: VerticalRulePack = {
   counterparties: ["elal", "israir", "arkia", "ryanair", "easyjet", "lufthansa", "other"],
 };
 
-/** Every registered rule pack. New (vertical × country) = a new entry here. */
+/** Missing refund chase — one-shot recovery of a promised transfer. */
+export const refundChaseIL: VerticalRulePack = {
+  key: "refund-chase",
+  country: "IL",
+  label: "החזר שלא הגיע",
+  level: "assisted",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "transfer_confirmation",
+    proofDescription: "העברה בנקאית / זיכוי כרטיס שמאשר את ההחזר",
+  },
+  regulated: false,
+  counterparties: ["other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
   subscriptionIL,
   airlineIL,
+  refundChaseIL,
 ];
