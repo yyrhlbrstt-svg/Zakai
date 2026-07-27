@@ -57,11 +57,10 @@ export default async function HomePage({
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
-      {/* Deploy verification strip — Money OS single path */}
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "Money OS · בלי מוקד · בלי לחכות לטלפון · הסוכן פועל בשבילך · גרסה 0.2.4"
-          : "Money OS · No call center · Instant in-app action · Agent acts for you · Build 0.2.4"}
+          ? "Money OS · בלי מוקד · בלי לחכות לטלפון · הסוכן פועל בשבילך · גרסה 0.2.5"
+          : "Money OS · No call center · Instant in-app action · Agent acts for you · Build 0.2.5"}
         <div className="flex flex-wrap gap-2 mt-2.5">
           <Link
             href="/money"
@@ -168,7 +167,6 @@ export default async function HomePage({
         </Reveal>
       )}
 
-      {/* Single path — 3 steps only */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.howTitle")}</h2>
       </Reveal>
@@ -190,7 +188,6 @@ export default async function HomePage({
         ))}
       </div>
 
-      {/* Why Zakai — keep the comparison */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.whyTitle")}</h2>
       </Reveal>
@@ -200,7 +197,7 @@ export default async function HomePage({
             <SpotlightCard
               className={`p-6 h-full ${col === "zakai" ? "border-[rgba(63,203,155,0.45)]" : ""}`}
             >
-              <div className={`font-extrabold text-[15px] ${col === "zakai" ? "text-emerald" : ""}`}>
+              <div className={`font-extrabold text-[15px] ${col === "zakai" ? "text-emerald" : ""`}>
                 {t(`home.why.${col}.title`)}
               </div>
               <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
@@ -221,7 +218,6 @@ export default async function HomePage({
         ))}
       </div>
 
-      {/* Final conversion — no tool grid */}
       <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
