@@ -18,6 +18,16 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
       { href: "/check", labelHe: "בדיקת חיוב / משא ומתן", labelEn: "Bill check / negotiate" },
     ],
   },
+  "debt-consolidation": {
+    headlineHe: "איחוד הלוואות — מה עושים עכשיו",
+    headlineEn: "Debt consolidation — act now",
+    actions: [
+      { href: "/money", labelHe: "מפה חיובים והלוואות (צילום בנק)", labelEn: "Map charges & loans (bank screenshot)" },
+      { href: "/spending", labelHe: "לאן הכסף הולך", labelEn: "Where the money goes" },
+      { href: "/assistant", labelHe: "הסוכן: איך מורידים ריבית", labelEn: "Agent: how to cut interest" },
+      { href: "/bank-fees", labelHe: "עמלות בנק — מכתב מוכן", labelEn: "Bank fees — ready letter" },
+    ],
+  },
   "construction-defects": {
     headlineHe: "ליקויי בנייה — מה עושים עכשיו",
     headlineEn: "Construction defects — act now",
@@ -40,8 +50,8 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     actions: [
       { href: "/money", labelHe: "הכסף שלי — מה יורד כל חודש", labelEn: "My money — monthly charges" },
       { href: "/check", labelHe: "בדוק חשבון והורד מחיר", labelEn: "Check bill & lower price" },
+      { href: "/leaks", labelHe: "מפת נזילות", labelEn: "Leaks map" },
       { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
-      { href: "/what-am-i-owed", labelHe: "מה מגיע לי", labelEn: "What am I owed" },
     ],
   },
 };
@@ -87,8 +97,8 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
         <div className="font-extrabold text-[16.5px]">{he ? pb.headlineHe : pb.headlineEn}</div>
         <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
           {he
-            ? "אין צוות שחוזר בטלפון. לוחצים על כפתור — מקבלים פעולה מיידית בתוך זכאי."
-            : "No call-back team. Tap a button — act inside Zakai now."}
+            ? "אין צוות שחוזר בטלפון. לוחצים על כפתור — מקבלים פעולה מיידית בתוך זכאי. השארת פרטים אופציונלית ולא מבטיחה שיחה."
+            : "No call-back team. Tap a button — act inside Zakai now. Contact details are optional and never promise a call."}
         </p>
         <div className="flex flex-col gap-2.5 mt-4">
           {pb.actions.map((a) => (
@@ -105,7 +115,7 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
           onClick={() => setShowContact(true)}
           className="bg-transparent border-0 text-ink-soft text-[13px] font-bold cursor-pointer"
         >
-          {he ? "שמירת פרטים לעתיד (אופציונלי — לא חובה)" : "Optional contact for later (not required)"}
+          {he ? "שמירת פרטים לעתיד (אופציונלי — לא חובה, לא מבטיחים שיחה)" : "Optional contact for later (not required, no promised call)"}
         </button>
       )}
 
