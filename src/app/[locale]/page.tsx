@@ -8,9 +8,9 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { Globe } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
+import { allMarkets } from "@/lib/global/registry";
 import { bcp47, type Locale } from "@/i18n/config";
 
-/** No long ISR — after each Vercel deploy the home page must reflect the latest build. */
 export const dynamic = "force-dynamic";
 
 async function loadProof() {
@@ -38,8 +38,9 @@ export default async function HomePage({
   const steps = ["upload", "act", "pay"] as const;
   const trust = t.raw("home.trust") as string[];
   const israeliVisitor = await isIsrael();
-
   const visitorCountry = await getCountry();
+  const markets = allMarkets();
+
   const countryTag = (() => {
     if (!visitorCountry) return "";
     try {
@@ -59,8 +60,8 @@ export default async function HomePage({
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "Money OS · בלי מוקד · בלי לחכות לטלפון · הסוכן פועל בשבילך · גרסה 0.2.5"
-          : "Money OS · No call center · Instant in-app action · Agent acts for you · Build 0.2.5"}
+          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · 0.3.0"
+          : "The standard consumer money agent · Money OS · Mandate · No call center · 0.3.0"}
         <div className="flex flex-wrap gap-2 mt-2.5">
           <Link
             href="/money"
@@ -69,18 +70,36 @@ export default async function HomePage({
             {moneyLabel}
           </Link>
           <Link
-            href="/cancel"
+            href="/leaks"
             className="rounded-lg bg-[rgba(62,198,255,0.2)] px-3 py-1.5 text-[12.5px] text-[#3ec6ff] no-underline font-extrabold"
           >
-            {he ? "ביטול מנוי עם סוכן" : "Cancel with agent"}
+            {he ? "מפת נזילות" : "Leaks map"}
           </Link>
           <Link
-            href="/dashboard"
+            href="/cancel"
             className="rounded-lg bg-[rgba(139,92,246,0.2)] px-3 py-1.5 text-[12.5px] text-[#c4b5fd] no-underline font-extrabold"
           >
-            {he ? "הדשבורד שלי" : "My dashboard"}
+            {he ? "ביטול עם סוכן" : "Agent cancel"}
           </Link>
         </div>
+      </div>
+
+      {/* Global markets — category scale signal */}
+      <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px] text-ink-soft">
+        <Globe size={14} className="text-emerald shrink-0" aria-hidden />
+        <span className="font-bold text-ink">{he ? "שווקים:" : "Markets:"}</span>
+        {markets.map((m) => (
+          <span
+            key={m.code}
+            className={`rounded-full px-2.5 py-1 border ${
+              visitorCountry === m.code
+                ? "border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.12)] text-emerald font-extrabold"
+                : "border-[rgba(255,255,255,0.1)]"
+            }`}
+          >
+            {m.code}
+          </span>
+        ))}
       </div>
 
       {!israeliVisitor && (
@@ -89,6 +108,7 @@ export default async function HomePage({
           <span>{t("home.geoNote")}</span>
         </div>
       )}
+
       <div className="flex flex-wrap gap-12 items-center">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
@@ -105,10 +125,10 @@ export default async function HomePage({
             </h1>
           </Reveal>
           <Reveal delay={160}>
-            <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[480px]">
+            <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
               {he
-                ? "מעלים צילום מסך מהבנק — זכאי מזהה חיובים קבועים, פותח תיק עם Mandate, שולח ומעקוב. בלי להשאיר טלפון. בלי מוקד."
-                : "Upload a bank screenshot — Zakai finds recurring charges, opens a Mandate case, sends and follows up. No phone number left. No call center."}
+                ? "זכאי הוא מערכת ההפעלה לכסף של הצרכן: סריקה, Mandate, שליחה, מעקב, חיסכון מתועד. בלי מוקד. בלי להשאיר טלפון. עמלה רק אם נחסך בפועל."
+                : "Zakai is the consumer money OS: scan, Mandate, send, follow up, documented saving. No call center. No phone left behind. Fee only when money is actually saved."}
             </p>
           </Reveal>
           <Reveal delay={240}>
@@ -116,8 +136,8 @@ export default async function HomePage({
               <Link href="/money">
                 <Button className="!text-[16px] !px-6 !py-3.5">{moneyLabel} →</Button>
               </Link>
-              <Link href="/cancel">
-                <Button variant="ghost">{he ? "ביטול מנוי עכשיו" : "Cancel a sub now"}</Button>
+              <Link href="/leaks">
+                <Button variant="ghost">{he ? "מפת נזילות" : "Leaks map"}</Button>
               </Link>
             </div>
           </Reveal>
@@ -221,19 +241,19 @@ export default async function HomePage({
       <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
-            {he ? "הכול עובר דרך זכאי" : "Everything goes through Zakai"}
+            {he ? "הכול עובר דרך זכאי — מוביל הקטגוריה" : "Everything through Zakai — category leader"}
           </div>
-          <p className="text-ink-soft text-[15px] mt-3 max-w-[480px] mx-auto leading-relaxed">
+          <p className="text-ink-soft text-[15px] mt-3 max-w-[520px] mx-auto leading-relaxed">
             {he
-              ? "סרוק → תיק עם Mandate → הסוכן שולח ומעקוב → חיסכון מתועד. עמלה רק אם נחסך בפועל."
-              : "Scan → Mandate case → agent sends & follows up → documented saving. Fee only when money is actually saved."}
+              ? "מי ששולט בלולאה סריקה→Mandate→חיסכון→שיתוף שולט בשוק. אנחנו בונים את הלולאה הזו בכל שוק."
+              : "Whoever owns scan→Mandate→saving→share owns the market. We’re building that loop in every market."}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
               <Button className="!text-[15px] !px-6 !py-3">{moneyLabel}</Button>
             </Link>
-            <Link href="/cancel">
-              <Button variant="ghost">{he ? "ביטול מנוי עם סוכן" : "Agent cancel"}</Button>
+            <Link href="/leaks">
+              <Button variant="ghost">{he ? "מפת נזילות" : "Leaks map"}</Button>
             </Link>
           </div>
         </div>
