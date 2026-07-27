@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { Button, Input, FieldError } from "@/components/ui";
 import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
-import { scheduleFollowUpReminder } from "@/lib/reminders";
+import { scheduleFollowUpReminder, scheduleRecheckReminder } from "@/lib/reminders";
 
 type Status =
   | "ANALYZED"
@@ -50,7 +50,7 @@ const copy: Record<string, Record<string, string>> = {
     mandateNone: "הרשאה אנושית נוצרה (מפתחות Mandate לא הוגדרו בסביבה)",
     authCode: "קוד הרשאה",
     savedTitle: "✓ חיסכון מתועד",
-    savedSub: "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם.",
+    savedSub: "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
     sentBanner: "הסוכן שלח. עכשיו: אם ענו — רשום סכום חדש. אם לא — הכן תזכורת.",
@@ -78,7 +78,7 @@ const copy: Record<string, Record<string, string>> = {
     mandateNone: "Human authorization created (Mandate keys not configured)",
     authCode: "Authorization code",
     savedTitle: "✓ Saving documented",
-    savedSub: "Agent done. Share — friends who join via you get credit, and so do you.",
+    savedSub: "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we’ll remind you to re-check if the price crept back.",
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
     sentBanner: "Agent sent. Next: if they replied — record new amount. If not — draft a reminder.",
@@ -390,6 +390,8 @@ export function CaseNextStep({
                   body: JSON.stringify({ newAmountShekels: Number(newAmt) }),
                 });
                 if (!res.ok) throw new Error("save");
+                // Persistence: promo windows expire ~6 months — schedule recheck.
+                scheduleRecheckReminder(caseId);
               })
             }
           >
