@@ -1,6 +1,6 @@
 {
   "name": "zakai",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "private": true,
   "description": "זכאי — consumer AI agent that finds inflated bills, acts with verifiable mandate, success fee only on documented savings.",
   "scripts": {
