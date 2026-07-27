@@ -28,6 +28,26 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
       { href: "/bank-fees", labelHe: "עמלות בנק — מכתב מוכן", labelEn: "Bank fees — ready letter" },
     ],
   },
+  "compensation-claims": {
+    headlineHe: "תביעות ביטוח — מה עושים עכשיו",
+    headlineEn: "Insurance claims — act now",
+    actions: [
+      { href: "/assistant", labelHe: "הסוכן: נסח דרישה לחברת הביטוח", labelEn: "Agent: draft insurer demand" },
+      { href: "/what-am-i-owed", labelHe: "מה מגיע לי?", labelEn: "What am I owed?" },
+      { href: "/lost-money", labelHe: "כסף אבוד / הר הביטוח", labelEn: "Lost money / insurance mountain" },
+      { href: "/duplicate-insurance", labelHe: "בדוק כפל ביטוחי", labelEn: "Check duplicate cover" },
+    ],
+  },
+  "insurance-compare": {
+    headlineHe: "השוואת ביטוח — מה עושים עכשיו",
+    headlineEn: "Insurance compare — act now",
+    actions: [
+      { href: "/duplicate-insurance", labelHe: "בדוק כפל ביטוחי (מיידי)", labelEn: "Check duplicate cover" },
+      { href: "/assistant", labelHe: "הסוכן: איך משווים מחדש", labelEn: "Agent: how to re-shop" },
+      { href: "/mortgage-insurance", labelHe: "ביטוח משכנתא מופקע", labelEn: "Overpriced mortgage insurance" },
+      { href: "/money", labelHe: "הכסף שלי — מה יורד", labelEn: "My money — monthly charges" },
+    ],
+  },
   "construction-defects": {
     headlineHe: "ליקויי בנייה — מה עושים עכשיו",
     headlineEn: "Construction defects — act now",
@@ -50,7 +70,7 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     actions: [
       { href: "/money", labelHe: "הכסף שלי — מה יורד כל חודש", labelEn: "My money — monthly charges" },
       { href: "/check", labelHe: "בדוק חשבון והורד מחיר", labelEn: "Check bill & lower price" },
-      { href: "/leaks", labelHe: "מפת נזילות", labelEn: "Leaks map" },
+      { href: "/cancel", labelHe: "בטל מנוי / בקש הנחה — הסוכן", labelEn: "Cancel / discount — agent" },
       { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
     ],
   },

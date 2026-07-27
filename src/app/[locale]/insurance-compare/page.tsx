@@ -3,6 +3,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
 import { LeadForm } from "@/components/LeadForm";
+import { Link } from "@/i18n/routing";
+import { Button } from "@/components/ui";
 
 export async function generateMetadata({
   params,
@@ -20,13 +22,7 @@ interface Item {
   body: string;
 }
 
-/**
- * Insurance comparison / switching — the classic high-value, honest lead-gen
- * vertical (the comparison-site model that built billion-dollar businesses).
- * People overpay because they never re-compare; Zakai captures the lead and
- * connects them to a LICENSED agent who re-shops the cover, for a referral fee.
- * We are not an insurer/agent and give no insurance advice (see disclaimer).
- */
+/** Self-serve first. Optional licensed agent — never "leave phone and wait". */
 export default async function InsuranceComparePage({
   params,
 }: {
@@ -36,18 +32,34 @@ export default async function InsuranceComparePage({
   setRequestLocale(locale);
   const t = await getTranslations("insuranceCompare");
   const types = t.raw("types") as Item[];
-  const steps = t.raw("steps") as string[];
+  const he = locale === "he" || locale === "ar";
+
+  const steps = he
+    ? [
+        "פותחים בדיקה בזכאי — בלי להשאיר טלפון ובלי לחכות לנציג שיחזור.",
+        "ממפים את הפוליסות (רכב, דירה, בריאות, חיים). רואים איפה כדאי להשוות מחדש במסך.",
+        "אם זה משתלם — ממשיכים לסוכן מורשה רק אחרי שאתה בוחר. עמלה רק על הצלחה מתועדת, אף פעם לא מראש.",
+      ]
+    : [
+        "Start in Zakai — no phone number required, no waiting for a callback.",
+        "Map your policies (car, home, health, life) and see where a re-compare is worth it on screen.",
+        "If it helps — continue to a licensed agent only after you choose. Fee only on documented success, never upfront.",
+      ];
 
   return (
     <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
       <Reveal>
         <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-          {t("kicker")}
+          {he ? "פעולה מיידית באפליקציה — בלי מוקד" : "Instant in-app action — no call center"}
         </div>
         <h1 className="font-display text-[clamp(28px,5vw,44px)] leading-[1.12] m-0 text-balance">
           {t("title")}
         </h1>
-        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
+        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">
+          {he
+            ? "רכב, דירה, בריאות, חיים — מחירים עולים כל שנה ונאמנות נענשת. בזכאי מתחילים במסך — לא בהשארת טלפון. סוכן מורשה נכנס לתמונה רק אם בחרת להמשיך."
+            : "Car, home, health, life — prices rise every year and loyalty is punished. Start on screen in Zakai — not by leaving a phone number. A licensed agent only if you choose to continue."}
+        </p>
       </Reveal>
 
       <Reveal delay={80}>
@@ -79,7 +91,7 @@ export default async function InsuranceComparePage({
       </div>
 
       <Reveal>
-        <h2 className="font-display text-2xl mt-14 mb-4">{t("howTitle")}</h2>
+        <h2 className="font-display text-2xl mt-14 mb-4">{he ? "איך זה עובד" : "How it works"}</h2>
       </Reveal>
       <ol className="flex flex-col gap-3 list-none p-0 m-0">
         {steps.map((s, i) => (
@@ -93,6 +105,17 @@ export default async function InsuranceComparePage({
           </Reveal>
         ))}
       </ol>
+
+      <Reveal>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link href="/duplicate-insurance">
+            <Button>{he ? "בדוק כפל ביטוחי עכשיו" : "Check duplicate cover now"}</Button>
+          </Link>
+          <Link href="/assistant">
+            <Button variant="ghost">{he ? "שאל את הסוכן" : "Ask the agent"}</Button>
+          </Link>
+        </div>
+      </Reveal>
 
       <Reveal>
         <div className="mt-12">

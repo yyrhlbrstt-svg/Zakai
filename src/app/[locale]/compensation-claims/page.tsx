@@ -3,6 +3,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
 import { LeadForm } from "@/components/LeadForm";
+import { Link } from "@/i18n/routing";
+import { Button } from "@/components/ui";
 
 export async function generateMetadata({
   params,
@@ -20,13 +22,7 @@ interface Item {
   body: string;
 }
 
-/**
- * Compensation / unclaimed-insurance vertical — a high-value, honest lead-gen
- * play: many people hold insurance cover (loss of working capacity, critical
- * illness, mortgage insurance…) they never claim. Zakai surfaces it, captures a
- * qualified lead, and connects them to a licensed lawyer for a referral/success
- * fee. We never impersonate the lawyer and promise no outcome (see disclaimer).
- */
+/** Self-serve first. Optional licensed partner — never "leave phone and wait". */
 export default async function CompensationClaimsPage({
   params,
 }: {
@@ -36,18 +32,34 @@ export default async function CompensationClaimsPage({
   setRequestLocale(locale);
   const t = await getTranslations("compensationClaims");
   const types = t.raw("types") as Item[];
-  const steps = t.raw("steps") as string[];
+  const he = locale === "he" || locale === "ar";
+
+  const steps = he
+    ? [
+        "פותחים בדיקה בזכאי — בלי להשאיר טלפון ובלי לחכות לנציג שיחזור.",
+        "ממפים את הכיסויים (אכ\"ע, נכות, מחלות קשות, סיעוד). רואים מה שווה לבדוק במסך.",
+        "אם זה רלוונטי — ממשיכים לעורך דין מומחה רק אחרי שאתה בוחר. עמלה רק על הצלחה מתועדת, אף פעם לא מראש.",
+      ]
+    : [
+        "Start in Zakai — no phone number required, no waiting for a callback.",
+        "Map your cover (loss of capacity, disability, critical illness, care) and see what is worth checking on screen.",
+        "If relevant — continue to a specialist lawyer only after you choose. Fee only on documented success, never upfront.",
+      ];
 
   return (
     <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
       <Reveal>
         <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-          {t("kicker")}
+          {he ? "פעולה מיידית באפליקציה — בלי מוקד" : "Instant in-app action — no call center"}
         </div>
         <h1 className="font-display text-[clamp(28px,5vw,44px)] leading-[1.12] m-0 text-balance">
           {t("title")}
         </h1>
-        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
+        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">
+          {he
+            ? "אובדן כושר, נכות, מחלות קשות, סיעוד וביטוח משכנתא — הרבה כיסויים שאנשים לא תובעים. בזכאי מתחילים במסך — לא בהשארת טלפון. עורך דין נכנס לתמונה רק אם בחרת להמשיך."
+            : "Loss of capacity, disability, critical illness, care and mortgage insurance — cover people often never claim. Start on screen in Zakai — not by leaving a phone number. A lawyer only if you choose to continue."}
+        </p>
       </Reveal>
 
       <Reveal delay={80}>
@@ -79,7 +91,7 @@ export default async function CompensationClaimsPage({
       </div>
 
       <Reveal>
-        <h2 className="font-display text-2xl mt-14 mb-4">{t("howTitle")}</h2>
+        <h2 className="font-display text-2xl mt-14 mb-4">{he ? "איך זה עובד" : "How it works"}</h2>
       </Reveal>
       <ol className="flex flex-col gap-3 list-none p-0 m-0">
         {steps.map((s, i) => (
@@ -93,6 +105,17 @@ export default async function CompensationClaimsPage({
           </Reveal>
         ))}
       </ol>
+
+      <Reveal>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link href="/assistant">
+            <Button>{he ? "שאל את הסוכן" : "Ask the agent"}</Button>
+          </Link>
+          <Link href="/what-am-i-owed">
+            <Button variant="ghost">{he ? "מה מגיע לי?" : "What am I owed?"}</Button>
+          </Link>
+        </div>
+      </Reveal>
 
       <Reveal>
         <div className="mt-12">
