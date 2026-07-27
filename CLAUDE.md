@@ -1,84 +1,136 @@
-# Zakai — Agent Coordination
+# Zakai — Agent Coordination (Claude Code / any coding agent)
 
-This file is the source of truth for any coding agent (Claude, Grok, Copilot) working on this repository. Read it before changing architecture, money logic, or Mandate code.
+This file is the **only** architectural source of truth for autonomous development.
+Read it before every non-trivial change.
 
 ## Product thesis
 
-Zakai finds money a person is already owed (unclaimed benefits, overcharges, rights) and finishes the claim in-app. The long-term asset is not the UI — it is:
+Zakai recovers money people are already losing or owed, and finishes the path **in-app** without a human callback team.
 
-1. **Mandate infrastructure** — signed, scoped, audience-bound authority institutions verify offline via JWKS.
-2. **Outcome graph** — anonymised StrategyOutcome rows that improve the next claim (network effect).
-3. **Country packs** — jurisdiction as data, not hard-coded Israeli closures.
+Long-term assets (in priority order):
 
-A feature that does not strengthen one of these three is usually the wrong feature.
+1. **Mandate infrastructure** — scoped, signed, JWKS-verifiable authority (inbound-only).
+2. **Outcome graph** — de-identified `StrategyOutcome` rows that improve the next claim.
+3. **Country packs** — jurisdiction as data (`src/lib/global`), not `if (country === "IL")` soup.
+4. **Closed consumer loop** — detect → act → prove → fee → share.
 
-## Stack
-
-- Next.js App Router, TypeScript, Tailwind, next-intl (he / en / ar / ru)
-- Prisma + Neon Postgres
-- Money: **integer agorot / minor units only** (never float)
-- Mandate: Ed25519 JWS (`src/lib/mandate/`), public JWKS at `/.well-known/zakai-jwks.json`
+A PR that does not strengthen at least one of these is usually the wrong PR.
 
 ## Non-negotiables
 
-1. **Never fabricate amounts, eligibility, or legal claims.** Prefer "varies" / unknown over a made-up number.
-2. **No outward money movement scopes** on Mandates (`FORBIDDEN_SCOPES` in `scopes.ts`).
-3. **StrategyOutcome must stay de-identified** — no FK to User or Case.
-4. **Password reset and auth errors** must never leak whether an email exists beyond what the existing flow already does.
-5. **Mandate keys** come only from env (`MANDATE_SIGNING_JWK`, `MANDATE_SIGNING_KID`). Never generate ephemeral signing keys in production paths.
-6. **i18n**: user-facing strings go through next-intl message files; incomplete locales deep-merge from Hebrew.
+1. Never fabricate amounts, eligibility, or legal claims.
+2. Money in **integer agorot / minor units** only — never float for fees.
+3. No outward money-movement Mandate scopes (`FORBIDDEN_SCOPES`).
+4. `StrategyOutcome` must stay de-identified (no User/Case FK).
+5. LLM **proposes**; product code **executes** after explicit user action.
+6. Never promise "we will call you back" in UI or agent copy.
+7. Mandate signing keys only from env — never ephemeral prod keys.
+8. User-facing strings via next-intl; he.json first.
 
-## Layout map
+## Stack
+
+- Next.js 15 App Router, React 19, TypeScript, Tailwind, next-intl (he/en/ar/ru)
+- Prisma 6 + Neon Postgres (`NEON_DATABASE_URL`, `NEON_DATABASE_URL_UNPOOLED`)
+- AI: Anthropic primary; DeepSeek/OpenAI-compat; Gemini; optional Ollama (`src/lib/ai.ts`)
+- Mandate: Ed25519 JWS + JWKS at `/.well-known/zakai-jwks.json`
+- Hosting: Vercel project `zakai-3uxj`
+
+## Repository map
 
 | Path | Role |
 |------|------|
-| `src/lib/mandate/` | Issue / verify / scopes / JWKS helpers |
-| `src/lib/global/` | Country packs + registry (IL, GB, US) |
-| `src/lib/rights*.ts` | IL rights catalog + actions |
-| `src/app/.well-known/zakai-jwks.json/` | Public verification keys |
-| `src/app/api/mandate/status/` | Revocation / recency for institutions |
-| `src/app/api/mandate/issue/` | Issue signed Mandate JWS |
-| `src/messages/{he,en,ar,ru}.json` | UI catalogs |
-| `prisma/schema.prisma` | Source of truth for persistence |
+| `prisma/schema.prisma` | Persistence truth |
+| `src/lib/ai.ts` | OCR, recommendation, assistant |
+| `src/lib/agentPlaybook.ts` | Solo-ops doctrine injected into assistant |
+| `src/lib/negotiation.ts` | Multi-round written follow-ups |
+| `src/lib/priority.ts` | Next-best-action ranking |
+| `src/lib/mandate/` | Issue / verify / scopes |
+| `src/lib/global/` | Market packs |
+| `src/components/LeadForm.tsx` | Self-serve actions (not callback form) |
+| `src/components/CaseNextStep.tsx` | Status-driven dashboard actions |
+| `src/app/[locale]/money` | Money hub |
+| `src/app/[locale]/leaks` | Leaks map |
+| `src/app/[locale]/cancel` | Subscription cancel letters |
+| `src/app/api/**` | All mutations |
+| `docs/ARCHITECTURE.md` | Full system design |
+| `docs/INFRASTRUCTURE_DOCTRINE.md` | Product laws |
+| `docs/AGENT_NEGOTIATION.md` | Negotiation agent behavior |
 
-## How to extend
+## Coding conventions
 
-- **New country**: add `src/lib/global/packs/xx.ts`, register in `registry.ts`. Do not fork the eligibility engine.
-- **New right (IL)**: data in the rights catalog + action in rightsActions — no dead "Zakai will handle it" buttons.
-- **New Mandate scope**: add to the closed set in `scopes.ts` with tests; never accept free-text scopes.
-- **New UI strings**: add keys to he.json first, then en/ar/ru; missing keys fall back via deepMerge.
+- TypeScript strict; prefer `zod` at API boundaries.
+- Server-only secrets: `import "server-only"` where applicable.
+- Client components only when interactivity requires it.
+- No `any` for money or auth paths.
+- Tests: Vitest for pure functions (negotiation, priority, mandate scopes).
+- Commits: focused; one concern per commit when possible.
 
-## Env — Mandate
+## How to extend (checklist)
+
+### New self-serve vertical page
+1. Page under `src/app/[locale]/…`
+2. Link from `priority.ts` and/or Header TOOLS
+3. Hebrew + English copy (inline or messages)
+4. Path to action (letter / check / external official tool) — never empty CTA
+
+### New negotiation reply kind
+1. Add to `ProviderReplyKind` + `REPLY_KIND_OPTIONS`
+2. Full body template in `buildFollowUp`
+3. Update UI that lists kinds
+
+### New Mandate scope
+1. Closed set in `scopes.ts` + tests
+2. Never free-text scopes from client
+
+### New market
+1. `src/lib/global/packs/xx.ts`
+2. Register in registry
+3. One e2e path: profile → match → letter/tool
+
+## Env checklist (production)
 
 ```
+NEON_DATABASE_URL=
+NEON_DATABASE_URL_UNPOOLED=
+ANTHROPIC_API_KEY=          # or DEEPSEEK_API_KEY / GEMINI_API_KEY
 MANDATE_SIGNING_KID=zakai-2026-1
 MANDATE_SIGNING_JWK=<Ed25519 private JWK JSON>
-MANDATE_ISSUE_KEY=<secret for POST /api/mandate/issue>
-MANDATE_REVOKE_KEY=<secret for POST /api/mandate/status/[jti]>
+MANDATE_ISSUE_KEY=
+MANDATE_REVOKE_KEY=
 MANDATE_ISSUER=https://zakai-3uxj.vercel.app
 ```
 
-JWKS must serve only the public half. Private `d` never leaves the server.
+## Deploy protocol (critical)
 
-## DB
+1. Push to `main`.
+2. Vercel must build the **new** commit. If UI shows **Ready Stale**, production is lagging — Redeploy latest `main`.
+3. Verify: `/he/leaks`, `/he/cancel`, `/he/start` (self-serve, not phone callback form), `/.well-known/zakai-jwks.json`.
+4. Never tell the founder "it's live" without those checks.
 
-Apply `prisma/migrations/20260727_mandate_revocation/migration.sql` on Neon if migrate is not run in CI.
+## Definition of done — case loop
 
-## Institutional trust checklist
+- [ ] ANALYZED shows recommendation
+- [ ] APPROVED stores consent timestamp
+- [ ] VERIFIED has ownership + Authorization code
+- [ ] SENT creates Outbox row
+- [ ] Follow-up generator works without staff
+- [ ] SAVED creates SavingsProof + Fee
+- [ ] Share path available after SAVED
 
-- [x] JWKS live and cacheable
-- [x] Status endpoint returns active/revoked by `jti`
-- [x] Issue API returns JWS + jti + status path
-- [x] Markets: IL, GB, US (data packs)
-- [x] UI locales active: he, en, ar, ru (partial ar/ru, deep-merge fallback)
-- [ ] Product UI wires issue Mandate into case APPROVED flow
-- [ ] Session-auth on issue/revoke (replace shared secrets)
-- [ ] Full ar/ru message catalogs
-- [ ] ES/FR/DE packs when demand signal justifies
+## Anti-patterns (reject)
 
-## Definition of done for a new market
+- Callback lead forms as primary CTA
+- Floating-point fee math
+- Agent that claims it already filed with a government body when it only drafted text
+- Fake traction metrics in UI
+- Rewriting the whole app when a module fix suffices
 
-1. Pack file with cited rights and letter templates in `docLocale`
-2. Registered in `MARKETS`
-3. At least one e2e path: profile → matches → letter or tool
-4. No `if (market === "XX")` branches outside the pack/registry
+## Autonomous agent workflow
+
+When asked to "build everything":
+
+1. Read this file + `docs/ARCHITECTURE.md`.
+2. Inspect existing modules; extend, don't duplicate.
+3. Ship vertical slices (one closed path) over sprawling unfinished pages.
+4. Keep production deployable after every merge.
+5. Prefer deterministic playbooks (`negotiation.ts`) alongside LLM drafts.
