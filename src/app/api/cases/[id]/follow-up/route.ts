@@ -8,8 +8,18 @@ import { agorotToShekels } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
 
 const schema = z.object({
-  replyKind: z.enum(["refused", "too_low", "delay", "asked_call", "accepted", "other"]),
+  replyKind: z.enum([
+    "refused",
+    "too_low",
+    "delay",
+    "asked_call",
+    "accepted",
+    "competitor",
+    "other",
+  ]),
   round: z.number().int().min(2).max(8).optional(),
+  competitorName: z.string().max(80).optional(),
+  competitorPriceShekels: z.number().min(0).max(100000).optional(),
 });
 
 /**
@@ -42,10 +52,11 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     providerLabel: providerHebrewName(kase.provider),
     amountOriginalShekels: agorotToShekels(kase.amountOriginal),
     targetShekels: agorotToShekels(kase.targetAmount),
-    // Prisma field is planDescription (not plan).
     plan: kase.planDescription || undefined,
     replyKind: parsed.data.replyKind as ProviderReplyKind,
     round: parsed.data.round,
+    competitorName: parsed.data.competitorName,
+    competitorPriceShekels: parsed.data.competitorPriceShekels,
   });
 
   return NextResponse.json(result);
