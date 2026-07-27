@@ -7,8 +7,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.3.0",
-    buildMarker: "category-leader-markets-2026-07-28",
+    version: "0.3.1",
+    buildMarker: "agent-auto-approve-money-os-2026-07-28",
     positioning: "standard consumer money agent",
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
@@ -16,6 +16,7 @@ export async function GET() {
       moneyOs: true,
       fromScanCase: true,
       scanOneClick: true,
+      agentAutoApprove: true,
       sentCronNudge: true,
       cancelPrefill: true,
       mandate: true,
