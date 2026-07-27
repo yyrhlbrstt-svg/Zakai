@@ -11,7 +11,8 @@ import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 
-export const revalidate = 3600;
+/** No long ISR — after each Vercel deploy the home page must reflect the latest build. */
+export const dynamic = "force-dynamic";
 
 async function loadProof() {
   try {
@@ -53,8 +54,37 @@ export default async function HomePage({
   const moneyLabel =
     locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
 
+  const he = locale === "he";
+
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
+      {/* Deploy verification strip — if you see this, production is on the new build */}
+      <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
+        {he
+          ? "בלי מוקד · בלי לחכות לטלפון · פעולה מיידית באפליקציה · גרסה 0.2.1"
+          : "No call center · Instant in-app action · Build 0.2.1"}
+        <div className="flex flex-wrap gap-2 mt-2.5">
+          <Link
+            href="/leaks"
+            className="rounded-lg bg-[rgba(63,203,155,0.25)] px-3 py-1.5 text-[12.5px] text-emerald no-underline font-extrabold"
+          >
+            {he ? "מפת נזילות" : "Leaks map"}
+          </Link>
+          <Link
+            href="/cancel"
+            className="rounded-lg bg-[rgba(62,198,255,0.2)] px-3 py-1.5 text-[12.5px] text-[#3ec6ff] no-underline font-extrabold"
+          >
+            {he ? "ביטול מנוי" : "Cancel sub"}
+          </Link>
+          <Link
+            href="/money"
+            className="rounded-lg bg-[rgba(139,92,246,0.2)] px-3 py-1.5 text-[12.5px] text-[#c4b5fd] no-underline font-extrabold"
+          >
+            {moneyLabel}
+          </Link>
+        </div>
+      </div>
+
       {!israeliVisitor && (
         <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
           <Globe size={18} className="shrink-0 text-[#3ec6ff]" aria-hidden />
@@ -86,8 +116,8 @@ export default async function HomePage({
               <Link href="/money">
                 <Button>{moneyLabel}</Button>
               </Link>
-              <Link href="/what-am-i-owed">
-                <Button variant="ghost">{t("nav.whatAmIOwed")}</Button>
+              <Link href="/leaks">
+                <Button variant="ghost">{he ? "מפת נזילות" : "Leaks"}</Button>
               </Link>
               <Link href="/check">
                 <Button variant="ghost">{t("home.cta")}</Button>
