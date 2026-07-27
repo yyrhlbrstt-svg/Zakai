@@ -49,6 +49,11 @@ const copy: Record<string, Record<string, string>> = {
     mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
     mandateNone: "הרשאה אנושית נוצרה (מפתחות Mandate לא הוגדרו בסביבה)",
     authCode: "קוד הרשאה",
+    savedTitle: "✓ חיסכון מתועד",
+    savedSub: "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם.",
+    copyLink: "העתק קישור הפניה",
+    linkCopied: "הקישור הועתק",
+    sentBanner: "הסוכן שלח. עכשיו: אם ענו — רשום סכום חדש. אם לא — הכן תזכורת.",
   },
   en: {
     approve: "Approve & continue",
@@ -72,6 +77,11 @@ const copy: Record<string, Record<string, string>> = {
     mandateOk: "Mandate issued — provider can verify via JWKS",
     mandateNone: "Human authorization created (Mandate keys not configured)",
     authCode: "Authorization code",
+    savedTitle: "✓ Saving documented",
+    savedSub: "Agent done. Share — friends who join via you get credit, and so do you.",
+    copyLink: "Copy referral link",
+    linkCopied: "Link copied",
+    sentBanner: "Agent sent. Next: if they replied — record new amount. If not — draft a reminder.",
   },
 };
 
@@ -105,6 +115,7 @@ export function CaseNextStep({
   const [followBody, setFollowBody] = useState<string | null>(null);
   const [followTip, setFollowTip] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   async function run(fn: () => Promise<void>) {
     setErr(null);
@@ -127,26 +138,45 @@ export function CaseNextStep({
       (he
         ? "חסכתי כסף עם זכאי — בלי מוקד ובלי לחכות לאף אחד."
         : "I saved money with Zakai — no call center.");
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://zakai.app";
+    const shareUrl = referralCode
+      ? `${origin}/signup?ref=${encodeURIComponent(referralCode)}`
+      : `${origin}/`;
+
     return (
-      <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] p-3">
-        <div className="text-[12.5px] font-bold mb-2">{t(locale, "shareTitle")}</div>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
-          onClick={() => {
-            const origin = window.location.origin;
-            const shareUrl = referralCode
-              ? `${origin}/signup?ref=${encodeURIComponent(referralCode)}`
-              : `${origin}/`;
-            window.open(
-              `https://wa.me/?text=${encodeURIComponent(`${msg}\n${shareUrl}`)}`,
-              "_blank",
-              "noopener,noreferrer",
-            );
-          }}
-        >
-          {t(locale, "whatsapp")}
-        </button>
+      <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] p-4">
+        <div className="text-[15px] font-extrabold text-emerald">{t(locale, "savedTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
+            onClick={() => {
+              window.open(
+                `https://wa.me/?text=${encodeURIComponent(`${msg}\n${shareUrl}`)}`,
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
+          >
+            {t(locale, "whatsapp")}
+          </button>
+          <Button
+            variant="ghost"
+            className="!text-[13px] !py-2"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(shareUrl);
+                setLinkCopied(true);
+                setTimeout(() => setLinkCopied(false), 2000);
+              } catch {
+                /* ignore */
+              }
+            }}
+          >
+            {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
+          </Button>
+        </div>
       </div>
     );
   }
@@ -280,7 +310,9 @@ export function CaseNextStep({
   if (status === "SENT") {
     return (
       <div className="w-full mt-2 flex flex-col gap-3">
-        <div className="text-[11px] text-ink-soft">{t(locale, "nextHint")}</div>
+        <div className="rounded-xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-3 py-2.5 text-[12.5px] font-bold">
+          {t(locale, "sentBanner")}
+        </div>
 
         <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>
