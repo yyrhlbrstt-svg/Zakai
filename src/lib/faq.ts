@@ -1,19 +1,8 @@
 /**
- * The canonical FAQ knowledge base — a single, curated, vetted source of truth
- * for the questions Zakai users actually ask. It powers TWO things:
- *
- *   1. The public /faq page (browsable "שאלות נפוצות").
- *   2. The in-app assistant, which is told to align with these vetted answers
- *      (see faqDigest() → wired into ASSISTANT_SYSTEM in ai.ts).
- *
- * This is the honest "the agent keeps improving" mechanism: instead of letting
- * the model learn freely from chats (which drifts and is unsafe for a money
- * app), we grow THIS list from real questions with correct answers, and both
- * the FAQ and the assistant get smarter — controlled, consistent, never wrong.
- *
- * Every answer that states a right or a number names the authoritative Israeli
- * source, matching the assistant's sourcing rule.
+ * Canonical FAQ knowledge base — public /faq + assistant alignment.
  */
+import { agentPlaybookBlock } from "./agentPlaybook";
+
 export type FaqCategory = "service" | "rights" | "work" | "bills" | "privacy";
 
 export interface FaqEntry {
@@ -46,9 +35,17 @@ export const FAQ: FaqEntry[] = [
     id: "how",
     category: "service",
     q_he: "איך זכאי עובד בעצם?",
-    a_he: "מעלים חשבונית או ממלאים פרטים, זכאי מנתח ומזהה כמה אפשר לחסוך או מה מגיע לך, ומכין את הפנייה/המכתב. אתה מאשר, ורק אז פועלים. כל שקל שנחסך מתועד בהוכחה.",
+    a_he: "מעלים חשבונית או ממלאים פרטים, זכאי מנתח ומזהה כמה אפשר לחסוך או מה מגיע לך, ומכין את הפנייה/המכתב. אתה מאשר, ורק אז פועלים. כל שקל שנחסך מתועד בהוכחה. אין צוות שמתקשר חזרה — הפעולה בתוך האפליקציה.",
     q_en: "How does Zakai actually work?",
-    a_en: "You upload a bill or enter details, Zakai analyzes how much you can save or what you're owed and drafts the request/letter. You approve, and only then do we act. Every shekel saved is documented with proof.",
+    a_en: "You upload a bill or enter details, Zakai analyzes how much you can save or what you're owed and drafts the request/letter. You approve, and only then do we act. Every shekel saved is documented with proof. There is no call-back team — action is in-app.",
+  },
+  {
+    id: "callback",
+    category: "service",
+    q_he: "מישהו יחזור אליי בטלפון?",
+    a_he: "לא. אין מוקד טלפוני. זכאי נותן כלים, מכתבים ומשא ומתן בתוך האפליקציה — מיידי, בלי להמתין.",
+    q_en: "Will someone call me back?",
+    a_en: "No. There is no call center. Zakai gives tools, letters and negotiation inside the app — immediately, without waiting.",
   },
   {
     id: "lawyer",
@@ -62,115 +59,109 @@ export const FAQ: FaqEntry[] = [
     id: "trust",
     category: "service",
     q_he: "איך אני יודע שהחיסכון אמיתי ולא מנופח?",
-    a_he: "כל חיסכון נמדד מ'לפני' ל'אחרי' על סמך חשבוניות, ונשמר ביומן שרק מוסיפים אליו ולא מוחקים. יש לך 14 יום לערער על כל חיוב. אפשר לראות את המנגנון בעמוד התוצאות.",
+    a_he: "כל חיסכון נמדד מ'לפני' ל'אחרי' על סמך חשבוניות, ונשמר ביומן שרק מוסיפים אליו ולא מוחקים. יש לך 14 יום לערער על כל חיוב.",
     q_en: "How do I know the saving is real and not inflated?",
-    a_en: "Every saving is measured before→after from real bills and stored in an append-only ledger. You have 14 days to dispute any charge. You can see the mechanism on the results page.",
+    a_en: "Every saving is measured before→after from real bills and stored in an append-only ledger. You have 14 days to dispute any charge.",
   },
   {
     id: "family",
     category: "service",
     q_he: "אפשר לבדוק גם חשבונות של ההורים?",
-    a_he: "כן. בזמן הבדיקה כתוב למי היא (למשל 'אמא'), והבדיקות יופיעו מקובצות בלוח שלך. חשבון אחד יכול לנהל את כל המשפחה. עדיף באישור בעל החשבון.",
+    a_he: "כן. בזמן הבדיקה כתוב למי היא (למשל 'אמא'), והבדיקות יופיעו מקובצות בלוח שלך. עדיף באישור בעל החשבון.",
     q_en: "Can I check my parents' bills too?",
-    a_en: "Yes. When you run a check, label who it's for (e.g. 'Mom') and it groups on your dashboard. One account can handle the whole family. Best done with the account holder's consent.",
+    a_en: "Yes. When you run a check, label who it's for (e.g. 'Mom') and it groups on your dashboard. Best done with the account holder's consent.",
   },
   {
     id: "taxrefund",
     category: "rights",
     q_he: "מגיע לי החזר מס?",
-    a_he: "לרוב כן אם עבדת רק חלק מהשנה, החלפת עבודות, או היו לך נקודות זיכוי לא מנוצלות. אפשר להגיש עד 6 שנים אחורה. בדוק במחשבון /taxrefund, ואמת ברשות המסים (gov.il).",
+    a_he: "לרוב כן אם עבדת רק חלק מהשנה, החלפת עבודות, או היו לך נקודות זיכוי לא מנוצלות. אפשר להגיש עד 6 שנים אחורה. בדוק במחשבון /taxrefund.",
     q_en: "Am I owed a tax refund?",
-    a_en: "Often yes if you worked only part of the year, switched jobs, or had unused credit points. You can file up to 6 years back. Check /taxrefund and verify with the Tax Authority (gov.il).",
+    a_en: "Often yes if you worked only part of the year, switched jobs, or had unused credit points. You can file up to 6 years back. Check /taxrefund.",
   },
   {
     id: "entitlements",
     category: "rights",
     q_he: "איך אני יודע מה מגיע לי בכלל?",
-    a_he: "ענה על שאלון 'מה מגיע לי' (/entitlements) — לפי המצב שלך זכאי מציג זכויות רלוונטיות מתוך 55 (מס, ביטוח לאומי, ארנונה, משפחה, עולים, חיילים). לאימות: כל-זכות (kolzchut.org.il).",
+    a_he: "ענה על שאלון 'מה מגיע לי' (/entitlements) או מפת נזילות (/leaks).",
     q_en: "How do I even know what I'm owed?",
-    a_en: "Take the 'What am I owed' quiz (/entitlements) — based on your situation Zakai shows relevant rights out of 55 (tax, national insurance, arnona, family, olim, soldiers). Verify at Kol-Zchut (kolzchut.org.il).",
+    a_en: "Take the 'What am I owed' quiz (/entitlements) or open the leaks map (/leaks).",
   },
   {
     id: "flight",
     category: "rights",
     q_he: "הטיסה שלי התעכבה או בוטלה — מגיע לי פיצוי?",
-    a_he: "ייתכן. חוק שירותי תעופה בישראל וגם EC261 האירופי מזכים בפיצוי של עד מאות אירו על עיכוב/ביטול משמעותי. בדוק ב-/flights לפי פרטי הטיסה.",
+    a_he: "ייתכן. חוק שירותי תעופה בישראל וגם EC261. בדוק ב-/flights.",
     q_en: "My flight was delayed or cancelled — am I owed compensation?",
-    a_en: "Possibly. Israel's Aviation Services Law and the EU's EC261 grant up to hundreds of euros for significant delays/cancellations. Check /flights with your flight details.",
+    a_en: "Possibly. Israel's Aviation Services Law and EU EC261. Check /flights.",
   },
   {
     id: "payslip",
     category: "work",
     q_he: "איך אני יודע שהתלוש שלי תקין?",
-    a_he: "שלושת הסעיפים שהכי מפספסים: שכר מינימום (₪6,443.85 לחודש ב-2026), פנסיה (מעסיק 12.5%, עובד 6%) והבראה (₪451.5 ליום בסקטור הפרטי). בדוק ב-/payslip; מקור: משרד העבודה / כל-זכות.",
+    a_he: "שכר מינימום, פנסיה והבראה — בדוק ב-/payslip.",
     q_en: "How do I know my payslip is correct?",
-    a_en: "The three most-missed items: minimum wage (₪6,443.85/month in 2026), pension (employer 12.5%, employee 6%), and convalescence pay (₪451.5/day, private sector). Check /payslip; source: Ministry of Labor / Kol-Zchut.",
+    a_en: "Minimum wage, pension, convalescence — check /payslip.",
   },
   {
     id: "severance",
     category: "work",
     q_he: "מגיעים לי פיצויי פיטורים?",
-    a_he: "בדרך כלל כן אחרי שנת עבודה — כחודש שכר אחרון לכל שנה. גם בהתפטרות בנסיבות מסוימות. חשב ב-/severance; מקור: משרד העבודה / כל-זכות.",
+    a_he: "בדרך כלל כן אחרי שנת עבודה — חשב ב-/severance.",
     q_en: "Am I owed severance pay?",
-    a_en: "Usually yes after a year of work — about one month's last salary per year. Sometimes on resignation in specific circumstances too. Calculate at /severance; source: Ministry of Labor / Kol-Zchut.",
+    a_en: "Usually after a year of work — calculate at /severance.",
   },
   {
     id: "miluim",
     category: "work",
     q_he: "שירתתי במילואים — קיבלתי את כל התגמול?",
-    a_he: "הרבה חישובים מפספסים את תוספת ה-20% שכמעט אף אחד לא מכיר. בדוק כמה מגיע ב-/miluim; מקור: הביטוח הלאומי (btl.gov.il).",
+    a_he: "רבים מפספסים תוספת 20%. בדוק ב-/miluim.",
     q_en: "I served in the reserves — did I get the full pay?",
-    a_en: "Many calculations miss the 20% supplement almost nobody knows about. Check what you're owed at /miluim; source: National Insurance (btl.gov.il).",
+    a_en: "Many miss the 20% supplement. Check /miluim.",
   },
   {
     id: "bill",
     category: "bills",
     q_he: "איך זכאי מוזיל לי את חשבון הסלולר/אינטרנט?",
-    a_he: "זכאי בודק מול השימוש שלך ומכין פנייה מנומקת לספק (מסלול שימור/הורדת מסלול). אתה מאשר לפני שנשלח. אין הבטחה לתוצאה — אבל אצל רוב האנשים יש מרווח להוזלה.",
+    a_he: "בודק ומכין פנייה מנומקת; אתה מאשר. לולאת משא ומתן בדשבורד אחרי שליחה.",
     q_en: "How does Zakai lower my mobile/internet bill?",
-    a_en: "Zakai checks against your usage and drafts a reasoned request to the provider (retention/downgrade). You approve before anything is sent. No outcome is promised — but most people have room to save.",
+    a_en: "Analyzes and drafts a reasoned request; you approve. Negotiation loop on the dashboard after send.",
   },
   {
     id: "subs",
     category: "bills",
     q_he: "יש לי מנויים ששכחתי מהם?",
-    a_he: "סביר. סריקת דף חשבון (/scan) מזהה חיובים חוזרים, כפולים או נשכחים שאפשר לבטל. הרבה משפחות מגלות מאות שקלים בשנה על מנויים לא בשימוש.",
+    a_he: "סריקה ב-/scan או /money, וביטול מיידי ב-/cancel.",
     q_en: "Do I have subscriptions I forgot about?",
-    a_en: "Likely. A statement scan (/scan) finds recurring, duplicate or forgotten charges you can cancel. Many families discover hundreds of shekels a year on unused subscriptions.",
+    a_en: "Scan at /scan or /money, cancel at /cancel.",
   },
   {
     id: "parking",
     category: "bills",
     q_he: "קיבלתי דוח חניה או קנס באוטובוס — אפשר לערער?",
-    a_he: "כן. זכאי מכין לך מכתב ערעור מנוסח שאתה שולח בעצמך בשמך (/parking או /transport-fine). זה כלי עזר-עצמי — ההחלטה והשליחה שלך.",
+    a_he: "כן. מכתב ערעור ב-/parking או /transport-fine.",
     q_en: "I got a parking ticket or a bus fine — can I appeal?",
-    a_en: "Yes. Zakai drafts an appeal letter you send yourself, in your own name (/parking or /transport-fine). It's a self-help tool — the decision and the sending are yours.",
+    a_en: "Yes. Appeal letter at /parking or /transport-fine.",
   },
   {
     id: "data",
     category: "privacy",
     q_he: "מה קורה עם המידע שלי? זה בטוח?",
-    a_he: "אפס טראקרים, תעבורה מוצפנת, וסריקות שרצות בדפדפן במידת האפשר. אתה יכול למחוק את החשבון וכל הנתונים בקליק. אנחנו שומרים רק מה שנחוץ לבדיקה.",
+    a_he: "אפס טראקרים, תעבורה מוצפנת, סריקות בדפדפן כשאפשר, מחיקת חשבון בקליק.",
     q_en: "What happens to my data? Is it safe?",
-    a_en: "Zero trackers, encrypted traffic, and scans that run in your browser where possible. You can delete your account and all data in one click. We keep only what a check needs.",
+    a_en: "Zero trackers, encrypted traffic, browser-side scans where possible, one-click account deletion.",
   },
   {
     id: "poa",
     category: "privacy",
     q_he: "אני נותן לזכאי ייפוי כוח? מה זה אומר?",
-    a_he: "רק כשאתה מאשר בדיקה מסוימת, נוצר מסמך הרשאה עם קוד שהספק יכול לאמת בדף ציבורי. ההרשאה מוגבלת לאותה פנייה, ואתה יכול לבטל אותה בכל רגע.",
+    a_he: "רק כשאתה מאשר בדיקה מסוימת — מסמך הרשאה עם קוד לאימות, מוגבל, וניתן לביטול.",
     q_en: "Am I giving Zakai power of attorney? What does that mean?",
-    a_en: "Only when you approve a specific check, an authorization document is created with a code the provider can verify on a public page. It's limited to that request, and you can revoke it anytime.",
+    a_en: "Only when you approve a specific check — an authorization document with a verifiable code, limited, and revocable.",
   },
 ];
 
-/**
- * A compact, vetted Q&A digest for the assistant's system prompt. Keeps the
- * agent's answers to common questions consistent with the public FAQ — the
- * controlled "keeps improving" loop. Hebrew (the assistant answers in the
- * user's language regardless, but the canonical phrasing is Hebrew).
- */
 export function faqDigest(): string {
   const lines = FAQ.map((e) => `- Q: ${e.q_he}\n  A: ${e.a_he}`).join("\n");
-  return `VETTED FAQ (align your answers to these curated, correct answers for common questions — they are the source of truth; if a user's question matches one, answer consistently with it):\n${lines}`;
+  return `VETTED FAQ (align answers to these):\n${lines}\n\n${agentPlaybookBlock()}`;
 }

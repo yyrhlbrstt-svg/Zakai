@@ -11,11 +11,16 @@ import { Menu, X, ChevronDown } from "lucide-react";
 
 const TOOLS = [
   { href: "/money", key: "money" },
+  { href: "/leaks", key: "leaks" },
+  { href: "/cancel", key: "cancel" },
+  { href: "/credit-card", key: "creditcard" },
+  { href: "/refund-chase", key: "refundchase" },
   { href: "/score", key: "score" },
   { href: "/what-am-i-owed", key: "whatAmIOwed" },
   { href: "/scan", key: "scan" },
-  { href: "/vat", key: "vat" },
   { href: "/spending", key: "spending" },
+  { href: "/check", key: "newCheck" },
+  { href: "/vat", key: "vat" },
   { href: "/insurance-compare", key: "insurancecompare" },
   { href: "/debt-consolidation", key: "debt" },
   { href: "/lost-money", key: "lostmoney" },
@@ -51,21 +56,27 @@ const TOOLS = [
   { href: "/flights", key: "flights" },
 ] as const;
 
+const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
+  money: { he: "הכסף שלי", en: "My money" },
+  leaks: { he: "מפת נזילות", en: "Leaks map" },
+  cancel: { he: "ביטול מנוי", en: "Cancel sub" },
+  creditcard: { he: "ריבית כרטיס", en: "Card interest" },
+  refundchase: { he: "החזר שלא הגיע", en: "Missing refund" },
+};
+
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {
   const t = useTranslations();
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const he = locale === "he" || locale === "ar";
 
   useEffect(() => setMobileOpen(false), [pathname]);
 
   function switchLocale(next: Locale) {
     router.replace(pathname, { locale: next });
   }
-
-  const moneyLabel =
-    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
 
   const langButtons = (
     <div className="flex gap-1">
@@ -99,7 +110,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   );
 
   function toolLabel(href: string, key: string) {
-    if (href === "/money") return moneyLabel;
+    const extra = EXTRA_LABELS[key];
+    if (extra) return he ? extra.he : extra.en;
     try {
       return t(`nav.${key}`);
     } catch {
@@ -116,7 +128,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
 
         <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
           <NavLink href="/">{t("nav.home")}</NavLink>
-          <NavLink href="/money">{moneyLabel}</NavLink>
+          <NavLink href="/money">{he ? "הכסף שלי" : "My money"}</NavLink>
+          <NavLink href="/leaks">{he ? "נזילות" : "Leaks"}</NavLink>
           {user ? (
             <>
               <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
@@ -157,7 +170,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
       {mobileOpen && (
         <div className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
           <MobileLink href="/">{t("nav.home")}</MobileLink>
-          <MobileLink href="/money">{moneyLabel}</MobileLink>
+          <MobileLink href="/money">{he ? "הכסף שלי" : "My money"}</MobileLink>
+          <MobileLink href="/leaks">{he ? "מפת נזילות" : "Leaks map"}</MobileLink>
           {user && (
             <>
               <MobileLink href="/assistant">{t("nav.assistant")}</MobileLink>
