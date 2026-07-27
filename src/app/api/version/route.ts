@@ -7,8 +7,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.3.5",
-    buildMarker: "proofs-wall-household-2026-07-28",
+    version: "0.3.6",
+    buildMarker: "airline-case-agent-2026-07-28",
     positioning: "standard consumer money agent",
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
@@ -28,6 +28,7 @@ export async function GET() {
       yearWrapped: true,
       publicProofWall: true,
       householdMode: true,
+      airlineCase: true,
       viralAfterSaved: true,
       leaksDemandEngine: true,
       globalMarketsStrip: true,

@@ -65,5 +65,31 @@ export const subscriptionIL: VerticalRulePack = {
   counterparties: ["netflix", "spotify", "other"],
 };
 
+/**
+ * Airline disruption compensation (IL Aviation Services Law + EU261).
+ * Assisted: agent drafts demand + issues Mandate + tracks. Fee only when a
+ * transfer lands and is recorded as SavingsProof (one-shot recovery).
+ * amountOriginal = statutory compensation; target = 0 (full recovery).
+ */
+export const airlineIL: VerticalRulePack = {
+  key: "airline",
+  country: "IL",
+  label: "פיצוי טיסה",
+  level: "assisted",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "transfer_confirmation",
+    proofDescription: "אישור העברה / זיכוי מהחברה המציג את סכום הפיצוי",
+  },
+  regulated: false,
+  counterparties: ["elal", "israir", "arkia", "ryanair", "easyjet", "lufthansa", "other"],
+};
+
 /** Every registered rule pack. New (vertical × country) = a new entry here. */
-export const RULE_PACKS: readonly VerticalRulePack[] = [telecomIL, bankFeesIL, subscriptionIL];
+export const RULE_PACKS: readonly VerticalRulePack[] = [
+  telecomIL,
+  bankFeesIL,
+  subscriptionIL,
+  airlineIL,
+];
