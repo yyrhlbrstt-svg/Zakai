@@ -1,8 +1,9 @@
 zakai-production-deploy-marker
-version=0.3.4
+version=0.3.5
 prisma=6.19.0
-ts=2026-07-28T02:30:00+03:00
+ts=2026-07-28T03:00:00+03:00
 
+v0.3.5: Public SavingsProof wall (/proofs) + Household CTA
 v0.3.4: /documents vault + /wrapped yearly summary
 v0.3.3: Mandate QR + Overnight Agent
 v0.3.2: recheck + competitor follow-up
