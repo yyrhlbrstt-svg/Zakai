@@ -60,8 +60,8 @@ export default async function HomePage({
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · 0.3.0"
-          : "The standard consumer money agent · Money OS · Mandate · No call center · 0.3.0"}
+          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · 0.3.1"
+          : "The standard consumer money agent · Money OS · Mandate · No call center · 0.3.1"}
         <div className="flex flex-wrap gap-2 mt-2.5">
           <Link
             href="/money"

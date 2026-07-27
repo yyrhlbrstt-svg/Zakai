@@ -162,15 +162,15 @@ export function CancelTool() {
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">
-            {he ? "✓ הסוכן פתח תיק" : "✓ Agent opened a case"}
+            {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
           </div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {he
-              ? "המכתב מוכן עם Mandate. עבור לדשבורד, אשר, שלח — הסוכן יעקוב אחרי התשובה ויתעד חיסכון כשזה קורה. בלי מוקד, בלי לחכות לטלפון."
-              : "Letter ready with Mandate. Go to dashboard, approve & send — the agent follows up and records the saving. No call center."}
+              ? "המכתב מוכן ומאושר. בדשבורד: אמת בעלות (קוד לנייד) → צור Mandate → סמן כנשלח. הסוכן יעקוב ויתעד חיסכון. בלי מוקד."
+              : "Letter ready and approved. On the dashboard: verify ownership (SMS code) → create Mandate → mark sent. The agent follows up and records the saving. No call center."}
           </p>
           <Link href="/dashboard">
-            <Button className="w-full">{he ? "לדשבורד — הסוכן שלי" : "Dashboard — my agent"}</Button>
+            <Button className="w-full">{he ? "לדשבורד — המשך עכשיו (אימות + Mandate)" : "Dashboard — continue now (verify + Mandate)"}</Button>
           </Link>
         </Card>
       )}
