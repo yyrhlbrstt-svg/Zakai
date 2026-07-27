@@ -1,9 +1,9 @@
 zakai-production-deploy-marker
 version=0.3.6
 prisma=6.19.0
-ts=2026-07-28T03:45:00+03:00
+ts=2026-07-28T04:10:00+03:00
 
-v0.3.6: Airline Case + Mandate agent path
+v0.3.6: Airline Case + Mandate + B2B embed
 v0.3.5: Public SavingsProof wall (/proofs) + Household CTA
 v0.3.4: /documents vault + /wrapped yearly summary
 v0.3.3: Mandate QR + Overnight Agent

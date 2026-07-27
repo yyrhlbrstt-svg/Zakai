@@ -23,6 +23,7 @@
 | Public SavingsProof wall | ✅ 0.3.5 |
 | Household CTA + grouping | ✅ 0.3.5 |
 | Airline Case + Mandate | ✅ 0.3.6 |
+| B2B embed widget | ✅ 0.3.6 |
 
 ---
 
@@ -30,7 +31,7 @@
 
 ### 🟢 לבנות בקרוב (מתלבש על הקיים)
 
-1–8. ✅ (Overnight, Household, Wrapped, Proof wall, Mandate QR, Batch scan, Competitor, Document vault)
+1–8 + 11–12 ✅
 
 ### 🟡 דורש תשתית / רגולציה
 
@@ -39,12 +40,6 @@
 
 10. **Web Push ב-PWA**  
     "הספק ענה? / הגיע זמן recheck". iOS 16.4+ תומך. דורש VAPID + service worker.
-
-11. **טיסה כ-Case מלא** ✅ 0.3.6  
-    EU261 / חוק שירותי תעופה → createCase(vertical=airline) + Mandate + מעקב. ה-checker + agent CTA קיימים.
-
-12. **B2B embed widget**  
-    `<script src="zakai.app/embed.js">` לבנקים/פינטק — "בדוק זכויות ללקוח". הכנסה B2B מהיום-הראשון אחרי ישות.
 
 ### 🔴 לא בונים (קווים אדומים)
 
@@ -56,8 +51,9 @@
 
 ## סדר ביצוע מומלץ (הבא)
 
-1. B2B embed skeleton (ללא תלות חיצונית)  
-2. Forward-email inbox (SendGrid/Cloudflare) — סוגר proof loop  
-3. Web Push PWA  
+1. Forward-email inbox (SendGrid/Cloudflare) — סוגר proof loop  
+2. Web Push PWA  
+3. העמקת global packs (GB/US copy + eligibility)  
+4. העלאת bank-fees ל-full service אחרי proof אמיתי  
 
-הכל בלי תלויות חיצוניות חדשות עד עכשיו. אחרי זה — inbound email / push.
+הכל בלי תלויות חיצוניות חדשות עד עכשיו.

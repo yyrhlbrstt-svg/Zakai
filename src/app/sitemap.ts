@@ -9,6 +9,9 @@ const PATHS = [
   "/leaks",
   "/proofs",
   "/cancel",
+  "/flights",
+  "/partners",
+  "/business",
   "/credit-card",
   "/refund-chase",
   "/check",
@@ -22,12 +25,9 @@ const PATHS = [
   "/faq",
   "/signup",
   "/login",
-  "/flights",
   "/electricity",
   "/taxrefund",
   "/bank-fees",
-  "/wrapped",
-  "/documents",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
