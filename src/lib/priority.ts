@@ -1,6 +1,6 @@
 /**
  * Next-best-action ranking for consumer money recovery.
- * Deterministic estimates — not promises. Used by Money Hub / agent context.
+ * Money OS agent paths always rank above passive calculators.
  */
 
 export type PriorityAction = {
@@ -10,41 +10,56 @@ export type PriorityAction = {
   titleEn: string;
   whyHe: string;
   whyEn: string;
-  /** Rough monthly ILS recovery potential for prioritization only */
   monthlyPotentialShekels: number;
   effort: "low" | "medium" | "high";
+  /** Agent path = closed-loop Case; calculator = estimate only */
+  agentic?: boolean;
 };
 
 const CATALOG: PriorityAction[] = [
   {
     id: "money",
     href: "/money",
-    titleHe: "מפת החיובים שלי",
-    titleEn: "My money map",
-    whyHe: "רואים מה יורד כל חודש בלי סיסמאות בנק",
-    whyEn: "See monthly charges without bank passwords",
-    monthlyPotentialShekels: 80,
+    titleHe: "הכסף שלי — סריקה + תיק סוכן",
+    titleEn: "My money — scan + agent case",
+    whyHe: "צילום מסך → הסוכן פותח תיק עם Mandate",
+    whyEn: "Screenshot → agent opens Mandate case",
+    monthlyPotentialShekels: 150,
     effort: "low",
+    agentic: true,
   },
   {
     id: "cancel",
     href: "/cancel",
-    titleHe: "ביטול / הנחת מנוי",
-    titleEn: "Cancel or discount a sub",
-    whyHe: "מכתב מיידי לכל חברה",
-    whyEn: "Instant letter to any company",
-    monthlyPotentialShekels: 50,
+    titleHe: "ביטול / הנחה — הסוכן שולח",
+    titleEn: "Cancel / discount — agent sends",
+    whyHe: "תיק + Mandate + מעקב + תיעוד חיסכון",
+    whyEn: "Case + Mandate + follow-up + savings proof",
+    monthlyPotentialShekels: 70,
     effort: "low",
+    agentic: true,
   },
   {
     id: "check",
     href: "/check",
-    titleHe: "הורדת סלולר / אינטרנט",
-    titleEn: "Lower mobile / internet",
+    titleHe: "סלולר / אינטרנט — משא ומתן",
+    titleEn: "Mobile / internet — negotiate",
     whyHe: "משא ומתן מתועד + Mandate",
-    whyEn: "Documented negotiation + mandate",
-    monthlyPotentialShekels: 40,
+    whyEn: "Documented negotiation + Mandate",
+    monthlyPotentialShekels: 55,
     effort: "medium",
+    agentic: true,
+  },
+  {
+    id: "leaks",
+    href: "/leaks",
+    titleHe: "מפת נזילות",
+    titleEn: "Leaks map",
+    whyHe: "כל נקודות הדליפה → פעולת סוכן",
+    whyEn: "Every leak → agent action",
+    monthlyPotentialShekels: 40,
+    effort: "low",
+    agentic: true,
   },
   {
     id: "credit-card",
@@ -54,6 +69,26 @@ const CATALOG: PriorityAction[] = [
     whyHe: "כמה עולה היתרה המסתובבת",
     whyEn: "Cost of revolving balance",
     monthlyPotentialShekels: 120,
+    effort: "medium",
+  },
+  {
+    id: "duplicate-insurance",
+    href: "/duplicate-insurance",
+    titleHe: "ביטוח כפול",
+    titleEn: "Duplicate insurance",
+    whyHe: "פרמיה מיותרת",
+    whyEn: "Wasted premium",
+    monthlyPotentialShekels: 60,
+    effort: "medium",
+  },
+  {
+    id: "taxrefund",
+    href: "/taxrefund",
+    titleHe: "החזר מס",
+    titleEn: "Tax refund",
+    whyHe: "עד 6 שנים אחורה",
+    whyEn: "Up to 6 years back",
+    monthlyPotentialShekels: 100,
     effort: "medium",
   },
   {
@@ -77,26 +112,6 @@ const CATALOG: PriorityAction[] = [
     effort: "low",
   },
   {
-    id: "duplicate-insurance",
-    href: "/duplicate-insurance",
-    titleHe: "ביטוח כפול",
-    titleEn: "Duplicate insurance",
-    whyHe: "פרמיה מיותרת",
-    whyEn: "Wasted premium",
-    monthlyPotentialShekels: 60,
-    effort: "medium",
-  },
-  {
-    id: "taxrefund",
-    href: "/taxrefund",
-    titleHe: "החזר מס",
-    titleEn: "Tax refund",
-    whyHe: "עד 6 שנים אחורה",
-    whyEn: "Up to 6 years back",
-    monthlyPotentialShekels: 100,
-    effort: "medium",
-  },
-  {
     id: "refund-chase",
     href: "/refund-chase",
     titleHe: "החזר שלא הגיע",
@@ -106,27 +121,23 @@ const CATALOG: PriorityAction[] = [
     monthlyPotentialShekels: 30,
     effort: "low",
   },
-  {
-    id: "leaks",
-    href: "/leaks",
-    titleHe: "מפת נזילות מלאה",
-    titleEn: "Full leaks map",
-    whyHe: "כל הבעיות במקום אחד",
-    whyEn: "All problem areas in one place",
-    monthlyPotentialShekels: 20,
-    effort: "low",
-  },
 ];
 
-/** Rank by potential / effort weight. */
+/** Rank: agentic boost, then potential / effort. */
 export function rankPriorityActions(limit = 5): PriorityAction[] {
-  const weight = (a: PriorityAction) =>
-    a.monthlyPotentialShekels / (a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2);
+  const weight = (a: PriorityAction) => {
+    const base =
+      a.monthlyPotentialShekels / (a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2);
+    return base * (a.agentic ? 1.35 : 1);
+  };
   return [...CATALOG].sort((a, b) => weight(b) - weight(a)).slice(0, limit);
 }
 
 export function priorityDigestHe(): string {
   return rankPriorityActions(6)
-    .map((a) => `- ${a.titleHe} (${a.href}): ~₪${a.monthlyPotentialShekels}/ח׳ פוטנציאל · ${a.whyHe}`)
+    .map(
+      (a) =>
+        `- ${a.titleHe} (${a.href})${a.agentic ? " [AGENT]" : ""}: ~₪${a.monthlyPotentialShekels}/ח׳ · ${a.whyHe}`,
+    )
     .join("\n");
 }
