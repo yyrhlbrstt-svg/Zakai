@@ -2,15 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { aiAvailable, aiProvider, askZakai } from "@/lib/ai";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Public self-diagnostic — lets anyone (read: the founder, on a phone)
- * verify the deployment's wiring in one glance, without exposing secrets:
- *  - db:  can the app reach the database?
- *  - ai:  is ANTHROPIC_API_KEY configured? (turns on bill-photo analysis,
- *         the assistant chat, and screenshot scanning)
+ * Public self-diagnostic — founder-on-a-phone check of deployment wiring.
+ * Never exposes secrets.
  */
 export async function GET(request: Request) {
   let db = false;
@@ -21,17 +19,34 @@ export async function GET(request: Request) {
     db = false;
   }
 
+  let mandateKeys = false;
+  try {
+    loadSigningKeyFromEnv();
+    mandateKeys = true;
+  } catch (err) {
+    mandateKeys = !(err instanceof MandateKeyUnavailableError) ? false : false;
+  }
+
+  let mandateRevocationTable = false;
+  try {
+    await prisma.mandateRevocation.findFirst({ take: 1 });
+    mandateRevocationTable = true;
+  } catch {
+    mandateRevocationTable = false;
+  }
+
   const base = {
     ok: db,
     db,
     ai: aiAvailable(),
     aiProvider: aiProvider(),
+    mandateKeys,
+    mandateRevocationTable,
+    markets: ["IL", "GB", "US"],
+    locales: ["he", "en", "ar", "ru"],
     time: new Date().toISOString(),
   };
 
-  // ?checkai=1 → make one real, tiny model call and report the provider's
-  // exact (sanitized) answer. Turns "something went wrong" into a diagnosis
-  // anyone can read off their phone. Rate-limited: it costs tokens.
   const url = new URL(request.url);
   if (url.searchParams.get("checkai") === "1" && aiAvailable()) {
     const limited = await rateLimit("health-checkai", clientIp(request), 10, 3600);

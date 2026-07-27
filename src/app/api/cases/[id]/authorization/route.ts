@@ -15,12 +15,22 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
   const doc = await createAuthorization(id);
   await refreshVerifiedStatus(id);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
   return NextResponse.json({
     ok: true,
     code: doc.code,
     scope: doc.scope,
     verifyUrl: `${appUrl}/verify?code=${doc.code}`,
     documentUrl: `/authorization/${doc.code}`,
+    // Machine-verifiable Mandate (present when signing keys are configured).
+    mandate: doc.mandateToken
+      ? {
+          jti: doc.mandateJti,
+          token: doc.mandateToken,
+          jwks: `${appUrl}/.well-known/zakai-jwks.json`,
+          statusUrl: `${appUrl}/api/mandate/status/${doc.mandateJti}`,
+          verifyUrl: `${appUrl}/api/mandate/verify`,
+        }
+      : null,
   });
 }

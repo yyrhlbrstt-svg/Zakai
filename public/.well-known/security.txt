@@ -1,0 +1,9 @@
+Contact: mailto:security@zakai.app
+Preferred-Languages: he, en
+Canonical: https://zakai-3uxj.vercel.app/.well-known/security.txt
+Policy: https://zakai-3uxj.vercel.app/trust
+
+# Machine-verifiable consumer mandates
+# JWKS: /.well-known/zakai-jwks.json
+# Status: GET /api/mandate/status/{jti}
+# Verify: POST /api/mandate/verify  { "token", "audience" }
