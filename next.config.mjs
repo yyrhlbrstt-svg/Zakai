@@ -5,13 +5,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Financial documents (invoices, statements) are user uploads processed in
-  // memory / server-side only. Keep the payload ceiling modest.
   experimental: {
     serverActions: { bodySizeLimit: "8mb" },
   },
-  // Baseline security headers. TLS itself is terminated by the host (Vercel
-  // serves HTTPS by default); HSTS instructs browsers to stay on HTTPS.
   async headers() {
     return [
       {
@@ -27,6 +23,10 @@ const nextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
         ],
       },
