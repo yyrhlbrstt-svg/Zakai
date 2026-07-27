@@ -11,10 +11,12 @@ import { ShareResult } from "@/components/ShareResult";
 import { FeePayButton } from "@/components/FeePayButton";
 import { CaseNextStep } from "@/components/CaseNextStep";
 import { ReminderBanner } from "@/components/ReminderBanner";
+import { OvernightAgent } from "@/components/OvernightAgent";
 import { Reveal } from "@/components/Reveal";
 import { EmptyDashboardActions } from "@/components/EmptyDashboardActions";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
+import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 
 const STATUS_KEY: Record<string, string> = {
@@ -77,6 +79,13 @@ export default async function DashboardPage({
       c.status === "SENT",
   ).length;
 
+  const sentCases = cases
+    .filter((c) => c.status === "SENT")
+    .map((c) => ({
+      id: c.id,
+      providerLabel: providerHebrewName(c.provider) !== "הספק" ? providerHebrewName(c.provider) : c.provider,
+    }));
+
   const ownCases = cases.filter((c) => !c.beneficiaryLabel);
   const familyGroups = new Map<string, typeof cases>();
   for (const c of cases) {
@@ -113,7 +122,7 @@ export default async function DashboardPage({
             }}
           >
             <div className="flex-1 basis-[140px]">
-              <div className="font-extrabold text-[15.5px]">{t(`providers.${c.provider}`)}</div>
+              <div className="font-extrabold text-[15.5px]">{t.has(`providers.${c.provider}`) ? t(`providers.${c.provider}`) : c.provider}</div>
               <div className="text-xs text-ink-soft mt-0.5">
                 {c.createdAt.toLocaleDateString(loc)}
               </div>
@@ -210,6 +219,8 @@ export default async function DashboardPage({
             : `${pendingActions} check${pendingActions > 1 ? "s" : ""} waiting for your next step`}
         </div>
       )}
+
+      <OvernightAgent cases={sentCases} />
 
       {intent && (
         <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)] px-5 py-4 mb-5 flex items-center gap-3">
