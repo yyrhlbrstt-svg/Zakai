@@ -42,7 +42,8 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     providerLabel: providerHebrewName(kase.provider),
     amountOriginalShekels: agorotToShekels(kase.amountOriginal),
     targetShekels: agorotToShekels(kase.targetAmount),
-    plan: kase.plan || undefined,
+    // Prisma field is planDescription (not plan).
+    plan: kase.planDescription || undefined,
     replyKind: parsed.data.replyKind as ProviderReplyKind,
     round: parsed.data.round,
   });
