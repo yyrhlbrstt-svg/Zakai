@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useLocale } from "next-intl";
+import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
 
 export function CancelTool() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const router = useRouter();
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [product, setProduct] = useState("");
@@ -17,8 +19,13 @@ export function CancelTool() {
   const [reason, setReason] = useState("");
   const [out, setOut] = useState<{ subject: string; body: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [caseId, setCaseId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   function generate() {
+    setError(null);
+    setCaseId(null);
     setOut(
       buildCancelLetter({
         customerName: name,
@@ -30,6 +37,49 @@ export function CancelTool() {
         reason,
       }),
     );
+  }
+
+  async function sendWithAgent() {
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch("/api/cases/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: name,
+          company,
+          product,
+          accountOrEmail: account || undefined,
+          monthlyShekels: monthly ? Number(monthly) : undefined,
+          intent,
+          reason: reason || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.replace(`/login?return=/cancel`);
+        return;
+      }
+      if (!res.ok) {
+        setError(
+          data.error === "caseLimit"
+            ? he
+              ? "הגעת למגבלת התיקים. שדרג או סגור תיק קיים."
+              : "Case limit reached. Upgrade or close an open case."
+            : he
+              ? "משהו השתבש. נסה שוב."
+              : "Something went wrong. Try again.",
+        );
+        return;
+      }
+      setOut({ subject: data.subject, body: data.body });
+      setCaseId(data.caseId);
+    } catch {
+      setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -47,10 +97,48 @@ export function CancelTool() {
           <option value="pause">{he ? "הקפאה" : "Pause"}</option>
         </Select>
         <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={he ? "סיבה (אופציונלי)" : "Reason (optional)"} />
-        <Button onClick={generate} disabled={!company.trim() || !product.trim()}>
-          {he ? "הכן מכתב להעתקה" : "Generate letter"}
-        </Button>
+
+        <div className="flex flex-col gap-2 mt-1">
+          <Button
+            onClick={sendWithAgent}
+            disabled={!company.trim() || !product.trim() || busy}
+            className="w-full"
+          >
+            {busy
+              ? he
+                ? "הסוכן פותח תיק…"
+                : "Agent opening case…"
+              : he
+                ? "הסוכן שולח ומעקוב עכשיו"
+                : "Agent sends & tracks now"}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={generate}
+            disabled={!company.trim() || !product.trim() || busy}
+            className="w-full text-[13px]"
+          >
+            {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+          </Button>
+        </div>
+        {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
       </Card>
+
+      {caseId && (
+        <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
+          <div className="text-emerald font-extrabold text-[15px]">
+            {he ? "✓ הסוכן פתח תיק" : "✓ Agent opened a case"}
+          </div>
+          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
+            {he
+              ? "המכתב מוכן עם Mandate. עבור לדשבורד, אשר, שלח — הסוכן יעקוב אחרי התשובה ויתעד חיסכון כשזה קורה. בלי מוקד, בלי לחכות לטלפון."
+              : "Letter ready with Mandate. Go to dashboard, approve & send — the agent follows up and records the saving. No call center."}
+          </p>
+          <Link href="/dashboard">
+            <Button className="w-full">{he ? "לדשבורד — הסוכן שלי" : "Dashboard — my agent"}</Button>
+          </Link>
+        </Card>
+      )}
 
       {out && (
         <Card className="p-5">
@@ -76,8 +164,8 @@ export function CancelTool() {
           </Button>
           <p className="text-[12px] text-ink-soft mt-3 mb-0">
             {he
-              ? "שולחים במייל/צ׳אט של החברה. אם הורידו מחיר — תעדו בזכאי בדשבורד כחיסכון."
-              : "Send via the company’s email/chat. If the price drops — record the saving on your dashboard."}
+              ? "אם בחרת ‘הסוכן שולח’ — הוא עושה את זה עם Mandate ועוקב. אחרת: שלח בעצמך במייל/צ׳אט של החברה, ואם הורידו מחיר — תעד בזכאי בדשבורד כחיסכון."
+              : "If you chose ‘agent sends’ — it goes with Mandate and tracks. Otherwise: send yourself via the company’s email/chat. If the price drops — record the saving on your dashboard."}
           </p>
         </Card>
       )}

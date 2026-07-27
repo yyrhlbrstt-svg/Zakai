@@ -44,5 +44,26 @@ export const bankFeesIL: VerticalRulePack = {
   counterparties: ["hapoalim", "leumi", "discount", "mizrahi", "fibi", "onezero", "other"],
 };
 
+/**
+ * Subscriptions / digital services (Netflix, Spotify, gym, cloud…) — agentic
+ * letter + Mandate send + follow-up. Level assisted until we have reliable
+ * provider contact channels and reply verification at scale. Fee only on
+ * documented SavingsProof (price drop or successful cancel recorded).
+ */
+export const subscriptionIL: VerticalRulePack = {
+  key: "subscription",
+  country: "IL",
+  label: "מנויים ושירותים דיגיטליים",
+  level: "assisted",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "reply_or_screenshot",
+    proofDescription: "אישור ביטול או חשבונית עם מחיר נמוך יותר / אפס",
+  },
+  regulated: false,
+  counterparties: ["netflix", "spotify", "other"],
+};
+
 /** Every registered rule pack. New (vertical × country) = a new entry here. */
-export const RULE_PACKS: readonly VerticalRulePack[] = [telecomIL, bankFeesIL];
+export const RULE_PACKS: readonly VerticalRulePack[] = [telecomIL, bankFeesIL, subscriptionIL];
