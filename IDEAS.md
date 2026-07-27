@@ -22,6 +22,7 @@
 | Zakai Wrapped | ✅ 0.3.4 |
 | Public SavingsProof wall | ✅ 0.3.5 |
 | Household CTA + grouping | ✅ 0.3.5 |
+| Airline Case + Mandate | ✅ 0.3.6 |
 
 ---
 
@@ -29,29 +30,7 @@
 
 ### 🟢 לבנות בקרוב (מתלבש על הקיים)
 
-1. **Overnight Agent** ✅  
-   כפתור אחד בדשבורד: "הכן follow-up לכל התיקים ב-SENT". מייצר טיוטות במקביל לפי playbook. ללא שליחה אוטומטית — המשתמש מאשר/מעתיק. סוגר את תחושת "הסוכן עובד בלילה".
-
-2. **Household / מצב משפחה v1** ✅  
-   כבר יש `beneficiaryLabel`. UI: "הוסף חשבון של אמא/סבתא" → תיקים מתויגים + סיכום משפחתי אחד. מכפיל ARPU בלי משתמש חדש. בלי גישה לחשבון של צד ג' — רק תווית + טיוטות בשם המשתמש המורשה.
-
-3. **Zakai Wrapped (שנה עם זכאי)** ✅  
-   דף `/wrapped` שנתי: כמה תיקים, כמה נחסך, כמה פעמים הסוכן פעל, דירוג מול ממוצע. שיתוף WhatsApp מוכן. ויראלי כמו Spotify — על בסיס `SavingsProof` שכבר קיים.
-
-4. **Public SavingsProof wall (אנונימי)** ✅  
-   פיד ציבורי `/proofs`: "השבוע נחסכו ₪X על ידי N משתמשים" + כרטיסים אנונימיים. אמון + SEO + FOMO. רק סכומים מצרפיים מ-StrategyOutcome — בלי PII.
-
-5. **Mandate QR** ✅  
-   בדף `/authorization/[code]` — QR שמפנה ל-verify + JWKS. הספק סורק במקום להקליד קוד. אמון מוסדי.
-
-6. **Batch open from scan** ✅  
-   אחרי סריקה: "פתח את 3 התיקים הכי כדאיים" בלחיצה אחת (עד מגבלת התוכנית). Money Hub כבר מציג best ROI — להרחיב ל-top N.
-
-7. **Competitor-in-hand במשא ומתן** ✅  
-   ב-CaseNextStep כשבוחרים `competitor`: שדות שם+מחיר → מוזנים ל-`buildFollowUp`. כבר קיים ב-negotiation.ts — לחשוף ב-UI.
-
-8. **Document vault** ✅  
-   `/documents`: רשימת Mandate + מכתבים + SavingsProof להורדה/הדפסה. חותמת זמן. מחזק תחושת "יש לי תיק מסודר".
+1–8. ✅ (Overnight, Household, Wrapped, Proof wall, Mandate QR, Batch scan, Competitor, Document vault)
 
 ### 🟡 דורש תשתית / רגולציה
 
@@ -61,8 +40,8 @@
 10. **Web Push ב-PWA**  
     "הספק ענה? / הגיע זמן recheck". iOS 16.4+ תומך. דורש VAPID + service worker.
 
-11. **טיסה כ-Case מלא**  
-    EU261 / חוק שירותי תעופה → createCase(vertical=airline) + Mandate + מעקב. ה-checker קיים.
+11. **טיסה כ-Case מלא** ✅ 0.3.6  
+    EU261 / חוק שירותי תעופה → createCase(vertical=airline) + Mandate + מעקב. ה-checker + agent CTA קיימים.
 
 12. **B2B embed widget**  
     `<script src="zakai.app/embed.js">` לבנקים/פינטק — "בדוק זכויות ללקוח". הכנסה B2B מהיום-הראשון אחרי ישות.
@@ -77,9 +56,8 @@
 
 ## סדר ביצוע מומלץ (הבא)
 
-1. Forward-email inbox (SendGrid/Cloudflare) — סוגר proof loop  
-2. Web Push PWA  
-3. Airline Case מלא  
-4. B2B embed  
+1. B2B embed skeleton (ללא תלות חיצונית)  
+2. Forward-email inbox (SendGrid/Cloudflare) — סוגר proof loop  
+3. Web Push PWA  
 
-הכל בלי תלויות חיצוניות חדשות עד עכשיו. אחרי זה — inbound email / push / airline Case.
+הכל בלי תלויות חיצוניות חדשות עד עכשיו. אחרי זה — inbound email / push.

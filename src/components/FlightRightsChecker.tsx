@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Textarea } from "@/components/ui";
 import {
   computeEntitlement,
@@ -18,13 +19,17 @@ const IL_DELAYS = [1, 3, 6, 9] as const;
 const EU_DELAYS = [1, 2.5, 4, 6] as const;
 
 /**
- * Statutory flight-rights checker. Two jurisdictions, both deterministic:
- * the Israeli Aviation Services Law and EU Regulation EC 261/2004 (flights
- * from the EU, or into the EU on an EU carrier) — for connections via
- * Europe and for users from abroad. Pure client-side.
+ * Statutory flight-rights checker + agent path.
+ * Two jurisdictions, both deterministic. When entitled, the user can open a
+ * full Case (vertical=airline) with Mandate + follow-up — same closed loop as
+ * cancel / telecom.
  */
 export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("flights");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
+  const router = useRouter();
+
   const [jurisdiction, setJurisdiction] = useState<"il" | "eu">("il");
   const [kind, setKind] = useState<"cancelled" | "delay">("cancelled");
   const [tier, setTier] = useState<DistanceTier>("medium");
@@ -34,7 +39,16 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   const [letterOpen, setLetterOpen] = useState(false);
   const [letter, setLetter] = useState("");
   const [copied, setCopied] = useState(false);
-  const [form, setForm] = useState({ name: "", airline: "", flightNumber: "", flightDate: "", route: "" });
+  const [form, setForm] = useState({
+    name: "",
+    airline: "",
+    flightNumber: "",
+    flightDate: "",
+    route: "",
+  });
+  const [busy, setBusy] = useState(false);
+  const [caseId, setCaseId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const il = useMemo(
     () =>
@@ -85,14 +99,68 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
       <span className="text-[13.5px] text-ink-soft block mb-2">{label}</span>
       <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={label}>
         {options.map((o) => (
-          <button key={String(o)} type="button" role="radio" aria-checked={value === o}
-            onClick={() => set(o)} className={chip(value === o)}>
+          <button
+            key={String(o)}
+            type="button"
+            role="radio"
+            aria-checked={value === o}
+            onClick={() => set(o)}
+            className={chip(value === o)}
+          >
             {render(o)}
           </button>
         ))}
       </div>
     </div>
   );
+
+  const formComplete = Object.values(form).every((v) => v.trim().length > 0);
+
+  async function sendWithAgent() {
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch("/api/cases/flight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          passengerName: form.name,
+          airline: form.airline,
+          flightNumber: form.flightNumber,
+          flightDate: form.flightDate,
+          route: form.route,
+          jurisdiction,
+          kind,
+          tier,
+          noticeDaysAhead: kind === "cancelled" ? (shortNotice ? 0 : 14) : undefined,
+          delayHours: kind === "delay" ? (isEU ? euDelay : ilDelay) : undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.replace(`/login?return=/flights`);
+        return;
+      }
+      if (!res.ok) {
+        setError(
+          data.error === "caseLimit"
+            ? he
+              ? "הגעת למגבלת התיקים. שדרג או סגור תיק קיים."
+              : "Case limit reached. Upgrade or close an open case."
+            : he
+              ? "משהו השתבש. נסה שוב."
+              : "Something went wrong. Try again.",
+        );
+        return;
+      }
+      setLetter(data.body || "");
+      setCaseId(data.caseId);
+    } catch {
+      setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div>
@@ -108,14 +176,26 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
               v ? t("noticeShort") : t("noticeLong"),
             )
           : isEU
-            ? radios(t("delayQ"), EU_DELAYS, euDelay as (typeof EU_DELAYS)[number], setEuDelay, (h) =>
-                t(`euDelayOptions.${String(h).replace(".", "_")}`),
+            ? radios(
+                t("delayQ"),
+                EU_DELAYS,
+                euDelay as (typeof EU_DELAYS)[number],
+                setEuDelay,
+                (h) => t(`euDelayOptions.${String(h).replace(".", "_")}`),
               )
-            : radios(t("delayQ"), IL_DELAYS, ilDelay as (typeof IL_DELAYS)[number], setIlDelay, (h) =>
-                t(`delayOptions.${h}`),
+            : radios(
+                t("delayQ"),
+                IL_DELAYS,
+                ilDelay as (typeof IL_DELAYS)[number],
+                setIlDelay,
+                (h) => t(`delayOptions.${h}`),
               )}
-        {radios(t("distanceQ"), (isEU ? EU_TIERS : IL_TIERS) as readonly DistanceTier[], tier, setTier, (tr) =>
-          t(`${isEU ? "euTiers" : "tiers"}.${tr}`),
+        {radios(
+          t("distanceQ"),
+          (isEU ? EU_TIERS : IL_TIERS) as readonly DistanceTier[],
+          tier,
+          setTier,
+          (tr) => t(`${isEU ? "euTiers" : "tiers"}.${tr}`),
         )}
       </Card>
 
@@ -128,7 +208,9 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
             <ul className="m-0 p-0 list-none flex flex-col gap-2.5">
               {compensationLabel && (
                 <li className="flex gap-2.5 items-baseline">
-                  <span className="text-emerald font-black" aria-hidden>✓</span>
+                  <span className="text-emerald font-black" aria-hidden>
+                    ✓
+                  </span>
                   <span className="text-[15px]">
                     {t("compensation")}{" "}
                     <strong className="font-display text-xl text-emerald" dir="ltr">
@@ -139,20 +221,27 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
               )}
               {result.refundOrAlternative && (
                 <li className="flex gap-2.5 items-baseline">
-                  <span className="text-emerald font-black" aria-hidden>✓</span>
+                  <span className="text-emerald font-black" aria-hidden>
+                    ✓
+                  </span>
                   <span className="text-[14.5px]">{t("refund")}</span>
                 </li>
               )}
               {result.assistance && (
                 <li className="flex gap-2.5 items-baseline">
-                  <span className="text-emerald font-black" aria-hidden>✓</span>
+                  <span className="text-emerald font-black" aria-hidden>
+                    ✓
+                  </span>
                   <span className="text-[14.5px]">{t("assistance")}</span>
                 </li>
               )}
             </ul>
           </>
         )}
-        <div className="mt-4 pt-4 flex flex-col gap-1.5" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <div
+          className="mt-4 pt-4 flex flex-col gap-1.5"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+        >
           {result.noteKeys.map((k) => (
             <p key={k} className="m-0 text-[12px] text-ink-soft leading-snug">
               {t(`notes.${k}`)}
@@ -161,11 +250,10 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
         </div>
       </Card>
 
-      {/* Demand-letter generator: Zakai drafts, the passenger sends in their
-          own name. Everything renders in the browser — nothing is uploaded. */}
+      {/* Agent path + demand letter */}
       {entitled && (
         <Card className="mt-5 p-6">
-          {!letterOpen ? (
+          {!letterOpen && !caseId ? (
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex-1 basis-[240px]">
                 <div className="font-extrabold text-[15px]">{t("letter.title")}</div>
@@ -174,6 +262,24 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
               <Button variant="ghost" onClick={() => setLetterOpen(true)}>
                 {t("letter.openBtn")}
               </Button>
+            </div>
+          ) : caseId ? (
+            <div>
+              <div className="text-emerald font-extrabold text-[15px]">
+                {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+              </div>
+              <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
+                {he
+                  ? "הדרישה מוכנה ומאושרת. בדשבורד: אמת בעלות → צור Mandate → סמן כנשלח. הסוכן יעקוב ויתעד פיצוי כשיועבר."
+                  : "Demand ready and approved. On the dashboard: verify ownership → create Mandate → mark sent. The agent follows up and records the compensation when it lands."}
+              </p>
+              <Link href="/dashboard">
+                <Button className="w-full">
+                  {he
+                    ? "לדשבורד — המשך עכשיו (אימות + Mandate)"
+                    : "Dashboard — continue now (verify + Mandate)"}
+                </Button>
+              </Link>
             </div>
           ) : (
             <>
@@ -198,28 +304,50 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
                   </label>
                 ))}
               </div>
-              <Button
-                className="mt-4 !px-5 !py-3 !text-[14.5px]"
-                disabled={Object.values(form).some((v) => v.trim().length === 0)}
-                onClick={() =>
-                  setLetter(
-                    buildFlightDemandLetter({
-                      passengerName: form.name,
-                      airline: form.airline,
-                      flightNumber: form.flightNumber,
-                      flightDate: form.flightDate,
-                      route: form.route,
-                      jurisdiction,
-                      disruption:
-                        kind === "cancelled"
-                          ? { kind, noticeDaysAhead: shortNotice ? 0 : 14, tier }
-                          : { kind, delayHours: isEU ? euDelay : ilDelay, tier },
-                    }),
-                  )
-                }
-              >
-                {t("letter.generateBtn")}
-              </Button>
+
+              <div className="flex flex-col gap-2 mt-4">
+                <Button
+                  className="!px-5 !py-3 !text-[14.5px]"
+                  disabled={!formComplete || busy}
+                  onClick={sendWithAgent}
+                >
+                  {busy
+                    ? he
+                      ? "הסוכן פותח תיק…"
+                      : "Agent opening case…"
+                    : he
+                      ? "הסוכן שולח ומעקוב עכשיו"
+                      : "Agent sends & tracks now"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="!text-[13px]"
+                  disabled={!formComplete || busy}
+                  onClick={() =>
+                    setLetter(
+                      buildFlightDemandLetter({
+                        passengerName: form.name,
+                        airline: form.airline,
+                        flightNumber: form.flightNumber,
+                        flightDate: form.flightDate,
+                        route: form.route,
+                        jurisdiction,
+                        disruption:
+                          kind === "cancelled"
+                            ? { kind, noticeDaysAhead: shortNotice ? 0 : 14, tier }
+                            : {
+                                kind,
+                                delayHours: isEU ? euDelay : ilDelay,
+                                tier,
+                              },
+                      }),
+                    )
+                  }
+                >
+                  {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+                </Button>
+              </div>
+              {error && <p className="text-[13px] text-amber mt-2 mb-0">{error}</p>}
 
               {letter && (
                 <div className="mt-4">
