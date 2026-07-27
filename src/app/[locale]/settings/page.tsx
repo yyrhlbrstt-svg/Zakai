@@ -2,7 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
-import { Card } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
 import { LogoutButton } from "@/components/LogoutButton";
 import { DeleteAccount } from "@/components/DeleteAccount";
 import { ReferralCard } from "@/components/ReferralCard";
@@ -20,6 +20,7 @@ export default async function SettingsPage({
   if (!user) redirect({ href: "/login", locale });
 
   const t = await getTranslations("settings");
+  const he = locale === "he" || locale === "ar";
 
   const referral = await prisma.user.findUnique({
     where: { id: user!.id },
@@ -62,7 +63,6 @@ export default async function SettingsPage({
             >
               <dt className="text-ink-soft text-sm">{r.label}</dt>
               <dd className="m-0 text-[15px] font-bold text-end break-all">
-                {/* email/phone are latin — isolate so they read cleanly in RTL */}
                 {r.ltr ? <span dir="ltr">{r.value}</span> : r.value}
               </dd>
             </div>
@@ -74,6 +74,24 @@ export default async function SettingsPage({
           </Link>
         </div>
       </Card>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/documents">
+          <Button variant="ghost" className="!text-[13px]">
+            {he ? "מסמכים והרשאות" : "Documents & mandates"}
+          </Button>
+        </Link>
+        <Link href="/wrapped">
+          <Button variant="ghost" className="!text-[13px]">
+            {he ? "שנה עם זכאי" : "Year with Zakai"}
+          </Button>
+        </Link>
+        <Link href="/money">
+          <Button variant="ghost" className="!text-[13px]">
+            {he ? "הכסף שלי" : "My money"}
+          </Button>
+        </Link>
+      </div>
 
       <div className="mt-6">
         <ReferralCard
