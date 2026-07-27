@@ -5,7 +5,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select, FieldError } from "@/components/ui";
 
-// Launch market first, then the expansion candidates the strategy names.
 const COUNTRIES: { code: string; he: string; en: string }[] = [
   { code: "IL", he: "🇮🇱 ישראל", en: "🇮🇱 Israel" },
   { code: "GB", he: "🇬🇧 בריטניה", en: "🇬🇧 United Kingdom" },
@@ -17,7 +16,6 @@ const COUNTRIES: { code: string; he: string; en: string }[] = [
   { code: "ZZ", he: "🌍 אחר", en: "🌍 Other" },
 ];
 
-/** Error keys the API may return that live in the `auth` message namespace. */
 const AUTH_ERROR_KEYS = new Set([
   "invalidCredentials",
   "emailTaken",
@@ -69,7 +67,8 @@ export function AuthForm({
         setError(data.error || "genericError");
         return;
       }
-      router.replace("/check");
+      // Signup → money hub (see charges first). Login → dashboard (resume work).
+      router.replace(mode === "signup" ? "/money" : "/dashboard");
       router.refresh();
     } catch {
       setError("genericError");
@@ -78,10 +77,6 @@ export function AuthForm({
     }
   }
 
-  // Map an API error key to a human message. Only known auth keys are looked
-  // up in the auth namespace; everything else (genericError, a 500 with no JSON,
-  // an unexpected key) resolves to a sensible Hebrew fallback. A raw key like
-  // "auth.genericError" must NEVER reach the user.
   function tErr(key: string | null) {
     if (!key) return null;
     if (AUTH_ERROR_KEYS.has(key)) return t(key);
@@ -116,11 +111,6 @@ export function AuthForm({
             <Input
               type="email"
               inputMode="email"
-              // An email is a left-to-right string. Without this it reorders
-              // around the "@" and the dots as it is typed inside the RTL
-              // layout, which reads as the field being broken. autoCapitalize
-              // and spellCheck are off because some Android keyboards still
-              // capitalise and underline addresses despite type="email".
               dir="ltr"
               autoCapitalize="none"
               autoCorrect="off"
@@ -241,8 +231,6 @@ export function AuthForm({
         </Link>
       </p>
 
-      {/* Until now there was no way back into an account at all. A forgotten
-          password locked someone out of their own money permanently. */}
       {mode === "login" && (
         <p className="text-center mt-2 text-[13px]">
           <Link href="/forgot" className="text-ink-soft no-underline hover:text-emerald">

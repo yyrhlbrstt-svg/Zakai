@@ -6,34 +6,21 @@ import {
   MandateError,
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/**
- * Issue a signed Mandate (compact JWS) for presentation to an institution.
- *
- * Body JSON:
- *   audience   string   institution id the mandate is bound to (required)
- *   subject    string   principal's stable Zakai id (required)
- *   name       string   principal display name (required)
- *   scopes     string[] closed-set scopes from scopes.ts (required)
- *   market     string   ISO 3166-1 alpha-2 (default IL)
- *   statement  string   human-readable authority text (required)
- *   reference  string?  national/customer id the institution needs
- *   contactMasked string?
- *   ttlSeconds number?
- *
- * Auth: shared secret header until session wiring is complete on this path.
- *   X-Zakai-Issue-Key: process.env.MANDATE_ISSUE_KEY
- *
- * Returns: { jti, token, exp }
- */
 export async function POST(req: Request) {
   const expected = process.env.MANDATE_ISSUE_KEY;
   const provided = req.headers.get("x-zakai-issue-key") || "";
   if (!expected || provided !== expected) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const limited = await rateLimit("mandate-issue", clientIp(req), 30, 60);
+  if (!limited.ok) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   let body: {
@@ -57,14 +44,17 @@ export async function POST(req: Request) {
   const subject = (body.subject || "").trim();
   const name = (body.name || "").trim();
   const statement = (body.statement || "").trim();
-  const scopes = Array.isArray(body.scopes) ? body.scopes : [];
-  const market = (body.market || "IL").trim().toUpperCase();
+  const scopes = Array.isArray(body.scopes) ? body.scopes.map(String).slice(0, 32) : [];
+  const market = (body.market || "IL").trim().toUpperCase().slice(0, 2);
 
   if (!audience || !subject || !name || !statement || scopes.length === 0) {
     return NextResponse.json(
       { error: "missing_fields", need: ["audience", "subject", "name", "statement", "scopes"] },
       { status: 400 },
     );
+  }
+  if (audience.length > 128 || subject.length > 128 || name.length > 200 || statement.length > 4000) {
+    return NextResponse.json({ error: "field_too_long" }, { status: 400 });
   }
 
   const jti = randomUUID();
@@ -83,8 +73,8 @@ export async function POST(req: Request) {
         subject,
         principal: {
           name,
-          reference: body.reference,
-          contactMasked: body.contactMasked,
+          reference: body.reference?.slice(0, 64),
+          contactMasked: body.contactMasked?.slice(0, 64),
         },
         scopes,
         market,
@@ -94,7 +84,6 @@ export async function POST(req: Request) {
       key,
     );
 
-    // Decode exp from payload without re-verifying (we just signed it).
     const payloadB64 = token.split(".")[1];
     const payloadJson = Buffer.from(payloadB64, "base64url").toString("utf8");
     const claims = JSON.parse(payloadJson) as { exp: number };
