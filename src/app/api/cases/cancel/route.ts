@@ -75,6 +75,8 @@ export async function POST(request: Request) {
       draftMessage: `${letter.subject}\n\n${letter.body}`,
       vertical: "subscription",
       beneficiaryLabel: data.customerName || undefined,
+      // Explicit "agent sends" click = consent to the draft → start APPROVED.
+      autoApprove: true,
     });
   } catch (err) {
     if (err instanceof CaseError && err.message === "CASE_LIMIT") {

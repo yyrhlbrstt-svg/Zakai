@@ -22,6 +22,7 @@ const schema = z.object({
  * One-click Case from Money Hub scan.
  * Maps category → best default intent, builds letter + Mandate path,
  * returns caseId so the client can send the user straight to the dashboard.
+ * autoApprove: the "open case now" click is explicit consent to the draft.
  */
 export async function POST(request: Request) {
   const auth = await requireUserId();
@@ -92,6 +93,7 @@ export async function POST(request: Request) {
       targetShekels: target,
       draftMessage: `${letter.subject}\n\n${letter.body}`,
       vertical,
+      autoApprove: true,
     });
   } catch (err) {
     if (err instanceof CaseError && err.message === "CASE_LIMIT") {
