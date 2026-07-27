@@ -32,7 +32,7 @@ const copy: Record<string, Record<string, string>> = {
     sendCode: "שלח קוד לנייד",
     codePh: "קוד מ-6 ספרות",
     verifyCode: "אמת",
-    genAuth: "צור הרשאה",
+    genAuth: "צור הרשאה + Mandate",
     send: "סמן כנשלח לספק",
     newAmt: "סכום חדש אחרי התשובה (₪)",
     record: "רשום חיסכון",
@@ -46,13 +46,16 @@ const copy: Record<string, Record<string, string>> = {
     copied: "הועתק",
     shareTitle: "שתף את החיסכון — שיביאו עוד",
     whatsapp: "וואטסאפ",
+    mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
+    mandateNone: "הרשאה אנושית נוצרה (מפתחות Mandate לא הוגדרו בסביבה)",
+    authCode: "קוד הרשאה",
   },
   en: {
     approve: "Approve & continue",
     sendCode: "Send SMS code",
     codePh: "6-digit code",
     verifyCode: "Verify",
-    genAuth: "Create authorization",
+    genAuth: "Create auth + Mandate",
     send: "Mark sent to provider",
     newAmt: "New amount after reply (₪)",
     record: "Record saving",
@@ -66,6 +69,9 @@ const copy: Record<string, Record<string, string>> = {
     copied: "Copied",
     shareTitle: "Share the saving",
     whatsapp: "WhatsApp",
+    mandateOk: "Mandate issued — provider can verify via JWKS",
+    mandateNone: "Human authorization created (Mandate keys not configured)",
+    authCode: "Authorization code",
   },
 };
 
@@ -93,6 +99,8 @@ export function CaseNextStep({
   const [newAmt, setNewAmt] = useState("");
   const [localOwn, setLocalOwn] = useState(ownershipVerified);
   const [localAuth, setLocalAuth] = useState(hasAuthorization);
+  const [authCode, setAuthCode] = useState<string | null>(null);
+  const [mandateInfo, setMandateInfo] = useState<string | null>(null);
   const [replyKind, setReplyKind] = useState<ProviderReplyKind>("delay");
   const [followBody, setFollowBody] = useState<string | null>(null);
   const [followTip, setFollowTip] = useState<string | null>(null);
@@ -226,6 +234,16 @@ export function CaseNextStep({
               run(async () => {
                 const res = await fetch(`/api/cases/${caseId}/authorization`, { method: "POST" });
                 if (!res.ok) throw new Error("auth");
+                const data = (await res.json()) as {
+                  code?: string;
+                  mandate?: { jti?: string; token?: string } | null;
+                };
+                if (data.code) setAuthCode(data.code);
+                setMandateInfo(
+                  data.mandate?.jti
+                    ? `${t(locale, "mandateOk")} · jti ${data.mandate.jti.slice(0, 8)}…`
+                    : t(locale, "mandateNone"),
+                );
                 setLocalAuth(true);
               })
             }
@@ -233,6 +251,12 @@ export function CaseNextStep({
             {busy ? t(locale, "working") : t(locale, "genAuth")}
           </Button>
         )}
+        {authCode && (
+          <div className="text-[12px] text-emerald font-bold">
+            {t(locale, "authCode")}: {authCode}
+          </div>
+        )}
+        {mandateInfo && <div className="text-[12px] text-ink-soft">{mandateInfo}</div>}
         {localOwn && localAuth && (
           <Button
             disabled={busy}
