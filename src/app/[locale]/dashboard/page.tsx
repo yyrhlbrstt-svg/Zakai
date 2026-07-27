@@ -9,6 +9,7 @@ import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
 import { ShareResult } from "@/components/ShareResult";
 import { FeePayButton } from "@/components/FeePayButton";
+import { CaseNextStep } from "@/components/CaseNextStep";
 import { Reveal } from "@/components/Reveal";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
@@ -53,12 +54,9 @@ export default async function DashboardPage({
   const cases = await prisma.case.findMany({
     where: { userId: user!.id },
     orderBy: { createdAt: "desc" },
-    include: { savingsProof: true, fee: true },
+    include: { savingsProof: true, fee: true, authorization: true },
   });
 
-  // Total documented monthly saving (the real, proven number) — drives the
-  // most viral share: a specific "Zakai got me ₪X back" spreads far better
-  // than a generic invite.
   const totalDocumentedMonthly = cases.reduce(
     (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
     0,
@@ -69,8 +67,14 @@ export default async function DashboardPage({
     0,
   );
 
-  // Family mode: group checks by whom they were run for. Cases with an empty
-  // label belong to the account owner and render first, ungrouped.
+  const pendingActions = cases.filter(
+    (c) =>
+      c.status === "ANALYZED" ||
+      c.status === "APPROVED" ||
+      c.status === "VERIFIED" ||
+      c.status === "SENT",
+  ).length;
+
   const ownCases = cases.filter((c) => !c.beneficiaryLabel);
   const familyGroups = new Map<string, typeof cases>();
   for (const c of cases) {
@@ -81,8 +85,6 @@ export default async function DashboardPage({
   }
   const hasFamily = familyGroups.size > 0;
 
-  // One check row + the Card wrapper. Shared by the owner list and each
-  // family-member group so the markup stays identical everywhere.
   const renderCaseCard = (list: typeof cases) => (
     <Card className="py-1.5">
       {list.map((c, i) => {
@@ -139,13 +141,21 @@ export default async function DashboardPage({
             >
               {t(`dashboard.status.${STATUS_KEY[c.status]}`)}
             </div>
+            <div className="basis-full">
+              <CaseNextStep
+                caseId={c.id}
+                status={c.status as "ANALYZED" | "APPROVED" | "VERIFIED" | "SENT" | "SAVED" | "NO_SAVING" | "REVOKED"}
+                ownershipVerified={Boolean(c.ownershipVerifiedAt)}
+                hasAuthorization={Boolean(c.authorization && c.authorization.status === "ACTIVE")}
+                amountOriginalShekels={Math.round(c.amountOriginal / 100)}
+              />
+            </div>
           </div>
         );
       })}
     </Card>
   );
 
-  // Money Health Score — the recurring-need hook, from measurable activity.
   const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
   const referralCode =
     (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
@@ -167,6 +177,19 @@ export default async function DashboardPage({
         <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
         <PlanBadge plan={user!.plan} />
       </div>
+
+      {pendingActions > 0 && (
+        <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[14px] font-bold">
+          {locale === "he"
+            ? `יש ${pendingActions} בדיקות שמחכות להמשך — לחץ על השלב הבא בכל אחת`
+            : locale === "ar"
+              ? `${pendingActions} فحوصات بانتظار المتابعة`
+              : locale === "ru"
+                ? `${pendingActions} проверок ждут продолжения`
+                : `${pendingActions} check${pendingActions > 1 ? "s" : ""} waiting for your next step`}
+        </div>
+      )}
+
       {intent && (
         <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)] px-5 py-4 mb-5 flex items-center gap-3">
           <Sparkles size={20} className="text-[#3ec6ff] shrink-0" aria-hidden />
@@ -222,8 +245,6 @@ export default async function DashboardPage({
 
       <MoneyScoreCard result={scoreResult} />
 
-      {/* Close the growth loop: sharing from here carries the user's referral
-          code, so every "look what Zakai found me" also credits the sharer. */}
       <ShareResult
         message={
           totalDocumentedMonthly > 0
@@ -238,9 +259,17 @@ export default async function DashboardPage({
           <Inbox size={40} className="mx-auto mb-3.5 text-ink-soft" aria-hidden />
           <div className="font-display text-2xl">{t("dashboard.empty")}</div>
           <div className="text-ink-soft text-[14.5px] mt-2">{t("dashboard.emptySub")}</div>
-          <Link href="/check">
-            <Button className="mt-6">{t("home.cta")}</Button>
-          </Link>
+          <div className="flex flex-wrap gap-3 justify-center mt-6">
+            <Link href="/check">
+              <Button>{t("home.cta")}</Button>
+            </Link>
+            <Link href="/what-am-i-owed">
+              <Button variant="ghost">{t("nav.whatAmIOwed")}</Button>
+            </Link>
+            <Link href="/rights">
+              <Button variant="ghost">{t("nav.rights")}</Button>
+            </Link>
+          </div>
         </Card>
       ) : (
         <>
@@ -281,9 +310,15 @@ export default async function DashboardPage({
               </div>
             ))}
 
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/check">
               <Button>{t("home.cta")}</Button>
+            </Link>
+            <Link href="/rights">
+              <Button variant="ghost">{t("nav.rights")}</Button>
+            </Link>
+            <Link href="/scan">
+              <Button variant="ghost">{t("nav.scan")}</Button>
             </Link>
           </div>
         </>
