@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button, Card } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { EmbedPreview } from "@/components/EmbedPreview";
 
 export const metadata: Metadata = {
   title: "Zakai Partners — B2B embed & Money OS",
@@ -47,7 +48,7 @@ export default async function PartnersPage({
 
       <div className="grid gap-3 mt-6 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
         <SpotlightCard className="p-4">
-          <div className="font-extrabold text-[14px]">{he ? "data-locale" : "data-locale"}</div>
+          <div className="font-extrabold text-[14px]">data-locale</div>
           <div className="text-ink-soft text-[12.5px] mt-1">he · en · ar · ru</div>
         </SpotlightCard>
         <SpotlightCard className="p-4">
@@ -67,15 +68,7 @@ export default async function PartnersPage({
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
         {he ? "תצוגה מקדימה" : "Live preview"}
       </h2>
-      <div
-        id="zakai-embed"
-        data-locale={locale}
-        data-ref="partners-preview"
-        // Client script mounts into this node on load via public/embed.js
-        suppressHydrationWarning
-      />
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-      <script src="/embed.js" async />
+      <EmbedPreview locale={locale} />
 
       <div className="mt-10 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.07)] px-5 py-5">
         <div className="font-extrabold text-[15px]">
@@ -97,7 +90,7 @@ export default async function PartnersPage({
           <Button variant="ghost">{he ? "למוסדות" : "For institutions"}</Button>
         </Link>
         <Link href="/money">
-          <Button variant="ghost">{he ? "Money OS" : "Money OS"}</Button>
+          <Button variant="ghost">Money OS</Button>
         </Link>
       </div>
     </main>
