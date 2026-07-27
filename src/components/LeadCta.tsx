@@ -3,11 +3,8 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 
 /**
- * The commissionable call-to-action for high-value verticals: a gradient card
- * that sends the user to the lead form (/start?v=<vertical>). Drop it near the
- * bottom of a vertical page (after its calculator/guide) to turn a reader into
- * a qualified, monetisable lead. Server component — pulls copy from the `lead`
- * namespace so every vertical reads consistently.
+ * CTA for high-value verticals: send the user to immediate self-serve actions,
+ * not a promise of a human callback.
  */
 export async function LeadCta({ vertical }: { vertical: string }) {
   const t = await getTranslations("lead");
@@ -19,7 +16,7 @@ export async function LeadCta({ vertical }: { vertical: string }) {
     const candidate = t(key);
     if (candidate && candidate !== key) title = candidate;
   } catch {
-    /* keep generic */
+    /* generic */
   }
 
   return (
@@ -27,11 +24,17 @@ export async function LeadCta({ vertical }: { vertical: string }) {
       <div className="rounded-2xl bg-[#0a1119] px-6 py-7 text-center">
         <div className="font-display text-xl text-balance">{title}</div>
         <p className="text-ink-soft text-[14px] mt-2 max-w-[520px] mx-auto leading-relaxed">
-          {t("ctaBody")}
+          תשובה ופעולה בתוך זכאי — בדיקה, ניסוח פנייה, והורדת מחיר. בלי להמתין לשיחה חזרה.
         </p>
-        <div className="flex justify-center mt-5">
+        <div className="flex flex-wrap gap-3 justify-center mt-5">
           <Link href={`/start?v=${v}`}>
-            <Button>{t("send")}</Button>
+            <Button>התחל עכשיו</Button>
+          </Link>
+          <Link href="/check">
+            <Button variant="ghost">בדיקת חיוב / משא ומתן</Button>
+          </Link>
+          <Link href="/assistant">
+            <Button variant="ghost">הסוכן</Button>
           </Link>
         </div>
       </div>

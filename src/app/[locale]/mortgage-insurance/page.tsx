@@ -30,7 +30,21 @@ export default async function MortgageInsurancePage({
   setRequestLocale(locale);
   const t = await getTranslations("mortgageInsurance");
   const facts = t.raw("facts") as Item[];
-  const steps = t.raw("steps") as string[];
+
+  const realSteps =
+    locale === "he" || locale === "ar"
+      ? [
+          "בדוק אם יש כיסוי כפול (פרטי + קולקטיבי) — כלי מיידי בזכאי.",
+          "חשב אם כדאי למחזר משכנתא — מחשבון באתר.",
+          "בקש מהסוכן ניסוח פנייה לחברת הביטוח להשוואה / הוזלה.",
+          "אם יש חיוב חודשי ברור — פתח בדיקה ומסלול משא ומתן.",
+        ]
+      : [
+          "Check duplicate cover (private + collective) in-app.",
+          "Run the mortgage refinance calculator.",
+          "Ask the agent to draft an insurer outreach letter.",
+          "If there is a clear monthly charge — open a negotiation check.",
+        ];
 
   return (
     <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
@@ -73,10 +87,10 @@ export default async function MortgageInsurancePage({
       </div>
 
       <Reveal>
-        <h2 className="font-display text-2xl mt-14 mb-4">{t("howTitle")}</h2>
+        <h2 className="font-display text-2xl mt-14 mb-4">איך זה עובד באמת</h2>
       </Reveal>
       <ol className="flex flex-col gap-3 list-none p-0 m-0">
-        {steps.map((s, i) => (
+        {realSteps.map((s, i) => (
           <Reveal key={s} delay={i * 60}>
             <li className="flex gap-3.5 items-start rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-4">
               <span className="w-[26px] h-[26px] shrink-0 rounded-full grad-bg text-[#06121A] flex items-center justify-center font-black text-[13px]">
@@ -91,16 +105,22 @@ export default async function MortgageInsurancePage({
       <Reveal>
         <div className="mt-12 rounded-2xl p-[1px] bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_55%,#8b5cf6)]">
           <div className="rounded-2xl bg-[#0a1119] px-6 py-7 text-center">
-            <div className="font-display text-xl">{t("cta.title")}</div>
+            <div className="font-display text-xl">התחל עכשיו — בלי להשאיר טלפון</div>
             <p className="text-ink-soft text-[14px] mt-2 max-w-[520px] mx-auto leading-relaxed">
-              {t("cta.body")}
+              כלים מיידיים בזכאי. עמלה רק אם נחסך בפועל ותועד.
             </p>
             <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <Link href="/start?v=mortgage-insurance">
-                <Button>{t("cta.primary")}</Button>
+              <Link href="/duplicate-insurance">
+                <Button>ביטוח כפול</Button>
               </Link>
               <Link href="/mortgage">
-                <Button variant="ghost">{t("cta.secondary")}</Button>
+                <Button variant="ghost">מחשבון משכנתא</Button>
+              </Link>
+              <Link href="/assistant">
+                <Button variant="ghost">הסוכן</Button>
+              </Link>
+              <Link href="/start?v=mortgage-insurance">
+                <Button variant="ghost">כל האפשרויות</Button>
               </Link>
             </div>
           </div>
