@@ -353,3 +353,23 @@ model PasswordReset {
 
   @@index([userId])
 }
+
+/**
+ * Revocation list for machine-verifiable Mandates (Ed25519 JWS).
+ *
+ * Institutions verify the signature offline against JWKS, then call
+ * GET /api/mandate/status/[jti] for recency. A signature cannot be un-signed;
+ * this table is the withdraw mechanism. Append-only: never delete a row.
+ * No user FK — the jti is the only handle an institution needs, and keeping
+ * this table free of person identifiers keeps the status endpoint boring to
+ * a bank security review.
+ */
+model MandateRevocation {
+  jti       String   @id
+  revokedAt DateTime @default(now())
+  reason    String   @default("user_request")
+  // Optional opaque audit tag (case id, operator id) — not returned publicly.
+  internalNote String @default("")
+
+  @@index([revokedAt])
+}
