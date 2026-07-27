@@ -1,13 +1,10 @@
-/**
- * The market registry — the one place that knows which countries exist.
- */
-
 import type { Locale } from "../../i18n/config";
 import type { JurisdictionPack, UniversalProfile } from "./types";
 import { GB_PACK } from "./packs/gb";
 import { IL_PACK } from "./packs/il";
 import { US_PACK } from "./packs/us";
 import { DE_PACK } from "./packs/de";
+import { FR_PACK } from "./packs/fr";
 import type { RightsProfile } from "../rights";
 
 export interface Market {
@@ -22,6 +19,7 @@ export const MARKETS: Record<string, Market> = {
   GB: { code: "GB", pack: GB_PACK, uiLocales: ["en"], label: "United Kingdom" },
   US: { code: "US", pack: US_PACK, uiLocales: ["en"], label: "United States" },
   DE: { code: "DE", pack: DE_PACK, uiLocales: ["en"], label: "Deutschland" },
+  FR: { code: "FR", pack: FR_PACK, uiLocales: ["en"], label: "France" },
 };
 
 export const DEFAULT_MARKET = "IL";

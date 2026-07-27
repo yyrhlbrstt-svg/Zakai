@@ -9,9 +9,8 @@ import { PlanBadge } from "@/components/PlanBadge";
 import { ToolIcon } from "@/components/ToolIcon";
 import { Menu, X, ChevronDown } from "lucide-react";
 
-/** The public tools, grouped under one "Tools" menu so the bar stays calm.
-    Each `key` maps to a real vector icon via <ToolIcon>. */
 const TOOLS = [
+  { href: "/money", key: "scan" },
   { href: "/score", key: "score" },
   { href: "/what-am-i-owed", key: "whatAmIOwed" },
   { href: "/scan", key: "scan" },
@@ -96,6 +95,9 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
     </Link>
   );
 
+  const moneyLabel =
+    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
+
   return (
     <header className="max-w-[1080px] mx-auto px-5 py-4">
       <div className="flex justify-between items-center gap-3">
@@ -103,20 +105,21 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <Logo height={22} />
         </Link>
 
-        {/* Desktop nav (md and up) */}
         <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
           <NavLink href="/">{t("nav.home")}</NavLink>
           {user ? (
             <>
+              <NavLink href="/money">{moneyLabel}</NavLink>
               <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
               <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
-              <ToolsMenu label={t("nav.tools")} />
+              <ToolsMenu label={t("nav.tools")} moneyLabel={moneyLabel} />
               <NavLink href="/check">{t("nav.newCheck")}</NavLink>
               {accountChip}
             </>
           ) : (
             <>
-              <ToolsMenu label={t("nav.tools")} />
+              <NavLink href="/money">{moneyLabel}</NavLink>
+              <ToolsMenu label={t("nav.tools")} moneyLabel={moneyLabel} />
               <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
               <NavLink href="/login">{t("nav.login")}</NavLink>
               <NavLink href="/signup">{t("nav.signup")}</NavLink>
@@ -125,8 +128,6 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <div className="ms-1">{langButtons}</div>
         </nav>
 
-        {/* Mobile: compact plan badge + hamburger. The badge links to the plans
-            page so tapping your tier opens the tracks/pricing. */}
         <div className="flex md:hidden items-center gap-2.5">
           {user && (
             <Link href="/pricing" aria-label={t("nav.pricing")} className="no-underline">
@@ -145,10 +146,10 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
         </div>
       </div>
 
-      {/* Mobile panel */}
       {mobileOpen && (
         <div className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
           <MobileLink href="/">{t("nav.home")}</MobileLink>
+          <MobileLink href="/money">{moneyLabel}</MobileLink>
           {user && (
             <>
               <MobileLink href="/assistant">{t("nav.assistant")}</MobileLink>
@@ -161,14 +162,16 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             {t("nav.tools")}
           </div>
           <div className="grid grid-cols-2 gap-1">
-            {TOOLS.map((tool) => (
+            {TOOLS.map((tool, idx) => (
               <Link
-                key={tool.key}
+                key={`${tool.href}-${idx}`}
                 href={tool.href}
                 className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
               >
                 <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
-                <span className="text-[13px] font-bold leading-tight">{t(`nav.${tool.key}`)}</span>
+                <span className="text-[13px] font-bold leading-tight">
+                  {tool.href === "/money" ? moneyLabel : t(`nav.${tool.key}`)}
+                </span>
               </Link>
             ))}
           </div>
@@ -190,8 +193,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   );
 }
 
-/** Accessible click-dropdown listing every public tool (desktop only). */
-function ToolsMenu({ label }: { label: string }) {
+function ToolsMenu({ label, moneyLabel }: { label: string; moneyLabel: string }) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -235,17 +237,19 @@ function ToolsMenu({ label }: { label: string }) {
       {open && (
         <div
           role="menu"
-          className="absolute top-[calc(100%+8px)] end-0 z-50 w-[320px] p-2 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] grid grid-cols-2 gap-1"
+          className="absolute top-[calc(100%+8px)] end-0 z-50 w-[320px] max-h-[70vh] overflow-y-auto p-2 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] grid grid-cols-2 gap-1"
         >
-          {TOOLS.map((tool) => (
+          {TOOLS.map((tool, idx) => (
             <Link
-              key={tool.key}
+              key={`${tool.href}-${idx}`}
               href={tool.href}
               role="menuitem"
               className="flex items-center gap-2.5 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
             >
               <ToolIcon name={tool.key} size={18} className="text-emerald shrink-0" />
-              <span className="text-[13px] font-bold leading-tight">{t(`nav.${tool.key}`)}</span>
+              <span className="text-[13px] font-bold leading-tight">
+                {tool.href === "/money" ? moneyLabel : t(`nav.${tool.key}`)}
+              </span>
             </Link>
           ))}
         </div>

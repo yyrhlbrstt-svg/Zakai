@@ -7,18 +7,17 @@ import {
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
 import { prisma } from "@/lib/prisma";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/**
- * Reference verifier for institutions and for our own tooling.
- *
- * Body: { token: string, audience: string }
- * Returns claims when the signature is valid, audience matches, and the jti
- * has not been revoked. Mirrors what a bank should implement against JWKS.
- */
 export async function POST(req: Request) {
+  const limited = await rateLimit("mandate-verify", clientIp(req), 60, 60);
+  if (!limited.ok) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
   let body: { token?: string; audience?: string };
   try {
     body = await req.json();
@@ -33,6 +32,9 @@ export async function POST(req: Request) {
       { error: "missing_fields", need: ["token", "audience"] },
       { status: 400 },
     );
+  }
+  if (token.length > 16_384) {
+    return NextResponse.json({ error: "token_too_large" }, { status: 400 });
   }
 
   try {
