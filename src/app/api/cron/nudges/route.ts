@@ -3,21 +3,22 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
+import { providerHebrewName } from "@/lib/providers";
 
 export const dynamic = "force-dynamic";
 
 const NUDGE_SUBJECT = "זכאי — המבצע שלך כנראה נגמר, שווה לבדוק שוב";
-/** Don't nudge the same user more often than this. */
+const SENT_SUBJECT = "זכאי — הסוכן ממתין לתשובה מהספק";
+/** Don't nudge the same user more often than this for SAVED recheck. */
 const NUDGE_COOLDOWN_DAYS = 60;
+/** SENT cases older than this get a follow-up nudge. */
+const SENT_AFTER_DAYS = 5;
+const SENT_COOLDOWN_DAYS = 10;
 
 /**
- * The retention engine's outbound half (the in-app half lives in the
- * insights). Runs daily via Vercel Cron: finds users whose documented
- * saving is older than the typical promo window and emails a re-check
- * nudge — at most one per user per cooldown window. Messages go through
- * the Outbox (real delivery activates once SMTP is configured).
- *
- * Guarded by CRON_SECRET when set (Vercel sends it as a Bearer token).
+ * Daily cron (Vercel):
+ * 1) SAVED cases past promo window → re-check nudge
+ * 2) SENT cases waiting 5+ days → follow-up nudge (agent still on the case)
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -27,20 +28,24 @@ export async function GET(request: Request) {
 
   const cutoff = new Date(Date.now() - RECHECK_AFTER_DAYS * 86_400_000);
   const cooldown = new Date(Date.now() - NUDGE_COOLDOWN_DAYS * 86_400_000);
+  const sentCutoff = new Date(Date.now() - SENT_AFTER_DAYS * 86_400_000);
+  const sentCooldown = new Date(Date.now() - SENT_COOLDOWN_DAYS * 86_400_000);
 
   try {
+    let savedSent = 0;
+    let followUpSent = 0;
+
+    // —— 1. SAVED re-check ——
     const staleCases = await prisma.case.findMany({
       where: { status: "SAVED", savingsProof: { recordedAt: { lt: cutoff } } },
       select: { userId: true, user: { select: { email: true, name: true } } },
       take: 200,
     });
 
-    // One nudge per user, and only if none was sent within the cooldown.
-    const seen = new Set<string>();
-    let sent = 0;
+    const seenSaved = new Set<string>();
     for (const c of staleCases) {
-      if (seen.has(c.userId)) continue;
-      seen.add(c.userId);
+      if (seenSaved.has(c.userId)) continue;
+      seenSaved.add(c.userId);
 
       const recent = await prisma.outbox.findFirst({
         where: { toAddress: c.user.email, subject: NUDGE_SUBJECT, createdAt: { gt: cooldown } },
@@ -55,16 +60,73 @@ export async function GET(request: Request) {
 
 עברו יותר מ-${RECHECK_AFTER_DAYS} ימים מאז שתיעדנו את החיסכון שלך — ובישראל, בדיוק בנקודה הזו מחירי מבצע נוטים לקפוץ חזרה.
 
-בדיקה חוזרת לוקחת דקה: מעלים חשבונית עדכנית, וזכאי בודק אם המחיר זחל למעלה ופועל אם צריך. כרגיל — עמלה רק אם יש חיסכון מתועד.
+בדיקה חוזרת לוקחת דקה: מעלים צילום מסך עדכני ב"הכסף שלי", וזכאי בודק אם המחיר זחל למעלה ופועל אם צריך. כרגיל — עמלה רק אם יש חיסכון מתועד.
 
-לבדיקה חוזרת: היכנסו לחשבון ובחרו "בדיקה חדשה".
+לבדיקה: היכנסו ל"הכסף שלי" או לדשבורד.
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
       });
-      sent++;
+      savedSent++;
     }
 
-    return NextResponse.json({ ok: true, candidates: staleCases.length, sent });
+    // —— 2. SENT follow-up ——
+    const waiting = await prisma.case.findMany({
+      where: {
+        status: "SENT",
+        updatedAt: { lt: sentCutoff },
+      },
+      select: {
+        id: true,
+        provider: true,
+        userId: true,
+        user: { select: { email: true, name: true } },
+      },
+      take: 150,
+      orderBy: { updatedAt: "asc" },
+    });
+
+    const seenSent = new Set<string>();
+    for (const c of waiting) {
+      // One follow-up email per user per cooldown window
+      if (seenSent.has(c.userId)) continue;
+      seenSent.add(c.userId);
+
+      const recent = await prisma.outbox.findFirst({
+        where: {
+          toAddress: c.user.email,
+          subject: SENT_SUBJECT,
+          createdAt: { gt: sentCooldown },
+        },
+        select: { id: true },
+      });
+      if (recent) continue;
+
+      const provider = providerHebrewName(c.provider);
+      await sendEmail({
+        to: c.user.email,
+        subject: SENT_SUBJECT,
+        body: `שלום ${c.user.name},
+
+הפנייה ל-${provider} נשלחה לפני כמה ימים ועדיין מסומנת כממתינה לתשובה.
+
+מה אפשר לעשות עכשיו בדשבורד (בלי מוקד):
+1. אם ענו — הזינו את הסכום החדש ולחצו "רשום חיסכון".
+2. אם לא ענו / סחבו — לחצו "הכן הודעת המשך" והדביקו לספק.
+3. אם ביקשו רק טלפון — בקשו מהם הצעה בכתב (הסוכן מנסח).
+
+הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
+
+זכאי — הסוכן שלך.`,
+        caseId: c.id,
+      });
+      followUpSent++;
+    }
+
+    return NextResponse.json({
+      ok: true,
+      savedRecheck: { candidates: staleCases.length, sent: savedSent },
+      sentFollowUp: { candidates: waiting.length, sent: followUpSent },
+    });
   } catch (err) {
     await reportError(err, { route: "cron-nudges" });
     return NextResponse.json({ ok: false }, { status: 500 });
