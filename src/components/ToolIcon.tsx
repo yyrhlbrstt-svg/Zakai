@@ -42,16 +42,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-/**
- * Single source of truth mapping every tool key to a real vector icon.
- *
- * Why this exists: the tools were previously rendered with emoji (📊, 🛡️, …).
- * Emoji render inconsistently across platforms — some show as flat glyphs,
- * some as full-color art, and a few (♿, 🅿️) fall back to tofu boxes on
- * Android/Chrome. A single lucide map gives one crisp, theme-colored,
- * accessible icon set everywhere, and keeps the header and home page in sync.
- */
 const ICONS: Record<string, LucideIcon> = {
+  money: Wallet,
   spending: Wallet,
   insurancecompare: ShieldCheck,
   debt: CreditCard,
@@ -94,7 +86,6 @@ const ICONS: Record<string, LucideIcon> = {
   scan: ScanLine,
 };
 
-/** Plain inline icon (currentColor), used in dense lists like the nav menu. */
 export function ToolIcon({
   name,
   size = 18,
@@ -108,10 +99,6 @@ export function ToolIcon({
   return <Icon size={size} strokeWidth={1.75} className={className} aria-hidden />;
 }
 
-/**
- * Premium tinted tile used on card grids (home verticals). The rounded emerald
- * tile reads as a designed product surface rather than a loose glyph.
- */
 export function ToolIconTile({ name, size = 22 }: { name: string; size?: number }) {
   const Icon = ICONS[name] ?? Sparkles;
   return (

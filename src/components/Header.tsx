@@ -10,7 +10,7 @@ import { ToolIcon } from "@/components/ToolIcon";
 import { Menu, X, ChevronDown } from "lucide-react";
 
 const TOOLS = [
-  { href: "/money", key: "scan" },
+  { href: "/money", key: "money" },
   { href: "/score", key: "score" },
   { href: "/what-am-i-owed", key: "whatAmIOwed" },
   { href: "/scan", key: "scan" },
@@ -64,6 +64,9 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
     router.replace(pathname, { locale: next });
   }
 
+  const moneyLabel =
+    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
+
   const langButtons = (
     <div className="flex gap-1">
       {activeLocales
@@ -95,8 +98,14 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
     </Link>
   );
 
-  const moneyLabel =
-    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
+  function toolLabel(href: string, key: string) {
+    if (href === "/money") return moneyLabel;
+    try {
+      return t(`nav.${key}`);
+    } catch {
+      return key;
+    }
+  }
 
   return (
     <header className="max-w-[1080px] mx-auto px-5 py-4">
@@ -107,19 +116,18 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
 
         <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
           <NavLink href="/">{t("nav.home")}</NavLink>
+          <NavLink href="/money">{moneyLabel}</NavLink>
           {user ? (
             <>
-              <NavLink href="/money">{moneyLabel}</NavLink>
               <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
               <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
-              <ToolsMenu label={t("nav.tools")} moneyLabel={moneyLabel} />
+              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} />
               <NavLink href="/check">{t("nav.newCheck")}</NavLink>
               {accountChip}
             </>
           ) : (
             <>
-              <NavLink href="/money">{moneyLabel}</NavLink>
-              <ToolsMenu label={t("nav.tools")} moneyLabel={moneyLabel} />
+              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} />
               <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
               <NavLink href="/login">{t("nav.login")}</NavLink>
               <NavLink href="/signup">{t("nav.signup")}</NavLink>
@@ -161,17 +169,15 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <div className="text-[11px] font-extrabold text-ink-soft uppercase tracking-wide px-3 pt-3 pb-1">
             {t("nav.tools")}
           </div>
-          <div className="grid grid-cols-2 gap-1">
-            {TOOLS.map((tool, idx) => (
+          <div className="grid grid-cols-2 gap-1 max-h-[50vh] overflow-y-auto">
+            {TOOLS.map((tool) => (
               <Link
-                key={`${tool.href}-${idx}`}
+                key={tool.href + tool.key}
                 href={tool.href}
                 className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
               >
                 <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
-                <span className="text-[13px] font-bold leading-tight">
-                  {tool.href === "/money" ? moneyLabel : t(`nav.${tool.key}`)}
-                </span>
+                <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
               </Link>
             ))}
           </div>
@@ -193,8 +199,13 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   );
 }
 
-function ToolsMenu({ label, moneyLabel }: { label: string; moneyLabel: string }) {
-  const t = useTranslations();
+function ToolsMenu({
+  label,
+  toolLabel,
+}: {
+  label: string;
+  toolLabel: (href: string, key: string) => string;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -239,17 +250,15 @@ function ToolsMenu({ label, moneyLabel }: { label: string; moneyLabel: string })
           role="menu"
           className="absolute top-[calc(100%+8px)] end-0 z-50 w-[320px] max-h-[70vh] overflow-y-auto p-2 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] grid grid-cols-2 gap-1"
         >
-          {TOOLS.map((tool, idx) => (
+          {TOOLS.map((tool) => (
             <Link
-              key={`${tool.href}-${idx}`}
+              key={tool.href + tool.key}
               href={tool.href}
               role="menuitem"
               className="flex items-center gap-2.5 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
             >
               <ToolIcon name={tool.key} size={18} className="text-emerald shrink-0" />
-              <span className="text-[13px] font-bold leading-tight">
-                {tool.href === "/money" ? moneyLabel : t(`nav.${tool.key}`)}
-              </span>
+              <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
             </Link>
           ))}
         </div>

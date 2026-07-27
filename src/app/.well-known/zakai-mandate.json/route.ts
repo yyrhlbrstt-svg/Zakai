@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { allMarkets } from "@/lib/global/registry";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
     human_verify_uri: `${origin}/verify`,
     integration_doc: `${origin}/en/institutions`,
     security_contact: `${origin}/.well-known/security.txt`,
-    markets: ["IL", "GB", "US", "DE"],
+    markets: allMarkets().map((m) => m.code),
     constraints: {
       outbound_payments: false,
       forbidden_scopes: [
