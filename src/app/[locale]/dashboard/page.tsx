@@ -1,5 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Sparkles, Inbox, User } from "lucide-react";
+import { Sparkles, Inbox, User, Users } from "lucide-react";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
@@ -344,6 +344,32 @@ export default async function DashboardPage({
               </div>
             ))}
 
+          {/* Household mode CTA — multiplies ARPU without a new account */}
+          <div className="mt-7 rounded-2xl border border-[rgba(139,92,246,0.28)] bg-[rgba(139,92,246,0.06)] px-5 py-4 flex items-center gap-3.5 flex-wrap">
+            <Users size={22} className="text-[#8B5CF6] shrink-0" aria-hidden />
+            <div className="flex-1 min-w-[180px]">
+              <div className="font-extrabold text-[14.5px]">
+                {locale === "he"
+                  ? hasFamily
+                    ? "הוסף עוד חשבון משפחתי"
+                    : "מצב משפחה — חשבון של אמא / סבתא"
+                  : hasFamily
+                    ? "Add another household bill"
+                    : "Household mode — Mom / Grandma bill"}
+              </div>
+              <div className="text-ink-soft text-[12.5px] mt-0.5">
+                {locale === "he"
+                  ? "תיוג בלבד — התיק נשאר שלך, הטיוטות בשמך. בלי גישה לחשבון של צד ג׳."
+                  : "Label only — the case stays yours, drafts in your name. No third-party account access."}
+              </div>
+            </div>
+            <Link href="/check" className="shrink-0">
+              <Button variant="ghost" className="!text-[13px]">
+                {locale === "he" ? "פתח בדיקה משפחתית" : "Open family check"}
+              </Button>
+            </Link>
+          </div>
+
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/money">
               <Button>{moneyLabel}</Button>
@@ -353,6 +379,12 @@ export default async function DashboardPage({
             </Link>
             <Link href="/check">
               <Button variant="ghost">{t("home.cta")}</Button>
+            </Link>
+            <Link href="/proofs">
+              <Button variant="ghost">{locale === "he" ? "קיר חיסכונות" : "Savings wall"}</Button>
+            </Link>
+            <Link href="/documents">
+              <Button variant="ghost">{locale === "he" ? "מסמכים" : "Documents"}</Button>
             </Link>
           </div>
         </>

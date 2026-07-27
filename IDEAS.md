@@ -16,6 +16,12 @@
 | שיתוף ויראלי אחרי SAVED + referral | ✅ |
 | Mandate Ed25519 + JWKS | ✅ |
 | Multi-market packs IL/GB/US/DE/FR/CA | ✅ שלד |
+| Overnight Agent | ✅ 0.3.3 |
+| Mandate QR | ✅ 0.3.3 |
+| Document vault | ✅ 0.3.4 |
+| Zakai Wrapped | ✅ 0.3.4 |
+| Public SavingsProof wall | ✅ 0.3.5 |
+| Household CTA + grouping | ✅ 0.3.5 |
 
 ---
 
@@ -23,28 +29,28 @@
 
 ### 🟢 לבנות בקרוב (מתלבש על הקיים)
 
-1. **Overnight Agent**  
+1. **Overnight Agent** ✅  
    כפתור אחד בדשבורד: "הכן follow-up לכל התיקים ב-SENT". מייצר טיוטות במקביל לפי playbook. ללא שליחה אוטומטית — המשתמש מאשר/מעתיק. סוגר את תחושת "הסוכן עובד בלילה".
 
-2. **Household / מצב משפחה v1**  
-   כבר יש `beneficiaryLabel`. להוסיף UI: "הוסף חשבון של אמא/סבתא" → תיקים מתויגים + סיכום משפחתי אחד. מכפיל ARPU בלי משתמש חדש. בלי גישה לחשבון של צד ג' — רק תווית + טיוטות בשם המשתמש המורשה.
+2. **Household / מצב משפחה v1** ✅  
+   כבר יש `beneficiaryLabel`. UI: "הוסף חשבון של אמא/סבתא" → תיקים מתויגים + סיכום משפחתי אחד. מכפיל ARPU בלי משתמש חדש. בלי גישה לחשבון של צד ג' — רק תווית + טיוטות בשם המשתמש המורשה.
 
-3. **Zakai Wrapped (שנה עם זכאי)**  
+3. **Zakai Wrapped (שנה עם זכאי)** ✅  
    דף `/wrapped` שנתי: כמה תיקים, כמה נחסך, כמה פעמים הסוכן פעל, דירוג מול ממוצע. שיתוף WhatsApp מוכן. ויראלי כמו Spotify — על בסיס `SavingsProof` שכבר קיים.
 
-4. **Public SavingsProof wall (אנונימי)**  
-   פיד ציבורי: "השבוע נחסכו ₪X על ידי N משתמשים" + כרטיסים אנונימיים ("סלולר · ₪47/ח׳"). אמון + SEO + FOMO. רק סכומים מצרפיים — בלי PII.
+4. **Public SavingsProof wall (אנונימי)** ✅  
+   פיד ציבורי `/proofs`: "השבוע נחסכו ₪X על ידי N משתמשים" + כרטיסים אנונימיים. אמון + SEO + FOMO. רק סכומים מצרפיים מ-StrategyOutcome — בלי PII.
 
-5. **Mandate QR**  
+5. **Mandate QR** ✅  
    בדף `/authorization/[code]` — QR שמפנה ל-verify + JWKS. הספק סורק במקום להקליד קוד. אמון מוסדי.
 
-6. **Batch open from scan**  
+6. **Batch open from scan** ✅  
    אחרי סריקה: "פתח את 3 התיקים הכי כדאיים" בלחיצה אחת (עד מגבלת התוכנית). Money Hub כבר מציג best ROI — להרחיב ל-top N.
 
-7. **Competitor-in-hand במשא ומתן**  
+7. **Competitor-in-hand במשא ומתן** ✅  
    ב-CaseNextStep כשבוחרים `competitor`: שדות שם+מחיר → מוזנים ל-`buildFollowUp`. כבר קיים ב-negotiation.ts — לחשוף ב-UI.
 
-8. **Document vault**  
+8. **Document vault** ✅  
    `/documents`: רשימת Mandate + מכתבים + SavingsProof להורדה/הדפסה. חותמת זמן. מחזק תחושת "יש לי תיק מסודר".
 
 ### 🟡 דורש תשתית / רגולציה
@@ -69,13 +75,11 @@
 
 ---
 
-## סדר ביצוע מומלץ (השבועיים הקרובים)
+## סדר ביצוע מומלץ (הבא)
 
-1. Overnight Agent (follow-up batch) — יום  
-2. Competitor fields ב-UI — חצי יום  
-3. Mandate QR — חצי יום  
-4. Household label UI — יום  
-5. Wrapped skeleton — יום  
-6. Public proof wall (מצרפי) — יום–יומיים  
+1. Forward-email inbox (SendGrid/Cloudflare) — סוגר proof loop  
+2. Web Push PWA  
+3. Airline Case מלא  
+4. B2B embed  
 
-הכל בלי תלויות חיצוניות חדשות. אחרי זה — inbound email / push / airline Case.
+הכל בלי תלויות חיצוניות חדשות עד עכשיו. אחרי זה — inbound email / push / airline Case.

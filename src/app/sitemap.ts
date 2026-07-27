@@ -7,6 +7,7 @@ const PATHS = [
   "",
   "/money",
   "/leaks",
+  "/proofs",
   "/cancel",
   "/credit-card",
   "/refund-chase",
@@ -25,6 +26,8 @@ const PATHS = [
   "/electricity",
   "/taxrefund",
   "/bank-fees",
+  "/wrapped",
+  "/documents",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -35,8 +38,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       entries.push({
         url: `${SITE}/${locale}${path}`,
         lastModified: now,
-        changeFrequency: path === "" || path === "/money" || path === "/leaks" ? "daily" : "weekly",
-        priority: path === "" ? 1 : path === "/money" || path === "/leaks" ? 0.95 : 0.6,
+        changeFrequency:
+          path === "" || path === "/money" || path === "/leaks" || path === "/proofs"
+            ? "daily"
+            : "weekly",
+        priority:
+          path === ""
+            ? 1
+            : path === "/money" || path === "/leaks" || path === "/proofs"
+              ? 0.95
+              : 0.6,
       });
     }
   }
