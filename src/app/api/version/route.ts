@@ -7,8 +7,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.6.0",
-    buildMarker: "dual-track-nav-embed-path-milestone-2026-07-28",
+    version: "0.7.0",
+    buildMarker: "readme-dual-track-empty-dash-priority-openapi-2026-07-28",
     positioning: "standard consumer money agent + Mandate infrastructure",
     tracks: {
       consumer: "problem-first entry · Money OS · agent recovery loop · viral after SAVED",
@@ -67,6 +67,9 @@ export async function GET() {
       usPackDeep: true,
       dualTrackNav: true,
       embedPathAwarePreview: true,
+      emptyDashboardProblemDoors: true,
+      priorityAgenticBoost: true,
+      openapiInstitutional: true,
     },
     time: new Date().toISOString(),
   });
