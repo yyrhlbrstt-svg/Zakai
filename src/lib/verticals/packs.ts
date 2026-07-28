@@ -108,6 +108,22 @@ export const transportFineIL: VerticalRulePack = {
   counterparties: ["egged", "dan", "metropoline", "other"],
 };
 
+/** Electricity supplier switch — full agent loop (letter + Mandate + follow-up). */
+export const electricityIL: VerticalRulePack = {
+  key: "electricity",
+  country: "IL",
+  label: "חשמל — מעבר ספק",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "before_after_bill",
+    proofDescription: "חשבונית חדשה מהספק החדש / הודעת ניוד שמראה תעריף נמוך יותר",
+  },
+  regulated: false,
+  counterparties: ["electra", "cellcomEnergy", "bezeqEnergy", "partnerPower", "other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -116,4 +132,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   refundChaseIL,
   parkingIL,
   transportFineIL,
+  electricityIL,
 ];
