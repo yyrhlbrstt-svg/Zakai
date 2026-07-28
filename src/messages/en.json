@@ -70,7 +70,8 @@
     "insurancecompare": "Compare insurance",
     "debt": "Consolidate debt",
     "vat": "VAT return",
-    "score": "Zakai Score"
+    "score": "Zakai Score",
+    "authority": "My authorities"
   },
   "payslip": {
     "title": "Payslip check",
@@ -3853,5 +3854,15 @@
       "sub": "A real supplier comparison, and the agent makes the switch for you.",
       "cta": "Lower my bill"
     }
+  },
+  "authority": {
+    "title": "Your authorities",
+    "subtitle": "Everything you have authorised Zakai to do on your behalf, and what is still in force. Withdrawal takes effect immediately, and any institution that checks with us sees it.",
+    "empty": "You have not authorised any action on your behalf yet. When you do, it appears here — and one tap withdraws it.",
+    "revoke": "Withdraw",
+    "revoking": "Withdrawing…",
+    "revoked": "Withdrawn",
+    "revokedNote": "Withdrawn. Any institution verifying with us will see this on its next check.",
+    "revokeFailed": "The withdrawal did not complete. Please try again."
   }
 }
