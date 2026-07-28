@@ -1,10 +1,7 @@
 /**
- * Provider registry — Stage 1 is mobile only (spec: one category first).
- *
- * `contactEmail` is where outreach is dispatched. These are placeholders for
- * the prototype; a production deployment would confirm the correct
- * cancellations/retention channel per carrier. Outreach never leaves the system
- * in dev anyway (see messaging.ts), so no placeholder address is ever mailed.
+ * Provider registry + free-text Hebrew labels for outreach.
+ * Mobile keys are structured; other verticals pass free-text provider names
+ * (banks, electricity, airlines) — providerHebrewName resolves those too.
  */
 
 export type ProviderKey =
@@ -35,10 +32,6 @@ export const PROVIDERS: Record<ProviderKey, ProviderInfo> = {
 
 export const PROVIDER_KEYS = Object.keys(PROVIDERS) as ProviderKey[];
 
-/**
- * Hebrew display names, used server-side for outreach text (the provider reads
- * Hebrew) and recommendation strategy, independent of the user's UI locale.
- */
 export const PROVIDER_HE_NAME: Record<ProviderKey, string> = {
   cellcom: "סלקום",
   partner: "פרטנר",
@@ -48,8 +41,38 @@ export const PROVIDER_HE_NAME: Record<ProviderKey, string> = {
   other: "הספק",
 };
 
+/** Free-text / vertical provider labels used in Case.provider (not only mobile keys). */
+const EXTRA_HE: Record<string, string> = {
+  electra: "אלקטרה פאוור",
+  cellcomEnergy: "סלקום אנרג'י",
+  bezeqEnergy: "בזק אנרגיה",
+  partnerPower: "פרטנר פאוור",
+  hapoalim: "בנק הפועלים",
+  leumi: "בנק לאומי",
+  discount: "בנק דיסקונט",
+  mizrahi: "מזרחי טפחות",
+  fibi: "הבינלאומי",
+  onezero: "ONE ZERO",
+  elal: "אל על",
+  israir: "ישראייר",
+  arkia: "ארקיע",
+  ryanair: "Ryanair",
+  easyjet: "easyJet",
+  lufthansa: "Lufthansa",
+  netflix: "Netflix",
+  spotify: "Spotify",
+  egged: "אגד",
+  dan: "דן",
+  metropoline: "מטרופולין",
+  municipality: "רשות מקומית",
+};
+
 export function providerHebrewName(key: string): string {
-  return isProviderKey(key) ? PROVIDER_HE_NAME[key] : PROVIDER_HE_NAME.other;
+  if (isProviderKey(key)) return PROVIDER_HE_NAME[key];
+  if (EXTRA_HE[key]) return EXTRA_HE[key];
+  // Already a Hebrew / display string from electricity / bank tools
+  if (/[\u0590-\u05FF]/.test(key) || key.length > 2) return key;
+  return PROVIDER_HE_NAME.other;
 }
 
 export function isProviderKey(v: string): v is ProviderKey {
@@ -60,15 +83,11 @@ export function providerContactEmail(key: string): string {
   return isProviderKey(key) ? PROVIDERS[key].contactEmail : PROVIDERS.other.contactEmail;
 }
 
-/**
- * Map a free-text provider name (e.g. from AI extraction) to a known key.
- * Handles Hebrew and English variants; falls back to "other".
- */
 export function resolveProviderKey(name: string): ProviderKey {
   const n = name.trim().toLowerCase();
-  if (/(cellcom|סלקום)/.test(n)) return "cellcom";
-  if (/(partner|פרטנר|orange)/.test(n)) return "partner";
-  if (/(bezeq|בזק|pelephone|פלאפון)/.test(n)) return "bezeq";
+  if (/(cellcom|סלקום)/.test(n) && !/energy|אנרג/.test(n)) return "cellcom";
+  if (/(partner|פרטנר|orange)/.test(n) && !/power|פאוור/.test(n)) return "partner";
+  if (/(bezeq|בזק|pelephone|פלאפון)/.test(n) && !/energy|אנרג/.test(n)) return "bezeq";
   if (/(hot|הוט)/.test(n)) return "hot";
   if (/(yes|יס)/.test(n)) return "yes";
   return "other";

@@ -4,8 +4,8 @@
 
 Dual-track product:
 
-1. **Consumer recovery** — scan charges → Case → Ed25519 Mandate → agent send/follow-up → SavingsProof → success fee only on documented savings. No call center. No phone left behind. Household beneficiary labels supported.
-2. **Institutional infrastructure** — verifiable consumer authority (JWKS, status, scopes, OpenAPI) that banks, insurers, utilities and fintechs can accept offline without outbound-payment risk.
+1. **Consumer recovery** — scan charges → Case → Ed25519 Mandate → agent send/follow-up → SavingsProof → success fee only on documented savings. No call center. No phone left behind.
+2. **Institutional infrastructure** — verifiable consumer authority (JWKS, status, scopes, OpenAPI, CORS verify) that banks, insurers, utilities and fintechs can accept offline without outbound-payment risk.
 
 Live: [zakai-3uxj.vercel.app](https://zakai-3uxj.vercel.app)
 
@@ -21,14 +21,16 @@ problem door (homepage / leaks / cancel / what-am-i-owed / electricity)
   → Case (auto-approve on full verticals)
   → ownership (SMS or magic-link)
   → one-tap dispatch (Mandate + send)
-  → agent follow-up rounds (auto, capped)
+  → agent follow-up rounds
   → inbound proofs@ → one-tap record saving
-  → viral share after SAVED
+  → viral share after SAVED → next doors
 ```
 
 Fee: success only, net of referral credit. Dispute window documented on Trust.
 
-**Full-service IL verticals:** telecom · bank-fees · subscription · airline · refund-chase · parking · transport-fine · **electricity**
+## Full-service IL verticals
+
+telecom · bank-fees · subscription · airline · refund-chase · parking · transport-fine · **electricity**
 
 ## Mandate (infrastructure)
 
@@ -36,7 +38,7 @@ Fee: success only, net of referral credit. Dispute window documented on Trust.
 - **Discovery:** `/.well-known/zakai-mandate.json`
 - **JWKS:** `/.well-known/zakai-jwks.json`
 - **Status:** `/api/mandate/status/{jti}`
-- **Verify:** `POST /api/mandate/verify`
+- **Verify:** `POST /api/mandate/verify` (CORS enabled for institutional clients)
 - **Scopes:** `/api/mandate/scopes` (outbound payments forbidden in code)
 - **OpenAPI:** `/api/mandate/openapi.json`
 - **Human verify:** `/verify` · institutions docs: `/institutions`
@@ -86,4 +88,4 @@ npm run build
 
 ## Version
 
-See `/api/version` and `DEPLOY_MARKER.txt`. Current line: **0.9.0** dual-track (electricity full · household · institutional pilot).
+See `/api/version` and `DEPLOY_MARKER.txt`. Current: **1.0.0** dual-track.
