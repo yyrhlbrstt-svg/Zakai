@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/messaging";
 import { buildFollowUp } from "@/lib/negotiation";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { agorotToShekels } from "@/lib/money";
+import { pushToUser } from "@/lib/push";
 
 /**
  * The agent keeps working after the first send.
@@ -35,7 +36,7 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
     where: { id: caseId },
     include: {
       authorization: true,
-      user: { select: { name: true, email: true } },
+      user: { select: { id: true, name: true, email: true } },
     },
   });
 
@@ -99,6 +100,14 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
 זכאי — הסוכן שלך.`,
     caseId,
   });
+
+  // Push to installed PWA if the user opted in — agent feels alive on the phone.
+  await pushToUser(kase.user.id, {
+    title: "זכאי — הסוכן פעל",
+    body: `נשלחה תזכורת ל-${provider}. פתחו את הדשבורד אם ענו.`,
+    url: "/he/dashboard",
+    tag: `followup-${caseId}`,
+  }).catch(() => null);
 
   return { caseId, sent: true };
 }
