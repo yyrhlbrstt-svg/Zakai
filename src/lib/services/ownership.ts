@@ -1,20 +1,37 @@
 import "server-only";
+import { SignJWT, jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
 import { generateNumericCode, hashCode, safeEqualHex } from "@/lib/codes";
-import { sendSms, smsConfigured } from "@/lib/messaging";
+import { sendSms, sendEmail, smsConfigured } from "@/lib/messaging";
 
 const CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const MAGIC_TTL_SECONDS = 15 * 60; // 15 minutes
 const MAX_ATTEMPTS = 5;
 const RESEND_COOLDOWN_MS = 30 * 1000; // 30s between sends
 
+const DEV_ONLY_FALLBACK_SECRET =
+  "zakai-insecure-development-only-secret-do-not-use-in-production";
+
+function ownershipSecret(): Uint8Array {
+  const secret = process.env.AUTH_SECRET;
+  if (secret && secret.length >= 32) {
+    return new TextEncoder().encode(secret);
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("AUTH_SECRET required for ownership magic links");
+  }
+  return new TextEncoder().encode(DEV_ONLY_FALLBACK_SECRET);
+}
+
 export type OwnershipSendResult =
-  | { ok: true; devHint: boolean }
+  | { ok: true; devHint: boolean; magicSent: boolean }
   | { ok: false; error: "cooldown" };
 
 /**
- * Send a one-time ownership code to the user's registered phone. The code is
- * hashed at rest; the plaintext exists only in the SMS/Outbox. In dev (no SMS
- * provider) it lands in the Outbox so the flow is testable.
+ * Send a one-time ownership code to the user's registered phone AND a
+ * magic link to their email. Doctrine: never leave a phone for a callback —
+ * the OTP goes to the phone already on the account; the magic link is the
+ * zero-SMS path for users who prefer email.
  */
 export async function sendOwnershipCode(
   userId: string,
@@ -46,7 +63,105 @@ export async function sendOwnershipCode(
     caseId,
   });
 
-  return { ok: true, devHint: !smsConfigured() };
+  // Parallel path: magic link by email (no SMS dependency).
+  let magicSent = false;
+  if (caseId) {
+    try {
+      await sendOwnershipMagicLink(userId, caseId);
+      magicSent = true;
+    } catch {
+      /* SMS path still works */
+    }
+  }
+
+  return { ok: true, devHint: !smsConfigured(), magicSent };
+}
+
+/**
+ * Issue a short-lived JWT magic link and email it to the account owner.
+ * Clicking the link verifies ownership without typing an OTP.
+ */
+export async function sendOwnershipMagicLink(
+  userId: string,
+  caseId: string,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, name: true },
+  });
+  if (!user?.email) return { ok: false, error: "no_email" };
+
+  const kase = await prisma.case.findUnique({ where: { id: caseId } });
+  if (!kase || kase.userId !== userId) return { ok: false, error: "not_found" };
+  if (kase.ownershipVerifiedAt) return { ok: false, error: "already_verified" };
+
+  const token = await new SignJWT({
+    purpose: "ownership",
+    userId,
+    caseId,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(`${MAGIC_TTL_SECONDS}s`)
+    .sign(ownershipSecret());
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const url = `${appUrl}/he/ownership/confirm?token=${encodeURIComponent(token)}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "זכאי — אימות בעלות בלחיצה אחת",
+    body: `שלום ${user.name},
+
+כדי לאשר שהתיק מול הספק שייך לחשבון שלך, לחץ/י על הקישור (בתוקף ${MAGIC_TTL_SECONDS / 60} דקות):
+
+${url}
+
+אפשר גם להזין קוד SMS בדשבורד — אותה פעולה.
+
+לא ביקשת את זה? אפשר להתעלם.
+
+זכאי — סוכן כסף לצרכן.`,
+    caseId,
+  });
+
+  return { ok: true, url };
+}
+
+export type MagicVerifyResult =
+  | { ok: true; caseId: string }
+  | { ok: false; error: "invalid" | "expired" | "already" | "not_found" };
+
+/** Consume a magic-link token and stamp ownershipVerifiedAt. */
+export async function verifyOwnershipMagic(token: string): Promise<MagicVerifyResult> {
+  let payload: { purpose?: string; userId?: string; caseId?: string };
+  try {
+    const verified = await jwtVerify(token, ownershipSecret());
+    payload = verified.payload as typeof payload;
+  } catch {
+    return { ok: false, error: "expired" };
+  }
+
+  if (payload.purpose !== "ownership" || !payload.userId || !payload.caseId) {
+    return { ok: false, error: "invalid" };
+  }
+
+  const kase = await prisma.case.findUnique({ where: { id: payload.caseId } });
+  if (!kase || kase.userId !== payload.userId) return { ok: false, error: "not_found" };
+  if (kase.ownershipVerifiedAt) return { ok: false, error: "already" };
+
+  await prisma.case.update({
+    where: { id: payload.caseId },
+    data: { ownershipVerifiedAt: new Date() },
+  });
+
+  // Consume any outstanding OTP so it cannot be replayed.
+  await prisma.phoneVerification.updateMany({
+    where: { userId: payload.userId, caseId: payload.caseId, consumedAt: null },
+    data: { consumedAt: new Date() },
+  });
+
+  return { ok: true, caseId: payload.caseId };
 }
 
 export type OwnershipVerifyResult =
