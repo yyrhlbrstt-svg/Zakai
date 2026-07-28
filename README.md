@@ -1,54 +1,87 @@
 # זכאי (Zakai)
 
-סוכן AI צרכני שמזהה חיובי **סלולר** מנופחים בישראל, מנסח פנייה מקצועית, פועל בשם הלקוח **באישורו המפורש**, וגובה **עמלת הצלחה של 18% מחיסכון מתועד בלבד**. ערוץ פעולה בשלב זה: הודעות (מייל/טופס), לא שיחות טלפון.
+**The standard consumer money agent + Mandate infrastructure.**
 
-> MVP צר שעובד קצה-לקצה. קטגוריה אחת (סלולר), ערוץ אחד (מייל). הרחבות מתועדות ב-[`BACKLOG.md`](./BACKLOG.md) ואינן בקוד.
+Dual-track product:
 
-## מסמכים
-- [`JOURNAL.md`](./JOURNAL.md) — יומן החלטות ופשרות תוך כדי הבנייה.
-- [`COUNCIL.md`](./COUNCIL.md) — ממצאי פרוטוקול הביקורת (5 בוחנים) לכל רכיב מרכזי.
-- [`BACKLOG.md`](./BACKLOG.md) — רעיונות עתידיים, לא ממומשים.
+1. **Consumer recovery** — scan charges → Case → Ed25519 Mandate → agent send/follow-up → SavingsProof → success fee only on documented savings. No call center. No phone left behind.
+2. **Institutional infrastructure** — verifiable consumer authority (JWKS, status, scopes, OpenAPI) that banks, insurers, utilities and fintechs can accept offline without outbound-payment risk.
+
+Live: [zakai-3uxj.vercel.app](https://zakai-3uxj.vercel.app)
+
+## Why this can scale past recovery-app ceilings
+
+Bill-negotiation alone caps roughly in the low billions (category peers). The bypass is **Mandate as a standard**: every regulated institution that needs machine-verifiable consumer authority without the ability to move money *out* of the principal’s accounts. Same closed-loop UX language for every vertical and market.
+
+## Product loop (consumer)
+
+```
+problem door (homepage / leaks / cancel / what-am-i-owed)
+  → Money OS scan (screenshot, no bank credentials)
+  → Case (auto-approve on full verticals)
+  → ownership (SMS or magic-link)
+  → one-tap dispatch (Mandate + send)
+  → agent follow-up rounds
+  → inbound proofs@ → one-tap record saving
+  → viral share after SAVED
+```
+
+Fee: success only, net of referral credit. Dispute window documented on Trust.
+
+## Mandate (infrastructure)
+
+- **Alg:** EdDSA / Ed25519, `typ: zakai-mandate+jws`
+- **Discovery:** `/.well-known/zakai-mandate.json`
+- **JWKS:** `/.well-known/zakai-jwks.json`
+- **Status:** `/api/mandate/status/{jti}`
+- **Verify:** `POST /api/mandate/verify`
+- **Scopes:** `/api/mandate/scopes` (outbound payments forbidden in code)
+- **OpenAPI:** `/api/mandate/openapi.json`
+- **Human verify:** `/verify` · institutions docs: `/institutions`
+- **B2B embed:** `/embed.js` with `data-path=money|cancel|what-am-i-owed|leaks` · `/partners`
+
+## Markets
+
+Jurisdiction packs (data-only; engine unchanged): **IL · GB · US · DE · FR · CA**
+
+i18n locales: **he · en · ar · ru**
 
 ## Stack
-Next.js 15 (App Router) · TypeScript · Tailwind · Prisma + PostgreSQL · next-intl (עברית RTL ראשית) · Anthropic (צד שרת) · Vitest.
 
-## הרצה מקומית
+Next.js 15 (App Router) · React 19 · TypeScript strict · Tailwind · Prisma 6 + Postgres · next-intl · jose (Ed25519) · Anthropic/Gemini side · Web Push · Vitest
+
+## Local run
 
 ```bash
 npm install
-cp .env.example .env            # ערוך לפי הצורך
-npx prisma migrate deploy       # או: npm run db:migrate
-npm run dev                     # http://localhost:3000
+cp .env.example .env
+npx prisma migrate deploy
+npm run dev
 ```
 
-דורש PostgreSQL. `DATABASE_URL` ב-`.env`. ללא `ANTHROPIC_API_KEY` — קריאת חשבונית מתמונה מושבתת (קלט ידני עובד), והניסוח נופל ל-template מסומן. ללא `SMTP_*`/`SMS_PROVIDER` — הודעות נשמרות ב-`Outbox` ולא יוצאות (מצב פיתוח, ניתן לבדיקה מלאה).
-
-## בדיקות
+## Tests
 
 ```bash
-npm test          # יחידה + אינטגרציה (דורש DB רץ ל-integration)
+npm test
 npm run typecheck
 npm run build
 ```
 
-בדיקות קריטיות: `src/lib/fee.test.ts` (חישוב עמלה), `src/lib/codes.test.ts` + `src/lib/phone.test.ts`, `src/lib/services/ownership.integration.test.ts` (מנגנון אימות מול DB אמיתי).
+## Doctrine (non-negotiable)
 
-## מסלול הליבה
-`חיבור חשבונית → ניתוח → אישור משתמש (פר-פנייה) → אימות בעלות (SMS) + מסמך הרשאה (קוד אימות) → שליחת פנייה (מייל, עם גילוי) → מעקב תשובה → תיעוד הוכחת חיסכון → חישוב עמלה`.
+- **No-callback:** never leave a phone number for “we’ll call you back”.
+- **Closed-loop self-serve:** screenshot in, documented saving out.
+- **Inbound-only authority:** Mandate cannot initiate outbound payments, transfers, loans, or account closure.
+- **Success fee only on SavingsProof.**
+- **Every vertical speaks the same Case language.**
 
-שני מנגנוני האימות הם **תנאי חובה** לשליחה — לא ניתן לפנות בשם לקוח בלעדיהם.
+## Docs
 
-## מבנה
-```
-src/
-  app/[locale]/        דפים (בית, התחברות/הרשמה, check, dashboard, verify, authorization/[code])
-  app/api/             route handlers (auth, cases/*, authorization/[code])
-  components/          UI (client)
-  i18n/                תצורת next-intl (he/en פעילות, ar/ru בארכיטקטורה)
-  lib/                 money, fee, phone, codes, ai, messaging, providers, auth/*, services/*
-  messages/            קטלוגי תרגום
-prisma/schema.prisma   מודל הנתונים (כסף ב-agorot, טבלאות אמון append-only)
-```
+- [`TRILLION-DOLLAR-BLUEPRINT.md`](./TRILLION-DOLLAR-BLUEPRINT.md) — path past recovery category ceilings
+- [`MARKET-REALITY.md`](./MARKET-REALITY.md) — honest TAM vs infrastructure
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) · [`docs/MANDATE_INSTITUTIONAL_SPEC.md`](./docs/MANDATE_INSTITUTIONAL_SPEC.md)
+- [`BACKLOG.md`](./BACKLOG.md) · [`JOURNAL.md`](./JOURNAL.md)
 
-## אתיקה (לא סעיף קישוט)
-גילוי מלא שזכאי הוא סוכן דיגיטלי · ללא הבטחות מוגזמות (לקח DoNotPay/FTC) · הסכמה מפורשת לפני כל פעולה · סלולר בלבד בשלב 1. תנאי השימוש הם טיוטת דוגמה — גרסה מסחרית מחייבת עורך דין.
+## Version
+
+See `/api/version` and `DEPLOY_MARKER.txt`. Current line: **0.7.x** dual-track.
