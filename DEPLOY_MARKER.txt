@@ -1,9 +1,10 @@
 zakai-production-deploy-marker
-version=0.3.9
+version=0.3.10
 prisma=6.19.0
-ts=2026-07-28T03:20:00+03:00
+ts=2026-07-28T06:30:00+03:00
 
-v0.3.9: Inbound-email webhook + AI extract for SavingsProof (closes proof loop)
+v0.3.10: Agent auto-follow-up (Mandate→provider) + Web Push PWA
+v0.3.9: Inbound-email SavingsProof extract loop
 v0.3.8: Parking + transport-fine agent Cases
 v0.3.7: Bank-fees agent Case + Mandate
 v0.3.6: Airline + B2B embed + refund-chase
