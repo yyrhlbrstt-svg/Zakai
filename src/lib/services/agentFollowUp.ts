@@ -13,6 +13,10 @@ import { pushToUser } from "@/lib/push";
  * this service builds the next written follow-up (deterministic playbook),
  * attaches the live Mandate footer, and dispatches to the provider.
  *
+ * Round tracking is explicit: we count prior agent follow-ups on the Outbox
+ * (subject prefix "זכאי סיבוב N") and increment. Cap at round 4 so we never
+ * spam a provider indefinitely.
+ *
  * Hard gates (same as first send):
  *  - Case status SENT
  *  - ACTIVE Authorization still present
@@ -20,15 +24,31 @@ import { pushToUser } from "@/lib/push";
  *
  * The user is never asked for a phone number. They can revoke the Mandate
  * at any time; the next cron pass simply skips revoked cases.
- *
- * This is the difference between a letter-template tool and a real agent:
- * the case continues without the founder or the customer opening the app.
  */
+
+export const AGENT_SUBJECT_PREFIX = "זכאי סיבוב";
+export const MAX_AGENT_ROUNDS = 4;
 
 export interface AutoFollowUpResult {
   caseId: string;
   sent: boolean;
+  round?: number;
   reason?: string;
+}
+
+/** Count prior agent auto-follow-ups for this case (by subject marker). */
+async function priorAgentRounds(caseId: string): Promise<number> {
+  const rows = await prisma.outbox.findMany({
+    where: {
+      caseId,
+      channel: "EMAIL",
+      providerMessageId: { not: "inbound" },
+      subject: { startsWith: AGENT_SUBJECT_PREFIX },
+    },
+    select: { subject: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return rows.length;
 }
 
 export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResult> {
@@ -47,6 +67,12 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
     return { caseId, sent: false, reason: "NO_ACTIVE_MANDATE" };
   }
 
+  const prior = await priorAgentRounds(caseId);
+  const round = prior + 2; // first outreach = round 1 (manual/send); auto starts at 2
+  if (round > MAX_AGENT_ROUNDS) {
+    return { caseId, sent: false, reason: "MAX_ROUNDS", round };
+  }
+
   const auth = kase.authorization;
   const provider = providerHebrewName(kase.provider);
   const follow = buildFollowUp({
@@ -56,8 +82,11 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
     targetShekels: agorotToShekels(kase.targetAmount),
     plan: kase.planDescription || undefined,
     replyKind: "delay",
-    round: 2,
+    round,
   });
+
+  // Unified subject so cron cooldown + dashboards can key off one prefix.
+  const subject = `${AGENT_SUBJECT_PREFIX} ${round} — תזכורת ל-${provider} | ${kase.user.name}`;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const footer = `
@@ -68,11 +97,11 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
-זוהי פנייה חוזרת אוטומטית של הסוכן (סיבוב 2) — הלקוח/ה לא נדרש/ת לפעולה נוספת.`;
+זוהי פנייה חוזרת אוטומטית של הסוכן (סיבוב ${round}) — הלקוח/ה לא נדרש/ת לפעולה נוספת.`;
 
   await sendEmail({
     to: providerContactEmail(kase.provider),
-    subject: follow.subject,
+    subject,
     body: follow.body + footer,
     caseId,
   });
@@ -86,10 +115,10 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
   // Notify the customer that the agent acted (self-serve transparency).
   await sendEmail({
     to: kase.user.email,
-    subject: `זכאי — הסוכן שלח תזכורת ל-${provider}`,
+    subject: `זכאי — הסוכן שלח תזכורת ל-${provider} (סיבוב ${round})`,
     body: `שלום ${kase.user.name},
 
-עברו כמה ימים בלי תשובה מ-${provider}. הסוכן שלח בשמך פנייה חוזרת בכתב (סיבוב 2), עם מסמך ההרשאה הפעיל.
+עברו כמה ימים בלי תשובה מ-${provider}. הסוכן שלח בשמך פנייה חוזרת בכתב (סיבוב ${round}), עם מסמך ההרשאה הפעיל.
 
 מה אפשר לעשות עכשיו בדשבורד:
 • אם ענו — הזינו את הסכום החדש ולחצו "רשום חיסכון".
@@ -104,10 +133,10 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
   // Push to installed PWA if the user opted in — agent feels alive on the phone.
   await pushToUser(kase.user.id, {
     title: "זכאי — הסוכן פעל",
-    body: `נשלחה תזכורת ל-${provider}. פתחו את הדשבורד אם ענו.`,
+    body: `סיבוב ${round}: נשלחה תזכורת ל-${provider}. פתחו את הדשבורד אם ענו.`,
     url: "/he/dashboard",
-    tag: `followup-${caseId}`,
+    tag: `followup-${caseId}-r${round}`,
   }).catch(() => null);
 
-  return { caseId, sent: true };
+  return { caseId, sent: true, round };
 }
