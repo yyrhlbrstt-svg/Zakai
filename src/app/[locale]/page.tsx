@@ -8,7 +8,6 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { Globe, ScanLine, Ban, Scale, Zap } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
-import { allMarkets } from "@/lib/global/registry";
 import { bcp47, type Locale } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +38,6 @@ export default async function HomePage({
   const trust = (t.raw("home.trust") as string[]) || [];
   const israeliVisitor = await isIsrael();
   const visitorCountry = await getCountry();
-  const markets = allMarkets();
 
   let countryTag = "";
   if (visitorCountry) {
@@ -88,32 +86,6 @@ export default async function HomePage({
     },
   ];
 
-  // Fallback English titles if translation keys missing
-  const doorFallback: Record<string, { title: string; sub: string; cta: string }> = {
-    "door.money.title": "Paying too much",
-    "door.money.sub": "Scan bills · agent negotiates · documented savings",
-    "door.money.cta": "My money →",
-    "door.cancel.title": "Cancel a subscription",
-    "door.cancel.sub": "Agent sends · Mandate · auto follow-up",
-    "door.cancel.cta": "Agent cancel →",
-    "door.owed.title": "What am I owed?",
-    "door.owed.sub": "Rights · benefits · refunds you never claimed",
-    "door.owed.cta": "Check rights →",
-    "door.electricity.title": "Electricity too high",
-    "door.electricity.sub": "Compare suppliers · agent acts · Mandate switch",
-    "door.electricity.cta": "Switch supplier →",
-  };
-
-  function doorText(key: string) {
-    try {
-      const val = t(key);
-      if (val && val !== key) return val;
-    } catch {
-      // fall through
-    }
-    return doorFallback[key] || key;
-  }
-
   const accentBorder: Record<string, string> = {
     emerald: "border-[rgba(63,203,155,0.4)]",
     violet: "border-[rgba(139,92,246,0.4)]",
@@ -141,26 +113,6 @@ export default async function HomePage({
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
-      <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
-        The standard consumer money agent · Money OS · Mandate · No call center · v1.2.2
-      </div>
-
-      <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px] text-ink-soft">
-        <Globe size={14} className="text-emerald shrink-0" aria-hidden />
-        <span className="font-bold text-ink">Markets:</span>
-        {markets.map((m) => {
-          const active = visitorCountry === m.code;
-          const cls = active
-            ? "rounded-full px-2.5 py-1 border border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.12)] text-emerald font-extrabold"
-            : "rounded-full px-2.5 py-1 border border-[rgba(255,255,255,0.1)]";
-          return (
-            <span key={m.code} className={cls}>
-              {m.code}
-            </span>
-          );
-        })}
-      </div>
-
       {!israeliVisitor && (
         <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
           <Globe size={18} className="shrink-0 text-[#3ec6ff]" aria-hidden />
@@ -185,9 +137,7 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={160}>
             <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
-              Zakai is the consumer money OS: scan, Mandate, send, follow up,
-              documented saving. No call center. No phone left behind. Fee only
-              when money is actually saved.
+              {t("home.sub")}
             </p>
           </Reveal>
         </div>
@@ -198,8 +148,8 @@ export default async function HomePage({
       </div>
 
       <Reveal>
-        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft uppercase tracking-wide">
-          Where do you start?
+        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
+          {t("door.title")}
         </h2>
       </Reveal>
 
@@ -232,17 +182,17 @@ export default async function HomePage({
                       "font-extrabold text-[17px] " + accentText[d.accent]
                     }
                   >
-                    {doorText(d.titleKey)}
+                    {t(d.titleKey)}
                   </div>
                   <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed">
-                    {doorText(d.subKey)}
+                    {t(d.subKey)}
                   </div>
                   <div
                     className={
                       "mt-4 text-[14px] font-extrabold " + accentText[d.accent]
                     }
                   >
-                    {doorText(d.ctaKey)}
+                    {t(d.ctaKey)}
                   </div>
                 </SpotlightCard>
               </Link>
@@ -376,19 +326,17 @@ export default async function HomePage({
       <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
-            Everything through Zakai — category leader
+            {t("home.closingTitle")}
           </div>
           <p className="text-ink-soft text-[15px] mt-3 max-w-[520px] mx-auto leading-relaxed">
-            Whoever owns scan→Mandate→saving→share owns the market. We are
-            building that loop in every market — and the infrastructure
-            institutions adopt.
+            {t("home.closingSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
-              <Button className="!text-[15px] !px-6 !py-3">My money</Button>
+              <Button className="!text-[15px] !px-6 !py-3">{t("home.closingCta")}</Button>
             </Link>
             <Link href="/business">
-              <Button variant="ghost">Business & institutions</Button>
+              <Button variant="ghost">{t("home.closingB2b")}</Button>
             </Link>
           </div>
         </div>

@@ -23,7 +23,10 @@ export default async function WrappedPage({
   const he = locale === "he" || locale === "ar";
   const loc = bcp47[locale as Locale];
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login?return=/wrapped", locale });
+  if (!user) {
+    redirect({ href: "/login?return=/wrapped", locale });
+    return null;
+  }
 
   const year = new Date().getFullYear();
   const yearStart = new Date(`${year}-01-01T00:00:00.000Z`);

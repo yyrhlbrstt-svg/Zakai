@@ -23,7 +23,10 @@ export default async function DocumentsPage({
   const he = locale === "he" || locale === "ar";
   const loc = bcp47[locale as Locale];
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login?return=/documents", locale });
+  if (!user) {
+    redirect({ href: "/login?return=/documents", locale });
+    return null;
+  }
 
   const cases = await prisma.case.findMany({
     where: { userId: user.id },

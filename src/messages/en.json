@@ -227,7 +227,7 @@
     "kicker": "The AI agent that gets back the money you are owed",
     "title1": "You're overpaying.",
     "title2": "Zakai gets it back.",
-    "sub": "Zakai detects inflated mobile bills, drafts a professional request and acts on your behalf — taking a fee only from money that actually returns to you.",
+    "sub": "Zakai scans your charges, drafts the request, sends it in your name and follows up until the money comes back. No call centre, no hold music, no forms. A fee only on money that actually reached you.",
     "cta": "Check a bill now",
     "howTitle": "How it works",
     "trust": [
@@ -235,7 +235,7 @@
       "Full disclosure — a digital agent, with your authorization",
       "Your data is encrypted"
     ],
-    "scopeNote": "At this stage Zakai handles mobile bills only, over a messaging channel (email/form). More categories and channels come only once this path has proven itself.",
+    "scopeNote": "Zakai acts on your behalf with providers and authorities under a digital power of attorney you approve for each request, verifiable publicly. It is not a law firm, gives no legal or tax advice, and final eligibility is determined by the body the request is filed with.",
     "verticalsTitle": "What Zakai checks for you",
     "verticals": {
       "mobile": {
@@ -442,7 +442,11 @@
       "consumer": "Consumer & savings",
       "business": "Business & self-employed"
     },
-    "geoNote": "Looks like you are browsing from outside Israel. Some tools (lost money, cancelling subscriptions, price protection) work anywhere; rights and refunds are tuned for Israel today, and we are expanding to more regions."
+    "geoNote": "Looks like you are browsing from outside Israel. Some tools (lost money, cancelling subscriptions, price protection) work anywhere; rights and refunds are tuned for Israel today, and we are expanding to more regions.",
+    "closingTitle": "The money you're owed — without doing anything",
+    "closingSub": "Every shekel saved is documented, and every request is sent with authority anyone can verify. You just watch the number go up.",
+    "closingCta": "Start now",
+    "closingB2b": "Business & institutions"
   },
   "calc": {
     "title": "How much could you save?",
@@ -3825,6 +3829,29 @@
       "work_pension_mandatory": "Mandatory pension",
       "work_sick": "Sick pay",
       "work_travel": "Commute reimbursement"
+    }
+  },
+  "door": {
+    "title": "Where do you start?",
+    "money": {
+      "title": "I'm paying too much",
+      "sub": "Photograph a bill — the agent drafts, sends, follows up and documents the saving.",
+      "cta": "Check my money"
+    },
+    "cancel": {
+      "title": "Cancel a subscription",
+      "sub": "The agent sends the cancellation in your name, with verified authority, and chases the reply.",
+      "cta": "Cancel it for me"
+    },
+    "owed": {
+      "title": "What am I owed?",
+      "sub": "Rights, benefits and refunds you never claimed — eight questions, no documents.",
+      "cta": "Check what I'm owed"
+    },
+    "electricity": {
+      "title": "My electricity bill is high",
+      "sub": "A real supplier comparison, and the agent makes the switch for you.",
+      "cta": "Lower my bill"
     }
   }
 }
