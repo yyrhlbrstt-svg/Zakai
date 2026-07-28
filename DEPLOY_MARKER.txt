@@ -1,8 +1,9 @@
 zakai-production-deploy-marker
-version=0.3.13
+version=0.3.14
 prisma=6.19.0
-ts=2026-07-28T03:50:00+03:00
+ts=2026-07-28T03:57:00+03:00
 
+v0.3.14: Agent explicit rounds + inbound rate-limit + Money Hub batch open
 v0.3.13: Harden agent auto-follow-up cooldown (subject filter bug fixed)
 v0.3.12: Proposed-saving one-tap on SENT (inbound extract → dashboard prefill)
 v0.3.11: EnablePush UI + viral SAVED native share + inbound→push
