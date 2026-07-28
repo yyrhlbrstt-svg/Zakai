@@ -21,6 +21,7 @@ import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
+import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -69,6 +70,23 @@ export default async function DashboardPage({
   const proposedMap = await getProposedSavingsMap(sentIds);
   const proposedCount = proposedMap.size;
 
+  const agentRoundMap = new Map<string, number>();
+  if (sentIds.length > 0) {
+    const outs = await prisma.outbox.groupBy({
+      by: ["caseId"],
+      where: {
+        caseId: { in: sentIds },
+        channel: "EMAIL",
+        providerMessageId: { not: "inbound" },
+        subject: { startsWith: AGENT_SUBJECT_PREFIX },
+      },
+      _count: { _all: true },
+    });
+    for (const o of outs) {
+      if (o.caseId) agentRoundMap.set(o.caseId, o._count._all);
+    }
+  }
+
   const totalDocumentedMonthly = cases.reduce(
     (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
     0,
@@ -91,7 +109,7 @@ export default async function DashboardPage({
     .filter((c) => c.status === "SENT")
     .map((c) => ({
       id: c.id,
-      providerLabel: providerHebrewName(c.provider) !== "הספק" ? providerHebrewName(c.provider) : c.provider,
+      providerLabel: providerHebrewName(c.provider),
     }));
 
   const ownCases = cases.filter((c) => !c.beneficiaryLabel);
@@ -135,6 +153,7 @@ export default async function DashboardPage({
               from: proposed.from,
             }
           : null;
+        const label = providerHebrewName(c.provider);
         return (
           <div
             key={c.id}
@@ -144,9 +163,10 @@ export default async function DashboardPage({
             }}
           >
             <div className="flex-1 basis-[140px]">
-              <div className="font-extrabold text-[15.5px]">{t.has(`providers.${c.provider}`) ? t(`providers.${c.provider}`) : c.provider}</div>
+              <div className="font-extrabold text-[15.5px]">{label}</div>
               <div className="text-xs text-ink-soft mt-0.5">
                 {c.createdAt.toLocaleDateString(loc)}
+                {c.vertical ? ` · ${c.vertical}` : ""}
               </div>
             </div>
             <div className="text-[14.5px]">
@@ -205,6 +225,7 @@ export default async function DashboardPage({
                 referralCode={referralCode}
                 proposedSaving={proposedClient}
                 proofsEmail={proofsEmail}
+                agentRound={agentRoundMap.get(c.id) ?? 0}
               />
             </div>
           </div>
@@ -309,7 +330,6 @@ export default async function DashboardPage({
 
       <MoneyScoreCard result={scoreResult} />
 
-      {/* Strategy Engine learning — founder transparency, anonymized */}
       <StrategyInsightsCard locale={locale} bcp47={loc} />
 
       <ShareResult
@@ -336,6 +356,9 @@ export default async function DashboardPage({
             </Link>
             <Link href="/cancel">
               <Button variant="ghost">{locale === "he" ? "ביטול מנוי עם סוכן" : "Cancel with agent"}</Button>
+            </Link>
+            <Link href="/electricity">
+              <Button variant="ghost">{locale === "he" ? "חשמל" : "Electricity"}</Button>
             </Link>
           </div>
           <EmptyDashboardActions />
@@ -445,6 +468,9 @@ export default async function DashboardPage({
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/money">
               <Button>{moneyLabel}</Button>
+            </Link>
+            <Link href="/electricity">
+              <Button variant="ghost">{locale === "he" ? "חשמל" : "Electricity"}</Button>
             </Link>
             <Link href="/cancel">
               <Button variant="ghost">{locale === "he" ? "ביטול מנוי" : "Cancel sub"}</Button>
