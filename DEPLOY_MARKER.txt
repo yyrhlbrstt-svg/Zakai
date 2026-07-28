@@ -1,9 +1,10 @@
 zakai-production-deploy-marker
-version=1.1.0
+version=1.2.0
 prisma=6.19.0
-ts=2026-07-28T16:05:00+03:00
+ts=2026-07-28T18:30:00+03:00
 
-v1.1.0 FINAL: electricity on start/footer/what-am-i-owed · HOW-TO-SEE.md · dual-track surface complete
+v1.2.0 FINAL: dual-track production surface · HOW-TO-SEE definitive · SAVED recheck CTA · version flags complete
+v1.1.0: electricity on start/footer/what-am-i-owed · dual-track surface
 v1.0.0: Provider HE registry · Mandate verify CORS · SAVED next doors · homepage electricity · agentRound dashboard
 v0.9.0: Electricity full-service · household · institutional pilot · monthly digest open-SENT
 v0.8.0: B2B dual-track leads · MARKET-REALITY path
