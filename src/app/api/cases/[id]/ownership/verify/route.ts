@@ -4,6 +4,7 @@ import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { verifyOwnershipCode } from "@/lib/services/ownership";
 import { refreshVerifiedStatus } from "@/lib/services/cases";
+import { createAuthorization } from "@/lib/services/authorization";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 
 const schema = z.object({ code: z.string().trim().regex(/^\d{4,8}$/) });
@@ -13,7 +14,6 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   if ("response" in auth) return auth.response;
   const { id } = await ctx.params;
 
-  // Blunt distributed code-guessing per IP (per-code attempt cap already exists).
   const limited = await rateLimit("otp-verify", clientIp(request), 30, 600);
   if (!limited.ok) return badRequest("tooManyRequests", 429);
 
@@ -34,6 +34,23 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     };
     return badRequest(result.error, map[result.error] ?? 400);
   }
+
+  // Eager Mandate so the next UI step is one-tap dispatch.
+  let authCode: string | null = null;
+  let mandateJti: string | undefined;
+  try {
+    const existing = await prisma.authorization.findUnique({ where: { caseId: id } });
+    if (!existing || existing.status !== "ACTIVE") {
+      const created = await createAuthorization(id);
+      authCode = created.code;
+      mandateJti = created.mandateJti;
+    } else {
+      authCode = existing.code;
+    }
+  } catch {
+    /* dispatch will retry */
+  }
+
   await refreshVerifiedStatus(id);
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, authCode, mandateJti });
 }

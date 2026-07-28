@@ -34,7 +34,6 @@ export function CancelTool() {
   const [error, setError] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
 
-  // Prefill from ?company=&product=&monthly=&intent=&name=
   useEffect(() => {
     const c = search.get("company") || search.get("merchant");
     const p = search.get("product") || search.get("plan");
@@ -166,11 +165,13 @@ export function CancelTool() {
           </div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {he
-              ? "המכתב מוכן ומאושר. בדשבורד: אמת בעלות (קוד לנייד) → צור Mandate → סמן כנשלח. הסוכן יעקוב ויתעד חיסכון. בלי מוקד."
-              : "Letter ready and approved. On the dashboard: verify ownership (SMS code) → create Mandate → mark sent. The agent follows up and records the saving. No call center."}
+              ? "המכתב מוכן ומאושר. בדשבורד: אמת בעלות (קוד / קישור מייל) → לחיצה אחת והסוכן שולח עם Mandate. אחר כך מעבירים תשובת ספק ל-proofs@."
+              : "Letter ready and approved. On the dashboard: verify ownership (code / email link) → one tap and the agent sends with Mandate. Then forward the provider reply to proofs@."}
           </p>
           <Link href="/dashboard">
-            <Button className="w-full">{he ? "לדשבורד — המשך עכשיו (אימות + Mandate)" : "Dashboard — continue now (verify + Mandate)"}</Button>
+            <Button className="w-full">
+              {he ? "לדשבורד — אימות + שליחת סוכן" : "Dashboard — verify + agent dispatch"}
+            </Button>
           </Link>
         </Card>
       )}

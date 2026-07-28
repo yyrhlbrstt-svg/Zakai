@@ -31,7 +31,6 @@ interface Props {
   shareMessage?: string;
   referralCode?: string;
   proposedSaving?: ProposedSavingClient | null;
-  /** Closed-loop forward address — provider replies go here for AI extract. */
   proofsEmail?: string;
 }
 
@@ -42,9 +41,8 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "קוד מ-6 ספרות",
     verifyCode: "אמת",
     magicHint: "נשלח גם קישור למייל — לחיצה אחת בלי SMS.",
-    genAuth: "צור הרשאה + Mandate",
+    dispatch: "הסוכן שולח עכשיו (Mandate + שליחה)",
     openDoc: "פתח מסמך הרשאה (הדפסה / PDF)",
-    send: "שלח לספק עכשיו",
     newAmt: "סכום חדש אחרי התשובה (₪)",
     record: "רשום חיסכון",
     noChange: "לא השתנה",
@@ -55,11 +53,9 @@ const copy: Record<string, Record<string, string>> = {
     followGen: "הכן הודעת המשך",
     copyMsg: "העתק הודעה",
     copied: "הועתק",
-    shareTitle: "שתף את החיסכון — שיביאו עוד",
     whatsapp: "וואטסאפ",
     nativeShare: "שתף",
     mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
-    mandateNone: "הרשאה אנושית נוצרה (מפתחות Mandate לא הוגדרו בסביבה)",
     authCode: "קוד הרשאה",
     savedTitle: "✓ חיסכון מתועד",
     savedSub: "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
@@ -76,6 +72,7 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopy: "העתק כתובת",
     proofsCopied: "הועתק",
     proofsHint: "Forward Email / העברת מייל — הסוכן מזהה סכום ומציע רישום בלחיצה אחת.",
+    ownDone: "בעלות אומתה — לחיצה אחת והסוכן שולח לספק עם Mandate.",
   },
   en: {
     approve: "Approve & continue",
@@ -83,9 +80,8 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "6-digit code",
     verifyCode: "Verify",
     magicHint: "Also sent an email magic link — one tap, no SMS needed.",
-    genAuth: "Create auth + Mandate",
+    dispatch: "Agent sends now (Mandate + dispatch)",
     openDoc: "Open authorization (print / PDF)",
-    send: "Send to provider now",
     newAmt: "New amount after reply (₪)",
     record: "Record saving",
     noChange: "No change",
@@ -96,14 +92,12 @@ const copy: Record<string, Record<string, string>> = {
     followGen: "Draft follow-up",
     copyMsg: "Copy message",
     copied: "Copied",
-    shareTitle: "Share the saving",
     whatsapp: "WhatsApp",
     nativeShare: "Share",
     mandateOk: "Mandate issued — provider can verify via JWKS",
-    mandateNone: "Human authorization created (Mandate keys not configured)",
     authCode: "Authorization code",
     savedTitle: "✓ Saving documented",
-    savedSub: "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we’ll remind you to re-check if the price crept back.",
+    savedSub: "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we'll remind you to re-check if the price crept back.",
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
     sentBanner: "Agent sent. If they replied — forward their email below (or enter amount). If not — agent auto-sends round 2.",
@@ -117,6 +111,7 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopy: "Copy address",
     proofsCopied: "Copied",
     proofsHint: "Forward Email — agent extracts the amount and offers one-tap record.",
+    ownDone: "Ownership verified — one tap and the agent sends with Mandate.",
   },
 };
 
@@ -329,61 +324,49 @@ export function CaseNextStep({
             )}
           </div>
         )}
-        {localOwn && !localAuth && (
-          <Button
-            disabled={busy}
-            className="text-[13px] py-2 px-3 self-start"
-            onClick={() =>
-              run(async () => {
-                const res = await fetch(`/api/cases/${caseId}/authorization`, { method: "POST" });
-                if (!res.ok) throw new Error("auth");
-                const data = (await res.json()) as {
-                  code?: string;
-                  mandate?: { jti?: string; token?: string } | null;
-                };
-                if (data.code) setAuthCode(data.code);
-                setMandateInfo(
-                  data.mandate?.jti
-                    ? `${t(locale, "mandateOk")} · jti ${data.mandate.jti.slice(0, 8)}…`
-                    : t(locale, "mandateNone"),
-                );
-                setLocalAuth(true);
-              })
-            }
-          >
-            {busy ? t(locale, "working") : t(locale, "genAuth")}
-          </Button>
-        )}
-        {authCode && (
-          <div className="flex flex-col gap-1">
-            <div className="text-[12px] text-emerald font-bold">
-              {t(locale, "authCode")}: {authCode}
-            </div>
-            <a
-              href={`/${locale}/authorization/${authCode}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[12px] text-[#3EC6FF] font-bold no-underline"
+
+        {/* After ownership: ONE button — Mandate + send */}
+        {localOwn && (
+          <>
+            <p className="text-[12.5px] text-emerald font-bold m-0">{t(locale, "ownDone")}</p>
+            <Button
+              disabled={busy}
+              className="text-[13px] py-2.5 px-4 self-start"
+              onClick={() =>
+                run(async () => {
+                  const res = await fetch(`/api/cases/${caseId}/dispatch`, { method: "POST" });
+                  if (!res.ok) throw new Error("dispatch");
+                  const data = await res.json().catch(() => ({}));
+                  if (data.authCode) setAuthCode(data.authCode);
+                  if (data.mandateJti) {
+                    setMandateInfo(
+                      `${t(locale, "mandateOk")} · jti ${String(data.mandateJti).slice(0, 8)}…`,
+                    );
+                  }
+                  setLocalAuth(true);
+                  scheduleFollowUpReminder(caseId);
+                })
+              }
             >
-              {t(locale, "openDoc")} →
-            </a>
-          </div>
-        )}
-        {mandateInfo && <div className="text-[12px] text-ink-soft">{mandateInfo}</div>}
-        {localOwn && localAuth && (
-          <Button
-            disabled={busy}
-            className="text-[13px] py-2 px-3 self-start"
-            onClick={() =>
-              run(async () => {
-                const res = await fetch(`/api/cases/${caseId}/send`, { method: "POST" });
-                if (!res.ok) throw new Error("send");
-                scheduleFollowUpReminder(caseId);
-              })
-            }
-          >
-            {busy ? t(locale, "working") : t(locale, "send")}
-          </Button>
+              {busy ? t(locale, "working") : t(locale, "dispatch")}
+            </Button>
+            {authCode && (
+              <div className="flex flex-col gap-1">
+                <div className="text-[12px] text-emerald font-bold">
+                  {t(locale, "authCode")}: {authCode}
+                </div>
+                <a
+                  href={`/${locale}/authorization/${authCode}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[12px] text-[#3EC6FF] font-bold no-underline"
+                >
+                  {t(locale, "openDoc")} →
+                </a>
+              </div>
+            )}
+            {mandateInfo && <div className="text-[12px] text-ink-soft">{mandateInfo}</div>}
+          </>
         )}
         {err && <FieldError>{err}</FieldError>}
       </div>
@@ -398,7 +381,6 @@ export function CaseNextStep({
           {t(locale, "sentBanner")}
         </div>
 
-        {/* Closed-loop: forward provider reply → AI extract → one-tap record */}
         <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
           <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
           <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>

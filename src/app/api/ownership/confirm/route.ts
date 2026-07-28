@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyOwnershipMagic } from "@/lib/services/ownership";
 import { refreshVerifiedStatus } from "@/lib/services/cases";
+import { createAuthorization } from "@/lib/services/authorization";
+import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +15,7 @@ const schema = z.object({
 /**
  * Consume ownership magic-link JWT.
  * No session required — the token itself binds userId + caseId.
- * After success, advance case to VERIFIED if Mandate already exists.
+ * After success: auto-issue Mandate so dashboard shows one-tap dispatch.
  */
 export async function POST(request: Request) {
   const limited = await rateLimit("ownership-magic", clientIp(request), 20, 3600);
@@ -31,14 +33,23 @@ export async function POST(request: Request) {
   if (!result.ok) {
     const status =
       result.error === "expired" ? 410 : result.error === "already" ? 200 : 400;
-    return NextResponse.json(
-      { ok: false, error: result.error, caseId: result.error === "already" ? undefined : undefined },
-      { status },
-    );
+    return NextResponse.json({ ok: false, error: result.error }, { status });
   }
 
-  // If authorization already exists, promote APPROVED → VERIFIED.
+  let authCode: string | null = null;
+  try {
+    const existing = await prisma.authorization.findUnique({ where: { caseId: result.caseId } });
+    if (!existing || existing.status !== "ACTIVE") {
+      const created = await createAuthorization(result.caseId);
+      authCode = created.code;
+    } else {
+      authCode = existing.code;
+    }
+  } catch {
+    /* non-fatal */
+  }
+
   await refreshVerifiedStatus(result.caseId).catch(() => null);
 
-  return NextResponse.json({ ok: true, caseId: result.caseId });
+  return NextResponse.json({ ok: true, caseId: result.caseId, authCode });
 }
