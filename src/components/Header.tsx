@@ -14,10 +14,10 @@ const TOOLS = [
   { href: "/leaks", key: "leaks" },
   { href: "/proofs", key: "proofs" },
   { href: "/cancel", key: "cancel" },
+  { href: "/what-am-i-owed", key: "whatAmIOwed" },
   { href: "/credit-card", key: "creditcard" },
   { href: "/refund-chase", key: "refundchase" },
   { href: "/score", key: "score" },
-  { href: "/what-am-i-owed", key: "whatAmIOwed" },
   { href: "/scan", key: "scan" },
   { href: "/spending", key: "spending" },
   { href: "/check", key: "newCheck" },
@@ -62,6 +62,7 @@ const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   leaks: { he: "מפת נזילות", en: "Leaks map" },
   proofs: { he: "קיר חיסכונות", en: "Savings wall" },
   cancel: { he: "ביטול מנוי", en: "Cancel sub" },
+  whatAmIOwed: { he: "מה מגיע לי", en: "What am I owed" },
   creditcard: { he: "ריבית כרטיס", en: "Card interest" },
   refundchase: { he: "החזר שלא הגיע", en: "Missing refund" },
 };
@@ -131,6 +132,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
         <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
           <NavLink href="/">{t("nav.home")}</NavLink>
           <NavLink href="/money">{he ? "הכסף שלי" : "My money"}</NavLink>
+          <NavLink href="/cancel">{he ? "ביטול" : "Cancel"}</NavLink>
+          <NavLink href="/what-am-i-owed">{he ? "מה מגיע לי" : "Owed"}</NavLink>
           <NavLink href="/leaks">{he ? "נזילות" : "Leaks"}</NavLink>
           <NavLink href="/proofs">{he ? "חיסכונות" : "Proofs"}</NavLink>
           {user ? (
@@ -144,6 +147,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           ) : (
             <>
               <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} />
+              <NavLink href="/business">{he ? "B2B" : "B2B"}</NavLink>
               <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
               <NavLink href="/login">{t("nav.login")}</NavLink>
               <NavLink href="/signup">{t("nav.signup")}</NavLink>
@@ -174,6 +178,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
         <div className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
           <MobileLink href="/">{t("nav.home")}</MobileLink>
           <MobileLink href="/money">{he ? "הכסף שלי" : "My money"}</MobileLink>
+          <MobileLink href="/cancel">{he ? "ביטול מנוי עם סוכן" : "Cancel with agent"}</MobileLink>
+          <MobileLink href="/what-am-i-owed">{he ? "מה מגיע לי" : "What am I owed"}</MobileLink>
           <MobileLink href="/leaks">{he ? "מפת נזילות" : "Leaks map"}</MobileLink>
           <MobileLink href="/proofs">{he ? "קיר חיסכונות" : "Savings wall"}</MobileLink>
           {user && (
@@ -205,6 +211,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             <MobileLink href="/settings">{t("nav.settings")}</MobileLink>
           ) : (
             <>
+              <MobileLink href="/business">{he ? "B2B · עובדים + Mandate" : "B2B · employees + Mandate"}</MobileLink>
+              <MobileLink href="/institutions">{he ? "למוסדות" : "Institutions"}</MobileLink>
               <MobileLink href="/pricing">{t("nav.pricing")}</MobileLink>
               <MobileLink href="/login">{t("nav.login")}</MobileLink>
               <MobileLink href="/signup">{t("nav.signup")}</MobileLink>
