@@ -58,11 +58,21 @@ const PRIOR_ALPHA = 1;
 const PRIOR_BETA = 1;
 
 /**
- * How much a parent level counts relative to a direct observation. A quarter:
- * enough that four vertical-level observations carry the weight of one against
- * this specific counterparty, so a cold cell is informed but never dictated to.
+ * How much a parent level may contribute, in pseudo-observations.
+ *
+ * Bounded rather than proportional. Weighting a parent by a fraction of its own
+ * size means a broad level with ten thousand observations contributes thousands
+ * of pseudo-observations and drowns a specific cell holding hundreds of its own
+ * — every estimate collapses toward the pooled average while looking reasonable
+ * case by case. The Oracle's calibration test caught exactly this shape and
+ * measured it at 11% expected calibration error; the same flaw was here, in the
+ * code that chooses how a real person's claim gets worded.
+ *
+ * Capped, a parent behaves as a prior should: informative while a cell is cold,
+ * overwhelmed the moment that cell has evidence of its own.
  */
-const BACKOFF_WEIGHT = 0.25;
+const PARENT_PRIOR_STRENGTH = 25;
+const BACKOFF_WEIGHT = 0.4;
 
 /** Fallback expected recovery when nothing has ever been recovered anywhere. */
 const NEUTRAL_AMOUNT_MINOR = 10_000;
@@ -196,17 +206,30 @@ export function buildPosteriors(
       const bucket = byLevel[depth].buckets.get(variant.id);
       if (!bucket || bucket.trials === 0) return;
 
-      // The most specific level with any evidence is the one we report, and it
-      // counts at full weight; each step out is discounted.
-      const weight = depth === 0 ? 1 : Math.pow(BACKOFF_WEIGHT, depth);
+      // The most specific level with any evidence is the one we report.
       if (evidenceLevel === "prior") {
         evidenceLevel = level;
         directTrials = bucket.trials;
       }
-      alpha += bucket.wins * weight;
-      beta += (bucket.trials - bucket.wins) * weight;
-      amountWeight += bucket.wins * weight;
-      amountTotal += bucket.recoveredTotal * weight;
+
+      if (depth === 0) {
+        // This is the evidence, not a prior about it: it counts in full.
+        alpha += bucket.wins;
+        beta += bucket.trials - bucket.wins;
+        amountWeight += bucket.wins;
+        amountTotal += bucket.recoveredTotal;
+      } else {
+        const rate = bucket.wins / bucket.trials;
+        const strength =
+          Math.min(bucket.trials, PARENT_PRIOR_STRENGTH) * Math.pow(BACKOFF_WEIGHT, depth);
+        alpha += rate * strength;
+        beta += (1 - rate) * strength;
+        // Scale the amount contribution the same way, so a parent cannot drag
+        // the expected payout any harder than it drags the probability.
+        const scale = bucket.wins > 0 ? strength / bucket.trials : 0;
+        amountWeight += bucket.wins * scale;
+        amountTotal += bucket.recoveredTotal * scale;
+      }
     });
 
     const expectedRecoveredMinor =

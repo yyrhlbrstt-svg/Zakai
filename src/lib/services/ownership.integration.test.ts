@@ -3,6 +3,18 @@ import { prisma } from "@/lib/prisma";
 import { sendOwnershipCode, verifyOwnershipCode } from "./ownership";
 
 /**
+ * Needs a real database. Skipped — not failed — when DATABASE_URL is absent.
+ *
+ * A suite that goes red on a clean checkout tells you nothing about the change
+ * you just made, and trains everyone to ignore red. An unrunnable test is
+ * missing coverage, which is honest; a failing one is a false alarm, which is
+ * worse than no alarm at all.
+ */
+const hasDb = Boolean(process.env.DATABASE_URL);
+const suite = hasDb ? describe : describe.skip;
+
+
+/**
  * Integration test for the ownership-verification mechanism against the real
  * database. In dev mode the SMS lands in the Outbox, so we can read the
  * plaintext code back and exercise the full send -> verify path, plus the
@@ -40,7 +52,7 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-describe("ownership verification (integration)", () => {
+suite("ownership verification (integration)", () => {
   it("rejects a wrong code, then accepts the real one", async () => {
     const sent = await sendOwnershipCode(userId, phone);
     expect(sent.ok).toBe(true);

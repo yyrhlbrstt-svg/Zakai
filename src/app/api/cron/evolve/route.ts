@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { runEvolutionCycle } from "@/lib/evolve/store";
+import { assessOracleCalibration } from "@/lib/oracle/store";
 import { reportError } from "@/lib/report-error";
 
 export const dynamic = "force-dynamic";
@@ -28,11 +29,27 @@ export async function GET(request: Request) {
   try {
     const result = await runEvolutionCycle();
     for (const line of result.digest) console.log("[evolve]", line);
+
+    // Grade the Oracle on claims it could not have seen, every day.
+    // Calibration decays on its own — counterparties change policy and the
+    // Strategy Engine changes what we send — and a model whose probabilities
+    // have quietly stopped meaning what they say is worse than no model, because
+    // people are still multiplying them by money.
+    const calibration = await assessOracleCalibration();
+    console.log("[oracle]", calibration.verdict, "—", calibration.summary);
+
     return NextResponse.json({
       ok: true,
       promoted: result.promoted,
       digest: result.digest,
       reviewed: result.reviews.length,
+      oracle: {
+        verdict: calibration.verdict,
+        samples: calibration.samples,
+        ece: Number(calibration.ece.toFixed(4)),
+        skill: Number(calibration.skill.toFixed(4)),
+        summary: calibration.summary,
+      },
     });
   } catch (err) {
     await reportError(err, { route: "cron/evolve" });

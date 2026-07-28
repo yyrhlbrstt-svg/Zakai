@@ -4,6 +4,18 @@ import { createCase, recordSaving, CaseError } from "./cases";
 import { PLANS } from "@/lib/plans";
 
 /**
+ * Needs a real database. Skipped — not failed — when DATABASE_URL is absent.
+ *
+ * A suite that goes red on a clean checkout tells you nothing about the change
+ * you just made, and trains everyone to ignore red. An unrunnable test is
+ * missing coverage, which is honest; a failing one is a false alarm, which is
+ * worse than no alarm at all.
+ */
+const hasDb = Boolean(process.env.DATABASE_URL);
+const suite = hasDb ? describe : describe.skip;
+
+
+/**
  * Plan enforcement against the real database:
  *  1. FREE allows exactly one active case; the second throws CASE_LIMIT.
  *  2. MAX records a documented saving as SAVED with a zero, WAIVED fee.
@@ -43,7 +55,7 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-describe("plan enforcement (integration)", () => {
+suite("plan enforcement (integration)", () => {
   it("FREE: one active case only", async () => {
     const user = await makeUser("FREE");
     await createCase(caseInput(user.id));
