@@ -82,7 +82,7 @@ export default async function HomePage({
       title: he
         ? "בטל מנוי שלא צריך"
         : ar
-          ? "ألغِ اشتراكًא لا تحتاجه"
+          ? "ألغِ اشتراكًا لا تحتاجه"
           : ru
             ? "Отмени ненужную подписку"
             : "Cancel a subscription",
