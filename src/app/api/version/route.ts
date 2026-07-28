@@ -7,12 +7,12 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.5.1",
-    buildMarker: "what-am-i-owed-action-partners-us-pack-2026-07-28",
+    version: "0.6.0",
+    buildMarker: "dual-track-nav-embed-path-milestone-2026-07-28",
     positioning: "standard consumer money agent + Mandate infrastructure",
     tracks: {
-      consumer: "problem-first entry · Money OS · agent recovery loop",
-      infrastructure: "Ed25519 Mandate standard · JWKS · B2B embed · institutional verify",
+      consumer: "problem-first entry · Money OS · agent recovery loop · viral after SAVED",
+      infrastructure: "Ed25519 Mandate standard · JWKS · B2B embed multi-path · institutional verify",
     },
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
@@ -65,6 +65,8 @@ export async function GET() {
       dualTrackBusinessPage: true,
       whatAmIOwedActionDoors: true,
       usPackDeep: true,
+      dualTrackNav: true,
+      embedPathAwarePreview: true,
     },
     time: new Date().toISOString(),
   });
