@@ -1,12 +1,11 @@
 /**
- * United States — third jurisdiction pack.
+ * United States — third jurisdiction pack (deepened 2026.07.4).
  *
  * Focus: unclaimed property (the largest liquid recovery surface), federal tax
- * reconciliation, banking/overdraft, subscriptions, and energy bill review.
- * Amounts are conservative placeholders where a national fixed figure does not
- * exist; means-tested and state-varying rights stay unquantified rather than
- * invented. State-specific law lives in `extra` questions and letter fields,
- * not in the shared engine.
+ * reconciliation, banking/overdraft, subscriptions, energy, student loans,
+ * and SSA underpayment. Amounts are conservative placeholders where a national
+ * fixed figure does not exist; means-tested and state-varying rights stay
+ * unquantified rather than invented.
  *
  * Nothing in engine.ts changed to add this file.
  */
@@ -34,6 +33,7 @@ const lowIncome = oneOf("incomeBand", "low");
 const renting = oneOf("housing", "renting");
 const owner = oneOf("housing", "owner");
 const disability = is("hasDisability");
+const student = oneOf("employment", "student");
 
 const RECIPIENTS: Record<string, string> = {
   irs: "Internal Revenue Service\nUnited States Department of the Treasury",
@@ -44,6 +44,7 @@ const RECIPIENTS: Record<string, string> = {
   energy: "{counterparty}\nBilling Department",
   employer: "{counterparty}\nPayroll / Human Resources",
   ssa: "Social Security Administration\nOffice of Public Inquiries",
+  studentaid: "U.S. Department of Education\nFederal Student Aid",
 };
 
 const IDENTITY =
@@ -177,6 +178,19 @@ const rights: RightDef[] = [
       body: `${IDENTITY} This is a billing-error notice concerning account {accountNumber}.\n\n{details}\n\nPlease acknowledge within the statutory period, investigate, and either correct the error or explain in writing why the charge is correct.`,
     },
   ),
+  right(
+    "credit_report_dispute",
+    "consumer",
+    always,
+    "Fair Credit Reporting Act; 15 U.S.C. §1681i",
+    {
+      kind: "letter",
+      recipient: "provider",
+      fields: ["counterparty", "details"],
+      subject: "Dispute of inaccurate information on consumer report",
+      body: `${IDENTITY} Under the Fair Credit Reporting Act I dispute the following items appearing on my consumer report: {details}.\n\nPlease investigate and correct or delete any information that cannot be verified as accurate and complete.`,
+    },
+  ),
 
   // ---- Energy --------------------------------------------------------------
   right(
@@ -217,6 +231,45 @@ const rights: RightDef[] = [
       recipient: "ssa",
       subject: "Request for benefit verification and underpayment review",
       body: `${IDENTITY} Please provide a benefit verification letter and confirm whether any underpayment or delayed cost-of-living adjustment remains unpaid on my record.\n\nIf an application for benefits was filed and not fully processed, please state the current status and next steps.`,
+    },
+  ),
+  right(
+    "ssa_underpayment",
+    "social_security",
+    any(senior, disability),
+    "Social Security Act §204; 20 C.F.R. §404.501 et seq.",
+    {
+      kind: "letter",
+      recipient: "ssa",
+      subject: "Request for underpayment review and payment of amounts due",
+      body: `${IDENTITY} I request a full review of my earnings record and benefit history for any underpayment still due.\n\nPlease calculate and pay any amounts owed, including retroactive adjustments, and confirm the basis of the calculation in writing.`,
+    },
+  ),
+
+  // ---- Student / education -------------------------------------------------
+  right(
+    "student_loan_forgiveness_inquiry",
+    "consumer",
+    any(student, working),
+    "Higher Education Act; Federal Student Aid forgiveness and discharge programs",
+    {
+      kind: "letter",
+      recipient: "studentaid",
+      fields: ["details"],
+      subject: "Inquiry regarding federal student loan forgiveness or discharge eligibility",
+      body: `${IDENTITY} I hold federal student loans and wish to confirm whether I qualify for any forgiveness, cancellation, or discharge program currently available (including Public Service Loan Forgiveness, borrower-defense, total and permanent disability, or closed-school discharge).\n\n{details}\n\nPlease confirm my eligibility status, required forms, and the next steps to apply.`,
+    },
+  ),
+  right(
+    "student_loan_overpayment",
+    "consumer",
+    any(student, working),
+    "Higher Education Act; 34 C.F.R. Part 682 / 685",
+    {
+      kind: "letter",
+      recipient: "studentaid",
+      subject: "Request for refund of student-loan overpayment",
+      body: `${IDENTITY} I believe I have overpaid on one or more federal student loans.\n\nPlease confirm the current payoff balance, any credit balance, and the process to receive a refund of amounts paid in excess of the amount owed.`,
     },
   ),
 
@@ -266,8 +319,8 @@ const rights: RightDef[] = [
 
 export const US_PACK: JurisdictionPack = {
   market: "US",
-  version: "2026.07.1",
-  reviewed: "2026-07-27",
+  version: "2026.07.4",
+  reviewed: "2026-07-28",
   docLocale: "en-US",
   currency: "USD",
   minorUnits: 100,
