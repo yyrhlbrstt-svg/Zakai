@@ -23,6 +23,7 @@ export default async function WhatAmIOwedPage({
   setRequestLocale(locale);
   const t = await getTranslations("potential");
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_what_am_i_owed_page = await getTranslations({ locale, namespace: "inline_app_locale_what_am_i_owed_page" });
 
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-5">
@@ -37,27 +38,27 @@ export default async function WhatAmIOwedPage({
       <div className="flex flex-wrap gap-2.5 mb-8">
         <Link href="/money">
           <Button className="!text-[13.5px] !px-4 !py-2.5">
-            {he ? "סרוק חיובים עכשיו" : "Scan charges now"}
+            {tIapp_locale_what_am_i_owed_page("t_13fc32c9")}
           </Button>
         </Link>
         <Link href="/electricity">
           <Button variant="ghost" className="!text-[13.5px]">
-            {he ? "חשמל — מעבר ספק" : "Electricity switch"}
+            {tIapp_locale_what_am_i_owed_page("t_0ea869b4")}
           </Button>
         </Link>
         <Link href="/cancel">
           <Button variant="ghost" className="!text-[13.5px]">
-            {he ? "בטל מנוי עם סוכן" : "Cancel sub with agent"}
+            {tIapp_locale_what_am_i_owed_page("t_e2ca32d5")}
           </Button>
         </Link>
         <Link href="/bank-fees">
           <Button variant="ghost" className="!text-[13.5px]">
-            {he ? "עמלות בנק" : "Bank fees"}
+            {tIapp_locale_what_am_i_owed_page("t_a5b579f8")}
           </Button>
         </Link>
         <Link href="/leaks">
           <Button variant="ghost" className="!text-[13.5px]">
-            {he ? "מפת נזילות" : "Leaks map"}
+            {tIapp_locale_what_am_i_owed_page("t_16c6cdf1")}
           </Button>
         </Link>
       </div>
@@ -66,19 +67,17 @@ export default async function WhatAmIOwedPage({
 
       <div className="mt-10 rounded-2xl border border-[rgba(63,203,155,0.28)] bg-[rgba(63,203,155,0.06)] px-5 py-5 text-center">
         <div className="font-extrabold text-[15px]">
-          {he ? "מצאת פוטנציאל? תן לסוכן לפעול" : "Found potential? Let the agent act"}
+          {tIapp_locale_what_am_i_owed_page("t_b9105fc0")}
         </div>
         <p className="text-ink-soft text-[13.5px] mt-2 max-w-[480px] mx-auto leading-relaxed">
-          {he
-            ? "סריקה → תיק עם Mandate → שליחה ומעקב. עמלה רק על חיסכון מתועד. בלי מוקד. בלי להשאיר טלפון."
-            : "Scan → Mandate case → send and follow up. Fee only on documented savings. No call center. No phone left behind."}
+          {tIapp_locale_what_am_i_owed_page("t_7d286052")}
         </p>
         <div className="flex flex-wrap gap-3 justify-center mt-4">
           <Link href="/money">
-            <Button>{he ? "הכסף שלי →" : "My money →"}</Button>
+            <Button>{tIapp_locale_what_am_i_owed_page("t_2764ad9b")}</Button>
           </Link>
           <Link href="/start">
-            <Button variant="ghost">{he ? "התחל עכשיו" : "Start now"}</Button>
+            <Button variant="ghost">{tIapp_locale_what_am_i_owed_page("t_b341725e")}</Button>
           </Link>
         </div>
       </div>

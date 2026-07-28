@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale , getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
@@ -21,6 +21,7 @@ export default async function WrappedPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_wrapped_page = await getTranslations({ locale, namespace: "inline_app_locale_wrapped_page" });
   const loc = bcp47[locale as Locale];
   const user = await getCurrentUser();
   if (!user) {
@@ -65,33 +66,31 @@ export default async function WrappedPage({
         {he ? `השנה שלך עם זכאי` : `Your year with Zakai`}
       </h1>
       <p className="text-ink-soft text-[15px] mt-3 leading-relaxed">
-        {he
-          ? "סיכום לשיתוף — כל מספר מבוסס על תיקים ו-SavingsProof אצלך."
-          : "Shareable summary — every number comes from your cases and SavingsProof."}
+        {tIapp_locale_wrapped_page("t_b8e0de13")}
       </p>
 
       <div className="grid grid-cols-2 gap-3 mt-8">
         <Stat
-          label={he ? "תיקים שנפתחו" : "Cases opened"}
+          label={tIapp_locale_wrapped_page("t_8bdc4d33")}
           value={String(cases.length)}
         />
         <Stat
-          label={he ? "פניות שנשלחו" : "Outreach sent"}
+          label={tIapp_locale_wrapped_page("t_2617f830")}
           value={String(sent)}
         />
         <Stat
-          label={he ? "Mandates פעילים" : "Active Mandates"}
+          label={tIapp_locale_wrapped_page("t_bbc0f36f")}
           value={String(mandates)}
         />
         <Stat
-          label={he ? "חיסכונות מתועדים" : "Documented savings"}
+          label={tIapp_locale_wrapped_page("t_c4ab9bbc")}
           value={String(saved.length)}
         />
       </div>
 
       <Card className="mt-6 p-6 text-center border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)]">
         <div className="text-[13px] text-ink-soft font-bold">
-          {he ? "חיסכון חודשי מתועד" : "Documented monthly saving"}
+          {tIapp_locale_wrapped_page("t_ece7121c")}
         </div>
         <div className="font-display grad-text text-5xl mt-2">
           {formatAgorot(monthly, loc)}
@@ -105,10 +104,10 @@ export default async function WrappedPage({
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link href="/money">
-          <Button>{he ? "הכסף שלי" : "My money"}</Button>
+          <Button>{tIapp_locale_wrapped_page("t_bd4c0905")}</Button>
         </Link>
         <Link href="/dashboard">
-          <Button variant="ghost">{he ? "דשבורד" : "Dashboard"}</Button>
+          <Button variant="ghost">{tIapp_locale_wrapped_page("t_143fe31f")}</Button>
         </Link>
       </div>
     </main>

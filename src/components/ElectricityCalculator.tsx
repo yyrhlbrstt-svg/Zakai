@@ -25,6 +25,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("electricity");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_ElectricityCalculator = useTranslations("inline_components_ElectricityCalculator");
   const router = useRouter();
   const [bill, setBill] = useState("400");
   const [profile, setProfile] = useState<UsageProfile>("spread");
@@ -130,12 +131,12 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block mt-5 max-w-[280px]">
           <span className="text-[13.5px] text-ink-soft">
-            {he ? "למי התיק? (אופציונלי — הורה / בן משפחה)" : "Who is this for? (optional — family)"}
+            {tIcomponents_ElectricityCalculator("t_3e177a1f")}
           </span>
           <Input
             value={beneficiary}
             onChange={(e) => setBeneficiary(e.target.value.slice(0, 40))}
-            placeholder={he ? "למשל: אמא · סבא" : "e.g. Mom · Grandpa"}
+            placeholder={tIcomponents_ElectricityCalculator("t_56630d92")}
             className="mt-1.5"
             maxLength={40}
           />
@@ -204,15 +205,13 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
       {err && <FieldError>{err}</FieldError>}
       {opened && (
         <p className="mt-3 text-[13px] text-emerald font-bold">
-          {he ? "תיק נפתח — ממשיכים בדשבורד (Mandate + שליחה)." : "Case opened — continue on dashboard."}
+          {tIcomponents_ElectricityCalculator("t_62d5403d")}
         </p>
       )}
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
       <p className="mt-2 text-[12px] text-ink-soft leading-relaxed">
-        {he
-          ? "לחיצה על הסוכן פותחת תיק עם Mandate: אימות בעלות → שליחה לספק → מעקב אוטומטי → חיסכון מתועד. עמלה רק אם נחסך בפועל."
-          : "Agent opens a full Case with Mandate: ownership → send → auto follow-up → documented saving. Fee only when money is saved."}
+        {tIcomponents_ElectricityCalculator("t_b1112228")}
       </p>
     </div>
   );

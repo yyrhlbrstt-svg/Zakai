@@ -74,6 +74,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_Header = useTranslations("inline_components_Header");
 
   useEffect(() => setMobileOpen(false), [pathname]);
 
@@ -131,11 +132,11 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
 
         <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
           <NavLink href="/">{t("nav.home")}</NavLink>
-          <NavLink href="/money">{he ? "הכסף שלי" : "My money"}</NavLink>
-          <NavLink href="/cancel">{he ? "ביטול" : "Cancel"}</NavLink>
-          <NavLink href="/what-am-i-owed">{he ? "מה מגיע לי" : "Owed"}</NavLink>
-          <NavLink href="/leaks">{he ? "נזילות" : "Leaks"}</NavLink>
-          <NavLink href="/proofs">{he ? "חיסכונות" : "Proofs"}</NavLink>
+          <NavLink href="/money">{tIcomponents_Header("t_bd4c0905")}</NavLink>
+          <NavLink href="/cancel">{tIcomponents_Header("t_a7c55a8d")}</NavLink>
+          <NavLink href="/what-am-i-owed">{tIcomponents_Header("t_81a5a2c8")}</NavLink>
+          <NavLink href="/leaks">{tIcomponents_Header("t_5fcd3b9b")}</NavLink>
+          <NavLink href="/proofs">{tIcomponents_Header("t_67f9ea4b")}</NavLink>
           {user ? (
             <>
               <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
@@ -147,7 +148,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           ) : (
             <>
               <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} />
-              <NavLink href="/business">{he ? "B2B" : "B2B"}</NavLink>
+              <NavLink href="/business">{tIcomponents_Header("t_79771be3")}</NavLink>
               <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
               <NavLink href="/login">{t("nav.login")}</NavLink>
               <NavLink href="/signup">{t("nav.signup")}</NavLink>
@@ -177,11 +178,11 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
       {mobileOpen && (
         <div className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
           <MobileLink href="/">{t("nav.home")}</MobileLink>
-          <MobileLink href="/money">{he ? "הכסף שלי" : "My money"}</MobileLink>
-          <MobileLink href="/cancel">{he ? "ביטול מנוי עם סוכן" : "Cancel with agent"}</MobileLink>
-          <MobileLink href="/what-am-i-owed">{he ? "מה מגיע לי" : "What am I owed"}</MobileLink>
-          <MobileLink href="/leaks">{he ? "מפת נזילות" : "Leaks map"}</MobileLink>
-          <MobileLink href="/proofs">{he ? "קיר חיסכונות" : "Savings wall"}</MobileLink>
+          <MobileLink href="/money">{tIcomponents_Header("t_bd4c0905")}</MobileLink>
+          <MobileLink href="/cancel">{tIcomponents_Header("t_bc18d8da")}</MobileLink>
+          <MobileLink href="/what-am-i-owed">{tIcomponents_Header("t_81a5a2c8")}</MobileLink>
+          <MobileLink href="/leaks">{tIcomponents_Header("t_16c6cdf1")}</MobileLink>
+          <MobileLink href="/proofs">{tIcomponents_Header("t_60a18677")}</MobileLink>
           {user && (
             <>
               <MobileLink href="/assistant">{t("nav.assistant")}</MobileLink>
@@ -211,8 +212,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             <MobileLink href="/settings">{t("nav.settings")}</MobileLink>
           ) : (
             <>
-              <MobileLink href="/business">{he ? "B2B · עובדים + Mandate" : "B2B · employees + Mandate"}</MobileLink>
-              <MobileLink href="/institutions">{he ? "למוסדות" : "Institutions"}</MobileLink>
+              <MobileLink href="/business">{tIcomponents_Header("t_b4265709")}</MobileLink>
+              <MobileLink href="/institutions">{tIcomponents_Header("t_8886b51f")}</MobileLink>
               <MobileLink href="/pricing">{t("nav.pricing")}</MobileLink>
               <MobileLink href="/login">{t("nav.login")}</MobileLink>
               <MobileLink href="/signup">{t("nav.signup")}</MobileLink>

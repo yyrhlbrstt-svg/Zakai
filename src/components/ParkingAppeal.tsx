@@ -12,6 +12,7 @@ export function ParkingAppeal() {
   const t = useTranslations("parking");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_ParkingAppeal = useTranslations("inline_components_ParkingAppeal");
   const router = useRouter();
   const [name, setName] = useState("");
   const [ticket, setTicket] = useState("");
@@ -110,7 +111,7 @@ ${name || "____"}
             <Input value={city} onChange={(e) => setCity(e.target.value)} maxLength={40} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{he ? "סכום הדוח ₪ (אופציונלי)" : "Ticket ₪ (optional)"}</span>
+            <span className="text-[13px] text-ink-soft block mb-1.5">{tIcomponents_ParkingAppeal("t_e3b93d14")}</span>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </label>
         </div>
@@ -149,7 +150,7 @@ ${name || "____"}
                 : "Agent sends & tracks now"}
           </Button>
           <Button variant="ghost" onClick={generate} disabled={!ticket.trim() || !city.trim() || busy}>
-            {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+            {tIcomponents_ParkingAppeal("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber m-0">{error}</p>}
@@ -158,15 +159,13 @@ ${name || "____"}
       {caseId && (
         <Card className="mt-5 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">
-            {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+            {tIcomponents_ParkingAppeal("t_360e126e")}
           </div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {he
-              ? "הערעור מוכן. בדשבורד: אמת בעלות → Mandate → סמן כנשלח. כשהדוח מבוטל — תעד כחיסכון."
-              : "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the ticket is cancelled — record the saving."}
+            {tIcomponents_ParkingAppeal("t_d489aedc")}
           </p>
           <Link href="/dashboard">
-            <Button className="w-full">{he ? "לדשבורד — המשך עכשיו" : "Dashboard — continue now"}</Button>
+            <Button className="w-full">{tIcomponents_ParkingAppeal("t_8ae29d51")}</Button>
           </Link>
         </Card>
       )}

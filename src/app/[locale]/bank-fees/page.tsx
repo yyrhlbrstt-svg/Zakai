@@ -33,6 +33,7 @@ export default async function BankFeesPage({
   const fees = t.raw("fees") as FeeItem[];
   const steps = t.raw("steps") as string[];
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_bank_fees_page = await getTranslations({ locale, namespace: "inline_app_locale_bank_fees_page" });
 
   return (
     <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
@@ -48,12 +49,10 @@ export default async function BankFeesPage({
 
       <Reveal>
         <h2 className="font-display text-2xl mt-10 mb-3">
-          {he ? "הסוכן מערער בשמך" : "The agent disputes for you"}
+          {tIapp_locale_bank_fees_page("t_17d5ad42")}
         </h2>
         <p className="text-ink-soft text-[14px] mb-4 leading-relaxed">
-          {he
-            ? "מלא פרטים → הסוכן פותח תיק מאושר → Mandate → שליחה ומעקב. עמלה רק אם תועד ביטול/החזר."
-            : "Fill details → agent opens an approved case → Mandate → send & track. Fee only if a waiver/refund is documented."}
+          {tIapp_locale_bank_fees_page("t_ab015246")}
         </p>
       </Reveal>
       <BankFeesTool />
@@ -98,7 +97,7 @@ export default async function BankFeesPage({
             </p>
             <div className="flex flex-wrap gap-3 justify-center mt-5">
               <Link href="/money">
-                <Button>{he ? "הכסף שלי" : "My money"}</Button>
+                <Button>{tIapp_locale_bank_fees_page("t_bd4c0905")}</Button>
               </Link>
               <Link href="/scan">
                 <Button variant="ghost">{t("cta.primary")}</Button>

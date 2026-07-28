@@ -17,7 +17,16 @@ import { execSync } from "node:child_process";
  * number visible so it can only go down — a ratchet is worth more than a
  * cleanup that quietly reverts.
  */
-const CEILING = 37;
+const CEILING = 0;
+
+/**
+ * A separate, smaller problem left standing on purpose: 21 ternaries that pick
+ * between two *variables* or template literals rather than two string literals
+ * — {he ? a.titleHe : a.titleEn}. Those are data carrying both languages, which
+ * is an architectural choice to unwind deliberately, not a parse hazard. The
+ * SWC failure came from literal text inside JSX, and that is now zero.
+ */
+const DATA_DRIVEN_TERNARIES_REMAINING = 21;
 
 function offenders(): string[] {
   try {

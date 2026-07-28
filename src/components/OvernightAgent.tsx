@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { Button } from "@/components/ui";
 
 interface SentCase {
@@ -16,6 +16,7 @@ interface SentCase {
 export function OvernightAgent({ cases }: { cases: SentCase[] }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_OvernightAgent = useTranslations("inline_components_OvernightAgent");
   const [busy, setBusy] = useState(false);
   const [results, setResults] = useState<
     Array<{ id: string; providerLabel: string; body: string; tip?: string; error?: boolean }>
@@ -57,7 +58,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
   return (
     <div className="rounded-2xl border border-[rgba(139,92,246,0.35)] bg-[rgba(139,92,246,0.07)] px-5 py-4 mb-5">
       <div className="font-extrabold text-[14.5px]">
-        {he ? "סוכן לילה — מעקב לכל התיקים" : "Overnight agent — follow-up for all"}
+        {tIcomponents_OvernightAgent("t_aeb342ad")}
       </div>
       <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">
         {he
@@ -84,7 +85,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
               <div className="font-bold text-[13.5px]">{r.providerLabel}</div>
               {r.error ? (
                 <p className="text-[12.5px] text-amber mt-1 mb-0">
-                  {he ? "לא הצלחנו להכין טיוטה לתיק הזה." : "Could not draft this case."}
+                  {tIcomponents_OvernightAgent("t_1768c8d7")}
                 </p>
               ) : (
                 <>

@@ -23,6 +23,7 @@ export default async function BusinessPage({
   setRequestLocale(locale);
   const t = await getTranslations("business");
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_business_page = await getTranslations({ locale, namespace: "inline_app_locale_business_page" });
 
   const values = t.raw("values") as Array<{ icon: string; title: string; sub: string }>;
   const steps = t.raw("steps") as Array<{ title: string; sub: string }>;
@@ -32,33 +33,29 @@ export default async function BusinessPage({
       <div className="max-w-[680px]">
         <Reveal>
           <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-            {he ? "שני מסלולים · עובדים + תשתית Mandate" : "Two tracks · employees + Mandate infrastructure"}
+            {tIapp_locale_business_page("t_bfc91c2c")}
           </div>
         </Reveal>
         <Reveal delay={80}>
           <h1 className="font-display text-[clamp(30px,5.4vw,48px)] leading-[1.12] m-0 text-balance">
-            {he
-              ? "זכאי לעסקים ומוסדות"
-              : "Zakai for business & institutions"}
+            {tIapp_locale_business_page("t_526ab7c0")}
           </h1>
         </Reveal>
         <Reveal delay={160}>
           <p className="text-ink-soft text-[16.5px] leading-[1.7] my-6">
-            {he
-              ? "הטבת רווחה שמחזירה לעובדים כסף אמיתי — וגם תשתית Mandate שמוסדות, בנקים ופינטק יכולים לאמת offline בלי סיכון לתשלומים יוצאים."
-              : "An employee benefit that returns real money — and a Mandate infrastructure banks, insurers and fintechs can verify offline with zero outbound-payment risk."}
+            {tIapp_locale_business_page("t_753af524")}
           </p>
         </Reveal>
         <Reveal delay={240}>
           <div className="flex flex-wrap gap-3">
             <a href="#employees" className="inline-block">
               <span className="grad-bg btn-sheen text-[#06121A] font-extrabold rounded-[14px] px-6 py-3.5 text-[15px] inline-block shadow-[0_10px_30px_rgba(63,203,155,0.28)]">
-                {he ? "הטבת עובדים" : "Employee benefit"}
+                {tIapp_locale_business_page("t_c4b46caf")}
               </span>
             </a>
             <a href="#infrastructure" className="inline-block">
               <span className="border border-[rgba(63,203,155,0.45)] text-emerald font-extrabold rounded-[14px] px-6 py-3.5 text-[15px] inline-block">
-                {he ? "Mandate / API" : "Mandate / API"}
+                {tIapp_locale_business_page("t_dd7efdcb")}
               </span>
             </a>
           </div>
@@ -69,12 +66,10 @@ export default async function BusinessPage({
       <div id="employees" className="scroll-mt-8">
         <Reveal>
           <h2 className="text-[17px] font-extrabold mt-16 mb-2">
-            {he ? "מסלול א׳ · הטבת רווחה לעובדים" : "Track A · Employee welfare benefit"}
+            {tIapp_locale_business_page("t_a0324447")}
           </h2>
           <p className="text-ink-soft text-[14px] mb-5 max-w-[560px]">
-            {he
-              ? "עובדים מגלים זכויות, בודקים תלוש, מבטלים מנויים ומחזירים כסף — בלי עלות הקמה לעסק."
-              : "Employees discover rights, check payslips, cancel subs and recover money — zero setup cost for the company."}
+            {tIapp_locale_business_page("t_2e824bb2")}
           </p>
         </Reveal>
         <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(230px,1fr))]">
@@ -113,12 +108,10 @@ export default async function BusinessPage({
       <div id="infrastructure" className="scroll-mt-8 mt-16">
         <Reveal>
           <h2 className="text-[17px] font-extrabold mb-2">
-            {he ? "מסלול ב׳ · תשתית Mandate למוסדות" : "Track B · Mandate infrastructure for institutions"}
+            {tIapp_locale_business_page("t_f2dc4008")}
           </h2>
           <p className="text-ink-soft text-[14px] mb-6 max-w-[600px]">
-            {he
-              ? "סמכות צרכנית חתומה, מוגבלת, ניתנת לאימות offline. בלי תשלומים יוצאים. JWKS ציבורי + status endpoint. זה הסטנדרט שאנחנו בונים."
-              : "Signed, scoped, offline-verifiable consumer authority. No outbound payments. Public JWKS + status endpoint. This is the standard we are building."}
+            {tIapp_locale_business_page("t_4c97fe67")}
           </p>
         </Reveal>
 
@@ -171,7 +164,7 @@ export default async function BusinessPage({
               href="/institutions"
               className="inline-block text-emerald font-extrabold text-[14px] no-underline border border-[rgba(63,203,155,0.4)] rounded-xl px-5 py-2.5"
             >
-              {he ? "מדריך מוסדות מלא →" : "Full institutions guide →"}
+              {tIapp_locale_business_page("t_c745fdea")}
             </Link>
             <a
               href={`${ORIGIN}/api/mandate/openapi.json`}
@@ -188,12 +181,10 @@ export default async function BusinessPage({
       {/* Embed widget */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-3">
-          {he ? "Embed — widget לשותפים" : "Embed — partner widget"}
+          {tIapp_locale_business_page("t_1751c2de")}
         </h2>
         <p className="text-ink-soft text-[13.5px] mb-5 max-w-[560px]">
-          {he
-            ? "הטמעה באתר בנק / מעסיק / פינטק. בלי credentials. בלי callback."
-            : "Drop into a bank / employer / fintech site. No credentials. No callback."}
+          {tIapp_locale_business_page("t_d311b6c3")}
         </p>
       </Reveal>
       <div className="max-w-[420px]">

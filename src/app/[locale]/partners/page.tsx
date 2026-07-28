@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button, Card } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -19,6 +19,7 @@ export default async function PartnersPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_partners_page = await getTranslations({ locale, namespace: "inline_app_locale_partners_page" });
 
   const snippet = `<div id="zakai-embed"
      data-locale="${locale}"
@@ -39,16 +40,14 @@ export default async function PartnersPage({
         B2B · Partners · multi-path
       </div>
       <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">
-        {he ? "הטמיעו את סוכן הכסף אצלכם" : "Embed the money agent on your product"}
+        {tIapp_locale_partners_page("t_b2d930bc")}
       </h1>
       <p className="text-ink-soft text-[15.5px] leading-relaxed mt-4 max-w-[560px]">
-        {he
-          ? "סקריפט אחד. הלקוח שלכם נכנס ל-Money OS, סורק חיובים, פותח תיק עם Mandate — בלי מוקד ובלי להשאיר טלפון. אתם מקבלים ref ב-UTM. בחרו דלת כניסה עם data-path."
-          : "One script. Your customer lands in Money OS, scans charges, opens a Mandate case — no call center, no phone left behind. You get a UTM ref. Choose entry door with data-path."}
+        {tIapp_locale_partners_page("t_ed2796c2")}
       </p>
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? "הטמעה" : "Install"}
+        {tIapp_locale_partners_page("t_51ab2ede")}
       </h2>
       <Card className="p-5">
         <pre className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
@@ -64,7 +63,7 @@ export default async function PartnersPage({
         <SpotlightCard className="p-4">
           <div className="font-extrabold text-[14px]">data-ref</div>
           <div className="text-ink-soft text-[12.5px] mt-1">
-            {he ? "מזהה שותף (UTM campaign)" : "Partner id (UTM campaign)"}
+            {tIapp_locale_partners_page("t_e1e4ad0c")}
           </div>
         </SpotlightCard>
         <SpotlightCard className="p-4">
@@ -76,13 +75,13 @@ export default async function PartnersPage({
         <SpotlightCard className="p-4">
           <div className="font-extrabold text-[14px]">data-label / data-sub</div>
           <div className="text-ink-soft text-[12.5px] mt-1">
-            {he ? "טקסט מותאם (אופציונלי)" : "Custom copy (optional)"}
+            {tIapp_locale_partners_page("t_dd12c4d2")}
           </div>
         </SpotlightCard>
       </div>
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? "דלתות כניסה (data-path)" : "Entry doors (data-path)"}
+        {tIapp_locale_partners_page("t_ae1f9601")}
       </h2>
       <div className="grid gap-2.5">
         {paths.map((p) => (
@@ -97,29 +96,29 @@ export default async function PartnersPage({
       </div>
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? "תצוגה מקדימה (money)" : "Live preview (money)"}
+        {tIapp_locale_partners_page("t_d41d01a3")}
       </h2>
       <EmbedPreview locale={locale} path="money" />
 
       <div className="mt-10 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.07)] px-5 py-5">
         <div className="font-extrabold text-[15px]">
-          {he ? "למה זה עובד לשותפים" : "Why partners ship this"}
+          {tIapp_locale_partners_page("t_1f5a49ae")}
         </div>
         <ul className="mt-3 mb-0 ps-5 text-[13.5px] text-ink-soft leading-relaxed flex flex-col gap-1.5">
-          <li>{he ? "אפס PII אצלכם — הלקוח עובד אצלנו" : "Zero PII on your side — the customer works with us"}</li>
-          <li>{he ? "Mandate מוסדי (Ed25519 + JWKS)" : "Institutional Mandate (Ed25519 + JWKS)"}</li>
-          <li>{he ? "עמלה רק על SavingsProof — יישור תמריצים" : "Fee only on SavingsProof — aligned incentives"}</li>
-          <li>{he ? "בלי מוקד, בלי callback" : "No call center, no callback"}</li>
-          <li>{he ? "ארבע דלתות כניסה — התאמה למוצר שלכם" : "Four entry doors — match your product context"}</li>
+          <li>{tIapp_locale_partners_page("t_e5df0f96")}</li>
+          <li>{tIapp_locale_partners_page("t_3038f823")}</li>
+          <li>{tIapp_locale_partners_page("t_20fd415b")}</li>
+          <li>{tIapp_locale_partners_page("t_8d5c967a")}</li>
+          <li>{tIapp_locale_partners_page("t_464c34f3")}</li>
         </ul>
       </div>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link href="/business">
-          <Button>{he ? "זכאי לעובדים + תשתית" : "Employees + infrastructure"}</Button>
+          <Button>{tIapp_locale_partners_page("t_82b1161c")}</Button>
         </Link>
         <Link href="/institutions">
-          <Button variant="ghost">{he ? "למוסדות — Mandate" : "Institutions — Mandate"}</Button>
+          <Button variant="ghost">{tIapp_locale_partners_page("t_784db4db")}</Button>
         </Link>
         <Link href="/money">
           <Button variant="ghost">Money OS</Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { dueFollowUps, dueRechecks, type CaseReminder } from "@/lib/reminders";
 
@@ -9,6 +9,7 @@ import { dueFollowUps, dueRechecks, type CaseReminder } from "@/lib/reminders";
 export function ReminderBanner() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_ReminderBanner = useTranslations("inline_components_ReminderBanner");
   const [follow, setFollow] = useState<CaseReminder[]>([]);
   const [recheck, setRecheck] = useState<CaseReminder[]>([]);
 
@@ -29,7 +30,7 @@ export function ReminderBanner() {
               : `${follow.length} case(s) waiting for a provider follow-up`}
           </div>
           <Link href="/dashboard" className="text-emerald font-bold no-underline text-[13px]">
-            {he ? "פתח דשבורד והכן הודעת המשך" : "Open dashboard and draft follow-up"}
+            {tIcomponents_ReminderBanner("t_1a1a5c0a")}
           </Link>
         </div>
       )}
@@ -41,7 +42,7 @@ export function ReminderBanner() {
               : `~6 months later — check if the price crept back (${recheck.length})`}
           </div>
           <Link href="/money" className="text-emerald font-bold no-underline text-[13px]">
-            {he ? "סרוק שוב ב-Money OS" : "Re-scan in Money OS"}
+            {tIcomponents_ReminderBanner("t_86e4f4c1")}
           </Link>
         </div>
       )}

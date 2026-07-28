@@ -28,6 +28,7 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("flights");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_FlightRightsChecker = useTranslations("inline_components_FlightRightsChecker");
   const router = useRouter();
 
   const [jurisdiction, setJurisdiction] = useState<"il" | "eu">("il");
@@ -266,18 +267,14 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
           ) : caseId ? (
             <div>
               <div className="text-emerald font-extrabold text-[15px]">
-                {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+                {tIcomponents_FlightRightsChecker("t_360e126e")}
               </div>
               <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-                {he
-                  ? "הדרישה מוכנה ומאושרת. בדשבורד: אמת בעלות → צור Mandate → סמן כנשלח. הסוכן יעקוב ויתעד פיצוי כשיועבר."
-                  : "Demand ready and approved. On the dashboard: verify ownership → create Mandate → mark sent. The agent follows up and records the compensation when it lands."}
+                {tIcomponents_FlightRightsChecker("t_eb212a88")}
               </p>
               <Link href="/dashboard">
                 <Button className="w-full">
-                  {he
-                    ? "לדשבורד — המשך עכשיו (אימות + Mandate)"
-                    : "Dashboard — continue now (verify + Mandate)"}
+                  {tIcomponents_FlightRightsChecker("t_4a0f7a8f")}
                 </Button>
               </Link>
             </div>
@@ -344,7 +341,7 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
                     )
                   }
                 >
-                  {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+                  {tIcomponents_FlightRightsChecker("t_b4c9b341")}
                 </Button>
               </div>
               {error && <p className="text-[13px] text-amber mt-2 mb-0">{error}</p>}

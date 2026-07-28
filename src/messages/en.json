@@ -3864,5 +3864,325 @@
     "revoked": "Withdrawn",
     "revokedNote": "Withdrawn. Any institution verifying with us will see this on its next check.",
     "revokeFailed": "The withdrawal did not complete. Please try again."
+  },
+  "inline_components_CancelTool": {
+    "t_ebd6b437": "Your name",
+    "t_524bf65a": "Company name",
+    "t_39e161aa": "Product / plan",
+    "t_ad08a6d5": "Account / email (optional)",
+    "t_e7275f0c": "Monthly ₪ (optional)",
+    "t_265eb5c4": "Cancel",
+    "t_3bb646d8": "Ask for discount",
+    "t_59c6dced": "Downgrade",
+    "t_9824add7": "Pause",
+    "t_d5befca9": "Reason (optional)",
+    "t_b4c9b341": "Just generate letter to copy",
+    "t_360e126e": "✓ Agent opened a case — pre-approved",
+    "t_9fc8b2a9": "Dashboard — verify + agent dispatch",
+    "t_550c1f87": "Subject",
+    "t_cf09ad5a": "Prefilled from scan / link — review and let the agent act",
+    "t_11cf65f5": "Letter ready and approved. On the dashboard: verify ownership (code / email link) → one tap and the agent sends with Mandate. Then forward the provider reply to proofs@.",
+    "t_d628bea2": "If you chose ‘agent sends’ — it goes with Mandate and tracks. Otherwise: send yourself via the company’s email/chat. If the price drops — record the saving on your dashboard."
+  },
+  "inline_components_MoneyHub": {
+    "t_38d0577a": "My dashboard",
+    "t_c4584cd0": "Manual cancel",
+    "t_292af8ba": "Screenshot extract needs AI configured on the server.",
+    "t_da95e09c": "Could not read screenshot. Try a clearer image or a CSV."
+  },
+  "inline_components_OvernightAgent": {
+    "t_aeb342ad": "Overnight agent — follow-up for all",
+    "t_1768c8d7": "Could not draft this case."
+  },
+  "inline_components_ReminderBanner": {
+    "t_1a1a5c0a": "Open dashboard and draft follow-up",
+    "t_86e4f4c1": "Re-scan in Money OS"
+  },
+  "inline_components_Header": {
+    "t_bd4c0905": "My money",
+    "t_a7c55a8d": "Cancel",
+    "t_81a5a2c8": "What am I owed",
+    "t_5fcd3b9b": "Leaks",
+    "t_67f9ea4b": "Proofs",
+    "t_79771be3": "B2B",
+    "t_bc18d8da": "Cancel with agent",
+    "t_16c6cdf1": "Leaks map",
+    "t_60a18677": "Savings wall",
+    "t_b4265709": "B2B · employees + Mandate",
+    "t_8886b51f": "Institutions"
+  },
+  "inline_components_StrategyInsightsCard": {
+    "t_8c06d53e": "Strategy engine is learning",
+    "t_f77b8e7d": "What the agent learned",
+    "t_bfb0a294": "outcomes",
+    "t_47e46d89": "win rate",
+    "t_eddcfda5": "Leading stance:",
+    "t_ebbe65bd": "cases",
+    "t_9c42494d": "After a few documented cases, you’ll see what works against each provider — no guessing.",
+    "t_8b5199e5": "Aggregate only — no user PII. The agent picks stance from what actually got paid."
+  },
+  "inline_components_StatementScan": {
+    "t_49d491c5": "Best next move"
+  },
+  "inline_components_RefundChaseTool": {
+    "t_ebd6b437": "Your name",
+    "t_6a05400b": "Store / site",
+    "t_8ef9df6f": "Order ID",
+    "t_1b118af5": "Product (optional)",
+    "t_824751e8": "Amount ₪",
+    "t_d6fd4e06": "Days waiting",
+    "t_b4c9b341": "Just generate letter to copy",
+    "t_360e126e": "✓ Agent opened a case — pre-approved",
+    "t_8ae29d51": "Dashboard — continue now",
+    "t_f9f3c72c": "Demand ready. On the dashboard: verify ownership → Mandate → mark sent. When the refund lands — record it as a saving."
+  },
+  "inline_components_ParkingAppeal": {
+    "t_e3b93d14": "Ticket ₪ (optional)",
+    "t_b4c9b341": "Just generate letter to copy",
+    "t_360e126e": "✓ Agent opened a case — pre-approved",
+    "t_8ae29d51": "Dashboard — continue now",
+    "t_d489aedc": "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the ticket is cancelled — record the saving."
+  },
+  "inline_components_CreditCardTool": {
+    "t_540e7429": "Card balance ₪",
+    "t_4bbb156f": "Annual interest %",
+    "t_3216c28f": "Min payment % of balance",
+    "t_59e0bebc": "Est. interest / month",
+    "t_d51fcd64": "Per year ≈",
+    "t_bc347226": "Min-only ≈",
+    "t_3acbdf22": "months to clear",
+    "t_ac9dc79a": "Debt tools",
+    "t_a5b579f8": "Bank fees"
+  },
+  "inline_components_SentFollowUp": {
+    "t_b380dffd": "Provider reply — agent drafts next message",
+    "t_894dd204": "Error — try again",
+    "t_acc56489": "No call center. Pick what happened, copy the message, send it, then record the new amount."
+  },
+  "inline_components_BusinessLeadForm": {
+    "t_ed765e5a": "What are you interested in?"
+  },
+  "inline_components_ElectricityCalculator": {
+    "t_3e177a1f": "Who is this for? (optional — family)",
+    "t_56630d92": "e.g. Mom · Grandpa",
+    "t_62d5403d": "Case opened — continue on dashboard.",
+    "t_b1112228": "Agent opens a full Case with Mandate: ownership → send → auto follow-up → documented saving. Fee only when money is saved."
+  },
+  "inline_components_LeadForm": {
+    "t_99e05b72": "Optional contact for later (not required, no promised call)",
+    "t_0a6f83fb": "Details (no promised callback)",
+    "t_cbdaff61": "Full name",
+    "t_737232c2": "Phone",
+    "t_35c9a071": "Notes (optional)",
+    "t_e4eb04d6": "Name and phone required",
+    "t_e4cb6506": "Error",
+    "t_dd1b93c4": "Saved",
+    "t_0f3bf18e": "Continue with the tools above.",
+    "t_38bf6a70": "No call-back team. Tap a button — act inside Zakai now. Contact details are optional and never promise a call."
+  },
+  "inline_components_TransportFineAppeal": {
+    "t_b573e9ed": "Fine ₪ (optional)",
+    "t_b4c9b341": "Just generate letter to copy",
+    "t_360e126e": "✓ Agent opened a case — pre-approved",
+    "t_8ae29d51": "Dashboard — continue now",
+    "t_013fe61d": "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the fine is cancelled — record the saving."
+  },
+  "inline_components_FlightRightsChecker": {
+    "t_360e126e": "✓ Agent opened a case — pre-approved",
+    "t_b4c9b341": "Just generate letter to copy",
+    "t_eb212a88": "Demand ready and approved. On the dashboard: verify ownership → create Mandate → mark sent. The agent follows up and records the compensation when it lands.",
+    "t_4a0f7a8f": "Dashboard — continue now (verify + Mandate)"
+  },
+  "inline_components_EmptyDashboardActions": {
+    "t_8e012a21": "What's the problem right now?",
+    "t_12298790": "Paying too much →",
+    "t_1e2507e3": "Cancel a sub",
+    "t_cb700000": "What am I owed?",
+    "t_0ea869b4": "Electricity switch",
+    "t_16c6cdf1": "Leaks map",
+    "t_ca829952": "Suggested next",
+    "t_0536a00e": "Pick a door — the agent opens a Mandate case. No call center, no phone left behind."
+  },
+  "inline_components_BankFeesTool": {
+    "t_ebd6b437": "Your name",
+    "t_e5cbb043": "Bank name",
+    "t_832f0010": "Account last 4 (optional)",
+    "t_b3bac430": "Fee description (optional)",
+    "t_71dfcc71": "Fee amount ₪",
+    "t_7f6ed090": "Charge date (optional)",
+    "t_b4c9b341": "Just generate letter to copy",
+    "t_360e126e": "✓ Agent opened a case — pre-approved",
+    "t_8ae29d51": "Dashboard — continue now",
+    "t_5a0296a5": "Dispute ready. On the dashboard: verify ownership → Mandate → mark sent. When the fee is waived — record the saving."
+  },
+  "inline_app_locale_money_page": {
+    "t_98667843": "Money OS · My money",
+    "t_2144de53": "Where money goes — and the agent acts",
+    "t_26d7de3c": "Or act directly",
+    "t_bc18d8da": "Cancel sub with agent",
+    "t_a4c2b6a9": "Cellular bill check",
+    "t_38d0577a": "My dashboard",
+    "t_ef77bbd3": "No bank password. Screenshot or scan → Zakai finds recurring charges → opens a Mandate case → sends and follows up. Fee only on documented savings.",
+    "t_3e37c3c8": "Potentials are for prioritization only — not a promise. Fee only on documented savings. No call center, no phone left behind."
+  },
+  "inline_app_locale_proofs_page": {
+    "t_d2c8fb14": "Savings wall · anonymous",
+    "t_027aa200": "Saved this week — no call center",
+    "t_be944a54": "Monthly · 7 days",
+    "t_7623b6d2": "Closed · 7 days",
+    "t_06b88ed2": "Monthly · 30 days",
+    "t_838cfd06": "Total documented",
+    "t_a700ca87": "Recent examples (anonymous)",
+    "t_147726d1": "mo",
+    "t_dee2cf67": "Next on the list — you",
+    "t_bd4c0905": "My money",
+    "t_00a5e771": "Cancel sub",
+    "t_16c6cdf1": "Leaks map",
+    "t_3070dd2f": "Aggregate numbers from StrategyOutcome only. No names, phones, or emails — only documented agent outcomes.",
+    "t_152309da": "No documented outcomes yet at scale. Every closed saving lands here automatically — no PII.",
+    "t_8a82bb80": "Scan charges, open a Mandate case, let the agent work. Fee only on documented savings.",
+    "t_dfa51bd3": "Data comes only from the StrategyOutcome table — no link to a user or case. This is a public trust wall, not a personal profile."
+  },
+  "inline_app_locale_business_page": {
+    "t_bfc91c2c": "Two tracks · employees + Mandate infrastructure",
+    "t_c4b46caf": "Employee benefit",
+    "t_dd7efdcb": "Mandate / API",
+    "t_a0324447": "Track A · Employee welfare benefit",
+    "t_f2dc4008": "Track B · Mandate infrastructure for institutions",
+    "t_c745fdea": "Full institutions guide →",
+    "t_1751c2de": "Embed — partner widget",
+    "t_526ab7c0": "Zakai for business & institutions",
+    "t_753af524": "An employee benefit that returns real money — and a Mandate infrastructure banks, insurers and fintechs can verify offline with zero outbound-payment risk.",
+    "t_2e824bb2": "Employees discover rights, check payslips, cancel subs and recover money — zero setup cost for the company.",
+    "t_4c97fe67": "Signed, scoped, offline-verifiable consumer authority. No outbound payments. Public JWKS + status endpoint. This is the standard we are building.",
+    "t_d311b6c3": "Drop into a bank / employer / fintech site. No credentials. No callback."
+  },
+  "inline_app_locale_bank_fees_page": {
+    "t_17d5ad42": "The agent disputes for you",
+    "t_bd4c0905": "My money",
+    "t_ab015246": "Fill details → agent opens an approved case → Mandate → send & track. Fee only if a waiver/refund is documented."
+  },
+  "inline_app_locale_cancel_page": {
+    "t_97c08415": "Agent · Mandate · no callback",
+    "t_9af4e618": "Cancel · pause · lower price — agent does it",
+    "t_c700a858": "Scan charges first",
+    "t_cb700000": "What am I owed?",
+    "t_8447dd09": "Loading…",
+    "t_2764ad9b": "My money →",
+    "t_1bb70faa": "Netflix, gym, cloud, apps — the agent drafts, sends with Mandate, follows up and records the saving. No waiting on anyone.",
+    "t_5812ab29": "Agent sends, follows up, and records. Fee only on documented savings. No phone left behind."
+  },
+  "inline_app_locale_start_page": {
+    "t_eb8bdcd9": "Money OS · no callback",
+    "t_b39acbd2": "Where do you start?",
+    "t_721693ca": "Paying too much — scan now",
+    "t_87c0ebfc": "Electricity high — agent switch",
+    "t_e2ca32d5": "Cancel a sub with agent",
+    "t_a5b579f8": "Bank fees",
+    "t_cb700000": "What am I owed?",
+    "t_16c6cdf1": "Leaks map",
+    "t_d8d013b8": "Pick a problem. The agent opens a case, Mandate, sends and follows up. Fee only on documented savings."
+  },
+  "inline_app_locale_debt_consolidation_page": {
+    "t_e7b22b9d": "Instant in-app action — no call center",
+    "t_d7059f90": "How it works",
+    "t_423d86cf": "My money — map charges",
+    "t_8abbe384": "Ask the agent",
+    "t_bd447869": "High-interest overdraft, cards and loans can become one lower payment. Start on screen in Zakai — not by leaving a phone number. A licensed provider only if you choose to continue."
+  },
+  "inline_app_locale_leaks_page": {
+    "t_c4b012f6": "Money leaks map · Money OS",
+    "t_2d4d4d1b": "Where money leaks — the agent closes it",
+    "t_eec058aa": "My money — scan now",
+    "t_bc18d8da": "Cancel with agent",
+    "t_f87fbdb7": "High ROI",
+    "t_4c7c9f63": "Category leaders don’t wait on a phone call",
+    "t_7698572b": "Start with My money",
+    "t_03cd5197": "Zakai is the standard consumer money agent: no call center, no phone left behind, fee only on documented savings. Every card leads to Mandate action.",
+    "t_ace971b5": "Scan → case → Mandate → send → follow-up → documented saving → share. That’s the loop."
+  },
+  "inline_app_locale_compensation_claims_page": {
+    "t_e7b22b9d": "Instant in-app action — no call center",
+    "t_d7059f90": "How it works",
+    "t_8abbe384": "Ask the agent",
+    "t_cb700000": "What am I owed?",
+    "t_70753b42": "Loss of capacity, disability, critical illness, care and mortgage insurance — cover people often never claim. Start on screen in Zakai — not by leaving a phone number. A lawyer only if you choose to continue."
+  },
+  "inline_app_locale_wrapped_page": {
+    "t_8bdc4d33": "Cases opened",
+    "t_2617f830": "Outreach sent",
+    "t_bbc0f36f": "Active Mandates",
+    "t_c4ab9bbc": "Documented savings",
+    "t_ece7121c": "Documented monthly saving",
+    "t_bd4c0905": "My money",
+    "t_143fe31f": "Dashboard",
+    "t_b8e0de13": "Shareable summary — every number comes from your cases and SavingsProof."
+  },
+  "inline_app_locale_settings_page": {
+    "t_6c127838": "Documents & mandates",
+    "t_e2d56b43": "Year with Zakai",
+    "t_bd4c0905": "My money"
+  },
+  "inline_app_locale_what_am_i_owed_page": {
+    "t_13fc32c9": "Scan charges now",
+    "t_0ea869b4": "Electricity switch",
+    "t_e2ca32d5": "Cancel sub with agent",
+    "t_a5b579f8": "Bank fees",
+    "t_16c6cdf1": "Leaks map",
+    "t_b9105fc0": "Found potential? Let the agent act",
+    "t_2764ad9b": "My money →",
+    "t_b341725e": "Start now",
+    "t_7d286052": "Scan → Mandate case → send and follow up. Fee only on documented savings. No call center. No phone left behind."
+  },
+  "inline_app_locale_ownership_confirm_page": {
+    "t_8217c487": "Dashboard"
+  },
+  "inline_app_locale_authorization_code_page": {
+    "t_01702001": "Scan to verify Mandate"
+  },
+  "inline_app_locale_refund_chase_page": {
+    "t_adfb9883": "Missing refund",
+    "t_56976f1e": "Order cancelled, item returned, refund promised — still nothing. Draft a firm written demand."
+  },
+  "inline_app_locale_partners_page": {
+    "t_b2d930bc": "Embed the money agent on your product",
+    "t_51ab2ede": "Install",
+    "t_e1e4ad0c": "Partner id (UTM campaign)",
+    "t_dd12c4d2": "Custom copy (optional)",
+    "t_ae1f9601": "Entry doors (data-path)",
+    "t_d41d01a3": "Live preview (money)",
+    "t_1f5a49ae": "Why partners ship this",
+    "t_e5df0f96": "Zero PII on your side — the customer works with us",
+    "t_3038f823": "Institutional Mandate (Ed25519 + JWKS)",
+    "t_20fd415b": "Fee only on SavingsProof — aligned incentives",
+    "t_8d5c967a": "No call center, no callback",
+    "t_464c34f3": "Four entry doors — match your product context",
+    "t_82b1161c": "Employees + infrastructure",
+    "t_784db4db": "Institutions — Mandate",
+    "t_ed2796c2": "One script. Your customer lands in Money OS, scans charges, opens a Mandate case — no call center, no phone left behind. You get a UTM ref. Choose entry door with data-path."
+  },
+  "inline_app_locale_insurance_compare_page": {
+    "t_e7b22b9d": "Instant in-app action — no call center",
+    "t_d7059f90": "How it works",
+    "t_c244403d": "Check duplicate cover now",
+    "t_8abbe384": "Ask the agent",
+    "t_15fe9e82": "Car, home, health, life — prices rise every year and loyalty is punished. Start on screen in Zakai — not by leaving a phone number. A licensed agent only if you choose to continue."
+  },
+  "inline_app_locale_credit_card_page": {
+    "t_112c2558": "What revolving credit costs",
+    "t_abfc2a7f": "Most people never see the monthly interest drag. Numbers only — not investment advice.",
+    "t_5f18186c": "Illustrative only. Your card terms govern."
+  },
+  "inline_app_locale_documents_page": {
+    "t_be65da89": "Document vault",
+    "t_f2bac17f": "Mandates · letters · proofs",
+    "t_ed1487bf": "No authorizations yet. Open a case and issue a Mandate from the dashboard.",
+    "t_4e482ddb": "Open / print",
+    "t_7ef4c59b": "No documented savings yet. After the provider lowers the price — record it on the dashboard.",
+    "t_147726d1": "mo",
+    "t_143fe31f": "Dashboard",
+    "t_d3297759": "Yearly Wrapped",
+    "t_bd4c0905": "My money",
+    "t_2f52f216": "Everything in one place, timestamped. Print, share with a provider, or archive."
   }
 }

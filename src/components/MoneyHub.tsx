@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
@@ -186,6 +186,7 @@ export function MoneyHub({
 }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_MoneyHub = useTranslations("inline_components_MoneyHub");
   const router = useRouter();
   const [text, setText] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
@@ -400,9 +401,7 @@ export function MoneyHub({
           </Button>
         ) : (
           <p className="text-[13px] text-ink-soft mt-3">
-            {he
-              ? "חילוץ מצילום ידלק כשחיבור ה-AI פעיל בשרת."
-              : "Screenshot extract needs AI configured on the server."}
+            {tIcomponents_MoneyHub("t_292af8ba")}
           </p>
         )}
         <input
@@ -415,9 +414,7 @@ export function MoneyHub({
         />
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
-            {he
-              ? "לא הצלחנו לקרוא את הצילום. נסה תמונה חדה יותר או קובץ CSV."
-              : "Could not read screenshot. Try a clearer image or a CSV."}
+            {tIcomponents_MoneyHub("t_da95e09c")}
           </p>
         )}
       </Card>
@@ -570,12 +567,12 @@ export function MoneyHub({
               <div className="flex flex-wrap gap-2">
                 <Link href="/dashboard" className="no-underline">
                   <Button variant="ghost" className="!text-[13px] !py-2">
-                    {he ? "הדשבורד שלי" : "My dashboard"}
+                    {tIcomponents_MoneyHub("t_38d0577a")}
                   </Button>
                 </Link>
                 <Link href="/cancel" className="no-underline">
                   <Button variant="ghost" className="!text-[13px] !py-2">
-                    {he ? "ביטול ידני" : "Manual cancel"}
+                    {tIcomponents_MoneyHub("t_c4584cd0")}
                   </Button>
                 </Link>
               </div>

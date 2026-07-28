@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
 import { buildRefundLetter } from "@/lib/refundChase";
@@ -9,6 +9,7 @@ import { buildRefundLetter } from "@/lib/refundChase";
 export function RefundChaseTool() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_RefundChaseTool = useTranslations("inline_components_RefundChaseTool");
   const router = useRouter();
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
@@ -67,12 +68,12 @@ export function RefundChaseTool() {
   return (
     <div className="flex flex-col gap-4">
       <Card className="p-5 flex flex-col gap-3">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={he ? "השם שלך" : "Your name"} />
-        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={he ? "חנות / אתר" : "Store / site"} />
-        <Input value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder={he ? "מספר הזמנה" : "Order ID"} />
-        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={he ? "מוצר (אופציונלי)" : "Product (optional)"} />
-        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={he ? "סכום ₪" : "Amount ₪"} />
-        <Input type="number" value={days} onChange={(e) => setDays(e.target.value)} placeholder={he ? "כמה ימים מחכים" : "Days waiting"} />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_ebd6b437")} />
+        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_6a05400b")} />
+        <Input value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_8ef9df6f")} />
+        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_1b118af5")} />
+        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_824751e8")} />
+        <Input type="number" value={days} onChange={(e) => setDays(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_d6fd4e06")} />
 
         <div className="flex flex-col gap-2 mt-1">
           <Button onClick={sendWithAgent} disabled={!company.trim() || busy} className="w-full">
@@ -101,7 +102,7 @@ export function RefundChaseTool() {
               )
             }
           >
-            {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+            {tIcomponents_RefundChaseTool("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
@@ -110,16 +111,14 @@ export function RefundChaseTool() {
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">
-            {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+            {tIcomponents_RefundChaseTool("t_360e126e")}
           </div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {he
-              ? "הדרישה מוכנה. בדשבורד: אמת בעלות → Mandate → סמן כנשלח. כשההחזר מגיע — תעד כחיסכון."
-              : "Demand ready. On the dashboard: verify ownership → Mandate → mark sent. When the refund lands — record it as a saving."}
+            {tIcomponents_RefundChaseTool("t_f9f3c72c")}
           </p>
           <Link href="/dashboard">
             <Button className="w-full">
-              {he ? "לדשבורד — המשך עכשיו" : "Dashboard — continue now"}
+              {tIcomponents_RefundChaseTool("t_8ae29d51")}
             </Button>
           </Link>
         </Card>

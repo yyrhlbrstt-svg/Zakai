@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button, Card } from "@/components/ui";
 
@@ -13,6 +13,7 @@ import { Button, Card } from "@/components/ui";
 export default function OwnershipConfirmPage() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_ownership_confirm_page = useTranslations("inline_app_locale_ownership_confirm_page");
   const params = useSearchParams();
   const token = params.get("token") || "";
   const [state, setState] = useState<"loading" | "ok" | "already" | "error">("loading");
@@ -77,7 +78,7 @@ export default function OwnershipConfirmPage() {
         {(state === "ok" || state === "already" || state === "error") && (
           <div className="mt-6">
             <Link href="/dashboard">
-              <Button className="w-full">{he ? "לדשבורד" : "Dashboard"}</Button>
+              <Button className="w-full">{tIapp_locale_ownership_confirm_page("t_8217c487")}</Button>
             </Link>
           </div>
         )}

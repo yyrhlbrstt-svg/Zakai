@@ -22,6 +22,7 @@ export default async function AuthorizationDocPage({
   const verifyUrl = `${appUrl}/verify?code=${auth!.code}`;
   const active = auth!.status === "ACTIVE";
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_authorization_code_page = await getTranslations({ locale, namespace: "inline_app_locale_authorization_code_page" });
   const pdfHref = `/api/authorization/${encodeURIComponent(auth!.code)}/pdf`;
 
   return (
@@ -64,7 +65,7 @@ export default async function AuthorizationDocPage({
               <MandateQr
                 verifyUrl={verifyUrl}
                 size={120}
-                label={he ? "סריקה לאימות Mandate" : "Scan to verify Mandate"}
+                label={tIapp_locale_authorization_code_page("t_01702001")}
               />
             )}
           </div>

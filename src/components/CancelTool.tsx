@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
@@ -17,6 +17,7 @@ function parseIntent(v: string | null): CancelIntent {
 export function CancelTool() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_CancelTool = useTranslations("inline_components_CancelTool");
   const router = useRouter();
   const search = useSearchParams();
 
@@ -112,25 +113,23 @@ export function CancelTool() {
     <div className="flex flex-col gap-4">
       {prefilled && (
         <div className="rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13px] font-bold">
-          {he
-            ? "מילאנו מהסריקה / הקישור — בדקו ולחצו על הסוכן"
-            : "Prefilled from scan / link — review and let the agent act"}
+          {tIcomponents_CancelTool("t_cf09ad5a")}
         </div>
       )}
 
       <Card className="p-5 flex flex-col gap-3">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={he ? "השם שלך" : "Your name"} />
-        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={he ? "שם החברה (נטפליקס, חדר כושר…)" : "Company name"} />
-        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={he ? "מה המנוי / השירות" : "Product / plan"} />
-        <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={he ? "אימייל / מספר לקוח (אופציונלי)" : "Account / email (optional)"} />
-        <Input type="number" value={monthly} onChange={(e) => setMonthly(e.target.value)} placeholder={he ? "כמה משלמים בחודש ₪ (אופציונלי)" : "Monthly ₪ (optional)"} />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={tIcomponents_CancelTool("t_ebd6b437")} />
+        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={tIcomponents_CancelTool("t_524bf65a")} />
+        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={tIcomponents_CancelTool("t_39e161aa")} />
+        <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={tIcomponents_CancelTool("t_ad08a6d5")} />
+        <Input type="number" value={monthly} onChange={(e) => setMonthly(e.target.value)} placeholder={tIcomponents_CancelTool("t_e7275f0c")} />
         <Select value={intent} onChange={(e) => setIntent(e.target.value as CancelIntent)}>
-          <option value="cancel">{he ? "ביטול מלא" : "Cancel"}</option>
-          <option value="retention">{he ? "בקשת הנחה / שימור" : "Ask for discount"}</option>
-          <option value="downgrade">{he ? "הורדת מסלול" : "Downgrade"}</option>
-          <option value="pause">{he ? "הקפאה" : "Pause"}</option>
+          <option value="cancel">{tIcomponents_CancelTool("t_265eb5c4")}</option>
+          <option value="retention">{tIcomponents_CancelTool("t_3bb646d8")}</option>
+          <option value="downgrade">{tIcomponents_CancelTool("t_59c6dced")}</option>
+          <option value="pause">{tIcomponents_CancelTool("t_9824add7")}</option>
         </Select>
-        <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={he ? "סיבה (אופציונלי)" : "Reason (optional)"} />
+        <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={tIcomponents_CancelTool("t_d5befca9")} />
 
         <div className="flex flex-col gap-2 mt-1">
           <Button
@@ -152,7 +151,7 @@ export function CancelTool() {
             disabled={!company.trim() || !product.trim() || busy}
             className="w-full text-[13px]"
           >
-            {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+            {tIcomponents_CancelTool("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
@@ -161,16 +160,14 @@ export function CancelTool() {
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">
-            {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+            {tIcomponents_CancelTool("t_360e126e")}
           </div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {he
-              ? "המכתב מוכן ומאושר. בדשבורד: אמת בעלות (קוד / קישור מייל) → לחיצה אחת והסוכן שולח עם Mandate. אחר כך מעבירים תשובת ספק ל-proofs@."
-              : "Letter ready and approved. On the dashboard: verify ownership (code / email link) → one tap and the agent sends with Mandate. Then forward the provider reply to proofs@."}
+            {tIcomponents_CancelTool("t_11cf65f5")}
           </p>
           <Link href="/dashboard">
             <Button className="w-full">
-              {he ? "לדשבורד — אימות + שליחת סוכן" : "Dashboard — verify + agent dispatch"}
+              {tIcomponents_CancelTool("t_9fc8b2a9")}
             </Button>
           </Link>
         </Card>
@@ -178,7 +175,7 @@ export function CancelTool() {
 
       {out && (
         <Card className="p-5">
-          <div className="text-[12px] text-ink-soft font-bold">{he ? "נושא" : "Subject"}</div>
+          <div className="text-[12px] text-ink-soft font-bold">{tIcomponents_CancelTool("t_550c1f87")}</div>
           <div className="font-extrabold mt-1">{out.subject}</div>
           <pre className="mt-4 whitespace-pre-wrap text-[13px] leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
             {out.body}
@@ -199,9 +196,7 @@ export function CancelTool() {
             {copied ? (he ? "הועתק" : "Copied") : he ? "העתק הכול" : "Copy all"}
           </Button>
           <p className="text-[12px] text-ink-soft mt-3 mb-0">
-            {he
-              ? "אם בחרת ‘הסוכן שולח’ — הוא עושה את זה עם Mandate ועוקב. אחרת: שלח בעצמך במייל/צ׳אט של החברה, ואם הורידו מחיר — תעד בזכאי בדשבורד כחיסכון."
-              : "If you chose ‘agent sends’ — it goes with Mandate and tracks. Otherwise: send yourself via the company’s email/chat. If the price drops — record the saving on your dashboard."}
+            {tIcomponents_CancelTool("t_d628bea2")}
           </p>
         </Card>
       )}
