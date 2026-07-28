@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, Link } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { Button, Input, FieldError } from "@/components/ui";
 import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
@@ -32,6 +32,8 @@ interface Props {
   referralCode?: string;
   proposedSaving?: ProposedSavingClient | null;
   proofsEmail?: string;
+  /** Agent auto-follow-up rounds already sent (dashboard). */
+  agentRound?: number;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -73,6 +75,8 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopied: "הועתק",
     proofsHint: "Forward Email / העברת מייל — הסוכן מזהה סכום ומציע רישום בלחיצה אחת.",
     ownDone: "בעלות אומתה — לחיצה אחת והסוכן שולח לספק עם Mandate.",
+    agentRoundLabel: "סיבוב סוכן",
+    nextDoors: "מה עוד?",
   },
   en: {
     approve: "Approve & continue",
@@ -112,6 +116,8 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopied: "Copied",
     proofsHint: "Forward Email — agent extracts the amount and offers one-tap record.",
     ownDone: "Ownership verified — one tap and the agent sends with Mandate.",
+    agentRoundLabel: "Agent round",
+    nextDoors: "What's next?",
   },
 };
 
@@ -130,6 +136,7 @@ export function CaseNextStep({
   referralCode,
   proposedSaving,
   proofsEmail,
+  agentRound = 0,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -140,9 +147,7 @@ export function CaseNextStep({
   const [codeSent, setCodeSent] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
   const [newAmt, setNewAmt] = useState(
-    proposedSaving?.newAmountShekels != null
-      ? String(proposedSaving.newAmountShekels)
-      : "",
+    proposedSaving?.newAmountShekels != null ? String(proposedSaving.newAmountShekels) : "",
   );
   const [localOwn, setLocalOwn] = useState(ownershipVerified);
   const [localAuth, setLocalAuth] = useState(hasAuthorization);
@@ -188,6 +193,13 @@ export function CaseNextStep({
       ? `${origin}/signup?ref=${encodeURIComponent(referralCode)}`
       : `${origin}/`;
     const fullText = `${msg}\n${shareUrl}`;
+
+    const doors = [
+      { href: "/electricity", he: "חשמל — מעבר ספק", en: "Electricity switch" },
+      { href: "/bank-fees", he: "עמלות בנק", en: "Bank fees" },
+      { href: "/cancel", he: "ביטול מנוי", en: "Cancel a sub" },
+      { href: "/money", he: "סריקה נוספת", en: "Scan more" },
+    ];
 
     return (
       <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] p-4">
@@ -237,6 +249,18 @@ export function CaseNextStep({
           >
             {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
           </Button>
+        </div>
+        <div className="mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
+          <div className="text-[12px] font-extrabold text-ink-soft mb-2">{t(locale, "nextDoors")}</div>
+          <div className="flex flex-wrap gap-2">
+            {doors.map((d) => (
+              <Link key={d.href} href={d.href}>
+                <Button variant="ghost" className="!text-[12.5px] !py-1.5 !px-3">
+                  {he ? d.he : d.en} →
+                </Button>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -325,7 +349,6 @@ export function CaseNextStep({
           </div>
         )}
 
-        {/* After ownership: ONE button — Mandate + send */}
         {localOwn && (
           <>
             <p className="text-[12.5px] text-emerald font-bold m-0">{t(locale, "ownDone")}</p>
@@ -375,10 +398,22 @@ export function CaseNextStep({
 
   if (status === "SENT") {
     const proposed = proposedSaving;
+    const roundHint =
+      agentRound > 0
+        ? he
+          ? `הסוכן כבר שלח ${agentRound} סיבוב${agentRound > 1 ? "ים" : ""} אוטומטי${agentRound > 1 ? "ים" : ""}.`
+          : `Agent already sent ${agentRound} auto round${agentRound > 1 ? "s" : ""}.`
+        : null;
+
     return (
       <div className="w-full mt-2 flex flex-col gap-3">
         <div className="rounded-xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-3 py-2.5 text-[12.5px] font-bold">
           {t(locale, "sentBanner")}
+          {roundHint && (
+            <span className="block mt-1 text-emerald">
+              {t(locale, "agentRoundLabel")}: {agentRound} · {roundHint}
+            </span>
+          )}
         </div>
 
         <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
