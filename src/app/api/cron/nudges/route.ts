@@ -3,14 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
-import { autoFollowUpCase } from "@/lib/services/agentFollowUp";
+import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
 
 export const dynamic = "force-dynamic";
 
 const NUDGE_SUBJECT = "זכאי — המבצע שלך כנראה נגמר, שווה לבדוק שוב";
 /** Don't nudge the same user more often than this for SAVED recheck. */
 const NUDGE_COOLDOWN_DAYS = 60;
-/** SENT cases older than this get an agent auto-follow-up (round 2 to provider). */
+/** SENT cases older than this get an agent auto-follow-up (round 2+ to provider). */
 const SENT_AFTER_DAYS = 5;
 const SENT_COOLDOWN_DAYS = 12;
 
@@ -18,8 +18,7 @@ const SENT_COOLDOWN_DAYS = 12;
  * Daily cron (Vercel):
  * 1) SAVED cases past promo window → re-check nudge to user
  * 2) SENT cases waiting 5+ days → AGENT auto-follow-up to the provider
- *    (Mandate-backed, written, no phone, no human). This is the leap from
- *    "tools the user copies" to "agent that keeps negotiating".
+ *    (Mandate-backed, written, no phone, no human).
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -72,7 +71,6 @@ export async function GET(request: Request) {
     }
 
     // —— 2. AGENT auto-follow-up on SENT cases ——
-    // The agent itself writes and sends round-2 to the provider when Mandate is live.
     const waiting = await prisma.case.findMany({
       where: {
         status: "SENT",
@@ -87,26 +85,17 @@ export async function GET(request: Request) {
 
     const seenAgent = new Set<string>();
     for (const c of waiting) {
-      // Cap one auto-follow-up action per user per cooldown to avoid flooding.
       if (seenAgent.has(c.userId)) continue;
 
-      // Robust cooldown: any recent *outbound* email for this case (not inbound
-      // extracts). Previous filter only matched "המשך פנייה" subjects and
-      // missed the delay playbook subject ("תזכורת — פנייה ממתינה"), so the
-      // agent could re-send or skip incorrectly.
+      // Cooldown: any recent agent-marked outbound for this case.
+      // Marker is the unified prefix written by autoFollowUpCase.
       const recentOut = await prisma.outbox.findFirst({
         where: {
           caseId: c.id,
           channel: "EMAIL",
           providerMessageId: { not: "inbound" },
           createdAt: { gt: sentCooldown },
-          OR: [
-            { subject: { contains: "המשך" } },
-            { subject: { contains: "תזכורת" } },
-            { subject: { contains: "פנייה" } },
-            { subject: { contains: "בקשה" } },
-            { subject: { contains: "שימור" } },
-          ],
+          subject: { startsWith: AGENT_SUBJECT_PREFIX },
         },
         select: { id: true },
       });
