@@ -46,6 +46,7 @@ const copy: Record<string, Record<string, string>> = {
     copied: "הועתק",
     shareTitle: "שתף את החיסכון — שיביאו עוד",
     whatsapp: "וואטסאפ",
+    nativeShare: "שתף",
     mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
     mandateNone: "הרשאה אנושית נוצרה (מפתחות Mandate לא הוגדרו בסביבה)",
     authCode: "קוד הרשאה",
@@ -53,7 +54,7 @@ const copy: Record<string, Record<string, string>> = {
     savedSub: "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
-    sentBanner: "הסוכן שלח. עכשיו: אם ענו — רשום סכום חדש. אם לא — הכן תזכורת.",
+    sentBanner: "הסוכן שלח. עכשיו: אם ענו — רשום סכום חדש. אם לא — הכן תזכורת (או חכה שהסוכן ישלח סיבוב 2 לבד).",
     competitorName: "שם המתחרה",
     competitorPrice: "מחיר המתחרה ₪",
   },
@@ -76,6 +77,7 @@ const copy: Record<string, Record<string, string>> = {
     copied: "Copied",
     shareTitle: "Share the saving",
     whatsapp: "WhatsApp",
+    nativeShare: "Share",
     mandateOk: "Mandate issued — provider can verify via JWKS",
     mandateNone: "Human authorization created (Mandate keys not configured)",
     authCode: "Authorization code",
@@ -83,7 +85,7 @@ const copy: Record<string, Record<string, string>> = {
     savedSub: "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we’ll remind you to re-check if the price crept back.",
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
-    sentBanner: "Agent sent. Next: if they replied — record new amount. If not — draft a reminder.",
+    sentBanner: "Agent sent. Next: if they replied — record new amount. If not — draft a reminder (or wait for the agent’s auto round-2).",
     competitorName: "Competitor name",
     competitorPrice: "Competitor price ₪",
   },
@@ -142,12 +144,13 @@ export function CaseNextStep({
     const msg =
       shareMessage ||
       (he
-        ? "חסכתי כסף עם זכאי — בלי מוקד ובלי לחכות לאף אחד."
-        : "I saved money with Zakai — no call center.");
+        ? "חסכתי כסף עם זכאי — סוכן דיגיטלי שפעל בשמי מול הספק, בלי מוקד ובלי לחכות לאף אחד."
+        : "I saved money with Zakai — a digital agent acted for me, no call center.");
     const origin = typeof window !== "undefined" ? window.location.origin : "https://zakai.app";
     const shareUrl = referralCode
       ? `${origin}/signup?ref=${encodeURIComponent(referralCode)}`
       : `${origin}/`;
+    const fullText = `${msg}\n${shareUrl}`;
 
     return (
       <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] p-4">
@@ -159,7 +162,7 @@ export function CaseNextStep({
             className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
             onClick={() => {
               window.open(
-                `https://wa.me/?text=${encodeURIComponent(`${msg}\n${shareUrl}`)}`,
+                `https://wa.me/?text=${encodeURIComponent(fullText)}`,
                 "_blank",
                 "noopener,noreferrer",
               );
@@ -167,6 +170,21 @@ export function CaseNextStep({
           >
             {t(locale, "whatsapp")}
           </button>
+          {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
+            <Button
+              variant="ghost"
+              className="!text-[13px] !py-2"
+              onClick={async () => {
+                try {
+                  await navigator.share({ title: "Zakai", text: msg, url: shareUrl });
+                } catch {
+                  /* cancelled */
+                }
+              }}
+            >
+              {t(locale, "nativeShare")}
+            </Button>
+          )}
           <Button
             variant="ghost"
             className="!text-[13px] !py-2"
