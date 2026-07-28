@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button, Input, Textarea, FieldError } from "@/components/ui";
 
-/** B2B lead form for "Zakai for Employees". Posts to /api/business/lead. */
+/** B2B lead form — dual-track: employees welfare and/or Mandate infrastructure. */
 export function BusinessLeadForm() {
   const t = useTranslations("business");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [interest, setInterest] = useState<"employees" | "mandate" | "both">("employees");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,6 +22,7 @@ export function BusinessLeadForm() {
       email: String(fd.get("email") || ""),
       employees: String(fd.get("employees") || ""),
       note: String(fd.get("note") || ""),
+      interest,
     };
     try {
       const res = await fetch("/api/business/lead", {
@@ -42,8 +46,36 @@ export function BusinessLeadForm() {
     );
   }
 
+  const options: Array<{ id: "employees" | "mandate" | "both"; he: string; en: string }> = [
+    { id: "employees", he: "הטבת עובדים", en: "Employee benefit" },
+    { id: "mandate", he: "Mandate / API מוסדי", en: "Mandate / institutional API" },
+    { id: "both", he: "שני המסלולים", en: "Both tracks" },
+  ];
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
+      <fieldset className="m-0 p-0 border-0">
+        <legend className="text-[13px] text-ink-soft mb-2">
+          {he ? "במה אתם מעוניינים?" : "What are you interested in?"}
+        </legend>
+        <div className="flex flex-wrap gap-2">
+          {options.map((o) => (
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => setInterest(o.id)}
+              className={`rounded-full px-3.5 py-2 text-[13px] font-bold border cursor-pointer transition-colors ${
+                interest === o.id
+                  ? "bg-[rgba(63,203,155,0.18)] border-[rgba(63,203,155,0.55)] text-emerald"
+                  : "bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.12)] text-ink-soft"
+              }`}
+            >
+              {he ? o.he : o.en}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
       <label className="block">
         <span className="text-[13px] text-ink-soft block mb-1.5">{t("form.company")}</span>
         <Input name="company" required maxLength={120} />
