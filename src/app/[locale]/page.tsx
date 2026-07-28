@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Ban, Scale } from "lucide-react";
+import { Globe, ScanLine, Ban, Scale, Zap } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { allMarkets } from "@/lib/global/registry";
@@ -116,6 +116,26 @@ export default async function HomePage({
       cta: he ? "בדוק זכויות →" : ar ? "تحقق من الحقوق →" : ru ? "Проверить права →" : "Check rights →",
       accent: "sky" as const,
     },
+    {
+      href: "/electricity",
+      icon: Zap,
+      title: he
+        ? "חשמל יקר מדי"
+        : ar
+          ? "كهرباء غالية"
+          : ru
+            ? "Дорогое электричество"
+            : "Electricity too high",
+      sub: he
+        ? "השווה ספקים · הסוכן פונה · ניוד עם Mandate"
+        : ar
+          ? "قارن الموردين · الوكيل يتواصل · تفويض"
+          : ru
+            ? "Сравни поставщиков · агент пишет · Mandate"
+            : "Compare suppliers · agent acts · Mandate switch",
+      cta: he ? "מעבר ספק →" : ar ? "تغيير المورد →" : ru ? "Сменить поставщика →" : "Switch supplier →",
+      accent: "amber" as const,
+    },
   ];
 
   const accentClass = {
@@ -137,18 +157,22 @@ export default async function HomePage({
       text: "text-[#3ec6ff]",
       iconBg: "bg-[rgba(62,198,255,0.2)]",
     },
+    amber: {
+      border: "border-[rgba(240,180,92,0.4)]",
+      bg: "bg-[rgba(240,180,92,0.08)]",
+      text: "text-[#f0b45c]",
+      iconBg: "bg-[rgba(240,180,92,0.2)]",
+    },
   };
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
-      {/* Positioning strip */}
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · v0.5"
-          : "The standard consumer money agent · Money OS · Mandate · No call center · v0.5"}
+          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · v1.0"
+          : "The standard consumer money agent · Money OS · Mandate · No call center · v1.0"}
       </div>
 
-      {/* Global markets */}
       <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px] text-ink-soft">
         <Globe size={14} className="text-emerald shrink-0" aria-hidden />
         <span className="font-bold text-ink">{he ? "שווקים:" : "Markets:"}</span>
@@ -173,7 +197,6 @@ export default async function HomePage({
         </div>
       )}
 
-      {/* Hero */}
       <div className="flex flex-wrap gap-12 items-center mb-10">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
@@ -213,13 +236,12 @@ export default async function HomePage({
         </Reveal>
       </div>
 
-      {/* PROBLEM-FIRST ENTRY DOORS — why people enter */}
       <Reveal>
         <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft uppercase tracking-wide">
           {he ? "מאיפה מתחילים?" : ar ? "من أين نبدأ؟" : ru ? "С чего начать?" : "Where do you start?"}
         </h2>
       </Reveal>
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))] mb-14">
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
         {doors.map((d, i) => {
           const a = accentClass[d.accent];
           const Icon = d.icon;
@@ -242,7 +264,6 @@ export default async function HomePage({
         })}
       </div>
 
-      {/* Trust + stats */}
       <Reveal delay={80}>
         <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
           {(t.raw("home.stats") as Array<{ n: string; label: string }>).map((s) => (
@@ -282,7 +303,6 @@ export default async function HomePage({
         </ul>
       </Reveal>
 
-      {/* How it works */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.howTitle")}</h2>
       </Reveal>
@@ -304,7 +324,6 @@ export default async function HomePage({
         ))}
       </div>
 
-      {/* Why Zakai */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.whyTitle")}</h2>
       </Reveal>
@@ -335,7 +354,6 @@ export default async function HomePage({
         ))}
       </div>
 
-      {/* Bottom CTA */}
       <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
@@ -344,7 +362,7 @@ export default async function HomePage({
           <p className="text-ink-soft text-[15px] mt-3 max-w-[520px] mx-auto leading-relaxed">
             {he
               ? "מי ששולט בלולאה סריקה→Mandate→חיסכון→שיתוף שולט בשוק. אנחנו בונים את הלולאה הזו בכל שוק — וגם את התשתית שמוסדות יאמצו."
-              : "Whoever owns scan→Mandate→saving→share owns the market. We’re building that loop in every market — and the infrastructure institutions adopt."}
+              : "Whoever owns scan→Mandate→saving→share owns the market. We're building that loop in every market — and the infrastructure institutions adopt."}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
