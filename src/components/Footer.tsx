@@ -9,8 +9,16 @@ export function Footer() {
   const locale = useLocale();
   const moneyLabel =
     locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
+  const cancelLabel =
+    locale === "he" ? "ביטול מנוי" : locale === "ar" ? "إلغاء اشتراك" : locale === "ru" ? "Отмена подписки" : "Cancel sub";
+  const owedLabel =
+    locale === "he" ? "מה מגיע לי" : locale === "ar" ? "ما يحق لي" : locale === "ru" ? "Что мне должны" : "What am I owed";
   const instLabel =
-    locale === "he" ? "למוסדות" : locale === "ar" ? "للمؤسسات" : locale === "ru" ? "Для учреждений" : "Institutions";
+    locale === "he" ? "למוסדות · Mandate" : locale === "ar" ? "للمؤسسات" : locale === "ru" ? "Для учреждений" : "Institutions · Mandate";
+  const partnersLabel =
+    locale === "he" ? "שותפים · Embed" : locale === "ar" ? "شركاء" : locale === "ru" ? "Партнёры" : "Partners · Embed";
+  const bizLabel =
+    locale === "he" ? "B2B · עובדים + API" : locale === "ar" ? "B2B" : locale === "ru" ? "B2B" : "B2B · employees + API";
 
   return (
     <footer className="max-w-[1080px] mx-auto px-5 py-8 mt-8 border-t border-[rgba(255,255,255,0.07)] flex flex-col gap-5">
@@ -23,6 +31,31 @@ export function Footer() {
         ))}
       </ul>
 
+      {/* Problem doors + dual-track */}
+      <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center text-[13px] font-bold">
+        <Link href="/money" className="text-emerald no-underline hover:underline">
+          {moneyLabel}
+        </Link>
+        <Link href="/cancel" className="text-ink-soft no-underline hover:text-emerald">
+          {cancelLabel}
+        </Link>
+        <Link href="/what-am-i-owed" className="text-ink-soft no-underline hover:text-emerald">
+          {owedLabel}
+        </Link>
+        <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
+          |
+        </span>
+        <Link href="/business" className="text-ink-soft no-underline hover:text-emerald">
+          {bizLabel}
+        </Link>
+        <Link href="/partners" className="text-ink-soft no-underline hover:text-emerald">
+          {partnersLabel}
+        </Link>
+        <Link href="/institutions" className="text-ink-soft no-underline hover:text-emerald">
+          {instLabel}
+        </Link>
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-[12.5px] text-ink-soft">
           <Logo height={15} />
@@ -31,14 +64,10 @@ export function Footer() {
         <span className="flex flex-wrap gap-4">
           {(
             [
-              { href: "/money", label: moneyLabel },
-              { href: "/what-am-i-owed", key: "footer.whatAmIOwed" as const },
-              { href: "/institutions", label: instLabel },
               { href: "/feedback", key: "footer.feedback" as const },
               { href: "/faq", key: "footer.faq" as const },
               { href: "/results", key: "footer.results" as const },
               { href: "/companies", key: "footer.companies" as const },
-              { href: "/business", key: "footer.business" as const },
               { href: "/trust", key: "footer.trust" as const },
               { href: "/terms", key: "footer.terms" as const },
               { href: "/privacy", key: "footer.privacy" as const },
@@ -49,7 +78,7 @@ export function Footer() {
               href={l.href}
               className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
             >
-              {"label" in l ? l.label : t(l.key)}
+              {t(l.key)}
             </Link>
           ))}
         </span>
