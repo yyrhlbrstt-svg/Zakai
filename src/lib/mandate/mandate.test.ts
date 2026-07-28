@@ -1,8 +1,9 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { exportJWK, generateKeyPair } from "jose";
+import { CompactSign, exportJWK, generateKeyPair, importJWK, jwtVerify } from "jose";
 import {
   DEFAULT_TTL_SECONDS,
   MandateError,
+  LEGACY_MANDATE_TYPE,
   MandateKeyUnavailableError,
   issueMandate,
   loadSigningKeyFromEnv,
@@ -106,7 +107,9 @@ describe("the attacks this design exists to stop", () => {
     const token = await issueMandate(base, key);
     const [header, payload, signature] = token.split(".");
     const decoded = JSON.parse(Buffer.from(payload, "base64url").toString());
-    decoded.scopes.push("contract:cancel");
+    // Escalate the grant: append a scope the holder was never given. Under the
+    // JWT envelope this lives in the OAuth-style `scope` string.
+    decoded.scope = `${decoded.scope} contract:cancel`;
     const forged = [
       header,
       Buffer.from(JSON.stringify(decoded)).toString("base64url"),
@@ -222,5 +225,94 @@ describe("key loading", () => {
       MANDATE_SIGNING_KID: "zakai-2026-07",
     });
     expect(loaded.kid).toBe("zakai-2026-07");
+  });
+});
+
+describe("anyone can verify it with the library they already have", () => {
+  /**
+   * The adoption test, and the reason the envelope changed.
+   *
+   * This uses `jwtVerify` — the ordinary JWT entry point every language has an
+   * equivalent of — with no Zakai import beyond the token itself. If this test
+   * ever needs a helper from our own code to pass, the mandate has stopped
+   * being a protocol and gone back to being a product feature.
+   */
+  it("verifies with a plain jwtVerify and no Zakai code at all", async () => {
+    const token = await issueMandate(base, key);
+    const publicKey = await importJWK(await publicJwkFor(key), "EdDSA");
+
+    const { payload, protectedHeader } = await jwtVerify(token, publicKey, {
+      issuer: "https://zakai.app",
+      audience: "bank:il:leumi",
+    });
+
+    expect(protectedHeader.typ).toBe("JWT");
+    expect(protectedHeader.alg).toBe("EdDSA");
+    expect(payload.sub).toBe("usr_123");
+    expect(payload.jti).toBe("mnd_01");
+    // The grant reads as OAuth scope, so a gateway that speaks OAuth needs no
+    // schooling in what Zakai is.
+    expect(payload.scope).toBe("read:transactions dispute:charge");
+  });
+
+  it("lets a standard validator enforce audience and expiry for us", async () => {
+    const token = await issueMandate(base, key);
+    const publicKey = await importJWK(await publicJwkFor(key), "EdDSA");
+
+    // Wrong audience — rejected by the library, not by our code.
+    await expect(
+      jwtVerify(token, publicKey, { audience: "bank:il:hapoalim" }),
+    ).rejects.toThrow();
+
+    // Expired — likewise.
+    const stale = await issueMandate(
+      { ...base, now: new Date("2020-01-01T00:00:00Z"), ttlSeconds: 60 },
+      key,
+    );
+    await expect(jwtVerify(stale, publicKey, { audience: "bank:il:leumi" })).rejects.toThrow();
+  });
+
+  it("carries the non-standard parts under one namespaced claim", async () => {
+    const token = await issueMandate(base, key);
+    const publicKey = await importJWK(await publicJwkFor(key), "EdDSA");
+    const { payload } = await jwtVerify(token, publicKey, { audience: "bank:il:leumi" });
+
+    const zkm = payload.zkm as Record<string, unknown>;
+    expect(zkm.market).toBe("IL");
+    expect((zkm.principal as { name: string }).name).toBe("דנה כהן");
+    expect(typeof zkm.statement).toBe("string");
+  });
+
+  it("still verifies a mandate issued under the pre-JWT envelope", async () => {
+    // A protocol that invalidates outstanding credentials on an internal
+    // refactor is not one anybody will build against.
+    const nowSec = Math.floor(Date.now() / 1000);
+    const legacyPayload = {
+      v: 1,
+      jti: "legacy_01",
+      iss: "https://zakai.app",
+      aud: "bank:il:leumi",
+      sub: "usr_legacy",
+      principal: { name: "Old Holder" },
+      scopes: ["read:transactions"],
+      market: "IL",
+      iat: nowSec,
+      nbf: nowSec,
+      exp: nowSec + 3600,
+      statement: "legacy",
+    };
+    const privateKey = await importJWK(key.privateJwk, "EdDSA");
+    const legacyToken = await new CompactSign(
+      new TextEncoder().encode(JSON.stringify(legacyPayload)),
+    )
+      .setProtectedHeader({ alg: "EdDSA", kid: key.kid, typ: LEGACY_MANDATE_TYPE })
+      .sign(privateKey);
+
+    const claims = await verifyMandate(legacyToken, {
+      audience: "bank:il:leumi",
+      publicJwks: await publicKeys(key),
+    });
+    expect(claims.sub).toBe("usr_legacy");
+    expect(claims.scopes).toEqual(["read:transactions"]);
   });
 });

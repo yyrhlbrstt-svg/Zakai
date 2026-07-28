@@ -36,10 +36,37 @@
  * outward. See `FORBIDDEN_SCOPES`.
  */
 
-import { CompactSign, compactVerify, exportJWK, importJWK, type JWK } from "jose";
+import { SignJWT, compactVerify, exportJWK, importJWK, type JWK } from "jose";
 import { validateScopes } from "./scopes";
 
-export const MANDATE_TYPE = "zakai-mandate+jws";
+/**
+ * A mandate is a plain JWT.
+ *
+ * It was not, and that was the single biggest barrier to anyone outside this
+ * codebase adopting it. Signed as a generic JWS with a proprietary `typ`, an
+ * institution had to reach for a low-level JOSE library, parse the payload
+ * itself, and hand-check audience and expiry — none of which their existing
+ * JWT tooling would do for them, and all of which are exactly the checks that
+ * get skipped or written wrong.
+ *
+ * As a JWT it verifies in three lines in every language that has a JWT library,
+ * which is all of them; expiry, audience and issuer validation come for free
+ * and correct; and a security team can audit it against a standard they already
+ * know instead of a spec we wrote.
+ *
+ * A standard that needs our SDK is a product. A standard anyone's existing
+ * library verifies is a protocol. Only the second one becomes infrastructure.
+ */
+export const MANDATE_TYPE = "JWT";
+/** The pre-JWT envelope. Still accepted on verify so nothing already issued breaks. */
+export const LEGACY_MANDATE_TYPE = "zakai-mandate+jws";
+
+/**
+ * Namespace for the claims JWT does not define. Everything that *is* a
+ * registered claim — iss, aud, sub, jti, iat, nbf, exp — stays registered, so
+ * standard validators enforce it rather than trusting us to.
+ */
+export const MANDATE_CLAIM_NS = "zkm";
 export const MANDATE_VERSION = 1;
 
 /** Default lifetime. Short by design; renewal is cheap, a stale mandate is not. */
@@ -138,8 +165,26 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
   };
 
   const privateKey = await importJWK(key.privateJwk, "EdDSA");
-  return new CompactSign(new TextEncoder().encode(JSON.stringify(claims)))
+  return new SignJWT({
+    // `scope` is the OAuth 2.0 spelling — space-delimited — so authorisation
+    // servers and API gateways that already speak OAuth read the grant without
+    // being taught anything about Zakai.
+    scope: claims.scopes.join(" "),
+    [MANDATE_CLAIM_NS]: {
+      v: claims.v,
+      principal: claims.principal,
+      market: claims.market,
+      statement: claims.statement,
+    },
+  })
     .setProtectedHeader({ alg: "EdDSA", kid: key.kid, typ: MANDATE_TYPE })
+    .setIssuer(claims.iss)
+    .setAudience(claims.aud)
+    .setSubject(claims.sub)
+    .setJti(claims.jti)
+    .setIssuedAt(claims.iat)
+    .setNotBefore(claims.nbf)
+    .setExpirationTime(claims.exp)
     .sign(privateKey);
 }
 
@@ -163,17 +208,14 @@ export async function verifyMandate(
   options: VerifyOptions,
 ): Promise<MandateClaims> {
   let payload: Uint8Array | undefined;
-  let kid: string | undefined;
+  let typ: string | undefined;
 
   for (const jwk of options.publicJwks) {
     try {
       const key = await importJWK(jwk, "EdDSA");
       const result = await compactVerify(token, key);
       payload = result.payload;
-      kid = result.protectedHeader.kid;
-      if (result.protectedHeader.typ !== MANDATE_TYPE) {
-        throw new MandateError(`unexpected typ "${result.protectedHeader.typ}"`, "MALFORMED");
-      }
+      typ = result.protectedHeader.typ;
       break;
     } catch (err) {
       if (err instanceof MandateError) throw err;
@@ -181,14 +223,21 @@ export async function verifyMandate(
     }
   }
   if (!payload) throw new MandateError("no configured key verifies this mandate", "INVALID_SIGNATURE");
+  if (typ !== MANDATE_TYPE && typ !== LEGACY_MANDATE_TYPE) {
+    throw new MandateError(`unexpected typ "${typ}"`, "MALFORMED");
+  }
 
-  let claims: MandateClaims;
+  let raw: Record<string, unknown>;
   try {
-    claims = JSON.parse(new TextDecoder().decode(payload)) as MandateClaims;
+    raw = JSON.parse(new TextDecoder().decode(payload)) as Record<string, unknown>;
   } catch {
     throw new MandateError("payload is not valid JSON", "MALFORMED");
   }
 
+  // Two shapes, one internal representation. Anything issued before the move to
+  // JWT still verifies — a protocol that invalidates outstanding credentials on
+  // an internal refactor is not one anybody will build against.
+  const claims: MandateClaims = normaliseClaims(raw);
   if (claims.v !== MANDATE_VERSION) {
     throw new MandateError(`unsupported mandate version ${claims.v}`, "UNSUPPORTED_VERSION");
   }
@@ -213,11 +262,47 @@ export async function verifyMandate(
   const problems = validateScopes(claims.scopes);
   if (problems.length) throw new MandateError(problems.join("; "), "INVALID_SCOPES");
 
-  void kid;
   return claims;
 }
 
 /** Does this mandate authorise this specific act? */
+
+/**
+ * Read either envelope into the same claims object.
+ *
+ * The JWT form keeps registered claims registered and puts everything else
+ * under `zkm`; the legacy form was one flat object. Supporting both is a few
+ * lines here and saves every holder of an outstanding mandate from a forced
+ * re-issue.
+ */
+function normaliseClaims(raw: Record<string, unknown>): MandateClaims {
+  const ns = (raw[MANDATE_CLAIM_NS] ?? {}) as Record<string, unknown>;
+  const isJwtShape = typeof raw.scope === "string" || MANDATE_CLAIM_NS in raw;
+
+  // `aud` may legally be a string or an array of strings in a JWT.
+  const audRaw = raw.aud;
+  const aud = Array.isArray(audRaw) ? String(audRaw[0] ?? "") : String(audRaw ?? "");
+
+  const scopes = isJwtShape
+    ? String(raw.scope ?? "").split(" ").filter(Boolean)
+    : ((raw.scopes as string[]) ?? []);
+
+  return {
+    v: Number(isJwtShape ? ns.v : raw.v),
+    jti: String(raw.jti ?? ""),
+    iss: String(raw.iss ?? ""),
+    aud,
+    sub: String(raw.sub ?? ""),
+    principal: (isJwtShape ? ns.principal : raw.principal) as MandateClaims["principal"],
+    scopes,
+    market: String(isJwtShape ? ns.market : raw.market),
+    iat: Number(raw.iat),
+    nbf: Number(raw.nbf),
+    exp: Number(raw.exp),
+    statement: String(isJwtShape ? ns.statement : raw.statement),
+  };
+}
+
 export function mandateAllows(claims: MandateClaims, scope: string): boolean {
   return claims.scopes.includes(scope);
 }
