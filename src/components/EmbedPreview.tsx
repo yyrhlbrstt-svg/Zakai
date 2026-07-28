@@ -3,7 +3,13 @@
 import { useEffect } from "react";
 
 /** Mounts public/embed.js into a host node for the partners docs page. */
-export function EmbedPreview({ locale }: { locale: string }) {
+export function EmbedPreview({
+  locale,
+  path = "money",
+}: {
+  locale: string;
+  path?: "money" | "cancel" | "what-am-i-owed" | "leaks";
+}) {
   useEffect(() => {
     const existing = document.querySelector('script[data-zakai-embed-loader]');
     if (existing) {
@@ -24,6 +30,7 @@ export function EmbedPreview({ locale }: { locale: string }) {
       id="zakai-embed"
       data-locale={locale}
       data-ref="partners-preview"
+      data-path={path}
       className="min-h-[120px]"
     />
   );
