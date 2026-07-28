@@ -7,8 +7,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.3.8",
-    buildMarker: "parking-transport-agent-2026-07-28",
+    version: "0.3.9",
+    buildMarker: "inbound-email-proof-2026-07-28",
     positioning: "standard consumer money agent",
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
@@ -37,6 +37,7 @@ export async function GET() {
       viralAfterSaved: true,
       leaksDemandEngine: true,
       globalMarketsStrip: true,
+      inboundEmailProof: true,
     },
     time: new Date().toISOString(),
   });
