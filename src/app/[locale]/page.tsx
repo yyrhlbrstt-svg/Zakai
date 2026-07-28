@@ -82,7 +82,7 @@ export default async function HomePage({
       title: he
         ? "בטל מנוי שלא צריך"
         : ar
-          ? "ألغِ اشتراكًا لا تحتاجه"
+          ? "ألغِ اشتراكًא لا تحتاجه"
           : ru
             ? "Отмени ненужную подписку"
             : "Cancel a subscription",
@@ -169,8 +169,8 @@ export default async function HomePage({
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · v1.2"
-          : "The standard consumer money agent · Money OS · Mandate · No call center · v1.2"}
+          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · v1.2.0"
+          : "The standard consumer money agent · Money OS · Mandate · No call center · v1.2.0"}
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px] text-ink-soft">
