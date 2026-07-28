@@ -4,7 +4,7 @@
 
 Dual-track product:
 
-1. **Consumer recovery** — scan charges → Case → Ed25519 Mandate → agent send/follow-up → SavingsProof → success fee only on documented savings. No call center. No phone left behind.
+1. **Consumer recovery** — scan charges → Case → Ed25519 Mandate → agent send/follow-up → SavingsProof → success fee only on documented savings. No call center. No phone left behind. Household beneficiary labels supported.
 2. **Institutional infrastructure** — verifiable consumer authority (JWKS, status, scopes, OpenAPI) that banks, insurers, utilities and fintechs can accept offline without outbound-payment risk.
 
 Live: [zakai-3uxj.vercel.app](https://zakai-3uxj.vercel.app)
@@ -16,17 +16,19 @@ Bill-negotiation alone caps roughly in the low billions (category peers). The by
 ## Product loop (consumer)
 
 ```
-problem door (homepage / leaks / cancel / what-am-i-owed)
+problem door (homepage / leaks / cancel / what-am-i-owed / electricity)
   → Money OS scan (screenshot, no bank credentials)
   → Case (auto-approve on full verticals)
   → ownership (SMS or magic-link)
   → one-tap dispatch (Mandate + send)
-  → agent follow-up rounds
+  → agent follow-up rounds (auto, capped)
   → inbound proofs@ → one-tap record saving
   → viral share after SAVED
 ```
 
 Fee: success only, net of referral credit. Dispute window documented on Trust.
+
+**Full-service IL verticals:** telecom · bank-fees · subscription · airline · refund-chase · parking · transport-fine · **electricity**
 
 ## Mandate (infrastructure)
 
@@ -38,7 +40,7 @@ Fee: success only, net of referral credit. Dispute window documented on Trust.
 - **Scopes:** `/api/mandate/scopes` (outbound payments forbidden in code)
 - **OpenAPI:** `/api/mandate/openapi.json`
 - **Human verify:** `/verify` · institutions docs: `/institutions`
-- **B2B embed:** `/embed.js` with `data-path=money|cancel|what-am-i-owed|leaks` · `/partners`
+- **B2B embed:** `/embed.js` with `data-path=money|cancel|what-am-i-owed|leaks|electricity` · `/partners`
 
 ## Markets
 
@@ -84,4 +86,4 @@ npm run build
 
 ## Version
 
-See `/api/version` and `DEPLOY_MARKER.txt`. Current line: **0.7.x** dual-track.
+See `/api/version` and `DEPLOY_MARKER.txt`. Current line: **0.9.0** dual-track (electricity full · household · institutional pilot).

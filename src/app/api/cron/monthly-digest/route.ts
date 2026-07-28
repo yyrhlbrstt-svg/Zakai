@@ -13,8 +13,9 @@ const DIGEST_COOLDOWN_DAYS = 25;
 /**
  * The retention engine's monthly heartbeat. Once a month it emails each active
  * user a short, honest "money status" summary — what Zakai documented, what's
- * still on the table — so a one-time recovery becomes an ongoing relationship.
- * Every number comes from that user's own real cases; nothing is invented.
+ * still on the table, and open SENT cases waiting on a provider — so a one-time
+ * recovery becomes an ongoing relationship. Every number comes from that user's
+ * own real cases; nothing is invented.
  *
  * Runs via Vercel Cron (monthly). Guarded by CRON_SECRET when set.
  */
@@ -27,7 +28,6 @@ export async function GET(request: Request) {
   const cooldown = new Date(Date.now() - DIGEST_COOLDOWN_DAYS * 86_400_000);
 
   try {
-    // Only users who have actually run a check get a digest.
     const users = await prisma.user.findMany({
       where: { cases: { some: {} } },
       select: {
@@ -36,6 +36,7 @@ export async function GET(request: Request) {
         name: true,
         cases: {
           select: {
+            status: true,
             amountOriginal: true,
             targetAmount: true,
             savingsProof: { select: { savingMonthly: true } },
@@ -47,7 +48,6 @@ export async function GET(request: Request) {
 
     let sent = 0;
     for (const u of users) {
-      // Skip if we already emailed a digest inside the cooldown window.
       const recent = await prisma.outbox.findFirst({
         where: { toAddress: u.email, subject: DIGEST_SUBJECT, createdAt: { gt: cooldown } },
         select: { id: true },
@@ -62,6 +62,7 @@ export async function GET(request: Request) {
         (sum, c) => sum + Math.max(0, c.amountOriginal - c.targetAmount),
         0,
       );
+      const openSent = u.cases.filter((c) => c.status === "SENT").length;
 
       const savedLine =
         documentedMonthly > 0
@@ -70,6 +71,10 @@ export async function GET(request: Request) {
       const potentialLine =
         potentialMonthly > 0
           ? `זיהינו פוטנציאל של עד ${formatAgorot(potentialMonthly)} בחודש שעדיין שווה לממש.`
+          : "";
+      const sentLine =
+        openSent > 0
+          ? `יש ${openSent} פנייה${openSent > 1 ? "ות" : ""} ממתינות לתשובת ספק — הסוכן ממשיך לעקוב אוטומטית. אם ענו, העבירו את המייל ל-proofs@.`
           : "";
 
       await sendEmail({
@@ -80,10 +85,10 @@ export async function GET(request: Request) {
 הנה מצב הכסף שלך בזכאי החודש:
 
 • ${savedLine}
-${potentialLine ? `• ${potentialLine}\n` : ""}
+${potentialLine ? `• ${potentialLine}\n` : ""}${sentLine ? `• ${sentLine}\n` : ""}
 בישראל מחירים זוחלים למעלה בשקט — דקה של בדיקה חוזרת שווה לפעמים מאות שקלים בשנה. כרגיל, עמלה רק אם יש חיסכון מתועד.
 
-לבדיקה מהירה: היכנסו לחשבון ובחרו "בדיקה חדשה".
+לבדיקה מהירה: היכנסו ל"הכסף שלי" או לדשבורד.
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
       });

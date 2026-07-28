@@ -1,23 +1,38 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Card, Input } from "@/components/ui";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { Card, Input, Button, FieldError } from "@/components/ui";
 import { estimatePlans, type UsageProfile } from "@/lib/electricity";
-import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { formatAgorot, shekelsToAgorot, agorotToShekels } from "@/lib/money";
 
 const PROFILES: UsageProfile[] = ["spread", "day_home", "evening_family", "ev_night"];
 
+const SUPPLIER_HE: Record<string, string> = {
+  electra: "אלקטרה פאוור",
+  cellcomEnergy: "סלקום אנרג'י",
+  bezeqEnergy: "בזק אנרגיה",
+  partnerPower: "פרטנר פאוור",
+};
+
 /**
- * Electricity plan comparison — pure client-side math (lib/electricity), no
- * data leaves the device. Ranks supplier plans by estimated saving for the
- * household's bill + usage profile, honoring the smart-meter constraint.
+ * Electricity plan comparison + optional full-service agent path.
+ * Comparison is pure client-side. Opening a Case requires login and uses
+ * the same Mandate loop as every other full vertical.
  */
 export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("electricity");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
+  const router = useRouter();
   const [bill, setBill] = useState("400");
   const [profile, setProfile] = useState<UsageProfile>("spread");
   const [smartMeter, setSmartMeter] = useState(true);
+  const [beneficiary, setBeneficiary] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [opened, setOpened] = useState<string | null>(null);
 
   const billNum = parseFloat(bill);
   const results = useMemo(() => {
@@ -26,6 +41,42 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
   }, [billNum, profile, smartMeter]);
 
   const money = (a: number) => formatAgorot(a, bcp47);
+
+  async function openAgentCase(planId: string, providerKey: string, nameKey: string, savingAgorot: number) {
+    setErr(null);
+    setBusyId(planId);
+    try {
+      const res = await fetch("/api/cases/electricity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          targetSupplier: SUPPLIER_HE[providerKey] || providerKey,
+          planName: nameKey,
+          monthlyBillShekels: billNum,
+          estimatedSavingShekels: agorotToShekels(savingAgorot),
+          hasSmartMeter: smartMeter,
+          beneficiaryLabel: beneficiary.trim() || undefined,
+          customerName: beneficiary.trim() || undefined,
+        }),
+      });
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
+      if (!res.ok) {
+        setErr(he ? "לא ניתן לפתוח תיק כרגע. נסו שוב או התחברו." : "Could not open case. Try again or log in.");
+        return;
+      }
+      const data = await res.json();
+      setOpened(data.caseId);
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setErr(he ? "שגיאת רשת. נסו שוב." : "Network error. Try again.");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <div>
@@ -76,6 +127,19 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
         {!smartMeter && (
           <p className="text-[12px] text-ink-soft mt-2 mb-0 leading-snug">{t("noMeterNote")}</p>
         )}
+
+        <label className="block mt-5 max-w-[280px]">
+          <span className="text-[13.5px] text-ink-soft">
+            {he ? "למי התיק? (אופציונלי — הורה / בן משפחה)" : "Who is this for? (optional — family)"}
+          </span>
+          <Input
+            value={beneficiary}
+            onChange={(e) => setBeneficiary(e.target.value.slice(0, 40))}
+            placeholder={he ? "למשל: אמא · סבא" : "e.g. Mom · Grandpa"}
+            className="mt-1.5"
+            maxLength={40}
+          />
+        </label>
       </Card>
 
       {results.length > 0 && (
@@ -110,12 +174,46 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
                   {t("perYear", { amount: money(r.yearlySavingAgorot) })}
                 </div>
               </div>
+              {r.monthlySavingAgorot > 0 && (
+                <Button
+                  className="!text-[12.5px] !py-2 !px-3"
+                  disabled={busyId === r.plan.id}
+                  onClick={() =>
+                    openAgentCase(
+                      r.plan.id,
+                      r.plan.providerKey,
+                      t(`planNames.${r.plan.nameKey}`),
+                      r.monthlySavingAgorot,
+                    )
+                  }
+                >
+                  {busyId === r.plan.id
+                    ? he
+                      ? "פותח תיק…"
+                      : "Opening…"
+                    : he
+                      ? "הסוכן פונה בשמי →"
+                      : "Agent acts for me →"}
+                </Button>
+              )}
             </div>
           ))}
         </Card>
       )}
 
+      {err && <FieldError>{err}</FieldError>}
+      {opened && (
+        <p className="mt-3 text-[13px] text-emerald font-bold">
+          {he ? "תיק נפתח — ממשיכים בדשבורד (Mandate + שליחה)." : "Case opened — continue on dashboard."}
+        </p>
+      )}
+
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
+      <p className="mt-2 text-[12px] text-ink-soft leading-relaxed">
+        {he
+          ? "לחיצה על הסוכן פותחת תיק עם Mandate: אימות בעלות → שליחה לספק → מעקב אוטומטי → חיסכון מתועד. עמלה רק אם נחסך בפועל."
+          : "Agent opens a full Case with Mandate: ownership → send → auto follow-up → documented saving. Fee only when money is saved."}
+      </p>
     </div>
   );
 }

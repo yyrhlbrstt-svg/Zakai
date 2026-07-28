@@ -5,7 +5,7 @@
  *   <div id="zakai-embed" data-locale="he" data-ref="partner-acme" data-path="money"></div>
  *   <script src="https://zakai-3uxj.vercel.app/embed.js" async></script>
  *
- * data-path options: money (default) | cancel | what-am-i-owed | leaks
+ * data-path options: money (default) | cancel | what-am-i-owed | leaks | electricity
  * Opens the chosen entry door with UTM + partner ref. No credentials, no
  * callback phone number — the closed-loop doctrine holds for B2B too.
  */
@@ -30,6 +30,8 @@
     rights: "/what-am-i-owed",
     leaks: "/leaks",
     start: "/start",
+    electricity: "/electricity",
+    power: "/electricity",
   };
 
   function qs(el, name, fallback) {
@@ -56,9 +58,13 @@
           ? locale === "he" || locale === "ar"
             ? "מה מגיע לי? בדוק עם זכאי"
             : "What am I owed? Check with Zakai"
-          : locale === "he" || locale === "ar"
-            ? "בדוק זכויות וחיסכון עם זכאי"
-            : "Check rights & savings with Zakai");
+          : pathKey === "electricity" || pathKey === "power"
+            ? locale === "he" || locale === "ar"
+              ? "השווה ספקי חשמל — הסוכן עובר בשמך"
+              : "Compare electricity — agent switches for you"
+            : locale === "he" || locale === "ar"
+              ? "בדוק זכויות וחיסכון עם זכאי"
+              : "Check rights & savings with Zakai");
 
     var sub =
       qs(el, "sub", null) ||

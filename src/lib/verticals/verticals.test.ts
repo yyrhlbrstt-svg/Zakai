@@ -34,6 +34,7 @@ describe("rule pack registry", () => {
     expect(isFullService("refund-chase")).toBe(true);
     expect(isFullService("parking")).toBe(true);
     expect(isFullService("transport-fine")).toBe(true);
+    expect(isFullService("electricity")).toBe(true);
   });
 });
 
