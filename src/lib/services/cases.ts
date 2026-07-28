@@ -9,8 +9,9 @@ import { sendEmail } from "@/lib/messaging";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { createAuthorization } from "./authorization";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
-import { mandateEmailAttachment } from "@/lib/mandate/document";
+import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
+import { pushToUser } from "@/lib/push";
 
 export class CaseError extends Error {}
 
@@ -23,6 +24,10 @@ function marketForCase(vertical: string): string {
 
 function supportEmail(): string {
   return process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
+}
+
+function appBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
 }
 
 interface CreateCaseInput {
@@ -111,11 +116,16 @@ export async function refreshVerifiedStatus(caseId: string) {
 /**
  * Dispatch the outreach to the provider. Hard-gated: ownership + ACTIVE
  * authorization. Mandate HTML is attached so the provider has a printable
- * document without leaving their inbox.
+ * document without leaving their inbox. After send, the user is notified with
+ * the proofs@ forward address so the closed-loop SavingsProof path is obvious.
  */
 export async function sendOutreach(caseId: string, userId: string) {
   const kase = await ownedCase(caseId, userId);
   const auth = await prisma.authorization.findUnique({ where: { caseId } });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, email: true },
+  });
 
   if (!kase.ownershipVerifiedAt) throw new CaseError("OWNERSHIP_REQUIRED");
   if (!auth || auth.status !== "ACTIVE") throw new CaseError("AUTHORIZATION_REQUIRED");
@@ -123,7 +133,8 @@ export async function sendOutreach(caseId: string, userId: string) {
     throw new CaseError("ALREADY_SENT");
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl = appBaseUrl();
+  const provider = providerHebrewName(kase.provider);
   const footer = `
 
 ————————————————————————
@@ -153,6 +164,39 @@ export async function sendOutreach(caseId: string, userId: string) {
   });
 
   await prisma.case.update({ where: { id: caseId }, data: { status: "SENT" } });
+
+  // Closed-loop: tell the user where to forward the provider reply.
+  const proofsAddr = proofsInboundAddress();
+  if (user?.email) {
+    await sendEmail({
+      to: user.email,
+      subject: `זכאי — נשלח ל-${provider} | מה הלאה`,
+      body: `שלום ${user.name},
+
+הסוכן שלח בשמך פנייה בכתב ל-${provider}, עם מסמך ההרשאה (ייפוי כוח) מצורף.
+
+מה אפשר לעשות עכשיו:
+• אם ענו — העבירו את המייל שלהם אל ${proofsAddr}
+  (הסוכן יזהה סכום ויציע רישום חיסכון בלחיצה אחת בדשבורד).
+• אם לא ענו תוך כמה ימים — הסוכן ישלח סיבוב 2 אוטומטית.
+• לעצירה — בטלו את ההרשאה במסמך האימות.
+
+דשבורד: ${appUrl}/he/dashboard
+
+הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
+
+זכאי — הסוכן שלך.`,
+      caseId,
+    });
+
+    await pushToUser(userId, {
+      title: "זכאי — נשלח לספק",
+      body: `פנייה ל-${provider} יצאה. העבירו תשובה ל-${proofsAddr}`,
+      url: "/he/dashboard",
+      tag: `sent-${caseId}`,
+    }).catch(() => null);
+  }
+
   return email;
 }
 

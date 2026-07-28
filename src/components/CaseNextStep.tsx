@@ -31,6 +31,8 @@ interface Props {
   shareMessage?: string;
   referralCode?: string;
   proposedSaving?: ProposedSavingClient | null;
+  /** Closed-loop forward address — provider replies go here for AI extract. */
+  proofsEmail?: string;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -42,7 +44,7 @@ const copy: Record<string, Record<string, string>> = {
     magicHint: "נשלח גם קישור למייל — לחיצה אחת בלי SMS.",
     genAuth: "צור הרשאה + Mandate",
     openDoc: "פתח מסמך הרשאה (הדפסה / PDF)",
-    send: "סמן כנשלח לספק",
+    send: "שלח לספק עכשיו",
     newAmt: "סכום חדש אחרי התשובה (₪)",
     record: "רשום חיסכון",
     noChange: "לא השתנה",
@@ -63,13 +65,17 @@ const copy: Record<string, Record<string, string>> = {
     savedSub: "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
-    sentBanner: "הסוכן שלח. עכשיו: אם ענו — רשום סכום חדש. אם לא — הכן תזכורת (או חכה שהסוכן ישלח סיבוב 2 לבד).",
+    sentBanner: "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — הסוכן ישלח סיבוב 2 לבד.",
     competitorName: "שם המתחרה",
     competitorPrice: "מחיר המתחרה ₪",
     proposedTitle: "הסוכן זיהה מהמייל",
     proposedConf: "ביטחון",
     proposedOneTap: "רשום חיסכון בלחיצה אחת",
     proposedFrom: "מ־",
+    proofsLabel: "העבירו תשובת ספק לכאן",
+    proofsCopy: "העתק כתובת",
+    proofsCopied: "הועתק",
+    proofsHint: "Forward Email / העברת מייל — הסוכן מזהה סכום ומציע רישום בלחיצה אחת.",
   },
   en: {
     approve: "Approve & continue",
@@ -79,7 +85,7 @@ const copy: Record<string, Record<string, string>> = {
     magicHint: "Also sent an email magic link — one tap, no SMS needed.",
     genAuth: "Create auth + Mandate",
     openDoc: "Open authorization (print / PDF)",
-    send: "Mark sent to provider",
+    send: "Send to provider now",
     newAmt: "New amount after reply (₪)",
     record: "Record saving",
     noChange: "No change",
@@ -100,13 +106,17 @@ const copy: Record<string, Record<string, string>> = {
     savedSub: "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we’ll remind you to re-check if the price crept back.",
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
-    sentBanner: "Agent sent. Next: if they replied — record new amount. If not — draft a reminder (or wait for the agent’s auto round-2).",
+    sentBanner: "Agent sent. If they replied — forward their email below (or enter amount). If not — agent auto-sends round 2.",
     competitorName: "Competitor name",
     competitorPrice: "Competitor price ₪",
     proposedTitle: "Agent spotted from email",
     proposedConf: "Confidence",
     proposedOneTap: "One-tap record saving",
     proposedFrom: "from",
+    proofsLabel: "Forward provider reply here",
+    proofsCopy: "Copy address",
+    proofsCopied: "Copied",
+    proofsHint: "Forward Email — agent extracts the amount and offers one-tap record.",
   },
 };
 
@@ -124,6 +134,7 @@ export function CaseNextStep({
   shareMessage,
   referralCode,
   proposedSaving,
+  proofsEmail,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -149,6 +160,12 @@ export function CaseNextStep({
   const [followTip, setFollowTip] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [proofsCopied, setProofsCopied] = useState(false);
+
+  const proofsAddr =
+    proofsEmail ||
+    (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PROOFS_EMAIL) ||
+    "proofs@zakai.app";
 
   async function run(fn: () => Promise<void>) {
     setErr(null);
@@ -379,6 +396,32 @@ export function CaseNextStep({
       <div className="w-full mt-2 flex flex-col gap-3">
         <div className="rounded-xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-3 py-2.5 text-[12.5px] font-bold">
           {t(locale, "sentBanner")}
+        </div>
+
+        {/* Closed-loop: forward provider reply → AI extract → one-tap record */}
+        <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
+          <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
+          <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="text-[13.5px] font-extrabold tracking-wide bg-[#060b12] border border-[rgba(255,255,255,0.12)] rounded-lg px-3 py-2 select-all">
+              {proofsAddr}
+            </code>
+            <Button
+              variant="ghost"
+              className="!text-[13px] !py-2"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(proofsAddr);
+                  setProofsCopied(true);
+                  setTimeout(() => setProofsCopied(false), 2000);
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              {proofsCopied ? t(locale, "proofsCopied") : t(locale, "proofsCopy")}
+            </Button>
+          </div>
         </div>
 
         {proposed && (
