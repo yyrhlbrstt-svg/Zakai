@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { Card } from "@/components/ui";
+import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 
 export const metadata: Metadata = {
   title: "Zakai Mandate — Institutional integration",
@@ -28,7 +29,7 @@ export default async function InstitutionsPage({
         A signed statement that a named person authorised an agent to do specific
         things on their behalf — verifiable offline against a public key, without
         calling Zakai on every request, and without any ability to move money out
-        of the principal's accounts.
+        of the principal&apos;s accounts.
       </p>
 
       <div className="mb-6 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13.5px] leading-relaxed">
@@ -45,7 +46,7 @@ export default async function InstitutionsPage({
         <p className="text-[14.5px] leading-relaxed">
           The Mandate is the same idea made machine-consumable: scoped, audience-bound,
           short-lived, revocable, and cryptographically signed. Your risk team evaluates
-          a public key and a closed set of verbs — not a startup's uptime.
+          a public key and a closed set of verbs — not a startup&apos;s uptime.
         </p>
       </Section>
 
@@ -104,24 +105,21 @@ Content-Type: application/json
         </pre>
       </Section>
 
-      <Section heading="Pilot contact">
-        <p className="text-[14.5px] leading-relaxed">
-          For a technical pilot (read-only verification of sample Mandates against your
-          institution id), contact the team via the security channel on the trust page.
+      <Section heading="Request a technical pilot">
+        <p className="text-[14.5px] leading-relaxed mb-5">
+          Read-only verification of sample Mandates against your institution id.
           No production dependency on Zakai availability is required for signature checks.
+          Select <strong>Mandate / institutional API</strong> (or Both) in the form.
         </p>
-        <div className="flex flex-wrap gap-4 mt-4">
-          <a
-            href={`/${locale}/trust`}
-            className="text-emerald font-bold no-underline"
-          >
+        <div dir={locale === "he" || locale === "ar" ? "rtl" : "ltr"}>
+          <BusinessLeadForm />
+        </div>
+        <div className="flex flex-wrap gap-4 mt-6">
+          <a href={`/${locale}/trust`} className="text-emerald font-bold no-underline">
             Trust & security →
           </a>
-          <a
-            href={`/${locale}/business#infrastructure`}
-            className="text-emerald font-bold no-underline"
-          >
-            Business page (infrastructure track) →
+          <a href={`/${locale}/business#infrastructure`} className="text-emerald font-bold no-underline">
+            Business page →
           </a>
           <a
             href={`${ORIGIN}/api/mandate/openapi.json`}
