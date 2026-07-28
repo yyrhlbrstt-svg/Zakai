@@ -1,6 +1,6 @@
 {
   "name": "zakai",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "description": "זכאי — the standard consumer money agent + Mandate infrastructure. Dual-track: recovery loop and institutional authority layer.",
   "scripts": {
