@@ -5,25 +5,19 @@ import { buildFollowUp } from "@/lib/negotiation";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { agorotToShekels } from "@/lib/money";
 import { pushToUser } from "@/lib/push";
+import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
+import { maskPhone } from "@/lib/phone";
 
 /**
  * The agent keeps working after the first send.
  *
  * When a SENT case sits without a recorded reply for several business days,
  * this service builds the next written follow-up (deterministic playbook),
- * attaches the live Mandate footer, and dispatches to the provider.
+ * attaches the live Mandate document, and dispatches to the provider.
  *
  * Round tracking is explicit: we count prior agent follow-ups on the Outbox
  * (subject prefix "זכאי סיבוב N") and increment. Cap at round 4 so we never
  * spam a provider indefinitely.
- *
- * Hard gates (same as first send):
- *  - Case status SENT
- *  - ACTIVE Authorization still present
- *  - Ownership already verified
- *
- * The user is never asked for a phone number. They can revoke the Mandate
- * at any time; the next cron pass simply skips revoked cases.
  */
 
 export const AGENT_SUBJECT_PREFIX = "זכאי סיבוב";
@@ -85,7 +79,6 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
     round,
   });
 
-  // Unified subject so cron cooldown + dashboards can key off one prefix.
   const subject = `${AGENT_SUBJECT_PREFIX} ${round} — תזכורת ל-${provider} | ${kase.user.name}`;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -96,32 +89,43 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
 מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
+מצורף: מסמך הרשאה מלא (HTML).
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
 זוהי פנייה חוזרת אוטומטית של הסוכן (סיבוב ${round}) — הלקוח/ה לא נדרש/ת לפעולה נוספת.`;
+
+  const attachment = mandateEmailAttachment({
+    code: auth.code,
+    principalName: auth.principalName,
+    principalContact: maskPhone(auth.principalPhone),
+    provider: auth.provider,
+    scope: auth.scope,
+    issuedAt: auth.issuedAt,
+    status: auth.status,
+  });
 
   await sendEmail({
     to: providerContactEmail(kase.provider),
     subject,
     body: follow.body + footer,
     caseId,
+    attachments: [attachment],
   });
 
-  // Bump updatedAt so the next cron window does not re-send immediately.
   await prisma.case.update({
     where: { id: caseId },
     data: { updatedAt: new Date() },
   });
 
-  // Notify the customer that the agent acted (self-serve transparency).
+  const proofsAddr = proofsInboundAddress();
   await sendEmail({
     to: kase.user.email,
     subject: `זכאי — הסוכן שלח תזכורת ל-${provider} (סיבוב ${round})`,
     body: `שלום ${kase.user.name},
 
-עברו כמה ימים בלי תשובה מ-${provider}. הסוכן שלח בשמך פנייה חוזרת בכתב (סיבוב ${round}), עם מסמך ההרשאה הפעיל.
+עברו כמה ימים בלי תשובה מ-${provider}. הסוכן שלח בשמך פנייה חוזרת בכתב (סיבוב ${round}), עם מסמך ההרשאה הפעיל מצורף.
 
-מה אפשר לעשות עכשיו בדשבורד:
-• אם ענו — הזינו את הסכום החדש ולחצו "רשום חיסכון".
+מה אפשר לעשות עכשיו:
+• אם ענו — העבירו את המייל שלהם אל ${proofsAddr} (או הזינו סכום חדש בדשבורד).
 • אם רוצים לעצור — בטלו את ההרשאה במסמך האימות.
 
 הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
@@ -130,7 +134,6 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
     caseId,
   });
 
-  // Push to installed PWA if the user opted in — agent feels alive on the phone.
   await pushToUser(kase.user.id, {
     title: "זכאי — הסוכן פעל",
     body: `סיבוב ${round}: נשלחה תזכורת ל-${provider}. פתחו את הדשבורד אם ענו.`,
