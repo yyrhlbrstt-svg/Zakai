@@ -26,9 +26,14 @@ describe("rule pack registry", () => {
     expect(listRulePacks("UK")).toEqual([]);
   });
 
-  it("only telecom is full-service; bank-fees is not (honest gate)", () => {
+  it("all agent verticals are full-service (Case + Mandate + send + SavingsProof)", () => {
     expect(isFullService("telecom")).toBe(true);
-    expect(isFullService("bank-fees")).toBe(false);
+    expect(isFullService("bank-fees")).toBe(true);
+    expect(isFullService("subscription")).toBe(true);
+    expect(isFullService("airline")).toBe(true);
+    expect(isFullService("refund-chase")).toBe(true);
+    expect(isFullService("parking")).toBe(true);
+    expect(isFullService("transport-fine")).toBe(true);
   });
 });
 
