@@ -583,6 +583,85 @@ export async function extractStatementImage(
   return text === "NONE" ? "" : text;
 }
 
+// ---------- Inbound email savings extract (proof loop) ----------
+
+export interface SavingsEmailExtract {
+  found: boolean;
+  newAmountShekels: number | null;
+  authorizationCode: string | null;
+  confidence: number; // 0–1
+  reason: string;
+}
+
+const SAVINGS_EMAIL_SYSTEM = `You extract savings-confirmation signals from emails about Israeli consumer bills (mobile, bank fees, subscriptions, flights, parking, etc.).
+Look for:
+- A new / reduced monthly charge amount (plain number in ILS or ₪).
+- An authorization / reference code that looks like ZK-XXXX-XXXX (Zakai format).
+- Whether the email is clearly a confirmation of a price reduction, refund, or cancelled charge.
+Respond ONLY with JSON: {"found":boolean,"newAmount":number_or_null,"authorizationCode":string_or_null,"confidence":0to1,"reason":"short"}`;
+
+/**
+ * Deterministic fallback when AI is unavailable: regex for ZK- codes and
+ * common "new monthly" / "reduced to" patterns. Never invents amounts.
+ */
+function deterministicSavingsExtract(body: string): SavingsEmailExtract {
+  const codeMatch = body.match(/\b(ZK-[A-Z0-9]{4}-[A-Z0-9]{4})\b/i);
+  const amountMatch =
+    body.match(/(?:חדש|new|reduced to|הופחת ל|סכום חדש|monthly|חודשי)[^\d]{0,40}(?:₪|ILS|ש"ח)?\s*(\d{2,5}(?:\.\d{1,2})?)/i) ||
+    body.match(/(?:₪|ILS)\s*(\d{2,5}(?:\.\d{1,2})?)/);
+  const amount = amountMatch ? Math.round(Number(amountMatch[1])) : null;
+  const hasCode = Boolean(codeMatch);
+  const found = hasCode || (amount != null && amount > 0 && amount < 50000);
+  return {
+    found,
+    newAmountShekels: amount,
+    authorizationCode: codeMatch ? codeMatch[1].toUpperCase() : null,
+    confidence: hasCode && amount != null ? 0.55 : hasCode ? 0.4 : amount != null ? 0.35 : 0,
+    reason: found ? "deterministic" : "no_signal",
+  };
+}
+
+export async function extractSavingsFromEmail(body: string): Promise<SavingsEmailExtract> {
+  if (!aiAvailable()) return deterministicSavingsExtract(body);
+  try {
+    let text: string;
+    if (aiProvider() !== "anthropic") {
+      text = await fallbackGenerate({
+        system: SAVINGS_EMAIL_SYSTEM,
+        userText: body.slice(0, 8000),
+        maxTokens: 300,
+        temperature: 0,
+      });
+    } else {
+      const anthropic = client();
+      const msg = await anthropic.messages.create({
+        model: EXTRACT_MODEL,
+        max_tokens: 300,
+        temperature: 0,
+        system: cachedSystem(SAVINGS_EMAIL_SYSTEM),
+        messages: [{ role: "user", content: body.slice(0, 8000) }],
+      });
+      text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+    }
+    const p = extractJson(text) as {
+      found?: boolean;
+      newAmount?: number | null;
+      authorizationCode?: string | null;
+      confidence?: number;
+      reason?: string;
+    };
+    return {
+      found: Boolean(p.found),
+      newAmountShekels: p.newAmount != null ? Math.round(Number(p.newAmount)) : null,
+      authorizationCode: p.authorizationCode ? String(p.authorizationCode).toUpperCase() : null,
+      confidence: Math.max(0, Math.min(1, Number(p.confidence) || 0)),
+      reason: p.reason || "ai",
+    };
+  } catch {
+    return deterministicSavingsExtract(body);
+  }
+}
+
 // ---------- In-app assistant ("הסוכן שלי") ----------
 
 /**
