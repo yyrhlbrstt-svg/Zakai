@@ -97,9 +97,9 @@ export default async function PartnersPage({
       </div>
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? "תצוגה מקדימה" : "Live preview"}
+        {he ? "תצוגה מקדימה (money)" : "Live preview (money)"}
       </h2>
-      <EmbedPreview locale={locale} />
+      <EmbedPreview locale={locale} path="money" />
 
       <div className="mt-10 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.07)] px-5 py-5">
         <div className="font-extrabold text-[15px]">
