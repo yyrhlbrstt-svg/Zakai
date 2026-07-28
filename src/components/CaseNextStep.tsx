@@ -60,10 +60,12 @@ const copy: Record<string, Record<string, string>> = {
     mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
     authCode: "קוד הרשאה",
     savedTitle: "✓ חיסכון מתועד",
-    savedSub: "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
+    savedSub:
+      "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
-    sentBanner: "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — הסוכן ישלח סיבוב 2 לבד.",
+    sentBanner:
+      "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — הסוכן ישלח סיבוב 2 לבד.",
     competitorName: "שם המתחרה",
     competitorPrice: "מחיר המתחרה ₪",
     proposedTitle: "הסוכן זיהה מהמייל",
@@ -77,6 +79,7 @@ const copy: Record<string, Record<string, string>> = {
     ownDone: "בעלות אומתה — לחיצה אחת והסוכן שולח לספק עם Mandate.",
     agentRoundLabel: "סיבוב סוכן",
     nextDoors: "מה עוד?",
+    recheckCta: "בדוק שוב אם המבצע נגמר",
   },
   en: {
     approve: "Approve & continue",
@@ -101,10 +104,12 @@ const copy: Record<string, Record<string, string>> = {
     mandateOk: "Mandate issued — provider can verify via JWKS",
     authCode: "Authorization code",
     savedTitle: "✓ Saving documented",
-    savedSub: "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we'll remind you to re-check if the price crept back.",
+    savedSub:
+      "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we'll remind you to re-check if the price crept back.",
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
-    sentBanner: "Agent sent. If they replied — forward their email below (or enter amount). If not — agent auto-sends round 2.",
+    sentBanner:
+      "Agent sent. If they replied — forward their email below (or enter amount). If not — agent auto-sends round 2.",
     competitorName: "Competitor name",
     competitorPrice: "Competitor price ₪",
     proposedTitle: "Agent spotted from email",
@@ -118,6 +123,7 @@ const copy: Record<string, Record<string, string>> = {
     ownDone: "Ownership verified — one tap and the agent sends with Mandate.",
     agentRoundLabel: "Agent round",
     nextDoors: "What's next?",
+    recheckCta: "Re-check if the promo ended",
   },
 };
 
@@ -195,10 +201,11 @@ export function CaseNextStep({
     const fullText = `${msg}\n${shareUrl}`;
 
     const doors = [
+      { href: "/money", he: "בדוק שוב אם המבצע נגמר", en: "Re-check if promo ended" },
       { href: "/electricity", he: "חשמל — מעבר ספק", en: "Electricity switch" },
       { href: "/bank-fees", he: "עמלות בנק", en: "Bank fees" },
       { href: "/cancel", he: "ביטול מנוי", en: "Cancel a sub" },
-      { href: "/money", he: "סריקה נוספת", en: "Scan more" },
+      { href: "/what-am-i-owed", he: "מה מגיע לי", en: "What am I owed" },
     ];
 
     return (
