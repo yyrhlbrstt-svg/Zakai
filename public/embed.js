@@ -2,10 +2,11 @@
  * Zakai B2B embed — drop-in widget for banks / fintech / employers.
  *
  * Usage:
- *   <div id="zakai-embed" data-locale="he" data-ref="partner-acme"></div>
+ *   <div id="zakai-embed" data-locale="he" data-ref="partner-acme" data-path="money"></div>
  *   <script src="https://zakai-3uxj.vercel.app/embed.js" async></script>
  *
- * Opens Money OS in a new tab with UTM + partner ref. No credentials, no
+ * data-path options: money (default) | cancel | what-am-i-owed | leaks
+ * Opens the chosen entry door with UTM + partner ref. No credentials, no
  * callback phone number — the closed-loop doctrine holds for B2B too.
  */
 (function () {
@@ -22,6 +23,15 @@
     return "https://zakai-3uxj.vercel.app";
   })();
 
+  var ALLOWED_PATHS = {
+    money: "/money",
+    cancel: "/cancel",
+    "what-am-i-owed": "/what-am-i-owed",
+    rights: "/what-am-i-owed",
+    leaks: "/leaks",
+    start: "/start",
+  };
+
   function qs(el, name, fallback) {
     var v = el.getAttribute("data-" + name);
     return v && v.trim() ? v.trim() : fallback;
@@ -33,11 +43,23 @@
 
     var locale = qs(el, "locale", "he");
     var ref = qs(el, "ref", "embed");
+    var pathKey = qs(el, "path", "money").toLowerCase();
+    var path = ALLOWED_PATHS[pathKey] || ALLOWED_PATHS.money;
+
     var label =
       qs(el, "label", null) ||
-      (locale === "he" || locale === "ar"
-        ? "בדוק זכויות וחיסכון עם זכאי"
-        : "Check rights & savings with Zakai");
+      (pathKey === "cancel"
+        ? locale === "he" || locale === "ar"
+          ? "בטל מנוי עם סוכן זכאי"
+          : "Cancel a subscription with Zakai agent"
+        : pathKey === "what-am-i-owed" || pathKey === "rights"
+          ? locale === "he" || locale === "ar"
+            ? "מה מגיע לי? בדוק עם זכאי"
+            : "What am I owed? Check with Zakai"
+          : locale === "he" || locale === "ar"
+            ? "בדוק זכויות וחיסכון עם זכאי"
+            : "Check rights & savings with Zakai");
+
     var sub =
       qs(el, "sub", null) ||
       (locale === "he" || locale === "ar"
@@ -48,7 +70,8 @@
       ORIGIN +
       "/" +
       encodeURIComponent(locale) +
-      "/money?utm_source=embed&utm_medium=partner&utm_campaign=" +
+      path +
+      "?utm_source=embed&utm_medium=partner&utm_campaign=" +
       encodeURIComponent(ref);
 
     el.innerHTML = "";
