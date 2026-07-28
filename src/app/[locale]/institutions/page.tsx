@@ -5,7 +5,7 @@ import { Card } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Zakai Mandate — Institutional integration",
   description:
-    "Verify consumer authority offline with Ed25519 JWKS. No outbound payments. Status endpoint for revocation.",
+    "Verify consumer authority offline with Ed25519 JWKS. No outbound payments. Status endpoint for revocation. The emerging standard for consumer agent authority.",
 };
 
 const ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
@@ -21,15 +21,21 @@ export default async function InstitutionsPage({
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-4" dir="ltr">
       <p className="text-[12px] uppercase tracking-wide text-emerald font-bold mb-2">
-        For banks · insurers · utilities · municipalities
+        For banks · insurers · utilities · municipalities · fintechs
       </p>
       <h1 className="font-display text-[32px] mb-3">Zakai Mandate</h1>
       <p className="text-ink-soft text-[15.5px] leading-relaxed mb-8 max-w-[620px]">
         A signed statement that a named person authorised an agent to do specific
         things on their behalf — verifiable offline against a public key, without
         calling Zakai on every request, and without any ability to move money out
-        of the principal&apos;s accounts.
+        of the principal's accounts.
       </p>
+
+      <div className="mb-6 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13.5px] leading-relaxed">
+        <strong className="text-emerald">Why institutions adopt this:</strong> the worst
+        case of a compromised Mandate is unwanted correspondence, not an emptied
+        account. Forbidden payment scopes are enforced in code.
+      </div>
 
       <Section heading="Why this exists">
         <p className="text-[14.5px] leading-relaxed mb-3">
@@ -39,7 +45,7 @@ export default async function InstitutionsPage({
         <p className="text-[14.5px] leading-relaxed">
           The Mandate is the same idea made machine-consumable: scoped, audience-bound,
           short-lived, revocable, and cryptographically signed. Your risk team evaluates
-          a public key and a closed set of verbs — not a startup&apos;s uptime.
+          a public key and a closed set of verbs — not a startup's uptime.
         </p>
       </Section>
 
@@ -50,8 +56,7 @@ export default async function InstitutionsPage({
         </p>
         <p className="text-[14.5px] leading-relaxed">
           Money only flows <em>toward</em> the consumer (refunds, settlements). That is
-          why a regulated institution can accept these at scale: the worst case of a
-          compromised Mandate is unwanted correspondence, not an emptied account.
+          why a regulated institution can accept these at scale.
         </p>
       </Section>
 
@@ -82,6 +87,8 @@ export default async function InstitutionsPage({
           <li>{ORIGIN}/.well-known/zakai-jwks.json</li>
           <li>{ORIGIN}/api/mandate/status/&#123;jti&#125;</li>
           <li>POST {ORIGIN}/api/mandate/verify</li>
+          <li>{ORIGIN}/api/mandate/openapi.json</li>
+          <li>{ORIGIN}/api/mandate/scopes</li>
         </ul>
       </Section>
 
@@ -103,12 +110,28 @@ Content-Type: application/json
           institution id), contact the team via the security channel on the trust page.
           No production dependency on Zakai availability is required for signature checks.
         </p>
-        <a
-          href={`/${locale}/trust`}
-          className="inline-block mt-3 text-emerald font-bold no-underline"
-        >
-          Trust &amp; security →
-        </a>
+        <div className="flex flex-wrap gap-4 mt-4">
+          <a
+            href={`/${locale}/trust`}
+            className="text-emerald font-bold no-underline"
+          >
+            Trust & security →
+          </a>
+          <a
+            href={`/${locale}/business#infrastructure`}
+            className="text-emerald font-bold no-underline"
+          >
+            Business page (infrastructure track) →
+          </a>
+          <a
+            href={`${ORIGIN}/api/mandate/openapi.json`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink-soft font-bold no-underline"
+          >
+            OpenAPI →
+          </a>
+        </div>
       </Section>
     </main>
   );
