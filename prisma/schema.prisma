@@ -357,7 +357,6 @@ model PasswordReset {
 
 /**
  * Revocation list for machine-verifiable Mandates (Ed25519 JWS).
- *
  * Institutions verify the signature offline against JWKS, then call
  * GET /api/mandate/status/[jti] for recency. A signature cannot be un-signed;
  * this table is the withdraw mechanism. Append-only: never delete a row.
@@ -366,11 +365,11 @@ model PasswordReset {
  * a bank security review.
  */
 model MandateRevocation {
-  jti       String   @id
-  revokedAt DateTime @default(now())
-  reason    String   @default("user_request")
+  jti          String   @id
+  revokedAt    DateTime @default(now())
+  reason       String   @default("user_request")
   // Optional opaque audit tag (case id, operator id) — not returned publicly.
-  internalNote String @default("")
+  internalNote String   @default("")
 
   @@index([revokedAt])
 }
@@ -392,4 +391,56 @@ model PushSubscription {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+/**
+ * One decision the self-improvement engine made, and what came of it.
+ * PII-free by construction, exactly like StrategyOutcome: an experiment ledger
+ * that carries a user id stops being publishable and starts being a liability.
+ */
+model ExperimentTrial {
+  id           String   @id @default(cuid())
+  experimentId String
+  armId        String
+  /**
+   * Did this decision lead to the outcome the experiment is optimising for.
+   */
+  converted    Boolean  @default(false)
+  /**
+   * Target metric value for this trial.
+   */
+  value        Float    @default(0)
+  /**
+   * Guardrail metric readings, keyed by metric.
+   */
+  guardrails   Json?
+  createdAt    DateTime @default(now())
+
+  @@index([experimentId, armId])
+  @@index([experimentId, createdAt])
+}
+
+/**
+ * Append-only, never updated in place. A promotion is a change the machine made
+ * to the product without asking anyone, so the history of those changes has to
+ * survive the next one — both to roll back and to answer "when did it start
+ * behaving like this, and on what evidence".
+ */
+model ExperimentPromotion {
+  id           String    @id @default(cuid())
+  experimentId String
+  armId        String
+  relativeLift Float
+  samples      Int
+  /**
+   * Plain-language reason, as shown in the weekly digest.
+   */
+  explanation  String
+  /**
+   * Set when a human or a later regression reverted this.
+   */
+  revertedAt   DateTime?
+  promotedAt   DateTime  @default(now())
+
+  @@index([experimentId, promotedAt])
 }

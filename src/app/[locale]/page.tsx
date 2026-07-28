@@ -9,6 +9,8 @@ import { Globe, ScanLine, Ban, Scale, Zap } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
+import { currentArm } from "@/lib/evolve/store";
+import { DoorTracker } from "@/components/DoorTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +53,13 @@ export default async function HomePage({
     }
   }
 
-  const doors = [
+  // Which problem to lead with is decided by the self-improvement engine from
+  // what has actually been converting, not by the order the doors happened to
+  // be built in. Falls back to the baseline order if the engine is unreachable.
+  const doorArm = await currentArm<string[]>("home_door_order");
+  const doorOrder = doorArm?.payload ?? ["money", "cancel", "owed", "electricity"];
+
+  const doorsByKey = [
     {
       href: "/money",
       icon: ScanLine,
@@ -85,6 +93,11 @@ export default async function HomePage({
       accent: "amber",
     },
   ];
+
+  const doorKey = (href: string) => href.replace("/", "").replace("what-am-i-owed", "owed");
+  const doors = [...doorsByKey].sort(
+    (a, b) => doorOrder.indexOf(doorKey(a.href)) - doorOrder.indexOf(doorKey(b.href)),
+  );
 
   const accentBorder: Record<string, string> = {
     emerald: "border-[rgba(63,203,155,0.4)]",
@@ -152,6 +165,8 @@ export default async function HomePage({
           {t("door.title")}
         </h2>
       </Reveal>
+
+      <DoorTracker experimentId="home_door_order" armId={doorArm?.id ?? "money_first"} />
 
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
         {doors.map((d, i) => {
