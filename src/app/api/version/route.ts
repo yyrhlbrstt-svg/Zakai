@@ -7,8 +7,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "1.2.0",
-    buildMarker: "final-dual-track-production-2026-07-28",
+    version: "1.2.1",
+    buildMarker: "jsx-clean-rebuild-2026-07-28-1528",
     positioning: "standard consumer money agent + Mandate infrastructure",
     tracks: {
       consumer:
