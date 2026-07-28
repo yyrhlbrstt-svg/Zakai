@@ -1,26 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter, Link } from "@/i18n/routing";
 import { Card, Input, Button } from "@/components/ui";
 
 const REASONS = ["signage", "machine", "loading", "disabled", "details", "other"] as const;
 type Reason = (typeof REASONS)[number];
 
-/**
- * Parking-ticket appeal letter generator. Pure client-side (nothing stored) —
- * builds a ready-to-send objection the citizen sends in their own name, same
- * self-help pattern as the flight demand letter. Not legal advice.
- */
 export function ParkingAppeal() {
   const t = useTranslations("parking");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
+  const router = useRouter();
   const [name, setName] = useState("");
   const [ticket, setTicket] = useState("");
   const [city, setCity] = useState("");
   const [reason, setReason] = useState<Reason>("signage");
   const [details, setDetails] = useState("");
+  const [amount, setAmount] = useState("");
   const [letter, setLetter] = useState("");
   const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [caseId, setCaseId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);
@@ -39,6 +42,48 @@ ${reasonText}${details ? `\n\nפירוט נוסף: ${details}` : ""}
 ${name || "____"}
 תאריך: ${new Date().toLocaleDateString("he-IL")}`;
     setLetter(body);
+  }
+
+  async function sendWithAgent() {
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch("/api/cases/parking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: name,
+          ticket,
+          city,
+          reason,
+          details: details || undefined,
+          amountShekels: amount ? Number(amount) : undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.replace(`/login?return=/parking`);
+        return;
+      }
+      if (!res.ok) {
+        setError(
+          data.error === "caseLimit"
+            ? he
+              ? "הגעת למגבלת התיקים."
+              : "Case limit reached."
+            : he
+              ? "משהו השתבש. נסה שוב."
+              : "Something went wrong.",
+        );
+        return;
+      }
+      setLetter(data.body || "");
+      setCaseId(data.caseId);
+    } catch {
+      setError(he ? "משהו השתבש." : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   const chip = (active: boolean) =>
@@ -64,14 +109,24 @@ ${name || "____"}
             <span className="text-[13px] text-ink-soft block mb-1.5">{t("city")}</span>
             <Input value={city} onChange={(e) => setCity(e.target.value)} maxLength={40} />
           </label>
+          <label className="block">
+            <span className="text-[13px] text-ink-soft block mb-1.5">{he ? "סכום הדוח ₪ (אופציונלי)" : "Ticket ₪ (optional)"}</span>
+            <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          </label>
         </div>
 
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("reasonQ")}</span>
           <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("reasonQ")}>
             {REASONS.map((r) => (
-              <button key={r} type="button" role="radio" aria-checked={reason === r}
-                onClick={() => setReason(r)} className={chip(reason === r)}>
+              <button
+                key={r}
+                type="button"
+                role="radio"
+                aria-checked={reason === r}
+                onClick={() => setReason(r)}
+                className={chip(reason === r)}
+              >
                 {t(`reasons.${r}.label`)}
               </button>
             ))}
@@ -83,10 +138,38 @@ ${name || "____"}
           <Input value={details} onChange={(e) => setDetails(e.target.value)} maxLength={300} />
         </label>
 
-        <div>
-          <Button onClick={generate}>{t("generate")}</Button>
+        <div className="flex flex-col gap-2">
+          <Button onClick={sendWithAgent} disabled={!ticket.trim() || !city.trim() || busy}>
+            {busy
+              ? he
+                ? "הסוכן פותח תיק…"
+                : "Agent opening case…"
+              : he
+                ? "הסוכן שולח ומעקוב עכשיו"
+                : "Agent sends & tracks now"}
+          </Button>
+          <Button variant="ghost" onClick={generate} disabled={!ticket.trim() || !city.trim() || busy}>
+            {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+          </Button>
         </div>
+        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
       </Card>
+
+      {caseId && (
+        <Card className="mt-5 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
+          <div className="text-emerald font-extrabold text-[15px]">
+            {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+          </div>
+          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
+            {he
+              ? "הערעור מוכן. בדשבורד: אמת בעלות → Mandate → סמן כנשלח. כשהדוח מבוטל — תעד כחיסכון."
+              : "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the ticket is cancelled — record the saving."}
+          </p>
+          <Link href="/dashboard">
+            <Button className="w-full">{he ? "לדשבורד — המשך עכשיו" : "Dashboard — continue now"}</Button>
+          </Link>
+        </Card>
+      )}
 
       {letter && (
         <Card className="mt-5 p-6">

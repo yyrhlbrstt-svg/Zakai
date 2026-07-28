@@ -1,12 +1,11 @@
 zakai-production-deploy-marker
-version=0.3.7
+version=0.3.8
 prisma=6.19.0
-ts=2026-07-28T04:30:00+03:00
+ts=2026-07-28T05:00:00+03:00
 
+v0.3.8: Parking + transport-fine agent Cases
 v0.3.7: Bank-fees agent Case + Mandate
-v0.3.6: Airline Case + Mandate + B2B embed + refund-chase
-v0.3.5: Public SavingsProof wall (/proofs) + Household CTA
-v0.3.4: /documents vault + /wrapped yearly summary
+v0.3.6: Airline + B2B embed + refund-chase
+v0.3.5: Public SavingsProof wall + Household CTA
+v0.3.4: /documents vault + /wrapped
 v0.3.3: Mandate QR + Overnight Agent
-v0.3.2: recheck + competitor follow-up
-v0.3.1: agent auto-approve
