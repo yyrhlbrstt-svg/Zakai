@@ -1,9 +1,9 @@
 zakai-production-deploy-marker
 version=0.3.16
 prisma=6.19.0
-ts=2026-07-28T09:15:00+03:00
+ts=2026-07-28T09:25:00+03:00
 
-v0.3.16: Mandate PDF download (/api/authorization/[code]/pdf) + download button on doc page
+v0.3.16: Mandate PDF download + download button + Mandate HTML attached to provider outreach
 v0.3.15: Strategy insights on dashboard + ownership magic-link UX + Mandate doc link
 v0.3.14: Agent explicit rounds + inbound rate-limit + Money Hub batch open
 v0.3.13: Harden agent auto-follow-up cooldown (subject filter bug fixed)
