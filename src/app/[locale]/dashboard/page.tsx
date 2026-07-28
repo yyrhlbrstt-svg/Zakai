@@ -96,6 +96,12 @@ export default async function DashboardPage({
   }
   const hasFamily = familyGroups.size > 0;
 
+  const familyDocumented = [...familyGroups.entries()].map(([label, list]) => ({
+    label,
+    monthly: list.reduce((s, c) => s + (c.savingsProof?.savingMonthly ?? 0), 0),
+    count: list.length,
+  }));
+
   const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
   const referralCode =
     (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
@@ -320,6 +326,13 @@ export default async function DashboardPage({
                   {formatAgorot(totalPotential, loc)} {t("common.perMonthTag")}
                 </div>
                 <div className="text-[12.5px] text-ink-soft mt-1.5">{t("dashboard.potentialSub")}</div>
+                {hasFamily && totalDocumentedMonthly > 0 && (
+                  <div className="text-[12.5px] text-emerald mt-2 font-bold">
+                    {locale === "he"
+                      ? `מתועד בפועל: ${formatAgorot(totalDocumentedMonthly, loc)}/ח׳ (כולל משפחה)`
+                      : `Documented: ${formatAgorot(totalDocumentedMonthly, loc)}/mo (incl. household)`}
+                  </div>
+                )}
               </div>
             </SpotlightCard>
           </Reveal>
@@ -334,17 +347,47 @@ export default async function DashboardPage({
           )}
 
           {hasFamily &&
-            [...familyGroups.entries()].map(([label, list]) => (
-              <div key={label}>
-                <h2 className="text-[17px] font-extrabold mt-7 mb-3.5 flex items-center gap-2">
-                  <User size={17} className="text-emerald" aria-hidden />
-                  {t("dashboard.checksFor", { name: label })}
-                </h2>
-                {renderCaseCard(list)}
-              </div>
-            ))}
+            [...familyGroups.entries()].map(([label, list]) => {
+              const groupSaved = list.reduce((s, c) => s + (c.savingsProof?.savingMonthly ?? 0), 0);
+              return (
+                <div key={label}>
+                  <h2 className="text-[17px] font-extrabold mt-7 mb-1.5 flex items-center gap-2 flex-wrap">
+                    <User size={17} className="text-emerald" aria-hidden />
+                    {t("dashboard.checksFor", { name: label })}
+                    {groupSaved > 0 && (
+                      <span className="text-[13px] font-bold text-emerald">
+                        · −{formatAgorot(groupSaved, loc)}/{locale === "he" ? "ח׳" : "mo"}
+                      </span>
+                    )}
+                  </h2>
+                  {renderCaseCard(list)}
+                </div>
+              );
+            })}
 
-          {/* Household mode CTA — multiplies ARPU without a new account */}
+          {hasFamily && familyDocumented.some((f) => f.monthly > 0) && (
+            <Card className="mt-6 p-5 border border-[rgba(139,92,246,0.3)] bg-[rgba(139,92,246,0.06)]">
+              <div className="font-extrabold text-[14.5px] flex items-center gap-2">
+                <Users size={16} className="text-[#8B5CF6]" aria-hidden />
+                {locale === "he" ? "סיכום משפחתי מתועד" : "Household documented savings"}
+              </div>
+              <ul className="mt-3 mb-0 ps-0 list-none flex flex-col gap-1.5">
+                {familyDocumented
+                  .filter((f) => f.monthly > 0)
+                  .map((f) => (
+                    <li key={f.label} className="flex justify-between text-[13.5px]">
+                      <span className="text-ink-soft">
+                        {f.label} · {f.count} {locale === "he" ? "תיקים" : "cases"}
+                      </span>
+                      <span className="font-extrabold text-emerald">
+                        −{formatAgorot(f.monthly, loc)}/{locale === "he" ? "ח׳" : "mo"}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </Card>
+          )}
+
           <div className="mt-7 rounded-2xl border border-[rgba(139,92,246,0.28)] bg-[rgba(139,92,246,0.06)] px-5 py-4 flex items-center gap-3.5 flex-wrap">
             <Users size={22} className="text-[#8B5CF6] shrink-0" aria-hidden />
             <div className="flex-1 min-w-[180px]">
@@ -376,6 +419,9 @@ export default async function DashboardPage({
             </Link>
             <Link href="/cancel">
               <Button variant="ghost">{locale === "he" ? "ביטול מנוי" : "Cancel sub"}</Button>
+            </Link>
+            <Link href="/bank-fees">
+              <Button variant="ghost">{locale === "he" ? "עמלות בנק" : "Bank fees"}</Button>
             </Link>
             <Link href="/check">
               <Button variant="ghost">{t("home.cta")}</Button>
