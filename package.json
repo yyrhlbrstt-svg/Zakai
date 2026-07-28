@@ -1,8 +1,8 @@
 {
   "name": "zakai",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
-  "description": "זכאי — the standard consumer money agent. Mandate, scan-to-case, success fee only on documented savings. Dual-track: consumer recovery + Mandate infrastructure platform.",
+  "description": "זכאי — the standard consumer money agent + Mandate infrastructure. Dual-track: recovery loop and institutional authority layer.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && node scripts/prebuild-migrate.mjs && next build",
