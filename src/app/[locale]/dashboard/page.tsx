@@ -20,6 +20,7 @@ import { formatAgorot } from "@/lib/money";
 import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { proofsInboundAddress } from "@/lib/mandate/document";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -56,6 +57,7 @@ export default async function DashboardPage({
 
   const t = await getTranslations();
   const loc = bcp47[locale as Locale];
+  const proofsEmail = proofsInboundAddress();
 
   const cases = await prisma.case.findMany({
     where: { userId: user!.id },
@@ -202,6 +204,7 @@ export default async function DashboardPage({
                 shareMessage={shareMsg}
                 referralCode={referralCode}
                 proposedSaving={proposedClient}
+                proofsEmail={proofsEmail}
               />
             </div>
           </div>

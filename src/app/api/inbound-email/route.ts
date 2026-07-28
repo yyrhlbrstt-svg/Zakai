@@ -33,6 +33,10 @@ const payloadSchema = z.object({
   html: z.string().max(100_000).optional(),
 });
 
+function appBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
+}
+
 export async function POST(request: Request) {
   const started = Date.now();
   const ip = clientIp(request);
@@ -82,6 +86,14 @@ export async function POST(request: Request) {
       confidence: 0,
       reason: "extract_failed",
     };
+  }
+
+  // Also try to pull an authorization code from subject/body if AI missed it.
+  if (!extract.authorizationCode) {
+    const codeMatch = bodyText.match(/\b(ZK-[A-Z0-9]{4,16})\b/i);
+    if (codeMatch) {
+      extract = { ...extract, authorizationCode: codeMatch[1].toUpperCase() };
+    }
   }
 
   // 2. Match a Case.
@@ -154,7 +166,7 @@ export async function POST(request: Request) {
   ) {
     const user = await prisma.user.findUnique({ where: { id: matchedUserId } });
     if (user?.email) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-ecru.vercel.app";
+      const appUrl = appBaseUrl();
       await sendEmail({
         to: user.email,
         subject: "זכאי — קיבלנו אישור חיסכון, אשר בלחיצה אחת",
