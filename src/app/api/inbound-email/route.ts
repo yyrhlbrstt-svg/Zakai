@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { extractSavingsFromEmail } from "@/lib/ai";
 import { sendEmail } from "@/lib/messaging";
 import { pushToUser } from "@/lib/push";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { reportError } from "@/lib/report-error";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -18,19 +20,23 @@ import { pushToUser } from "@/lib/push";
  * Payload shape is deliberately simple so any forwarder can post JSON:
  *   { from, to, subject, text, html? }
  * Auth: optional shared secret in header X-Inbound-Secret when configured.
+ * Rate limits: 60/hour per IP, 20/hour per from-address (abuse protection).
  */
 
 export const dynamic = "force-dynamic";
 
 const payloadSchema = z.object({
-  from: z.string().email().or(z.string().min(3)),
-  to: z.string().optional(),
-  subject: z.string().default(""),
-  text: z.string().default(""),
-  html: z.string().optional(),
+  from: z.string().email().or(z.string().min(3).max(320)),
+  to: z.string().max(320).optional(),
+  subject: z.string().max(500).default(""),
+  text: z.string().max(50_000).default(""),
+  html: z.string().max(100_000).optional(),
 });
 
 export async function POST(request: Request) {
+  const started = Date.now();
+  const ip = clientIp(request);
+
   // Optional shared-secret gate (set INBOUND_EMAIL_SECRET in env).
   const expected = process.env.INBOUND_EMAIL_SECRET;
   if (expected) {
@@ -40,6 +46,12 @@ export async function POST(request: Request) {
     }
   }
 
+  // Rate limit by connecting IP (platform-set, not spoofable left-most XFF).
+  const ipLimit = await rateLimit("inbound-email-ip", ip, 60, 3600);
+  if (!ipLimit.ok) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = payloadSchema.safeParse(body);
   if (!parsed.success) {
@@ -47,19 +59,35 @@ export async function POST(request: Request) {
   }
 
   const { from, subject, text, html } = parsed.data;
+
+  // Secondary limit by sender address (stops a single mailbox flooding us).
+  const fromKey = from.toLowerCase().slice(0, 160);
+  const fromLimit = await rateLimit("inbound-email-from", fromKey, 20, 3600);
+  if (!fromLimit.ok) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
+
   const bodyText = [subject, text, html ?? ""].filter(Boolean).join("\n\n").slice(0, 12000);
 
   // 1. Extract candidate savings signal with AI (or deterministic fallback).
   let extract: Awaited<ReturnType<typeof extractSavingsFromEmail>>;
   try {
     extract = await extractSavingsFromEmail(bodyText);
-  } catch {
-    extract = { found: false, newAmountShekels: null, authorizationCode: null, confidence: 0, reason: "extract_failed" };
+  } catch (err) {
+    await reportError(err, { route: "inbound-email-extract", ip }).catch(() => null);
+    extract = {
+      found: false,
+      newAmountShekels: null,
+      authorizationCode: null,
+      confidence: 0,
+      reason: "extract_failed",
+    };
   }
 
   // 2. Match a Case.
   let matchedCaseId: string | null = null;
   let matchedUserId: string | null = null;
+  let matchMethod: "code" | "email" | null = null;
 
   if (extract.authorizationCode) {
     const auth = await prisma.authorization.findUnique({
@@ -69,10 +97,11 @@ export async function POST(request: Request) {
     if (auth && auth.status === "ACTIVE" && auth.case.status === "SENT") {
       matchedCaseId = auth.caseId;
       matchedUserId = auth.case.userId;
+      matchMethod = "code";
     }
   }
 
-  // Fallback: match by principal email appearing in Authorization (masked public page still has full in DB).
+  // Fallback: match by principal email on ACTIVE authorization for a SENT case.
   if (!matchedCaseId && from.includes("@")) {
     const authByEmail = await prisma.authorization.findFirst({
       where: {
@@ -86,22 +115,26 @@ export async function POST(request: Request) {
     if (authByEmail) {
       matchedCaseId = authByEmail.caseId;
       matchedUserId = authByEmail.case.userId;
+      matchMethod = "email";
     }
   }
 
-  // 3. Persist a lightweight inbound log via Outbox.
+  // 3. Persist a structured inbound log via Outbox (audit + proposed-saving source).
   const note = JSON.stringify({
     direction: "inbound",
     from,
     subject,
     extract,
     matchedCaseId,
+    matchMethod,
+    ip,
+    ms: Date.now() - started,
   });
 
   await prisma.outbox.create({
     data: {
       channel: "EMAIL",
-      toAddress: from,
+      toAddress: from.slice(0, 320),
       subject: `[inbound] ${subject.slice(0, 120)}`,
       body: note,
       caseId: matchedCaseId ?? undefined,
@@ -111,6 +144,7 @@ export async function POST(request: Request) {
   });
 
   // 4. If we have a solid match + amount, notify the user (email + push).
+  let notified = false;
   if (
     matchedCaseId &&
     matchedUserId &&
@@ -144,6 +178,8 @@ export async function POST(request: Request) {
         url: "/he/dashboard",
         tag: `inbound-${matchedCaseId}`,
       }).catch(() => null);
+
+      notified = true;
     }
   }
 
@@ -151,11 +187,15 @@ export async function POST(request: Request) {
     ok: true,
     matched: Boolean(matchedCaseId),
     caseId: matchedCaseId,
+    matchMethod,
+    notified,
     extract: {
       found: extract.found,
       newAmountShekels: extract.newAmountShekels,
       authorizationCode: extract.authorizationCode,
       confidence: extract.confidence,
+      reason: extract.reason,
     },
+    ms: Date.now() - started,
   });
 }
