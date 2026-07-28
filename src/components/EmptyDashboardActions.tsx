@@ -37,6 +37,11 @@ export function EmptyDashboardActions() {
               {he ? "מה מגיע לי?" : "What am I owed?"}
             </Button>
           </Link>
+          <Link href="/electricity">
+            <Button variant="ghost" className="!text-[13.5px] !py-2.5">
+              {he ? "חשמל — מעבר ספק" : "Electricity switch"}
+            </Button>
+          </Link>
           <Link href="/leaks">
             <Button variant="ghost" className="!text-[13.5px] !py-2.5">
               {he ? "מפת נזילות" : "Leaks map"}
