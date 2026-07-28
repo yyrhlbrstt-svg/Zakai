@@ -41,153 +41,108 @@ export default async function HomePage({
   const visitorCountry = await getCountry();
   const markets = allMarkets();
 
-  const countryTag = (() => {
-    if (!visitorCountry) return "";
+  let countryTag = "";
+  if (visitorCountry) {
     try {
       const name = new Intl.DisplayNames([locale], { type: "region" }).of(visitorCountry);
-      return name ? ` · ${name}` : "";
+      if (name) countryTag = " · " + name;
     } catch {
-      return "";
+      // ignore
     }
-  })();
+  }
 
-  const he = locale === "he";
-  const ar = locale === "ar";
-  const ru = locale === "ru";
+  const isHe = locale === "he";
 
   const doors = [
     {
       href: "/money",
       icon: ScanLine,
-      title: he
-        ? "משלם יותר מדי"
-        : ar
-          ? "أدفع أكثر من اللازم"
-          : ru
-            ? "Плачу слишком много"
-            : "Paying too much",
-      sub: he
+      title: isHe ? "משלם יותר מדי" : "Paying too much",
+      sub: isHe
         ? "סרוק חיובים · הסוכן פונה · חיסכון מתועד"
-        : ar
-          ? "امسح الفواتير · الوكيل يتفاوض · توفير موثق"
-          : ru
-            ? "Сканируй счета · агент пишет · экономия с доказательством"
-            : "Scan bills · agent negotiates · documented savings",
-      cta: he ? "הכסף שלי →" : ar ? "أموالي →" : ru ? "Мои деньги →" : "My money →",
+        : "Scan bills · agent negotiates · documented savings",
+      cta: isHe ? "הכסף שלי →" : "My money →",
       accent: "emerald" as const,
     },
     {
       href: "/cancel",
       icon: Ban,
-      title: he
-        ? "בטל מנוי שלא צריך"
-        : ar
-          ? "ألغِ اشتراكًا لا تحتاجه"
-          : ru
-            ? "Отмени ненужную подписку"
-            : "Cancel a subscription",
-      sub: he
+      title: isHe ? "בטל מנוי שלא צריך" : "Cancel a subscription",
+      sub: isHe
         ? "סוכן שולח · Mandate · מעקב אוטומטי"
-        : ar
-          ? "الوكيل يرسل · تفويض · متابعة تلقائية"
-          : ru
-            ? "Агент отправляет · Mandate · авто-follow-up"
-            : "Agent sends · Mandate · auto follow-up",
-      cta: he ? "ביטול עם סוכן →" : ar ? "إلغاء مع وكيل →" : ru ? "Отмена с агентом →" : "Agent cancel →",
+        : "Agent sends · Mandate · auto follow-up",
+      cta: isHe ? "ביטול עם סוכן →" : "Agent cancel →",
       accent: "violet" as const,
     },
     {
       href: "/what-am-i-owed",
       icon: Scale,
-      title: he
-        ? "מה מגיע לי?"
-        : ar
-          ? "ما الذي يستحق لي؟"
-          : ru
-            ? "Что мне положено?"
-            : "What am I owed?",
-      sub: he
+      title: isHe ? "מה מגיע לי?" : "What am I owed?",
+      sub: isHe
         ? "זכויות · הטבות · החזרים שלא דרשת"
-        : ar
-          ? "حقوق · مزايا · استردادات لم تطالب بها"
-          : ru
-            ? "Права · льготы · возвраты которые не забрали"
-            : "Rights · benefits · refunds you never claimed",
-      cta: he ? "בדוק זכויות →" : ar ? "تحقق من الحقوق →" : ru ? "Проверить права →" : "Check rights →",
+        : "Rights · benefits · refunds you never claimed",
+      cta: isHe ? "בדוק זכויות →" : "Check rights →",
       accent: "sky" as const,
     },
     {
       href: "/electricity",
       icon: Zap,
-      title: he
-        ? "חשמל יקר מדי"
-        : ar
-          ? "كهرباء غالية"
-          : ru
-            ? "Дорогое электричество"
-            : "Electricity too high",
-      sub: he
+      title: isHe ? "חשמל יקר מדי" : "Electricity too high",
+      sub: isHe
         ? "השווה ספקים · הסוכן פונה · ניוד עם Mandate"
-        : ar
-          ? "قارن الموردين · الوكيل يتواصل · تفويض"
-          : ru
-            ? "Сравни поставщиков · агент пишет · Mandate"
-            : "Compare suppliers · agent acts · Mandate switch",
-      cta: he ? "מעבר ספק →" : ar ? "تغيير المورد →" : ru ? "Сменить поставщика →" : "Switch supplier →",
+        : "Compare suppliers · agent acts · Mandate switch",
+      cta: isHe ? "מעבר ספק →" : "Switch supplier →",
       accent: "amber" as const,
     },
   ];
 
-  const accentClass = {
-    emerald: {
-      border: "border-[rgba(63,203,155,0.4)]",
-      bg: "bg-[rgba(63,203,155,0.08)]",
-      text: "text-emerald",
-      iconBg: "bg-[rgba(63,203,155,0.2)]",
-    },
-    violet: {
-      border: "border-[rgba(139,92,246,0.4)]",
-      bg: "bg-[rgba(139,92,246,0.08)]",
-      text: "text-[#c4b5fd]",
-      iconBg: "bg-[rgba(139,92,246,0.2)]",
-    },
-    sky: {
-      border: "border-[rgba(62,198,255,0.4)]",
-      bg: "bg-[rgba(62,198,255,0.08)]",
-      text: "text-[#3ec6ff]",
-      iconBg: "bg-[rgba(62,198,255,0.2)]",
-    },
-    amber: {
-      border: "border-[rgba(240,180,92,0.4)]",
-      bg: "bg-[rgba(240,180,92,0.08)]",
-      text: "text-[#f0b45c]",
-      iconBg: "bg-[rgba(240,180,92,0.2)]",
-    },
+  const accentBorder: Record<string, string> = {
+    emerald: "border-[rgba(63,203,155,0.4)]",
+    violet: "border-[rgba(139,92,246,0.4)]",
+    sky: "border-[rgba(62,198,255,0.4)]",
+    amber: "border-[rgba(240,180,92,0.4)]",
+  };
+  const accentBg: Record<string, string> = {
+    emerald: "bg-[rgba(63,203,155,0.08)]",
+    violet: "bg-[rgba(139,92,246,0.08)]",
+    sky: "bg-[rgba(62,198,255,0.08)]",
+    amber: "bg-[rgba(240,180,92,0.08)]",
+  };
+  const accentText: Record<string, string> = {
+    emerald: "text-emerald",
+    violet: "text-[#c4b5fd]",
+    sky: "text-[#3ec6ff]",
+    amber: "text-[#f0b45c]",
+  };
+  const accentIconBg: Record<string, string> = {
+    emerald: "bg-[rgba(63,203,155,0.2)]",
+    violet: "bg-[rgba(139,92,246,0.2)]",
+    sky: "bg-[rgba(62,198,255,0.2)]",
+    amber: "bg-[rgba(240,180,92,0.2)]",
   };
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
-        {he
-          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · v1.2.0"
-          : "The standard consumer money agent · Money OS · Mandate · No call center · v1.2.0"}
+        {isHe
+          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · v1.2.1"
+          : "The standard consumer money agent · Money OS · Mandate · No call center · v1.2.1"}
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px] text-ink-soft">
         <Globe size={14} className="text-emerald shrink-0" aria-hidden />
-        <span className="font-bold text-ink">{he ? "שווקים:" : "Markets:"}</span>
-        {markets.map((m) => (
-          <span
-            key={m.code}
-            className={`rounded-full px-2.5 py-1 border ${
-              visitorCountry === m.code
-                ? "border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.12)] text-emerald font-extrabold"
-                : "border-[rgba(255,255,255,0.1)]"
-            }`}
-          >
-            {m.code}
-          </span>
-        ))}
+        <span className="font-bold text-ink">{isHe ? "שווקים:" : "Markets:"}</span>
+        {markets.map((m) => {
+          const active = visitorCountry === m.code;
+          const cls = active
+            ? "rounded-full px-2.5 py-1 border border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.12)] text-emerald font-extrabold"
+            : "rounded-full px-2.5 py-1 border border-[rgba(255,255,255,0.1)]";
+          return (
+            <span key={m.code} className={cls}>
+              {m.code}
+            </span>
+          );
+        })}
       </div>
 
       {!israeliVisitor && (
@@ -207,7 +162,7 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={80}>
             <h1 className="font-display text-[clamp(36px,5.4vw,52px)] leading-[1.12] m-0 text-balance">
-              {he ? (
+              {isHe ? (
                 <>
                   כסף ששייך לך
                   <br />
@@ -224,7 +179,7 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={160}>
             <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
-              {he
+              {isHe
                 ? "זכאי הוא מערכת ההפעלה לכסף של הצרכן: סריקה, Mandate, שליחה, מעקב, חיסכון מתועד. בלי מוקד. בלי להשאיר טלפון. עמלה רק אם נחסך בפועל."
                 : "Zakai is the consumer money OS: scan, Mandate, send, follow up, documented saving. No call center. No phone left behind. Fee only when money is actually saved."}
             </p>
@@ -238,25 +193,37 @@ export default async function HomePage({
 
       <Reveal>
         <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft uppercase tracking-wide">
-          {he ? "מאיפה מתחילים?" : ar ? "من أين نبدأ؟" : ru ? "С чего начать?" : "Where do you start?"}
+          {isHe ? "מאיפה מתחילים?" : "Where do you start?"}
         </h2>
       </Reveal>
+
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
         {doors.map((d, i) => {
-          const a = accentClass[d.accent];
           const Icon = d.icon;
+          const cardClass =
+            "p-6 h-full " +
+            accentBorder[d.accent] +
+            " " +
+            accentBg[d.accent] +
+            " hover:scale-[1.02] transition-transform";
+          const iconClass =
+            "w-11 h-11 rounded-xl " +
+            accentIconBg[d.accent] +
+            " flex items-center justify-center mb-4";
           return (
             <Reveal key={d.href} delay={i * 70}>
               <Link href={d.href} className="no-underline block h-full">
-                <SpotlightCard
-                  className={`p-6 h-full ${a.border} ${a.bg} hover:scale-[1.02] transition-transform`}
-                >
-                  <div className={`w-11 h-11 rounded-xl ${a.iconBg} flex items-center justify-center mb-4`}>
-                    <Icon size={22} className={a.text} aria-hidden />
+                <SpotlightCard className={cardClass}>
+                  <div className={iconClass}>
+                    <Icon size={22} className={accentText[d.accent]} aria-hidden />
                   </div>
-                  <div className={`font-extrabold text-[17px] ${a.text}`}>{d.title}</div>
+                  <div className={"font-extrabold text-[17px] " + accentText[d.accent]}>
+                    {d.title}
+                  </div>
                   <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed">{d.sub}</div>
-                  <div className={`mt-4 text-[14px] font-extrabold ${a.text}`}>{d.cta}</div>
+                  <div className={"mt-4 text-[14px] font-extrabold " + accentText[d.accent]}>
+                    {d.cta}
+                  </div>
                 </SpotlightCard>
               </Link>
             </Reveal>
@@ -315,9 +282,11 @@ export default async function HomePage({
                   {i + 1}
                 </div>
               </div>
-              <div className="font-extrabold text-base mt-3">{t(`onboarding.steps.${key}.title`)}</div>
+              <div className="font-extrabold text-base mt-3">
+                {t("onboarding.steps." + key + ".title")}
+              </div>
               <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
-                {t(`onboarding.steps.${key}.sub`)}
+                {t("onboarding.steps." + key + ".sub")}
               </div>
             </SpotlightCard>
           </Reveal>
@@ -328,50 +297,66 @@ export default async function HomePage({
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.whyTitle")}</h2>
       </Reveal>
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
-        {(["alone", "services", "zakai"] as const).map((col, i) => (
-          <Reveal key={col} delay={i * 90}>
-            <SpotlightCard
-              className={`p-6 h-full ${col === "zakai" ? "border-[rgba(63,203,155,0.45)]" : ""}`}
-            >
-              <div className={`font-extrabold text-[15px] ${col === "zakai" ? "text-emerald" : ""`}>
-                {t(`home.why.${col}.title`)}
-              </div>
-              <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
-                {(t.raw(`home.why.${col}.points`) as string[]).map((p) => (
-                  <li key={p} className="flex gap-2.5 items-start text-[13px] text-ink-soft leading-relaxed">
-                    <span
-                      className={`font-black shrink-0 ${col === "zakai" ? "text-emerald" : "text-[rgba(147,166,165,0.6)]"}`}
-                      aria-hidden
+        {(["alone", "services", "zakai"] as const).map((col, i) => {
+          const isZakai = col === "zakai";
+          const cardCls = isZakai
+            ? "p-6 h-full border-[rgba(63,203,155,0.45)]"
+            : "p-6 h-full";
+          const titleCls = isZakai
+            ? "font-extrabold text-[15px] text-emerald"
+            : "font-extrabold text-[15px]";
+          return (
+            <Reveal key={col} delay={i * 90}>
+              <SpotlightCard className={cardCls}>
+                <div className={titleCls}>{t("home.why." + col + ".title")}</div>
+                <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
+                  {(t.raw("home.why." + col + ".points") as string[]).map((p) => (
+                    <li
+                      key={p}
+                      className="flex gap-2.5 items-start text-[13px] text-ink-soft leading-relaxed"
                     >
-                      {col === "zakai" ? "✓" : "•"}
-                    </span>
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </SpotlightCard>
-          </Reveal>
-        ))}
+                      <span
+                        className={
+                          isZakai
+                            ? "font-black shrink-0 text-emerald"
+                            : "font-black shrink-0 text-[rgba(147,166,165,0.6)]"
+                        }
+                        aria-hidden
+                      >
+                        {isZakai ? "✓" : "•"}
+                      </span>
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </SpotlightCard>
+            </Reveal>
+          );
+        })}
       </div>
 
       <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
-            {he ? "הכול עובר דרך זכאי — מוביל הקטגוריה" : "Everything through Zakai — category leader"}
+            {isHe
+              ? "הכול עובר דרך זכאי — מוביל הקטגוריה"
+              : "Everything through Zakai — category leader"}
           </div>
           <p className="text-ink-soft text-[15px] mt-3 max-w-[520px] mx-auto leading-relaxed">
-            {he
+            {isHe
               ? "מי ששולט בלולאה סריקה→Mandate→חיסכון→שיתוף שולט בשוק. אנחנו בונים את הלולאה הזו בכל שוק — וגם את התשתית שמוסדות יאמצו."
               : "Whoever owns scan→Mandate→saving→share owns the market. We're building that loop in every market — and the infrastructure institutions adopt."}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
               <Button className="!text-[15px] !px-6 !py-3">
-                {he ? "הכסף שלי" : "My money"}
+                {isHe ? "הכסף שלי" : "My money"}
               </Button>
             </Link>
             <Link href="/business">
-              <Button variant="ghost">{he ? "לעסקים ומוסדות" : "Business & institutions"}</Button>
+              <Button variant="ghost">
+                {isHe ? "לעסקים ומוסדות" : "Business & institutions"}
+              </Button>
             </Link>
           </div>
         </div>
