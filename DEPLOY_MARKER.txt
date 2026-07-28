@@ -1,8 +1,9 @@
 zakai-production-deploy-marker
-version=1.2.0
+version=1.2.1
 prisma=6.19.0
-ts=2026-07-28T15:25:00+03:00
+ts=2026-07-28T15:32:00+03:00
 
-v1.2.0 FINAL CLEAN: homepage banner v1.2.0 · JSX fully verified · dual-track production surface
+v1.2.1 CLEAN REWRITE: homepage fully rewritten — simple JSX, no nested ternaries, no template className issues
+v1.2.0 FINAL CLEAN: homepage banner v1.2.0 · dual-track production surface
 v1.1.0: electricity on start/footer/what-am-i-owed · HOW-TO-SEE.md · dual-track surface complete
 v1.0.0: Provider HE registry · Mandate verify CORS · SAVED next doors · homepage electricity · agentRound dashboard
