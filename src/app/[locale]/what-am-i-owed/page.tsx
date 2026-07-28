@@ -34,16 +34,25 @@ export default async function WhatAmIOwedPage({
       </h1>
       <p className="text-ink-soft text-[16px] leading-relaxed mt-3 mb-6 max-w-[600px]">{t("sub")}</p>
 
-      {/* Problem-first secondary doors — drive action even before calc */}
       <div className="flex flex-wrap gap-2.5 mb-8">
         <Link href="/money">
           <Button className="!text-[13.5px] !px-4 !py-2.5">
             {he ? "סרוק חיובים עכשיו" : "Scan charges now"}
           </Button>
         </Link>
+        <Link href="/electricity">
+          <Button variant="ghost" className="!text-[13.5px]">
+            {he ? "חשמל — מעבר ספק" : "Electricity switch"}
+          </Button>
+        </Link>
         <Link href="/cancel">
           <Button variant="ghost" className="!text-[13.5px]">
             {he ? "בטל מנוי עם סוכן" : "Cancel sub with agent"}
+          </Button>
+        </Link>
+        <Link href="/bank-fees">
+          <Button variant="ghost" className="!text-[13.5px]">
+            {he ? "עמלות בנק" : "Bank fees"}
           </Button>
         </Link>
         <Link href="/leaks">

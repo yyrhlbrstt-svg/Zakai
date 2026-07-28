@@ -13,6 +13,8 @@ export function Footer() {
     locale === "he" ? "ביטול מנוי" : locale === "ar" ? "إلغاء اشتراك" : locale === "ru" ? "Отмена подписки" : "Cancel sub";
   const owedLabel =
     locale === "he" ? "מה מגיע לי" : locale === "ar" ? "ما يحق لي" : locale === "ru" ? "Что мне должны" : "What am I owed";
+  const elecLabel =
+    locale === "he" ? "חשמל" : locale === "ar" ? "كهرباء" : locale === "ru" ? "Электричество" : "Electricity";
   const instLabel =
     locale === "he" ? "למוסדות · Mandate" : locale === "ar" ? "للمؤسسات" : locale === "ru" ? "Для учреждений" : "Institutions · Mandate";
   const partnersLabel =
@@ -31,7 +33,6 @@ export function Footer() {
         ))}
       </ul>
 
-      {/* Problem doors + dual-track */}
       <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center text-[13px] font-bold">
         <Link href="/money" className="text-emerald no-underline hover:underline">
           {moneyLabel}
@@ -41,6 +42,9 @@ export function Footer() {
         </Link>
         <Link href="/what-am-i-owed" className="text-ink-soft no-underline hover:text-emerald">
           {owedLabel}
+        </Link>
+        <Link href="/electricity" className="text-ink-soft no-underline hover:text-emerald">
+          {elecLabel}
         </Link>
         <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
           |
@@ -59,7 +63,7 @@ export function Footer() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-[12.5px] text-ink-soft">
           <Logo height={15} />
-          <span>© {new Date().getFullYear()}</span>
+          <span>© {new Date().getFullYear()} · v1.1</span>
         </span>
         <span className="flex flex-wrap gap-4">
           {(

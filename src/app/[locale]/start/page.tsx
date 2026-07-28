@@ -47,9 +47,19 @@ export default async function StartPage({
             {he ? "משלם יותר מדי — סרוק עכשיו" : "Paying too much — scan now"}
           </Button>
         </Link>
+        <Link href="/electricity">
+          <Button variant="ghost" className="w-full">
+            {he ? "חשמל יקר — מעבר ספק עם סוכן" : "Electricity high — agent switch"}
+          </Button>
+        </Link>
         <Link href="/cancel">
           <Button variant="ghost" className="w-full">
             {he ? "בטל מנוי עם סוכן" : "Cancel a sub with agent"}
+          </Button>
+        </Link>
+        <Link href="/bank-fees">
+          <Button variant="ghost" className="w-full">
+            {he ? "עמלות בנק" : "Bank fees"}
           </Button>
         </Link>
         <Link href="/what-am-i-owed">

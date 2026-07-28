@@ -1,29 +1,14 @@
 zakai-production-deploy-marker
-version=1.0.0
+version=1.1.0
 prisma=6.19.0
-ts=2026-07-28T15:30:00+03:00
+ts=2026-07-28T16:05:00+03:00
 
-v1.0.0: Provider HE registry (electricity/banks/airlines) · Mandate verify CORS · SAVED next-door suggestions · homepage electricity door + v1 strip · agentRound on dashboard SENT · electricity dashboard CTA
-v0.9.0: Electricity full-service (Case+Mandate+agent) · household beneficiary surface · agent round visibility · institutional pilot CTA · monthly digest open-SENT · embed electricity path
-v0.8.0: B2B dual-track lead intake (employees / Mandate / both) · BusinessLeadForm interest · MARKET-REALITY dual-track path
-v0.7.0: README dual-track positioning · empty-dashboard problem doors · priority agentic boost · OpenAPI institutional
-v0.6.0: Dual-track nav (Header/Footer) · embed path-aware preview · cancel entry polish · milestone
-v0.5.1: what-am-i-owed action doors · partners multi-path docs · US pack deepen (student loans + more)
-v0.5.0: Dual-track trillion push — problem-first homepage entry doors · B2B business page (employees + Mandate/API) · embed multi-path · institutions polish
-v0.4.0: Agent dispatch one-tap (Mandate+send) · ownership auto-Mandate · all IL verticals full · DE/FR/CA packs deepened
-v0.3.18: proofs@ copy UX on SENT + user notify after first send + send button truth + inbound ZK-code fallback
-v0.3.17: Shared Mandate HTML + attach on agent rounds + proofs@ forward UX on SENT
-v0.3.16: Mandate PDF download + email attachment on first send
-v0.3.15: Strategy insights on dashboard + ownership magic-link UX + Mandate doc link
-v0.3.14: Agent explicit rounds + inbound rate-limit + Money Hub batch open
-v0.3.13: Harden agent auto-follow-up cooldown (subject filter bug fixed)
-v0.3.12: Proposed-saving one-tap on SENT (inbound extract → dashboard prefill)
-v0.3.11: EnablePush UI + viral SAVED native share + inbound→push
-v0.3.10: Agent auto-follow-up (Mandate→provider) + Web Push PWA
-v0.3.9: Inbound-email SavingsProof extract loop
-v0.3.8: Parking + transport-fine agent Cases
-v0.3.7: Bank-fees agent Case + Mandate
-v0.3.6: Airline + B2B embed + refund-chase
-v0.3.5: Public SavingsProof wall + Household CTA
-v0.3.4: /documents vault + /wrapped
-v0.3.3: Mandate QR + Overnight Agent
+v1.1.0 FINAL: electricity on start/footer/what-am-i-owed · HOW-TO-SEE.md · dual-track surface complete
+v1.0.0: Provider HE registry · Mandate verify CORS · SAVED next doors · homepage electricity · agentRound dashboard
+v0.9.0: Electricity full-service · household · institutional pilot · monthly digest open-SENT
+v0.8.0: B2B dual-track leads · MARKET-REALITY path
+v0.7.0: README dual-track · empty dashboard doors · priority agentic · OpenAPI
+v0.6.0: Dual-track nav · embed path-aware
+v0.5.0: Problem-first homepage · B2B business · institutions
+v0.4.0: Agent dispatch one-tap · ownership auto-Mandate · IL verticals full
+v0.3.x: Mandate PDF · agent rounds · inbound proofs · Web Push · bank-fees/parking/airline
