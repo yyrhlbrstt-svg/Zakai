@@ -62,6 +62,7 @@ model User {
   referralRewardFor  ReferralReward?     @relation("ReferredUser")
   consents           Consent[]
   passwordResets     PasswordReset[]
+  pushSubscriptions  PushSubscription[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -110,7 +111,7 @@ model Case {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Which full-service vertical this case belongs to (rule-pack key). Defaults
-  // to "telecom" — the one proven full-service loop — so every existing and
+  // to "telecom" — the one proven full-service vertical — so every existing and
   // current case is unchanged; new verticals set it explicitly.
   vertical         String @default("telecom")
   provider         String // counterparty key within the vertical (cellcom, hapoalim…)
@@ -372,4 +373,23 @@ model MandateRevocation {
   internalNote String @default("")
 
   @@index([revokedAt])
+}
+
+/**
+ * Web Push subscription for the installed PWA.
+ * endpoint is unique across the table so a device re-subscribe upserts cleanly.
+ * Keys (p256dh / auth) are the browser-generated encryption material — never
+ * log them in plaintext outside this table.
+ */
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
