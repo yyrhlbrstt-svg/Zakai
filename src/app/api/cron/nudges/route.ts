@@ -90,12 +90,23 @@ export async function GET(request: Request) {
       // Cap one auto-follow-up action per user per cooldown to avoid flooding.
       if (seenAgent.has(c.userId)) continue;
 
-      // Skip if we already auto-sent a round-2 style message for this case recently.
+      // Robust cooldown: any recent *outbound* email for this case (not inbound
+      // extracts). Previous filter only matched "המשך פנייה" subjects and
+      // missed the delay playbook subject ("תזכורת — פנייה ממתינה"), so the
+      // agent could re-send or skip incorrectly.
       const recentOut = await prisma.outbox.findFirst({
         where: {
           caseId: c.id,
-          subject: { contains: "המשך פנייה" },
+          channel: "EMAIL",
+          providerMessageId: { not: "inbound" },
           createdAt: { gt: sentCooldown },
+          OR: [
+            { subject: { contains: "המשך" } },
+            { subject: { contains: "תזכורת" } },
+            { subject: { contains: "פנייה" } },
+            { subject: { contains: "בקשה" } },
+            { subject: { contains: "שימור" } },
+          ],
         },
         select: { id: true },
       });
