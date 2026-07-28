@@ -1,6 +1,6 @@
 {
   "name": "zakai",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "private": true,
   "description": "זכאי — the standard consumer money agent. Mandate, scan-to-case, success fee only on documented savings.",
   "scripts": {
@@ -28,6 +28,7 @@
     "nodemailer": "^6.9.16",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "web-push": "^3.6.7",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -36,6 +37,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
+    "@types/web-push": "^3.6.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "prisma": "6.19.0",
