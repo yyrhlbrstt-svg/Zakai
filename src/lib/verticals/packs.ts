@@ -61,7 +61,6 @@ export const airlineIL: VerticalRulePack = {
   counterparties: ["elal", "israir", "arkia", "ryanair", "easyjet", "lufthansa", "other"],
 };
 
-/** Missing refund chase — one-shot recovery of a promised transfer. */
 export const refundChaseIL: VerticalRulePack = {
   key: "refund-chase",
   country: "IL",
@@ -77,10 +76,42 @@ export const refundChaseIL: VerticalRulePack = {
   counterparties: ["other"],
 };
 
+export const parkingIL: VerticalRulePack = {
+  key: "parking",
+  country: "IL",
+  label: "ערעור דוח חניה",
+  level: "assisted",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "הודעת ביטול דוח מהעירייה / רשות החניה",
+  },
+  regulated: false,
+  counterparties: ["municipality", "other"],
+};
+
+export const transportFineIL: VerticalRulePack = {
+  key: "transport-fine",
+  country: "IL",
+  label: "ערעור קנס תחבורה ציבורית",
+  level: "assisted",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "הודעת ביטול קנס ממפעיל התחבורה",
+  },
+  regulated: false,
+  counterparties: ["egged", "dan", "metropoline", "other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
   subscriptionIL,
   airlineIL,
   refundChaseIL,
+  parkingIL,
+  transportFineIL,
 ];
