@@ -1,8 +1,9 @@
 zakai-production-deploy-marker
-version=0.3.18
+version=0.4.0
 prisma=6.19.0
-ts=2026-07-28T12:15:00+03:00
+ts=2026-07-28T14:00:00+03:00
 
+v0.4.0: Agent dispatch one-tap (Mandate+send) · ownership auto-Mandate · all IL verticals full · DE/FR/CA packs deepened
 v0.3.18: proofs@ copy UX on SENT + user notify after first send + send button truth + inbound ZK-code fallback
 v0.3.17: Shared Mandate HTML + attach on agent rounds + proofs@ forward UX on SENT
 v0.3.16: Mandate PDF download + email attachment on first send
