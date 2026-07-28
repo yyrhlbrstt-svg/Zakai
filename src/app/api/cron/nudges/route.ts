@@ -3,22 +3,23 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
-import { providerHebrewName } from "@/lib/providers";
+import { autoFollowUpCase } from "@/lib/services/agentFollowUp";
 
 export const dynamic = "force-dynamic";
 
 const NUDGE_SUBJECT = "זכאי — המבצע שלך כנראה נגמר, שווה לבדוק שוב";
-const SENT_SUBJECT = "זכאי — הסוכן ממתין לתשובה מהספק";
 /** Don't nudge the same user more often than this for SAVED recheck. */
 const NUDGE_COOLDOWN_DAYS = 60;
-/** SENT cases older than this get a follow-up nudge. */
+/** SENT cases older than this get an agent auto-follow-up (round 2 to provider). */
 const SENT_AFTER_DAYS = 5;
-const SENT_COOLDOWN_DAYS = 10;
+const SENT_COOLDOWN_DAYS = 12;
 
 /**
  * Daily cron (Vercel):
- * 1) SAVED cases past promo window → re-check nudge
- * 2) SENT cases waiting 5+ days → follow-up nudge (agent still on the case)
+ * 1) SAVED cases past promo window → re-check nudge to user
+ * 2) SENT cases waiting 5+ days → AGENT auto-follow-up to the provider
+ *    (Mandate-backed, written, no phone, no human). This is the leap from
+ *    "tools the user copies" to "agent that keeps negotiating".
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -33,7 +34,8 @@ export async function GET(request: Request) {
 
   try {
     let savedSent = 0;
-    let followUpSent = 0;
+    let agentFollowUps = 0;
+    let agentSkipped = 0;
 
     // —— 1. SAVED re-check ——
     const staleCases = await prisma.case.findMany({
@@ -69,63 +71,56 @@ export async function GET(request: Request) {
       savedSent++;
     }
 
-    // —— 2. SENT follow-up ——
+    // —— 2. AGENT auto-follow-up on SENT cases ——
+    // The agent itself writes and sends round-2 to the provider when Mandate is live.
     const waiting = await prisma.case.findMany({
       where: {
         status: "SENT",
         updatedAt: { lt: sentCutoff },
+        authorization: { status: "ACTIVE" },
+        ownershipVerifiedAt: { not: null },
       },
-      select: {
-        id: true,
-        provider: true,
-        userId: true,
-        user: { select: { email: true, name: true } },
-      },
-      take: 150,
+      select: { id: true, userId: true },
+      take: 80,
       orderBy: { updatedAt: "asc" },
     });
 
-    const seenSent = new Set<string>();
+    const seenAgent = new Set<string>();
     for (const c of waiting) {
-      // One follow-up email per user per cooldown window
-      if (seenSent.has(c.userId)) continue;
-      seenSent.add(c.userId);
+      // Cap one auto-follow-up action per user per cooldown to avoid flooding.
+      if (seenAgent.has(c.userId)) continue;
 
-      const recent = await prisma.outbox.findFirst({
+      // Skip if we already auto-sent a round-2 style message for this case recently.
+      const recentOut = await prisma.outbox.findFirst({
         where: {
-          toAddress: c.user.email,
-          subject: SENT_SUBJECT,
+          caseId: c.id,
+          subject: { contains: "המשך פנייה" },
           createdAt: { gt: sentCooldown },
         },
         select: { id: true },
       });
-      if (recent) continue;
+      if (recentOut) {
+        agentSkipped++;
+        continue;
+      }
 
-      const provider = providerHebrewName(c.provider);
-      await sendEmail({
-        to: c.user.email,
-        subject: SENT_SUBJECT,
-        body: `שלום ${c.user.name},
-
-הפנייה ל-${provider} נשלחה לפני כמה ימים ועדיין מסומנת כממתינה לתשובה.
-
-מה אפשר לעשות עכשיו בדשבורד (בלי מוקד):
-1. אם ענו — הזינו את הסכום החדש ולחצו "רשום חיסכון".
-2. אם לא ענו / סחבו — לחצו "הכן הודעת המשך" והדביקו לספק.
-3. אם ביקשו רק טלפון — בקשו מהם הצעה בכתב (הסוכן מנסח).
-
-הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
-
-זכאי — הסוכן שלך.`,
-        caseId: c.id,
-      });
-      followUpSent++;
+      const result = await autoFollowUpCase(c.id);
+      if (result.sent) {
+        seenAgent.add(c.userId);
+        agentFollowUps++;
+      } else {
+        agentSkipped++;
+      }
     }
 
     return NextResponse.json({
       ok: true,
       savedRecheck: { candidates: staleCases.length, sent: savedSent },
-      sentFollowUp: { candidates: waiting.length, sent: followUpSent },
+      agentAutoFollowUp: {
+        candidates: waiting.length,
+        sent: agentFollowUps,
+        skipped: agentSkipped,
+      },
     });
   } catch (err) {
     await reportError(err, { route: "cron-nudges" });
