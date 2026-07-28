@@ -7,17 +7,15 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.5.0",
-    buildMarker: "dual-track-problem-first-b2b-mandate-2026-07-28",
-    positioning: "standard consumer money agent + Mandate infrastructure platform",
+    version: "0.5.1",
+    buildMarker: "what-am-i-owed-action-partners-us-pack-2026-07-28",
+    positioning: "standard consumer money agent + Mandate infrastructure",
+    tracks: {
+      consumer: "problem-first entry · Money OS · agent recovery loop",
+      infrastructure: "Ed25519 Mandate standard · JWKS · B2B embed · institutional verify",
+    },
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
-    tracks: {
-      consumer: true,
-      infrastructure: true,
-      b2b: true,
-      mandateStandard: true,
-    },
     features: {
       moneyOs: true,
       fromScanCase: true,
@@ -65,6 +63,8 @@ export async function GET() {
       deFrCaPacksDeep: true,
       problemFirstHomepage: true,
       dualTrackBusinessPage: true,
+      whatAmIOwedActionDoors: true,
+      usPackDeep: true,
     },
     time: new Date().toISOString(),
   });
