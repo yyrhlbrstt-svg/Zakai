@@ -49,6 +49,11 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "לחץ על תיק — הסוכן מכין מכתב + Mandate ועוקב",
     errGeneric: "משהו השתבש. נסה שוב.",
     errLimit: "הגעת למגבלת התיקים. שדרג או סגור תיק קיים.",
+    batchOpen: "הסוכן פותח את כל התיקים המומלצים",
+    batchOpening: "פותח תיקים…",
+    batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
+    batchPartial: "נפתחו {n} תיקים (חלק דולגו בגלל מגבלת מסלול)",
+    selectHint: "סמן חיובים ואז פתח בבת אחת (עד 5 לפי המסלול)",
   },
   en: {
     privacy:
@@ -78,6 +83,11 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "Tap a case — agent drafts letter + Mandate and tracks",
     errGeneric: "Something went wrong. Try again.",
     errLimit: "Case limit reached. Upgrade or close an open case.",
+    batchOpen: "Agent opens all recommended cases",
+    batchOpening: "Opening cases…",
+    batchDone: "✓ Opened {n} cases — dashboard",
+    batchPartial: "Opened {n} cases (some skipped by plan limit)",
+    selectHint: "Select charges, then open in one go (up to 5 by plan)",
   },
   ar: {
     privacy: "لا نطلب كلمة مرور البنك.",
@@ -106,6 +116,11 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "اضغط لفتح ملف مع الوكيل",
     errGeneric: "حدث خطأ.",
     errLimit: "وصلت للحد.",
+    batchOpen: "الوكيل يفتح كل الملفات الموصى بها",
+    batchOpening: "جارٍ الفتح…",
+    batchDone: "✓ فُتح {n} ملفات",
+    batchPartial: "فُتح {n} ملفات",
+    selectHint: "اختر ثم افتح دفعة واحدة",
   },
   ru: {
     privacy: "Мы не просим пароль банка.",
@@ -134,6 +149,11 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "Нажмите — агент откроет дело",
     errGeneric: "Ошибка.",
     errLimit: "Лимит дел.",
+    batchOpen: "Агент открывает все рекомендованные дела",
+    batchOpening: "Открываем…",
+    batchDone: "✓ Открыто {n} дел",
+    batchPartial: "Открыто {n} дел",
+    selectHint: "Выберите и откройте пакетом",
   },
 };
 
@@ -153,6 +173,10 @@ function topRoi(recurring: RecurringCharge[]): RecurringCharge | null {
   return [...recurring].sort((a, b) => b.monthlyAgorot - a.monthlyAgorot)[0];
 }
 
+function topN(recurring: RecurringCharge[], n: number): RecurringCharge[] {
+  return [...recurring].sort((a, b) => b.monthlyAgorot - a.monthlyAgorot).slice(0, n);
+}
+
 export function MoneyHub({
   bcp47,
   screenshotEnabled,
@@ -169,7 +193,10 @@ export function MoneyHub({
   const [shotError, setShotError] = useState(false);
   const [saved, setSaved] = useState<SavedSummary | null>(null);
   const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
+  const [batchBusy, setBatchBusy] = useState(false);
   const [openedId, setOpenedId] = useState<string | null>(null);
+  const [batchCount, setBatchCount] = useState<number | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const shotRef = useRef<HTMLInputElement>(null);
@@ -202,7 +229,11 @@ export function MoneyHub({
     const scan = scanStatement(input);
     setResult(scan);
     setOpenedId(null);
+    setBatchCount(null);
     setError(null);
+    // Pre-select top 3 by monthly amount for one-tap batch.
+    const tops = topN(scan.recurring, 3).map((r) => r.merchant);
+    setSelected(new Set(tops));
     if (scan.recurring.length > 0) persist(scan);
   }
 
@@ -242,6 +273,15 @@ export function MoneyHub({
     }
   }
 
+  function toggleSelect(merchant: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(merchant)) next.delete(merchant);
+      else if (next.size < 5) next.add(merchant);
+      return next;
+    });
+  }
+
   async function openCase(r: RecurringCharge) {
     setError(null);
     setBusyMerchant(r.merchant);
@@ -272,6 +312,49 @@ export function MoneyHub({
       setError(tx(locale, "errGeneric"));
     } finally {
       setBusyMerchant(null);
+    }
+  }
+
+  async function openBatch() {
+    if (!result || selected.size === 0) return;
+    setError(null);
+    setBatchBusy(true);
+    try {
+      const items = result.recurring
+        .filter((r) => selected.has(r.merchant))
+        .slice(0, 5)
+        .map((r) => ({
+          merchant: r.merchant,
+          product: r.merchant,
+          monthlyShekels: Math.max(1, Math.round(r.monthlyAgorot / 100)),
+          category: r.category,
+        }));
+
+      const res = await fetch("/api/cases/from-scan/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.replace(`/login?return=/money`);
+        return;
+      }
+      if (!res.ok) {
+        setError(tx(locale, "errGeneric"));
+        return;
+      }
+      const n = data.openedCount ?? 0;
+      setBatchCount(n);
+      if (n > 0) {
+        setTimeout(() => router.push("/dashboard"), 600);
+      } else if (data.skippedCount > 0) {
+        setError(tx(locale, "errLimit"));
+      }
+    } catch {
+      setError(tx(locale, "errGeneric"));
+    } finally {
+      setBatchBusy(false);
     }
   }
 
@@ -396,7 +479,7 @@ export function MoneyHub({
                   </div>
                   <Button
                     className="mt-3 w-full"
-                    disabled={busyMerchant === best.merchant}
+                    disabled={busyMerchant === best.merchant || batchBusy}
                     onClick={() => openCase(best)}
                   >
                     {busyMerchant === best.merchant
@@ -404,6 +487,27 @@ export function MoneyHub({
                       : openedId
                         ? tx(locale, "opened")
                         : tx(locale, "openCase")}
+                  </Button>
+                </Card>
+              )}
+
+              {/* Batch open — founder-grade: one scan → many agent cases */}
+              {result.recurring.length >= 2 && (
+                <Card className="p-5 border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)]">
+                  <div className="text-[13px] font-extrabold">{tx(locale, "selectHint")}</div>
+                  <p className="text-[12px] text-ink-soft mt-1 mb-3">
+                    {selected.size} / 5
+                  </p>
+                  <Button
+                    className="w-full"
+                    disabled={batchBusy || selected.size === 0}
+                    onClick={openBatch}
+                  >
+                    {batchBusy
+                      ? tx(locale, "batchOpening")
+                      : batchCount != null
+                        ? tx(locale, "batchDone").replace("{n}", String(batchCount))
+                        : tx(locale, "batchOpen")}
                   </Button>
                 </Card>
               )}
@@ -426,7 +530,15 @@ export function MoneyHub({
                         i < result.recurring.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
                     }}
                   >
-                    <div className="flex-1 basis-[140px]">
+                    <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(r.merchant)}
+                        onChange={() => toggleSelect(r.merchant)}
+                        className="w-4 h-4 accent-[#3FCB9B]"
+                      />
+                    </label>
+                    <div className="flex-1 basis-[120px]">
                       <div className="font-extrabold text-[15px]">{r.merchant}</div>
                       <div className="text-[11.5px] text-ink-soft mt-0.5">
                         {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
@@ -446,7 +558,7 @@ export function MoneyHub({
                     <Button
                       variant="ghost"
                       className="!px-3 !py-1.5 !text-[12.5px]"
-                      disabled={busyMerchant === r.merchant}
+                      disabled={busyMerchant === r.merchant || batchBusy}
                       onClick={() => openCase(r)}
                     >
                       {busyMerchant === r.merchant ? tx(locale, "opening") : tx(locale, "openCase")}
