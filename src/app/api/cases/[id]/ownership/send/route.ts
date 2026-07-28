@@ -23,6 +23,9 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   return NextResponse.json({
     ok: true,
     devHint: result.devHint,
+    magicSent: result.magicSent,
     phoneMasked: maskPhone(kase.user.phone),
+    // User sees both paths: SMS code + email magic link (no callback phone).
+    channels: ["sms", result.magicSent ? "email_magic" : null].filter(Boolean),
   });
 }
