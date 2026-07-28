@@ -14,6 +14,7 @@ import { ReminderBanner } from "@/components/ReminderBanner";
 import { OvernightAgent } from "@/components/OvernightAgent";
 import { Reveal } from "@/components/Reveal";
 import { EmptyDashboardActions } from "@/components/EmptyDashboardActions";
+import { StrategyInsightsCard } from "@/components/StrategyInsightsCard";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
 import { providerHebrewName } from "@/lib/providers";
@@ -304,6 +305,9 @@ export default async function DashboardPage({
       )}
 
       <MoneyScoreCard result={scoreResult} />
+
+      {/* Strategy Engine learning — founder transparency, anonymized */}
+      <StrategyInsightsCard locale={locale} bcp47={loc} />
 
       <ShareResult
         message={
