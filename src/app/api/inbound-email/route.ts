@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { extractSavingsFromEmail } from "@/lib/ai";
 import { sendEmail } from "@/lib/messaging";
+import { pushToUser } from "@/lib/push";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -88,8 +89,7 @@ export async function POST(request: Request) {
     }
   }
 
-  // 3. Persist a lightweight inbound log via Outbox (re-use existing table, channel EMAIL, status QUEUED as "inbound").
-  //    We store the raw extract so a future admin / user review UI can surface it.
+  // 3. Persist a lightweight inbound log via Outbox.
   const note = JSON.stringify({
     direction: "inbound",
     from,
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
     },
   });
 
-  // 4. If we have a solid match + amount, notify the user (self-serve confirm).
+  // 4. If we have a solid match + amount, notify the user (email + push).
   if (
     matchedCaseId &&
     matchedUserId &&
@@ -137,6 +137,13 @@ export async function POST(request: Request) {
         ].join("\n"),
         caseId: matchedCaseId,
       });
+
+      await pushToUser(matchedUserId, {
+        title: "זכאי — אישור חיסכון הגיע",
+        body: `זוהה סכום חדש ₪${extract.newAmountShekels}. אשר בדשבורד בלחיצה אחת.`,
+        url: "/he/dashboard",
+        tag: `inbound-${matchedCaseId}`,
+      }).catch(() => null);
     }
   }
 
