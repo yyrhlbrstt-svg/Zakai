@@ -16,6 +16,12 @@ type Status =
   | "NO_SAVING"
   | "REVOKED";
 
+export interface ProposedSavingClient {
+  newAmountShekels: number;
+  confidence: number;
+  from: string | null;
+}
+
 interface Props {
   caseId: string;
   status: Status;
@@ -24,6 +30,7 @@ interface Props {
   amountOriginalShekels: number;
   shareMessage?: string;
   referralCode?: string;
+  proposedSaving?: ProposedSavingClient | null;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -57,6 +64,10 @@ const copy: Record<string, Record<string, string>> = {
     sentBanner: "הסוכן שלח. עכשיו: אם ענו — רשום סכום חדש. אם לא — הכן תזכורת (או חכה שהסוכן ישלח סיבוב 2 לבד).",
     competitorName: "שם המתחרה",
     competitorPrice: "מחיר המתחרה ₪",
+    proposedTitle: "הסוכן זיהה מהמייל",
+    proposedConf: "ביטחון",
+    proposedOneTap: "רשום חיסכון בלחיצה אחת",
+    proposedFrom: "מ־",
   },
   en: {
     approve: "Approve & continue",
@@ -88,6 +99,10 @@ const copy: Record<string, Record<string, string>> = {
     sentBanner: "Agent sent. Next: if they replied — record new amount. If not — draft a reminder (or wait for the agent’s auto round-2).",
     competitorName: "Competitor name",
     competitorPrice: "Competitor price ₪",
+    proposedTitle: "Agent spotted from email",
+    proposedConf: "Confidence",
+    proposedOneTap: "One-tap record saving",
+    proposedFrom: "from",
   },
 };
 
@@ -104,6 +119,7 @@ export function CaseNextStep({
   amountOriginalShekels,
   shareMessage,
   referralCode,
+  proposedSaving,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -112,7 +128,11 @@ export function CaseNextStep({
   const [err, setErr] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
-  const [newAmt, setNewAmt] = useState("");
+  const [newAmt, setNewAmt] = useState(
+    proposedSaving?.newAmountShekels != null
+      ? String(proposedSaving.newAmountShekels)
+      : "",
+  );
   const [localOwn, setLocalOwn] = useState(ownershipVerified);
   const [localAuth, setLocalAuth] = useState(hasAuthorization);
   const [authCode, setAuthCode] = useState<string | null>(null);
@@ -332,11 +352,41 @@ export function CaseNextStep({
   }
 
   if (status === "SENT") {
+    const proposed = proposedSaving;
     return (
       <div className="w-full mt-2 flex flex-col gap-3">
         <div className="rounded-xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-3 py-2.5 text-[12.5px] font-bold">
           {t(locale, "sentBanner")}
         </div>
+
+        {proposed && (
+          <div className="rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] p-3.5">
+            <div className="text-[13.5px] font-extrabold text-emerald">
+              {t(locale, "proposedTitle")}: ₪{proposed.newAmountShekels}
+            </div>
+            <p className="text-[12px] text-ink-soft mt-1 mb-2.5">
+              {t(locale, "proposedConf")} {(proposed.confidence * 100).toFixed(0)}%
+              {proposed.from ? ` · ${t(locale, "proposedFrom")} ${proposed.from}` : ""}
+            </p>
+            <Button
+              disabled={busy}
+              className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+              onClick={() =>
+                run(async () => {
+                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ newAmountShekels: proposed.newAmountShekels }),
+                  });
+                  if (!res.ok) throw new Error("save");
+                  scheduleRecheckReminder(caseId);
+                })
+              }
+            >
+              {busy ? t(locale, "working") : t(locale, "proposedOneTap")}
+            </Button>
+          </div>
+        )}
 
         <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>

@@ -18,6 +18,7 @@ import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
 import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
+import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -60,6 +61,9 @@ export default async function DashboardPage({
     orderBy: { createdAt: "desc" },
     include: { savingsProof: true, fee: true, authorization: true },
   });
+
+  const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
+  const proposedMap = await getProposedSavingsMap(sentIds);
 
   const totalDocumentedMonthly = cases.reduce(
     (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
@@ -119,6 +123,14 @@ export default async function DashboardPage({
                 amount: formatAgorot(c.savingsProof.savingMonthly, loc),
               })
             : undefined;
+        const proposed = proposedMap.get(c.id);
+        const proposedClient = proposed
+          ? {
+              newAmountShekels: proposed.newAmountShekels,
+              confidence: proposed.confidence,
+              from: proposed.from,
+            }
+          : null;
         return (
           <div
             key={c.id}
@@ -187,6 +199,7 @@ export default async function DashboardPage({
                 amountOriginalShekels={Math.round(c.amountOriginal / 100)}
                 shareMessage={shareMsg}
                 referralCode={referralCode}
+                proposedSaving={proposedClient}
               />
             </div>
           </div>
