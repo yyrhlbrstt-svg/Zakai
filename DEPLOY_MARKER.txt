@@ -1,8 +1,9 @@
 zakai-production-deploy-marker
-version=0.5.1
+version=0.6.0
 prisma=6.19.0
-ts=2026-07-28T17:15:00+03:00
+ts=2026-07-28T17:40:00+03:00
 
+v0.6.0: Dual-track nav (Header/Footer) · embed path-aware preview · cancel entry polish · milestone
 v0.5.1: what-am-i-owed action doors · partners multi-path docs · US pack deepen (student loans + more)
 v0.5.0: Dual-track trillion push — problem-first homepage entry doors · B2B business page (employees + Mandate/API) · embed multi-path · institutions polish
 v0.4.0: Agent dispatch one-tap (Mandate+send) · ownership auto-Mandate · all IL verticals full · DE/FR/CA packs deepened
