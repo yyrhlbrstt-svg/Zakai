@@ -130,11 +130,72 @@ export async function refreshVerifiedStatus(caseId: string) {
   }
 }
 
+/** Build a minimal self-contained Mandate HTML for email attachment. */
+function buildMandateAttachmentHtml(auth: {
+  code: string;
+  principalName: string;
+  principalPhone: string;
+  provider: string;
+  scope: string;
+  issuedAt: Date;
+  status: string;
+}): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
+  const verifyUrl = `${appUrl}/verify?code=${auth.code}`;
+  const issued = new Date(auth.issuedAt).toLocaleString("he-IL", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+  const active = auth.status === "ACTIVE";
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  return `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head><meta charset="utf-8"/><title>ייפוי כוח — זכאי ${esc(auth.code)}</title>
+<style>
+body{font-family:Arial,sans-serif;color:#0d1622;line-height:1.55;padding:24px;max-width:640px;margin:0 auto}
+.header{border-bottom:2px solid #0d1622;padding-bottom:12px;margin-bottom:18px}
+.brand{font-size:13px;font-weight:800;color:#0a5b8a}
+.title{font-size:20px;font-weight:800;margin-top:4px}
+.badge{display:inline-block;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;margin-top:8px}
+.ok{color:#0a7a52;background:#d6f7ea;border:1px solid #0a7a52}
+.bad{color:#a3341f;background:#fbe2da;border:1px solid #a3341f}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e2e8e7;font-size:14px}
+.label{color:#5a6b6a;font-size:12px}
+.value{font-weight:700}
+.section{margin-top:18px}.section h2{font-size:15px;font-weight:800;margin-bottom:4px}
+.disclosure{margin-top:16px;background:#f2f6f5;border-radius:10px;padding:12px;font-size:13px}
+.verify{margin-top:18px;border-top:1px solid #c9d3d2;padding-top:14px}
+.code{font-size:16px;font-weight:800;letter-spacing:.06em}
+a{color:#0a5b8a;font-weight:700}
+</style></head>
+<body>
+<div class="header">
+  <div class="brand">זכאי · Zakai</div>
+  <div class="title">ייפוי כוח לפעולה מול ספק</div>
+  <div class="badge ${active ? "ok" : "bad"}">סטטוס: ${active ? "בתוקף" : "בוטל"}</div>
+</div>
+<div class="row"><span class="label">הממנה</span><span class="value">${esc(auth.principalName)}</span></div>
+<div class="row"><span class="label">מיופה הכוח</span><span class="value">זכאי — סוכן דיגיטלי אוטומטי</span></div>
+<div class="row"><span class="label">הספק</span><span class="value">${esc(providerHebrewName(auth.provider))}</span></div>
+<div class="row"><span class="label">הופק</span><span class="value">${esc(issued)}</span></div>
+<div class="section"><h2>היקף ההרשאה</h2><p>${esc(auth.scope)}</p></div>
+<div class="disclosure">זכאי הוא סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח. זכאי אינו מתחזה ללקוח. הספק מוזמן ליצור קשר עם הלקוח ישירות.</div>
+<div class="verify">
+  <h2 style="font-size:14px;font-weight:800">אימות</h2>
+  <p style="font-size:13px;margin:6px 0">קוד אימות: <span class="code">${esc(auth.code)}</span></p>
+  <a href="${esc(verifyUrl)}">${esc(verifyUrl)}</a>
+</div>
+</body></html>`;
+}
+
 /**
  * Dispatch the outreach to the provider. Hard-gated: the case must be verified,
  * ownership confirmed, and an ACTIVE authorization must exist. The final email
  * is the approved body plus a fixed authorization footer carrying the
- * verifiable code and the agent disclosure.
+ * verifiable code and the agent disclosure. Mandate HTML is attached so the
+ * provider has a printable document without leaving their inbox.
  */
 export async function sendOutreach(caseId: string, userId: string) {
   const kase = await ownedCase(caseId, userId);
@@ -154,13 +215,23 @@ export async function sendOutreach(caseId: string, userId: string) {
 מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
+מצורף: מסמך הרשאה מלא (HTML) להדפסה/שמירה.
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.`;
+
+  const mandateHtml = buildMandateAttachmentHtml(auth);
 
   const email = await sendEmail({
     to: providerContactEmail(kase.provider),
     subject: `בקשת התאמת מסלול בשם ${auth.principalName} — הרשאה ${auth.code}`,
     body: kase.draftMessage + footer,
     caseId,
+    attachments: [
+      {
+        filename: `zakai-mandate-${auth.code}.html`,
+        content: mandateHtml,
+        contentType: "text/html; charset=utf-8",
+      },
+    ],
   });
 
   await prisma.case.update({ where: { id: caseId }, data: { status: "SENT" } });

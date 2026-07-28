@@ -18,14 +18,21 @@ export function smsConfigured(): boolean {
   return process.env.SMS_PROVIDER === "http" && Boolean(process.env.SMS_HTTP_URL);
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: string | Buffer;
+  contentType?: string;
+}
+
 interface EmailArgs {
   to: string;
   subject: string;
   body: string;
   caseId?: string;
+  attachments?: EmailAttachment[];
 }
 
-export async function sendEmail({ to, subject, body, caseId }: EmailArgs) {
+export async function sendEmail({ to, subject, body, caseId, attachments }: EmailArgs) {
   const record = await prisma.outbox.create({
     data: { channel: "EMAIL", toAddress: to, subject, body, caseId, status: "QUEUED" },
   });
@@ -52,6 +59,11 @@ export async function sendEmail({ to, subject, body, caseId }: EmailArgs) {
       to,
       subject,
       text: body,
+      attachments: attachments?.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+        contentType: a.contentType || "text/html; charset=utf-8",
+      })),
     });
     return prisma.outbox.update({
       where: { id: record.id },
