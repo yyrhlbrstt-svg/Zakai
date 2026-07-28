@@ -36,10 +36,12 @@ interface Props {
 const copy: Record<string, Record<string, string>> = {
   he: {
     approve: "אשר והמשך",
-    sendCode: "שלח קוד לנייד",
+    sendCode: "שלח קוד / קישור למייל",
     codePh: "קוד מ-6 ספרות",
     verifyCode: "אמת",
+    magicHint: "נשלח גם קישור למייל — לחיצה אחת בלי SMS.",
     genAuth: "צור הרשאה + Mandate",
+    openDoc: "פתח מסמך הרשאה (הדפסה / PDF)",
     send: "סמן כנשלח לספק",
     newAmt: "סכום חדש אחרי התשובה (₪)",
     record: "רשום חיסכון",
@@ -71,10 +73,12 @@ const copy: Record<string, Record<string, string>> = {
   },
   en: {
     approve: "Approve & continue",
-    sendCode: "Send SMS code",
+    sendCode: "Send code / email link",
     codePh: "6-digit code",
     verifyCode: "Verify",
+    magicHint: "Also sent an email magic link — one tap, no SMS needed.",
     genAuth: "Create auth + Mandate",
+    openDoc: "Open authorization (print / PDF)",
     send: "Mark sent to provider",
     newAmt: "New amount after reply (₪)",
     record: "Record saving",
@@ -128,6 +132,7 @@ export function CaseNextStep({
   const [err, setErr] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
+  const [magicSent, setMagicSent] = useState(false);
   const [newAmt, setNewAmt] = useState(
     proposedSaving?.newAmountShekels != null
       ? String(proposedSaving.newAmountShekels)
@@ -255,16 +260,18 @@ export function CaseNextStep({
       <div className="w-full mt-2 flex flex-col gap-2">
         <div className="text-[11px] text-ink-soft">{t(locale, "nextHint")}</div>
         {!localOwn && (
-          <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex flex-col gap-2">
             {!codeSent ? (
               <Button
                 disabled={busy}
-                className="text-[13px] py-2 px-3"
+                className="text-[13px] py-2 px-3 self-start"
                 onClick={() =>
                   run(async () => {
                     const res = await fetch(`/api/cases/${caseId}/ownership/send`, { method: "POST" });
                     if (!res.ok) throw new Error("send");
+                    const data = await res.json().catch(() => ({}));
                     setCodeSent(true);
+                    setMagicSent(Boolean(data.magicSent));
                   })
                 }
               >
@@ -272,30 +279,35 @@ export function CaseNextStep({
               </Button>
             ) : (
               <>
-                <Input
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder={t(locale, "codePh")}
-                  className="max-w-[140px] text-[13px]"
-                  inputMode="numeric"
-                />
-                <Button
-                  disabled={busy || code.length < 6}
-                  className="text-[13px] py-2 px-3"
-                  onClick={() =>
-                    run(async () => {
-                      const res = await fetch(`/api/cases/${caseId}/ownership/verify`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ code }),
-                      });
-                      if (!res.ok) throw new Error("verify");
-                      setLocalOwn(true);
-                    })
-                  }
-                >
-                  {t(locale, "verifyCode")}
-                </Button>
+                {magicSent && (
+                  <p className="text-[12px] text-emerald font-bold m-0">{t(locale, "magicHint")}</p>
+                )}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <Input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder={t(locale, "codePh")}
+                    className="max-w-[140px] text-[13px]"
+                    inputMode="numeric"
+                  />
+                  <Button
+                    disabled={busy || code.length < 6}
+                    className="text-[13px] py-2 px-3"
+                    onClick={() =>
+                      run(async () => {
+                        const res = await fetch(`/api/cases/${caseId}/ownership/verify`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ code }),
+                        });
+                        if (!res.ok) throw new Error("verify");
+                        setLocalOwn(true);
+                      })
+                    }
+                  >
+                    {t(locale, "verifyCode")}
+                  </Button>
+                </div>
               </>
             )}
           </div>
@@ -326,8 +338,18 @@ export function CaseNextStep({
           </Button>
         )}
         {authCode && (
-          <div className="text-[12px] text-emerald font-bold">
-            {t(locale, "authCode")}: {authCode}
+          <div className="flex flex-col gap-1">
+            <div className="text-[12px] text-emerald font-bold">
+              {t(locale, "authCode")}: {authCode}
+            </div>
+            <a
+              href={`/${locale}/authorization/${authCode}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[12px] text-[#3EC6FF] font-bold no-underline"
+            >
+              {t(locale, "openDoc")} →
+            </a>
           </div>
         )}
         {mandateInfo && <div className="text-[12px] text-ink-soft">{mandateInfo}</div>}
