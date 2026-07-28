@@ -7,8 +7,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.3.14",
-    buildMarker: "agent-rounds-inbound-ratelimit-batch-2026-07-28",
+    version: "0.3.16",
+    buildMarker: "mandate-pdf-download-2026-07-28",
     positioning: "standard consumer money agent",
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
@@ -21,6 +21,7 @@ export async function GET() {
       cancelPrefill: true,
       mandate: true,
       mandateQr: true,
+      mandatePdf: true,
       overnightAgent: true,
       agentAutoApprove: true,
       agentAutoFollowUp: true,
@@ -46,6 +47,8 @@ export async function GET() {
       webPush: true,
       enablePushUi: true,
       proposedSavingOneTap: true,
+      strategyInsights: true,
+      ownershipMagicLink: true,
     },
     time: new Date().toISOString(),
   });

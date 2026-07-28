@@ -22,10 +22,18 @@ export default async function AuthorizationDocPage({
   const verifyUrl = `${appUrl}/verify?code=${auth!.code}`;
   const active = auth!.status === "ACTIVE";
   const he = locale === "he" || locale === "ar";
+  const pdfHref = `/api/authorization/${encodeURIComponent(auth!.code)}/pdf`;
 
   return (
     <main className="max-w-[720px] mx-auto px-5 pb-20 pt-2">
-      <div className="flex justify-end mb-3">
+      <div className="flex justify-end gap-2 mb-3 print:hidden">
+        <a
+          href={pdfHref}
+          download
+          className="inline-flex items-center rounded-[12px] px-5 py-2.5 font-extrabold text-[13px] border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] text-ink no-underline"
+        >
+          {t("download")}
+        </a>
         <PrintButton />
       </div>
 
