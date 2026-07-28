@@ -7,8 +7,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.3.11",
-    buildMarker: "enable-push-viral-saved-2026-07-28",
+    version: "0.3.12",
+    buildMarker: "proposed-saving-one-tap-2026-07-28",
     positioning: "standard consumer money agent",
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
@@ -41,6 +41,7 @@ export async function GET() {
       inboundEmailProof: true,
       webPush: true,
       enablePushUi: true,
+      proposedSavingOneTap: true,
     },
     time: new Date().toISOString(),
   });
