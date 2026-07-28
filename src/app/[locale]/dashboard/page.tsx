@@ -64,6 +64,7 @@ export default async function DashboardPage({
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
   const proposedMap = await getProposedSavingsMap(sentIds);
+  const proposedCount = proposedMap.size;
 
   const totalDocumentedMonthly = cases.reduce(
     (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
@@ -230,6 +231,14 @@ export default async function DashboardPage({
       </div>
 
       <ReminderBanner />
+
+      {proposedCount > 0 && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-5 py-3.5 mb-5 text-[14px] font-bold">
+          {locale === "he"
+            ? `הסוכן זיהה ${proposedCount} תשובה${proposedCount > 1 ? "ות" : ""} מהספק — לחץ "רשום חיסכון בלחיצה אחת" בתיק`
+            : `Agent spotted ${proposedCount} provider repl${proposedCount > 1 ? "ies" : "y"} — one-tap record saving on the case`}
+        </div>
+      )}
 
       {pendingActions > 0 && (
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[14px] font-bold">
