@@ -367,6 +367,12 @@ model PasswordReset {
 model MandateRevocation {
   jti          String   @id
   revokedAt    DateTime @default(now())
+  /**
+   * Position in the signed status list. Assigned at issue time, so a mandate
+   * can be revoked by flipping one bit rather than by growing a list every
+   * institution has to download in full.
+   */
+  statusIndex  Int?     @unique
   reason       String   @default("user_request")
   // Optional opaque audit tag (case id, operator id) — not returned publicly.
   internalNote String   @default("")
