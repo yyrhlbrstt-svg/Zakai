@@ -7,11 +7,17 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "0.4.0",
-    buildMarker: "agent-dispatch-full-verticals-global-packs-2026-07-28",
-    positioning: "standard consumer money agent",
+    version: "0.5.0",
+    buildMarker: "dual-track-problem-first-b2b-mandate-2026-07-28",
+    positioning: "standard consumer money agent + Mandate infrastructure platform",
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: ["IL", "GB", "US", "DE", "FR", "CA"],
+    tracks: {
+      consumer: true,
+      infrastructure: true,
+      b2b: true,
+      mandateStandard: true,
+    },
     features: {
       moneyOs: true,
       fromScanCase: true,
@@ -43,6 +49,7 @@ export async function GET() {
       parkingCase: true,
       transportFineCase: true,
       b2bEmbed: true,
+      b2bEmbedMultiPath: true,
       viralAfterSaved: true,
       leaksDemandEngine: true,
       globalMarketsStrip: true,
@@ -56,6 +63,8 @@ export async function GET() {
       ownershipMagicLink: true,
       allIlVerticalsFull: true,
       deFrCaPacksDeep: true,
+      problemFirstHomepage: true,
+      dualTrackBusinessPage: true,
     },
     time: new Date().toISOString(),
   });
