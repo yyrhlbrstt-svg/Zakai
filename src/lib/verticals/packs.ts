@@ -16,11 +16,12 @@ export const telecomIL: VerticalRulePack = {
   counterparties: PROVIDER_KEYS,
 };
 
+/** Bank-fees graduated to full — same Case+Mandate+send+SavingsProof loop. */
 export const bankFeesIL: VerticalRulePack = {
   key: "bank-fees",
   country: "IL",
   label: "עמלות בנק",
-  level: "assisted",
+  level: "full",
   feeRateBps: null,
   channel: "email",
   verification: {
@@ -31,11 +32,12 @@ export const bankFeesIL: VerticalRulePack = {
   counterparties: ["hapoalim", "leumi", "discount", "mizrahi", "fibi", "onezero", "other"],
 };
 
+/** Subscriptions graduated to full — cancel/retention via agent. */
 export const subscriptionIL: VerticalRulePack = {
   key: "subscription",
   country: "IL",
   label: "מנויים ושירותים דיגיטליים",
-  level: "assisted",
+  level: "full",
   feeRateBps: null,
   channel: "email",
   verification: {
@@ -50,7 +52,7 @@ export const airlineIL: VerticalRulePack = {
   key: "airline",
   country: "IL",
   label: "פיצוי טיסה",
-  level: "assisted",
+  level: "full",
   feeRateBps: null,
   channel: "email",
   verification: {
@@ -65,7 +67,7 @@ export const refundChaseIL: VerticalRulePack = {
   key: "refund-chase",
   country: "IL",
   label: "החזר שלא הגיע",
-  level: "assisted",
+  level: "full",
   feeRateBps: null,
   channel: "email",
   verification: {
@@ -80,7 +82,7 @@ export const parkingIL: VerticalRulePack = {
   key: "parking",
   country: "IL",
   label: "ערעור דוח חניה",
-  level: "assisted",
+  level: "full",
   feeRateBps: null,
   channel: "email",
   verification: {
@@ -95,7 +97,7 @@ export const transportFineIL: VerticalRulePack = {
   key: "transport-fine",
   country: "IL",
   label: "ערעור קנס תחבורה ציבורית",
-  level: "assisted",
+  level: "full",
   feeRateBps: null,
   channel: "email",
   verification: {
