@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe } from "lucide-react";
+import { Globe, ScanLine, Ban, Scale } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { allMarkets } from "@/lib/global/registry";
@@ -51,40 +51,104 @@ export default async function HomePage({
     }
   })();
 
-  const moneyLabel =
-    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
-
   const he = locale === "he";
+  const ar = locale === "ar";
+  const ru = locale === "ru";
+
+  const doors = [
+    {
+      href: "/money",
+      icon: ScanLine,
+      title: he
+        ? "משלם יותר מדי"
+        : ar
+          ? "أدفع أكثر من اللازم"
+          : ru
+            ? "Плачу слишком много"
+            : "Paying too much",
+      sub: he
+        ? "סרוק חיובים · הסוכן פונה · חיסכון מתועד"
+        : ar
+          ? "امسح الفواتير · الوكيل يتفاوض · توفير موثق"
+          : ru
+            ? "Сканируй счета · агент пишет · экономия с доказательством"
+            : "Scan bills · agent negotiates · documented savings",
+      cta: he ? "הכסף שלי →" : ar ? "أموالي →" : ru ? "Мои деньги →" : "My money →",
+      accent: "emerald" as const,
+    },
+    {
+      href: "/cancel",
+      icon: Ban,
+      title: he
+        ? "בטל מנוי שלא צריך"
+        : ar
+          ? "ألغِ اشتراكًا لا تحتاجه"
+          : ru
+            ? "Отмени ненужную подписку"
+            : "Cancel a subscription",
+      sub: he
+        ? "סוכן שולח · Mandate · מעקב אוטומטי"
+        : ar
+          ? "الوكيل يرسل · تفويض · متابعة تلقائية"
+          : ru
+            ? "Агент отправляет · Mandate · авто-follow-up"
+            : "Agent sends · Mandate · auto follow-up",
+      cta: he ? "ביטול עם סוכן →" : ar ? "إلغاء مع وكيل →" : ru ? "Отмена с агентом →" : "Agent cancel →",
+      accent: "violet" as const,
+    },
+    {
+      href: "/what-am-i-owed",
+      icon: Scale,
+      title: he
+        ? "מה מגיע לי?"
+        : ar
+          ? "ما الذي يستحق لي؟"
+          : ru
+            ? "Что мне положено?"
+            : "What am I owed?",
+      sub: he
+        ? "זכויות · הטבות · החזרים שלא דרשת"
+        : ar
+          ? "حقوق · مزايا · استردادات لم تطالب بها"
+          : ru
+            ? "Права · льготы · возвраты которые не забрали"
+            : "Rights · benefits · refunds you never claimed",
+      cta: he ? "בדוק זכויות →" : ar ? "تحقق من الحقوق →" : ru ? "Проверить права →" : "Check rights →",
+      accent: "sky" as const,
+    },
+  ];
+
+  const accentClass = {
+    emerald: {
+      border: "border-[rgba(63,203,155,0.4)]",
+      bg: "bg-[rgba(63,203,155,0.08)]",
+      text: "text-emerald",
+      iconBg: "bg-[rgba(63,203,155,0.2)]",
+    },
+    violet: {
+      border: "border-[rgba(139,92,246,0.4)]",
+      bg: "bg-[rgba(139,92,246,0.08)]",
+      text: "text-[#c4b5fd]",
+      iconBg: "bg-[rgba(139,92,246,0.2)]",
+    },
+    sky: {
+      border: "border-[rgba(62,198,255,0.4)]",
+      bg: "bg-[rgba(62,198,255,0.08)]",
+      text: "text-[#3ec6ff]",
+      iconBg: "bg-[rgba(62,198,255,0.2)]",
+    },
+  };
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
+      {/* Positioning strip */}
       <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
         {he
-          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · 0.3.1"
-          : "The standard consumer money agent · Money OS · Mandate · No call center · 0.3.1"}
-        <div className="flex flex-wrap gap-2 mt-2.5">
-          <Link
-            href="/money"
-            className="rounded-lg bg-[rgba(63,203,155,0.35)] px-3 py-1.5 text-[12.5px] text-emerald no-underline font-extrabold"
-          >
-            {moneyLabel}
-          </Link>
-          <Link
-            href="/leaks"
-            className="rounded-lg bg-[rgba(62,198,255,0.2)] px-3 py-1.5 text-[12.5px] text-[#3ec6ff] no-underline font-extrabold"
-          >
-            {he ? "מפת נזילות" : "Leaks map"}
-          </Link>
-          <Link
-            href="/cancel"
-            className="rounded-lg bg-[rgba(139,92,246,0.2)] px-3 py-1.5 text-[12.5px] text-[#c4b5fd] no-underline font-extrabold"
-          >
-            {he ? "ביטול עם סוכן" : "Agent cancel"}
-          </Link>
-        </div>
+          ? "הסטנדרט לסוכן כסף צרכני · Money OS · Mandate · בלי מוקד · v0.5"
+          : "The standard consumer money agent · Money OS · Mandate · No call center · v0.5"}
       </div>
 
-      {/* Global markets — category scale signal */}
+      {/* Global markets */}
       <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px] text-ink-soft">
         <Globe size={14} className="text-emerald shrink-0" aria-hidden />
         <span className="font-bold text-ink">{he ? "שווקים:" : "Markets:"}</span>
@@ -109,7 +173,8 @@ export default async function HomePage({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-12 items-center">
+      {/* Hero */}
+      <div className="flex flex-wrap gap-12 items-center mb-10">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
             <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-6">
@@ -118,10 +183,20 @@ export default async function HomePage({
             </div>
           </Reveal>
           <Reveal delay={80}>
-            <h1 className="font-display text-[clamp(38px,5.6vw,56px)] leading-[1.12] m-0 text-balance">
-              {t("home.title1")}
-              <br />
-              <span className="grad-text">{t("home.title2")}</span>
+            <h1 className="font-display text-[clamp(36px,5.4vw,52px)] leading-[1.12] m-0 text-balance">
+              {he ? (
+                <>
+                  כסף ששייך לך
+                  <br />
+                  <span className="grad-text">ועדיין לא חזר</span>
+                </>
+              ) : (
+                <>
+                  {t("home.title1")}
+                  <br />
+                  <span className="grad-text">{t("home.title2")}</span>
+                </>
+              )}
             </h1>
           </Reveal>
           <Reveal delay={160}>
@@ -131,29 +206,6 @@ export default async function HomePage({
                 : "Zakai is the consumer money OS: scan, Mandate, send, follow up, documented saving. No call center. No phone left behind. Fee only when money is actually saved."}
             </p>
           </Reveal>
-          <Reveal delay={240}>
-            <div className="flex flex-wrap gap-3 items-center">
-              <Link href="/money">
-                <Button className="!text-[16px] !px-6 !py-3.5">{moneyLabel} →</Button>
-              </Link>
-              <Link href="/leaks">
-                <Button variant="ghost">{he ? "מפת נזילות" : "Leaks map"}</Button>
-              </Link>
-            </div>
-          </Reveal>
-
-          <Reveal delay={320}>
-            <ul className="flex flex-col gap-2 mt-7 list-none p-0 m-0">
-              {trust.map((line) => (
-                <li key={line} className="flex items-center gap-2.5 text-[13.5px] text-ink-soft">
-                  <span className="text-emerald font-black" aria-hidden>
-                    ✓
-                  </span>
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </Reveal>
         </div>
 
         <Reveal delay={160} className="flex-1 min-w-[320px] basis-[380px]">
@@ -161,8 +213,38 @@ export default async function HomePage({
         </Reveal>
       </div>
 
+      {/* PROBLEM-FIRST ENTRY DOORS — why people enter */}
+      <Reveal>
+        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft uppercase tracking-wide">
+          {he ? "מאיפה מתחילים?" : ar ? "من أين نبدأ؟" : ru ? "С чего начать?" : "Where do you start?"}
+        </h2>
+      </Reveal>
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))] mb-14">
+        {doors.map((d, i) => {
+          const a = accentClass[d.accent];
+          const Icon = d.icon;
+          return (
+            <Reveal key={d.href} delay={i * 70}>
+              <Link href={d.href} className="no-underline block h-full">
+                <SpotlightCard
+                  className={`p-6 h-full ${a.border} ${a.bg} hover:scale-[1.02] transition-transform`}
+                >
+                  <div className={`w-11 h-11 rounded-xl ${a.iconBg} flex items-center justify-center mb-4`}>
+                    <Icon size={22} className={a.text} aria-hidden />
+                  </div>
+                  <div className={`font-extrabold text-[17px] ${a.text}`}>{d.title}</div>
+                  <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed">{d.sub}</div>
+                  <div className={`mt-4 text-[14px] font-extrabold ${a.text}`}>{d.cta}</div>
+                </SpotlightCard>
+              </Link>
+            </Reveal>
+          );
+        })}
+      </div>
+
+      {/* Trust + stats */}
       <Reveal delay={80}>
-        <div className="mt-12 grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
+        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
           {(t.raw("home.stats") as Array<{ n: string; label: string }>).map((s) => (
             <div key={s.label} className="text-center">
               <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
@@ -176,7 +258,7 @@ export default async function HomePage({
 
       {proof.count > 0 && (
         <Reveal>
-          <div className="mt-14 text-center rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-5">
+          <div className="mt-10 text-center rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-5">
             <span className="font-display grad-text text-3xl">
               {formatAgorot(proof.monthlyAgorot, bcp47[locale as Locale])}
             </span>
@@ -187,6 +269,20 @@ export default async function HomePage({
         </Reveal>
       )}
 
+      <Reveal delay={100}>
+        <ul className="flex flex-col gap-2 mt-10 list-none p-0 m-0 max-w-[560px]">
+          {trust.map((line) => (
+            <li key={line} className="flex items-center gap-2.5 text-[13.5px] text-ink-soft">
+              <span className="text-emerald font-black" aria-hidden>
+                ✓
+              </span>
+              {line}
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+
+      {/* How it works */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.howTitle")}</h2>
       </Reveal>
@@ -208,6 +304,7 @@ export default async function HomePage({
         ))}
       </div>
 
+      {/* Why Zakai */}
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("home.whyTitle")}</h2>
       </Reveal>
@@ -238,6 +335,7 @@ export default async function HomePage({
         ))}
       </div>
 
+      {/* Bottom CTA */}
       <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
@@ -245,15 +343,17 @@ export default async function HomePage({
           </div>
           <p className="text-ink-soft text-[15px] mt-3 max-w-[520px] mx-auto leading-relaxed">
             {he
-              ? "מי ששולט בלולאה סריקה→Mandate→חיסכון→שיתוף שולט בשוק. אנחנו בונים את הלולאה הזו בכל שוק."
-              : "Whoever owns scan→Mandate→saving→share owns the market. We’re building that loop in every market."}
+              ? "מי ששולט בלולאה סריקה→Mandate→חיסכון→שיתוף שולט בשוק. אנחנו בונים את הלולאה הזו בכל שוק — וגם את התשתית שמוסדות יאמצו."
+              : "Whoever owns scan→Mandate→saving→share owns the market. We’re building that loop in every market — and the infrastructure institutions adopt."}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
-              <Button className="!text-[15px] !px-6 !py-3">{moneyLabel}</Button>
+              <Button className="!text-[15px] !px-6 !py-3">
+                {he ? "הכסף שלי" : "My money"}
+              </Button>
             </Link>
-            <Link href="/leaks">
-              <Button variant="ghost">{he ? "מפת נזילות" : "Leaks map"}</Button>
+            <Link href="/business">
+              <Button variant="ghost">{he ? "לעסקים ומוסדות" : "Business & institutions"}</Button>
             </Link>
           </div>
         </div>
