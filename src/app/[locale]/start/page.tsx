@@ -33,23 +33,28 @@ export default async function StartPage({
         </div>
       </div>
       <h1 className="font-display text-[clamp(26px,5vw,38px)] leading-[1.14] m-0 text-balance mb-3">
-        {he ? "התחל מהכסף שלך" : "Start with your money"}
+        {he ? "מאיפה מתחילים?" : "Where do you start?"}
       </h1>
       <p className="text-ink-soft text-[15.5px] leading-relaxed mb-6">
         {he
-          ? "סרוק חיובים, פתח תיק עם הסוכן, Mandate, שליחה ומעקב. עמלה רק על חיסכון מתועד."
-          : "Scan charges, open an agent case, Mandate, send and follow up. Fee only on documented savings."}
+          ? "בחר בעיה. הסוכן פותח תיק, Mandate, שולח ועוקב. עמלה רק על חיסכון מתועד."
+          : "Pick a problem. The agent opens a case, Mandate, sends and follows up. Fee only on documented savings."}
       </p>
 
       <div className="flex flex-col gap-2.5 mb-8">
         <Link href="/money">
           <Button className="w-full !text-[15px] !py-3">
-            {he ? "הכסף שלי — סרוק עכשיו" : "My money — scan now"}
+            {he ? "משלם יותר מדי — סרוק עכשיו" : "Paying too much — scan now"}
           </Button>
         </Link>
         <Link href="/cancel">
           <Button variant="ghost" className="w-full">
-            {he ? "ביטול מנוי עם סוכן" : "Cancel a sub with agent"}
+            {he ? "בטל מנוי עם סוכן" : "Cancel a sub with agent"}
+          </Button>
+        </Link>
+        <Link href="/what-am-i-owed">
+          <Button variant="ghost" className="w-full">
+            {he ? "מה מגיע לי?" : "What am I owed?"}
           </Button>
         </Link>
         <Link href="/leaks">
