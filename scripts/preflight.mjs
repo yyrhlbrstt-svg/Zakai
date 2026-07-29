@@ -39,9 +39,15 @@ const CHECKS = [
   { key: "SMTP_HOST", level: "degrading",
     cost: "No mail transport. Lead notifications and case correspondence are held in the Outbox and delivered nowhere." },
   { key: "SALES_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
-    cost: "Institutional enquiries would be addressed to sales@zakai.example, a reserved domain that cannot receive mail." },
+    cost: "Institutional enquiries fall back to the founder address. Fine to launch on; set it once there is a shared inbox." },
   { key: "LEADS_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
-    cost: "Consumer leads would be addressed to leads@zakai.example, a reserved domain that cannot receive mail." },
+    cost: "Consumer leads fall back to the founder address. Fine to launch on; set it once there is a shared inbox." },
+  // A privilege, not a destination: it opens the founder dashboard, which lists
+  // every lead's contact details. Deliberately has no code default, because
+  // signup does not verify that somebody controls the address they register
+  // with, and a hardcoded value would publish which address to claim.
+  { key: "ADMIN_EMAIL", level: "degrading",
+    cost: "The founder dashboard at /he/founder is closed to everyone, including you. Nothing else is affected." },
 ];
 
 // A configured address on a reserved domain is worse than an absent one: the

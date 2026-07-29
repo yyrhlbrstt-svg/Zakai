@@ -98,7 +98,31 @@ MANDATE_SIGNING_JWK=<Ed25519 private JWK JSON>
 MANDATE_ISSUE_KEY=
 MANDATE_REVOKE_KEY=
 MANDATE_ISSUER=https://zakai-3uxj.vercel.app
+
+# Reaching a human. Without SMTP_HOST nothing leaves the system: every message
+# stays QUEUED in the Outbox. Leads are persisted before any mail is attempted,
+# so nothing is lost either way — but nobody is told an enquiry arrived, and an
+# enquiry nobody reads for a week is very nearly one that never came.
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=Zakai <no-reply@yourdomain>
+SALES_EMAIL=        # institutional enquiries; falls back to the founder address
+LEADS_EMAIL=        # consumer leads; falls back to the founder address
+FEEDBACK_EMAIL=     # falls back to the founder address
+
+# A privilege, not a destination — it opens /he/founder, which lists every
+# lead's contact details. No code default on purpose: signup does not verify
+# that somebody controls the address they register with, so a hardcoded value
+# would publish which address to claim.
+ADMIN_EMAIL=
 ```
+
+Run `node scripts/preflight.mjs` before believing any of this is set. It
+separates blocking from degrading and warns about an address on a reserved
+domain — a wrong address passes every check, is accepted by the transport, and
+discards the message silently.
 
 ## Deploy protocol (critical)
 

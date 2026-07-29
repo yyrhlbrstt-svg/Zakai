@@ -1,3 +1,4 @@
+import { FOUNDER_EMAIL } from "@/lib/contact";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -20,7 +21,7 @@ const schema = z.object({
 // deliberate placeholder, not a working fallback — the preflight fails on it so
 // nobody discovers it by wondering why the enquiries stopped.
 const SALES_EMAIL =
-  process.env.SALES_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "sales@zakai.example";
+  process.env.SALES_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || FOUNDER_EMAIL;
 
 const INTEREST_LABEL: Record<string, string> = {
   employees: "הטבת עובדים (B2B2C)",
