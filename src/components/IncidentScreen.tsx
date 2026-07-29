@@ -7,6 +7,7 @@ import { matchCovers } from "@/lib/incident/match";
 import { buildIncidentLetter } from "@/lib/incident/letters";
 import type { CoverMatch } from "@/lib/incident/match";
 import type { IncidentKind, IncidentFacts } from "@/lib/incident/sources";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 const KINDS: IncidentKind[] = [
   "sport",
@@ -282,6 +283,18 @@ function CoverRow({ match, occurredAt }: { match: CoverMatch; occurredAt?: Date 
                 {tc("print")}
               </Button>
             </div>
+            {/* The moat is built here, not in the letter.
+                Four surfaces generate letters and only one of them fed the
+                outcome graph, so three quarters of the events that could teach
+                us something produced nothing. A letter is a commodity — anybody
+                can draft one. Knowing which wording this counterparty actually
+                pays is the asset, and it only exists if the report sits where
+                the reply arrives. */}
+            <OutcomeReport
+              vertical="incident"
+              counterparty={match.source.payer}
+              variantId={match.source.id}
+            />
           </div>
         )}
       </div>

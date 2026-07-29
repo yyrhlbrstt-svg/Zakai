@@ -6,6 +6,8 @@ import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 import { Input, Button } from "@/components/ui";
 import { buildClaimDraft, resolveAction, type ClaimFields } from "@/lib/claimDraft";
+import { RIGHT_ACTIONS } from "@/lib/rightsActions";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 /**
  * The fulfilment surface for a single entitlement — expanded in place, inside
@@ -106,6 +108,18 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
             </Button>
           </div>
           <p className="text-[11.5px] text-ink-soft mt-3 mb-0 leading-relaxed">{t("disclaimer")}</p>
+            {/* The moat is built here, not in the letter.
+                Four surfaces generate letters and only one of them fed the
+                outcome graph, so three quarters of the events that could teach
+                us something produced nothing. A letter is a commodity — anybody
+                can draft one. Knowing which wording this counterparty actually
+                pays is the asset, and it only exists if the report sits where
+                the reply arrives. */}
+          <OutcomeReport
+            vertical="rights"
+            counterparty={RIGHT_ACTIONS[rightId]?.recipient ?? "unknown"}
+            variantId={rightId}
+          />
         </div>
       )}
     </div>
