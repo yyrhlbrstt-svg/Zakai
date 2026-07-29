@@ -13,6 +13,7 @@ const TOOLS = [
   { href: "/money", key: "money" },
   { href: "/incident", key: "incident" },
   { href: "/dormant", key: "dormant" },
+  { href: "/vehicle-check", key: "vehicleCheck" },
   { href: "/leaks", key: "leaks" },
   { href: "/proofs", key: "proofs" },
   { href: "/cancel", key: "cancel" },

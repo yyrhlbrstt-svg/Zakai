@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive } from "lucide-react";
+import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -115,6 +115,16 @@ export default async function HomePage({
       subKey: "door.dormant.sub",
       ctaKey: "door.dormant.cta",
       accent: "sky",
+    },
+    // The only door that prevents a loss instead of recovering one, and the
+    // largest single sum on the page.
+    {
+      href: "/vehicle-check",
+      icon: Car,
+      titleKey: "door.vehicleCheck.title",
+      subKey: "door.vehicleCheck.sub",
+      ctaKey: "door.vehicleCheck.cta",
+      accent: "amber",
     },
   ];
 

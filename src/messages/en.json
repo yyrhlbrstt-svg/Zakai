@@ -73,7 +73,8 @@
     "score": "Zakai Score",
     "authority": "My authorities",
     "incident": "I was injured — who owes me?",
-    "dormant": "Money you forgot"
+    "dormant": "Money you forgot",
+    "vehicleCheck": "Used-car check"
   },
   "payslip": {
     "title": "Payslip check",
@@ -3911,6 +3912,11 @@
       "title": "Money you forgot is yours",
       "sub": "Funds and accounts left behind at every job change. One question, and you can check for a parent too.",
       "cta": "Who is holding my money?"
+    },
+    "vehicleCheck": {
+      "title": "Buying a used car?",
+      "sub": "The seller must hand you a written disclosure — accidents, mileage, liens. Almost nobody asks.",
+      "cta": "What I may demand"
     }
   },
   "authority": {
@@ -4438,6 +4444,30 @@
       "under_1k": "Up to ₪1,000",
       "under_10k": "Up to ₪10,000",
       "over_10k": "Over ₪10,000"
+    }
+  },
+  "vehicleCheck": {
+    "title": "Before you buy a used car",
+    "subtitle": "The law requires the seller — private or dealer — to hand you a written disclosure before the sale. Almost nobody asks, so almost nobody receives one.",
+    "statuteTitle": "This is not a favour. It is a statutory duty.",
+    "statuteSub": "Sale of Used Vehicles (Information) Law, 2008. A seller who will not put the details in writing has told you something no database would have.",
+    "listTitle": "What to demand, and what it means",
+    "why": "Why it matters",
+    "ifRefused": "If they refuse",
+    "letterTitle": "Generate the written request",
+    "plate": "Registration number",
+    "seller": "Seller's name (optional)",
+    "generate": "Generate request",
+    "disclaimer": "The list rests on the statutory disclosure duty. Zakai has not seen the vehicle, does not value it, and does not advise for or against buying — it drafts what you are entitled to demand.",
+    "items": {
+      "ownership_history": "Ownership history",
+      "accident_history": "Accidents",
+      "odometer": "Mileage",
+      "dealer_chain": "How many dealers",
+      "test_validity": "Roadworthiness validity",
+      "liens": "Lien or charge",
+      "recalls": "Open recall",
+      "original_price": "Original price and trim"
     }
   }
 }
