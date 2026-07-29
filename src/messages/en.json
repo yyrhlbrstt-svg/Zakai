@@ -4363,6 +4363,15 @@
       "workedAbroad": "I worked abroad",
       "preWarFamily": "Family in Europe before 1945",
       "deceasedRelative": "Yes, a relative of mine died"
+    },
+    "forWhom": "Who are you checking for?",
+    "theySign": "Note: they sign these letters, not you. We are not acting for them — you prepare the document and they send it.",
+    "jobsQuestionOther": "Roughly how many employers have they had?",
+    "subjects": {
+      "self": "For me",
+      "parent": "For a parent",
+      "grandparent": "For a grandparent",
+      "deceased": "For a relative who died"
     }
   },
   "categories": {

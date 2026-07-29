@@ -6,6 +6,7 @@ import { Card, Input, Button } from "@/components/ui";
 import { traceDormant, type DormantLead } from "@/lib/dormant/trace";
 import { buildDormantLetter } from "@/lib/dormant/letters";
 import type { DormantFacts } from "@/lib/dormant/sources";
+import { SUBJECTS, signsOwnLetters, subjectProfile, type Subject } from "@/lib/dormant/forWhom";
 
 const FLAGS = [
   "changedBank",
@@ -39,6 +40,7 @@ export function DormantScreen() {
   const t = useTranslations("dormant");
   const [facts, setFacts] = useState<DormantFacts>({});
   const [started, setStarted] = useState(false);
+  const [subject, setSubject] = useState<Subject>("self");
 
   const result = useMemo(() => traceDormant(facts), [facts]);
   const show = started && result.leads.length > 0;
@@ -52,8 +54,58 @@ export function DormantScreen() {
 
   return (
     <div>
+      {/* Who this is for, before anything else.
+          A share button asks somebody to advertise a money app, which almost
+          nobody does — telling people you are chasing money you are owed is a
+          status admission, and those with the most to claim are the least
+          likely to make it. Doing it for a parent inverts that: a favour rather
+          than a confession, one tap, possibly worth thousands. And the
+          arithmetic agrees — forgotten money accumulates with job changes and
+          house moves, so the person most likely to find something is the one
+          least likely to install an app to look. */}
+      <Card className="p-6 mb-5">
+        <span className="text-[13px] text-ink-soft block mb-2">{t("forWhom")}</span>
+        <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("forWhom")}>
+          {SUBJECTS.map((sub) => (
+            <button
+              key={sub.id}
+              type="button"
+              role="radio"
+              aria-checked={subject === sub.id}
+              onClick={() => {
+                setSubject(sub.id);
+                setFacts((f) => ({
+                  ...f,
+                  // A suggestion, shown in the answer they can change. It is
+                  // never used as an input on its own — a pre-filled guess that
+                  // silently became an answer would be a guess in an answer's
+                  // clothes.
+                  pastEmployers: subjectProfile(sub.id)!.suggestedEmployers,
+                  deceasedRelative: sub.id === "deceased",
+                }));
+                setStarted(true);
+              }}
+              className={chip(subject === sub.id)}
+            >
+              {t(`subjects.${sub.id}`)}
+            </button>
+          ))}
+        </div>
+
+        {/* Stated in the open, not in a disclaimer nobody reads. A demand
+            arriving over a living parent's name without their knowledge is
+            forgery however kindly meant. */}
+        {!signsOwnLetters(subject) && (
+          <p className="text-[12.5px] text-[#f0b45c] mt-3 mb-0 leading-relaxed">
+            {t("theySign")}
+          </p>
+        )}
+      </Card>
+
       <Card className="p-6">
-        <span className="text-[13px] text-ink-soft block mb-2">{t("jobsQuestion")}</span>
+        <span className="text-[13px] text-ink-soft block mb-2">
+          {signsOwnLetters(subject) && subject === "self" ? t("jobsQuestion") : t("jobsQuestionOther")}
+        </span>
         <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("jobsQuestion")}>
           {[1, 2, 3, 4, 5, 6].map((n) => (
             <button
