@@ -29,6 +29,21 @@ const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    // Ranked high on potential and low on effort because the money per event is
+    // an order of magnitude above anything else in this list, and the first
+    // step is one tap. The monthly figure is a placeholder for a ranking that
+    // is not per-month at all — this fires once and pays once, largely.
+    id: "incident",
+    href: "/incident",
+    titleHe: "נפצעת? כמה גורמים חייבים לך במקביל",
+    titleEn: "Injured? Several payers owe you at once",
+    whyHe: "פוליסות מצטברות + חלון של 12 חודשים בביטוח לאומי",
+    whyEn: "Stacking policies + a 12-month National Insurance window",
+    monthlyPotentialShekels: 400,
+    effort: "low",
+    agentic: false,
+  },
+  {
     id: "cancel",
     href: "/cancel",
     titleHe: "ביטול / הנחה — הסוכן שולח",

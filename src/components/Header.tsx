@@ -11,6 +11,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 
 const TOOLS = [
   { href: "/money", key: "money" },
+  { href: "/incident", key: "incident" },
   { href: "/leaks", key: "leaks" },
   { href: "/proofs", key: "proofs" },
   { href: "/cancel", key: "cancel" },

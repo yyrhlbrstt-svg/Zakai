@@ -71,7 +71,8 @@
     "debt": "Consolidate debt",
     "vat": "VAT return",
     "score": "Zakai Score",
-    "authority": "My authorities"
+    "authority": "My authorities",
+    "incident": "I was injured — who owes me?"
   },
   "payslip": {
     "title": "Payslip check",
@@ -4253,6 +4254,63 @@
       "credit_card_fx_margin": "Card FX margin",
       "bank_securities_fees": "Securities fees",
       "car_loan_insurance": "Insurance sold with the car loan"
+    }
+  },
+  "incident": {
+    "title": "Injured? You are probably covered in several places at once",
+    "subtitle": "A torn ligament, a fall, a crash. Most people claim from one payer and miss three — and one of the windows is twelve months, not seven years.",
+    "whatHappened": "What happened?",
+    "whenHappened": "When did it happen?",
+    "whenWhy": "The date matters more than anything else here. Some windows close after twelve months, not seven years.",
+    "moreTitle": "A few more things that add a payer",
+    "stackTitle": "{count} payers can pay you in parallel",
+    "stackSub": "A compensation policy pays a set sum regardless of what anyone else paid. Claiming from one does not close the others — and believing otherwise is the most expensive mistake in this category.",
+    "stacksBadge": "Stacks",
+    "resultTitle": "{count} payers worth approaching",
+    "basis": "How the payment is worked out",
+    "needs": "What you need",
+    "statute": "Basis",
+    "counterparty": "Name of the body (employer / insurer / club)",
+    "describe": "What happened, in your words",
+    "generate": "Generate the notification",
+    "disclaimer": "General information, not legal or medical advice. Entitlement and amounts are set by the payer and by medical assessment. Zakai does not file a claim for you — it prepares the notification you send.",
+    "kinds": {
+      "sport": "Sport or training",
+      "work": "At work",
+      "commute": "Commuting to or from work",
+      "road": "Road accident",
+      "school": "At school or nursery",
+      "home": "At home",
+      "military": "In service or reserve duty",
+      "abroad": "Abroad",
+      "medical": "Illness or surgery"
+    },
+    "facts": {
+      "minor": "I was under 18",
+      "employed": "I was employed",
+      "hasPension": "I have a pension fund",
+      "registeredAthlete": "I am registered with a sports club",
+      "vehicleInvolved": "A vehicle was involved",
+      "lostWorkDays": "I lost working days",
+      "neededTreatment": "Surgery or treatment was needed",
+      "hasSupplementaryHealth": "I have supplementary or private health cover"
+    },
+    "urgency": {
+      "expired": "The window has probably closed",
+      "daysLeft": "{days} days left",
+      "window": "{months}-month window"
+    },
+    "sources": {
+      "ni_work_injury": "National Insurance — work injury",
+      "pltd_road": "Road-accident compensation",
+      "pension_disability": "Pension fund disability cover",
+      "school_accident": "Statutory pupil accident insurance",
+      "sports_insurance": "Sports club insurance",
+      "personal_accident_policy": "Personal-accident policy",
+      "supplementary_health": "Supplementary and private health cover",
+      "defence_disability": "Defence Ministry — rehabilitation",
+      "travel_policy": "Travel insurance",
+      "ni_general_disability": "National Insurance — general disability"
     }
   }
 }
