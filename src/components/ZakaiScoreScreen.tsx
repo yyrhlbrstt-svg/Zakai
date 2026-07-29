@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
 import { ClaimDocument } from "@/components/ClaimDocument";
 import { CaptiveCard } from "@/components/CaptiveCard";
+import { MoneyCategories } from "@/components/MoneyCategories";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
 import { formatAgorot } from "@/lib/money";
 import {
@@ -309,10 +310,33 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
               </div>
             </div>
 
+            {/* One number, and the highest-yield question in the product per
+                tap: it expands into one disclosure demand per employment era. */}
+            <div>
+              <span className="text-[13px] text-ink-soft block mb-2">{t("q.pastEmployers")}</span>
+              <div className="flex gap-2 flex-wrap">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    aria-pressed={profile.pastEmployers === n}
+                    onClick={() => update({ ...profile, pastEmployers: n })}
+                    className={chip(profile.pastEmployers === n)}
+                  >
+                    {n === 6 ? "6+" : n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <p className="text-[11.5px] text-ink-soft m-0 leading-relaxed">{t("privacyNote")}</p>
           </div>
         )}
       </Card>
+
+      {/* The remaining categories, converged onto the same profile so nobody is
+          asked anything twice. */}
+      <MoneyCategories profile={profile} />
 
       {/* Captive pricing. Below the entitlements because it needs a number
           from them, and above nothing else because it is the largest recurring

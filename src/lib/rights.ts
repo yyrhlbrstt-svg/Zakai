@@ -53,6 +53,13 @@ export interface RightsProfile {
   withdrewProvidentFund?: boolean;
   soldProperty?: boolean;
   livesInEligibleTown?: boolean;
+  /**
+   * How many employers they have had. Not an entitlement input at all — it
+   * feeds the dormant-money tracer (src/lib/dormant), and it lives here rather
+   * than in that module's own store for one reason: asking the same person the
+   * same question twice is the complaint this profile exists to answer.
+   */
+  pastEmployers?: number;
 }
 
 export type RightCategory =

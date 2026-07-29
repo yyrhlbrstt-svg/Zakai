@@ -3676,7 +3676,8 @@
       "specialNeedsChild": "My child has a disability / placement decision",
       "withdrewProvidentFund": "I withdrew from a provident fund",
       "soldProperty": "I sold a home",
-      "livesInEligibleTown": "I live in a designated town"
+      "livesInEligibleTown": "I live in a designated town",
+      "pastEmployers": "How many employers have you had?"
     },
     "items": {
       "arnona_disability": "Disability arnona discount",
@@ -4362,6 +4363,17 @@
       "workedAbroad": "I worked abroad",
       "preWarFamily": "Family in Europe before 1945",
       "deceasedRelative": "Yes, a relative of mine died"
+    }
+  },
+  "categories": {
+    "title": "Two more places your money is",
+    "dormant": {
+      "title": "bodies must disclose what they hold in your name",
+      "sub": "Funds and accounts left behind at every job change."
+    },
+    "incident": {
+      "title": "Injured? Several payers owe you at once",
+      "sub": "A tear, a fall, a crash. Most people claim from one and miss three — and one window is twelve months."
     }
   }
 }
