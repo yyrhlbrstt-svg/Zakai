@@ -86,6 +86,27 @@ describe("issuing and verifying", () => {
     });
     expect(claims.exp - claims.iat).toBe(DEFAULT_TTL_SECONDS);
   });
+
+  it("carries delegation as a structured claim, not only a sentence", async () => {
+    // A verifier's code must be able to branch on this without parsing the
+    // free-text statement — that was the entire point of adding the field.
+    const onBehalfOf = { agent: "agent.example", name: "Agent Example", note: "verified by them" };
+    const token = await issueMandate({ ...base, onBehalfOf }, key);
+    const claims = await verifyMandate(token, {
+      audience: "bank:il:leumi",
+      publicJwks: await publicKeys(key),
+    });
+    expect(claims.onBehalfOf).toEqual(onBehalfOf);
+  });
+
+  it("leaves onBehalfOf absent for a first-party mandate", async () => {
+    const token = await issueMandate(base, key);
+    const claims = await verifyMandate(token, {
+      audience: "bank:il:leumi",
+      publicJwks: await publicKeys(key),
+    });
+    expect(claims.onBehalfOf).toBeUndefined();
+  });
 });
 
 describe("the attacks this design exists to stop", () => {

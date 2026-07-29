@@ -202,6 +202,21 @@ export function registryDocument() {
      * the reason an institution can bound its risk without auditing us.
      */
     forbiddenScopes: FORBIDDEN_SCOPES,
+    /**
+     * An agent that would rather not run its own keys does not get its own row
+     * here — it never signs anything, so it has no `iss` and no JWKS. Zakai
+     * issues on its behalf, `iss` on those mandates is still Zakai's, and the
+     * only place the distinction shows up is inside the token: a mandate whose
+     * signer is Zakai but whose `zkm.onBehalfOf` is present was verified by the
+     * named agent, not by Zakai. That is a narrower assurance, and pricing or
+     * logging it identically to a mandate Zakai verified itself would be this
+     * registry vouching for a check it did not perform.
+     */
+    delegatedIssuance: {
+      note:
+        "Some Zakai-signed mandates act on behalf of a third-party agent that holds no key of its own and therefore has no entry in `issuers`. Check zkm.onBehalfOf on the verified claims, not this list, to find them.",
+      claim: "zkm.onBehalfOf",
+    },
     issuers: ISSUERS.map((i) => ({
       iss: i.iss,
       name: i.name,

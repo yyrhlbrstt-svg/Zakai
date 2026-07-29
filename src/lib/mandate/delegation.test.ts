@@ -133,8 +133,8 @@ describe("credentials", () => {
 describe("the delegation is visible in the token", () => {
   it("names the agent", () => {
     const claim = delegationClaim("agent.example", "Agent Example");
-    expect(claim.on_behalf_of.agent).toBe("agent.example");
-    expect(claim.on_behalf_of.name).toBe("Agent Example");
+    expect(claim.agent).toBe("agent.example");
+    expect(claim.name).toBe("Agent Example");
   });
 
   it("says plainly who verified the principal, and who did not", () => {

@@ -116,6 +116,18 @@ export interface MandateClaims {
   exp: number;
   /** Human-readable statement of authority, in the institution's language. */
   statement: string;
+  /**
+   * Present only when this mandate was issued for a delegated third-party
+   * agent rather than for Zakai's own verified user. Structured and inside the
+   * signed token — not a sentence appended to `statement` — so an institution
+   * can branch on it in code rather than parsing prose, and so it survives
+   * translation of the statement into another language.
+   */
+  onBehalfOf?: {
+    agent: string;
+    name: string;
+    note: string;
+  };
 }
 
 export interface IssueMandateInput {
@@ -128,6 +140,8 @@ export interface IssueMandateInput {
   market: string;
   statement: string;
   ttlSeconds?: number;
+  /** See `MandateClaims.onBehalfOf`. Omit for a first-party mandate. */
+  onBehalfOf?: MandateClaims["onBehalfOf"];
   /** Injectable for deterministic tests. */
   now?: Date;
 }
@@ -162,6 +176,7 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
     nbf: nowSec,
     exp: nowSec + (input.ttlSeconds ?? DEFAULT_TTL_SECONDS),
     statement: input.statement,
+    onBehalfOf: input.onBehalfOf,
   };
 
   const privateKey = await importJWK(key.privateJwk, "EdDSA");
@@ -175,6 +190,7 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
       principal: claims.principal,
       market: claims.market,
       statement: claims.statement,
+      ...(claims.onBehalfOf ? { onBehalfOf: claims.onBehalfOf } : {}),
     },
   })
     .setProtectedHeader({ alg: "EdDSA", kid: key.kid, typ: MANDATE_TYPE })
@@ -300,6 +316,10 @@ function normaliseClaims(raw: Record<string, unknown>): MandateClaims {
     nbf: Number(raw.nbf),
     exp: Number(raw.exp),
     statement: String(isJwtShape ? ns.statement : raw.statement),
+    // Absent on every first-party mandate and on anything issued before this
+    // claim existed — both are the same case to a verifier and neither is an
+    // error, so this stays undefined rather than a guessed default.
+    onBehalfOf: isJwtShape ? (ns.onBehalfOf as MandateClaims["onBehalfOf"] | undefined) : undefined,
   };
 }
 

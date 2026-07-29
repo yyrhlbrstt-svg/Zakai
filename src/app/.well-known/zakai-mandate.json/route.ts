@@ -93,6 +93,22 @@ export async function GET(request: Request) {
       // of format fails between languages.
       test_vectors_uri: `${origin}/api/settlement/test-vectors`,
     },
+    // A second way in, for an agent that would rather not run Ed25519 keys or
+    // a JWKS of its own. Zakai signs on that agent's behalf, and the signed
+    // token says so structurally — not as a sentence an institution has to
+    // parse, but as `zkm.onBehalfOf: { agent, name, note }` inside the
+    // verified claims, right next to `principal` and `scope`. An institution
+    // that only checks `aud`, `scope` and expiry will keep working; one that
+    // wants to price or log delegated activity differently reads this field.
+    delegated_issuance: {
+      description:
+        "Third parties without their own signing infrastructure can have Zakai issue mandates on their behalf. Every such mandate discloses the delegation inside the token itself: Zakai vouches for the signature, the named agent for the principal's identity — never the reverse.",
+      issue_uri: `${origin}/api/mandate/issue`,
+      onbehalfof_claim: "zkm.onBehalfOf",
+      onbehalfof_shape: { agent: "string (issuer slug)", name: "string", note: "string" },
+      onbehalfof_absent_means: "first_party — verified directly by Zakai",
+      admission: "Not self-service. See integration_doc.",
+    },
     openapi_uri: `${origin}/api/mandate/openapi.json`,
     human_verify_uri: `${origin}/verify`,
     integration_doc: `${origin}/en/institutions`,

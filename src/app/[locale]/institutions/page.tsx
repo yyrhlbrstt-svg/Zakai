@@ -188,6 +188,55 @@ Content-Type: application/json
         </ul>
       </Section>
 
+      <Section heading="Mandates you did not expect to see: delegated issuance">
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          Not every mandate presented to you was requested by a person who signed
+          up on this site. A third-party agent that would rather not run its own
+          Ed25519 keys can have Zakai sign on its behalf, for its own users, whom
+          Zakai has never met.
+        </p>
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          That distinction is not hidden in prose you would have to read — it is a
+          field on the verified claims:
+        </p>
+        <pre className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg">
+          {`"zkm": {
+  "principal": { ... },
+  "onBehalfOf": {
+    "agent": "some-agent.example",
+    "name": "Some Agent",
+    "note": "Issued by Zakai on behalf of the named agent.
+              The principal's identity was verified by
+              that agent, not by Zakai."
+  }
+}`}
+        </pre>
+        <ul className="list-disc pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed mt-4">
+          <li>
+            Absent means first-party: Zakai verified the principal itself, same as
+            any mandate on this page so far.
+          </li>
+          <li>
+            Present means the identity check behind it was performed by the named
+            agent, not by Zakai — a narrower assurance, and one you may reasonably
+            choose to price, log or gate differently.
+          </li>
+          <li>
+            The delegated issuer never appears in the trust registry: it holds no
+            key and signs nothing, so it has no <code className="text-[13px]">iss</code>{" "}
+            of its own. <code className="text-[13px]">iss</code> on these mandates
+            is still Zakai&apos;s — check{" "}
+            <code className="text-[13px]">zkm.onBehalfOf</code>, not the issuer
+            list, to find them.
+          </li>
+          <li>
+            Every categorical limit still applies: a delegated issuer cannot obtain
+            a scope forbidden to anyone, and can never exceed the specific subset
+            it was admitted for — enforced in code, not by agreement.
+          </li>
+        </ul>
+      </Section>
+
       <Section heading="Integration in six steps">
         <ol className="list-decimal pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
           <li>

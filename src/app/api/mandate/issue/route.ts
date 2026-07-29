@@ -139,6 +139,10 @@ export async function POST(req: Request) {
           caller.kind === "delegated"
             ? `${statement}\n\n${delegationClaim(caller.slug, caller.name).note}`
             : statement,
+        // The structured claim, not only the sentence above: a verifier's code
+        // must be able to branch on delegation without parsing free text.
+        onBehalfOf:
+          caller.kind === "delegated" ? delegationClaim(caller.slug, caller.name) : undefined,
         ttlSeconds: body.ttlSeconds,
       },
       key,

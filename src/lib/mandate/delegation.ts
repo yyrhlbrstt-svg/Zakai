@@ -37,7 +37,7 @@
  *
  * THE CONDITION
  *
- * The mandate says so. `on_behalf_of` names the delegating agent inside the
+ * The mandate says so. `zkm.onBehalfOf` names the delegating agent inside the
  * token, so an institution can tell "Zakai's own user consented to this" from
  * "Zakai signed this for an agent whose user verification we did not perform".
  * Those are different assurances and pricing them the same would be this
@@ -138,10 +138,16 @@ export function checkDelegation(
  * that the user verification behind it was performed by somebody else. Hiding
  * that would make every delegated mandate indistinguishable from a first-party
  * one, which is precisely the confusion an attacker would pay for.
+ *
+ * Returned as a plain object rather than only prose so it lands in the signed
+ * token as `zkm.onBehalfOf` — a field a verifier's code can branch on — and not
+ * merely as a sentence glued onto the free-text `statement`, which nothing but
+ * a human reads.
  */
 export function delegationClaim(slug: string, name: string) {
   return {
-    on_behalf_of: { agent: slug, name },
+    agent: slug,
+    name,
     // Spelled out rather than implied by the presence of the field, because the
     // reader who most needs this sentence is a compliance officer skimming a
     // decoded token for the first time.
