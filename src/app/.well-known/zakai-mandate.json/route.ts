@@ -50,6 +50,36 @@ export async function GET(request: Request) {
     // reason from a closed set.
     decide_uri: `${origin}/api/mandate/decide`,
     scopes_uri: `${origin}/api/mandate/scopes`,
+    // The second layer. Authorization answers who may act; settlement answers
+    // what was agreed, what happened, and who is right when those disagree.
+    // Each link is an ordinary JWT signed by the party making the claim and
+    // carrying a hash of the link before it, so an outsider — a consumer, a
+    // regulator, a court — can check the chain months later without trusting
+    // any participant. Adjudication is a pure function of the records: if
+    // resolving a dispute needs a human to read anything, it cannot run at the
+    // volume agents will produce.
+    settlement: {
+      version: 1,
+      receipt_typ: "JWT",
+      receipt_claim_namespace: "zks",
+      chain: ["mandate", "decision", "outcome"],
+      link_hash: "sha256-of-canonical-json",
+      verdicts: [
+        "performed_as_authorized",
+        "authorized_not_performed",
+        "refused_with_reason",
+        "unauthorized",
+        "exceeded_scope",
+        "outside_mandate_window",
+        "broken_chain",
+        // A real verdict, not a failure. A procedure that always produces a
+        // winner is one that will sometimes invent one.
+        "indeterminate",
+      ],
+      // Each party signs only its own statement, and no central party — this
+      // one included — can fabricate a link.
+      signed_by: { decision: "institution", outcome: "asserting_party" },
+    },
     openapi_uri: `${origin}/api/mandate/openapi.json`,
     human_verify_uri: `${origin}/verify`,
     integration_doc: `${origin}/en/institutions`,

@@ -139,6 +139,26 @@ export function validateIssuer(
   return problems;
 }
 
+/**
+ * Where a named party's keys actually live.
+ *
+ * Exists because the whole identity guarantee in the settlement layer rests on
+ * one thing a library cannot check for itself: that the keys handed to a
+ * verifier genuinely belong to the party being claimed. A caller who resolves
+ * one institution's JWKS and then asks "is this signed by the other one" has
+ * told the verifier a falsehood about the world, and it will believe them.
+ *
+ * So the safe path is made the easy one. Given an identity, this returns the
+ * one place its keys may be fetched from, or nothing at all — an unregistered
+ * or withdrawn issuer has no key location, which is the correct answer and not
+ * an error to work around.
+ */
+export function resolveIssuerKeysUri(iss: string): string | null {
+  const issuer = findIssuer(iss);
+  if (!issuer || issuer.status !== "active") return null;
+  return issuer.jwksUri;
+}
+
 export function findIssuer(iss: string): RegisteredIssuer | undefined {
   return ISSUERS.find((i) => i.iss === iss);
 }
