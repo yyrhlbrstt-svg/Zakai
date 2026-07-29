@@ -41,6 +41,11 @@ function valueOf(r: { yearlyAgorot?: number; oneTimeAgorot?: number }): number {
 }
 
 export function collectCandidates(input: CollectInput): Candidate[] {
+  // A missing or malformed profile yields an empty list rather than a thrown
+  // error. This runs on the screen a person is trying to read, and the correct
+  // behaviour when we know nothing about them is to show nothing — never to
+  // replace the page with a stack trace.
+  if (!input?.profile || typeof input.profile !== "object") return [];
   const { profile } = input;
   const acted = new Set(input.actedOn ?? []);
   const out: Candidate[] = [];

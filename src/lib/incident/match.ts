@@ -73,12 +73,22 @@ export interface MatchResult {
  * Every payer the facts plausibly reach, soonest deadline first.
  */
 export function matchCovers(facts: IncidentFacts, now: Date = new Date()): MatchResult {
+  // An unparseable date is treated as no date at all. A date input can produce
+  // `Invalid Date`, and arithmetic on one yields NaN — which would render as
+  // "נותרו NaN ימים" next to a real deadline. Absent is the honest reading and
+  // the one the rest of this function already handles.
+  const occurredAt =
+    facts.occurredAt && !Number.isNaN(facts.occurredAt.getTime()) ? facts.occurredAt : undefined;
+
   const matches: CoverMatch[] = IL_COVER_SOURCES.filter((s) => s.applies(facts)).map((source) => {
     const closesAt =
-      facts.occurredAt && source.claimWindowMonths !== null
-        ? addMonths(facts.occurredAt, source.claimWindowMonths)
+      occurredAt && source.claimWindowMonths !== null
+        ? addMonths(occurredAt, source.claimWindowMonths)
         : null;
-    const daysLeft = closesAt ? Math.floor((closesAt.getTime() - now.getTime()) / DAY) : null;
+    const daysLeft =
+      closesAt && !Number.isNaN(closesAt.getTime())
+        ? Math.floor((closesAt.getTime() - now.getTime()) / DAY)
+        : null;
     return {
       source,
       closesAt,

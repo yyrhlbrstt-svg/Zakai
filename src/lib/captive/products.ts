@@ -182,7 +182,13 @@ export function estimateCaptive(
   currentMonthlyMinor: number,
   remainingMonths?: number,
 ): CaptiveEstimate {
-  const monthly = Math.max(0, Math.round(currentMonthlyMinor));
+  // Non-finite input yields zero rather than NaN. `parseFloat` on an empty or
+  // malformed field gives NaN, and Math.max(0, NaN) is NaN — which would reach
+  // a screen as "₪NaN". The caller currently guards this; the function must not
+  // depend on every future caller remembering to.
+  const monthly = Number.isFinite(currentMonthlyMinor)
+    ? Math.max(0, Math.round(currentMonthlyMinor))
+    : 0;
   const [lo, hi] = product.typicalPremiumOverMarket;
   const share = (over: number) => over / (1 + over);
 
@@ -194,7 +200,7 @@ export function estimateCaptive(
     currentMonthlyMinor: monthly,
     annualSavingRangeMinor: [annualLo, annualHi],
     lifetimeSavingRangeMinor:
-      remainingMonths && remainingMonths > 0
+      remainingMonths && Number.isFinite(remainingMonths) && remainingMonths > 0
         ? [
             Math.round(monthly * remainingMonths * share(lo)),
             Math.round(monthly * remainingMonths * share(hi)),

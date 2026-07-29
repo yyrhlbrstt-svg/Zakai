@@ -17,6 +17,21 @@ const schema = z.object({
   dischargedSoldier: z.boolean(),
   reservist: z.boolean(),
   disability: z.boolean(),
+  // Optional facts. `z.object` strips unknown keys, so anything missing here is
+  // silently dropped on its way to the account — the device keeps it, the
+  // server copy quietly does not, and the Vigil then reasons about a person it
+  // knows less about than the screen does. Every field added to RightsProfile
+  // has to be added here too, and this comment exists because the first four
+  // were not.
+  hasMortgage: z.boolean().optional(),
+  hasCarLoan: z.boolean().optional(),
+  spendsForeignCurrency: z.boolean().optional(),
+  holdsSecurities: z.boolean().optional(),
+  specialNeedsChild: z.boolean().optional(),
+  withdrewProvidentFund: z.boolean().optional(),
+  soldProperty: z.boolean().optional(),
+  livesInEligibleTown: z.boolean().optional(),
+  pastEmployers: z.number().int().min(0).max(50).optional(),
 });
 
 /**
