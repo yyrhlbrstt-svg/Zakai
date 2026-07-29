@@ -85,13 +85,35 @@ async function ownedCase(caseId: string, userId: string) {
   return kase;
 }
 
+/**
+ * Record the user's consent to the drafted request.
+ *
+ * Guarded, because it had no guard at all: it set the status unconditionally,
+ * so approving an already-sent case walked it backwards to APPROVED, and
+ * overwrote `approvedAt` with today. That timestamp is the record of when the
+ * person consented to what was actually sent — the one fact a provider or a
+ * regulator would ask about — and silently moving it is worse than losing it,
+ * because the row still looks authoritative.
+ *
+ * Approving twice is allowed and does nothing the second time. Approving after
+ * the case has moved on is refused: the message that went out cannot be
+ * re-consented to after the fact, and editing the draft at that point would
+ * leave the record disagreeing with the letter in the provider's inbox.
+ */
 export async function approveCase(caseId: string, userId: string, editedMessage?: string) {
   const kase = await ownedCase(caseId, userId);
+
+  if (kase.status !== "ANALYZED" && kase.status !== "APPROVED") {
+    throw new CaseError("ALREADY_SENT");
+  }
+
   return prisma.case.update({
     where: { id: kase.id },
     data: {
       status: "APPROVED",
-      approvedAt: new Date(),
+      // Set once. A second approval is a no-op on the timestamp rather than a
+      // quiet rewrite of when consent was given.
+      approvedAt: kase.approvedAt ?? new Date(),
       ...(editedMessage ? { draftMessage: editedMessage } : {}),
     },
   });
@@ -129,9 +151,23 @@ export async function sendOutreach(caseId: string, userId: string) {
 
   if (!kase.ownershipVerifiedAt) throw new CaseError("OWNERSHIP_REQUIRED");
   if (!auth || auth.status !== "ACTIVE") throw new CaseError("AUTHORIZATION_REQUIRED");
-  if (kase.status === "SENT" || kase.status === "SAVED" || kase.status === "NO_SAVING") {
-    throw new CaseError("ALREADY_SENT");
-  }
+
+  // Claim the send before making it, with a conditional update.
+  //
+  // The previous version read the status, checked it, then sent, then wrote —
+  // so two requests arriving together both passed the check and both posted a
+  // letter to the provider in the customer's name. A double-click is enough.
+  //
+  // This transitions only from a state that has not sent yet, and a zero row
+  // count means somebody else already claimed it. The trade is deliberate: if
+  // the send then fails we are left marked SENT with no letter, which the
+  // Outbox shows and the user can retry. A duplicate letter cannot be unsent,
+  // and it arrives at a provider under their name.
+  const claimed = await prisma.case.updateMany({
+    where: { id: caseId, status: { in: ["ANALYZED", "APPROVED", "VERIFIED"] } },
+    data: { status: "SENT" },
+  });
+  if (claimed.count === 0) throw new CaseError("ALREADY_SENT");
 
   const appUrl = appBaseUrl();
   const provider = providerHebrewName(kase.provider);
@@ -163,7 +199,7 @@ export async function sendOutreach(caseId: string, userId: string) {
     attachments: [attachment],
   });
 
-  await prisma.case.update({ where: { id: caseId }, data: { status: "SENT" } });
+  // Status was already claimed above, before the letter went out.
 
   // Closed-loop: tell the user where to forward the provider reply.
   const proofsAddr = proofsInboundAddress();
