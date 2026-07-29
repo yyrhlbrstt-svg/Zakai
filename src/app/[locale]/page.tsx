@@ -5,11 +5,12 @@ import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Ban, Scale, Zap } from "lucide-react";
+import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 import { currentArm } from "@/lib/evolve/store";
+import { ENTITLEMENTS } from "@/lib/rights";
 import { DoorTracker } from "@/components/DoorTracker";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,8 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations();
   const proof = await loadProof();
+  // Counted from the catalogue so the front page cannot disagree with it.
+  const ilRightsCount = ENTITLEMENTS.filter((e) => !/^(us|uk|de|fr|ca|au|it)_/.test(e.id)).length;
 
   const steps = ["upload", "act", "pay"] as const;
   const trust = (t.raw("home.trust") as string[]) || [];
@@ -92,12 +95,39 @@ export default async function HomePage({
       ctaKey: "door.electricity.cta",
       accent: "amber",
     },
+    // The two categories nobody else covers, and they were not on this page at
+    // all. An injury reaches four to seven payers at once and one of those
+    // windows is twelve months; forgotten money is the only thing here somebody
+    // checks for a parent rather than for themselves. Leaving them off the front
+    // door meant the two strongest reasons to open the app were invisible.
+    {
+      href: "/incident",
+      icon: HeartPulse,
+      titleKey: "door.incident.title",
+      subKey: "door.incident.sub",
+      ctaKey: "door.incident.cta",
+      accent: "violet",
+    },
+    {
+      href: "/dormant",
+      icon: Archive,
+      titleKey: "door.dormant.title",
+      subKey: "door.dormant.sub",
+      ctaKey: "door.dormant.cta",
+      accent: "sky",
+    },
   ];
 
   const doorKey = (href: string) => href.replace("/", "").replace("what-am-i-owed", "owed");
-  const doors = [...doorsByKey].sort(
-    (a, b) => doorOrder.indexOf(doorKey(a.href)) - doorOrder.indexOf(doorKey(b.href)),
-  );
+  // A door the experiment does not mention sorts last, not first.
+  // `indexOf` returns -1 for an unlisted key, so the previous version promoted
+  // every newly added door above the one the engine had actually chosen —
+  // silently overriding the experiment with build order.
+  const rank = (href: string) => {
+    const i = doorOrder.indexOf(doorKey(href));
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  const doors = [...doorsByKey].sort((a, b) => rank(a.href) - rank(b.href));
 
   const accentBorder: Record<string, string> = {
     emerald: "border-[rgba(63,203,155,0.4)]",
@@ -220,10 +250,14 @@ export default async function HomePage({
         <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
           {(
             (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
-          ).map((s) => (
+          ).map((s, i) => (
             <div key={s.label} className="text-center">
               <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
-                {s.n}
+                {/* Derived, not written down. This said 55 and the catalogue
+                    held 60 — a factual claim on the front page that went stale
+                    the moment somebody added a right, which is what a number
+                    living in a translation file always does. */}
+                {i === 1 ? ilRightsCount : s.n}
               </div>
               <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
                 {s.label}

@@ -3901,6 +3901,16 @@
       "title": "My electricity bill is high",
       "sub": "A real supplier comparison, and the agent makes the switch for you.",
       "cta": "Lower my bill"
+    },
+    "incident": {
+      "title": "Been injured?",
+      "sub": "A tear, a fall, a crash. Usually several payers owe you at once — and one window is twelve months.",
+      "cta": "Who owes me?"
+    },
+    "dormant": {
+      "title": "Money you forgot is yours",
+      "sub": "Funds and accounts left behind at every job change. One question, and you can check for a parent too.",
+      "cta": "Who is holding my money?"
     }
   },
   "authority": {
