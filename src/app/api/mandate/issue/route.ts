@@ -18,8 +18,8 @@ export const dynamic = "force-dynamic";
  *
  * The first-party key issues mandates for this product's own users, whose
  * identity this product verified. A delegated agent's key issues for *its*
- * users, whom we have never met — so those mandates carry `on_behalf_of` and
- * say in plain words who performed the verification.
+ * users, whom we have never met — so those mandates carry `zkm.onBehalfOf`
+ * and say in plain words who performed the verification.
  *
  * Conflating them would mean this company vouching for a check it never
  * performed, which is the failure that ends a trust network permanently.
