@@ -198,11 +198,16 @@ describe("the letter demands an answer, including the answer 'nothing'", () => {
     expect(l.body).not.toContain("[שם מלא]");
   });
 
-  it("sends nobody to another website", () => {
-    // The thesis of this module is that the letter beats the search. A link
-    // would contradict the entire premise.
+  it("never sends the person somewhere else to finish their claim", () => {
+    // The thesis of this module is that the letter beats the search, so a link
+    // handing the claimant back to a registry would contradict it. The footer
+    // does the opposite: it addresses the institution receiving the demand.
     for (const l of traceDormant({ pastEmployers: 2, deceasedRelative: true, preWarFamily: true }).leads) {
-      expect(buildDormantLetter(l).body).not.toMatch(/https?:\/\//);
+      const body = buildDormantLetter(l).body;
+      for (const url of body.match(/https?:\/\/[^\s]+/g) ?? []) {
+        expect(url).toMatch(/zakai/i);
+      }
+      expect(body).toContain("/institutions");
     }
   });
 });

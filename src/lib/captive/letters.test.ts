@@ -89,11 +89,18 @@ describe("missing details stay visible", () => {
     expect(buildSwitchLetter(MORTGAGE).body).not.toContain("החיוב החודשי הנוכחי");
   });
 
-  it("sends nobody to another website", () => {
-    // The category exists because the alternative was never visible. Answering
-    // that with a link is handing the problem back.
+  it("never sends the person somewhere else to finish their claim", () => {
+    // The original rule here was "no URLs at all", which the institutional
+    // footer now breaks. The rule it was written to express is narrower and
+    // still holds: the *claimant* is never handed off to a third party to
+    // complete what this product started. The only address that may appear is
+    // our own, addressed to the recipient rather than the sender.
     for (const p of IL_CAPTIVE) {
-      expect(buildSwitchLetter(p).body).not.toMatch(/https?:\/\//);
+      const body = buildSwitchLetter(p).body;
+      for (const url of body.match(/https?:\/\/[^\s]+/g) ?? []) {
+        expect(url).toMatch(/zakai/i);
+      }
+      expect(body).toContain("/institutions");
     }
   });
 });

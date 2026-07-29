@@ -20,6 +20,7 @@
  * outcome, because nothing about the outcome is knowable yet.
  */
 
+import { withFooter } from "../letterFooter";
 import { type CoverSource } from "./sources";
 
 export interface IncidentLetterFields {
@@ -67,7 +68,7 @@ export function buildIncidentLetter(
 
   return {
     subject: `הודעה על אירוע ובקשה לפתיחת תיק — ${when}`,
-    body: [
+    body: withFooter([
       to,
       "",
       `שם: ${name}`,
@@ -92,6 +93,6 @@ export function buildIncidentLetter(
       "",
       "בכבוד רב,",
       name,
-    ].join("\n"),
+    ].join("\n"), "he"),
   };
 }

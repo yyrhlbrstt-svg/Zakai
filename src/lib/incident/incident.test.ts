@@ -249,9 +249,16 @@ describe("the letter notifies; it does not claim", () => {
     expect(l.subject).toContain("20.6.2026");
   });
 
-  it("sends nobody to another website", () => {
+  it("never sends the person somewhere else to finish their claim", () => {
+    // See the note in the captive letters suite: the rule is that the claimant
+    // is never handed off, not that no address may ever appear. The footer
+    // addresses the receiving institution, and points only at us.
     for (const s of IL_COVER_SOURCES) {
-      expect(buildIncidentLetter(s).body).not.toMatch(/https?:\/\//);
+      const body = buildIncidentLetter(s).body;
+      for (const url of body.match(/https?:\/\/[^\s]+/g) ?? []) {
+        expect(url).toMatch(/zakai/i);
+      }
+      expect(body).toContain("/institutions");
     }
   });
 });

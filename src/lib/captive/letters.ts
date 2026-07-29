@@ -24,6 +24,7 @@
  * is a fact about this person.
  */
 
+import { withFooter } from "../letterFooter";
 import { type CaptiveProduct } from "./products";
 
 export interface SwitchFields {
@@ -88,7 +89,7 @@ export function buildSwitchLetter(product: CaptiveProduct, fields: SwitchFields 
     return {
       kind: "notice",
       subject: `הודעה על מעבר — ${name}`,
-      body: [
+      body: withFooter([
         identity,
         "",
         `הנדון: ${name}`,
@@ -106,14 +107,14 @@ export function buildSwitchLetter(product: CaptiveProduct, fields: SwitchFields 
         "",
         "בכבוד רב,",
         fields.name ?? "[שם מלא]",
-      ].join("\n"),
+      ].join("\n"), "he"),
     };
   }
 
   return {
     kind: "reprice",
     subject: `בקשה לעדכון תנאים — ${name}`,
-    body: [
+    body: withFooter([
       identity,
       "",
       `הנדון: ${name}`,
@@ -131,6 +132,6 @@ export function buildSwitchLetter(product: CaptiveProduct, fields: SwitchFields 
       "",
       "בכבוד רב,",
       fields.name ?? "[שם מלא]",
-    ].join("\n"),
+    ].join("\n"), "he"),
   };
 }

@@ -24,6 +24,7 @@
  * is the reply people never get because they never ask in writing.
  */
 
+import { withFooter } from "../letterFooter";
 import { type DormantLead } from "./trace";
 
 export interface DormantLetterFields {
@@ -67,7 +68,7 @@ export function buildDormantLetter(
     return {
       as: "heir",
       subject: `בקשת יורש לגילוי נכסים — ${dName}`,
-      body: [
+      body: withFooter([
         `לכבוד`,
         to,
         "",
@@ -91,7 +92,7 @@ export function buildDormantLetter(
         "",
         "בכבוד רב,",
         name,
-      ].join("\n"),
+      ].join("\n"), "he"),
     };
   }
 
@@ -104,7 +105,7 @@ export function buildDormantLetter(
   return {
     as: "self",
     subject: `בקשה לגילוי זכויות וחשבונות על שמי${era}`,
-    body: [
+    body: withFooter([
       `לכבוד`,
       to,
       "",
@@ -125,6 +126,6 @@ export function buildDormantLetter(
       "",
       "בכבוד רב,",
       name,
-    ].join("\n"),
+    ].join("\n"), "he"),
   };
 }
