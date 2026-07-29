@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import crypto from "node:crypto";
 import { predict } from "@/lib/oracle/store";
 import { assessOracleCalibration } from "@/lib/oracle/store";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,12 +45,10 @@ export async function POST(request: Request) {
   if (!expected) {
     return NextResponse.json({ error: "not_enabled" }, { status: 503 });
   }
-  const provided = Buffer.from(key);
-  const wanted = Buffer.from(expected);
-  if (
-    provided.length !== wanted.length ||
-    !crypto.timingSafeEqual(provided, wanted)
-  ) {
+  // Hashed first, so a length mismatch takes the same path as a content
+  // mismatch: comparing raw-buffer lengths before the constant-time check (the
+  // previous form of this check) is itself a timing oracle on the key's length.
+  if (!secretsMatch(key, expected)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
