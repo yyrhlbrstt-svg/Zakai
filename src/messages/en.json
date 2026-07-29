@@ -3830,6 +3830,11 @@
       "work_pension_mandatory": "Mandatory pension",
       "work_sick": "Sick pay",
       "work_travel": "Commute reimbursement"
+    },
+    "watch": {
+      "title": "Money about to expire",
+      "deadlineIn": "Soonest — {days} days left",
+      "sub": "This amount stops being claimable on dates fixed by law. We keep the count for you."
     }
   },
   "door": {

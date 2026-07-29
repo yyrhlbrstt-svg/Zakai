@@ -14,6 +14,7 @@ import {
   type StoredProfile,
 } from "@/lib/profile/store";
 import { computeEntitlementScore } from "@/lib/score/entitlementScore";
+import { summariseWatch } from "@/lib/vigil/watch";
 
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = ["employee", "self_employed", "unemployed", "student", "soldier", "retired"] as const;
@@ -73,6 +74,21 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
     });
   }, [profile, stored]);
 
+  // The countdown. Computed from the same profile with nothing extra asked —
+  // this is the part a chat assistant cannot do, so it goes above the score.
+  const watch = useMemo(() => {
+    const rights = evaluateRights(profile);
+    return summariseWatch({
+      profile,
+      eligible: rights.matches.map((e) => ({
+        id: e.id,
+        yearlyMinor: e.yearlyAgorot,
+        oneTimeMinor: e.oneTimeAgorot,
+      })),
+      actedOn: stored?.actedOn ?? [],
+    });
+  }, [profile, stored]);
+
   const money = (agorot: number) => formatAgorot(agorot, bcp47);
 
   const chip = (active: boolean) =>
@@ -88,6 +104,28 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
 
   return (
     <div>
+      {/* What is about to be lost comes before what is owed. Money with a date
+          on it is the only thing here a person cannot get from a chat, and
+          burying it under a total would waste the one real advantage. */}
+      {watch.mostUrgent && watch.atRiskSoonMinor > 0 && (
+        <Card className="p-6 mb-5 border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.07)]">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-[13px] font-extrabold text-[#f0b45c]">
+              {t("watch.title")}
+            </span>
+            <span className="text-[12px] text-ink-soft">
+              {t("watch.deadlineIn", { days: watch.mostUrgent.daysLeft ?? 0 })}
+            </span>
+          </div>
+          <div className="font-display text-3xl mt-2" dir="ltr">
+            {money(watch.atRiskSoonMinor)}
+          </div>
+          <p className="text-ink-soft text-[13px] mt-2 mb-0 leading-relaxed">
+            {t("watch.sub")}
+          </p>
+        </Card>
+      )}
+
       {/* The money first. The score is a handle for it, not the point. */}
       <Card className="p-7 text-center">
         <p className="text-ink-soft text-[13.5px] m-0 mb-2">{t("unclaimedLabel")}</p>
