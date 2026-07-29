@@ -3,6 +3,9 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { chooseStance } from "@/lib/strategy/store";
+import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
+import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildRefundLetter } from "@/lib/refundChase";
 import { rateLimit } from "@/lib/ratelimit";
@@ -47,6 +50,18 @@ export async function POST(request: Request) {
 
   const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 100;
 
+  // The stance is chosen and applied before the letter is staged, so what the
+  // engine recorded and what the counterparty received are the same document.
+  const stance = await chooseStance({
+    market: "IL",
+    vertical: "refund-chase",
+    counterparty: String(data.company).slice(0, 64),
+  });
+  const variant = variantById(stance.variantId);
+  const drafted = letter;
+  const staged = variant ? applyStance(drafted, variant) : drafted;
+  const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
+
   let kase;
   try {
     kase = await createCase({
@@ -56,7 +71,9 @@ export async function POST(request: Request) {
       plan: data.product || data.orderId || "החזר",
       strategy: "דרישת החזר כספי עם Mandate",
       targetShekels: 0,
-      draftMessage: `${letter.subject}\n\n${letter.body}`,
+      draftMessage: `${staged.subject}\n\n${staged.body}`,
+      strategyVariant: stanceApplied ? stance.variantId : undefined,
+      strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "refund-chase",
       beneficiaryLabel: data.customerName || undefined,
       autoApprove: true,
@@ -70,8 +87,8 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
+    subject: staged.subject,
+    body: staged.body,
     status: kase.status,
     message: "case_opened",
   });

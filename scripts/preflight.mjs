@@ -1,0 +1,62 @@
+#!/usr/bin/env node
+/**
+ * Deploy preflight.
+ *
+ * "Ready to go live" is a claim about a running system, not a build that
+ * compiled. This says exactly what is configured, what is missing, and what
+ * each gap actually costs — so going live is a decision with known
+ * consequences instead of a hope.
+ *
+ * Distinguishes blocking from degrading on purpose. A missing signing key means
+ * the trust layer is inert and should stop a launch; a missing AI key means the
+ * product falls back to deterministic templates, which is a smaller product but
+ * a working one. Treating both as "error" trains an operator to ignore the list.
+ */
+
+const CHECKS = [
+  { key: "DATABASE_URL", level: "blocking",
+    cost: "No database: signup, cases, mandates and the ledger are all dead." },
+  { key: "AUTH_SECRET", level: "blocking",
+    cost: "Sessions cannot be signed — nobody can stay logged in." },
+  { key: "MANDATE_SIGNING_JWK", level: "blocking",
+    cost: "No signed mandates or status lists. The trust layer is inert; /api/mandate/revocations returns 503 by design. Generate with scripts/generate-mandate-key.mjs." },
+  { key: "MANDATE_SIGNING_KID", level: "blocking",
+    cost: "Key id missing — verifiers cannot select the right key from the JWKS." },
+  { key: "MANDATE_ISSUER", level: "degrading",
+    cost: "Status lists fall back to the default issuer URL, which will not match a custom domain." },
+  { key: "CRON_SECRET", level: "degrading",
+    cost: "Cron endpoints are unauthenticated. Anyone can trigger the evolution cycle and the agent follow-ups." },
+  { key: "ANTHROPIC_API_KEY", level: "degrading", alt: ["DEEPSEEK_API_KEY", "GEMINI_API_KEY", "OPENAI_COMPAT_API_KEY"],
+    cost: "No AI: bill OCR is unavailable and drafts fall back to deterministic templates." },
+  { key: "ORACLE_API_KEY", level: "optional",
+    cost: "The prediction API stays closed. Intentional until there is an institutional customer." },
+  { key: "NEXT_PUBLIC_APP_URL", level: "degrading",
+    cost: "Absolute links in outgoing email may point at the wrong host." },
+];
+
+const results = CHECKS.map((c) => {
+  const has = Boolean(process.env[c.key]?.trim());
+  const viaAlt = !has && (c.alt ?? []).some((k) => process.env[k]?.trim());
+  return { ...c, ok: has || viaAlt, viaAlt };
+});
+
+const blocking = results.filter((r) => !r.ok && r.level === "blocking");
+const degrading = results.filter((r) => !r.ok && r.level === "degrading");
+
+const mark = (r) => (r.ok ? (r.viaAlt ? "~" : "✓") : r.level === "optional" ? "·" : "✗");
+console.log("\nZakai deploy preflight\n");
+for (const r of results) {
+  console.log(`  ${mark(r)} ${r.key.padEnd(24)} ${r.ok ? "" : r.cost}`);
+}
+
+console.log("");
+if (blocking.length) {
+  console.log(`BLOCKED — ${blocking.length} required setting(s) missing: ${blocking.map((b) => b.key).join(", ")}`);
+  console.log("The app will build and serve pages, and every path that touches money or authority will fail.\n");
+  process.exit(1);
+}
+if (degrading.length) {
+  console.log(`READY, DEGRADED — ${degrading.length} setting(s) missing. The product works; parts of it are weaker than intended.\n`);
+  process.exit(0);
+}
+console.log("READY — every required and recommended setting is present.\n");

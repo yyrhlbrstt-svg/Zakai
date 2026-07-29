@@ -3,6 +3,9 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { chooseStance } from "@/lib/strategy/store";
+import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
+import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 
@@ -64,6 +67,18 @@ ${name}
   const subject = `ערעור על קנס תחבורה ${data.report} — ${data.operator}`;
   const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 180;
 
+  // The stance is chosen and applied before the letter is staged, so what the
+  // engine recorded and what the counterparty received are the same document.
+  const stance = await chooseStance({
+    market: "IL",
+    vertical: "transport-fine",
+    counterparty: String(data.operator).slice(0, 64),
+  });
+  const variant = variantById(stance.variantId);
+  const drafted = { subject, body: letterBody };
+  const staged = variant ? applyStance(drafted, variant) : drafted;
+  const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
+
   let kase;
   try {
     kase = await createCase({
@@ -73,7 +88,9 @@ ${name}
       plan: `קנס ${data.report}`,
       strategy: "ערעור קנס תחבורה ציבורית עם Mandate",
       targetShekels: 0,
-      draftMessage: `${subject}\n\n${letterBody}`,
+      draftMessage: `${staged.subject}\n\n${staged.body}`,
+      strategyVariant: stanceApplied ? stance.variantId : undefined,
+      strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "transport-fine",
       beneficiaryLabel: data.customerName || undefined,
       autoApprove: true,
@@ -87,8 +104,8 @@ ${name}
 
   return NextResponse.json({
     caseId: kase.id,
-    subject,
-    body: letterBody,
+    subject: staged.subject,
+    body: staged.body,
     status: kase.status,
     message: "case_opened",
   });
