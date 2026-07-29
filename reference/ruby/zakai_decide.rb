@@ -32,7 +32,21 @@ VECTORS_PATH = '/api/mandate/test-vectors'
 FORBIDDEN = %w[
   payment:initiate payment:transfer credit:borrow
   account:open account:close investment:trade
+  treatment:consent treatment:refuse record:alter prescription:request directive:amend
+  right:waive plea:enter claim:withdraw status:surrender appeal:abandon
+  employment:resign termination:accept contract:sign grievance:withdraw
+  tenancy:sign tenancy:surrender possession:concede deposit:forfeit
+  enrolment:withdraw sanction:accept attainment:alter
 ].freeze
+
+# Refused whatever domain claims it, prefixed or bare. A limit somebody can step
+# around by adding a prefix is not a limit.
+def forbidden?(scope)
+  return true if FORBIDDEN.include?(scope)
+
+  head, sep, bare = scope.partition('/')
+  !sep.empty? && !head.empty? && FORBIDDEN.include?(bare)
+end
 
 # Whether each known scope needs the principal to confirm every individual
 # exercise. Risk tier and this question are NOT the same: request:records is
@@ -63,8 +77,8 @@ def decide(claims, action, audience, now:, subject: nil, market: nil,
   scopes = claims['scopes'] || []
 
   # The categorical limit, before anything temporal.
-  return %w[deny scope_forbidden] if FORBIDDEN.include?(action)
-  return %w[deny scope_forbidden] if scopes.any? { |s| FORBIDDEN.include?(s) }
+  return %w[deny scope_forbidden] if forbidden?(action)
+  return %w[deny scope_forbidden] if scopes.any? { |s| forbidden?(s) }
 
   exp = claims['exp']
   nbf = claims['nbf']

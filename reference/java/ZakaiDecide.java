@@ -50,7 +50,38 @@ public class ZakaiDecide {
      */
     static final Set<String> FORBIDDEN = Set.of(
             "payment:initiate", "payment:transfer", "credit:borrow",
-            "account:open", "account:close", "investment:trade");
+            "account:open", "account:close", "investment:trade",
+            "treatment:consent",
+            "treatment:refuse",
+            "record:alter",
+            "prescription:request",
+            "directive:amend",
+            "right:waive",
+            "plea:enter",
+            "claim:withdraw",
+            "status:surrender",
+            "appeal:abandon",
+            "employment:resign",
+            "termination:accept",
+            "contract:sign",
+            "grievance:withdraw",
+            "tenancy:sign",
+            "tenancy:surrender",
+            "possession:concede",
+            "deposit:forfeit",
+            "enrolment:withdraw",
+            "sanction:accept",
+            "attainment:alter");
+
+    /**
+     * Refused whatever domain claims it, prefixed or bare. A limit somebody can
+     * step around by adding a prefix is not a limit.
+     */
+    static boolean isForbidden(String scope) {
+        if (FORBIDDEN.contains(scope)) return true;
+        int i = scope.indexOf('/');
+        return i > 0 && FORBIDDEN.contains(scope.substring(i + 1));
+    }
 
     /*
      * Whether each known scope needs the principal to confirm every individual
@@ -111,8 +142,8 @@ public class ZakaiDecide {
         List<String> scopes = (List<String>) claims.getOrDefault("scopes", List.of());
 
         // The categorical limit, before anything temporal. See the file comment.
-        if (FORBIDDEN.contains(action)) return deny("scope_forbidden");
-        for (String s : scopes) if (FORBIDDEN.contains(s)) return deny("scope_forbidden");
+        if (isForbidden(action)) return deny("scope_forbidden");
+        for (String s : scopes) if (isForbidden(s)) return deny("scope_forbidden");
 
         Object exp = claims.get("exp"), nbf = claims.get("nbf");
         if (!(exp instanceof Number) || !(nbf instanceof Number)) return deny("malformed_claims");

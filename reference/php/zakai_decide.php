@@ -36,7 +36,19 @@ const VECTORS_PATH = '/api/mandate/test-vectors';
 const FORBIDDEN = [
     'payment:initiate', 'payment:transfer', 'credit:borrow',
     'account:open', 'account:close', 'investment:trade',
+    'treatment:consent', 'treatment:refuse', 'record:alter', 'prescription:request', 'directive:amend', 'right:waive', 'plea:enter', 'claim:withdraw', 'status:surrender', 'appeal:abandon', 'employment:resign', 'termination:accept', 'contract:sign', 'grievance:withdraw', 'tenancy:sign', 'tenancy:surrender', 'possession:concede', 'deposit:forfeit', 'enrolment:withdraw', 'sanction:accept', 'attainment:alter',
 ];
+
+/**
+ * Refused whatever domain claims it, prefixed or bare. A limit somebody can step
+ * around by adding a prefix is not a limit.
+ */
+function isForbidden(string $scope): bool
+{
+    if (in_array($scope, FORBIDDEN, true)) return true;
+    $i = strpos($scope, '/');
+    return $i !== false && $i > 0 && in_array(substr($scope, $i + 1), FORBIDDEN, true);
+}
 
 /**
  * Whether each known scope needs the principal to confirm every individual
@@ -86,9 +98,9 @@ function decide(
     $scopes = $claims['scopes'] ?? [];
 
     // The categorical limit, before anything temporal.
-    if (in_array($action, FORBIDDEN, true)) return ['deny', 'scope_forbidden'];
+    if (isForbidden($action)) return ['deny', 'scope_forbidden'];
     foreach ($scopes as $s) {
-        if (in_array($s, FORBIDDEN, true)) return ['deny', 'scope_forbidden'];
+        if (isForbidden($s)) return ['deny', 'scope_forbidden'];
     }
 
     $exp = $claims['exp'] ?? null;

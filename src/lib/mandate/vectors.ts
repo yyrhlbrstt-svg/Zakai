@@ -196,6 +196,72 @@ export const DECISION_VECTORS: readonly DecisionVector[] = [
     expect: { decision: "deny", reason: "scope_forbidden" },
   },
   {
+    id: "deny_forbidden_in_another_domain",
+    pins: "Prohibitions are global, not per sector. A finance mandate can no more carry a health prohibition than an outward-money one — otherwise an issuer reaches a forbidden act by declaring itself to be in a different sector, which is a formality rather than a limit. Adding this vector caught all five reference implementations still knowing only the finance list.",
+    request: {
+      claims: baseClaims({ scopes: ["read:accounts", "treatment:consent"] }),
+      action: "read:accounts",
+      audience: TEST_AUDIENCE,
+      revocation: "active",
+    },
+    expect: { decision: "deny", reason: "scope_forbidden" },
+  },
+  {
+    id: "deny_forbidden_with_domain_prefix",
+    pins: "The obvious evasion: the same act, relabelled. A limit that can be stepped around by adding a prefix is not one.",
+    request: {
+      claims: baseClaims({ scopes: ["health/treatment:consent"] }),
+      action: "health/treatment:consent",
+      audience: TEST_AUDIENCE,
+      revocation: "active",
+    },
+    expect: { decision: "deny", reason: "scope_forbidden" },
+  },
+  {
+    id: "deny_forbidden_government_act",
+    pins: "Government: an agent may never waive a right or enter a plea. Present because a prohibition with no vector is one only our implementation has — an implementer working from the vectors alone would never learn about it.",
+    request: {
+      claims: baseClaims({ scopes: ["right:waive"] }),
+      action: "right:waive",
+      audience: TEST_AUDIENCE,
+      revocation: "active",
+    },
+    expect: { decision: "deny", reason: "scope_forbidden" },
+  },
+  {
+    id: "deny_forbidden_employment_act",
+    pins: "Employment: an agent may never resign or accept termination. Asking, verifying and disputing are the whole of what it may do.",
+    request: {
+      claims: baseClaims({ scopes: ["employment:resign"] }),
+      action: "employment:resign",
+      audience: TEST_AUDIENCE,
+      revocation: "active",
+    },
+    expect: { decision: "deny", reason: "scope_forbidden" },
+  },
+  {
+    id: "deny_forbidden_housing_act",
+    pins: "Housing: an agent may never sign, surrender or terminate a tenancy, nor concede possession.",
+    request: {
+      claims: baseClaims({ scopes: ["tenancy:surrender"] }),
+      action: "tenancy:surrender",
+      audience: TEST_AUDIENCE,
+      revocation: "active",
+    },
+    expect: { decision: "deny", reason: "scope_forbidden" },
+  },
+  {
+    id: "deny_forbidden_education_act",
+    pins: "Education: an agent may never withdraw an enrolment or alter a record of attainment.",
+    request: {
+      claims: baseClaims({ scopes: ["enrolment:withdraw"] }),
+      action: "enrolment:withdraw",
+      audience: TEST_AUDIENCE,
+      revocation: "active",
+    },
+    expect: { decision: "deny", reason: "scope_forbidden" },
+  },
+  {
     id: "deny_audience_mismatch",
     pins: "A mandate presented to the wrong institution.",
     request: {

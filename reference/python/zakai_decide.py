@@ -53,16 +53,62 @@ VECTORS_PATH = "/api/mandate/test-vectors"
 # toward the principal; an agent that cannot spend is a categorically different
 # risk object from one that can, and that limit is what makes these acceptable
 # to a regulated institution at all.
+# Prohibitions are global, not per sector. A finance mandate can no more carry
+# a health prohibition than an outward-money one — otherwise an issuer reaches a
+# forbidden act simply by declaring itself to be in a different sector, which is
+# a formality rather than a limit.
+#
+# Only finance is issuable today; the rest are reserved with their limits fixed
+# in advance, because a categorical limit decided after a sector's first
+# customer asks for an exception is a negotiating position, not a limit.
 FORBIDDEN_SCOPES = frozenset(
     {
+        # finance
         "payment:initiate",
         "payment:transfer",
         "credit:borrow",
         "account:open",
         "account:close",
         "investment:trade",
+        # health — never consent to or refuse treatment, never alter a record
+        "treatment:consent",
+        "treatment:refuse",
+        "record:alter",
+        "prescription:request",
+        "directive:amend",
+        # government — never waive a right, plead, or surrender a status
+        "right:waive",
+        "plea:enter",
+        "claim:withdraw",
+        "status:surrender",
+        "appeal:abandon",
+        # employment — never resign, accept termination, or sign a term
+        "employment:resign",
+        "termination:accept",
+        "contract:sign",
+        "grievance:withdraw",
+        # housing — never sign, surrender or concede a tenancy
+        "tenancy:sign",
+        "tenancy:surrender",
+        "possession:concede",
+        "deposit:forfeit",
+        # education — never withdraw an enrolment or alter an attainment
+        "enrolment:withdraw",
+        "sanction:accept",
+        "attainment:alter",
     }
 )
+
+
+def is_forbidden(scope: str) -> bool:
+    """Refused whatever domain claims it, prefixed or bare.
+
+    A limit somebody can step around by adding a prefix is not a limit.
+    """
+    if scope in FORBIDDEN_SCOPES:
+        return True
+    _, sep, bare = scope.partition("/")
+    return bool(sep) and bare in FORBIDDEN_SCOPES
 
 # Scopes whose grant is standing, and those that need the principal to confirm
 # each individual exercise. Holding "may cancel my subscriptions" is not
@@ -142,9 +188,9 @@ def decide(
         return _deny("market_mismatch")
 
     # The categorical limit, before anything temporal. See the porting note.
-    if action in FORBIDDEN_SCOPES:
+    if is_forbidden(action):
         return _deny("scope_forbidden")
-    if any(s in FORBIDDEN_SCOPES for s in claims.get("scopes") or ()):
+    if any(is_forbidden(s) for s in claims.get("scopes") or ()):
         return _deny("scope_forbidden")
 
     exp, nbf = claims.get("exp"), claims.get("nbf")

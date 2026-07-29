@@ -9,6 +9,7 @@ import {
 import { decide } from "./decision";
 import { resolveIssuerKeysUri } from "./trustRegistry";
 import { FORBIDDEN_SCOPES } from "./scopes";
+import { DOMAINS } from "./domains";
 
 describe("our own implementation passes its own vectors", () => {
   it("passes every one", () => {
@@ -179,6 +180,29 @@ describe("the published document is usable from another language", () => {
       if (FORBIDDEN_SCOPES.includes(v.request.action)) {
         expect(v.expect.decision).toBe("deny");
       }
+    }
+  });
+});
+
+describe("the reference implementations cannot silently fall behind", () => {
+  it("has a vector for every globally forbidden act", () => {
+    // The failure this prevents, which already happened once: cross-domain
+    // prohibitions were added to the TypeScript decision layer and to none of
+    // the five reference implementations. They kept passing, because no vector
+    // exercised the new rule — so five programs quietly permitted an act the
+    // sixth refused, which in a trust network is the worst possible state.
+    //
+    // A prohibition with no vector is a prohibition only one implementation
+    // has. This asserts at least one vector reaches each domain's list, so
+    // adding a domain without a vector fails here rather than in production.
+    const exercised = new Set(
+      DECISION_VECTORS.flatMap((v) => [v.request.action, ...v.request.claims.scopes]),
+    );
+    for (const domain of DOMAINS) {
+      const covered = domain.forbidden.some(
+        (f) => exercised.has(f) || exercised.has(`${domain.id}/${f}`),
+      );
+      expect(covered, `no vector exercises any prohibition from "${domain.id}"`).toBe(true);
     }
   });
 });

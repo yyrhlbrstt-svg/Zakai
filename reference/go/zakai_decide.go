@@ -43,13 +43,51 @@ const (
 // toward the principal; an agent that cannot spend is a categorically different
 // risk object from one that can, and that limit is what makes these acceptable
 // to a regulated institution at all.
+// Prohibitions are global, not per sector. A finance mandate can no more carry a
+// health prohibition than an outward-money one — otherwise an issuer reaches a
+// forbidden act simply by declaring itself to be in a different sector, which is
+// a formality rather than a limit. Only finance is issuable today; the rest are
+// reserved with their limits fixed in advance.
 var forbiddenScopes = map[string]bool{
-	"payment:initiate": true,
-	"payment:transfer": true,
-	"credit:borrow":    true,
-	"account:open":     true,
-	"account:close":    true,
-	"investment:trade": true,
+	"payment:initiate":     true,
+	"payment:transfer":     true,
+	"credit:borrow":        true,
+	"account:open":         true,
+	"account:close":        true,
+	"investment:trade":     true,
+	"treatment:consent":    true,
+	"treatment:refuse":     true,
+	"record:alter":         true,
+	"prescription:request": true,
+	"directive:amend":      true,
+	"right:waive":          true,
+	"plea:enter":           true,
+	"claim:withdraw":       true,
+	"status:surrender":     true,
+	"appeal:abandon":       true,
+	"employment:resign":    true,
+	"termination:accept":   true,
+	"contract:sign":        true,
+	"grievance:withdraw":   true,
+	"tenancy:sign":         true,
+	"tenancy:surrender":    true,
+	"possession:concede":   true,
+	"deposit:forfeit":      true,
+	"enrolment:withdraw":   true,
+	"sanction:accept":      true,
+	"attainment:alter":     true,
+}
+
+// isForbidden refuses an act whatever domain claims it, prefixed or bare.
+// A limit somebody can step around by adding a prefix is not a limit.
+func isForbidden(scope string) bool {
+	if forbiddenScopes[scope] {
+		return true
+	}
+	if i := strings.Index(scope, "/"); i > 0 {
+		return forbiddenScopes[scope[i+1:]]
+	}
+	return false
 }
 
 // Whether each known scope needs the principal to confirm every individual
@@ -134,11 +172,11 @@ func Decide(r Request) Decision {
 	}
 
 	// The categorical limit, before anything temporal. See the package comment.
-	if forbiddenScopes[r.Action] {
+	if isForbidden(r.Action) {
 		return deny("scope_forbidden")
 	}
 	for _, s := range r.Claims.Scopes {
-		if forbiddenScopes[s] {
+		if isForbidden(s) {
 			return deny("scope_forbidden")
 		}
 	}
