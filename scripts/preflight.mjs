@@ -48,10 +48,33 @@ const CHECKS = [
   // with, and a hardcoded value would publish which address to claim.
   { key: "ADMIN_EMAIL", level: "degrading",
     cost: "The founder dashboard at /he/founder is closed to everyone, including you. Nothing else is affected." },
+  // A From address on a domain the sending server has no authority over fails
+  // SPF and DKIM, and Gmail responds by warning the recipient that the message
+  // may not be genuine — which reads to them as "this account is not secure".
+  { key: "SMTP_FROM", level: "degrading", alt: ["SMTP_USER"],
+    cost: "Outgoing mail falls back to the authenticated mailbox. Set it to an address on a domain you control, with SPF and DKIM published." },
+  // Only relevant once there is a Play listing. Until it is set, the Android
+  // shell shows a browser address bar on every screen — which reviewers read as
+  // a website in a wrapper, and users read as not really being an app.
+  { key: "ANDROID_CERT_FINGERPRINTS", level: "optional",
+    cost: "No Digital Asset Links. A Play TWA build will display the URL bar. Set it from Play Console → App integrity → App signing key certificate." },
 ];
 
 // A configured address on a reserved domain is worse than an absent one: the
 // preflight passes, the mail is accepted by the transport, and it goes nowhere.
+// The From domain must be one the transport may actually send as. Mismatched,
+// every message is delivered with a security warning attached, and the people
+// who see it are the ones being asked to trust the product with their money.
+const from = (process.env.SMTP_FROM || "").trim();
+const smtpUser = (process.env.SMTP_USER || "").trim();
+if (from && smtpUser) {
+  const domain = (addr) => (addr.match(/@([^>\s]+)/) || [])[1]?.toLowerCase();
+  if (domain(from) && domain(smtpUser) && domain(from) !== domain(smtpUser)) {
+    console.log(`\n  ! SMTP_FROM is @${domain(from)} but the transport authenticates as @${domain(smtpUser)}.`);
+    console.log("    Unless SPF and DKIM are published for the From domain, Gmail will mark every message as unverified.");
+  }
+}
+
 for (const key of ["SALES_EMAIL", "LEADS_EMAIL", "NEXT_PUBLIC_SUPPORT_EMAIL"]) {
   const value = process.env[key]?.trim();
   if (value && /@(example|test|invalid|localhost)(\.|$)/i.test(value)) {

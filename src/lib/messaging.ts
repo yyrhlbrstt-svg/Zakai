@@ -64,7 +64,20 @@ export async function sendEmail({ to, subject, body, caseId, attachments }: Emai
         : undefined,
     });
     const info = await transport.sendMail({
-      from: process.env.SMTP_FROM || "Zakai <no-reply@zakai.example>",
+      // Falls back to the authenticated mailbox, never to an invented address.
+      //
+      // The previous default claimed to be no-reply@zakai.example — a domain
+      // nobody controls. Mail sent that way fails SPF and DKIM, because the
+      // sending server has no authority over the domain in the From header, and
+      // Gmail responds exactly as it should: a red warning banner telling the
+      // recipient the message may not be genuine, and in some cases a security
+      // alert on their account.
+      //
+      // That is the report of "it says my account is not secure". It is not a
+      // flaw in the app's authentication — it is us forging a sender. SMTP_USER
+      // is the one address the transport can actually prove it may send as, so
+      // it is the only safe fallback.
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@localhost",
       to,
       subject,
       text: body,
