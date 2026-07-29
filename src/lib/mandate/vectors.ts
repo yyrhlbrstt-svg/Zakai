@@ -141,6 +141,17 @@ export const DECISION_VECTORS: readonly DecisionVector[] = [
     expect: { decision: "deny", reason: "act_confirmation_required" },
   },
   {
+    id: "permit_correspond_scope_without_confirmation",
+    pins: "Tier and per-act confirmation are different questions. `request:records` is correspondence-tier and still standing — asking somebody to confirm each individual request for their own records is friction with no safety behind it. An independent implementation got this wrong by assuming the two travel together.",
+    request: {
+      claims: baseClaims({ scopes: ["request:records"] }),
+      action: "request:records",
+      audience: TEST_AUDIENCE,
+      revocation: "active",
+    },
+    expect: { decision: "permit" },
+  },
+  {
     id: "deny_scope_not_granted",
     pins: "A known scope the mandate does not carry.",
     request: {

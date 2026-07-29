@@ -133,6 +133,15 @@ Content-Type: application/json
           entry, so no conforming verifier will ever accept a mandate signed
           with it.
         </p>
+        <p className="text-[14.5px] leading-relaxed mt-4">
+          There is a second implementation, in Python, with{" "}
+          <strong>no dependencies at all</strong> — the decision layer performs
+          no cryptography, so it is one file you can read in ten minutes and run
+          with the interpreter you already have. A specification only its author
+          has implemented is an API with documentation; this one has been
+          written twice, and writing it the second time is what found two
+          ambiguities in the first.
+        </p>
       </Section>
 
       <Section heading="Settlement: who is right when you disagree later">
