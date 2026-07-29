@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
+import { isEmailVerified } from "@/lib/services/emailVerification";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import type { Locale } from "@/i18n/config";
@@ -32,6 +33,11 @@ export default async function FounderPage({
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
   if (!isAdmin(user!.email)) redirect({ href: "/dashboard", locale });
+  // Matching the address is not the same as controlling it. Signup accepts any
+  // address, so without this an attacker who registered the ADMIN_EMAIL value
+  // first would hold a dashboard listing every lead's name, phone and company.
+  // The environment names who may be admin; this proves they are that person.
+  if (!(await isEmailVerified(user!.id))) redirect({ href: "/dashboard", locale });
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const [byStatus, savedAgg, feeAgg, paidAgg, users, checks, recovery, newUsers7d, leadsByVertical, feedbackCount] =

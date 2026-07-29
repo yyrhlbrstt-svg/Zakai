@@ -4393,5 +4393,19 @@
       "dormant": "Bodies that must disclose what they hold in your name",
       "captive": "A price sold to you when you could not refuse"
     }
+  },
+  "verifyEmail": {
+    "title": "Confirm your email",
+    "working": "Confirming…",
+    "resend": "Send me a new link",
+    "resent": "Sent ✓",
+    "okNote": "You can close this page and carry on.",
+    "state": {
+      "ok": "Your address is confirmed.",
+      "expired": "That link has expired. You can ask for a new one.",
+      "used": "That link has already been used. You can ask for a new one.",
+      "invalid": "That link is not valid. Check you copied all of it.",
+      "error": "Something went wrong. Try again in a moment."
+    }
   }
 }

@@ -113,11 +113,19 @@ LEADS_EMAIL=        # consumer leads; falls back to the founder address
 FEEDBACK_EMAIL=     # falls back to the founder address
 
 # A privilege, not a destination — it opens /he/founder, which lists every
-# lead's contact details. No code default on purpose: signup does not verify
-# that somebody controls the address they register with, so a hardcoded value
-# would publish which address to claim.
+# lead's contact details. No code default on purpose, and naming an address
+# here is necessary but not sufficient: the account must also have proved it
+# controls that address (see email verification below), so an attacker who
+# registered it first still gets nothing.
 ADMIN_EMAIL=
 ```
+
+Email verification gates **privilege, never basic use**. A person can sign up,
+see what they are owed and generate letters without confirming their address —
+putting a mailbox round-trip in front of that is the friction the whole design
+exists to remove. What an unverified address cannot do is hold an
+administrative role, because that is the only place the difference between
+"typed an address" and "controls an address" costs somebody else something.
 
 Run `node scripts/preflight.mjs` before believing any of this is set. It
 separates blocking from degrading and warns about an address on a reserved

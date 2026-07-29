@@ -27,23 +27,26 @@ enum Plan {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  passwordHash  String
-  name          String
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
   // Product tier. Determines the success-fee rate, active-case allowance and
   // access to the recurring-charges scan. Billing collection is a later stage
   // (PSP); the tier itself is enforced in code from day one.
-  plan          Plan      @default(FREE)
-  planChangedAt DateTime?
+  plan            Plan      @default(FREE)
+  planChangedAt   DateTime?
   // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
   // are registered to; ownership verification sends a code here.
-  phone         String
+  phone           String
   // ISO-3166 alpha-2 country the user signed up from. Israel is the launch
   // market (active tools are IL-first); capturing country turns international
   // signups into a real demand signal for where to expand next.
-  country       String    @default("IL")
-  createdAt     DateTime  @default(now())
+  country         String    @default("IL")
+  createdAt       DateTime  @default(now())
+  /// When the person proved they control this address. Null until they do.
+  /// Basic use never waits on it; privilege does.
+  emailVerifiedAt DateTime?
 
   // Referrals. `referralCode` is the short, shareable code in this user's
   // invite link; a DB default keeps the NOT NULL/UNIQUE column safe if a row is
@@ -62,6 +65,7 @@ model User {
   referralRewardFor  ReferralReward?     @relation("ReferredUser")
   consents           Consent[]
   passwordResets     PasswordReset[]
+  emailVerifications EmailVerification[]
   pushSubscriptions  PushSubscription[]
   vigilProfile       UserProfile?
   vigilAlerts        VigilAlert[]
@@ -348,6 +352,27 @@ model StrategyOutcome {
  * discipline PhoneVerification already uses. A leaked database must not hand
  * an attacker working reset links for every account in it.
  */
+/// Proof that somebody controls the address they registered with.
+///
+/// Signup accepted any address without checking, so an account could be opened
+/// on somebody else's email — including whichever address ADMIN_EMAIL names,
+/// which would hand over a dashboard listing every lead's contact details.
+///
+/// Same discipline as PasswordReset: only the hash is stored, single use,
+/// short-lived, and every outstanding token dies when one is consumed.
+model EmailVerification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
 model PasswordReset {
   id     String @id @default(cuid())
   userId String
