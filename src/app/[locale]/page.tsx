@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { prisma } from "@/lib/prisma";
@@ -14,6 +15,31 @@ import { ENTITLEMENTS } from "@/lib/rights";
 import { DoorTracker } from "@/components/DoorTracker";
 
 export const dynamic = "force-dynamic";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
+
+/**
+ * Without this, a search engine sees four unrelated pages at the same content
+ * — one per locale — rather than four language variants of one page, which is
+ * exactly the signal duplicate-content and cross-language ranking dilution
+ * come from. `x-default` matters as much as the four explicit tags: it is
+ * what a search engine falls back to for a language it has no better match
+ * for, and an absent one means that visitor gets no signal at all rather than
+ * the sane default.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    alternates: {
+      languages: {
+        he: `${SITE_URL}/he`,
+        en: `${SITE_URL}/en`,
+        ar: `${SITE_URL}/ar`,
+        ru: `${SITE_URL}/ru`,
+        "x-default": `${SITE_URL}/he`,
+      },
+    },
+  };
+}
 
 async function loadProof() {
   try {
