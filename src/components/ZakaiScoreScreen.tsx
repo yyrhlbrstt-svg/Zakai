@@ -57,6 +57,16 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
     setProfile(next);
     saveProfile(next, stored?.actedOn ?? []);
     setStored(loadProfile());
+
+    // Mirror to the account so the Vigil can run while the app is closed. A
+    // watchdog that only works when you are already looking is not a watchdog.
+    // Fails silently on 401: someone with no account keeps their answers on
+    // their own device, which is the whole point of storing them there first.
+    void fetch("/api/vigil/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    }).catch(() => {});
   }
 
   const result = useMemo(() => {

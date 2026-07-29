@@ -63,6 +63,8 @@ model User {
   consents           Consent[]
   passwordResets     PasswordReset[]
   pushSubscriptions  PushSubscription[]
+  vigilProfile       UserProfile?
+  vigilAlerts        VigilAlert[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -449,4 +451,46 @@ model ExperimentPromotion {
   promotedAt   DateTime  @default(now())
 
   @@index([experimentId, promotedAt])
+}
+
+/**
+ * The profile, mirrored to the account so the server can act while the person
+ * is not looking.
+ * The device copy stays authoritative and stays the only copy until there is an
+ * account — a profile that requires signup puts a wall in front of the first
+ * useful thing the product does, and the most sensitive answers here
+ * (disability, low income, immigration status) should not leave a phone on our
+ * say-so. But a watchdog that only runs while its owner has the app open is not
+ * a watchdog, so once someone has chosen to have an account, this is what the
+ * Vigil reads.
+ */
+model UserProfile {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /**
+   * The RightsProfile as stored on the device.
+   */
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
+/**
+ * One alert we have already sent, so we never send it twice.
+ * Without this the daily cron re-notifies about the same deadline every morning
+ * until it passes, which is how a genuinely useful alert becomes the reason
+ * somebody turns notifications off — and the right to interrupt, once spent,
+ * does not come back.
+ */
+model VigilAlert {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /**
+   * rightId plus the tax year when there is one, so each deadline alerts once.
+   */
+  alertKey String
+  sentAt   DateTime @default(now())
+
+  @@unique([userId, alertKey])
+  @@index([userId, sentAt])
 }
