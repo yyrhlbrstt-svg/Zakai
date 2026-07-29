@@ -61,6 +61,89 @@ export default async function InstitutionsPage({
         </p>
       </Section>
 
+      <Section heading="The short integration: one call, no authorization logic">
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          Verifying a token tells you it is authentic and leaves you the real
+          question: may this agent do <em>this</em> act, right now? That is roughly
+          fifty lines every integrator writes, writes differently, and gets one of
+          wrong — usually the line where holding &ldquo;may cancel my
+          subscriptions&rdquo; is mistaken for agreement to cancel this one.
+        </p>
+        <pre className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg">
+          {`POST /api/mandate/decide
+Content-Type: application/json
+
+{
+  "token": "<jwt>",
+  "audience": "<your-institution-id>",
+  "action": "dispute:charge",
+  "actConfirmation": "<your-reference>"
+}
+
+→ { "decision": "permit" | "deny",
+    "reason": "<closed set>",
+    "obligations": ["record:<jti>", "notify_principal:<action>"],
+    "permitted": ["read:accounts", "dispute:charge"] }`}
+        </pre>
+        <ul className="list-disc pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed mt-4">
+          <li>
+            A deny returns <strong>200</strong>, not 4xx. A refusal is a successful
+            answer to a legitimate question, and conflating it with a network error
+            is how integrations end up failing open.
+          </li>
+          <li>
+            Deny by default. No path returns permit on error, and an unknown
+            revocation status is a deny rather than a permit with a warning.
+          </li>
+          <li>
+            <code className="text-[13px]">reason</code> is a closed set, so you can
+            branch on it without it breaking when we reword something.
+          </li>
+          <li>
+            Prefer to hold no dependency on us? Everything above is derivable
+            offline from the JWS, the JWKS and the signed status list. The endpoint
+            is a convenience, never a requirement.
+          </li>
+        </ul>
+      </Section>
+
+      <Section heading="Settlement: who is right when you disagree later">
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          Authorization says who may act. It does not settle what happened. When an
+          agent says it was told to act, you say nothing arrived, and the customer
+          says they never agreed — today that is resolved by someone reading logs
+          owned by one of the disputants.
+        </p>
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          So each act produces a chain of three signed statements: the mandate, your
+          decision, and the outcome. Each link carries a hash of the one before it,
+          each is signed by the party making that claim, and no central party —
+          including us — can fabricate one. Adjudication is a pure function of the
+          records, so the same chain yields the same verdict for you, for the
+          consumer, for a regulator, and for a court, months later.
+        </p>
+        <ul className="list-disc pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
+          <li>
+            Receipts are ordinary JWTs (<code className="text-[13px]">zks</code>{" "}
+            claim). Same keys and libraries as the mandate — nothing new to adopt.
+          </li>
+          <li>
+            Verdicts are a closed set, and{" "}
+            <code className="text-[13px]">indeterminate</code> is one of them: a
+            procedure that always produces a winner will sometimes invent one.
+          </li>
+          <li>
+            A recorded refusal is never treated as fault. Punishing the participants
+            who behave correctly is how a network loses them.
+          </li>
+          <li>
+            It settles whether an act was authorised and matched. It does not opine
+            on whether the underlying claim was any good — that is a question about
+            the world, and answering it would be making things up.
+          </li>
+        </ul>
+      </Section>
+
       <Section heading="Integration in six steps">
         <ol className="list-decimal pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
           <li>
@@ -71,7 +154,7 @@ export default async function InstitutionsPage({
             Cache public keys:{" "}
             <code className="text-[13px]">GET {ORIGIN}/.well-known/zakai-jwks.json</code>
           </li>
-          <li>Verify the compact JWS (EdDSA / Ed25519, typ = zakai-mandate+jws)</li>
+          <li>Verify the JWT with your existing library (EdDSA / Ed25519, typ = JWT)</li>
           <li>Reject if <code className="text-[13px]">aud</code> is not your institution id</li>
           <li>Reject if <code className="text-[13px]">exp</code> is past (allow small clock skew)</li>
           <li>
@@ -88,6 +171,9 @@ export default async function InstitutionsPage({
           <li>{ORIGIN}/.well-known/zakai-jwks.json</li>
           <li>{ORIGIN}/api/mandate/status/&#123;jti&#125;</li>
           <li>POST {ORIGIN}/api/mandate/verify</li>
+          <li>POST {ORIGIN}/api/mandate/decide</li>
+          <li>{ORIGIN}/.well-known/zakai-trust-registry.json</li>
+          <li>{ORIGIN}/api/mandate/revocations</li>
           <li>{ORIGIN}/api/mandate/openapi.json</li>
           <li>{ORIGIN}/api/mandate/scopes</li>
         </ul>
