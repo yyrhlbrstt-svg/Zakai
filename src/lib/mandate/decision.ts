@@ -48,7 +48,8 @@
  */
 
 import type { MandateClaims } from "./mandate";
-import { FORBIDDEN_SCOPES, requiresPerActConfirmation, scopeDef } from "./scopes";
+import { isForbiddenAnywhere } from "./domains";
+import { requiresPerActConfirmation, scopeDef } from "./scopes";
 
 /**
  * What the caller knows about revocation. `unknown` is a real state and is
@@ -153,10 +154,14 @@ export function decide(req: DecisionRequest): Decision {
   // a stale credential — and reporting "expired" would hide the incident behind
   // the lesser fault. A published vector pins this ordering; our own
   // implementation failed it, which is what the vectors are for.
-  if (FORBIDDEN_SCOPES.includes(action)) {
+  // Checked against every domain's prohibitions, not only finance. A mandate
+  // can no more carry `treatment:consent` than `payment:initiate`, and an
+  // issuer cannot reach a forbidden act by declaring itself to be in another
+  // sector — a limit somebody can step around by changing a label is not one.
+  if (isForbiddenAnywhere(action)) {
     return deny("scope_forbidden", claims, action, expiresInSeconds);
   }
-  if (claims.scopes.some((s) => FORBIDDEN_SCOPES.includes(s))) {
+  if (claims.scopes.some((s) => isForbiddenAnywhere(s))) {
     return deny("scope_forbidden", claims, action, expiresInSeconds);
   }
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { allMarkets } from "@/lib/global/registry";
+import { domainDocument } from "@/lib/mandate/domains";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -97,6 +98,13 @@ export async function GET(request: Request) {
     integration_doc: `${origin}/en/institutions`,
     security_contact: `${origin}/.well-known/security.txt`,
     markets: allMarkets().map((m) => m.code),
+    // What an agent may never do, per sector — published before any of these
+    // sectors exists as a customer. A categorical limit that appears at the
+    // same time as the sales conversation reads as something invented for it.
+    // Only finance is issuable today and the document says so; the rest are
+    // reserved with their limits already fixed, because a limit decided after
+    // the first customer asks for an exception is a negotiating position.
+    domains: domainDocument(),
     constraints: {
       outbound_payments: false,
       forbidden_scopes: [
