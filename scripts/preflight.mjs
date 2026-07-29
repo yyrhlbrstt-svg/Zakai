@@ -32,7 +32,26 @@ const CHECKS = [
     cost: "The prediction API stays closed. Intentional until there is an institutional customer." },
   { key: "NEXT_PUBLIC_APP_URL", level: "degrading",
     cost: "Absolute links in outgoing email may point at the wrong host." },
+  // Without a transport every notification is written to the Outbox and
+  // delivered nowhere. Leads are persisted first so nothing is lost, but
+  // nobody is told they arrived — and an enquiry nobody reads for a week is
+  // very nearly an enquiry that never came.
+  { key: "SMTP_HOST", level: "degrading",
+    cost: "No mail transport. Lead notifications and case correspondence are held in the Outbox and delivered nowhere." },
+  { key: "SALES_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
+    cost: "Institutional enquiries would be addressed to sales@zakai.example, a reserved domain that cannot receive mail." },
+  { key: "LEADS_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
+    cost: "Consumer leads would be addressed to leads@zakai.example, a reserved domain that cannot receive mail." },
 ];
+
+// A configured address on a reserved domain is worse than an absent one: the
+// preflight passes, the mail is accepted by the transport, and it goes nowhere.
+for (const key of ["SALES_EMAIL", "LEADS_EMAIL", "NEXT_PUBLIC_SUPPORT_EMAIL"]) {
+  const value = process.env[key]?.trim();
+  if (value && /@(example|test|invalid|localhost)(\.|$)/i.test(value)) {
+    console.log(`\n  ! ${key} is set to ${value} — a reserved domain that cannot receive mail.`);
+  }
+}
 
 const results = CHECKS.map((c) => {
   const has = Boolean(process.env[c.key]?.trim());

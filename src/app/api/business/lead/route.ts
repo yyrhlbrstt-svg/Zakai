@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { badRequest } from "@/lib/api";
@@ -15,7 +16,11 @@ const schema = z.object({
   interest: z.enum(["employees", "mandate", "both"]).optional().default("employees"),
 });
 
-const SALES_EMAIL = process.env.SALES_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "sales@zakai.example";
+// `.example` is reserved by RFC 2606 and cannot receive mail. It is the
+// deliberate placeholder, not a working fallback — the preflight fails on it so
+// nobody discovers it by wondering why the enquiries stopped.
+const SALES_EMAIL =
+  process.env.SALES_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "sales@zakai.example";
 
 const INTEREST_LABEL: Record<string, string> = {
   employees: "הטבת עובדים (B2B2C)",
@@ -41,6 +46,30 @@ export async function POST(request: Request) {
   const { company, contact, email, employees, note, interest } = parsed.data;
 
   const interestHe = INTEREST_LABEL[interest] || interest;
+
+  // Persist before notifying, and never the other way round.
+  //
+  // This endpoint previously only sent mail. With no SMTP transport configured
+  // the message goes to the Outbox and is delivered nowhere, so an institution
+  // filling in the pilot form on /institutions vanished without trace — the one
+  // enquiry this entire protocol exists to attract. The mail is a convenience;
+  // the row is the record, and it survives a missing transport, a wrong address
+  // and a bounced message alike.
+  try {
+    await prisma.lead.create({
+      data: {
+        vertical: `business:${interest}`,
+        name: contact,
+        email,
+        company,
+        note: [employees ? `גודל: ${employees}` : "", note].filter(Boolean).join("\n"),
+      },
+    });
+  } catch (err) {
+    // A failure here is worth knowing about, but it must not swallow the lead:
+    // fall through and still attempt the notification.
+    await reportError(err, { route: "business-lead-persist" });
+  }
 
   try {
     await sendEmail({

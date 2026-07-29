@@ -302,9 +302,13 @@ model Feedback {
 // impersonate the professional). `vertical` is the source screen's key.
 model Lead {
   id        String   @id @default(cuid())
-  vertical  String // e.g. "construction-defects" | "car-value" | "mortgage-insurance"
+  vertical  String // e.g. "construction-defects" | "car-value" | "business:mandate"
   name      String
-  phone     String
+  /// Consumer leads leave a phone; institutional ones leave an email instead.
+  /// Optional on both so neither has to be faked to satisfy the other.
+  phone     String   @default("")
+  email     String   @default("")
+  company   String   @default("")
   note      String   @default("")
   status    String   @default("new") // new | contacted | matched | won | closed
   userId    String? // set if a logged-in user submitted it
