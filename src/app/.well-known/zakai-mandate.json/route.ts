@@ -85,6 +85,12 @@ export async function GET(request: Request) {
       // Each party signs only its own statement, and no central party — this
       // one included — can fabricate a link.
       signed_by: { decision: "institution", outcome: "asserting_party" },
+      // Check the canonical-hash fixtures before any verdict. Two
+      // implementations that serialise a record differently compute different
+      // hashes, reject each other's perfectly valid chains, and each concludes
+      // the other's cryptography is broken — the most common way this category
+      // of format fails between languages.
+      test_vectors_uri: `${origin}/api/settlement/test-vectors`,
     },
     openapi_uri: `${origin}/api/mandate/openapi.json`,
     human_verify_uri: `${origin}/verify`,

@@ -5,19 +5,45 @@ not a standard — it is an API with documentation. The question a prospective
 adopter actually has is whether somebody who is *not* us can implement this
 correctly from the published material.
 
-Here it has been implemented five times, in five languages, by five independent
-programs that agree on all nineteen vectors.
+Here the authorization layer has been implemented five times, in five
+languages, by five independent programs that agree on all nineteen of its
+vectors — and the settlement layer twice, agreeing on all twenty of its own
+plus every canonical-hash fixture.
 
 ```
 $ ./check-all.sh
+authorization vectors:
   python   CONFORMANT — 19/19 vectors passed.
   go       CONFORMANT — 19/19 vectors passed.
   java     CONFORMANT - 19/19 vectors passed.
   ruby     CONFORMANT - 19/19 vectors passed.
   php      CONFORMANT - 19/19 vectors passed.
 
-  5 implementations, all conformant.
+settlement vectors:
+  python   CONFORMANT - 20/20 vectors and 5 hash fixtures passed.
+
+  6 runs, all conformant.
 ```
+
+There are two layers and each has its own suite. Authorization answers *may this
+agent do this, now*; settlement answers *what was agreed, what happened, and who
+is right*.
+
+## Settlement has a failure mode authorization does not
+
+Every link in a settlement chain points at the previous one by hash. Two
+implementations that serialise the same record differently — a different key
+order, a differently handled absent field — compute different hashes, reject
+each other's perfectly valid chains, and each concludes the other's
+cryptography is broken. That is the single most common way this category of
+format fails between languages, and it does not show up in any verdict test,
+because each implementation passes on chains it built itself.
+
+So the settlement vectors publish canonical-hash fixtures, and the runner
+checks those **before** it reads a single verdict. A right verdict from a wrong
+hash is agreement about nothing. The canonicalisation is three rules: keys
+sorted by code unit, absent fields omitted entirely so an absent and an
+explicitly-unset field hash identically, and no insignificant whitespace.
 
 ## Every one has zero dependencies
 
@@ -28,6 +54,7 @@ $ ./check-all.sh
 | Java | `java/ZakaiDecide.java` | `java ZakaiDecide.java`, no Maven |
 | Ruby | `ruby/zakai_decide.rb` | `ruby`, stdlib only |
 | PHP | `php/zakai_decide.php` | `php`, no Composer |
+| Python (settlement) | `python/zakai_settle.py` | `python3` |
 
 That is not a stylistic flourish. The decision layer performs no cryptography —
 signature verification happened earlier, in whatever JWT library the
