@@ -228,16 +228,16 @@
     "start": "Let's start"
   },
   "home": {
-    "kicker": "The AI agent that gets back the money you are owed",
+    "kicker": "The agent that gives you back your money — and your time",
     "title1": "You're overpaying.",
     "title2": "Zakai gets it back.",
-    "sub": "Zakai scans your charges, drafts the request, sends it in your name and follows up until the money comes back. No call centre, no hold music, no forms. A fee only on money that actually reached you.",
+    "sub": "Zakai scans your bills, drafts the request, sends it in your name and follows up until the money comes back — without you calling anyone. No call centre, no waiting on hold, no forms. Fee only on money that actually returns to you.",
     "cta": "Check a bill now",
     "howTitle": "How it works",
     "trust": [
-      "Pay only on success — 18% of savings",
-      "Full disclosure — a digital agent, with your authorization",
-      "Your data is encrypted"
+      "Zero phone calls — the agent calls for you, not the other way round",
+      "Success fee only — 18% of the saving",
+      "Full disclosure — a digital agent under your mandate, publicly verifiable"
     ],
     "scopeNote": "Zakai acts on your behalf with providers and authorities under a digital power of attorney you approve for each request, verifiable publicly. It is not a law firm, gives no legal or tax advice, and final eligibility is determined by the body the request is filed with.",
     "verticalsTitle": "What Zakai checks for you",
