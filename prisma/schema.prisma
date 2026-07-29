@@ -394,6 +394,41 @@ model EmailVerification {
   @@index([userId])
 }
 
+/// A third-party agent permitted to have mandates issued on its behalf.
+///
+/// The whole "become the rail" thesis requires that other agents can issue.
+/// Until this existed they could not: issuance was gated by one shared secret,
+/// ours, so a rival consumer agent literally could not adopt the format even
+/// if it wanted to — and every one that did adopt it would have been
+/// indistinguishable from us in the resulting token.
+///
+/// Two paths exist and this is the smaller one. An agent that runs its own key
+/// infrastructure belongs in the trust registry with its own JWKS and needs no
+/// API from us at all; that is the real issuer path and the one that scales.
+/// This is for agents that do not want to run cryptography, and it comes with
+/// a hard condition: the mandate says so. `zkm.on_behalf_of` names the agent,
+/// because a token that hid the delegation would mean this company vouching
+/// for a user verification it never performed.
+model DelegatedIssuer {
+  id            String    @id @default(cuid())
+  /// Stable public identifier, e.g. "agent.example". Appears in the mandate.
+  slug          String    @unique
+  name          String
+  /// SHA-256 of the API key. Never the key: a leaked table must not hand
+  /// somebody the ability to issue authority in other people's names.
+  keyHash       String    @unique
+  /// The scopes this agent may request. Always a subset of the protocol's, and
+  /// enforced at issuance — an issuer that could exceed its grant by asking is
+  /// not constrained, it is merely trusted.
+  allowedScopes String[]
+  /// active | suspended. Suspension is immediate and needs no key rotation.
+  status        String    @default("active")
+  createdAt     DateTime  @default(now())
+  lastUsedAt    DateTime?
+
+  @@index([status])
+}
+
 model PasswordReset {
   id     String @id @default(cuid())
   userId String
