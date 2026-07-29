@@ -240,7 +240,19 @@ model SavingsProof {
   newAmount      Int // agorot
   savingMonthly  Int // agorot, = max(0, original - new)
   source         String   @default("manual") // how the new amount was obtained
+  /// True when the person told us they were paid, rather than the pipeline
+  /// documenting it from a provider reply.
+  ///
+  /// Both are real and they are not the same. A verified proof has a reply and
+  /// a before/after behind it; a self-report has somebody's word. That
+  /// difference decides two things and they are decided differently: it counts
+  /// toward the person's own record and the public wall, and it never produces
+  /// a chargeable Fee — eighteen percent of a number somebody typed is not a
+  /// fee this company could defend if asked to.
+  selfReported   Boolean  @default(false)
   recordedAt     DateTime @default(now())
+
+  @@index([selfReported, recordedAt])
 }
 
 enum FeeStatus {

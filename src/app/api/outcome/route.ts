@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { recordSelfReport } from "@/lib/strategy/store";
+import { recordSelfReportedSaving } from "@/lib/services/selfReportedSaving";
+import { getSessionUserId } from "@/lib/auth/session";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 
@@ -88,6 +90,32 @@ export async function POST(request: Request) {
       recoveredMinor: AMOUNT_BANDS[amountBand],
       days,
     });
+
+    // And, for somebody with an account, a proof of their own.
+    //
+    // The de-identified row above is the moat; this is the loop. Six engines
+    // produce letters and none of them could produce a SavingsProof, so the
+    // wall stayed empty and a person's own record showed nothing however well
+    // the letter worked. It creates no Fee — eighteen percent of a number
+    // somebody typed is not a fee this company could defend — and it is marked,
+    // because a wall that blends documented outcomes with remembered ones is a
+    // fabricated traction metric wearing a receipt.
+    //
+    // Anonymous reporters get the graph row and nothing else, which is the
+    // correct consequence of having kept their letters on their own device.
+    if (paid) {
+      const userId = await getSessionUserId().catch(() => null);
+      if (userId) {
+        await recordSelfReportedSaving({
+          userId,
+          vertical,
+          provider: counterparty,
+          recoveredMinor: AMOUNT_BANDS[amountBand],
+          reference: variantId,
+        });
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     await reportError(err, { route: "outcome" });
