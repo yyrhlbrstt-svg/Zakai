@@ -87,12 +87,29 @@ export interface StrategyVariant {
 export interface Observation {
   context: StrategyContext;
   variantId: string;
-  /** Did money actually come back? Sourced from the savings ledger, never self-reported. */
+  /** Did money actually come back? */
   paid: boolean;
   /** Amount recovered in the market's minor units. Zero when not paid. */
   recoveredMinor: number;
   /** Calendar days from send to resolution — the customer-experience dimension. */
   days: number;
+  /**
+   * Whether the person told us, or the pipeline observed it.
+   *
+   * This field said "never self-reported" until self-reports existed, which is
+   * the kind of comment that turns from documentation into a lie the moment
+   * somebody extends the system without reading it. Both sources are real
+   * evidence and they are not the same evidence: a verified outcome has a
+   * provider reply and a documented saving behind it, a self-report has
+   * somebody's recollection plus the selection bias that people who were paid
+   * come back to say so more often than people who were ignored.
+   *
+   * Consumers differ on purpose. Prediction excludes self-reports, because it
+   * is what a price would be built on and an inflated success rate there is a
+   * number somebody relies on. Ranking includes them, because the cost of being
+   * directionally wrong is one differently-phrased letter.
+   */
+  selfReported?: boolean;
 }
 
 /** Posterior belief about one variant in one context. */

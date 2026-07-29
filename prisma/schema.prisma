@@ -340,10 +340,19 @@ model StrategyOutcome {
   recoveredMinor Int // minor units; 0 when nothing came back
   days           Int // send -> resolution
 
+  /// True when the person told us what happened, rather than the pipeline
+  /// observing it. Both are real evidence and they are not the same evidence:
+  /// a verified case has a provider reply and a documented saving behind it,
+  /// a self-report has somebody's memory. Mixing them in one column that no
+  /// reader distinguishes is how a dataset gets quietly poisoned, so the
+  /// column exists and every reader has to decide.
+  selfReported Boolean @default(false)
+
   createdAt DateTime @default(now())
 
   @@index([market, vertical, counterparty])
   @@index([market, vertical])
+  @@index([selfReported, createdAt])
 }
 
 /**

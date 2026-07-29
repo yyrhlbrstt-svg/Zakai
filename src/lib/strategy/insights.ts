@@ -46,6 +46,11 @@ export async function getStrategyInsights(
   market = "IL",
 ): Promise<StrategyInsightsSummary> {
   try {
+    // Self-reports included here, and this is the opposite call from the
+    // oracle's — on purpose. This ranks which wording to try next, where the
+    // cost of being directionally wrong is one differently-phrased letter. The
+    // oracle prices things, where the cost of an inflated success rate is a
+    // number somebody relies on. Same data, different stakes, different answer.
     const rows = await prisma.strategyOutcome.findMany({
       where: { market },
       orderBy: { createdAt: "desc" },

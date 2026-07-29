@@ -7,6 +7,7 @@ import { traceDormant, type DormantLead } from "@/lib/dormant/trace";
 import { buildDormantLetter } from "@/lib/dormant/letters";
 import type { DormantFacts } from "@/lib/dormant/sources";
 import { SUBJECTS, signsOwnLetters, subjectProfile, type Subject } from "@/lib/dormant/forWhom";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 const FLAGS = [
   "changedBank",
@@ -276,6 +277,14 @@ function LeadRow({ lead }: { lead: DormantLead }) {
                 {tc("print")}
               </Button>
             </div>
+            {/* Directly under the letter, because the moment somebody knows the
+                answer is when they open the reply — not when they next log in
+                to a summary screen. */}
+            <OutcomeReport
+              vertical="dormant"
+              counterparty={lead.source.holder}
+              variantId={lead.source.id}
+            />
           </div>
         )}
       </div>

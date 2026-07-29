@@ -19,8 +19,17 @@ const MAX_ROWS = 100_000;
 
 async function loadObservations(market?: string): Promise<ClaimObservation[]> {
   const since = new Date(Date.now() - WINDOW_DAYS * 86_400_000);
+  // Verified outcomes only.
+  //
+  // This feeds prediction, and prediction is what a price would be built on.
+  // Self-reports carry a selection bias that runs in exactly the wrong
+  // direction for pricing: somebody who was paid is far likelier to come back
+  // and say so than somebody who was ignored, so including them inflates the
+  // success rate of everything and does it invisibly. The calibration report
+  // would still look excellent, because it would be well calibrated against a
+  // biased sample.
   const rows = await prisma.strategyOutcome.findMany({
-    where: { createdAt: { gte: since }, ...(market ? { market } : {}) },
+    where: { createdAt: { gte: since }, selfReported: false, ...(market ? { market } : {}) },
     select: {
       market: true,
       vertical: true,
