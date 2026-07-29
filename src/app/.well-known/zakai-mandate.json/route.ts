@@ -109,6 +109,19 @@ export async function GET(request: Request) {
       onbehalfof_absent_means: "first_party — verified directly by Zakai",
       admission: "Not self-service. See integration_doc.",
     },
+    // What makes this worth building against rather than an API that might
+    // change under an integrator without notice. Stated here, not only in a
+    // repository doc, because it is the credibility question institutions
+    // actually ask before adopting infrastructure.
+    stability: {
+      current_version: 1,
+      policy: [
+        "v1 claims are additive-only: a new optional field can appear without a version bump, and a verifier that ignores unrecognised fields keeps working.",
+        "No claim name is ever repurposed. A retired field is retired, never redefined to mean something else.",
+        "Forbidden scopes only grow. A scope may move from permitted to forbidden; the reverse never happens without a major version.",
+        "A major version bump carries a minimum 180-day overlap window before the prior version stops verifying, published here when scheduled.",
+      ],
+    },
     openapi_uri: `${origin}/api/mandate/openapi.json`,
     human_verify_uri: `${origin}/verify`,
     integration_doc: `${origin}/en/institutions`,

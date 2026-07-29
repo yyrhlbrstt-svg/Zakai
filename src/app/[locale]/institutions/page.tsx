@@ -237,6 +237,37 @@ Content-Type: application/json
         </ul>
       </Section>
 
+      <Section heading="Versioning: what we will and will not change under you">
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          The question that actually decides whether an integration is worth
+          building isn&apos;t whether the format works today — it&apos;s whether
+          it will still mean the same thing in a year. So it&apos;s a written
+          commitment, not a hope:
+        </p>
+        <ul className="list-disc pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
+          <li>
+            <strong>v1 is additive-only.</strong> A new optional field can appear
+            without a version bump; a verifier that ignores fields it doesn&apos;t
+            recognise keeps working exactly as it does today.
+          </li>
+          <li>
+            <strong>No claim is ever repurposed.</strong> A retired field stays
+            retired — it is never redefined to mean something else under the
+            same name.
+          </li>
+          <li>
+            <strong>Forbidden scopes only grow.</strong> A scope can move from
+            permitted to forbidden; the reverse never happens without a major
+            version, because that is the direction that could silently widen
+            authority you already granted.
+          </li>
+          <li>
+            A major version carries a minimum <strong>180-day</strong> overlap
+            window before the prior version stops verifying.
+          </li>
+        </ul>
+      </Section>
+
       <Section heading="Integration in six steps">
         <ol className="list-decimal pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
           <li>

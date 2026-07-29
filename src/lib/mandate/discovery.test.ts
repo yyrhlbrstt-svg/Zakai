@@ -49,4 +49,22 @@ describe("the published spec matches what we actually sign", () => {
     const examples = source.slice(source.indexOf("examples: {"));
     expect(examples).not.toMatch(/@zakai\/|zakai-sdk|require\(['"]zakai/);
   });
+
+  it("discloses delegated issuance and how to spot it", () => {
+    // Built, then silently undiscoverable for a while — the same failure mode
+    // as the stale typ above, just one layer up: a real capability with no
+    // trace in the one document an integrator actually reads.
+    expect(source).toContain("zkm.onBehalfOf");
+    expect(source).toContain("delegated_issuance");
+  });
+
+  it("states the stability policy that makes this worth building against", () => {
+    // The question that decides whether an integration gets built at all: will
+    // this still mean the same thing in a year. A promise made only in a
+    // repository doc nobody outside the team reads is not a promise an
+    // institution can rely on.
+    expect(source).toContain("stability");
+    expect(source).toMatch(/additive-only/);
+    expect(source).toMatch(/180-day/);
+  });
 });
