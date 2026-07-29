@@ -134,13 +134,20 @@ Content-Type: application/json
           with it.
         </p>
         <p className="text-[14.5px] leading-relaxed mt-4">
-          There is a second implementation, in Python, with{" "}
-          <strong>no dependencies at all</strong> — the decision layer performs
-          no cryptography, so it is one file you can read in ten minutes and run
-          with the interpreter you already have. A specification only its author
-          has implemented is an API with documentation; this one has been
-          written twice, and writing it the second time is what found two
-          ambiguities in the first.
+          The rules are also implemented five times over — Python, Go, Java,
+          Ruby and PHP — each a single file with{" "}
+          <strong>no dependencies at all</strong>, and all five agree on all
+          nineteen vectors. The decision layer performs no cryptography, so each
+          is something you can read in ten minutes and run with a runtime you
+          already have: paste a file rather than clear a package through review.
+        </p>
+        <p className="text-[13.5px] text-ink-soft leading-relaxed mt-3">
+          A specification only its author has implemented is an API with
+          documentation. Writing the second one found two ambiguities in the
+          first, and writing the vectors found a real bug in ours — it reported{" "}
+          <code className="text-[13px]">expired</code> for a token that also
+          carried a forbidden scope, hiding a registry-level incident behind a
+          stale credential.
         </p>
       </Section>
 
