@@ -25,7 +25,10 @@ const pub = await exportJWK(publicKey);
 
 console.log(`\n# Key id\nMANDATE_SIGNING_KID=${kid}\n`);
 console.log(`# Private key — set this in the host's environment. Never commit it.`);
-console.log(`MANDATE_SIGNING_JWK=${JSON.stringify({ ...priv, kid, alg: "EdDSA", use: "sig" })}\n`);
+// Single-quoted: the value is JSON, and an unquoted one is silently mangled by
+// any shell that sources it. The failure then looks identical to the variable
+// being missing, which is the worst kind of configuration bug.
+console.log(`MANDATE_SIGNING_JWK='${JSON.stringify({ ...priv, kid, alg: "EdDSA", use: "sig" })}'\n`);
 console.log(`# Public key — served at /.well-known/zakai-jwks.json, safe to share.`);
 console.log(JSON.stringify({ keys: [{ ...pub, kid, alg: "EdDSA", use: "sig" }] }, null, 2));
 console.log(`

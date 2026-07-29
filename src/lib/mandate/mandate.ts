@@ -320,8 +320,25 @@ export async function publicJwkFor(key: SigningKey): Promise<JWK> {
 }
 
 export class MandateKeyUnavailableError extends Error {
-  constructor() {
-    super("MANDATE_KEY_UNAVAILABLE");
+  constructor(
+    /**
+     * Why the key could not be loaded.
+     *
+     * Distinguished because the two cases send an operator to opposite places.
+     * "Missing" means go and set the variable; "malformed" means the variable
+     * is there and something ate it — most often a shell that stripped the
+     * quotes around the JSON, which fails silently and looks exactly like
+     * not-configured. Reporting both as the same error costs hours of looking
+     * for something that is already present.
+     */
+    readonly reason: "missing" | "malformed" = "missing",
+    detail?: string,
+  ) {
+    super(
+      reason === "missing"
+        ? "MANDATE_SIGNING_JWK / MANDATE_SIGNING_KID are not set"
+        : `MANDATE_SIGNING_JWK is set but unusable: ${detail ?? "not a private Ed25519 JWK"}`,
+    );
     this.name = "MandateKeyUnavailableError";
   }
 }
@@ -338,15 +355,32 @@ export class MandateKeyUnavailableError extends Error {
 export function loadSigningKeyFromEnv(
   env: Record<string, string | undefined> = process.env,
 ): SigningKey {
-  const raw = env.MANDATE_SIGNING_JWK;
-  const kid = env.MANDATE_SIGNING_KID;
-  if (!raw || !kid) throw new MandateKeyUnavailableError();
+  const raw = env.MANDATE_SIGNING_JWK?.trim();
+  const kid = env.MANDATE_SIGNING_KID?.trim();
+  if (!raw || !kid) throw new MandateKeyUnavailableError("missing");
+
   let privateJwk: JWK;
   try {
     privateJwk = JSON.parse(raw) as JWK;
   } catch {
-    throw new MandateKeyUnavailableError();
+    // The overwhelmingly common cause: a shell or config loader stripped the
+    // quotes around the JSON. Say so, because the value looks present and the
+    // generic message sends people hunting for a variable that is already set.
+    throw new MandateKeyUnavailableError(
+      "malformed",
+      raw.startsWith("{") && !raw.includes('"')
+        ? "the quotes around the JSON were stripped — wrap the value in single quotes"
+        : "not valid JSON",
+    );
   }
-  if (privateJwk.kty !== "OKP" || !privateJwk.d) throw new MandateKeyUnavailableError();
+  if (privateJwk.kty !== "OKP") {
+    throw new MandateKeyUnavailableError("malformed", `expected an Ed25519 (OKP) key, got kty="${privateJwk.kty}"`);
+  }
+  if (!privateJwk.d) {
+    // Pasting the public half is a real and dangerous mistake: it fails at
+    // signing time rather than at load, so it would otherwise surface as a
+    // mysterious 500 on the first mandate anyone tried to issue.
+    throw new MandateKeyUnavailableError("malformed", "this is the public key — the private JWK has a \"d\" component");
+  }
   return { kid, privateJwk };
 }

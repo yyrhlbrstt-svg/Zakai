@@ -316,3 +316,63 @@ describe("anyone can verify it with the library they already have", () => {
     expect(claims.scopes).toEqual(["read:transactions"]);
   });
 });
+
+describe("a misconfigured key says which mistake was made", () => {
+  it("reports a missing variable as missing", () => {
+    const err = (() => { try { loadSigningKeyFromEnv({}); } catch (e) { return e as MandateKeyUnavailableError; } })()!;
+    expect(err.reason).toBe("missing");
+    expect(err.message).toMatch(/not set/);
+  });
+
+  it("reports quote-stripped JSON as malformed, and names the cause", () => {
+    // The single most common way this breaks: a shell sourced the value and
+    // ate the quotes. It looks exactly like not-configured, and sends an
+    // operator hunting for a variable that is already there.
+    const err = (() => {
+      try {
+        loadSigningKeyFromEnv({
+          MANDATE_SIGNING_KID: "k",
+          MANDATE_SIGNING_JWK: "{crv:Ed25519,d:abc,kty:OKP}",
+        });
+      } catch (e) { return e as MandateKeyUnavailableError; }
+    })()!;
+    expect(err.reason).toBe("malformed");
+    expect(err.message).toMatch(/quotes around the JSON were stripped/);
+  });
+
+  it("refuses the public half, and says that is what it is", () => {
+    // Otherwise this passes load and fails at signing time, surfacing as a
+    // mysterious 500 on the first mandate anyone tries to issue.
+    const err = (() => {
+      try {
+        loadSigningKeyFromEnv({
+          MANDATE_SIGNING_KID: "k",
+          MANDATE_SIGNING_JWK: JSON.stringify({ kty: "OKP", crv: "Ed25519", x: "pub" }),
+        });
+      } catch (e) { return e as MandateKeyUnavailableError; }
+    })()!;
+    expect(err.reason).toBe("malformed");
+    expect(err.message).toMatch(/public key/);
+  });
+
+  it("refuses the wrong key type by name", () => {
+    const err = (() => {
+      try {
+        loadSigningKeyFromEnv({
+          MANDATE_SIGNING_KID: "k",
+          MANDATE_SIGNING_JWK: JSON.stringify({ kty: "RSA", d: "x" }),
+        });
+      } catch (e) { return e as MandateKeyUnavailableError; }
+    })()!;
+    expect(err.message).toMatch(/kty="RSA"/);
+  });
+
+  it("tolerates surrounding whitespace, which every paste introduces", () => {
+    const jwk = JSON.stringify({ kty: "OKP", crv: "Ed25519", d: "priv", x: "pub" });
+    const loaded = loadSigningKeyFromEnv({
+      MANDATE_SIGNING_KID: "  kid-with-spaces  ",
+      MANDATE_SIGNING_JWK: `  ${jwk}  `,
+    });
+    expect(loaded.kid).toBe("kid-with-spaces");
+  });
+});
