@@ -8,7 +8,7 @@ import {
 } from "@/lib/mandate/mandate";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { prisma } from "@/lib/prisma";
-import { checkDelegation, delegationClaim, hashIssuerKey } from "@/lib/mandate/delegation";
+import { checkDelegation, delegationClaim, hashIssuerKey, issuerKeyMatches } from "@/lib/mandate/delegation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,8 +32,15 @@ async function resolveCaller(req: Request): Promise<
   const provided = (req.headers.get("x-zakai-issue-key") || "").trim();
   if (!provided) return { kind: "rejected" };
 
+  // Constant-time: this is the shared secret that grants full first-party
+  // issuance, and `===` short-circuits on the first mismatched byte, which is
+  // exactly the timing channel that lets a remote caller recover a secret one
+  // character at a time. `issuerKeyMatches` already solves this for delegated
+  // keys by comparing hashes; the same guarantee belongs here.
   const expected = process.env.MANDATE_ISSUE_KEY;
-  if (expected && provided === expected) return { kind: "first_party" };
+  if (expected && issuerKeyMatches(provided, hashIssuerKey(expected))) {
+    return { kind: "first_party" };
+  }
 
   // Looked up by hash, so the table holds no usable credential. Any failure
   // here is a rejection rather than a fallback: an issuance endpoint that

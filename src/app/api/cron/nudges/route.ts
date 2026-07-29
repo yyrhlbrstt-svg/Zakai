@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/messaging";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ const SENT_COOLDOWN_DAYS = 12;
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
-  if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (secret && !secretsMatch(request.headers.get("authorization") || "", `Bearer ${secret}`)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
