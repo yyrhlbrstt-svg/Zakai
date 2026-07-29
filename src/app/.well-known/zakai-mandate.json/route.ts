@@ -50,6 +50,12 @@ export async function GET(request: Request) {
     // reason from a closed set.
     decide_uri: `${origin}/api/mandate/decide`,
     scopes_uri: `${origin}/api/mandate/scopes`,
+    // Deterministic fixtures covering every decision outcome, including the
+    // orderings where two rules could both fire — the cases prose is ambiguous
+    // about and independent implementations therefore resolve differently and
+    // silently. Run them in your own language and you are conformant or you
+    // know exactly which rule you got wrong.
+    test_vectors_uri: `${origin}/api/mandate/test-vectors`,
     // The second layer. Authorization answers who may act; settlement answers
     // what was agreed, what happened, and who is right when those disagree.
     // Each link is an ordinary JWT signed by the party making the claim and

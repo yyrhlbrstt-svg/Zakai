@@ -142,6 +142,24 @@ export function decide(req: DecisionRequest): Decision {
     return deny("market_mismatch", claims, action, expiresInSeconds);
   }
 
+  // Checked before anything temporal, and deliberately. Enforced here as well
+  // as at issuance because issuance is the side an attacker controls: a mandate
+  // carrying an outward-money scope is not one we merely decline to have
+  // issued, it is one no verifier honours.
+  //
+  // It comes first among the token's own faults because it is not a routine
+  // one. An *expired* token bearing `payment:initiate` still means somebody is
+  // issuing forbidden mandates, which is a registry-level incident rather than
+  // a stale credential — and reporting "expired" would hide the incident behind
+  // the lesser fault. A published vector pins this ordering; our own
+  // implementation failed it, which is what the vectors are for.
+  if (FORBIDDEN_SCOPES.includes(action)) {
+    return deny("scope_forbidden", claims, action, expiresInSeconds);
+  }
+  if (claims.scopes.some((s) => FORBIDDEN_SCOPES.includes(s))) {
+    return deny("scope_forbidden", claims, action, expiresInSeconds);
+  }
+
   // Both temporal claims are required, and their absence is reported as what it
   // is rather than folded into "expired". Treating a missing `exp` as "no
   // expiry" would turn a malformed token into an eternal one — the strongest
@@ -153,16 +171,6 @@ export function decide(req: DecisionRequest): Decision {
   }
   if (nowSec < claims.nbf) return deny("not_yet_valid", claims, action, expiresInSeconds);
   if (nowSec >= claims.exp) return deny("expired", claims, action, expiresInSeconds);
-
-  // Enforced here as well as at issuance, because issuance is the side an
-  // attacker controls. A mandate carrying an outward-money scope is not a
-  // mandate we merely decline to have issued — it is one no verifier honours.
-  if (FORBIDDEN_SCOPES.includes(action)) {
-    return deny("scope_forbidden", claims, action, expiresInSeconds);
-  }
-  if (claims.scopes.some((s) => FORBIDDEN_SCOPES.includes(s))) {
-    return deny("scope_forbidden", claims, action, expiresInSeconds);
-  }
 
   if (!scopeDef(action)) return deny("scope_unknown", claims, action, expiresInSeconds);
   if (!claims.scopes.includes(action)) {

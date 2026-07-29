@@ -107,6 +107,34 @@ Content-Type: application/json
         </ul>
       </Section>
 
+      <Section heading="Prove your implementation is correct, without asking us">
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          A specification tells you what to do. It does not tell you whether you
+          did it. Prose is ambiguous in exactly the places that matter — is the
+          audience compared before or after expiry, is a missing claim a refusal
+          or a pass, does an unestablished revocation status mean yes — and every
+          implementer resolves those differently, silently.
+        </p>
+        <pre className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg">
+          {`GET ${ORIGIN}/api/mandate/test-vectors`}
+        </pre>
+        <p className="text-[14.5px] leading-relaxed mt-4">
+          Deterministic fixtures — fixed key, fixed timestamps, fixed identifiers
+          — covering every decision outcome, plus the orderings where two rules
+          could both fire. Run them in your own language against your own code.
+          There is no partial credit: one wrong answer in a trust network is one
+          participant honouring something nobody else does.
+        </p>
+        <p className="text-[13.5px] text-ink-soft leading-relaxed mt-3">
+          The signing key in that document is published on purpose, exactly as
+          RFC test vectors publish theirs, so you can regenerate the fixtures
+          rather than take our word for them. Its issuer sits under{" "}
+          <code className="text-[13px]">.invalid</code> and has no trust-registry
+          entry, so no conforming verifier will ever accept a mandate signed
+          with it.
+        </p>
+      </Section>
+
       <Section heading="Settlement: who is right when you disagree later">
         <p className="text-[14.5px] leading-relaxed mb-4">
           Authorization says who may act. It does not settle what happened. When an
@@ -172,6 +200,7 @@ Content-Type: application/json
           <li>{ORIGIN}/api/mandate/status/&#123;jti&#125;</li>
           <li>POST {ORIGIN}/api/mandate/verify</li>
           <li>POST {ORIGIN}/api/mandate/decide</li>
+          <li>{ORIGIN}/api/mandate/test-vectors</li>
           <li>{ORIGIN}/.well-known/zakai-trust-registry.json</li>
           <li>{ORIGIN}/api/mandate/revocations</li>
           <li>{ORIGIN}/api/mandate/openapi.json</li>
