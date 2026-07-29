@@ -6,6 +6,7 @@ import { Card } from "@/components/ui";
 import { ClaimDocument } from "@/components/ClaimDocument";
 import { CaptiveCard } from "@/components/CaptiveCard";
 import { MoneyCategories } from "@/components/MoneyCategories";
+import { NextActionCard } from "@/components/NextActionCard";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
 import { formatAgorot } from "@/lib/money";
 import {
@@ -137,6 +138,11 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
 
   return (
     <div>
+      {/* One thing, before anything else. A person opening a money app is not
+          asking what is available — they are asking what to do now, and every
+          screen that answers with a menu has handed the work back. */}
+      <NextActionCard profile={profile} actedOn={stored?.actedOn ?? []} bcp47={bcp47} />
+
       {/* What is about to be lost comes before what is owed. Money with a date
           on it is the only thing here a person cannot get from a chat, and
           burying it under a total would waste the one real advantage. */}

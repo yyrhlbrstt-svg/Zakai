@@ -4375,5 +4375,23 @@
       "title": "Injured? Several payers owe you at once",
       "sub": "A tear, a fall, a crash. Most people claim from one and miss three — and one window is twelve months."
     }
+  },
+  "next": {
+    "kicker": "The next thing to do",
+    "progress": "Step {step} of {total}",
+    "cta": "Start",
+    "hideAll": "Close the list",
+    "showAll": "{count} more — show them",
+    "daysLeft": "{days} days",
+    "because": {
+      "expiring": "{days} days left, and then this money stops being claimable.",
+      "bleeding": "This repeats every month, and it does not stop on its own.",
+      "largest": "The largest sum open to you right now.",
+      "quickest": "The fastest to start, and it needs no documents."
+    },
+    "labels": {
+      "dormant": "Bodies that must disclose what they hold in your name",
+      "captive": "A price sold to you when you could not refuse"
+    }
   }
 }

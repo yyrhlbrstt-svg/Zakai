@@ -42,6 +42,13 @@ export async function GET(request: Request) {
     status_list_type: "statuslist+jwt",
     status_uri_template: `${origin}/api/mandate/status/{jti}`,
     verify_uri: `${origin}/api/mandate/verify`,
+    // The endpoint most institutions actually want. `verify` answers whether a
+    // token is authentic and leaves the caller to match scopes, enforce
+    // per-act confirmation and decide what an unknown revocation status means
+    // — fifty lines every integrator writes and one of them gets wrong.
+    // `decide` answers the whole question and returns permit or deny with a
+    // reason from a closed set.
+    decide_uri: `${origin}/api/mandate/decide`,
     scopes_uri: `${origin}/api/mandate/scopes`,
     openapi_uri: `${origin}/api/mandate/openapi.json`,
     human_verify_uri: `${origin}/verify`,
@@ -76,6 +83,12 @@ export async function GET(request: Request) {
       python: "import jwt\nfrom jwt import PyJWKClient\nkey = PyJWKClient(JWKS_URI).get_signing_key_from_jwt(token).key\nclaims = jwt.decode(token, key, algorithms=['EdDSA'], issuer=ISSUER, audience=MY_INSTITUTION_ID)\nscopes = claims['scope'].split(' ')",
       go: "// github.com/lestrrat-go/jwx/v2/jwt\nset, _ := jwk.Fetch(ctx, jwksURI)\ntok, err := jwt.Parse(token, jwt.WithKeySet(set), jwt.WithIssuer(issuer), jwt.WithAudience(myInstitutionID))",
       curl: "curl -s $JWKS_URI   # then verify with any JWT library; no Zakai SDK required",
+      // The five-line path, for an institution that would rather not hold any
+      // authorization logic at all. Note the deny is a 200: a refusal is a
+      // successful answer, and conflating it with a network error is how
+      // integrations end up failing open.
+      decide:
+        "curl -s $DECIDE_URI -H 'Content-Type: application/json' -d '{\"token\":\"<jwt>\",\"audience\":\"my-institution-id\",\"action\":\"dispute:charge\",\"actConfirmation\":\"<your-ref>\"}'\n# -> {\"decision\":\"permit\"|\"deny\",\"reason\":\"...\",\"obligations\":[...],\"permitted\":[...]}",
     },
   };
 
