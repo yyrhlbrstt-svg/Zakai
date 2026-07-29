@@ -18,6 +18,7 @@ import {
   all,
   always,
   any,
+  extraIs,
   is,
   not,
   num,
@@ -87,6 +88,40 @@ const rights: RightDef[] = [
   right("credit_donations", "tax", working, "פקודת מס הכנסה, סעיף 46"),
   right("credit_pension_deposit", "tax", working, "פקודת מס הכנסה, סעיפים 45א ו-47"),
   right("tax_disability_exemption", "tax", disability, "פקודת מס הכנסה, סעיף 9(5)"),
+  right(
+    "credit_life_insurance",
+    "tax",
+    any(working, extraIs("hasMortgage", true)),
+    "פקודת מס הכנסה, סעיף 45א",
+    { yearlyMinor: 40_000 },
+  ),
+  right(
+    "credit_special_needs_child",
+    "tax",
+    all(parent, extraIs("specialNeedsChild", true)),
+    "פקודת מס הכנסה, סעיף 45",
+    { yearlyMinor: 400_000 },
+  ),
+  right(
+    "provident_withdrawal_refund",
+    "tax",
+    extraIs("withdrewProvidentFund", true),
+    "פקודת מס הכנסה, סעיף 87 ותקנות ניכוי מס במקור ממשיכה מקופת גמל",
+    { oneTimeMinor: 300_000 },
+  ),
+  right(
+    "betterment_tax_refund",
+    "tax",
+    extraIs("soldProperty", true),
+    "חוק מיסוי מקרקעין (שבח ורכישה), התשכ״ג-1963",
+  ),
+  right(
+    "eligible_settlement_credit",
+    "tax",
+    all(extraIs("livesInEligibleTown", true), working),
+    "פקודת מס הכנסה, סעיף 11 והתוספת הראשונה",
+    { yearlyMinor: 300_000 },
+  ),
 
   // ---- Social security -----------------------------------------------------
   right("child_allowance", "social_security", parent, "חוק הביטוח הלאומי [נוסח משולב], התשנ״ה-1995, פרק ד'"),

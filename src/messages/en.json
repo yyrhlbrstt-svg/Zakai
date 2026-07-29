@@ -1926,6 +1926,31 @@
         "title": "500+ dla niepełnosprawnych",
         "desc": "A supplementary benefit for people unable to live independently.",
         "how": "Apply through ZUS."
+      },
+      "credit_life_insurance": {
+        "title": "Tax credit on life and disability premiums",
+        "desc": "Paying life or income-protection premiums? A sizeable share comes back as a tax credit, and almost nobody claims it.",
+        "how": "Zakai drafts the section 45A claim here, covering the open tax years."
+      },
+      "credit_special_needs_child": {
+        "title": "Credit points for a child with a disability",
+        "desc": "A child with a recognised disability or a placement-committee decision carries two credit points — among the largest in the tax code.",
+        "how": "Zakai drafts the section 45 claim here, including years it went unused."
+      },
+      "provident_withdrawal_refund": {
+        "title": "Refund on a provident-fund withdrawal",
+        "desc": "Money withdrawn early from a provident or study fund is taxed at a flat 35% at source, usually well above your real marginal rate.",
+        "how": "Zakai drafts the request for a full annual computation and the refund of the difference."
+      },
+      "betterment_tax_refund": {
+        "title": "Betterment-tax review",
+        "desc": "Sold a home and paid betterment tax? Unused exemptions, undeducted costs and spreading the gain across years change the figure materially.",
+        "how": "Zakai drafts the reassessment request here, covering spreading and allowable costs."
+      },
+      "eligible_settlement_credit": {
+        "title": "Designated-town residence credit",
+        "desc": "Residents of towns on the statutory list get a percentage credit against income tax — and many never register it with their employer.",
+        "how": "Zakai drafts the section 11 claim here, including the open years."
       }
     },
     "moreInfo": "Full details on Kol-Zchut →",
@@ -3639,7 +3664,17 @@
       "newImmigrant": "New immigrant",
       "dischargedSoldier": "Recently discharged",
       "reservist": "Reservist",
-      "disability": "Recognised disability"
+      "disability": "Recognised disability",
+      "moreTitle": "A few more things that pay",
+      "moreHint": "Optional. Each one unlocks money that cannot be guessed without asking.",
+      "hasMortgage": "I have a mortgage",
+      "hasCarLoan": "I have a car loan",
+      "spendsForeignCurrency": "I spend in foreign currency",
+      "holdsSecurities": "I hold a securities portfolio",
+      "specialNeedsChild": "My child has a disability / placement decision",
+      "withdrewProvidentFund": "I withdrew from a provident fund",
+      "soldProperty": "I sold a home",
+      "livesInEligibleTown": "I live in a designated town"
     },
     "items": {
       "arnona_disability": "Disability arnona discount",
@@ -3829,7 +3864,12 @@
       "work_overtime": "Overtime pay",
       "work_pension_mandatory": "Mandatory pension",
       "work_sick": "Sick pay",
-      "work_travel": "Commute reimbursement"
+      "work_travel": "Commute reimbursement",
+      "credit_life_insurance": "Life-insurance tax credit",
+      "credit_special_needs_child": "Credit points for a child with a disability",
+      "provident_withdrawal_refund": "Provident-fund withdrawal refund",
+      "betterment_tax_refund": "Betterment-tax review",
+      "eligible_settlement_credit": "Designated-town credit"
     },
     "watch": {
       "title": "Money about to expire",
@@ -4189,5 +4229,30 @@
     "t_d3297759": "Yearly Wrapped",
     "t_bd4c0905": "My money",
     "t_2f52f216": "Everything in one place, timestamped. Print, share with a provider, or archive."
+  },
+  "captive": {
+    "title": "Prices sold to you when you could not say no",
+    "sub": "Not a debt and not a billing error — a perfectly legal price set at the moment you were cornered. It repeats every month, for years.",
+    "typicalGap": "On the open market this is usually {lo}%–{hi}% cheaper",
+    "yourCost": "What do you pay per month?",
+    "months": "Months remaining (optional)",
+    "estimate": "Work out my gap",
+    "annual": "Per year",
+    "lifetime": "Over the remaining term",
+    "rangeNote": "A range, not a promise. Your exact figure depends on your terms — the letter below asks them for it.",
+    "letter": "Generate the letter",
+    "kindNotice": "You can switch without their approval",
+    "kindReprice": "Switching needs their cooperation — so this asks for a repricing",
+    "needs": "What to have to hand",
+    "basis": "The right to switch",
+    "products": {
+      "mortgage_life_insurance": "Mortgage life insurance",
+      "mortgage_property_insurance": "Mortgage buildings insurance",
+      "pension_management_fees": "Pension management fees",
+      "disability_rider": "Income-protection rider",
+      "credit_card_fx_margin": "Card FX margin",
+      "bank_securities_fees": "Securities fees",
+      "car_loan_insurance": "Insurance sold with the car loan"
+    }
   }
 }

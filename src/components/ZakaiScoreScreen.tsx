@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
 import { ClaimDocument } from "@/components/ClaimDocument";
+import { CaptiveCard } from "@/components/CaptiveCard";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
 import { formatAgorot } from "@/lib/money";
 import {
@@ -19,6 +20,27 @@ import { summariseWatch } from "@/lib/vigil/watch";
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = ["employee", "self_employed", "unemployed", "student", "soldier", "retired"] as const;
 const FLAGS = ["renting", "lowIncome", "newImmigrant", "dischargedSoldier", "reservist", "disability"] as const;
+
+/**
+ * The optional second row.
+ *
+ * Deliberately behind its own heading and below the money. None of these can
+ * be inferred from anything — nobody's age tells you they sold a flat — and
+ * each unlocks either a tax credit worth thousands a year or a captive price
+ * that repeats monthly for a decade. Putting them in the first eight taps
+ * would rebuild the wall the profile exists to remove; leaving them out
+ * entirely would cost people the largest single sums in the product.
+ */
+const EXTRA_FLAGS = [
+  "hasMortgage",
+  "specialNeedsChild",
+  "withdrewProvidentFund",
+  "soldProperty",
+  "livesInEligibleTown",
+  "hasCarLoan",
+  "spendsForeignCurrency",
+  "holdsSecurities",
+] as const;
 
 /**
  * The Zakai Score screen.
@@ -267,10 +289,35 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
               </div>
             </div>
 
+            <div>
+              <span className="text-[13px] text-ink-soft block mb-1">{t("q.moreTitle")}</span>
+              <span className="text-[11.5px] text-ink-soft block mb-2 leading-relaxed">
+                {t("q.moreHint")}
+              </span>
+              <div className="flex gap-2 flex-wrap">
+                {EXTRA_FLAGS.map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    aria-pressed={profile[f] === true}
+                    onClick={() => update({ ...profile, [f]: !profile[f] })}
+                    className={chip(profile[f] === true)}
+                  >
+                    {t(`q.${f}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <p className="text-[11.5px] text-ink-soft m-0 leading-relaxed">{t("privacyNote")}</p>
           </div>
         )}
       </Card>
+
+      {/* Captive pricing. Below the entitlements because it needs a number
+          from them, and above nothing else because it is the largest recurring
+          money in the product. */}
+      <CaptiveCard profile={profile} bcp47={bcp47} />
 
       {/* What to do next, most valuable first, fulfilled in place. */}
       {result.gaps.length > 0 && (

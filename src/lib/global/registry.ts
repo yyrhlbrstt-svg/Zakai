@@ -62,6 +62,16 @@ export function fromLegacyIsraeliProfile(p: RightsProfile): UniversalProfile {
     migrantYears: p.newImmigrant ? 3 : undefined,
     militaryReserve: p.reservist,
     recentMilitaryDischarge: p.dischargedSoldier,
-    extra: {},
+    // The optional tax facts. Normalised to a definite false rather than left
+    // absent, because "not asked" and "answered no" must land on the same
+    // eligibility result — a right that appears only for people who happened
+    // to see a newer version of the form is a bug the parity test would miss.
+    extra: {
+      hasMortgage: p.hasMortgage === true,
+      specialNeedsChild: p.specialNeedsChild === true,
+      withdrewProvidentFund: p.withdrewProvidentFund === true,
+      soldProperty: p.soldProperty === true,
+      livesInEligibleTown: p.livesInEligibleTown === true,
+    },
   };
 }
