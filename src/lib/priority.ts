@@ -44,6 +44,19 @@ const CATALOG: PriorityAction[] = [
     agentic: false,
   },
   {
+    // No monthly figure exists for this honestly, so the number below is a
+    // ranking weight and nothing else — it never reaches a screen as money.
+    id: "dormant",
+    href: "/dormant",
+    titleHe: "כסף ששכחת שהוא שלך",
+    titleEn: "Money you forgot is yours",
+    whyHe: "שאלה אחת → כל גוף שחייב לגלות מה יש לו על שמך",
+    whyEn: "One question → every body that must disclose what it holds",
+    monthlyPotentialShekels: 120,
+    effort: "low",
+    agentic: false,
+  },
+  {
     id: "cancel",
     href: "/cancel",
     titleHe: "ביטול / הנחה — הסוכן שולח",

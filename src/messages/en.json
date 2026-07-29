@@ -72,7 +72,8 @@
     "vat": "VAT return",
     "score": "Zakai Score",
     "authority": "My authorities",
-    "incident": "I was injured — who owes me?"
+    "incident": "I was injured — who owes me?",
+    "dormant": "Money you forgot"
   },
   "payslip": {
     "title": "Payslip check",
@@ -4311,6 +4312,56 @@
       "defence_disability": "Defence Ministry — rehabilitation",
       "travel_policy": "Travel insurance",
       "ni_general_disability": "National Insurance — general disability"
+    }
+  },
+  "dormant": {
+    "title": "Money you forgot is yours",
+    "subtitle": "Not a claim and not an entitlement — money already registered in your name, at an institution that knows exactly where it is and has no reason to come looking for you.",
+    "jobsQuestion": "How many employers have you had?",
+    "jobsWhy": "Nobody remembers the provident fund their second employer opened in 2014. Everybody knows how many jobs they have had — the highest-yield question in the product.",
+    "countTitle": "bodies must answer you in writing",
+    "countSub": "There is no figure here, because there is no such thing as an average dormant account — it is nine shekels or ninety thousand, and only the holder can see which. What can be counted is how many bodies owe you a disclosure.",
+    "moreTitle": "More things that add a body",
+    "heirIntro": "Someone who dies leaves policies, funds and accounts the family usually knows nothing about, and no institution will come and find you. If this applies:",
+    "heirBadge": "As heir",
+    "lettersTitle": "The letters",
+    "era": "{n} employers back",
+    "needs": "What you need",
+    "duty": "What obliges them to answer",
+    "generate": "Generate the letter",
+    "disclaimer": "General information, not legal advice. Zakai does not contact anyone for you and does not withdraw funds — it prepares the written demand you send, and keeps a record of the date.",
+    "fields": {
+      "name": "Full name",
+      "id": "ID number",
+      "counterparty": "Name of the body",
+      "employer": "Employer name",
+      "period": "Period (e.g. 2013–2016)",
+      "deceasedName": "Name of the deceased",
+      "deceasedId": "ID of the deceased",
+      "relationship": "Relationship"
+    },
+    "sources": {
+      "old_provident_funds": "Provident funds from former employers",
+      "old_pension": "Old pension funds",
+      "study_fund": "A forgotten study fund",
+      "dormant_bank_account": "Dormant bank account",
+      "unclaimed_policies": "Insurance policies in your name",
+      "deceased_policies": "Policies of a relative who died",
+      "deceased_pension": "Pension and funds of a relative who died",
+      "forgotten_securities": "Forgotten shares and dividends",
+      "unreturned_deposit": "An unreturned deposit or guarantee",
+      "restitution": "Holocaust-era assets",
+      "foreign_pension": "Pension accrued abroad"
+    },
+    "facts": {
+      "changedBank": "I changed bank",
+      "hadStudyFund": "I had a study fund",
+      "movedHome": "I moved home",
+      "heldSecurities": "I held shares or a portfolio",
+      "unreturnedDeposit": "A deposit was never returned",
+      "workedAbroad": "I worked abroad",
+      "preWarFamily": "Family in Europe before 1945",
+      "deceasedRelative": "Yes, a relative of mine died"
     }
   }
 }
