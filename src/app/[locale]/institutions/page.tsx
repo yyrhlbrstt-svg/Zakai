@@ -287,6 +287,18 @@ Content-Type: application/json
           </li>
           <li>Run it against your own endpoints. Nobody at Zakai reads your source.</li>
           <li>
+            Check yourself first, before a human does:{" "}
+            <code className="text-[13px]">POST {ORIGIN}/api/mandate/conformance/probe</code>{" "}
+            takes your public JWKS plus a sample mandate you issued and runs the
+            reference verifier here against them independently — 7 of the 10
+            checks settled without anyone reading a self-report, including
+            yours. It cannot check status-list freshness or revocation
+            propagation from a single call; those two, plus expiry if you did
+            not send an expired sample, come back listed under{" "}
+            <code className="text-[13px]">report.missing</code> rather than
+            silently assumed to pass.
+          </li>
+          <li>
             Bring the result through the same technical-pilot form below (select{" "}
             <strong>Mandate / institutional API</strong>) — admission to a trust
             boundary is never fully automatic, but finding the human to ask
@@ -357,6 +369,7 @@ Content-Type: application/json
           <li>{ORIGIN}/api/mandate/test-vectors</li>
           <li>{ORIGIN}/.well-known/zakai-trust-registry.json</li>
           <li>{ORIGIN}/.well-known/zakai-conformance.json</li>
+          <li>POST {ORIGIN}/api/mandate/conformance/probe</li>
           <li>{ORIGIN}/api/mandate/revocations</li>
           <li>{ORIGIN}/api/mandate/openapi.json</li>
           <li>{ORIGIN}/api/mandate/scopes</li>

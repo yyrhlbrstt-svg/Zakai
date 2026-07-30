@@ -29,6 +29,10 @@ describe("openapi.json documents every institutional endpoint it grants", () => 
     expect(source).toContain('"/.well-known/zakai-conformance.json"');
   });
 
+  it("documents the endpoint that independently probes a candidate's conformance", () => {
+    expect(source).toContain('"/api/mandate/conformance/probe"');
+  });
+
   it("defines a security scheme for the issuance key it requires", () => {
     expect(source).toContain("zakaiIssueKey");
     expect(source).toContain("x-zakai-issue-key");

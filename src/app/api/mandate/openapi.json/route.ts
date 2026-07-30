@@ -100,6 +100,58 @@ export async function GET(request: Request) {
           responses: { "200": { description: "Conformance suite: checks and admission rules" } },
         },
       },
+      "/api/mandate/conformance/probe": {
+        post: {
+          tags: ["conformance"],
+          summary: "Independently verify a candidate issuer's conformance, without reading their code",
+          description:
+            "The self-attested route above asks a candidate to run the suite against their own endpoints " +
+            "and report back; this route runs the reference verifier here, against artifacts the candidate " +
+            "submits, as a neutral judge instead of trusting their report. Settles 7 of the 10 published " +
+            "checks in one call: publishes_jwks, issues_valid_jwt, registered_claims_present, " +
+            "scope_is_oauth_shaped, refuses_forbidden_scope, rejects_forged_signature, enforces_audience. " +
+            "enforces_expiry is included only if sampleExpiredToken is supplied — never faked as passing. " +
+            "publishes_status_list and revocation_takes_effect need monitoring over time and are always " +
+            "absent here, same as an unrun check: the response's report.missing lists them. The JWKS is " +
+            "submitted inline rather than fetched from a candidate-supplied URL, since a server-side fetch " +
+            "of an arbitrary caller-given URL would make this endpoint usable to probe internal addresses.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["jwks", "audience", "sampleValidToken"],
+                  properties: {
+                    jwks: { type: "array", items: { type: "object" }, description: "The candidate's own public JWKS keys, 1-8" },
+                    audience: { type: "string", description: "The audience the sampleValidToken was actually issued for" },
+                    sampleValidToken: { type: "string", description: "A currently-valid mandate the candidate issued" },
+                    sampleExpiredToken: { type: "string", description: "Optional: an already-expired sample, to check enforces_expiry" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Independent probe results and the resulting conformance report",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      results: { type: "array", items: { type: "object" } },
+                      report: { type: "object", description: "Same shape as assessConformance() produces internally" },
+                    },
+                  },
+                },
+              },
+            },
+            "400": { description: "invalid_input" },
+            "429": { description: "rate limited" },
+          },
+        },
+      },
       "/api/mandate/issue": {
         post: {
           tags: ["issue"],
