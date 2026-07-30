@@ -57,3 +57,54 @@ export function aggregateCompanyStats(outcomes: CaseOutcome[]): CompanyStat[] {
   stats.sort((a, b) => b.avgSavingAgorot - a.avgSavingAgorot);
   return stats;
 }
+
+export interface VerticalCaseOutcome extends CaseOutcome {
+  vertical: string;
+}
+
+export interface ProviderVerticalStat {
+  vertical: string;
+  cases: number;
+  savedCases: number;
+  savedRatePct: number;
+  avgSavingAgorot: number;
+}
+
+/**
+ * The same neutral-facts, sample-gated aggregate as `aggregateCompanyStats`,
+ * cut one level finer: per vertical, for a single named provider. The gate
+ * applies again at this finer grain, not just at the provider total — five
+ * cases spread across three verticals does not clear the bar for any one of
+ * them, because "100% success in parking" from a single case is exactly the
+ * kind of thin-sample claim MIN_SAMPLE exists to block, regardless of how
+ * solid the provider's overall total looks.
+ */
+export function aggregateProviderVerticalStats(
+  provider: string,
+  outcomes: readonly VerticalCaseOutcome[],
+): ProviderVerticalStat[] {
+  const byVertical = new Map<string, VerticalCaseOutcome[]>();
+  for (const o of outcomes) {
+    if (o.provider !== provider) continue;
+    const arr = byVertical.get(o.vertical) ?? [];
+    arr.push(o);
+    byVertical.set(o.vertical, arr);
+  }
+
+  const stats: ProviderVerticalStat[] = [];
+  for (const [vertical, arr] of byVertical) {
+    if (arr.length < MIN_SAMPLE) continue;
+    const savedList = arr.filter((o) => o.saved && o.savingAgorot > 0);
+    const totalSaving = savedList.reduce((s, o) => s + o.savingAgorot, 0);
+    stats.push({
+      vertical,
+      cases: arr.length,
+      savedCases: savedList.length,
+      savedRatePct: Math.round((savedList.length / arr.length) * 100),
+      avgSavingAgorot: savedList.length > 0 ? Math.round(totalSaving / savedList.length) : 0,
+    });
+  }
+
+  stats.sort((a, b) => b.cases - a.cases);
+  return stats;
+}

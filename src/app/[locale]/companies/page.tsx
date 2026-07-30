@@ -75,9 +75,10 @@ export default async function CompaniesPage({
       ) : (
         <div className="flex flex-col gap-2.5">
           {stats.map((s) => (
-            <div
+            <Link
               key={s.provider}
-              className="flex items-center gap-4 flex-wrap rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-4"
+              href={`/companies/${s.provider}`}
+              className="flex items-center gap-4 flex-wrap rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-4 no-underline text-ink hover:border-[rgba(63,203,155,0.35)] transition-colors"
             >
               <div className="flex-1 basis-[160px] font-extrabold text-[15.5px]">
                 {tp(s.provider)}
@@ -91,7 +92,7 @@ export default async function CompaniesPage({
               <div className="text-[14px] font-extrabold text-emerald">
                 {t("companies.avgTag", { amount: formatAgorot(s.avgSavingAgorot, loc) })}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
