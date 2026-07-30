@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
-import { Card, Input, Button, FieldError } from "@/components/ui";
+import { Card, Input, Button, FieldError, RadioChips } from "@/components/ui";
 import { estimatePlans, type UsageProfile } from "@/lib/electricity";
 import { formatAgorot, shekelsToAgorot, agorotToShekels } from "@/lib/money";
 
@@ -96,24 +96,12 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
         <div className="mt-5">
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("profileLabel")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("profileLabel")}>
-            {PROFILES.map((p) => (
-              <button
-                key={p}
-                type="button"
-                role="radio"
-                aria-checked={profile === p}
-                onClick={() => setProfile(p)}
-                className={`rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-                  profile === p
-                    ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-                    : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-                }`}
-              >
-                {t(`profiles.${p}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile}
+            onChange={setProfile}
+            ariaLabel={t("profileLabel")}
+            options={PROFILES.map((p) => ({ value: p, label: t(`profiles.${p}`) }))}
+          />
         </div>
 
         <label className="flex gap-2.5 items-center mt-5 text-[13.5px] cursor-pointer">

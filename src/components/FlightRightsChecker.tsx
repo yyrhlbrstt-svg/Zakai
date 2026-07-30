@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { Card, Button, Input, Textarea } from "@/components/ui";
+import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
 import {
   computeEntitlement,
   computeEntitlementEU,
@@ -82,13 +82,6 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   const entitled =
     result.assistance || result.refundOrAlternative || compensationLabel !== "";
 
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
-
   const radios = <T extends string | number | boolean>(
     label: string,
     options: readonly T[],
@@ -98,20 +91,15 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   ) => (
     <div className="mt-5 first:mt-0">
       <span className="text-[13.5px] text-ink-soft block mb-2">{label}</span>
-      <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={label}>
-        {options.map((o) => (
-          <button
-            key={String(o)}
-            type="button"
-            role="radio"
-            aria-checked={value === o}
-            onClick={() => set(o)}
-            className={chip(value === o)}
-          >
-            {render(o)}
-          </button>
-        ))}
-      </div>
+      <RadioChips
+        value={String(value)}
+        onChange={(v) => {
+          const found = options.find((o) => String(o) === v);
+          if (found !== undefined) set(found);
+        }}
+        ariaLabel={label}
+        options={options.map((o) => ({ value: String(o), label: render(o) }))}
+      />
     </div>
   );
 

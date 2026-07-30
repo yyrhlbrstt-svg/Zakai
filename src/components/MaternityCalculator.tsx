@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, RadioChips } from "@/components/ui";
 import { computeMaternity, type MaternityEligibility } from "@/lib/maternity";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 
@@ -18,26 +18,17 @@ export function MaternityCalculator({ bcp47 }: { bcp47: string }) {
   );
   const money = (a: number) => formatAgorot(a, bcp47);
 
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
-
   return (
     <div>
       <Card className="p-6 flex flex-col gap-5">
         <div>
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("eligibilityQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("eligibilityQ")}>
-            {(["full", "partial"] as const).map((e) => (
-              <button key={e} type="button" role="radio" aria-checked={eligibility === e}
-                onClick={() => setEligibility(e)} className={chip(eligibility === e)}>
-                {t(`eligibility.${e}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={eligibility}
+            onChange={setEligibility}
+            ariaLabel={t("eligibilityQ")}
+            options={(["full", "partial"] as const).map((e) => ({ value: e, label: t(`eligibility.${e}`) }))}
+          />
         </div>
 
         <label className="block">

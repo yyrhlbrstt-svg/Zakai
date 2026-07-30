@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card, Input, Button } from "@/components/ui";
+import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { traceDormant, type DormantLead } from "@/lib/dormant/trace";
 import { buildDormantLetter } from "@/lib/dormant/letters";
 import type { DormantFacts } from "@/lib/dormant/sources";
@@ -66,32 +66,24 @@ export function DormantScreen() {
           least likely to install an app to look. */}
       <Card className="p-6 mb-5">
         <span className="text-[13px] text-ink-soft block mb-2">{t("forWhom")}</span>
-        <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("forWhom")}>
-          {SUBJECTS.map((sub) => (
-            <button
-              key={sub.id}
-              type="button"
-              role="radio"
-              aria-checked={subject === sub.id}
-              onClick={() => {
-                setSubject(sub.id);
-                setFacts((f) => ({
-                  ...f,
-                  // A suggestion, shown in the answer they can change. It is
-                  // never used as an input on its own — a pre-filled guess that
-                  // silently became an answer would be a guess in an answer's
-                  // clothes.
-                  pastEmployers: subjectProfile(sub.id)!.suggestedEmployers,
-                  deceasedRelative: sub.id === "deceased",
-                }));
-                setStarted(true);
-              }}
-              className={chip(subject === sub.id)}
-            >
-              {t(`subjects.${sub.id}`)}
-            </button>
-          ))}
-        </div>
+        <RadioChips
+          value={subject}
+          onChange={(sub) => {
+            setSubject(sub);
+            setFacts((f) => ({
+              ...f,
+              // A suggestion, shown in the answer they can change. It is
+              // never used as an input on its own — a pre-filled guess that
+              // silently became an answer would be a guess in an answer's
+              // clothes.
+              pastEmployers: subjectProfile(sub)!.suggestedEmployers,
+              deceasedRelative: sub === "deceased",
+            }));
+            setStarted(true);
+          }}
+          ariaLabel={t("forWhom")}
+          options={SUBJECTS.map((sub) => ({ value: sub.id, label: t(`subjects.${sub.id}`) }))}
+        />
 
         {/* Stated in the open, not in a disclaimer nobody reads. A demand
             arriving over a living parent's name without their knowledge is
@@ -107,23 +99,15 @@ export function DormantScreen() {
         <span className="text-[13px] text-ink-soft block mb-2">
           {signsOwnLetters(subject) && subject === "self" ? t("jobsQuestion") : t("jobsQuestionOther")}
         </span>
-        <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("jobsQuestion")}>
-          {[1, 2, 3, 4, 5, 6].map((n) => (
-            <button
-              key={n}
-              type="button"
-              role="radio"
-              aria-checked={facts.pastEmployers === n}
-              onClick={() => {
-                setFacts((f) => ({ ...f, pastEmployers: n }));
-                setStarted(true);
-              }}
-              className={chip(facts.pastEmployers === n)}
-            >
-              {n === 6 ? "6+" : n}
-            </button>
-          ))}
-        </div>
+        <RadioChips
+          value={String(facts.pastEmployers ?? "")}
+          onChange={(v) => {
+            setFacts((f) => ({ ...f, pastEmployers: Number(v) }));
+            setStarted(true);
+          }}
+          ariaLabel={t("jobsQuestion")}
+          options={[1, 2, 3, 4, 5, 6].map((n) => ({ value: String(n), label: n === 6 ? "6+" : n }))}
+        />
         <p className="text-[11.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{t("jobsWhy")}</p>
       </Card>
 

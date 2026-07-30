@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, RadioChips } from "@/components/ui";
 import { computeMiluim, type MiluimEmployment } from "@/lib/miluim";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 
@@ -27,26 +27,17 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
   );
   const money = (a: number) => formatAgorot(a, bcp47);
 
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
-
   return (
     <div>
       <Card className="p-6 flex flex-col gap-5">
         <div>
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("employmentQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("employmentQ")}>
-            {(["employee", "self_employed"] as const).map((e) => (
-              <button key={e} type="button" role="radio" aria-checked={employment === e}
-                onClick={() => setEmployment(e)} className={chip(employment === e)}>
-                {t(`employment.${e}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={employment}
+            onChange={setEmployment}
+            ariaLabel={t("employmentQ")}
+            options={(["employee", "self_employed"] as const).map((e) => ({ value: e, label: t(`employment.${e}`) }))}
+          />
         </div>
 
         <label className="block">

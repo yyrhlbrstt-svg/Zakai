@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { Card, Input, Button } from "@/components/ui";
+import { Card, Input, Button, RadioChips } from "@/components/ui";
 
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -87,13 +87,6 @@ ${name || "____"}
     }
   }
 
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
-
   return (
     <div>
       <Card className="p-6 flex flex-col gap-4">
@@ -118,20 +111,12 @@ ${name || "____"}
 
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("reasonQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("reasonQ")}>
-            {REASONS.map((r) => (
-              <button
-                key={r}
-                type="button"
-                role="radio"
-                aria-checked={reason === r}
-                onClick={() => setReason(r)}
-                className={chip(reason === r)}
-              >
-                {t(`reasons.${r}.label`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={reason}
+            onChange={setReason}
+            ariaLabel={t("reasonQ")}
+            options={REASONS.map((r) => ({ value: r, label: t(`reasons.${r}.label`) }))}
+          />
         </div>
 
         <label className="block">

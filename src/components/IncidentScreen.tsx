@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card, Input, Button, Textarea } from "@/components/ui";
+import { Card, Input, Button, Textarea, RadioChips } from "@/components/ui";
 import { matchCovers } from "@/lib/incident/match";
 import { buildIncidentLetter } from "@/lib/incident/letters";
 import type { CoverMatch } from "@/lib/incident/match";
@@ -78,20 +78,12 @@ export function IncidentScreen() {
     <div>
       <Card className="p-6">
         <span className="text-[13px] text-ink-soft block mb-2">{t("whatHappened")}</span>
-        <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("whatHappened")}>
-          {KINDS.map((k) => (
-            <button
-              key={k}
-              type="button"
-              role="radio"
-              aria-checked={kind === k}
-              onClick={() => setKind(k)}
-              className={chip(kind === k)}
-            >
-              {t(`kinds.${k}`)}
-            </button>
-          ))}
-        </div>
+        <RadioChips
+          value={kind ?? ""}
+          onChange={(k) => setKind(k as IncidentKind)}
+          ariaLabel={t("whatHappened")}
+          options={KINDS.map((k) => ({ value: k, label: t(`kinds.${k}`) }))}
+        />
       </Card>
 
       {result && (

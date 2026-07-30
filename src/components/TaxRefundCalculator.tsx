@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, RadioChips } from "@/components/ui";
 import { estimatePartialYearRefund } from "@/lib/tax";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 import { ShareResult } from "@/components/ShareResult";
@@ -25,13 +25,6 @@ export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
     [monthly, months, points],
   );
   const money = (a: number) => formatAgorot(a, bcp47);
-
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
 
   return (
     <div>
@@ -56,14 +49,12 @@ export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
 
         <div>
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("pointsQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("pointsQ")}>
-            {[2.25, 2.75].map((p) => (
-              <button key={p} type="button" role="radio" aria-checked={points === p}
-                onClick={() => setPoints(p)} className={chip(points === p)}>
-                {t(p === 2.25 ? "pointsMan" : "pointsWoman")}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={String(points)}
+            onChange={(v) => setPoints(Number(v))}
+            ariaLabel={t("pointsQ")}
+            options={[2.25, 2.75].map((p) => ({ value: String(p), label: t(p === 2.25 ? "pointsMan" : "pointsWoman") }))}
+          />
         </div>
       </Card>
 
