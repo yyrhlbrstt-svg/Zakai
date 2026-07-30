@@ -19,8 +19,8 @@ import { GlobalPackRights } from "@/components/GlobalPackRights";
 /**
  * Legacy country codes ("UK") to the global-pack market they correspond to
  * ("GB", the actual ISO 3166-1 alpha-2 code MARKETS is keyed by). Only the
- * six markets with a real `JurisdictionPack` — carrying an actual letter
- * template, not just a checklist entry — appear here. The other seven
+ * seven markets with a real `JurisdictionPack` — carrying an actual letter
+ * template, not just a checklist entry — appear here. The other six
  * `RIGHTS_COUNTRIES` have no pack yet, and showing nothing beyond the
  * existing checklist for them is the honest choice, not a bug to route
  * around.
@@ -31,6 +31,7 @@ const GLOBAL_MARKET_CODE: Partial<Record<CountryCode, string>> = {
   DE: "DE",
   FR: "FR",
   CA: "CA",
+  AU: "AU",
 };
 
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
@@ -64,7 +65,7 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
   const result = useMemo(() => evaluateRights(profile, country), [profile, country]);
   const money = (a: number) => formatAgorot(a, bcp47);
 
-  // The five markets with a real JurisdictionPack — a letter template, not
+  // The six markets with a real JurisdictionPack — a letter template, not
   // just a checklist entry. IL deliberately excluded: it already renders
   // through the legacy path above, and the pack is proven (by
   // src/lib/global/engine.test.ts) to return the identical set of rights, so
