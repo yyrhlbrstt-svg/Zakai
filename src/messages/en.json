@@ -2883,7 +2883,9 @@
     "upTo": "up to",
     "resultSub": "(at least about {low}, on a conservative estimate). This is a ceiling of potential to check — not a promise. Tap any row to actually check it.",
     "shareMsg": "I checked on Zakai and found I might be owed up to {amount} 😳 worth it for everyone to check, takes a minute:",
-    "honest": "These are potential estimates based on public data, mixing one-time, annual and multi-year amounts — to give you a picture of what's worth checking. The actual amount depends on your personal details."
+    "honest": "These are potential estimates based on public data, mixing one-time, annual and multi-year amounts — to give you a picture of what's worth checking. The actual amount depends on your personal details.",
+    "notIsraelNote": "These estimates are tuned to Israeli law. For a real check of your rights in your own country, we have a genuinely global tool — not a translation.",
+    "notIsraelCta": "Check my rights"
   },
   "companies": {
     "metaTitle": "Zakai Score — results by company | Zakai",

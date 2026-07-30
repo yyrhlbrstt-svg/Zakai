@@ -391,7 +391,9 @@
     "upTo": "bis zu",
     "resultSub": "(mindestens etwa {low}, konservativ geschätzt). Dies ist eine Obergrenze des Prüfpotenzials — kein Versprechen. Tippen Sie auf eine Zeile, um es tatsächlich zu prüfen.",
     "shareMsg": "Ich habe bei Zakai geprüft und herausgefunden, dass mir bis zu {amount} zustehen könnten 😳 lohnt sich für jeden zu prüfen, dauert eine Minute:",
-    "honest": "Dies sind mögliche Schätzungen auf Basis öffentlicher Daten, die einmalige, jährliche und mehrjährige Beträge mischen — um Ihnen ein Bild davon zu geben, was sich zu prüfen lohnt. Der tatsächliche Betrag hängt von Ihren persönlichen Angaben ab."
+    "honest": "Dies sind mögliche Schätzungen auf Basis öffentlicher Daten, die einmalige, jährliche und mehrjährige Beträge mischen — um Ihnen ein Bild davon zu geben, was sich zu prüfen lohnt. Der tatsächliche Betrag hängt von Ihren persönlichen Angaben ab.",
+    "notIsraelNote": "Diese Schätzungen sind auf israelisches Recht zugeschnitten. Für eine echte Prüfung Ihrer Rechte in Ihrem eigenen Land haben wir ein wirklich globales Werkzeug — keine Übersetzung.",
+    "notIsraelCta": "Meine Rechte prüfen"
   },
   "electricity": {
     "title": "Wie viel können Sie beim Strom sparen?",

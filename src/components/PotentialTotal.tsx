@@ -22,13 +22,24 @@ const QUESTIONS: { key: keyof PotentialProfile; icon: string }[] = [
  * "How much am I owed?" — the shareable grand total. A few taps produce an
  * honest "up to ₪X worth checking" headline plus a breakdown that links into
  * each vertical to actually verify. Client-side; nothing stored.
+ *
+ * Every range here is tuned to Israeli law (arnona, Israeli pension rules, the
+ * Israeli flight-compensation cap) — real for Israel, not a general-purpose
+ * estimator. For a visitor who has already told us they are elsewhere, six of
+ * the seven questions would stop affecting the total at all, which reads as
+ * broken rather than honest. So `isIsraeli={false}` skips this tool entirely
+ * and points to `/rights` instead — the checklist actually built with a real
+ * catalog for their own country.
  */
-export function PotentialTotal() {
+export function PotentialTotal({ isIsraeli = true }: { isIsraeli?: boolean }) {
   const t = useTranslations("potential");
   const tv = useTranslations("home.verticals");
   const locale = useLocale();
   const loc = bcp47[locale as Locale];
 
+  // Hooks first, unconditionally, per the Rules of Hooks — `isIsraeli` is set
+  // once from the server and never toggles within a mounted instance, but the
+  // early return below still has to come after every hook call, not before.
   const [profile, setProfile] = useState<PotentialProfile>({
     ownsHome: false,
     hasMortgage: false,
@@ -39,6 +50,17 @@ export function PotentialTotal() {
     rents: false,
   });
   const [result, setResult] = useState<ReturnType<typeof computePotentialTotal> | null>(null);
+
+  if (!isIsraeli) {
+    return (
+      <Card className="p-6 text-center">
+        <p className="text-ink-soft text-[14px] leading-relaxed mb-4">{t("notIsraelNote")}</p>
+        <Link href="/rights">
+          <Button>{t("notIsraelCta")}</Button>
+        </Link>
+      </Card>
+    );
+  }
 
   const money = (n: number) => `₪${Math.round(n).toLocaleString(loc)}`;
   const toggle = (k: keyof PotentialProfile) => setProfile((p) => ({ ...p, [k]: !p[k] }));

@@ -391,7 +391,9 @@
     "upTo": "jusqu'à",
     "resultSub": "(au moins environ {low}, selon une estimation prudente). Il s'agit d'un plafond de potentiel à vérifier — pas une promesse. Appuyez sur une ligne pour la vérifier réellement.",
     "shareMsg": "J'ai vérifié sur Zakai et découvert qu'on pourrait me devoir jusqu'à {amount} 😳 ça vaut le coup pour tout le monde de vérifier, ça prend une minute :",
-    "honest": "Ce sont des estimations potentielles basées sur des données publiques, mêlant des montants ponctuels, annuels et pluriannuels — pour vous donner une idée de ce qui vaut la peine d'être vérifié. Le montant réel dépend de votre situation personnelle."
+    "honest": "Ce sont des estimations potentielles basées sur des données publiques, mêlant des montants ponctuels, annuels et pluriannuels — pour vous donner une idée de ce qui vaut la peine d'être vérifié. Le montant réel dépend de votre situation personnelle.",
+    "notIsraelNote": "Ces estimations sont adaptées au droit israélien. Pour une vérification réelle de vos droits dans votre pays, nous avons un outil réellement mondial — pas une traduction.",
+    "notIsraelCta": "Vérifier mes droits"
   },
   "electricity": {
     "title": "Combien pouvez-vous économiser sur l'électricité ?",

@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { PotentialTotal } from "@/components/PotentialTotal";
 import { Button } from "@/components/ui";
+import { isIsrael } from "@/lib/geo";
 
 export async function generateMetadata({
   params,
@@ -22,6 +23,7 @@ export default async function WhatAmIOwedPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("potential");
+  const israeliVisitor = await isIsrael();
   const he = locale === "he" || locale === "ar";
   const tIapp_locale_what_am_i_owed_page = await getTranslations({ locale, namespace: "inline_app_locale_what_am_i_owed_page" });
 
@@ -63,7 +65,7 @@ export default async function WhatAmIOwedPage({
         </Link>
       </div>
 
-      <PotentialTotal />
+      <PotentialTotal isIsraeli={israeliVisitor} />
 
       <div className="mt-10 rounded-2xl border border-[rgba(63,203,155,0.28)] bg-[rgba(63,203,155,0.06)] px-5 py-5 text-center">
         <div className="font-extrabold text-[15px]">
