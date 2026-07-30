@@ -4536,6 +4536,10 @@
     "metaTitle": "Zakai Mandate for AI agents — prove a person authorised the act",
     "metaDesc": "An open, verifiable-offline authorization standard for any AI agent acting on a person's behalf — signed, scoped, revocable, and never able to move money outward."
   },
+  "registry": {
+    "metaTitle": "Zakai Mandate — registered issuers",
+    "metaDesc": "Every party admitted to sign Zakai Mandates with its own keys, on the same terms, with the same forbidden scopes binding all of them."
+  },
   "entitlementsPage": {
     "metaTitle": "What am I entitled to? — Zakai",
     "metaDesc": "A short quiz showing which rights, grants and refunds you're owed in Israel — based on your profile, no signup."

@@ -286,7 +286,7 @@ Content-Type: application/json
         <DelegationApplyForm />
       </Section>
 
-      <Section heading="Run your own keys instead? Become a registered issuer">
+      <Section id="registered-issuer" heading="Run your own keys instead? Become a registered issuer">
         <p className="text-[14.5px] leading-relaxed mb-4">
           Delegated issuance above is for an agent that would rather not run
           Ed25519 infrastructure of its own. If you already sign your own
@@ -386,6 +386,7 @@ Content-Type: application/json
           <li>POST {ORIGIN}/api/mandate/decide</li>
           <li>{ORIGIN}/api/mandate/test-vectors</li>
           <li>{ORIGIN}/.well-known/zakai-trust-registry.json</li>
+          <li>{ORIGIN}/{locale}/registry (human-readable)</li>
           <li>{ORIGIN}/.well-known/zakai-conformance.json</li>
           <li>POST {ORIGIN}/api/mandate/conformance/probe</li>
           <li>{ORIGIN}/api/mandate/revocations</li>
@@ -436,9 +437,17 @@ Content-Type: application/json
   );
 }
 
-function Section({ heading, children }: { heading: string; children: React.ReactNode }) {
+function Section({
+  heading,
+  children,
+  id,
+}: {
+  heading: string;
+  children: React.ReactNode;
+  id?: string;
+}) {
   return (
-    <Card className="p-6 mb-4">
+    <Card id={id} className="p-6 mb-4 scroll-mt-24">
       <h2 className="font-display text-xl mb-3">{heading}</h2>
       {children}
     </Card>

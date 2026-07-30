@@ -29,6 +29,7 @@ const PATHS = [
   "/trust",
   "/institutions",
   "/agents",
+  "/registry",
   "/faq",
   "/signup",
   "/login",

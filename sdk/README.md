@@ -181,6 +181,7 @@ exception.
 
 - Discovery document: `https://zakai-3uxj.vercel.app/.well-known/zakai-mandate.json`
 - Trust registry: `https://zakai-3uxj.vercel.app/.well-known/zakai-trust-registry.json`
+  (human-readable: `https://zakai-3uxj.vercel.app/en/registry`)
 - Conformance suite (for implementing your own verifier in another language):
   `https://zakai-3uxj.vercel.app/.well-known/zakai-conformance.json`
 - Institutional integration guide: `https://zakai-3uxj.vercel.app/en/institutions`
