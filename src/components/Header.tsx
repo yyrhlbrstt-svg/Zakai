@@ -58,6 +58,9 @@ const TOOLS = [
   { href: "/rights", key: "rights" },
   { href: "/electricity", key: "electricity" },
   { href: "/flights", key: "flights" },
+  { href: "/contract-check", key: "contractCheck" },
+  { href: "/overtime-backpay", key: "overtimeBackPay" },
+  { href: "/late-payment", key: "latePayment" },
 ] as const;
 
 const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
@@ -68,6 +71,9 @@ const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   whatAmIOwed: { he: "מה מגיע לי", en: "What am I owed" },
   creditcard: { he: "ריבית כרטיס", en: "Card interest" },
   refundchase: { he: "החזר שלא הגיע", en: "Missing refund" },
+  contractCheck: { he: "בדיקת חוזה", en: "Contract check" },
+  overtimeBackPay: { he: "שעות נוספות", en: "Unpaid overtime" },
+  latePayment: { he: "לקוח לא משלם", en: "Late-paying client" },
 };
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {
