@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import {
@@ -14,18 +15,25 @@ import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 /**
  * Late-invoice demand letter for a freelancer/small supplier — the one tool
  * in this app aimed at a business's own receivables rather than a consumer
- * bill. Pure client-side, same posture as every other calculator here.
+ * bill. Pure client-side, same posture as every other calculator here, plus
+ * an optional full-service path: give the client's email and let the Mandate
+ * agent send + track the collection (fee only on documented payment).
  */
 export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("latePayment");
+  const router = useRouter();
   const [invoiceDate, setInvoiceDate] = useState("");
   const [agreedTermDays, setAgreedTermDays] = useState("");
   const [invoiceAmount, setInvoiceAmount] = useState(5000);
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [supplierName, setSupplierName] = useState("");
   const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
   const [letter, setLetter] = useState("");
   const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [caseId, setCaseId] = useState<string | null>(null);
+  const [agentError, setAgentError] = useState<string | null>(null);
 
   const status = useMemo(() => {
     if (!invoiceDate) return null;
@@ -49,6 +57,49 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         status,
       }),
     );
+  }
+
+  const canSendWithAgent = !!status?.isLate && clientName.trim().length > 0 && clientEmail.trim().length > 0;
+
+  async function sendWithAgent() {
+    if (!canSendWithAgent) return;
+    setAgentError(null);
+    setBusy(true);
+    try {
+      const res = await fetch("/api/cases/late-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          supplierName: supplierName.trim(),
+          clientName: clientName.trim(),
+          clientEmail: clientEmail.trim(),
+          invoiceNumber: invoiceNumber.trim(),
+          invoiceDate,
+          agreedTermDays: agreedTermDays.trim() ? Number(agreedTermDays) : undefined,
+          invoiceAmountShekels: invoiceAmount,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.replace(`/login?return=/late-payment`);
+        return;
+      }
+      if (!res.ok) {
+        setAgentError(
+          data.error === "caseLimit"
+            ? t("caseLimitError")
+            : data.error === "notLateYet"
+              ? t("notLateYetError")
+              : t("genericError"),
+        );
+        return;
+      }
+      setCaseId(data.caseId);
+    } catch {
+      setAgentError(t("genericError"));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -114,14 +165,44 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
             <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
           </label>
           <label className="block">
+            <span className="text-[13px] text-ink-soft block mb-1.5">{t("clientEmailQ")}</span>
+            <Input
+              type="email"
+              value={clientEmail}
+              onChange={(e) => setClientEmail(e.target.value)}
+              placeholder="client@example.com"
+            />
+          </label>
+          <label className="block">
             <span className="text-[13px] text-ink-soft block mb-1.5">{t("invoiceNumberQ")}</span>
             <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
           </label>
         </div>
-        <Button onClick={generateLetter} disabled={!status}>
-          {t("generateCta")}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button onClick={sendWithAgent} disabled={!canSendWithAgent || busy}>
+            {busy ? t("agentBusy") : t("agentSendCta")}
+          </Button>
+          <Button variant="ghost" onClick={generateLetter} disabled={!status}>
+            {t("generateCta")}
+          </Button>
+        </div>
+        {!status?.isLate && clientName.trim() && clientEmail.trim() && (
+          <p className="text-[12px] text-ink-soft">{t("agentNeedsLate")}</p>
+        )}
+        {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
       </Card>
+
+      {caseId && (
+        <Card className="mt-5 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
+          <div className="text-emerald font-extrabold text-[15px]">{t("caseOpenedTitle")}</div>
+          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
+            {t("caseOpenedBody")}
+          </p>
+          <Link href="/dashboard">
+            <Button className="w-full">{t("goToDashboard")}</Button>
+          </Link>
+        </Card>
+      )}
 
       {letter && (
         <Card className="mt-5 p-6">

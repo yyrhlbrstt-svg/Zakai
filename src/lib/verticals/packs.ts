@@ -124,6 +124,28 @@ export const electricityIL: VerticalRulePack = {
   counterparties: ["electra", "cellcomEnergy", "bezeqEnergy", "partnerPower", "other"],
 };
 
+/**
+ * Late-payment collection — a freelancer/small supplier chasing their own
+ * client, not a consumer facing a company. One-shot recovery like
+ * refund-chase/airline: amountOriginal is the invoice owed, target is 0 (full
+ * payment), and the counterparty is free-text with a direct email address
+ * (Case.counterpartyEmail) rather than a providers.ts registry entry.
+ */
+export const latePaymentIL: VerticalRulePack = {
+  key: "late-payment",
+  country: "IL",
+  label: "איחור בתשלום לספק",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "transfer_confirmation",
+    proofDescription: "אישור העברה מהלקוח על תשלום החשבונית",
+  },
+  regulated: false,
+  counterparties: ["other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -133,4 +155,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   parkingIL,
   transportFineIL,
   electricityIL,
+  latePaymentIL,
 ];

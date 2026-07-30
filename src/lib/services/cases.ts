@@ -41,6 +41,8 @@ interface CreateCaseInput {
   marketHighShekels?: number;
   draftMessage: string;
   beneficiaryLabel?: string;
+  /** Direct contact email for a counterparty not in providers.ts (e.g. late-payment's client). */
+  counterpartyEmail?: string;
   vertical?: string;
   strategyVariant?: string;
   strategySeed?: number;
@@ -63,6 +65,7 @@ export async function createCase(input: CreateCaseInput) {
       userId: input.userId,
       vertical: input.vertical ?? "telecom",
       provider: input.provider,
+      counterpartyEmail: input.counterpartyEmail ?? null,
       planDescription: input.plan,
       amountOriginal: shekelsToAgorot(input.amountShekels),
       targetAmount: shekelsToAgorot(input.targetShekels),
@@ -192,7 +195,7 @@ export async function sendOutreach(caseId: string, userId: string) {
   });
 
   const email = await sendEmail({
-    to: providerContactEmail(kase.provider),
+    to: kase.counterpartyEmail || providerContactEmail(kase.provider),
     subject: `בקשת התאמת מסלול בשם ${auth.principalName} — הרשאה ${auth.code}`,
     body: kase.draftMessage + footer,
     caseId,
