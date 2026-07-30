@@ -35,6 +35,14 @@ export async function GET(request: Request) {
     // anyone else. A registry whose operator holds private privileges is one
     // nobody else joins.
     trust_registry_uri: `${origin}/.well-known/zakai-trust-registry.json`,
+    // How a stranger becomes issuer number two, without a meeting. This is the
+    // path for a party that signs its own mandates with its own Ed25519 keys
+    // and wants an `iss` of its own in trust_registry_uri — distinct from
+    // delegated_issuance below, where Zakai signs on someone else's behalf and
+    // they hold no key at all. Pure and dependency-free by design: run it
+    // against your own endpoints, and the registry admits on the evidence
+    // rather than on a review of your source.
+    conformance_uri: `${origin}/.well-known/zakai-conformance.json`,
     // A signed, compressed bitstring of every revocation, per the IETF Token
     // Status List draft. Fetch it every few minutes, verify once, then answer
     // revocation offline in one bit lookup — at any volume, and without a live

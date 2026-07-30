@@ -58,6 +58,15 @@ describe("the published spec matches what we actually sign", () => {
     expect(source).toContain("delegated_issuance");
   });
 
+  it("discloses the conformance suite for becoming a registered issuer", () => {
+    // The admission test (conformance.ts) and the registry it feeds
+    // (trustRegistry.ts) existed with zero mention anywhere a candidate issuer
+    // would think to look — not here, not on the institutions page, not in
+    // openapi.json. A path with no trace in any of the three places an
+    // integrator reads is not a path anyone finds by accident.
+    expect(source).toContain("conformance_uri");
+  });
+
   it("states the stability policy that makes this worth building against", () => {
     // The question that decides whether an integration gets built at all: will
     // this still mean the same thing in a year. A promise made only in a

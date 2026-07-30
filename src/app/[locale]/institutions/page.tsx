@@ -249,6 +249,33 @@ Content-Type: application/json
         <DelegationApplyForm />
       </Section>
 
+      <Section heading="Run your own keys instead? Become a registered issuer">
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          Delegated issuance above is for an agent that would rather not run
+          Ed25519 infrastructure of its own. If you already sign your own
+          mandates and want an <code className="text-[13px]">iss</code> of your
+          own inside the trust registry — the actual Visa-not-issuing-cards
+          shape of this network — that is a different, harder admission, and it
+          does not start with a form:
+        </p>
+        <ol className="list-decimal pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed mb-4">
+          <li>
+            Read and implement against{" "}
+            <code className="text-[13px]">{ORIGIN}/.well-known/zakai-conformance.json</code>{" "}
+            — the admission test, published, deliberately hostile: it checks that
+            your implementation refuses a forged signature, enforces audience and
+            expiry, and will never issue a scope in <code className="text-[13px]">forbidden_scopes</code>.
+          </li>
+          <li>Run it against your own endpoints. Nobody at Zakai reads your source.</li>
+          <li>
+            Bring the result through the same technical-pilot form below (select{" "}
+            <strong>Mandate / institutional API</strong>) — admission to a trust
+            boundary is never fully automatic, but finding the human to ask
+            shouldn&apos;t be your problem either.
+          </li>
+        </ol>
+      </Section>
+
       <Section heading="Versioning: what we will and will not change under you">
         <p className="text-[14.5px] leading-relaxed mb-4">
           The question that actually decides whether an integration is worth
@@ -310,6 +337,7 @@ Content-Type: application/json
           <li>POST {ORIGIN}/api/mandate/decide</li>
           <li>{ORIGIN}/api/mandate/test-vectors</li>
           <li>{ORIGIN}/.well-known/zakai-trust-registry.json</li>
+          <li>{ORIGIN}/.well-known/zakai-conformance.json</li>
           <li>{ORIGIN}/api/mandate/revocations</li>
           <li>{ORIGIN}/api/mandate/openapi.json</li>
           <li>{ORIGIN}/api/mandate/scopes</li>

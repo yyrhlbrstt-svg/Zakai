@@ -75,6 +75,31 @@ export async function GET(request: Request) {
           responses: { "200": { description: "JWKS" } },
         },
       },
+      "/.well-known/zakai-trust-registry.json": {
+        get: {
+          tags: ["discovery"],
+          summary: "The registry of every admitted issuer",
+          description:
+            "Who may issue mandates, where their public keys and status list live, which scopes they " +
+            "are admitted for, and the forbidden set that binds every issuer with no override path. " +
+            "Wide-open CORS on purpose: nothing here is sensitive, and it is more useful the more widely " +
+            "it is copied.",
+          responses: { "200": { description: "Trust registry JSON" } },
+        },
+      },
+      "/.well-known/zakai-conformance.json": {
+        get: {
+          tags: ["conformance"],
+          summary: "The admission test for becoming a registered issuer",
+          description:
+            "For a party that signs its own mandates with its own Ed25519 keys and wants an iss of its " +
+            "own in the trust registry — distinct from delegated issuance, where Zakai signs on your " +
+            "behalf and you hold no key at all. Pure and dependency-free: run it against your own " +
+            "endpoints, get a signed-off result, and the registry admits on the evidence. Nobody at " +
+            "Zakai reads your source.",
+          responses: { "200": { description: "Conformance suite: checks and admission rules" } },
+        },
+      },
       "/api/mandate/issue": {
         post: {
           tags: ["issue"],

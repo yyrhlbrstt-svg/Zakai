@@ -21,6 +21,14 @@ describe("openapi.json documents every institutional endpoint it grants", () => 
     expect(source).toContain("delegation_refused");
   });
 
+  it("documents the trust registry and the conformance suite that admits into it", () => {
+    // Both existed as real, working endpoints before either had a path entry
+    // here — trust-registry.json was at least linked from discovery.json and
+    // the institutions page; conformance.json had no trace anywhere at all.
+    expect(source).toContain('"/.well-known/zakai-trust-registry.json"');
+    expect(source).toContain('"/.well-known/zakai-conformance.json"');
+  });
+
   it("defines a security scheme for the issuance key it requires", () => {
     expect(source).toContain("zakaiIssueKey");
     expect(source).toContain("x-zakai-issue-key");
