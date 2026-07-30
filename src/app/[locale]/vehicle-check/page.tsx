@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { VehicleCheckScreen } from "@/components/VehicleCheckScreen";
+import { isIsrael } from "@/lib/geo";
 
 export async function generateMetadata({
   params,
@@ -20,12 +21,13 @@ export default async function VehicleCheckPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("vehicleCheck");
+  const israeliVisitor = await isIsrael();
 
   return (
     <main className="max-w-[760px] mx-auto px-5 py-10">
       <h1 className="font-display text-3xl mt-0 mb-2">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] mt-0 mb-7 leading-relaxed">{t("subtitle")}</p>
-      <VehicleCheckScreen />
+      <VehicleCheckScreen isIsraeli={israeliVisitor} />
     </main>
   );
 }

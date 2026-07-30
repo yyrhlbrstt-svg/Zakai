@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { Card, Input, Button } from "@/components/ui";
 import { VEHICLE_DISCLOSURE, buildDisclosureDemand } from "@/lib/prepurchase/vehicle";
 import { withFooter } from "@/lib/letterFooter";
@@ -16,10 +17,24 @@ import { withFooter } from "@/lib/letterFooter";
  *
  * The letter matters for the case where they are not standing there yet, which
  * is the case where it still costs nothing to walk away.
+ *
+ * WHY isIsraeli GATES THE WHOLE THING
+ *
+ * Every `demand`/`why`/`ifRefused` string in VEHICLE_DISCLOSURE is written
+ * once, in Hebrew, against a named Israeli statute — there is no per-locale
+ * version of that content, only a translated title and labels around it. A
+ * non-Israeli visitor used to get exactly that: an English page title over
+ * eight paragraphs of untranslated Hebrew legal text and a letter citing a law
+ * that does not apply to them. Silently machine-translating a demand letter
+ * that quotes a statute would risk stating a legal claim that is not true
+ * where they live, which this codebase does not do. Following the same
+ * pattern as PotentialTotal, an honest "this one is Israel-specific" note
+ * beats either of those.
  */
-export function VehicleCheckScreen() {
+export function VehicleCheckScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
   const t = useTranslations("vehicleCheck");
   const tc = useTranslations("claim");
+  const tp = useTranslations("potential");
   const [plate, setPlate] = useState("");
   const [buyerName, setBuyerName] = useState("");
   const [buyerId, setBuyerId] = useState("");
@@ -36,6 +51,17 @@ export function VehicleCheckScreen() {
     } catch {
       // On screen and selectable already.
     }
+  }
+
+  if (!isIsraeli) {
+    return (
+      <Card className="p-6 text-center">
+        <p className="text-ink-soft text-[14px] leading-relaxed mb-4">{tp("notIsraelNote")}</p>
+        <Link href="/rights">
+          <Button>{tp("notIsraelCta")}</Button>
+        </Link>
+      </Card>
+    );
   }
 
   return (
