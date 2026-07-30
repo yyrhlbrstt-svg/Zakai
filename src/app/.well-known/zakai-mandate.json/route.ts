@@ -134,6 +134,18 @@ export async function GET(request: Request) {
         "A major version bump carries a minimum 180-day overlap window before the prior version stops verifying, published here when scheduled.",
       ],
     },
+    // The objection that kills a protocol before anyone writes code against it
+    // is never technical: it's "can we get sued for implementing someone
+    // else's private spec." Answered here, not only in a repository README,
+    // because the engineer deciding whether to spend a sprint on this reads
+    // this document, not our source control.
+    licensing: {
+      specification:
+        "Freely implementable by anyone, in any language, without royalty or permission. Zakai will not assert any claim against a good-faith independent implementation of this specification.",
+      reference_implementations: "MIT-licensed. See @zakai/mandate-sdk and this deployment's own verifier logic.",
+      trademark:
+        "\"Zakai Mandate\" names this specification profile. An independent implementation may call itself whatever it likes — conformance is established at conformance_uri, never by name.",
+    },
     openapi_uri: `${origin}/api/mandate/openapi.json`,
     human_verify_uri: `${origin}/verify`,
     integration_doc: `${origin}/en/institutions`,

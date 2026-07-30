@@ -149,6 +149,21 @@ const claims = await verifyMandateFromUrl(token, {
         </p>
       </Section>
 
+      <Section heading="Nobody needs our permission">
+        <p className="text-[14.5px] leading-relaxed">
+          The specification is freely implementable by anyone, in any
+          language, without royalty or a licensing conversation — Zakai will
+          not assert a claim against a good-faith independent implementation
+          of it. The reference implementations (this app&apos;s own verifier,
+          the SDK) are MIT-licensed. &quot;Zakai Mandate&quot; names the
+          specification profile; your own implementation of it can be called
+          whatever you like. A protocol whose owner can decide later that you
+          owe it something is not one worth building a dependency on, and
+          this one is written so that objection has a real answer, not a
+          reassuring sentence.
+        </p>
+      </Section>
+
       <Section heading="What this will never do">
         <ul className="list-disc pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
           <li>

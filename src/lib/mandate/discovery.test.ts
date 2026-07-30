@@ -67,6 +67,17 @@ describe("the published spec matches what we actually sign", () => {
     expect(source).toContain("conformance_uri");
   });
 
+  it("states the specification is royalty-free to implement, without needing our permission", () => {
+    // The objection that stops an integration before it starts is legal, not
+    // technical — "can we get sued for building against a private company's
+    // protocol." A promise buried in a repository README nobody outside the
+    // team reads does not answer that for an engineer deciding whether to
+    // spend a sprint on this.
+    expect(source).toContain("licensing");
+    expect(source).toMatch(/royalty/);
+    expect(source).toContain("MIT");
+  });
+
   it("states the stability policy that makes this worth building against", () => {
     // The question that decides whether an integration gets built at all: will
     // this still mean the same thing in a year. A promise made only in a
