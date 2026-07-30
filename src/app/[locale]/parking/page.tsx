@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ParkingAppeal } from "@/components/ParkingAppeal";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ערעור על דוח חניה — זכאי",
-  description:
-    "קיבלת דוח חניה? הרבה דוחות נופלים על פגמים. זכאי מכין לך מכתב ערעור מוכן לשליחה. רץ בדפדפן, בלי מסמכים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "parking" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/parking") },
+  };
+}
 
 export default async function ParkingPage({
   params,

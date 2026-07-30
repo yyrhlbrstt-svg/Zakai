@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { TransportFineAppeal } from "@/components/TransportFineAppeal";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ערעור על דו\"ח בתחבורה ציבורית — זכאי",
-  description:
-    "קיבלת קנס ממפקח באוטובוס או ברכבת? הרבה דוחות ניתנים לביטול. זכאי מכין לך מכתב ערעור מוכן לשליחה. רץ בדפדפן.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "transportFine" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/transport-fine") },
+  };
+}
 
 export default async function TransportFinePage({
   params,

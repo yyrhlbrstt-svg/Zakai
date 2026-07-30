@@ -7,11 +7,21 @@ import { Card, Button } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "מרכז מסמכים — זכאי",
-  description: "Mandates, מכתבים והוכחות חיסכון — להורדה והדפסה.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_documents_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/documents") },
+  };
+}
 
 export default async function DocumentsPage({
   params,

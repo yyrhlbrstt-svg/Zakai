@@ -3,12 +3,21 @@ import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Button } from "@/components/ui";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "איפה הכסף בורח — זכאי Money OS",
-  description:
-    "מפת נזילות כסף גלובלית: מנויים, סלולר, עמלות, ביטוח, זכויות — הסוכן של זכאי סוגר בלי מוקד.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_leaks_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/leaks") },
+  };
+}
 
 /** Every leak points at an agent path — not a passive calculator. */
 const LEAKS = [

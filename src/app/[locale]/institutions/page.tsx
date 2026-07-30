@@ -1,15 +1,24 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Zakai Mandate — Institutional integration",
-  description:
-    "Verify consumer authority offline with Ed25519 JWKS. No outbound payments. Status endpoint for revocation. The emerging standard for consumer agent authority.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "institutions" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/institutions") },
+  };
+}
 
 const ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
 

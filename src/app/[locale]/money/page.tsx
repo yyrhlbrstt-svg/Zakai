@@ -5,11 +5,21 @@ import { MoneyHub } from "@/components/MoneyHub";
 import { Button } from "@/components/ui";
 import { aiAvailable } from "@/lib/ai";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "הכסף שלי — זכאי",
-  description: "מפת חיובים ופעולות עם סוכן — בלי סיסמאות בנק. בלי מוקד.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_money_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/money") },
+  };
+}
 
 export default async function MoneyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

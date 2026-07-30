@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { CreditCardTool } from "@/components/CreditCardTool";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ריבית כרטיס אשראי — זכאי",
-  description: "כמה עולה היתרה המסתובבת כל חודש — ומה כדאי לעשות.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_credit_card_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/credit-card") },
+  };
+}
 
 export default async function CreditCardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

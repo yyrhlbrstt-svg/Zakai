@@ -6,12 +6,21 @@ import { formatAgorot } from "@/lib/money";
 import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "קיר החיסכונות — זכאי",
-  description:
-    "כמה נחסך השבוע עם סוכן זכאי — מספרים אנונימיים מתועדים, בלי פרטים אישיים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_proofs_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/proofs") },
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -45,30 +54,40 @@ export default async function ProofsWallPage({
   const weekAgo = new Date(Date.now() - 7 * 86_400_000);
   const monthAgo = new Date(Date.now() - 30 * 86_400_000);
 
+  // A public wall with no auth gate has to degrade rather than 500 when the
+  // database has a blip — the same reasoning /companies' loadStats() already
+  // follows for the identical table. An empty wall reads as "nothing yet,"
+  // which is honest; a crashed page reads as broken, which is worse.
   const [weekAgg, monthAgg, totalPaid, recent] = await Promise.all([
-    prisma.strategyOutcome.aggregate({
-      where: { paid: true, createdAt: { gte: weekAgo } },
-      _sum: { recoveredMinor: true },
-      _count: true,
-    }),
-    prisma.strategyOutcome.aggregate({
-      where: { paid: true, createdAt: { gte: monthAgo } },
-      _sum: { recoveredMinor: true },
-      _count: true,
-    }),
-    prisma.strategyOutcome.count({ where: { paid: true } }),
-    prisma.strategyOutcome.findMany({
-      where: { paid: true, recoveredMinor: { gt: 0 } },
-      orderBy: { createdAt: "desc" },
-      take: 24,
-      select: {
-        vertical: true,
-        counterparty: true,
-        recoveredMinor: true,
-        days: true,
-        createdAt: true,
-      },
-    }),
+    prisma.strategyOutcome
+      .aggregate({
+        where: { paid: true, createdAt: { gte: weekAgo } },
+        _sum: { recoveredMinor: true },
+        _count: true,
+      })
+      .catch(() => ({ _sum: { recoveredMinor: null }, _count: 0 })),
+    prisma.strategyOutcome
+      .aggregate({
+        where: { paid: true, createdAt: { gte: monthAgo } },
+        _sum: { recoveredMinor: true },
+        _count: true,
+      })
+      .catch(() => ({ _sum: { recoveredMinor: null }, _count: 0 })),
+    prisma.strategyOutcome.count({ where: { paid: true } }).catch(() => 0),
+    prisma.strategyOutcome
+      .findMany({
+        where: { paid: true, recoveredMinor: { gt: 0 } },
+        orderBy: { createdAt: "desc" },
+        take: 24,
+        select: {
+          vertical: true,
+          counterparty: true,
+          recoveredMinor: true,
+          days: true,
+          createdAt: true,
+        },
+      })
+      .catch(() => []),
   ]);
 
   // recoveredMinor is yearly-equivalent (monthly saving * 12) from recordSaving.

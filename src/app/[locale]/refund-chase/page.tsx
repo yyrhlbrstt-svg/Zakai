@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { RefundChaseTool } from "@/components/RefundChaseTool";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "דרישת החזר כספי — זכאי",
-  description: "החזר שלא הגיע מהחנות? מכתב דרישה מיידי להעתקה.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_refund_chase_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/refund-chase") },
+  };
+}
 
 export default async function RefundChasePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

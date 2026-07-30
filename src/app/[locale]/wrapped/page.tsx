@@ -7,11 +7,21 @@ import { formatAgorot } from "@/lib/money";
 import { Button, Card } from "@/components/ui";
 import { ShareResult } from "@/components/ShareResult";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "שנה עם זכאי — Wrapped",
-  description: "סיכום החיסכון שלך עם הסוכן — לשיתוף.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_wrapped_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/wrapped") },
+  };
+}
 
 export default async function WrappedPage({
   params,

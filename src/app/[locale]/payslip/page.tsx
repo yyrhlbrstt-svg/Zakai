@@ -3,12 +3,21 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { LeadCta } from "@/components/LeadCta";
 import { PayslipChecker } from "@/components/PayslipChecker";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "בדיקת תלוש שכר — זכאי",
-  description:
-    "בדיקה חינמית של תלוש השכר: שכר מינימום, הפרשות פנסיה ודמי הבראה — כמה מגיע לך ומה חסר. רץ בדפדפן, בלי להעלות מסמכים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "payslip" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/payslip") },
+  };
+}
 
 /** Public payslip audit — runs in the browser, nothing stored. */
 export default async function PayslipPage({

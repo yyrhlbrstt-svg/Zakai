@@ -5,12 +5,21 @@ import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { EmbedPreview } from "@/components/EmbedPreview";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Zakai for Business — Employee benefits + Mandate infrastructure",
-  description:
-    "Employee money-rights benefit + verifiable Mandate API for banks, insurers and fintechs. No outbound payments. Success fee only on documented savings.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "business" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/business") },
+  };
+}
 
 const ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
 

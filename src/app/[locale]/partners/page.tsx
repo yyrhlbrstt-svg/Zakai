@@ -4,12 +4,21 @@ import { Link } from "@/i18n/routing";
 import { Button, Card } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { EmbedPreview } from "@/components/EmbedPreview";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Zakai Partners — B2B embed & Money OS",
-  description:
-    "Drop-in embed for banks, fintech and employers. Customer money agent with Mandate — no call center, fee only on documented savings. Multi-path: money, cancel, rights.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_partners_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/partners") },
+  };
+}
 
 export default async function PartnersPage({
   params,

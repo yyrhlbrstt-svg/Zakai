@@ -4,11 +4,21 @@ import { LeadForm } from "@/components/LeadForm";
 import { LogoMark } from "@/components/Logo";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "התחל עכשיו — זכאי Money OS",
-  description: "סריקה → תיק סוכן עם Mandate. בלי מוקד. בלי להשאיר טלפון.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_start_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/start") },
+  };
+}
 
 export default async function StartPage({
   params,

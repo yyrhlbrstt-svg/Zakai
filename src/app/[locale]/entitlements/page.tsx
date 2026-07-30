@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { EntitlementQuiz } from "@/components/EntitlementQuiz";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "מה מגיע לי? — זכאי",
-  description:
-    "שאלון קצר שמראה לך אילו זכויות, מענקים והחזרים מגיעים לך בישראל — לפי הפרופיל שלך, בלי להירשם.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "entitlementsPage" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/entitlements") },
+  };
+}
 
 /**
  * The entry funnel: a short, guided "what am I entitled to?" quiz. Runs entirely

@@ -4,12 +4,21 @@ import { setRequestLocale , getTranslations } from "next-intl/server";
 import { CancelTool } from "@/components/CancelTool";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "ביטול מנוי / הנחה עם הסוכן — זכאי",
-  description:
-    "הסוכן של זכאי מבטל מנוי, מבקש הנחה או מקפיא — שולח עם Mandate, עוקב ומתעד חיסכון. בלי מוקד, בלי להשאיר טלפון.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_cancel_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/cancel") },
+  };
+}
 
 export default async function CancelPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
