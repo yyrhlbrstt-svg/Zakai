@@ -1,0 +1,35 @@
+{
+  "name": "@zakai/mandate-sdk",
+  "version": "0.1.0",
+  "description": "Reference client for the Zakai Mandate protocol: verify, decide, and build settlement records for scoped, revocable consumer-agent authority. Not published yet — see README.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
