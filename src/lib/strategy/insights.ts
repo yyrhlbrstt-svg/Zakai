@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { variantById, describeVariant } from "./variants";
+import { variantLabel } from "./variants";
 
 /**
  * Public-facing, privacy-safe strategy insights for the dashboard.
@@ -17,7 +17,8 @@ export interface CounterpartyInsight {
   trials: number;
   winRate: number; // 0–1
   bestVariantId: string | null;
-  bestVariantLabel: string | null;
+  bestVariantLabelHe: string | null;
+  bestVariantLabelEn: string | null;
   avgRecoveredMinor: number;
 }
 
@@ -25,21 +26,7 @@ export interface StrategyInsightsSummary {
   totalOutcomes: number;
   overallWinRate: number;
   counterparties: CounterpartyInsight[];
-  topStance: { id: string; label: string; trials: number; winRate: number } | null;
-}
-
-function stanceLabel(variantId: string): string {
-  const v = variantById(variantId);
-  if (!v) return variantId;
-  const he: Record<string, string> = {
-    cooperative_plain: "שיתופי",
-    cooperative_anchored: "שיתופי + סכום",
-    firm_statutory: "נחרץ + חוק",
-    firm_statutory_anchored: "נחרץ + חוק + סכום",
-    formal_escalation: "רשמי + הסלמה",
-    formal_escalation_anchored: "רשמי + הסלמה + סכום",
-  };
-  return he[variantId] || describeVariant(v)[0] || variantId;
+  topStance: { id: string; labelHe: string; labelEn: string; trials: number; winRate: number } | null;
 }
 
 export async function getStrategyInsights(
@@ -115,13 +102,15 @@ export async function getStrategyInsights(
             bestVariantId = vid;
           }
         }
+        const label = bestVariantId ? variantLabel(bestVariantId) : null;
         return {
           counterparty,
           vertical: b.vertical,
           trials: b.trials,
           winRate: b.wins / b.trials,
           bestVariantId,
-          bestVariantLabel: bestVariantId ? stanceLabel(bestVariantId) : null,
+          bestVariantLabelHe: label?.he ?? null,
+          bestVariantLabelEn: label?.en ?? null,
           avgRecoveredMinor: Math.round(b.recovered / b.trials),
         };
       })
@@ -145,7 +134,8 @@ export async function getStrategyInsights(
       const score = rate * 1000 + s.trials;
       if (score > topScore) {
         topScore = score;
-        topStance = { id, label: stanceLabel(id), trials: s.trials, winRate: rate };
+        const label = variantLabel(id);
+        topStance = { id, labelHe: label.he, labelEn: label.en, trials: s.trials, winRate: rate };
       }
     }
 

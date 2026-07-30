@@ -44,7 +44,10 @@ const CEILING = 0;
  * It is a real assertion now, for the same reason: an unenforced count is a
  * number that can only be trusted the day it was written.
  */
-const DATA_DRIVEN_TERNARIES_CEILING = 13;
+// 13 -> 14: StrategyInsightsCard.tsx picking data.topStance.labelHe/labelEn,
+// added the same day strategy/insights.ts stopped returning a Hebrew-only
+// label with nothing to fall back to for every other locale.
+const DATA_DRIVEN_TERNARIES_CEILING = 14;
 
 // Literal text: `{he ? "..."` or the backtick-string equivalent — user-facing
 // copy typed directly into JSX instead of pulled from a message catalogue.

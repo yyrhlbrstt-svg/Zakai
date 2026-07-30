@@ -44,7 +44,9 @@ export async function StrategyInsightsCard({
       {data.topStance && (
         <p className="text-[13px] mt-2 mb-0">
           <span className="text-ink-soft">{tIcomponents_StrategyInsightsCard("t_eddcfda5")}</span>{" "}
-          <span className="font-extrabold text-emerald">{data.topStance.label}</span>
+          <span className="font-extrabold text-emerald">
+            {he ? data.topStance.labelHe : data.topStance.labelEn}
+          </span>
           <span className="text-ink-soft text-[12px]">
             {" "}
             ({(data.topStance.winRate * 100).toFixed(0)}% · {data.topStance.trials}{" "}
@@ -55,21 +57,24 @@ export async function StrategyInsightsCard({
 
       {data.counterparties.length > 0 && (
         <ul className="mt-3 mb-0 ps-0 list-none flex flex-col gap-1.5">
-          {data.counterparties.slice(0, 5).map((c) => (
-            <li
-              key={`${c.counterparty}-${c.vertical}`}
-              className="flex justify-between gap-3 text-[13px] flex-wrap"
-            >
-              <span className="font-bold">{c.counterparty}</span>
-              <span className="text-ink-soft">
-                {(c.winRate * 100).toFixed(0)}% · {c.trials} {tIcomponents_StrategyInsightsCard("t_ebbe65bd")}
-                {c.bestVariantLabel ? ` · ${c.bestVariantLabel}` : ""}
-                {c.avgRecoveredMinor > 0
-                  ? ` · ~${formatAgorot(c.avgRecoveredMinor, bcp47)}`
-                  : ""}
-              </span>
-            </li>
-          ))}
+          {data.counterparties.slice(0, 5).map((c) => {
+            const bestVariantLabel = he ? c.bestVariantLabelHe : c.bestVariantLabelEn;
+            return (
+              <li
+                key={`${c.counterparty}-${c.vertical}`}
+                className="flex justify-between gap-3 text-[13px] flex-wrap"
+              >
+                <span className="font-bold">{c.counterparty}</span>
+                <span className="text-ink-soft">
+                  {(c.winRate * 100).toFixed(0)}% · {c.trials} {tIcomponents_StrategyInsightsCard("t_ebbe65bd")}
+                  {bestVariantLabel ? ` · ${bestVariantLabel}` : ""}
+                  {c.avgRecoveredMinor > 0
+                    ? ` · ~${formatAgorot(c.avgRecoveredMinor, bcp47)}`
+                    : ""}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       )}
 
