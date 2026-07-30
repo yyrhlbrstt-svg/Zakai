@@ -3595,7 +3595,8 @@
       "accountNumber": "Account / customer number",
       "period": "Year / period",
       "amount": "Amount",
-      "details": "Details"
+      "details": "Details",
+      "state": "State"
     }
   },
   "reset": {

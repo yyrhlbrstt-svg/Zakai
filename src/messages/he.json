@@ -3595,7 +3595,8 @@
       "accountNumber": "מספר חשבון / לקוח",
       "period": "שנה / תקופה",
       "amount": "סכום",
-      "details": "פירוט"
+      "details": "פירוט",
+      "state": "מדינה / מחוז"
     }
   },
   "reset": {

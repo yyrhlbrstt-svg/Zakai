@@ -13,6 +13,25 @@ import {
 } from "@/lib/rights";
 import type { CountryCode } from "@/lib/verticals/types";
 import { formatAgorot } from "@/lib/money";
+import { MARKETS, fromLegacyIsraeliProfile } from "@/lib/global/registry";
+import { GlobalPackRights } from "@/components/GlobalPackRights";
+
+/**
+ * Legacy country codes ("UK") to the global-pack market they correspond to
+ * ("GB", the actual ISO 3166-1 alpha-2 code MARKETS is keyed by). Only the
+ * six markets with a real `JurisdictionPack` — carrying an actual letter
+ * template, not just a checklist entry — appear here. The other seven
+ * `RIGHTS_COUNTRIES` have no pack yet, and showing nothing beyond the
+ * existing checklist for them is the honest choice, not a bug to route
+ * around.
+ */
+const GLOBAL_MARKET_CODE: Partial<Record<CountryCode, string>> = {
+  UK: "GB",
+  US: "US",
+  DE: "DE",
+  FR: "FR",
+  CA: "CA",
+};
 
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = ["employee", "self_employed", "unemployed", "student", "soldier", "retired"] as const;
@@ -44,6 +63,15 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
 
   const result = useMemo(() => evaluateRights(profile, country), [profile, country]);
   const money = (a: number) => formatAgorot(a, bcp47);
+
+  // The five markets with a real JurisdictionPack — a letter template, not
+  // just a checklist entry. IL deliberately excluded: it already renders
+  // through the legacy path above, and the pack is proven (by
+  // src/lib/global/engine.test.ts) to return the identical set of rights, so
+  // showing it a second time here would just be the same list twice.
+  const globalMarketCode = GLOBAL_MARKET_CODE[country];
+  const globalMarket = globalMarketCode ? MARKETS[globalMarketCode] : undefined;
+  const universalProfile = useMemo(() => fromLegacyIsraeliProfile(profile), [profile]);
 
   const chip = (active: boolean) =>
     `rounded-full px-3.5 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
@@ -164,14 +192,19 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
                     behind it. The action expands in place: an in-app tool for
                     rights a tool already covers, the finished letter generated
                     right here for the rest. Rights with no action defined —
-                    foreign catalogs today — render nothing rather than a
-                    "we'll handle it" button with nothing behind it. */}
+                    a country with no JurisdictionPack yet — render nothing
+                    rather than a "we'll handle it" button with nothing
+                    behind it. */}
                 <ClaimDocument rightId={e.id} />
               </details>
             ))}
           </Card>
         </div>
       ))}
+
+      {/* GB, US, DE, FR, CA: a real letter, not just a checklist entry — see
+          GLOBAL_MARKET_CODE above for why IL isn't listed here too. */}
+      {globalMarket && <GlobalPackRights market={globalMarket} profile={universalProfile} />}
 
       <p className="mt-6 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>
