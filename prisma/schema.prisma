@@ -429,6 +429,33 @@ model DelegatedIssuer {
   @@index([status])
 }
 
+/// The self-serve front door to DelegatedIssuer. Before this existed, becoming
+/// a delegated issuer required finding a human and emailing them — the exact
+/// "push" failure mode this protocol is supposed to avoid. This lets a third
+/// party do everything itself: propose a slug, request scopes, submit. A human
+/// still reviews before a real key is minted (admission to a trust boundary is
+/// not something that should ever be fully automatic), but the applicant never
+/// has to locate that human first.
+model DelegationApplication {
+  id               String   @id @default(cuid())
+  /// Proposed, not yet reserved — uniqueness against DelegatedIssuer is
+  /// enforced at approval time, not here, so two applicants proposing the same
+  /// name is a normal event, not a race to fail loudly over.
+  slug             String
+  name             String
+  contactEmail     String
+  useCase          String
+  /// Validated against the real scope catalogue at submission time — an
+  /// applicant learns immediately if a requested scope doesn't exist or is
+  /// categorically forbidden, rather than waiting days for a human to say so.
+  requestedScopes  String[]
+  status           String   @default("pending") // pending | approved | rejected
+  reviewNote       String   @default("")
+  createdAt        DateTime @default(now())
+
+  @@index([status, createdAt])
+}
+
 model PasswordReset {
   id     String @id @default(cuid())
   userId String

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
+import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 
 export const metadata: Metadata = {
   title: "Zakai Mandate — Institutional integration",
@@ -235,6 +236,17 @@ Content-Type: application/json
             it was admitted for — enforced in code, not by agreement.
           </li>
         </ul>
+      </Section>
+
+      <Section heading="Building a competing agent? Become a delegated issuer">
+        <p className="text-[14.5px] leading-relaxed mb-5">
+          If you run a consumer agent and would rather not stand up your own
+          Ed25519 key infrastructure, apply here directly. No call, no email
+          thread — fill this in and a human reviews it. Admission to a trust
+          boundary is never fully automatic, but finding the human to ask
+          shouldn&apos;t be your problem.
+        </p>
+        <DelegationApplyForm />
       </Section>
 
       <Section heading="Versioning: what we will and will not change under you">

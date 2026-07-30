@@ -305,6 +305,41 @@ export async function GET(request: Request) {
           },
         },
       },
+      "/api/mandate/delegation/apply": {
+        post: {
+          tags: ["delegation"],
+          summary: "Apply to become a delegated issuer",
+          description:
+            "Self-service intake for a third-party agent that wants Zakai to sign mandates on its " +
+            "behalf rather than run its own Ed25519 infrastructure. Requested scopes are validated " +
+            "immediately against the same forbidden/known-scope rules decide() enforces, so an " +
+            "invalid request fails at submission rather than after a human eventually reads it. " +
+            "Approval — turning this into a real key — is a manual, human-reviewed step.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["slug", "name", "contactEmail", "useCase", "requestedScopes"],
+                  properties: {
+                    slug: { type: "string", example: "yourbot.example" },
+                    name: { type: "string" },
+                    contactEmail: { type: "string", format: "email" },
+                    useCase: { type: "string", minLength: 20 },
+                    requestedScopes: { type: "array", items: { type: "string" } },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "application received" },
+            "400": { description: "invalid input, or a requested scope is unknown/forbidden" },
+            "429": { description: "rate limited" },
+          },
+        },
+      },
     },
     components: {
       securitySchemes: {},

@@ -66,8 +66,12 @@ signs nothing, so `iss` on these mandates is still Zakai's. Check
 `zkm.onBehalfOf`, not the issuer list, to find them. Every categorical limit
 below still applies to a delegated mandate without exception: a delegated
 issuer can never obtain a scope forbidden to anyone, and can never exceed the
-specific subset it was admitted for. Admission is not self-service; see
-`/en/institutions`.
+specific subset it was admitted for.
+
+Applying is self-service (`POST /api/mandate/delegation/apply`, or the form at
+`/en/institutions`) — no email thread required to start. Turning an approved
+application into a real key stays a manual, human-reviewed step: admission to
+a trust boundary should never be fully automatic.
 
 ## Forbidden scopes
 

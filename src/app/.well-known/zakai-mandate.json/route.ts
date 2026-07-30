@@ -107,7 +107,11 @@ export async function GET(request: Request) {
       onbehalfof_claim: "zkm.onBehalfOf",
       onbehalfof_shape: { agent: "string (issuer slug)", name: "string", note: "string" },
       onbehalfof_absent_means: "first_party — verified directly by Zakai",
-      admission: "Not self-service. See integration_doc.",
+      // Self-serve intake, human-reviewed approval. Submitting here costs
+      // nothing and needs nobody's email address; the review step before a
+      // real key is minted is the part that stays manual on purpose.
+      apply_uri: `${origin}/api/mandate/delegation/apply`,
+      admission: "Self-service application, human-reviewed before a key is issued. See apply_uri.",
     },
     // What makes this worth building against rather than an API that might
     // change under an integrator without notice. Stated here, not only in a
