@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
+import { pushToUser } from "@/lib/push";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
@@ -67,6 +68,20 @@ export async function GET(request: Request) {
 לבדיקה: היכנסו ל"הכסף שלי" או לדשבורד.
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
+      });
+      // vigil/run.ts sends its statutory-deadline alerts through both email
+      // and push; this nudge — arguably the warmer of the two, since it's
+      // tied to a user who already has a proven, documented saving — only
+      // ever called sendEmail. A user who opted into push notifications
+      // specifically to avoid missing exactly this kind of thing was still
+      // depending entirely on email deliverability for it. Best-effort and
+      // silently a no-op with no subscription or no VAPID keys configured —
+      // matches pushToUser's own contract, never blocks the email path above.
+      await pushToUser(c.userId, {
+        title: "המבצע שלך כנראה נגמר",
+        body: "שווה לבדוק שוב אם המחיר עלה — לוקח דקה.",
+        url: "/he/dashboard",
+        tag: "recheck-nudge",
       });
       savedSent++;
     }
