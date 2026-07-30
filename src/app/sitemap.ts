@@ -43,6 +43,7 @@ const PATHS = [
   // was looking for it on day one.
   "/incident",
   "/dormant",
+  "/contract-check",
   "/vehicle-check",
   "/arnona",
   "/baggage",

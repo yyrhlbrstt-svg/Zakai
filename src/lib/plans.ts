@@ -3,7 +3,7 @@
  *
  * Pricing rationale (see GROWTH.md for the full research):
  *  - RiseUp, the Israeli willingness-to-pay benchmark for a money app, charges
- *    ~₪45–55/mo. Zakai Pro at ₪14.90 undercuts it decisively while doing
+ *    ~₪45–55/mo. Zakai Pro at ₪19.90 undercuts it decisively while doing
  *    something RiseUp doesn't: acting on your behalf.
  *  - Rocket Money (US) charges a 35–60% success fee on first-year savings.
  *    Zakai Free stays at 18% of the documented monthly saving — dramatically

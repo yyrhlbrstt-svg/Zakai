@@ -2,6 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { resolveProviderKey, type ProviderKey } from "./providers";
 import { faqDigest } from "./faq";
+import { normalizeContractAnalysis, type ContractAnalysis } from "./contractAnalysis";
 
 /**
  * Server-side AI. The API key never reaches the browser.
@@ -662,6 +663,51 @@ export async function extractSavingsFromEmail(body: string): Promise<SavingsEmai
   }
 }
 
+// ---------- Contract red-flag summary ----------
+
+const CONTRACT_ANALYSIS_SYSTEM = `You review consumer contracts in Hebrew or English (lease, gym membership, phone/internet plan, employment offer, terms of service) and flag clauses in plain language for a non-lawyer.
+
+Extract up to 20 clauses that actually matter to a consumer signing this — skip boilerplate (definitions, notices addresses, governing law) unless it's genuinely consequential.
+
+For each clause: quote or closely paraphrase it (short), classify it "green" (favours the reader: fixed price, free exit, reasonable notice) or "red" (should give the reader pause: penalty fees, automatic price increases, auto-renewal, long lock-in, one-sided termination rights, hidden costs), and give one short sentence explaining why in the SAME LANGUAGE as the contract.
+
+If the input is not readable as a contract at all (random text, a shopping list, gibberish), set readable=false and return an empty clauses array — do not force clauses onto unrelated text.
+
+Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
+
+/**
+ * Read a contract's text and flag clauses for a non-lawyer — bounded output,
+ * shaped by `normalizeContractAnalysis` so a malformed or partial model
+ * response degrades to "not readable" rather than crashing the caller.
+ */
+export async function analyzeContractText(text: string): Promise<ContractAnalysis> {
+  const input = text.slice(0, 20_000);
+  let raw: string;
+  if (aiProvider() !== "anthropic") {
+    raw = await fallbackGenerate({
+      system: CONTRACT_ANALYSIS_SYSTEM,
+      userText: input,
+      maxTokens: 2000,
+      temperature: 0,
+    });
+  } else {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: DRAFT_MODEL,
+      max_tokens: 2000,
+      temperature: 0,
+      system: cachedSystem(CONTRACT_ANALYSIS_SYSTEM),
+      messages: [{ role: "user", content: input }],
+    });
+    raw = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+  }
+  try {
+    return normalizeContractAnalysis(extractJson(raw));
+  } catch {
+    return { clauses: [], readable: false };
+  }
+}
+
 // ---------- In-app assistant ("הסוכן שלי") ----------
 
 /**
@@ -718,7 +764,7 @@ KNOWLEDGE (accurate 2026 facts you may use to answer — never invent numbers be
 - Recurring charges: a statement scan finds forgotten/duplicate subscriptions. Screen: /scan.
 - Appeal letters: parking tickets (/parking) and public-transport fines (/transport-fine) — self-help templates the user sends themselves.
 - Deals & coupons: money-saving moves in one place. Screen: /deals.
-- Plans: FREE (18% success fee, 1 active check), PRO ₪14.90 (9% fee, 5 checks, 100 assistant questions/mo, monthly re-check), MAX ₪29.90 (0% fee, unlimited). Screen: /pricing.
+- Plans: FREE (18% success fee, 1 active check, 5 assistant questions/mo), PRO ₪19.90 (9% fee, 5 checks, full scan, 100 assistant questions/mo), MAX ₪49.90 (0% fee, unlimited checks, full scan, 300 assistant questions/mo). Screen: /pricing.
 Use these facts to give concrete, correct answers, and always point to the matching screen.
 
 OFFICIAL SOURCES (when you state a right or a number, name the authoritative Israeli source so the user can verify — never a random website):

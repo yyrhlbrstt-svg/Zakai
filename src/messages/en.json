@@ -2282,6 +2282,21 @@
     "metaTitle": "Zakai for Business — Employee benefits + Mandate infrastructure",
     "metaDesc": "Employee money-rights benefit + verifiable Mandate API for banks, insurers and fintechs. No outbound payments. Success fee only on documented savings."
   },
+  "contractCheck": {
+    "metaTitle": "Contract red flags — what's in the fine print? | Zakai",
+    "metaDesc": "Paste a lease, gym membership, phone plan or any contract and see which clauses favour you and which should give you pause — in plain language, in seconds.",
+    "title": "What's really in the fine print?",
+    "subtitle": "Paste the text of a contract — a lease, gym membership, phone plan, employment offer, anything — and see which clauses favour you and which should give you pause. No signup, nothing saved.",
+    "placeholder": "Paste the contract text here…",
+    "tooShort": "That looks too short to be a contract — paste more of the text.",
+    "checkCta": "Check the contract",
+    "checking": "Reading…",
+    "notReadable": "This didn't read as a contract — check that you pasted the actual text, not a summary or a partial screenshot.",
+    "aiUnavailable": "This check isn't available right now — try again shortly.",
+    "tooManyRequests": "Too many checks from this device recently — try again in a bit.",
+    "genericError": "Something went wrong reading this — try again.",
+    "disclaimer": "An automatic reading of the text you pasted, meant to help you notice what to ask about before you sign — not legal advice, and not a substitute for reading the actual document yourself."
+  },
   "parking": {
     "title": "Parking-ticket appeal",
     "subtitle": "Many parking tickets fall on defects — unclear signage, a broken meter, wrong details. Fill a few fields and Zakai prepares an objection letter for you to send in your own name. Runs in your browser.",

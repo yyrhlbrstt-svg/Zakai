@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
 import { PLANS, planConfig, canOpenCase, isPlanId, upgradeRequiresPayment } from "./plans";
 import { computeFee } from "./fee";
 
@@ -58,5 +59,23 @@ describe("plans", () => {
     expect(upgradeRequiresPayment("MAX", "PRO")).toBe(false);
     expect(upgradeRequiresPayment("PRO", "PRO")).toBe(false);
     expect(upgradeRequiresPayment("FREE", "FREE")).toBe(false);
+  });
+
+  it("the in-app assistant states the real, current plan prices — not stale ones", () => {
+    // The assistant's system prompt hardcodes prices as plain English text
+    // (an LLM prompt can't import PLANS at runtime the way UI code can), which
+    // is exactly how it silently drifted: PLANS.PRO was raised from ₪14.90 to
+    // ₪19.90 and PLANS.MAX from ₪29.90 to ₪49.90, PlanCards.tsx picked up the
+    // change automatically (it renders formatAgorot(p.priceAgorot) live), and
+    // the assistant kept telling users the old numbers — a live "never
+    // fabricate amounts" violation, just one nobody was checking for.
+    const source = readFileSync("src/lib/ai.ts", "utf8");
+    for (const id of ["PRO", "MAX"] as const) {
+      const shekels = (PLANS[id].priceAgorot / 100).toFixed(2);
+      expect({ plan: id, promptContains: source.includes(`₪${shekels}`) }).toEqual({
+        plan: id,
+        promptContains: true,
+      });
+    }
   });
 });
