@@ -231,15 +231,34 @@ describe("the shipped registry is coherent", () => {
     }
   });
 
-  it("keeps the door-order arms a permutation of the same four doors", () => {
+  it("keeps every door-order arm a duplicate-free list of known door keys", () => {
+    // Not "the same four doors every time": an arm testing whether "dormant"
+    // converts better in the lead position legitimately names a different set
+    // than one testing "money" vs "cancel" — page.tsx's rank() already
+    // tolerates a payload that omits a door (it sorts last, stably, rather
+    // than erroring). What must hold regardless is that nothing in an arm's
+    // list is a typo'd or duplicated key, since either would silently make
+    // that arm untestable or double-count a door.
+    const knownDoors = new Set([
+      "money",
+      "cancel",
+      "owed",
+      "electricity",
+      "incident",
+      "dormant",
+      "vehicle-check",
+    ]);
     const doors = experimentById("home_door_order")!;
     for (const arm of doors.arms) {
-      expect([...(arm.payload as string[])].sort()).toEqual([
-        "cancel",
-        "electricity",
-        "money",
-        "owed",
-      ]);
+      const payload = arm.payload as string[];
+      expect(new Set(payload).size).toBe(payload.length); // no duplicates
+      for (const key of payload) {
+        expect({ arm: arm.id, key, known: knownDoors.has(key) }).toEqual({
+          arm: arm.id,
+          key,
+          known: true,
+        });
+      }
     }
   });
 });

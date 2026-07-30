@@ -39,6 +39,20 @@ export const EXPERIMENTS: Experiment<unknown>[] = [
       { id: "money_first", baseline: true, payload: ["money", "cancel", "owed", "electricity"] },
       { id: "owed_first", payload: ["owed", "money", "cancel", "electricity"] },
       { id: "cancel_first", payload: ["cancel", "money", "owed", "electricity"] },
+      // "dormant" and "incident" were added to the homepage's door grid with a
+      // comment calling them "the two strongest reasons to open the app" — but
+      // no arm here ever placed either first, so `rank()` in page.tsx sorted
+      // them last regardless of which arm won, on every single run. A
+      // self-improving system cannot learn that a door converts well if no arm
+      // ever tests it in a winning position; it was structurally blind to
+      // exactly the two doors this file's own sibling comment argued for.
+      { id: "dormant_first", payload: ["dormant", "money", "cancel", "owed"] },
+      { id: "incident_first", payload: ["incident", "money", "cancel", "owed"] },
+      // The only door that prevents a loss instead of recovering one, and the
+      // largest single sum on the page — added to the grid with that argument
+      // in its own comment, and just as untested in a leading position as the
+      // two above until now.
+      { id: "vehicle_check_first", payload: ["vehicle-check", "money", "cancel", "owed"] },
     ],
   },
 
