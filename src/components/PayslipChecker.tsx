@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card, Input } from "@/components/ui";
+import { Card, Input, RadioChips } from "@/components/ui";
 import { auditPayslip, type Finding, type FindingStatus } from "@/lib/payslip";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 import { ShareResult } from "@/components/ShareResult";
@@ -44,27 +44,21 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
   const money = (a: number) => formatAgorot(a, bcp47);
   const ready = baseNum > 0;
 
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
-
   return (
     <div>
       <Card className="p-6 flex flex-col gap-5">
         {/* Scope */}
         <div>
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("scopeQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("scopeQ")}>
-            <button type="button" role="radio" aria-checked={fullTime} onClick={() => setFullTime(true)} className={chip(fullTime)}>
-              {t("fullTime")}
-            </button>
-            <button type="button" role="radio" aria-checked={!fullTime} onClick={() => setFullTime(false)} className={chip(!fullTime)}>
-              {t("partTime")}
-            </button>
-          </div>
+          <RadioChips
+            value={fullTime ? "full" : "part"}
+            onChange={(v) => setFullTime(v === "full")}
+            ariaLabel={t("scopeQ")}
+            options={[
+              { value: "full", label: t("fullTime") },
+              { value: "part", label: t("partTime") },
+            ]}
+          />
           {!fullTime && (
             <label className="block mt-3">
               <div className="flex justify-between items-baseline mb-1.5">
@@ -85,14 +79,15 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
         {/* Pension */}
         <div>
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("pensionQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("pensionQ")}>
-            <button type="button" role="radio" aria-checked={pensionShown} onClick={() => setPensionShown(true)} className={chip(pensionShown)}>
-              {t("yes")}
-            </button>
-            <button type="button" role="radio" aria-checked={!pensionShown} onClick={() => setPensionShown(false)} className={chip(!pensionShown)}>
-              {t("no")}
-            </button>
-          </div>
+          <RadioChips
+            value={pensionShown ? "yes" : "no"}
+            onChange={(v) => setPensionShown(v === "yes")}
+            ariaLabel={t("pensionQ")}
+            options={[
+              { value: "yes", label: t("yes") },
+              { value: "no", label: t("no") },
+            ]}
+          />
           {pensionShown && (
             <label className="block mt-3">
               <span className="text-[13px] text-ink-soft block mb-1.5">{t("employerPensionQ")}</span>
@@ -113,14 +108,15 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
         {/* Havraa */}
         <div>
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("havraaQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("havraaQ")}>
-            <button type="button" role="radio" aria-checked={havraaPaid} onClick={() => setHavraaPaid(true)} className={chip(havraaPaid)}>
-              {t("yes")}
-            </button>
-            <button type="button" role="radio" aria-checked={!havraaPaid} onClick={() => setHavraaPaid(false)} className={chip(!havraaPaid)}>
-              {t("no")}
-            </button>
-          </div>
+          <RadioChips
+            value={havraaPaid ? "yes" : "no"}
+            onChange={(v) => setHavraaPaid(v === "yes")}
+            ariaLabel={t("havraaQ")}
+            options={[
+              { value: "yes", label: t("yes") },
+              { value: "no", label: t("no") },
+            ]}
+          />
           {havraaPaid && (
             <label className="block mt-3">
               <span className="text-[13px] text-ink-soft block mb-1.5">{t("havraaAmountQ")}</span>

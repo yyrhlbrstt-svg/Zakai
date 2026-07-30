@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, RadioChips } from "@/components/ui";
 import { ClaimDocument } from "@/components/ClaimDocument";
 import { CaptiveCard } from "@/components/CaptiveCard";
 import { MoneyCategories } from "@/components/MoneyCategories";
@@ -161,20 +161,12 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
           anyone who isn't Israeli. */}
       <Card className="p-5 mb-5">
         <span className="text-[13px] text-ink-soft block mb-2">{tRights("country")}</span>
-        <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={tRights("country")}>
-          {RIGHTS_COUNTRIES.map((c) => (
-            <button
-              key={c}
-              type="button"
-              role="radio"
-              aria-checked={country === c}
-              onClick={() => setCountry(c)}
-              className={chip(country === c)}
-            >
-              {tRights(`countries.${c}`)}
-            </button>
-          ))}
-        </div>
+        <RadioChips
+          value={country}
+          onChange={setCountry}
+          ariaLabel={tRights("country")}
+          options={RIGHTS_COUNTRIES.map((c) => ({ value: c, label: tRights(`countries.${c}`) }))}
+        />
       </Card>
 
       {/* The next-action engine and the deadline countdown both reason over
@@ -272,38 +264,22 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
           <div className="mt-5 flex flex-col gap-5">
             <div>
               <span className="text-[13px] text-ink-soft block mb-2">{t("q.age")}</span>
-              <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.age")}>
-                {AGE_GROUPS.map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    role="radio"
-                    aria-checked={profile.ageGroup === g}
-                    onClick={() => update({ ...profile, ageGroup: g })}
-                    className={chip(profile.ageGroup === g)}
-                  >
-                    {t(`q.ages.${g}`)}
-                  </button>
-                ))}
-              </div>
+              <RadioChips
+                value={profile.ageGroup}
+                onChange={(g) => update({ ...profile, ageGroup: g })}
+                ariaLabel={t("q.age")}
+                options={AGE_GROUPS.map((g) => ({ value: g, label: t(`q.ages.${g}`) }))}
+              />
             </div>
 
             <div>
               <span className="text-[13px] text-ink-soft block mb-2">{t("q.employment")}</span>
-              <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.employment")}>
-                {EMPLOYMENTS.map((e) => (
-                  <button
-                    key={e}
-                    type="button"
-                    role="radio"
-                    aria-checked={profile.employment === e}
-                    onClick={() => update({ ...profile, employment: e })}
-                    className={chip(profile.employment === e)}
-                  >
-                    {t(`q.employments.${e}`)}
-                  </button>
-                ))}
-              </div>
+              <RadioChips
+                value={profile.employment}
+                onChange={(e) => update({ ...profile, employment: e })}
+                ariaLabel={t("q.employment")}
+                options={EMPLOYMENTS.map((e) => ({ value: e, label: t(`q.employments.${e}`) }))}
+              />
             </div>
 
             <div>
