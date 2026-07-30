@@ -49,6 +49,15 @@ export default async function InstitutionsPage({
         account. Forbidden payment scopes are enforced in code.
       </div>
 
+      <p className="text-[13px] text-ink-soft mb-6">
+        Building an AI agent rather than receiving mandates on behalf of an
+        institution? See{" "}
+        <Link href="/agents" className="underline text-emerald">
+          {ORIGIN}/agents
+        </Link>{" "}
+        instead — same protocol, framed for the issuing side.
+      </p>
+
       <Section heading="Why this exists">
         <p className="text-[14.5px] leading-relaxed mb-3">
           Today, confirming a consumer agent usually means a human reading a scanned

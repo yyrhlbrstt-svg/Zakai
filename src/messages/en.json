@@ -4532,6 +4532,10 @@
     "metaTitle": "Zakai Mandate — Institutional integration",
     "metaDesc": "Verify consumer authority offline with Ed25519 JWKS. No outbound payments. Status endpoint for revocation. The emerging standard for consumer agent authority."
   },
+  "agents": {
+    "metaTitle": "Zakai Mandate for AI agents — prove a person authorised the act",
+    "metaDesc": "An open, verifiable-offline authorization standard for any AI agent acting on a person's behalf — signed, scoped, revocable, and never able to move money outward."
+  },
   "entitlementsPage": {
     "metaTitle": "What am I entitled to? — Zakai",
     "metaDesc": "A short quiz showing which rights, grants and refunds you're owed in Israel — based on your profile, no signup."

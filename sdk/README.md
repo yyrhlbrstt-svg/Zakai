@@ -184,3 +184,5 @@ exception.
 - Conformance suite (for implementing your own verifier in another language):
   `https://zakai-3uxj.vercel.app/.well-known/zakai-conformance.json`
 - Institutional integration guide: `https://zakai-3uxj.vercel.app/en/institutions`
+- For builders of AI agents specifically (issuing side, not just verifying):
+  `https://zakai-3uxj.vercel.app/en/agents`
