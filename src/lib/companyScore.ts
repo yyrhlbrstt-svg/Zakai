@@ -12,6 +12,26 @@
  */
 export const MIN_SAMPLE = 5;
 
+import { PROVIDER_KEYS } from "@/lib/providers";
+import { RULE_PACKS } from "@/lib/verticals/packs";
+
+/**
+ * Every provider slug a company page can meaningfully exist for — union of
+ * the mobile registry and every full-service rule pack's named
+ * counterparties, minus the generic "other" catch-all. This is static
+ * configuration, not a data-driven claim about any one of them, so listing a
+ * provider here carries none of MIN_SAMPLE's defamation risk — the risk is
+ * only in *stats*, which stay gated wherever they're computed.
+ */
+export function listKnownProviders(): string[] {
+  const slugs = new Set<string>(PROVIDER_KEYS);
+  for (const pack of RULE_PACKS) {
+    for (const c of pack.counterparties) slugs.add(c);
+  }
+  slugs.delete("other");
+  return [...slugs].sort();
+}
+
 export interface CaseOutcome {
   provider: string;
   /** A documented saving was recorded for this case. */

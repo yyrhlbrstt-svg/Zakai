@@ -6,14 +6,31 @@ import { prisma } from "@/lib/prisma";
 import {
   aggregateCompanyStats,
   aggregateProviderVerticalStats,
+  listKnownProviders,
   type VerticalCaseOutcome,
 } from "@/lib/companyScore";
-import { getRulePack } from "@/lib/verticals";
+import { getRulePack, RULE_PACKS } from "@/lib/verticals";
+import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 
 export const revalidate = 3600;
+
+// Every vertical this provider could plausibly be chased through, with the
+// page that starts that check. Static (rule-pack config), so listing it here
+// makes no claim about the company — only about which category it's in.
+const VERTICAL_HREF: Record<string, string> = {
+  telecom: "/check",
+  "bank-fees": "/bank-fees",
+  subscription: "/cancel",
+  airline: "/flights",
+  "refund-chase": "/refund-chase",
+  parking: "/parking",
+  "transport-fine": "/transport-fine",
+  electricity: "/electricity",
+  "late-payment": "/late-payment",
+};
 
 /** Same de-identified aggregate the /companies list reads, just not re-grouped by provider yet. */
 async function loadOutcomes(): Promise<VerticalCaseOutcome[]> {
@@ -32,6 +49,11 @@ async function loadOutcomes(): Promise<VerticalCaseOutcome[]> {
   }
 }
 
+/** Real display name for any known provider — registry translation first, then the Hebrew name every outreach email already uses, never the raw slug. */
+function displayName(tp: Awaited<ReturnType<typeof getTranslations<"providers">>>, provider: string): string {
+  return tp.has(provider) ? tp(provider) : providerHebrewName(provider);
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -40,12 +62,16 @@ export async function generateMetadata({
   const { locale, provider } = await params;
   const t = await getTranslations({ locale, namespace: "companies" });
   const tp = await getTranslations({ locale, namespace: "providers" });
-  const name = tp.has(provider) ? tp(provider) : provider;
+  const name = displayName(tp, provider);
   return {
     title: `${name} — ${t("metaTitle")}`,
     description: t("metaDesc"),
     alternates: { languages: alternateLanguages(`/companies/${provider}`) },
   };
+}
+
+export function generateStaticParams() {
+  return listKnownProviders().map((provider) => ({ provider }));
 }
 
 export default async function CompanyDetailPage({
@@ -59,15 +85,20 @@ export default async function CompanyDetailPage({
   const tp = await getTranslations("providers");
   const loc = bcp47[locale as Locale];
 
-  const outcomes = await loadOutcomes();
-  // Same MIN_SAMPLE gate as the /companies list, re-applied here: this route
-  // is directly navigable by URL, so a provider that never cleared the list
-  // must not become visible just because someone guessed or linked its slug.
-  const overall = aggregateCompanyStats(outcomes).find((s) => s.provider === provider);
-  if (!overall) notFound();
+  // A slug nobody recognizes (not a mobile provider, not any rule pack's
+  // counterparty) is not a page — never index a name we didn't validate.
+  if (!listKnownProviders().includes(provider)) notFound();
 
+  const outcomes = await loadOutcomes();
+  // MIN_SAMPLE still gates any *stat* about this provider — see companyScore.ts.
+  // It no longer gates the page's existence: the categories a provider
+  // appears in are static rule-pack config, not a data-driven claim, so a
+  // provider below the sample threshold still gets a real, indexable, purely
+  // factual page instead of a 404 — the whole point of listing it here.
+  const overall = aggregateCompanyStats(outcomes).find((s) => s.provider === provider);
   const byVertical = aggregateProviderVerticalStats(provider, outcomes);
-  const name = tp.has(provider) ? tp(provider) : provider;
+  const name = displayName(tp, provider);
+  const verticalsForProvider = RULE_PACKS.filter((p) => p.counterparties.includes(provider));
 
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-5">
@@ -76,13 +107,51 @@ export default async function CompanyDetailPage({
       </Link>
 
       <h1 className="font-display text-[clamp(26px,4.5vw,36px)] leading-tight mt-4 mb-2">{name}</h1>
-      <p className="text-ink-soft text-[15px] leading-relaxed mb-6">
-        {t("companies.sampleTag", { count: overall.cases })} ·{" "}
-        {t("companies.savedRateTag", { pct: overall.savedRatePct })} ·{" "}
-        <span className="font-extrabold text-emerald">
-          {t("companies.avgTag", { amount: formatAgorot(overall.avgSavingAgorot, loc) })}
-        </span>
-      </p>
+
+      {overall ? (
+        <p className="text-ink-soft text-[15px] leading-relaxed mb-6">
+          {t("companies.sampleTag", { count: overall.cases })} ·{" "}
+          {t("companies.savedRateTag", { pct: overall.savedRatePct })} ·{" "}
+          <span className="font-extrabold text-emerald">
+            {t("companies.avgTag", { amount: formatAgorot(overall.avgSavingAgorot, loc) })}
+          </span>
+        </p>
+      ) : (
+        <p className="text-ink-soft text-[15px] leading-relaxed mb-6">
+          {t("companies.noDataYet", { name })}
+        </p>
+      )}
+
+      {!overall && verticalsForProvider.length > 0 && (
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5 mb-6">
+          <h2 className="font-display text-lg mb-3">{t("companies.checkCategoriesTitle")}</h2>
+          <div className="flex flex-col gap-2">
+            {verticalsForProvider.map((pack) => {
+              const href = VERTICAL_HREF[pack.key];
+              const row = (
+                <div className="flex-1 basis-[140px] font-bold text-[14px]">{pack.label}</div>
+              );
+              return href ? (
+                <Link
+                  key={pack.key}
+                  href={href}
+                  className="flex items-center gap-4 flex-wrap rounded-xl border border-[rgba(255,255,255,0.06)] px-4 py-3 no-underline text-ink hover:border-[rgba(63,203,155,0.35)] transition-colors"
+                >
+                  {row}
+                  <span className="text-[12.5px] text-emerald font-bold">{t("companies.startCheck")} →</span>
+                </Link>
+              ) : (
+                <div
+                  key={pack.key}
+                  className="flex items-center gap-4 flex-wrap rounded-xl border border-[rgba(255,255,255,0.06)] px-4 py-3"
+                >
+                  {row}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {byVertical.length > 0 && (
         <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5 mb-6">

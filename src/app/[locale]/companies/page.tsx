@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
 import { aggregateCompanyStats, type CompanyStat } from "@/lib/companyScore";
+import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -81,7 +82,7 @@ export default async function CompaniesPage({
               className="flex items-center gap-4 flex-wrap rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-4 no-underline text-ink hover:border-[rgba(63,203,155,0.35)] transition-colors"
             >
               <div className="flex-1 basis-[160px] font-extrabold text-[15.5px]">
-                {tp(s.provider)}
+                {tp.has(s.provider) ? tp(s.provider) : providerHebrewName(s.provider)}
               </div>
               <div className="text-[13px] text-ink-soft">
                 {t("companies.sampleTag", { count: s.cases })}

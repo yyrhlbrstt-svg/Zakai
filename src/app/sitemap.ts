@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { activeLocales } from "@/i18n/config";
+import { listKnownProviders } from "@/lib/companyScore";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
 // A hardcoded locale list here drifted from i18n/config.ts before: when de
@@ -82,11 +83,16 @@ const PATHS = [
   "/warranty",
 ];
 
+// Every known provider gets a real page now (see companies/[provider]/page.tsx —
+// MIN_SAMPLE only gates *stats*, not the page's existence), so each is worth
+// its own sitemap entry rather than waiting to be discovered via internal links.
+const COMPANY_PATHS = listKnownProviders().map((provider) => `/companies/${provider}`);
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
   for (const locale of LOCALES) {
-    for (const path of PATHS) {
+    for (const path of [...PATHS, ...COMPANY_PATHS]) {
       entries.push({
         url: `${SITE}/${locale}${path}`,
         lastModified: now,
