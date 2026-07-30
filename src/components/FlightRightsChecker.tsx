@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
+import { OutcomeReport } from "@/components/OutcomeReport";
 import {
   computeEntitlement,
   computeEntitlementEU,
@@ -354,6 +355,12 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
                     </Button>
                     <span className="text-[12px] text-ink-soft">{t("letter.sendHint")}</span>
                   </div>
+                  <OutcomeReport
+                    market={isEU ? "EU" : "IL"}
+                    vertical="flights"
+                    counterparty="airline"
+                    variantId={`${jurisdiction}_${kind}`}
+                  />
                 </div>
               )}
               <p className="text-[11px] text-ink-soft mt-3 mb-0 leading-snug">{t("letter.privacy")}</p>

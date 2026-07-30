@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Card, Input, Button } from "@/components/ui";
 import { VEHICLE_DISCLOSURE, buildDisclosureDemand } from "@/lib/prepurchase/vehicle";
 import { withFooter } from "@/lib/letterFooter";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 /**
  * Before you buy, rather than after you lost it.
@@ -142,6 +143,7 @@ export function VehicleCheckScreen({ isIsraeli = true }: { isIsraeli?: boolean }
                 {tc("print")}
               </Button>
             </div>
+            <OutcomeReport vertical="vehicle_check" counterparty="seller" variantId="disclosure_demand" />
           </div>
         )}
       </Card>
