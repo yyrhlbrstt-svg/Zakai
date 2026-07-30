@@ -35,6 +35,8 @@ export async function generateMetadata(): Promise<Metadata> {
         en: `${SITE_URL}/en`,
         ar: `${SITE_URL}/ar`,
         ru: `${SITE_URL}/ru`,
+        de: `${SITE_URL}/de`,
+        fr: `${SITE_URL}/fr`,
         "x-default": `${SITE_URL}/he`,
       },
     },

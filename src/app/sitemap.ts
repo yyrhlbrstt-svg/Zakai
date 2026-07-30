@@ -1,7 +1,13 @@
 import type { MetadataRoute } from "next";
+import { activeLocales } from "@/i18n/config";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
-const LOCALES = ["he", "en", "ar", "ru"] as const;
+// A hardcoded locale list here drifted from i18n/config.ts before: when de
+// and fr were added as active locales, this sitemap kept listing only the
+// original four, so search engines had no discovery path to the German or
+// French version of any page. Importing the same source of truth i18n
+// routing uses means the two can no longer disagree.
+const LOCALES = activeLocales;
 
 const PATHS = [
   "",

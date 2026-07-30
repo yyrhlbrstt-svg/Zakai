@@ -4,6 +4,7 @@ import { aiAvailable, aiProvider, askZakai } from "@/lib/ai";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import { allMarkets } from "@/lib/global/registry";
+import { activeLocales } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
     mandateKeys,
     mandateRevocationTable,
     markets: allMarkets().map((m) => m.code),
-    locales: ["he", "en", "ar", "ru"],
+    locales: activeLocales,
     endpoints: {
       discovery: "/.well-known/zakai-mandate.json",
       jwks: "/.well-known/zakai-jwks.json",
