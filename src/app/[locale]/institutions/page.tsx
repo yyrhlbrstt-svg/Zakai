@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
+import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator";
 import { alternateLanguages } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -77,6 +78,14 @@ export default async function InstitutionsPage({
           verifiable Mandate — reading each one by hand is the more expensive path, not
           the safer one.
         </p>
+      </Section>
+
+      <Section heading="What this is worth to your team, in your own numbers">
+        <p className="text-[14.5px] leading-relaxed mb-4">
+          Not an industry benchmark — three inputs your own ops team already
+          has, computed live:
+        </p>
+        <InstitutionRoiCalculator />
       </Section>
 
       <Section heading="Hard constraint (the adoption feature)">
