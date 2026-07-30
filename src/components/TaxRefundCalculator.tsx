@@ -68,7 +68,9 @@ export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
         ) : (
           <div className="text-[12.5px] text-ink-soft mt-2">{t("noRefund")}</div>
         )}
-        {r.refundAgorot > 0 && <ShareResult message={tShare("msgTax")} path="/taxrefund" />}
+        {r.refundAgorot > 0 && (
+          <ShareResult message={tShare("msgTax")} path="/taxrefund" amountLabel={money(r.refundAgorot)} />
+        )}
       </Card>
 
       <Card className="mt-5 p-6">

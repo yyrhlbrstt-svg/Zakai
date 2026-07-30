@@ -155,7 +155,13 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
             ))}
           </div>
 
-          {audit.flagged > 0 && <ShareResult message={tShare("msgPayslip")} path="/payslip" />}
+          {audit.flagged > 0 && (
+            <ShareResult
+              message={tShare("msgPayslip")}
+              path="/payslip"
+              amountLabel={money(audit.annualGapAgorot)}
+            />
+          )}
 
           <Card className="mt-5 p-6">
             <div className="font-extrabold text-[15px] mb-3">{t("howTitle")}</div>

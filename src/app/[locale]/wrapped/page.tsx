@@ -110,7 +110,12 @@ export default async function WrappedPage({
         </div>
       </Card>
 
-      <ShareResult message={shareMsg} path="/wrapped" referralCode={referralCode} />
+      <ShareResult
+        message={shareMsg}
+        path="/wrapped"
+        referralCode={referralCode}
+        amountLabel={yearly > 0 ? formatAgorot(yearly, loc) : undefined}
+      />
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link href="/money">

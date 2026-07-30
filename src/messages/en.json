@@ -2406,7 +2406,13 @@
     "msgPayslip": "I checked my payslip on Zakai and money might be missing 😮 Check yours free:",
     "msgTax": "Zakai showed I might be owed a tax refund 💸 Check how much you're owed, free:",
     "msgReferral": "I found Zakai — a free app that finds money you are owed (tax refunds, rights, savings). Worth a look:",
-    "msgSaved": "Zakai found me {amount}/mo I was owed back 🤯 a free app that checks how much money you are owed — worth a look:"
+    "msgSaved": "Zakai found me {amount}/mo I was owed back 🤯 a free app that checks how much money you are owed — worth a look:",
+    "landingTitle": "Someone found money with Zakai",
+    "landingTitleAmount": "Someone found {amount} with Zakai",
+    "landingSub": "Zakai checks bills, subscriptions, payslips and tax refunds for money you're owed — free, in your browser, no phone call.",
+    "landingCta": "Check what I'm owed",
+    "landingCheckCta": "See the full list of checks",
+    "landingDisclaimer": "An individual result — not a guarantee. What you're owed depends on your own details."
   },
   "deals": {
     "title": "Deals & benefits — money you can save now",

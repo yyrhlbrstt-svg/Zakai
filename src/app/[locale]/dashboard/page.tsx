@@ -339,6 +339,11 @@ export default async function DashboardPage({
             : t("share.msgReferral")
         }
         referralCode={referralCode}
+        amountLabel={
+          totalDocumentedMonthly > 0
+            ? `${formatAgorot(totalDocumentedMonthly, loc)}${t("common.perMonthTag")}`
+            : undefined
+        }
       />
 
       {cases.length === 0 ? (
