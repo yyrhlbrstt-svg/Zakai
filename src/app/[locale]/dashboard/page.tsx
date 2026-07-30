@@ -8,6 +8,8 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
 import { ShareResult } from "@/components/ShareResult";
+import { ReferralCard } from "@/components/ReferralCard";
+import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { FeePayButton } from "@/components/FeePayButton";
 import { CaseNextStep } from "@/components/CaseNextStep";
 import { ReminderBanner } from "@/components/ReminderBanner";
@@ -129,9 +131,13 @@ export default async function DashboardPage({
   }));
 
   const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
-  const referralCode =
-    (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
-      ?.referralCode ?? "";
+  const referralRow = await prisma.user.findUnique({
+    where: { id: user!.id },
+    select: { referralCode: true, referralCreditAgorot: true },
+  });
+  const referralCode = referralRow?.referralCode ?? "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const invitePath = `/${locale}/signup?ref=${referralCode}`;
 
   const renderCaseCard = (list: typeof cases) => (
     <Card className="py-1.5">
@@ -345,6 +351,16 @@ export default async function DashboardPage({
             : undefined
         }
       />
+
+      <div className="mt-5">
+        <ReferralCard
+          path={invitePath}
+          fallbackLink={`${appUrl}${invitePath}`}
+          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
+          rewardAgorot={REFERRAL_REWARD_AGOROT}
+          bcp47={loc}
+        />
+      </div>
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
