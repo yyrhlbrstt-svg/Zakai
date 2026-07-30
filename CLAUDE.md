@@ -55,6 +55,7 @@ A PR that does not strengthen at least one of these is usually the wrong PR.
 | `docs/ARCHITECTURE.md` | Full system design |
 | `docs/INFRASTRUCTURE_DOCTRINE.md` | Product laws |
 | `docs/AGENT_NEGOTIATION.md` | Negotiation agent behavior |
+| `docs/COUNTRY_PACKS.md` | How to add a jurisdiction to `src/lib/global/` |
 
 ## Coding conventions
 
@@ -83,9 +84,10 @@ A PR that does not strengthen at least one of these is usually the wrong PR.
 2. Never free-text scopes from client
 
 ### New market
-1. `src/lib/global/packs/xx.ts`
-2. Register in registry
-3. One e2e path: profile → match → letter/tool
+See `docs/COUNTRY_PACKS.md` for the full process. Short version:
+1. `src/lib/global/packs/xx.ts` — every right needs a real citation
+2. Register in `registry.ts`'s `MARKETS`
+3. `npx vitest run src/lib/global/engine.test.ts` — validates every registered pack automatically
 
 ## Env checklist (production)
 
