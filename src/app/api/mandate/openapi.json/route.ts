@@ -22,10 +22,12 @@ export async function GET(request: Request) {
     tags: [
       { name: "discovery", description: "Machine-readable discovery" },
       { name: "keys", description: "Public signing keys" },
+      { name: "issue", description: "Mint a mandate, first-party or delegated" },
       { name: "verify", description: "Token verification" },
       { name: "status", description: "Revocation and recency" },
       { name: "scopes", description: "Closed scope vocabulary" },
       { name: "decide", description: "Authorization decisions — the endpoint most integrators want" },
+      { name: "delegation", description: "Become a delegated issuer" },
       { name: "conformance", description: "Test vectors for implementing this yourself" },
     ],
     paths: {
@@ -71,6 +73,68 @@ export async function GET(request: Request) {
           summary: "Public signing keys (JWKS)",
           description: "Cache and rotate per standard JWKS practice. Alg EdDSA / crv Ed25519.",
           responses: { "200": { description: "JWKS" } },
+        },
+      },
+      "/api/mandate/issue": {
+        post: {
+          tags: ["issue"],
+          summary: "Mint a mandate",
+          description:
+            "Two callers share this endpoint and are never conflated in the result. The first-party " +
+            "key issues for this product's own users, whose identity it verified directly. A delegated " +
+            "issuer's key issues for users Zakai has never met, so those tokens carry " +
+            "zkm.onBehalfOf naming the agent — structurally, not as a sentence a verifier has to parse. " +
+            "A delegated caller may only request scopes inside its own allowed_scopes; asking for more " +
+            "is refused here; requesting a scope in forbidden_scopes fails validation the same as it " +
+            "would for a first-party mandate.",
+          security: [{ zakaiIssueKey: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["audience", "subject", "name", "statement", "scopes"],
+                  properties: {
+                    audience: { type: "string", description: "The institution id this mandate is scoped to" },
+                    subject: { type: "string", description: "The person the mandate concerns" },
+                    name: { type: "string", description: "The principal's name, as stated" },
+                    statement: { type: "string", description: "Plain-language statement of authority granted" },
+                    scopes: { type: "array", items: { type: "string" }, description: "From the closed vocabulary at scopes_uri" },
+                    market: { type: "string", description: "ISO-3166 alpha-2, defaults to IL" },
+                    reference: { type: "string", description: "Your own reference for this principal, echoed back nowhere but useful in your logs" },
+                    contactMasked: { type: "string" },
+                    ttlSeconds: { type: "integer", description: "Requested lifetime; issuer may cap it" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Mandate issued",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      jti: { type: "string" },
+                      token: { type: "string", description: "Compact JWS — the mandate itself" },
+                      exp: { type: "integer" },
+                      onBehalfOf: { type: "string", description: "Present only for a delegated issuer, echoing its own slug" },
+                      jwks: { type: "string" },
+                      statusPath: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            "400": { description: "missing_fields | field_too_long | invalid_json | a requested scope is unknown or forbidden" },
+            "401": { description: "unauthorized — missing or unrecognised x-zakai-issue-key" },
+            "403": { description: "delegation_refused — requested scope outside this issuer's allowed_scopes" },
+            "429": { description: "rate limited" },
+            "503": { description: "mandate_keys_not_configured" },
+          },
         },
       },
       "/api/mandate/status/{jti}": {
@@ -342,7 +406,17 @@ export async function GET(request: Request) {
       },
     },
     components: {
-      securitySchemes: {},
+      securitySchemes: {
+        zakaiIssueKey: {
+          type: "apiKey",
+          in: "header",
+          name: "x-zakai-issue-key",
+          description:
+            "Either the first-party issuance secret, or a delegated issuer's own key from " +
+            "/api/mandate/delegation/apply once approved. Compared in constant time; an unrecognised " +
+            "or missing key is a 401, not a fallback to reduced privilege.",
+        },
+      },
     },
   };
 
