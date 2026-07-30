@@ -117,6 +117,44 @@ until `adjudicate()` calls the result `broken_chain`; this package's tests
 build a real chain end to end specifically to catch that class of mistake
 before it ships.
 
+## Verify a candidate issuer's conformance independently
+
+`assessConformance()` in the production app aggregates a candidate's own
+*self-reported* pass/fail results — honest, but not independent verification.
+`probeIssuer()` closes part of that gap: given a candidate's public JWKS and
+one or more sample mandates they issue, it runs an independent judge (this
+SDK's own `verifyMandate`) against 7 of the 10 published conformance checks,
+without trusting anything the candidate says about their own code.
+
+```ts
+import { probeIssuer, assessConformance } from "@zakai/mandate-sdk";
+
+const results = await probeIssuer({
+  jwks: candidateJwks,
+  audience: "my-institution-id",
+  sampleValidToken: candidateSampleToken,
+  sampleExpiredToken: candidateExpiredSample, // optional — see below
+});
+
+const report = assessConformance(results);
+console.log(report.verdict); // "conformant" | "conformant_with_notes" | "not_conformant"
+```
+
+Checks it can genuinely settle from artifacts alone: `publishes_jwks` (no
+leaked private key material), `issues_valid_jwt`, `registered_claims_present`,
+`scope_is_oauth_shaped`, `refuses_forbidden_scope`, `rejects_forged_signature`
+(by flipping a bit in the signature's actual decoded bytes — the trailing
+characters of a base64url segment can be pure padding, so tampering the text
+directly can silently round-trip to the same bytes), and `enforces_audience`.
+
+`enforces_expiry` needs a sample token the candidate issued *already
+expired*; if one isn't supplied, `probeIssuer` leaves it out of the results
+entirely rather than assuming a pass, and `assessConformance` reports it as
+`missing`. Two checks — `publishes_status_list` freshness and
+`revocation_takes_effect` — need monitoring over time or a bespoke
+issuance-API call this SDK can't assume the shape of, so they're always left
+for the registry operator to verify directly rather than faked here.
+
 ## Beyond money
 
 The scope vocabulary in `scopes.ts` is finance-shaped, but the underlying
