@@ -7,7 +7,8 @@ import { ClaimDocument } from "@/components/ClaimDocument";
 import { CaptiveCard } from "@/components/CaptiveCard";
 import { MoneyCategories } from "@/components/MoneyCategories";
 import { NextActionCard } from "@/components/NextActionCard";
-import { evaluateRights, type RightsProfile } from "@/lib/rights";
+import { evaluateRights, RIGHTS_COUNTRIES, type RightsProfile } from "@/lib/rights";
+import type { CountryCode } from "@/lib/verticals/types";
 import { formatAgorot } from "@/lib/money";
 import {
   DEFAULT_PROFILE,
@@ -58,8 +59,20 @@ const EXTRA_FLAGS = [
  */
 export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("score");
+  // Falls back to English for a locale without `rights.countries` yet — never
+  // to Hebrew, and never a crash; same fallback chain every other namespace
+  // in the app already relies on.
+  const tRights = useTranslations("rights");
   const [stored, setStored] = useState<StoredProfile | null>(null);
   const [profile, setProfile] = useState<RightsProfile>(DEFAULT_PROFILE);
+  // The catalogue behind this has been real for all thirteen countries since
+  // before this screen existed — evaluateRights(profile, country) already
+  // worked. Nothing here reads it with anything but "IL", so a visitor from
+  // any other country was silently scored against Israeli entitlements
+  // regardless of who they actually are. Defaulting to "IL" keeps every
+  // existing Israeli user's screen pixel-identical; the fix is that anyone
+  // else can now say who they are and get their own country's real rights.
+  const [country, setCountry] = useState<CountryCode>("IL");
   const [hydrated, setHydrated] = useState(false);
   const [editing, setEditing] = useState(false);
 
@@ -94,7 +107,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
   }
 
   const result = useMemo(() => {
-    const rights = evaluateRights(profile);
+    const rights = evaluateRights(profile, country);
     return computeEntitlementScore({
       eligible: rights.matches.map((e) => ({
         id: e.id,
@@ -106,12 +119,15 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
       recoveredMinor: 0,
       profileCompleteness: completeness(stored),
     });
-  }, [profile, stored]);
+  }, [profile, stored, country]);
 
   // The countdown. Computed from the same profile with nothing extra asked —
   // this is the part a chat assistant cannot do, so it goes above the score.
+  // Deadline tracking (`summariseWatch`) is Israeli-statute-specific today, so
+  // it stays gated to country === "IL" below rather than firing on foreign
+  // rights it was never built to reason about.
   const watch = useMemo(() => {
-    const rights = evaluateRights(profile);
+    const rights = evaluateRights(profile, country);
     return summariseWatch({
       profile,
       eligible: rights.matches.map((e) => ({
@@ -121,7 +137,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
       })),
       actedOn: stored?.actedOn ?? [],
     });
-  }, [profile, stored]);
+  }, [profile, stored, country]);
 
   const money = (agorot: number) => formatAgorot(agorot, bcp47);
 
@@ -138,15 +154,49 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
 
   return (
     <div>
-      {/* One thing, before anything else. A person opening a money app is not
-          asking what is available — they are asking what to do now, and every
-          screen that answers with a menu has handed the work back. */}
-      <NextActionCard profile={profile} actedOn={stored?.actedOn ?? []} bcp47={bcp47} />
+      {/* Which catalogue this screen scores against. The thirteen-country
+          catalogue (RIGHTS_CATALOGS) has been real since before this screen
+          existed; nothing here read it with anything but "IL" until now, so
+          this single choice is what makes the rest of the page honest for
+          anyone who isn't Israeli. */}
+      <Card className="p-5 mb-5">
+        <span className="text-[13px] text-ink-soft block mb-2">{tRights("country")}</span>
+        <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={tRights("country")}>
+          {RIGHTS_COUNTRIES.map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="radio"
+              aria-checked={country === c}
+              onClick={() => setCountry(c)}
+              className={chip(country === c)}
+            >
+              {tRights(`countries.${c}`)}
+            </button>
+          ))}
+        </div>
+      </Card>
 
-      {/* What is about to be lost comes before what is owed. Money with a date
-          on it is the only thing here a person cannot get from a chat, and
-          burying it under a total would waste the one real advantage. */}
-      {watch.mostUrgent && watch.atRiskSoonMinor > 0 && (
+      {/* The next-action engine and the deadline countdown both reason over
+          Israeli statutes and Israeli-only verticals (dormant accounts,
+          captive pricing, incident stacking) — real for Israel, not yet built
+          for anywhere else. Showing them against a foreign profile would mean
+          either silently scoring Israeli rules against a French answer set or
+          inventing urgency that was never verified, so both stay gated to the
+          one country they were actually built for. */}
+      {country === "IL" && (
+        <>
+          {/* One thing, before anything else. A person opening a money app is not
+              asking what is available — they are asking what to do now, and every
+              screen that answers with a menu has handed the work back. */}
+          <NextActionCard profile={profile} actedOn={stored?.actedOn ?? []} bcp47={bcp47} />
+
+          {/* What is about to be lost comes before what is owed. Money with a date
+              on it is the only thing here a person cannot get from a chat, and
+              burying it under a total would waste the one real advantage. */}
+        </>
+      )}
+      {country === "IL" && watch.mostUrgent && watch.atRiskSoonMinor > 0 && (
         <Card className="p-6 mb-5 border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.07)]">
           <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-[13px] font-extrabold text-[#f0b45c]">
@@ -340,14 +390,20 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
         )}
       </Card>
 
-      {/* The remaining categories, converged onto the same profile so nobody is
-          asked anything twice. */}
-      <MoneyCategories profile={profile} />
+      {/* Dormant accounts, incident stacking and captive pricing are Israeli
+          verticals today — same reasoning as the next-action/watch gate above. */}
+      {country === "IL" && (
+        <>
+          {/* The remaining categories, converged onto the same profile so nobody is
+              asked anything twice. */}
+          <MoneyCategories profile={profile} />
 
-      {/* Captive pricing. Below the entitlements because it needs a number
-          from them, and above nothing else because it is the largest recurring
-          money in the product. */}
-      <CaptiveCard profile={profile} bcp47={bcp47} />
+          {/* Captive pricing. Below the entitlements because it needs a number
+              from them, and above nothing else because it is the largest recurring
+              money in the product. */}
+          <CaptiveCard profile={profile} bcp47={bcp47} />
+        </>
+      )}
 
       {/* What to do next, most valuable first, fulfilled in place. */}
       {result.gaps.length > 0 && (
