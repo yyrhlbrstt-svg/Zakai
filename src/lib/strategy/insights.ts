@@ -29,6 +29,46 @@ export interface StrategyInsightsSummary {
   topStance: { id: string; labelHe: string; labelEn: string; trials: number; winRate: number } | null;
 }
 
+export interface VerticalOutcomeStat {
+  trials: number;
+  winRate: number; // 0–1
+  avgRecoveredMinor: number;
+}
+
+/**
+ * The single number that makes a recommendation worth more than a generic
+ * comparison site: not "people who tried this saved money" in the abstract,
+ * but "N people who tried exactly this — this vertical, this counterparty —
+ * reported back, and X% got money." Every one of those trials came through
+ * OutcomeReport on a real generated letter, so this is never hypothetical.
+ *
+ * Same MIN_TRIALS gate as the dashboard summary, for the same reason: a
+ * sample of two is noise wearing a percentage sign.
+ */
+export async function getVerticalOutcomeStat(
+  vertical: string,
+  counterparty: string,
+  market = "IL",
+): Promise<VerticalOutcomeStat | null> {
+  try {
+    const rows = await prisma.strategyOutcome.findMany({
+      where: { market, vertical, counterparty },
+      select: { paid: true, recoveredMinor: true },
+    });
+    if (rows.length < MIN_TRIALS) return null;
+
+    const wins = rows.filter((r) => r.paid);
+    return {
+      trials: rows.length,
+      winRate: wins.length / rows.length,
+      avgRecoveredMinor:
+        wins.length > 0 ? Math.round(wins.reduce((s, r) => s + r.recoveredMinor, 0) / wins.length) : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getStrategyInsights(
   market = "IL",
 ): Promise<StrategyInsightsSummary> {

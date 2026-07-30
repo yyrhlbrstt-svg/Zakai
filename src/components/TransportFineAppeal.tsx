@@ -5,11 +5,13 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
+import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
+import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
 
-export function TransportFineAppeal() {
+export function TransportFineAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: string }) {
   const t = useTranslations("transportFine");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -90,6 +92,7 @@ ${name || "____"}
 
   return (
     <div>
+      {stat && bcp47 && <VerticalOutcomeStat stat={stat} bcp47={bcp47} />}
       <Card className="p-6 flex flex-col gap-4">
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">

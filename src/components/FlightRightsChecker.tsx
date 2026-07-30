@@ -5,6 +5,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
+import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
+import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 import {
   computeEntitlement,
   computeEntitlementEU,
@@ -25,7 +27,7 @@ const EU_DELAYS = [1, 2.5, 4, 6] as const;
  * full Case (vertical=airline) with Mandate + follow-up — same closed loop as
  * cancel / telecom.
  */
-export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
+export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Stat | null }) {
   const t = useTranslations("flights");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -154,6 +156,7 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
 
   return (
     <div>
+      {stat && <VerticalOutcomeStat stat={stat} bcp47={bcp47} />}
       <Card className="p-6">
         {radios(t("jurisdictionQ"), ["il", "eu"] as const, jurisdiction, setJurisdiction, (j) =>
           t(`jurisdictions.${j}`),
