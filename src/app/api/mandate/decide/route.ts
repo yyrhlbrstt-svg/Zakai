@@ -7,6 +7,7 @@ import {
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
 import { decide, permittedActions, type RevocationState } from "@/lib/mandate/decision";
+import { buildMandateRef, draftDecisionRecord } from "@/lib/settlement/records";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 
@@ -112,6 +113,28 @@ export async function POST(req: Request) {
 
     const result = decide({ ...input, action, actConfirmation: body.actConfirmation });
 
+    // The settlement layer's decision link, drafted rather than merely
+    // documented. `/decide` computes permit/deny; the settlement chain needs
+    // a *signed* record of that decision, and until now the only way to get
+    // one was to read settlement/records.ts and reconstruct the shape by
+    // hand — real friction for the one institution that would otherwise be
+    // first to actually produce a chain link. `decision.institution` still
+    // signs this, not Zakai: that field name is exactly where the caller's
+    // own key goes. Handing over a filled-in draft is what makes producing
+    // the first real settlement record five minutes of work instead of a
+    // day reading a spec. Built via the two shared, tested helpers rather
+    // than by hand here, precisely because hand-rolling this once already
+    // produced a broken_chain (hashing the reference object instead of
+    // reusing the mandate's own `hash` field) before it shipped.
+    const mandateRef = buildMandateRef(claims, token);
+    const settlementDecisionDraft = draftDecisionRecord(mandateRef, {
+      institution: audience,
+      action,
+      decision: result.decision,
+      reason: result.reason,
+      actConfirmation: body.actConfirmation,
+    });
+
     return NextResponse.json(
       {
         ...result,
@@ -119,6 +142,9 @@ export async function POST(req: Request) {
         // asks, and the loop they would otherwise write themselves.
         permitted: permittedActions(input),
         principal: result.decision === "permit" ? claims.principal : undefined,
+        settlementDecisionDraft,
+        settlementNote:
+          "Sign this record with your own key to create the settlement chain's decision link. See settlement.test_vectors_uri in the discovery document.",
       },
       // A deny is a successful answer to a legitimate question, not a client
       // error: 200 with decision:"deny". Returning 4xx would push integrators

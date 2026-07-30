@@ -55,7 +55,7 @@
  * answer today.
  */
 
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 /** Money is always integer minor units. Never a float, anywhere near a fee. */
 export type Minor = number;
@@ -116,6 +116,73 @@ export interface SettlementChain {
   mandate: MandateRef;
   decision?: DecisionRecord;
   outcome?: OutcomeRecord;
+}
+
+/**
+ * The first link, built from a verified mandate's own claims and its compact
+ * JWS. Exists so every caller building a `MandateRef` — today just
+ * /api/mandate/decide, eventually any institution assembling its own chain —
+ * builds the exact same shape and, critically, the same `hash`: the raw
+ * SHA-256 of the token string, not a hash of this object. Getting that
+ * distinction wrong is invisible until `adjudicate()` calls it broken_chain,
+ * which is exactly the failure mode this function exists to make impossible
+ * to hand-roll incorrectly at each call site.
+ */
+export function buildMandateRef(
+  claims: {
+    jti: string;
+    iss: string;
+    aud: string;
+    sub: string;
+    scopes: readonly string[];
+    nbf: number;
+    exp: number;
+  },
+  token: string,
+): MandateRef {
+  return {
+    jti: claims.jti,
+    iss: claims.iss,
+    aud: claims.aud,
+    sub: claims.sub,
+    scopes: claims.scopes,
+    nbf: claims.nbf,
+    exp: claims.exp,
+    hash: createHash("sha256").update(token, "utf8").digest("hex"),
+  };
+}
+
+/**
+ * The second link, drafted — not signed. `institution` names whose key must
+ * sign it, and this function never signs on that party's behalf: /decide can
+ * compute permit or deny, but only the institution can assert that it made
+ * that decision. `prevHash` is set to `mandate.hash` directly per
+ * `adjudicate()`'s actual check (`decision.prevHash !== mandate.hash`) —
+ * again, the one field a hand-rolled implementation is likely to get wrong
+ * by hashing the mandate reference instead of reusing its `hash` field.
+ */
+export function draftDecisionRecord(
+  mandate: MandateRef,
+  params: {
+    institution: string;
+    action: string;
+    decision: "permit" | "deny";
+    reason?: string;
+    actConfirmation?: string;
+    now?: Date;
+  },
+): DecisionRecord {
+  return {
+    id: randomUUID(),
+    institution: params.institution,
+    mandateJti: mandate.jti,
+    prevHash: mandate.hash,
+    action: params.action,
+    decision: params.decision,
+    reason: params.reason,
+    at: Math.floor((params.now ?? new Date()).getTime() / 1000),
+    actConfirmation: params.actConfirmation,
+  };
 }
 
 /**

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { createHash } from "crypto";
 import {
   adjudicate,
+  buildMandateRef,
+  draftDecisionRecord,
   hashRecord,
   publishable,
   toGraphRow,
@@ -302,5 +305,65 @@ describe("the outcome graph is de-identified by construction", () => {
     const row = toGraphRow(ch, adjudicate(ch, NOW))!;
     expect(row.verdict).toBe("refused_with_reason");
     expect(row.daysToOutcome).toBeNull();
+  });
+});
+
+describe("buildMandateRef / draftDecisionRecord", () => {
+  // /api/mandate/decide hand-rolled this once by hashing the reference object
+  // instead of reusing the mandate's own token hash — a mistake invisible to
+  // typecheck and build, and only caught by constructing a real chain end to
+  // end and running it through adjudicate(). These two functions exist so the
+  // correct shape is the only shape a caller can produce, and this test is the
+  // regression guard for that exact failure mode.
+  const claims = {
+    jti: "mnd_live",
+    iss: "https://zakai.example",
+    aud: "bank.example",
+    sub: "usr_live",
+    scopes: ["contract:cancel", "dispute:charge"],
+    nbf: nowSec - 100,
+    exp: nowSec + 100,
+  };
+  const token = "header.payload.signature";
+
+  it("hashes the raw token, not the reference object", () => {
+    const ref = buildMandateRef(claims, token);
+    expect(ref.hash).toBe(createHash("sha256").update(token, "utf8").digest("hex"));
+    expect(ref.hash).not.toBe(hashRecord(claims));
+  });
+
+  it("sets prevHash to the mandate's own hash field, exactly what adjudicate() checks", () => {
+    const ref = buildMandateRef(claims, token);
+    const dec = draftDecisionRecord(ref, {
+      institution: "bank.example",
+      action: "contract:cancel",
+      decision: "permit",
+    });
+    expect(dec.prevHash).toBe(ref.hash);
+    expect(dec.mandateJti).toBe(ref.jti);
+  });
+
+  it("produces a chain that adjudicates cleanly end to end, never broken_chain", () => {
+    const ref = buildMandateRef(claims, token);
+    const dec = draftDecisionRecord(ref, {
+      institution: "bank.example",
+      action: "contract:cancel",
+      decision: "deny",
+      reason: "revocation_unknown",
+      now: NOW,
+    });
+    const verdict = adjudicate({ mandate: ref, decision: dec }, NOW);
+    expect(verdict.verdict).toBe("refused_with_reason");
+  });
+
+  it("omits reason and actConfirmation rather than writing them as undefined", () => {
+    const ref = buildMandateRef(claims, token);
+    const dec = draftDecisionRecord(ref, {
+      institution: "bank.example",
+      action: "contract:cancel",
+      decision: "permit",
+    });
+    expect("reason" in dec ? dec.reason : undefined).toBeUndefined();
+    expect("actConfirmation" in dec ? dec.actConfirmation : undefined).toBeUndefined();
   });
 });
