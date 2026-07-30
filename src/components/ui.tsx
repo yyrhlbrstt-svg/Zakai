@@ -64,6 +64,113 @@ export function FieldError({ children }: { children: React.ReactNode }) {
   return <p className="text-danger text-sm mt-2 font-semibold">{children}</p>;
 }
 
+/**
+ * A keyboard-correct chip radiogroup.
+ *
+ * THE GAP THIS CLOSES
+ *
+ * This exact shape — `<button role="radio" aria-checked>` chips inside a
+ * `role="radiogroup"` container, with no keyboard handler at all — is
+ * duplicated across roughly a dozen components (age bands, employment,
+ * country pickers, and more). A screen reader announces "radio button, 1 of
+ * N, radiogroup" for every one of them, which sets an expectation — arrow
+ * keys move between options and select as they go, the WAI-ARIA radiogroup
+ * pattern every screen-reader user has learned from native radio inputs —
+ * that nothing behind any of those components has ever fulfilled. The role
+ * was promising a keyboard behaviour the component never had.
+ *
+ * Every option in the group is reachable by Tab today (each `<button>` is
+ * independently focusable), which is not broken so much as it is the wrong
+ * shape: a radiogroup should be one stop in the tab order, with the arrow
+ * keys moving — and selecting — within it. Roving `tabIndex` here (0 on the
+ * selected option, -1 on the rest) is what makes that true.
+ *
+ * RTL handling: Left/Right are mirrored by reading direction (checked via
+ * the rendered element's computed `direction`, not assumed from locale),
+ * matching the WAI-ARIA authoring practice that horizontal arrow keys follow
+ * visual order; Up/Down always mean previous/next regardless of direction.
+ *
+ * This is rolled out to one component so far (RightsChecker) as the proven
+ * pattern; the other ~11 places with the same hand-rolled shape are a real,
+ * separate follow-up, not fixed by this change.
+ */
+export function RadioChips<T extends string>({
+  value,
+  onChange,
+  options,
+  ariaLabel,
+  className = "",
+}: {
+  value: T;
+  onChange: (next: T) => void;
+  options: readonly { value: T; label: React.ReactNode }[];
+  ariaLabel: string;
+  className?: string;
+}) {
+  const buttonRefs = React.useRef<Record<string, HTMLButtonElement | null>>({});
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const idx = options.findIndex((o) => o.value === value);
+    if (idx === -1) return;
+
+    const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
+    let delta = 0;
+    if (e.key === "ArrowDown" || (e.key === "ArrowRight" && !rtl) || (e.key === "ArrowLeft" && rtl)) {
+      delta = 1;
+    } else if (
+      e.key === "ArrowUp" ||
+      (e.key === "ArrowLeft" && !rtl) ||
+      (e.key === "ArrowRight" && rtl)
+    ) {
+      delta = -1;
+    } else if (e.key === "Home") {
+      delta = -idx; // jump to 0
+    } else if (e.key === "End") {
+      delta = options.length - 1 - idx; // jump to last
+    } else {
+      return;
+    }
+
+    e.preventDefault();
+    const next = options[(idx + delta + options.length) % options.length];
+    onChange(next.value);
+    buttonRefs.current[next.value]?.focus();
+  }
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={ariaLabel}
+      onKeyDown={onKeyDown}
+      className={`flex gap-2 flex-wrap ${className}`}
+    >
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <button
+            key={o.value}
+            ref={(el) => {
+              buttonRefs.current[o.value] = el;
+            }}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            tabIndex={active ? 0 : -1}
+            onClick={() => onChange(o.value)}
+            className={`rounded-full px-3.5 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
+              active
+                ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
+                : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Spinner({ label, sub }: { label: string; sub?: string }) {
   return (
     <div className="text-center pt-16" role="status" aria-live="polite">

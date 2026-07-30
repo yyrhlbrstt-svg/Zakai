@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, RadioChips } from "@/components/ui";
 import { ClaimDocument } from "@/components/ClaimDocument";
 import {
   evaluateRights,
@@ -98,38 +98,32 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
       <Card className="p-6 flex flex-col gap-5">
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("country")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("country")}>
-            {RIGHTS_COUNTRIES.map((c) => (
-              <button key={c} type="button" role="radio" aria-checked={country === c}
-                onClick={() => setCountry(c)} className={chip(country === c)}>
-                {t(`countries.${c}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={country}
+            onChange={setCountry}
+            ariaLabel={t("country")}
+            options={RIGHTS_COUNTRIES.map((c) => ({ value: c, label: t(`countries.${c}`) }))}
+          />
         </div>
 
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("q.age")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.age")}>
-            {AGE_GROUPS.map((a) => (
-              <button key={a} type="button" role="radio" aria-checked={profile.ageGroup === a}
-                onClick={() => setProfile({ ...profile, ageGroup: a })} className={chip(profile.ageGroup === a)}>
-                {t(`q.ages.${a}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile.ageGroup}
+            onChange={(a) => setProfile({ ...profile, ageGroup: a })}
+            ariaLabel={t("q.age")}
+            options={AGE_GROUPS.map((a) => ({ value: a, label: t(`q.ages.${a}`) }))}
+          />
         </div>
 
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("q.employment")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.employment")}>
-            {EMPLOYMENTS.map((e) => (
-              <button key={e} type="button" role="radio" aria-checked={profile.employment === e}
-                onClick={() => setProfile({ ...profile, employment: e })} className={chip(profile.employment === e)}>
-                {t(`q.employments.${e}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile.employment}
+            onChange={(e) => setProfile({ ...profile, employment: e })}
+            ariaLabel={t("q.employment")}
+            options={EMPLOYMENTS.map((e) => ({ value: e, label: t(`q.employments.${e}`) }))}
+          />
         </div>
 
         {counter(t("q.children"), profile.children, (n) =>
