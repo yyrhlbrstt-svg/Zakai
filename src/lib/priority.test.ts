@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { rankPriorityActions, formatPotentialHe, formatPotentialEn, priorityDigestHe } from "./priority";
+import { RULE_PACKS } from "./verticals";
 
 describe("priority cadence", () => {
   it("never renders a monthly suffix for a one-time or hidden entry", () => {
@@ -45,6 +46,29 @@ describe("priority cadence", () => {
 
   it("includes the vehicle-check door, previously missing from this ranking entirely", () => {
     expect(rankPriorityActions(20).some((a) => a.id === "vehicleCheck")).toBe(true);
+  });
+
+  // Three packs deliberately live at a differently-named page (telecom's
+  // negotiation flow is /check, subscription's is /cancel, airline's is
+  // /flights) — everything else's href is exactly /{vertical key}.
+  const VERTICAL_HREF: Record<string, string> = {
+    telecom: "/check",
+    subscription: "/cancel",
+    airline: "/flights",
+  };
+
+  it("every full-service rule pack has a door into this catalog, by href", () => {
+    // parking, transport-fine, late-payment were real Case+Mandate+send
+    // verticals that were simply never added here — invisible to both the
+    // assistant's own digest and the dashboard's next-best-action ranking,
+    // however good the underlying vertical was. This is the guard against
+    // that recurring class of bug: a full-service pack existing is not the
+    // same as the recommendation engine knowing it exists.
+    const hrefs = new Set(rankPriorityActions(50).map((a) => a.href));
+    for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
+      const href = VERTICAL_HREF[pack.key] ?? `/${pack.key}`;
+      expect(hrefs.has(href), `no priority.ts entry links to ${href} (pack "${pack.key}")`).toBe(true);
+    }
   });
 
   it("ranking is unaffected by cadence — only potentialShekels and effort matter", () => {

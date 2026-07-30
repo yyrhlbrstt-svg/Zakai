@@ -227,6 +227,83 @@ const CATALOG: PriorityAction[] = [
     effort: "medium",
     agentic: true,
   },
+  {
+    // A real full-service vertical (RULE_PACKS "parking", agent + Mandate +
+    // send) that was simply never added here — invisible to both the
+    // assistant's ranked digest and the dashboard's next-best-action list,
+    // despite agentPlaybook.ts's own static text already mentioning it.
+    id: "parking",
+    href: "/parking",
+    titleHe: "ערעור על דוח חניה — הסוכן שולח",
+    titleEn: "Parking ticket appeal — agent sends",
+    whyHe: "ערעור בכתב + Mandate דרך הסוכן, מול העירייה / רשות החניה",
+    whyEn: "Written appeal + Mandate via the agent, to the municipality / parking authority",
+    potentialShekels: 150,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
+    // Same gap as parking — RULE_PACKS "transport-fine" is full-service and
+    // was missing from this catalog entirely.
+    id: "transport-fine",
+    href: "/transport-fine",
+    titleHe: "ערעור קנס תחבורה ציבורית — הסוכן שולח",
+    titleEn: "Public-transport fine appeal — agent sends",
+    whyHe: "ערעור בכתב + Mandate דרך הסוכן, מול מפעיל התחבורה",
+    whyEn: "Written appeal + Mandate via the agent, to the transport operator",
+    potentialShekels: 180,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
+    // Graduated to full-service (agent + Mandate + send) — a single overdue
+    // invoice getting paid, not a recurring monthly amount.
+    id: "late-payment",
+    href: "/late-payment",
+    titleHe: "לקוח לא משלם? הסוכן דורש",
+    titleEn: "Client not paying? Agent demands",
+    whyHe: "דרישה בכתב + Mandate דרך הסוכן, לפי חוק מוסר תשלומים לספקים",
+    whyEn: "Written demand + Mandate via the agent, under the Fair Payment Practices law",
+    potentialShekels: 200,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
+    // Deliberately not agentic: chasing a current employer automatically
+    // carries real retaliation risk an agent shouldn't take on for someone
+    // still working there, so this stays self-help (letter only), unlike
+    // late-payment's completed-transaction client. A back-pay lump sum is
+    // one-time, not a recurring monthly figure.
+    id: "overtime-backpay",
+    href: "/overtime-backpay",
+    titleHe: "שעות נוספות שלא שולמו — עד 7 שנים אחורה",
+    titleEn: "Unpaid overtime — up to 7 years back",
+    whyHe: "125%-150% על שעות נוספות, לפי חוק שעות עבודה ומנוחה",
+    whyEn: "125%-150% on overtime hours, under the Hours of Work and Rest Law",
+    potentialShekels: 400,
+    cadence: "oneTime",
+    effort: "medium",
+    agentic: false,
+  },
+  {
+    // Same "no honest figure" doctrine as dormant: a red-flag scan of an
+    // arbitrary pasted contract has no defensible shekel amount, only a
+    // count of clauses worth a second look. hidden keeps that off every
+    // screen while still letting it rank.
+    id: "contract-check",
+    href: "/contract-check",
+    titleHe: "בדיקת חוזה לפני שחותמים",
+    titleEn: "Check a contract before signing",
+    whyHe: "מדביקים כל חוזה — רואים אילו סעיפים כדאי לשים לב אליהם",
+    whyEn: "Paste any contract — see which clauses are worth a second look",
+    potentialShekels: 60,
+    cadence: "hidden",
+    effort: "low",
+    agentic: false,
+  },
 ];
 
 /** Rank: agentic boost, then potential / effort. Cadence never affects ranking, only display. */
