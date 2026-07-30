@@ -2902,7 +2902,9 @@
     "sampleTag": "{count} checks",
     "savedRateTag": "{pct}% succeeded",
     "avgTag": "avg saving {amount}",
-    "disclaimer": "The data are aggregate facts from documented cases, shown only for providers with a sufficient sample. This is not a subjective rating or recommendation, and any outcome depends on your personal details."
+    "disclaimer": "The data are aggregate facts from documented cases, shown only for providers with a sufficient sample. This is not a subjective rating or recommendation, and any outcome depends on your personal details.",
+    "institutionNote": "Work at one of the providers above? The letters behind these numbers already carry a verifiable Mandate — handling them automatically is faster than reading them by hand.",
+    "institutionCta": "See the institutional integration"
   },
   "deposit": {
     "metaTitle": "Rental deposit refund — landlord won't return it? | Zakai",

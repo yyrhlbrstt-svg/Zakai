@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
@@ -44,10 +45,19 @@ export default async function InstitutionsPage({
           Today, confirming a consumer agent usually means a human reading a scanned
           power of attorney. That does not scale, and it does not compose with software.
         </p>
-        <p className="text-[14.5px] leading-relaxed">
+        <p className="text-[14.5px] leading-relaxed mb-3">
           The Mandate is the same idea made machine-consumable: scoped, audience-bound,
           short-lived, revocable, and cryptographically signed. Your risk team evaluates
           a public key and a closed set of verbs — not a startup&apos;s uptime.
+        </p>
+        <p className="text-[14.5px] leading-relaxed">
+          This is not a hypothetical volume: <Link href="/companies" className="underline text-emerald">
+            {ORIGIN}/companies
+          </Link>{" "}
+          publishes real, documented outcomes per provider as they accumulate. If your
+          organisation appears there, the letters behind that number already carry a
+          verifiable Mandate — reading each one by hand is the more expensive path, not
+          the safer one.
         </p>
       </Section>
 

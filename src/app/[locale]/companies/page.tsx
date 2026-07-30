@@ -96,6 +96,15 @@ export default async function CompaniesPage({
         </div>
       )}
 
+      {stats.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-5 py-4">
+          <p className="text-[13.5px] leading-relaxed m-0 mb-3">{t("companies.institutionNote")}</p>
+          <Link href="/institutions" className="text-[13.5px] font-bold text-emerald underline">
+            {t("companies.institutionCta")} →
+          </Link>
+        </div>
+      )}
+
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed max-w-[600px]">
         {t("companies.disclaimer")}
       </p>
