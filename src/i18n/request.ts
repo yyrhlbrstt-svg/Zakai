@@ -22,6 +22,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
     en: ["he"],
     ar: ["he", "en"],
     ru: ["en", "he"],
+    // German and French readers are far better served by English than by
+    // Hebrew for anything not yet translated — same reasoning as ru.
+    de: ["en", "he"],
+    fr: ["en", "he"],
   };
 
   const layers = await Promise.all(

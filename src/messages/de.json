@@ -1,0 +1,447 @@
+{
+  "brand": "Zakai",
+  "tagline": "wer es verdient hat",
+  "common": {
+    "continue": "Weiter",
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "loading": "Lädt...",
+    "close": "Schließen",
+    "next": "Weiter",
+    "confirm": "Bestätigen",
+    "required": "Pflichtfeld",
+    "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "perMonth": "pro Monat",
+    "perMonthShort": "₪/Monat",
+    "perMonthTag": "/Mon",
+    "currency": "₪"
+  },
+  "nav": {
+    "home": "Startseite",
+    "dashboard": "Mein Dashboard",
+    "newCheck": "Neue Prüfung",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "signup": "Registrieren",
+    "settings": "Mein Konto",
+    "scan": "Belastungen scannen",
+    "pricing": "Preise",
+    "assistant": "Mein Agent",
+    "electricity": "Strom",
+    "flights": "Flüge",
+    "rights": "Rechte",
+    "miluim": "Reservedienst",
+    "entitlements": "Was steht mir zu?",
+    "payslip": "Gehaltsabrechnung prüfen",
+    "severance": "Abfindung",
+    "maternity": "Mutterschaftsgeld",
+    "tools": "Werkzeuge",
+    "taxrefund": "Steuerrückerstattung",
+    "unemployment": "Arbeitslosigkeit",
+    "olim": "Neueinwanderer",
+    "parking": "Parkbußgeld-Einspruch",
+    "deals": "Angebote",
+    "menu": "Menü",
+    "transportFine": "Verkehrsstrafe",
+    "faq": "FAQ",
+    "lostmoney": "Verlorenes Geld",
+    "baggage": "Gepäckentschädigung",
+    "bankfees": "Bankgebühren",
+    "priceprotection": "Preisschutz",
+    "warranty": "Produktgarantie",
+    "feedback": "Zakai verbessern",
+    "arnona": "Grundsteuer-Einspruch",
+    "dupinsurance": "Doppelversicherung",
+    "pension": "Rentengebühren",
+    "mortgage": "Hypothek umschulden",
+    "whatAmIOwed": "Was steht mir zu?",
+    "companies": "Zakai Score",
+    "deposit": "Mietkaution",
+    "childsavings": "Sparen für jedes Kind",
+    "insurance": "Doppelversicherung",
+    "defects": "Baumängel",
+    "classaction": "Sammelklagen-Geld",
+    "carvalue": "Wertminderung nach Unfall",
+    "mortins": "Restschuldversicherung",
+    "disability": "Behinderung / Pflegegeld",
+    "compensation": "Versicherungsansprüche",
+    "spending": "Ausgabenübersicht",
+    "insurancecompare": "Versicherung vergleichen",
+    "debt": "Schulden konsolidieren",
+    "vat": "Umsatzsteuer-Erstattung",
+    "score": "Zakai Score",
+    "authority": "Meine Vollmachten",
+    "incident": "Ich wurde verletzt — wer schuldet mir?",
+    "dormant": "Vergessenes Geld",
+    "vehicleCheck": "Gebrauchtwagen-Check"
+  },
+  "door": {
+    "title": "Wo möchten Sie beginnen?",
+    "money": {
+      "title": "Ich zahle zu viel",
+      "sub": "Fotografieren Sie eine Rechnung — der Agent verfasst, sendet, verfolgt nach und dokumentiert die Ersparnis.",
+      "cta": "Mein Geld prüfen"
+    },
+    "cancel": {
+      "title": "Ein Abo kündigen",
+      "sub": "Der Agent sendet die Kündigung in Ihrem Namen, mit geprüfter Vollmacht, und verfolgt die Antwort.",
+      "cta": "Für mich kündigen"
+    },
+    "owed": {
+      "title": "Was steht mir zu?",
+      "sub": "Rechte, Leistungen und Rückerstattungen, die Sie nie beantragt haben — acht Fragen, keine Dokumente.",
+      "cta": "Prüfen, was mir zusteht"
+    },
+    "electricity": {
+      "title": "Meine Stromrechnung ist hoch",
+      "sub": "Ein echter Anbietervergleich, und der Agent führt den Wechsel für Sie durch.",
+      "cta": "Meine Rechnung senken"
+    },
+    "incident": {
+      "title": "Verletzt worden?",
+      "sub": "Ein Riss, ein Sturz, ein Unfall. Meist schulden Ihnen mehrere Zahler gleichzeitig — und eine Frist beträgt zwölf Monate.",
+      "cta": "Wer schuldet mir?"
+    },
+    "dormant": {
+      "title": "Vergessenes Geld gehört Ihnen",
+      "sub": "Guthaben und Konten, die bei jedem Jobwechsel zurückbleiben. Eine Frage, und Sie können auch für Eltern prüfen.",
+      "cta": "Wer verwahrt mein Geld?"
+    },
+    "vehicleCheck": {
+      "title": "Gebrauchtwagen kaufen?",
+      "sub": "Der Verkäufer muss Ihnen eine schriftliche Offenlegung übergeben — Unfälle, Kilometerstand, Belastungen. Fast niemand fragt danach.",
+      "cta": "Was ich verlangen kann"
+    }
+  },
+  "footer": {
+    "trust": "Sicherheit & Vertrauen",
+    "terms": "AGB",
+    "privacy": "Datenschutz",
+    "trustStrip": {
+      "encrypted": "Verschlüsselte Übertragung (HTTPS/HSTS)",
+      "noTrackers": "Kein Tracking, keine Werbe-Cookies",
+      "deletion": "Kontolöschung mit einem Klick",
+      "verifiablePoa": "Öffentlich überprüfbare Vollmacht"
+    },
+    "legalLine": "Zakai ist ein Selbsthilfe-Tool für Verbraucher. Es ist kein Anwalt, bietet keine Rechtsberatung und vertritt Sie in keinem Verfahren. Die Prüfungen, Rechner und Schreiben sollen Ihnen helfen, selbst zu handeln. Zakai steht in keiner Verbindung zu den genannten Unternehmen und wird von ihnen nicht unterstützt — ihre Namen dienen nur der Identifikation.",
+    "business": "Für Unternehmen",
+    "results": "Ergebnisse",
+    "faq": "FAQ",
+    "feedback": "Zakai verbessern",
+    "whatAmIOwed": "Was steht mir zu?",
+    "companies": "Zakai Score"
+  },
+  "install": {
+    "title": "Zakai installieren",
+    "sub": "Zum Startbildschirm hinzufügen — öffnet sich wie eine App, kein Store nötig.",
+    "iosHint": "Tippen Sie auf „Teilen“, dann auf „Zum Home-Bildschirm“.",
+    "cta": "Installieren",
+    "dismiss": "Schließen"
+  },
+  "incident": {
+    "title": "Verletzt? Sie sind wahrscheinlich an mehreren Stellen gleichzeitig abgesichert",
+    "subtitle": "Ein Bänderriss, ein Sturz, ein Unfall. Die meisten Menschen fordern nur bei einem Zahler und übersehen drei — und eine der Fristen beträgt zwölf Monate, nicht sieben Jahre.",
+    "whatHappened": "Was ist passiert?",
+    "whenHappened": "Wann ist es passiert?",
+    "whenWhy": "Das Datum ist hier wichtiger als alles andere. Manche Fristen enden nach zwölf Monaten, nicht nach sieben Jahren.",
+    "moreTitle": "Ein paar weitere Dinge, die einen Zahler hinzufügen",
+    "stackTitle": "{count} Zahler können Ihnen parallel zahlen",
+    "stackSub": "Eine Entschädigungspolice zahlt einen festen Betrag, unabhängig davon, was andere gezahlt haben. Eine Forderung bei einem schließt die anderen nicht — und das Gegenteil zu glauben, ist der teuerste Fehler in dieser Kategorie.",
+    "stacksBadge": "Kumulierbar",
+    "resultTitle": "{count} Zahler, die es wert sind, angesprochen zu werden",
+    "basis": "Wie die Zahlung berechnet wird",
+    "needs": "Was Sie brauchen",
+    "statute": "Rechtsgrundlage",
+    "counterparty": "Name der Stelle (Arbeitgeber / Versicherer / Verein)",
+    "describe": "Was passiert ist, in Ihren eigenen Worten",
+    "generate": "Meldung erstellen",
+    "disclaimer": "Allgemeine Information, keine Rechts- oder medizinische Beratung. Anspruch und Höhe werden vom Zahler und durch medizinische Begutachtung festgelegt. Zakai stellt keinen Antrag für Sie — es erstellt die Meldung, die Sie selbst senden.",
+    "kinds": {
+      "sport": "Sport oder Training",
+      "work": "Bei der Arbeit",
+      "commute": "Auf dem Arbeitsweg",
+      "road": "Verkehrsunfall",
+      "school": "In der Schule oder Kita",
+      "home": "Zu Hause",
+      "military": "Im Dienst oder Reservedienst",
+      "abroad": "Im Ausland",
+      "medical": "Krankheit oder Operation"
+    },
+    "facts": {
+      "minor": "Ich war unter 18",
+      "employed": "Ich war angestellt",
+      "hasPension": "Ich habe eine Rentenkasse",
+      "registeredAthlete": "Ich bin bei einem Sportverein registriert",
+      "vehicleInvolved": "Ein Fahrzeug war beteiligt",
+      "lostWorkDays": "Ich habe Arbeitstage verloren",
+      "neededTreatment": "Eine Operation oder Behandlung war nötig",
+      "hasSupplementaryHealth": "Ich habe eine Zusatz- oder Privatversicherung"
+    },
+    "urgency": {
+      "expired": "Die Frist ist wahrscheinlich abgelaufen",
+      "daysLeft": "Noch {days} Tage",
+      "window": "{months}-Monats-Frist"
+    },
+    "sources": {
+      "ni_work_injury": "Sozialversicherung — Arbeitsunfall",
+      "pltd_road": "Verkehrsunfall-Entschädigung",
+      "pension_disability": "Invaliditätsschutz der Rentenkasse",
+      "school_accident": "Gesetzliche Schülerunfallversicherung",
+      "sports_insurance": "Sportvereins-Versicherung",
+      "personal_accident_policy": "Private Unfallversicherung",
+      "supplementary_health": "Zusatz- und Privatversicherung",
+      "defence_disability": "Verteidigungsministerium — Rehabilitation",
+      "travel_policy": "Reiseversicherung",
+      "ni_general_disability": "Sozialversicherung — allgemeine Invalidität"
+    }
+  },
+  "dormant": {
+    "title": "Vergessenes Geld gehört Ihnen",
+    "subtitle": "Kein Anspruch und keine Leistung — Geld, das bereits auf Ihren Namen registriert ist, bei einer Stelle, die genau weiß, wo es liegt, und keinen Grund hat, Sie zu suchen.",
+    "jobsQuestion": "Wie viele Arbeitgeber hatten Sie?",
+    "jobsWhy": "Niemand erinnert sich an die Vorsorgekasse, die der zweite Arbeitgeber 2014 eröffnet hat. Jeder weiß, wie viele Jobs er hatte — die ertragreichste Frage im Produkt.",
+    "countTitle": "Stellen müssen Ihnen schriftlich antworten",
+    "countSub": "Hier gibt es keine Zahl, weil es kein durchschnittliches vergessenes Konto gibt — es sind neun Schekel oder neunzigtausend, und nur der Inhaber kann sehen, welches. Zählbar ist, wie viele Stellen Ihnen eine Offenlegung schulden.",
+    "moreTitle": "Weitere Dinge, die eine Stelle hinzufügen",
+    "heirIntro": "Wer stirbt, hinterlässt Policen, Fonds und Konten, von denen die Familie meist nichts weiß, und keine Institution wird Sie von sich aus suchen. Falls das zutrifft:",
+    "heirBadge": "Als Erbe",
+    "lettersTitle": "Die Schreiben",
+    "era": "{n} Arbeitgeber zurück",
+    "needs": "Was Sie brauchen",
+    "duty": "Was sie zur Antwort verpflichtet",
+    "generate": "Schreiben erstellen",
+    "disclaimer": "Allgemeine Information, keine Rechtsberatung. Zakai kontaktiert niemanden für Sie und hebt keine Gelder ab — es erstellt die schriftliche Aufforderung, die Sie selbst senden, und führt eine Aufzeichnung des Datums.",
+    "fields": {
+      "name": "Vollständiger Name",
+      "id": "Ausweisnummer",
+      "counterparty": "Name der Stelle",
+      "employer": "Name des Arbeitgebers",
+      "period": "Zeitraum (z. B. 2013–2016)",
+      "deceasedName": "Name des Verstorbenen",
+      "deceasedId": "Ausweisnummer des Verstorbenen",
+      "relationship": "Verwandtschaftsverhältnis"
+    },
+    "sources": {
+      "old_provident_funds": "Vorsorgekassen früherer Arbeitgeber",
+      "old_pension": "Alte Rentenkassen",
+      "study_fund": "Ein vergessener Fortbildungsfonds",
+      "dormant_bank_account": "Ruhendes Bankkonto",
+      "unclaimed_policies": "Versicherungspolicen auf Ihren Namen",
+      "deceased_policies": "Policen eines verstorbenen Angehörigen",
+      "deceased_pension": "Rente und Fonds eines verstorbenen Angehörigen",
+      "forgotten_securities": "Vergessene Aktien und Dividenden",
+      "unreturned_deposit": "Eine nicht zurückgezahlte Kaution oder Bürgschaft",
+      "restitution": "Vermögenswerte aus der NS-Zeit",
+      "foreign_pension": "Im Ausland erworbene Rente"
+    },
+    "facts": {
+      "changedBank": "Ich habe die Bank gewechselt",
+      "hadStudyFund": "Ich hatte einen Fortbildungsfonds",
+      "movedHome": "Ich bin umgezogen",
+      "heldSecurities": "Ich hatte Aktien oder ein Portfolio",
+      "unreturnedDeposit": "Eine Kaution wurde nie zurückgezahlt",
+      "workedAbroad": "Ich habe im Ausland gearbeitet",
+      "preWarFamily": "Familie in Europa vor 1945",
+      "deceasedRelative": "Ja, ein Angehöriger von mir ist verstorben"
+    },
+    "forWhom": "Für wen prüfen Sie?",
+    "theySign": "Hinweis: Diese Schreiben unterschreiben sie, nicht Sie. Wir handeln nicht für sie — Sie erstellen das Dokument, und sie senden es.",
+    "jobsQuestionOther": "Wie viele Arbeitgeber hatten sie ungefähr?",
+    "subjects": {
+      "self": "Für mich",
+      "parent": "Für ein Elternteil",
+      "grandparent": "Für ein Großelternteil",
+      "deceased": "Für einen verstorbenen Angehörigen"
+    }
+  },
+  "vehicleCheck": {
+    "title": "Bevor Sie einen Gebrauchtwagen kaufen",
+    "subtitle": "Das Gesetz verpflichtet den Verkäufer — privat oder Händler — Ihnen vor dem Verkauf eine schriftliche Offenlegung zu übergeben. Fast niemand fragt danach, also erhält fast niemand eine.",
+    "statuteTitle": "Das ist kein Gefallen. Das ist eine gesetzliche Pflicht.",
+    "statuteSub": "Gesetz über den Verkauf gebrauchter Fahrzeuge (Information), 2008. Ein Verkäufer, der die Details nicht schriftlich festhalten will, hat Ihnen etwas gesagt, das keine Datenbank Ihnen sagen würde.",
+    "listTitle": "Was Sie verlangen sollten, und was es bedeutet",
+    "why": "Warum es wichtig ist",
+    "ifRefused": "Falls sie sich weigern",
+    "letterTitle": "Schriftliche Anfrage erstellen",
+    "plate": "Kennzeichen",
+    "seller": "Name des Verkäufers (optional)",
+    "generate": "Anfrage erstellen",
+    "disclaimer": "Die Liste stützt sich auf die gesetzliche Offenlegungspflicht. Zakai hat das Fahrzeug nicht gesehen, bewertet es nicht und rät weder zum Kauf noch davon ab — es formuliert, was Sie verlangen dürfen.",
+    "items": {
+      "ownership_history": "Eigentumsgeschichte",
+      "accident_history": "Unfälle",
+      "odometer": "Kilometerstand",
+      "dealer_chain": "Wie viele Händler",
+      "test_validity": "Gültigkeit der Hauptuntersuchung",
+      "liens": "Pfandrecht oder Belastung",
+      "recalls": "Offener Rückruf",
+      "original_price": "Ursprungspreis und Ausstattung"
+    }
+  },
+  "home": {
+    "kicker": "Der Agent, der Ihnen Ihr Geld zurückgibt — und Ihre Zeit",
+    "title1": "Sie zahlen zu viel.",
+    "title2": "Zakai holt es zurück.",
+    "sub": "Zakai analysiert Ihre Rechnungen, verfasst die Anfrage, sendet sie in Ihrem Namen und verfolgt nach, bis das Geld zurückkommt — ohne dass Sie jemanden anrufen müssen. Kein Callcenter, keine Warteschleife, keine Formulare. Gebühr nur auf Geld, das tatsächlich zu Ihnen zurückkehrt.",
+    "cta": "Jetzt eine Rechnung prüfen",
+    "howTitle": "So funktioniert es",
+    "trust": [
+      "Null Anrufe — der Agent ruft für Sie an, nicht umgekehrt",
+      "Nur Erfolgshonorar — 18% der Ersparnis",
+      "Volle Transparenz — ein digitaler Agent mit Ihrer Vollmacht, öffentlich überprüfbar"
+    ],
+    "scopeNote": "Zakai handelt in Ihrem Namen gegenüber Anbietern und Behörden auf Grundlage einer digitalen Vollmacht, die Sie für jede Anfrage genehmigen und die öffentlich überprüfbar ist. Zakai ist keine Anwaltskanzlei, bietet keine Rechts- oder Steuerberatung, und die endgültige Anspruchsberechtigung bestimmt die Stelle, bei der die Anfrage eingereicht wird.",
+    "whyTitle": "Warum Zakai und nicht andere Wege?",
+    "why": {
+      "alone": {
+        "title": "Es selbst tun",
+        "points": [
+          "Eine Stunde in der Warteschleife, dann ein Kundenbindungs-Mitarbeiter, der gegen Sie geschult ist",
+          "Sie müssen wissen, was Sie fragen sollen, Marktpreise und Ihre Rechte",
+          "Die meisten geben nach einem Versuch auf — und zahlen weiter zu viel"
+        ]
+      },
+      "services": {
+        "title": "Traditionelle Rechnungskürzungs-Dienste",
+        "points": [
+          "Gebühren von bis zu 35% Ihrer Jahresersparnis",
+          "Menschliches Backoffice: Tage bis Wochen, nur zu Geschäftszeiten",
+          "Sie geben alles ab, ohne Möglichkeit zu prüfen, was in Ihrem Namen geschieht"
+        ]
+      },
+      "zakai": {
+        "title": "Zakai",
+        "points": [
+          "Gebühr nur auf dokumentierte Ersparnis — 18% der monatlichen Ersparnis; keine Ersparnis, keine Zahlung",
+          "Sofortige 24/7-Analyse, Vollmacht mit öffentlichem Prüfcode, 14 Tage Widerspruchsfrist",
+          "Kostenloses Tool-Set ohne Registrierung: 55 Rechte, Strom, Flüge, Abonnements",
+          "Datenschutz standardmäßig: keine Tracker, Scans im Browser, Löschung mit einem Klick"
+        ]
+      }
+    },
+    "proof": "Dokumentierte monatliche Ersparnisse, die Zakai bisher erzielt hat, über {count} abgeschlossene Prüfungen. Direkt aus dem Nachweisregister — nie manuell eingegeben.",
+    "stats": [
+      { "n": "12+", "label": "Geld-Checks" },
+      { "n": "55", "label": "gesetzliche Rechte" },
+      { "n": "0 ₪", "label": "bis Ersparnis nachgewiesen ist" }
+    ],
+    "geoNote": "Es sieht so aus, als würden Sie von außerhalb Israels zugreifen. Einige Werkzeuge (verlorenes Geld, Abo-Kündigung, Preisschutz) funktionieren überall; Rechte und Rückerstattungen sind derzeit auf Israel ausgerichtet, und wir erweitern auf weitere Regionen.",
+    "closingTitle": "Das Geld, das Ihnen zusteht — ohne etwas zu tun",
+    "closingSub": "Jeder gesparte Schekel ist dokumentiert, und jede Anfrage wird mit einer Vollmacht gesendet, die jeder überprüfen kann. Sie sehen nur zu, wie die Zahl steigt.",
+    "closingCta": "Jetzt starten",
+    "closingB2b": "Unternehmen & Institutionen"
+  },
+  "onboarding": {
+    "title": "Was Zakai für Sie tut",
+    "steps": {
+      "upload": {
+        "title": "Rechnung hochladen",
+        "sub": "Ein Foto — Zakai erkennt Anbieter, Betrag und Tarif"
+      },
+      "act": {
+        "title": "Zakai handelt für Sie",
+        "sub": "Verfasst und sendet eine professionelle Anfrage, mit Ihrer ausdrücklichen Zustimmung jedes Mal"
+      },
+      "pay": {
+        "title": "Nur bei Erfolg zahlen",
+        "sub": "18% Gebühr auf die tatsächliche Ersparnis. Keine dokumentierte Ersparnis — keine Gebühr"
+      }
+    },
+    "start": "Los geht's"
+  },
+  "inline_app_locale_money_page": {
+    "t_98667843": "Geld-OS · Mein Geld",
+    "t_2144de53": "Wohin das Geld fließt — und der Agent handelt",
+    "t_26d7de3c": "Oder direkt handeln",
+    "t_bc18d8da": "Abo mit dem Agenten kündigen",
+    "t_a4c2b6a9": "Handyrechnung prüfen",
+    "t_38d0577a": "Mein Dashboard",
+    "t_ef77bbd3": "Kein Bank-Passwort. Screenshot oder Scan → Zakai findet wiederkehrende Belastungen → eröffnet einen Vollmachtsfall → sendet und verfolgt nach. Gebühr nur auf dokumentierte Ersparnis.",
+    "t_3e37c3c8": "Potenziale dienen nur der Priorisierung — kein Versprechen. Gebühr nur auf dokumentierte Ersparnis. Kein Callcenter, kein unbeantworteter Anruf."
+  },
+  "inline_app_locale_cancel_page": {
+    "t_97c08415": "Agent · Vollmacht · kein Rückruf",
+    "t_9af4e618": "Kündigen · pausieren · Preis senken — der Agent erledigt es",
+    "t_c700a858": "Zuerst Belastungen scannen",
+    "t_cb700000": "Was steht mir zu?",
+    "t_8447dd09": "Lädt…",
+    "t_2764ad9b": "Mein Geld →",
+    "t_1bb70faa": "Netflix, Fitnessstudio, Cloud, Apps — der Agent verfasst, sendet mit Vollmacht, verfolgt nach und dokumentiert die Ersparnis. Niemand muss warten.",
+    "t_5812ab29": "Der Agent sendet, verfolgt nach und dokumentiert. Gebühr nur auf dokumentierte Ersparnis. Kein unbeantworteter Anruf."
+  },
+  "potential": {
+    "metaTitle": "Wie viel steht mir zu? — die Prüfung, die jeder braucht | Zakai",
+    "metaDesc": "Ein paar Klicks, und Sie erhalten eine Schätzung, was sich zu prüfen lohnt — Steuern, Rente, Hypothek, Grundsteuer, Versicherung und mehr. Kostenlos, ohne Registrierung.",
+    "kicker": "Die Prüfung, die jeder braucht",
+    "title": "Wie viel Geld steht Ihnen wirklich zu?",
+    "sub": "Beantworten Sie ein paar kurze Fragen, und wir zeigen Ihnen eine Schätzung, was sich zu prüfen lohnt — und genau wo. Kostenlos, ohne Registrierung, läuft komplett in Ihrem Browser.",
+    "q": "Welche davon treffen auf Sie zu? (alle Zutreffenden ankreuzen)",
+    "options": {
+      "employed": "Ich bin angestellt",
+      "ownsHome": "Ich besitze eine Immobilie",
+      "hasMortgage": "Ich habe eine Hypothek",
+      "hasPension": "Ich habe eine Rente",
+      "hasPrivateInsurance": "Ich habe eine private Versicherung",
+      "flewDelayed": "Mein Flug war verspätet/gestrichen",
+      "rents": "Ich miete eine Wohnung"
+    },
+    "calc": "Wie viel steht mir zu?",
+    "resultLabel": "Basierend auf Ihren Antworten lohnt sich die Prüfung von:",
+    "upTo": "bis zu",
+    "resultSub": "(mindestens etwa {low}, konservativ geschätzt). Dies ist eine Obergrenze des Prüfpotenzials — kein Versprechen. Tippen Sie auf eine Zeile, um es tatsächlich zu prüfen.",
+    "shareMsg": "Ich habe bei Zakai geprüft und herausgefunden, dass mir bis zu {amount} zustehen könnten 😳 lohnt sich für jeden zu prüfen, dauert eine Minute:",
+    "honest": "Dies sind mögliche Schätzungen auf Basis öffentlicher Daten, die einmalige, jährliche und mehrjährige Beträge mischen — um Ihnen ein Bild davon zu geben, was sich zu prüfen lohnt. Der tatsächliche Betrag hängt von Ihren persönlichen Angaben ab."
+  },
+  "electricity": {
+    "title": "Wie viel können Sie beim Strom sparen?",
+    "subtitle": "Seit Juli 2024 kann jeder israelische Haushalt zu einem privaten Stromanbieter wechseln. Geben Sie Ihre monatliche Rechnung und Ihr Verbrauchsprofil ein — Zakai ordnet die Tarife nach Ihrer geschätzten Ersparnis. Die Berechnung läuft nur in Ihrem Browser.",
+    "billLabel": "Monatliche Stromrechnung (₪)",
+    "profileLabel": "Wann verbrauchen Sie am meisten Strom?",
+    "profiles": {
+      "spread": "Über den Tag verteilt",
+      "day_home": "Tagsüber zu Hause (Homeoffice)",
+      "evening_family": "Meist abends (Familie)",
+      "ev_night": "Nachts (E-Auto / Boiler)"
+    },
+    "smartMeter": "Wir haben einen Smart Meter (oder installieren einen)",
+    "noMeterNote": "Ohne Smart Meter sind nur Pauschalrabatt-Tarife verfügbar. Die Installation (einmalig ~260 ₪) schaltet Tarife mit bis zu 21% Rabatt frei.",
+    "best": "Am besten für Sie",
+    "effective": "Geschätzter effektiver Rabatt: {pct}% der gesamten Rechnung",
+    "perMonth": "/Monat",
+    "perYear": "{amount} pro Jahr",
+    "providers": {
+      "electra": "Electra Power",
+      "cellcomEnergy": "Cellcom Energy",
+      "bezeqEnergy": "Bezeq",
+      "partnerPower": "Partner Power"
+    },
+    "planNames": {
+      "nightPlus": "Nacht Plus",
+      "day": "Tag",
+      "daySaver": "Tagessparer",
+      "night": "Nacht",
+      "nightOwls": "Nachteulen",
+      "familyEvening": "Familienabende",
+      "nightAllWeek": "Nacht, die ganze Woche",
+      "flat": "Pauschalrabatt",
+      "flatTiered": "Pauschal, gestaffelt"
+    },
+    "disclaimer": "Schätzungen gehen von einem typischen Verbrauchsprofil und öffentlichen Preislisten mit Stand Juli 2026 aus — prüfen Sie den genauen Tarif beim Anbieter vor dem Wechsel. Der Wechsel selbst erfolgt derzeit direkt mit dem Anbieter; ein automatischer Wechsel über Zakai ist in Entwicklung. Keine Beratung."
+  },
+  "inline_app_locale_what_am_i_owed_page": {
+    "t_13fc32c9": "Belastungen jetzt scannen",
+    "t_0ea869b4": "Stromanbieterwechsel",
+    "t_e2ca32d5": "Abo mit dem Agenten kündigen",
+    "t_a5b579f8": "Bankgebühren",
+    "t_16c6cdf1": "Leaks-Karte",
+    "t_b9105fc0": "Potenzial gefunden? Lassen Sie den Agenten handeln",
+    "t_2764ad9b": "Mein Geld →",
+    "t_b341725e": "Jetzt starten",
+    "t_7d286052": "Scan → Vollmachtsfall → senden und nachverfolgen. Gebühr nur auf dokumentierte Ersparnis. Kein Callcenter. Kein unbeantworteter Anruf."
+  },
+  "meta": {
+    "title": "Zakai — das Geld, das Ihnen zusteht, zurück in Ihrer Tasche",
+    "desc": "Der KI-Agent, der Ihnen zustehendes Geld zurückholt: Steuerrückerstattungen, verlorenes Geld, Flugentschädigung, Leistungen, Rechnungssenkungen und mehr — Gebühr nur auf dokumentierte Ersparnis."
+  }
+}

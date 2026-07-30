@@ -1,0 +1,447 @@
+{
+  "brand": "Zakai",
+  "tagline": "qui le mérite",
+  "common": {
+    "continue": "Continuer",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "loading": "Chargement...",
+    "close": "Fermer",
+    "next": "Suivant",
+    "confirm": "Confirmer",
+    "required": "Obligatoire",
+    "genericError": "Une erreur s'est produite. Veuillez réessayer.",
+    "perMonth": "par mois",
+    "perMonthShort": "₪/mois",
+    "perMonthTag": "/mois",
+    "currency": "₪"
+  },
+  "nav": {
+    "home": "Accueil",
+    "dashboard": "Mon tableau de bord",
+    "newCheck": "Nouvelle vérification",
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "signup": "S'inscrire",
+    "settings": "Mon compte",
+    "scan": "Scanner les prélèvements",
+    "pricing": "Tarifs",
+    "assistant": "Mon agent",
+    "electricity": "Électricité",
+    "flights": "Vols",
+    "rights": "Droits",
+    "miluim": "Service de réserve",
+    "entitlements": "Qu'est-ce qui m'est dû ?",
+    "payslip": "Vérifier ma fiche de paie",
+    "severance": "Indemnité de licenciement",
+    "maternity": "Congé maternité",
+    "tools": "Outils",
+    "taxrefund": "Remboursement d'impôt",
+    "unemployment": "Chômage",
+    "olim": "Nouveaux immigrants",
+    "parking": "Contester une amende",
+    "deals": "Bons plans",
+    "menu": "Menu",
+    "transportFine": "Amende de transport",
+    "faq": "FAQ",
+    "lostmoney": "Argent perdu",
+    "baggage": "Indemnisation bagages",
+    "bankfees": "Frais bancaires",
+    "priceprotection": "Protection de prix",
+    "warranty": "Garantie produit",
+    "feedback": "Améliorer Zakai",
+    "arnona": "Contester la taxe foncière",
+    "dupinsurance": "Double assurance",
+    "pension": "Frais de retraite",
+    "mortgage": "Renégocier le crédit immobilier",
+    "whatAmIOwed": "Qu'est-ce qui m'est dû ?",
+    "companies": "Zakai Score",
+    "deposit": "Caution locative",
+    "childsavings": "Épargne pour chaque enfant",
+    "insurance": "Double assurance",
+    "defects": "Vices de construction",
+    "classaction": "Argent des actions collectives",
+    "carvalue": "Perte de valeur après accident",
+    "mortins": "Assurance emprunteur",
+    "disability": "Handicap / allocation",
+    "compensation": "Demandes d'indemnisation",
+    "spending": "Aperçu des dépenses",
+    "insurancecompare": "Comparer les assurances",
+    "debt": "Consolider les dettes",
+    "vat": "Remboursement de TVA",
+    "score": "Zakai Score",
+    "authority": "Mes procurations",
+    "incident": "J'ai été blessé — qui me doit quelque chose ?",
+    "dormant": "Argent oublié",
+    "vehicleCheck": "Vérification véhicule d'occasion"
+  },
+  "door": {
+    "title": "Par où commencer ?",
+    "money": {
+      "title": "Je paie trop cher",
+      "sub": "Photographiez une facture — l'agent rédige, envoie, relance et documente l'économie.",
+      "cta": "Vérifier mon argent"
+    },
+    "cancel": {
+      "title": "Résilier un abonnement",
+      "sub": "L'agent envoie la résiliation en votre nom, avec une procuration vérifiable, et relance la réponse.",
+      "cta": "Résilier pour moi"
+    },
+    "owed": {
+      "title": "Qu'est-ce qui m'est dû ?",
+      "sub": "Droits, allocations et remboursements que vous n'avez jamais réclamés — huit questions, aucun document.",
+      "cta": "Vérifier ce qui m'est dû"
+    },
+    "electricity": {
+      "title": "Ma facture d'électricité est élevée",
+      "sub": "Une vraie comparaison de fournisseurs, et l'agent effectue le changement pour vous.",
+      "cta": "Réduire ma facture"
+    },
+    "incident": {
+      "title": "Blessé ?",
+      "sub": "Une déchirure, une chute, un accident. Généralement plusieurs organismes vous doivent quelque chose en même temps — et un délai est de douze mois.",
+      "cta": "Qui me doit quelque chose ?"
+    },
+    "dormant": {
+      "title": "L'argent oublié vous appartient",
+      "sub": "Fonds et comptes laissés derrière à chaque changement d'emploi. Une question, et vous pouvez aussi vérifier pour un parent.",
+      "cta": "Qui détient mon argent ?"
+    },
+    "vehicleCheck": {
+      "title": "Vous achetez une voiture d'occasion ?",
+      "sub": "Le vendeur doit vous remettre une déclaration écrite — accidents, kilométrage, gages. Presque personne ne la demande.",
+      "cta": "Ce que je peux exiger"
+    }
+  },
+  "footer": {
+    "trust": "Sécurité & Confiance",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "trustStrip": {
+      "encrypted": "Transport chiffré (HTTPS/HSTS)",
+      "noTrackers": "Aucun traceur ni cookie publicitaire",
+      "deletion": "Suppression du compte en un clic",
+      "verifiablePoa": "Procuration vérifiable publiquement"
+    },
+    "legalLine": "Zakai est un outil d'auto-assistance pour les consommateurs. Ce n'est pas un avocat, il ne fournit pas de conseil juridique et ne vous représente dans aucune procédure. Les vérifications, calculateurs et courriers sont destinés à vous aider à agir vous-même. Zakai n'est affilié à aucune des entreprises mentionnées et n'est pas approuvé par elles — leurs noms sont utilisés uniquement à des fins d'identification.",
+    "business": "Pour les entreprises",
+    "results": "Résultats",
+    "faq": "FAQ",
+    "feedback": "Améliorer Zakai",
+    "whatAmIOwed": "Qu'est-ce qui m'est dû ?",
+    "companies": "Zakai Score"
+  },
+  "install": {
+    "title": "Installer Zakai",
+    "sub": "Ajoutez-le à votre écran d'accueil — s'ouvre comme une application, sans passer par un store.",
+    "iosHint": "Appuyez sur le bouton Partager, puis sur « Sur l'écran d'accueil ».",
+    "cta": "Installer",
+    "dismiss": "Ignorer"
+  },
+  "incident": {
+    "title": "Blessé ? Vous êtes probablement couvert à plusieurs endroits à la fois",
+    "subtitle": "Une déchirure ligamentaire, une chute, un accident. La plupart des gens réclament auprès d'un seul organisme et en manquent trois — et l'un des délais est de douze mois, pas sept ans.",
+    "whatHappened": "Que s'est-il passé ?",
+    "whenHappened": "Quand cela s'est-il produit ?",
+    "whenWhy": "La date compte plus que tout ici. Certains délais se ferment après douze mois, pas après sept ans.",
+    "moreTitle": "Quelques éléments supplémentaires qui ajoutent un organisme payeur",
+    "stackTitle": "{count} organismes peuvent vous payer en parallèle",
+    "stackSub": "Une police d'indemnisation verse un montant fixe, quel que soit ce qu'un autre organisme a versé. Réclamer auprès de l'un ne ferme pas les autres — et croire le contraire est l'erreur la plus coûteuse dans cette catégorie.",
+    "stacksBadge": "Cumulable",
+    "resultTitle": "{count} organismes qu'il vaut la peine de contacter",
+    "basis": "Comment le paiement est calculé",
+    "needs": "Ce dont vous avez besoin",
+    "statute": "Base légale",
+    "counterparty": "Nom de l'organisme (employeur / assureur / club)",
+    "describe": "Ce qui s'est passé, dans vos propres mots",
+    "generate": "Générer la déclaration",
+    "disclaimer": "Information générale, pas un conseil juridique ou médical. Le droit et les montants sont fixés par l'organisme payeur et par une évaluation médicale. Zakai ne dépose pas de demande pour vous — il prépare la déclaration que vous envoyez.",
+    "kinds": {
+      "sport": "Sport ou entraînement",
+      "work": "Au travail",
+      "commute": "Sur le trajet domicile-travail",
+      "road": "Accident de la route",
+      "school": "À l'école ou à la crèche",
+      "home": "À la maison",
+      "military": "En service ou en réserve",
+      "abroad": "À l'étranger",
+      "medical": "Maladie ou opération"
+    },
+    "facts": {
+      "minor": "J'avais moins de 18 ans",
+      "employed": "J'étais salarié(e)",
+      "hasPension": "J'ai une caisse de retraite",
+      "registeredAthlete": "Je suis inscrit(e) dans un club sportif",
+      "vehicleInvolved": "Un véhicule était impliqué",
+      "lostWorkDays": "J'ai perdu des jours de travail",
+      "neededTreatment": "Une opération ou un traitement était nécessaire",
+      "hasSupplementaryHealth": "J'ai une couverture santé complémentaire ou privée"
+    },
+    "urgency": {
+      "expired": "Le délai est probablement dépassé",
+      "daysLeft": "Il reste {days} jours",
+      "window": "délai de {months} mois"
+    },
+    "sources": {
+      "ni_work_injury": "Sécurité sociale — accident du travail",
+      "pltd_road": "Indemnisation d'accident de la route",
+      "pension_disability": "Couverture invalidité de la caisse de retraite",
+      "school_accident": "Assurance scolaire obligatoire",
+      "sports_insurance": "Assurance du club sportif",
+      "personal_accident_policy": "Police d'assurance accident individuel",
+      "supplementary_health": "Couverture santé complémentaire et privée",
+      "defence_disability": "Ministère de la Défense — réadaptation",
+      "travel_policy": "Assurance voyage",
+      "ni_general_disability": "Sécurité sociale — invalidité générale"
+    }
+  },
+  "dormant": {
+    "title": "L'argent oublié vous appartient",
+    "subtitle": "Ni une réclamation ni un droit — de l'argent déjà enregistré à votre nom, auprès d'un organisme qui sait exactement où il se trouve et n'a aucune raison de venir vous chercher.",
+    "jobsQuestion": "Combien d'employeurs avez-vous eus ?",
+    "jobsWhy": "Personne ne se souvient de la caisse de prévoyance ouverte par son deuxième employeur en 2014. Tout le monde sait combien d'emplois il a eus — la question la plus rentable du produit.",
+    "countTitle": "organismes doivent vous répondre par écrit",
+    "countSub": "Il n'y a pas de chiffre ici, car il n'existe pas de compte oublié « moyen » — c'est neuf shekels ou quatre-vingt-dix mille, et seul le titulaire peut voir lequel. Ce qui peut être compté, c'est combien d'organismes vous doivent une divulgation.",
+    "moreTitle": "D'autres éléments qui ajoutent un organisme",
+    "heirIntro": "Une personne qui décède laisse des polices, des fonds et des comptes que la famille ignore généralement, et aucun organisme ne viendra vous chercher. Si cela s'applique :",
+    "heirBadge": "En tant qu'héritier",
+    "lettersTitle": "Les courriers",
+    "era": "il y a {n} employeurs",
+    "needs": "Ce dont vous avez besoin",
+    "duty": "Ce qui les oblige à répondre",
+    "generate": "Générer le courrier",
+    "disclaimer": "Information générale, pas un conseil juridique. Zakai ne contacte personne pour vous et ne retire aucun fonds — il prépare la demande écrite que vous envoyez, et garde une trace de la date.",
+    "fields": {
+      "name": "Nom complet",
+      "id": "Numéro de pièce d'identité",
+      "counterparty": "Nom de l'organisme",
+      "employer": "Nom de l'employeur",
+      "period": "Période (ex. 2013–2016)",
+      "deceasedName": "Nom du défunt",
+      "deceasedId": "Numéro d'identité du défunt",
+      "relationship": "Lien de parenté"
+    },
+    "sources": {
+      "old_provident_funds": "Caisses de prévoyance d'anciens employeurs",
+      "old_pension": "Anciennes caisses de retraite",
+      "study_fund": "Un fonds d'études oublié",
+      "dormant_bank_account": "Compte bancaire dormant",
+      "unclaimed_policies": "Polices d'assurance à votre nom",
+      "deceased_policies": "Polices d'un proche décédé",
+      "deceased_pension": "Retraite et fonds d'un proche décédé",
+      "forgotten_securities": "Actions et dividendes oubliés",
+      "unreturned_deposit": "Une caution ou garantie non restituée",
+      "restitution": "Biens de l'époque de la Shoah",
+      "foreign_pension": "Retraite accumulée à l'étranger"
+    },
+    "facts": {
+      "changedBank": "J'ai changé de banque",
+      "hadStudyFund": "J'avais un fonds d'études",
+      "movedHome": "J'ai déménagé",
+      "heldSecurities": "J'ai détenu des actions ou un portefeuille",
+      "unreturnedDeposit": "Une caution n'a jamais été restituée",
+      "workedAbroad": "J'ai travaillé à l'étranger",
+      "preWarFamily": "Famille en Europe avant 1945",
+      "deceasedRelative": "Oui, un proche est décédé"
+    },
+    "forWhom": "Pour qui vérifiez-vous ?",
+    "theySign": "Remarque : ce sont eux qui signent ces courriers, pas vous. Nous n'agissons pas en leur nom — vous préparez le document et ils l'envoient.",
+    "jobsQuestionOther": "Combien d'employeurs a-t-il/elle eu, environ ?",
+    "subjects": {
+      "self": "Pour moi",
+      "parent": "Pour un parent",
+      "grandparent": "Pour un grand-parent",
+      "deceased": "Pour un proche décédé"
+    }
+  },
+  "vehicleCheck": {
+    "title": "Avant d'acheter une voiture d'occasion",
+    "subtitle": "La loi oblige le vendeur — particulier ou professionnel — à vous remettre une déclaration écrite avant la vente. Presque personne ne la demande, donc presque personne ne la reçoit.",
+    "statuteTitle": "Ce n'est pas une faveur. C'est une obligation légale.",
+    "statuteSub": "Loi sur la vente de véhicules d'occasion (information), 2008. Un vendeur qui refuse de mettre les détails par écrit vous a dit quelque chose qu'aucune base de données ne vous dirait.",
+    "listTitle": "Que demander, et ce que cela signifie",
+    "why": "Pourquoi c'est important",
+    "ifRefused": "S'ils refusent",
+    "letterTitle": "Générer la demande écrite",
+    "plate": "Numéro d'immatriculation",
+    "seller": "Nom du vendeur (facultatif)",
+    "generate": "Générer la demande",
+    "disclaimer": "La liste repose sur l'obligation légale de divulgation. Zakai n'a pas vu le véhicule, ne l'évalue pas et ne conseille ni pour ni contre l'achat — il rédige ce que vous avez le droit d'exiger.",
+    "items": {
+      "ownership_history": "Historique de propriété",
+      "accident_history": "Accidents",
+      "odometer": "Kilométrage",
+      "dealer_chain": "Nombre de concessionnaires",
+      "test_validity": "Validité du contrôle technique",
+      "liens": "Gage ou saisie",
+      "recalls": "Rappel en cours",
+      "original_price": "Prix d'origine et niveau de finition"
+    }
+  },
+  "home": {
+    "kicker": "L'agent qui vous rend votre argent — et votre temps",
+    "title1": "Vous payez trop cher.",
+    "title2": "Zakai le récupère.",
+    "sub": "Zakai analyse vos factures, rédige la demande, l'envoie en votre nom et relance jusqu'à ce que l'argent revienne — sans que vous ayez à appeler qui que ce soit. Pas de centre d'appels, pas d'attente, pas de formulaires. Commission uniquement sur l'argent réellement récupéré.",
+    "cta": "Vérifier une facture maintenant",
+    "howTitle": "Comment ça marche",
+    "trust": [
+      "Zéro appel téléphonique — l'agent appelle pour vous, pas l'inverse",
+      "Commission au succès uniquement — 18% de l'économie",
+      "Transparence totale — un agent numérique sous votre procuration, vérifiable publiquement"
+    ],
+    "scopeNote": "Zakai agit en votre nom auprès des fournisseurs et des organismes sur la base d'une procuration numérique que vous approuvez pour chaque demande, vérifiable publiquement. Ce n'est pas un cabinet d'avocats, il ne fournit aucun conseil juridique ou fiscal, et l'éligibilité finale est déterminée par l'organisme auprès duquel la demande est déposée.",
+    "whyTitle": "Pourquoi Zakai plutôt que les autres méthodes ?",
+    "why": {
+      "alone": {
+        "title": "Le faire soi-même",
+        "points": [
+          "Une heure d'attente, puis un conseiller formé pour vous dissuader",
+          "Vous devez savoir quoi demander, les prix du marché et vos droits légaux",
+          "La plupart abandonnent après un essai — et continuent de payer trop cher"
+        ]
+      },
+      "services": {
+        "title": "Services traditionnels de réduction de factures",
+        "points": [
+          "Commissions pouvant atteindre 35% de votre économie annuelle",
+          "Back-office humain : plusieurs jours à semaines, aux heures ouvrées seulement",
+          "Vous confiez tout, sans aucun moyen de vérifier ce qui est fait en votre nom"
+        ]
+      },
+      "zakai": {
+        "title": "Zakai",
+        "points": [
+          "Commission uniquement sur l'économie documentée — 18% de l'économie mensuelle ; pas d'économie, pas de paiement",
+          "Analyse instantanée 24/7, procuration avec code de vérification public, 14 jours pour contester",
+          "Outils gratuits sans inscription : 55 droits, électricité, vols, abonnements",
+          "Confidentialité par défaut : aucun traceur, scans dans le navigateur, suppression en un clic"
+        ]
+      }
+    },
+    "proof": "Économies mensuelles documentées réalisées par Zakai à ce jour, sur {count} vérifications complétées. Directement issu du registre de preuves — jamais saisi manuellement.",
+    "stats": [
+      { "n": "12+", "label": "vérifications d'argent" },
+      { "n": "55", "label": "droits légaux" },
+      { "n": "0 ₪", "label": "tant que l'économie n'est pas prouvée" }
+    ],
+    "geoNote": "Il semble que vous naviguiez depuis l'extérieur d'Israël. Certains outils (argent perdu, résiliation d'abonnements, protection de prix) fonctionnent partout ; les droits et remboursements sont aujourd'hui adaptés à Israël, et nous nous étendons à d'autres régions.",
+    "closingTitle": "L'argent qui vous est dû — sans rien faire",
+    "closingSub": "Chaque shekel économisé est documenté, et chaque demande est envoyée avec une autorité que chacun peut vérifier. Vous n'avez qu'à regarder le chiffre augmenter.",
+    "closingCta": "Commencer maintenant",
+    "closingB2b": "Entreprises & institutions"
+  },
+  "onboarding": {
+    "title": "Ce que Zakai fait pour vous",
+    "steps": {
+      "upload": {
+        "title": "Téléversez une facture",
+        "sub": "Une photo — Zakai détecte le fournisseur, le montant et le forfait"
+      },
+      "act": {
+        "title": "Zakai agit pour vous",
+        "sub": "Rédige et envoie une demande professionnelle, avec votre accord explicite à chaque fois"
+      },
+      "pay": {
+        "title": "Payez seulement en cas de succès",
+        "sub": "Commission de 18% sur l'économie réelle. Pas d'économie documentée — pas de frais"
+      }
+    },
+    "start": "Commençons"
+  },
+  "inline_app_locale_money_page": {
+    "t_98667843": "Money OS · Mon argent",
+    "t_2144de53": "Où va l'argent — et l'agent agit",
+    "t_26d7de3c": "Ou agir directement",
+    "t_bc18d8da": "Résilier un abonnement avec l'agent",
+    "t_a4c2b6a9": "Vérification de facture mobile",
+    "t_38d0577a": "Mon tableau de bord",
+    "t_ef77bbd3": "Pas de mot de passe bancaire. Capture d'écran ou scan → Zakai trouve les prélèvements récurrents → ouvre un dossier avec procuration → envoie et relance. Commission uniquement sur l'économie documentée.",
+    "t_3e37c3c8": "Les potentiels servent uniquement à la priorisation — ce n'est pas une promesse. Commission uniquement sur l'économie documentée. Pas de centre d'appels, pas d'appel resté sans réponse."
+  },
+  "inline_app_locale_cancel_page": {
+    "t_97c08415": "Agent · Procuration · sans rappel",
+    "t_9af4e618": "Résilier · suspendre · baisser le prix — l'agent s'en charge",
+    "t_c700a858": "D'abord scanner les prélèvements",
+    "t_cb700000": "Qu'est-ce qui m'est dû ?",
+    "t_8447dd09": "Chargement…",
+    "t_2764ad9b": "Mon argent →",
+    "t_1bb70faa": "Netflix, salle de sport, cloud, applications — l'agent rédige, envoie avec procuration, relance et enregistre l'économie. Personne à attendre.",
+    "t_5812ab29": "L'agent envoie, relance et enregistre. Commission uniquement sur l'économie documentée. Aucun appel resté sans réponse."
+  },
+  "potential": {
+    "metaTitle": "Combien me doit-on ? — la vérification dont tout le monde a besoin | Zakai",
+    "metaDesc": "Quelques clics et vous obtenez une estimation de ce qui vaut la peine d'être vérifié — impôts, retraite, crédit immobilier, taxe foncière, assurance et plus encore. Gratuit, sans inscription.",
+    "kicker": "La vérification dont tout le monde a besoin",
+    "title": "Combien d'argent vous est réellement dû ?",
+    "sub": "Répondez à quelques questions rapides et nous vous montrerons une estimation de ce qui vaut la peine d'être vérifié — et exactement où. Gratuit, sans inscription, et tout se passe dans votre navigateur.",
+    "q": "Lesquels de ces éléments vous correspondent ? (cochez tout ce qui s'applique)",
+    "options": {
+      "employed": "Je suis salarié(e)",
+      "ownsHome": "Je suis propriétaire d'un logement",
+      "hasMortgage": "J'ai un crédit immobilier",
+      "hasPension": "J'ai une retraite",
+      "hasPrivateInsurance": "J'ai une assurance privée",
+      "flewDelayed": "J'ai pris l'avion et mon vol a été retardé/annulé",
+      "rents": "Je loue un logement"
+    },
+    "calc": "Combien me doit-on ?",
+    "resultLabel": "D'après vos réponses, il vaut la peine de vérifier :",
+    "upTo": "jusqu'à",
+    "resultSub": "(au moins environ {low}, selon une estimation prudente). Il s'agit d'un plafond de potentiel à vérifier — pas une promesse. Appuyez sur une ligne pour la vérifier réellement.",
+    "shareMsg": "J'ai vérifié sur Zakai et découvert qu'on pourrait me devoir jusqu'à {amount} 😳 ça vaut le coup pour tout le monde de vérifier, ça prend une minute :",
+    "honest": "Ce sont des estimations potentielles basées sur des données publiques, mêlant des montants ponctuels, annuels et pluriannuels — pour vous donner une idée de ce qui vaut la peine d'être vérifié. Le montant réel dépend de votre situation personnelle."
+  },
+  "electricity": {
+    "title": "Combien pouvez-vous économiser sur l'électricité ?",
+    "subtitle": "Depuis juillet 2024, chaque foyer israélien peut passer à un fournisseur d'électricité privé. Entrez votre facture mensuelle et votre profil de consommation — Zakai classe les offres selon votre économie estimée. Le calcul s'effectue uniquement dans votre navigateur.",
+    "billLabel": "Facture d'électricité mensuelle (₪)",
+    "profileLabel": "Quand consommez-vous le plus d'électricité ?",
+    "profiles": {
+      "spread": "Répartie sur la journée",
+      "day_home": "À la maison la journée (télétravail)",
+      "evening_family": "Surtout le soir (famille)",
+      "ev_night": "La nuit (véhicule électrique / chauffe-eau)"
+    },
+    "smartMeter": "Nous avons un compteur intelligent (ou allons en installer un)",
+    "noMeterNote": "Sans compteur intelligent, seules les offres à remise fixe sont disponibles. En installer un (coût unique ~260 ₪) débloque des offres jusqu'à 21% de remise.",
+    "best": "Le meilleur pour vous",
+    "effective": "Remise effective estimée : {pct}% de la facture totale",
+    "perMonth": "/mois",
+    "perYear": "{amount} par an",
+    "providers": {
+      "electra": "Electra Power",
+      "cellcomEnergy": "Cellcom Energy",
+      "bezeqEnergy": "Bezeq",
+      "partnerPower": "Partner Power"
+    },
+    "planNames": {
+      "nightPlus": "Nuit Plus",
+      "day": "Jour",
+      "daySaver": "Économie de jour",
+      "night": "Nuit",
+      "nightOwls": "Oiseaux de nuit",
+      "familyEvening": "Soirées en famille",
+      "nightAllWeek": "Nuit, toute la semaine",
+      "flat": "Remise fixe",
+      "flatTiered": "Fixe, par paliers"
+    },
+    "disclaimer": "Les estimations supposent un profil de consommation typique et des grilles tarifaires publiques à juillet 2026 — vérifiez le tarif exact auprès du fournisseur avant de changer. Le changement lui-même s'effectue actuellement directement avec le fournisseur ; le changement automatique via Zakai est en cours de développement. Ceci n'est pas un conseil."
+  },
+  "inline_app_locale_what_am_i_owed_page": {
+    "t_13fc32c9": "Scanner les prélèvements maintenant",
+    "t_0ea869b4": "Changement de fournisseur d'électricité",
+    "t_e2ca32d5": "Résilier un abonnement avec l'agent",
+    "t_a5b579f8": "Frais bancaires",
+    "t_16c6cdf1": "Carte des fuites",
+    "t_b9105fc0": "Potentiel trouvé ? Laissez l'agent agir",
+    "t_2764ad9b": "Mon argent →",
+    "t_b341725e": "Commencer maintenant",
+    "t_7d286052": "Scan → dossier avec procuration → envoi et relance. Commission uniquement sur l'économie documentée. Pas de centre d'appels. Aucun appel resté sans réponse."
+  },
+  "meta": {
+    "title": "Zakai — l'argent qui vous est dû, de retour dans votre poche",
+    "desc": "L'agent IA qui récupère l'argent qui vous est dû : remboursements d'impôts, argent perdu, indemnisation de vol, allocations, réductions de factures et plus encore — commission uniquement sur l'économie documentée."
+  }
+}

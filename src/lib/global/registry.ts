@@ -19,9 +19,9 @@ export const MARKETS: Record<string, Market> = {
   IL: { code: "IL", pack: IL_PACK, uiLocales: ["he", "ar", "ru", "en"], label: "ישראל" },
   GB: { code: "GB", pack: GB_PACK, uiLocales: ["en"], label: "United Kingdom" },
   US: { code: "US", pack: US_PACK, uiLocales: ["en"], label: "United States" },
-  DE: { code: "DE", pack: DE_PACK, uiLocales: ["en"], label: "Deutschland" },
-  FR: { code: "FR", pack: FR_PACK, uiLocales: ["en"], label: "France" },
-  CA: { code: "CA", pack: CA_PACK, uiLocales: ["en"], label: "Canada" },
+  DE: { code: "DE", pack: DE_PACK, uiLocales: ["de", "en"], label: "Deutschland" },
+  FR: { code: "FR", pack: FR_PACK, uiLocales: ["fr", "en"], label: "France" },
+  CA: { code: "CA", pack: CA_PACK, uiLocales: ["en", "fr"], label: "Canada" },
 };
 
 export const DEFAULT_MARKET = "IL";
