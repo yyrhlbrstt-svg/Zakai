@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { traceDormant, type DormantLead } from "@/lib/dormant/trace";
 import { buildDormantLetter } from "@/lib/dormant/letters";
@@ -36,9 +37,18 @@ const FLAGS = [
  * ago. Everybody knows roughly how many employers they have had, and that one
  * number expands into one demand per era. It is the highest-yield question in
  * the product per tap.
+ *
+ * WHY isIsraeli GATES THE WHOLE THING
+ *
+ * Every source in dormant/sources.ts — duty, whyYou, needs — is written once,
+ * in Hebrew, against the Israeli provident-fund supervision law. There is no
+ * per-locale version of that content. Same fix as VehicleCheckScreen and
+ * IncidentScreen, for the same reason: an untranslated statute quoted at a
+ * visitor it does not apply to is worse than no page at all.
  */
-export function DormantScreen() {
+export function DormantScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
   const t = useTranslations("dormant");
+  const tp = useTranslations("potential");
   const [facts, setFacts] = useState<DormantFacts>({});
   const [started, setStarted] = useState(false);
   const [subject, setSubject] = useState<Subject>("self");
@@ -52,6 +62,17 @@ export function DormantScreen() {
         ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
     }`;
+
+  if (!isIsraeli) {
+    return (
+      <Card className="p-6 text-center">
+        <p className="text-ink-soft text-[14px] leading-relaxed mb-4">{tp("notIsraelNote")}</p>
+        <Link href="/rights">
+          <Button>{tp("notIsraelCta")}</Button>
+        </Link>
+      </Card>
+    );
+  }
 
   return (
     <div>

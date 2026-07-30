@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { Card, Input, Button, Textarea, RadioChips } from "@/components/ui";
 import { matchCovers } from "@/lib/incident/match";
 import { buildIncidentLetter } from "@/lib/incident/letters";
@@ -49,9 +50,22 @@ const EXTRAS = [
  * doctor has not yet assessed. A confident number here would be the most
  * damaging thing the product could print, and the one most likely to be
  * repeated back to us later.
+ *
+ * WHY isIsraeli GATES THE WHOLE THING
+ *
+ * Every source in incident/sources.ts — basis, whoHasIt, needs, statute — is
+ * written once, in Hebrew, against a named Israeli statute (Bituach Leumi,
+ * the Road Accident Victims Compensation Law, and the rest). There is no
+ * per-locale version of that content, only a translated kind label around it.
+ * A non-Israeli visitor got exactly that: an English page title over
+ * untranslated Hebrew cover descriptions and a letter citing a law that does
+ * not apply to them. Same fix as VehicleCheckScreen and for the same reason —
+ * machine-translating text that quotes a specific statute risks stating a
+ * legal claim untrue where the visitor actually lives.
  */
-export function IncidentScreen() {
+export function IncidentScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
   const t = useTranslations("incident");
+  const tp = useTranslations("potential");
   const [kind, setKind] = useState<IncidentKind | null>(null);
   const [when, setWhen] = useState("");
   const [facts, setFacts] = useState<Partial<IncidentFacts>>({});
@@ -73,6 +87,17 @@ export function IncidentScreen() {
         ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
     }`;
+
+  if (!isIsraeli) {
+    return (
+      <Card className="p-6 text-center">
+        <p className="text-ink-soft text-[14px] leading-relaxed mb-4">{tp("notIsraelNote")}</p>
+        <Link href="/rights">
+          <Button>{tp("notIsraelCta")}</Button>
+        </Link>
+      </Card>
+    );
+  }
 
   return (
     <div>

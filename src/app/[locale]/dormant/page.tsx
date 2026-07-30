@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { DormantScreen } from "@/components/DormantScreen";
+import { isIsrael } from "@/lib/geo";
 
 export async function generateMetadata({
   params,
@@ -16,12 +17,13 @@ export default async function DormantPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("dormant");
+  const israeliVisitor = await isIsrael();
 
   return (
     <main className="max-w-[760px] mx-auto px-5 py-10">
       <h1 className="font-display text-3xl mt-0 mb-2">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] mt-0 mb-7 leading-relaxed">{t("subtitle")}</p>
-      <DormantScreen />
+      <DormantScreen isIsraeli={israeliVisitor} />
     </main>
   );
 }
