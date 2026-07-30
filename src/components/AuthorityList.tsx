@@ -15,6 +15,13 @@ import type { GrantedAuthority } from "@/lib/services/authorityControl";
 export function AuthorityList({ authorities }: { authorities: GrantedAuthority[] }) {
   const t = useTranslations("authority");
   const [state, setState] = useState<Record<string, "idle" | "busy" | "revoked" | "error">>({});
+  // Two-step, not a native confirm() dialog: the button itself becomes the
+  // confirmation, so there is nothing to dismiss by habit the way a browser
+  // confirm() is — this is the one action on the page a reflexive click
+  // should not be able to trigger.
+  const [revokeAllState, setRevokeAllState] = useState<"idle" | "armed" | "busy" | "done" | "error">(
+    "idle",
+  );
 
   async function revoke(code: string) {
     setState((s) => ({ ...s, [code]: "busy" }));
@@ -30,6 +37,34 @@ export function AuthorityList({ authorities }: { authorities: GrantedAuthority[]
     }
   }
 
+  async function revokeAll() {
+    if (revokeAllState !== "armed") {
+      setRevokeAllState("armed");
+      return;
+    }
+    setRevokeAllState("busy");
+    try {
+      const res = await fetch("/api/authority/revoke-all", { method: "POST" });
+      if (!res.ok) {
+        setRevokeAllState("error");
+        return;
+      }
+      const data = (await res.json()) as { revoked: string[] };
+      setState((s) => {
+        const next = { ...s };
+        for (const code of data.revoked) next[code] = "revoked";
+        return next;
+      });
+      setRevokeAllState("done");
+    } catch {
+      setRevokeAllState("error");
+    }
+  }
+
+  const activeCount = authorities.filter(
+    (a) => a.status !== "REVOKED" && state[a.code] !== "revoked",
+  ).length;
+
   if (authorities.length === 0) {
     return (
       <Card className="p-7 text-center">
@@ -40,6 +75,27 @@ export function AuthorityList({ authorities }: { authorities: GrantedAuthority[]
 
   return (
     <div className="flex flex-col gap-3">
+      {activeCount > 1 && revokeAllState !== "done" && (
+        <div className="flex items-center justify-end gap-2.5 flex-wrap">
+          {revokeAllState === "error" && (
+            <span role="alert" className="text-[12px] text-[#ff8f8f]">
+              {t("revokeFailed")}
+            </span>
+          )}
+          <Button
+            variant="ghost"
+            disabled={revokeAllState === "busy"}
+            onClick={revokeAll}
+            className="!text-[12.5px] !px-4 !py-2 !border-[rgba(255,143,143,0.35)] !text-[#ff8f8f]"
+          >
+            {revokeAllState === "busy"
+              ? t("revoking")
+              : revokeAllState === "armed"
+                ? t("revokeAllConfirm")
+                : t("revokeAll")}
+          </Button>
+        </div>
+      )}
       {authorities.map((a) => {
         const local = state[a.code];
         const revoked = a.status === "REVOKED" || local === "revoked";

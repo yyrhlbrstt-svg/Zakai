@@ -148,3 +148,39 @@ export async function countActiveAuthorities(userId: string): Promise<number> {
     where: { case: { userId }, status: "ACTIVE" },
   });
 }
+
+/**
+ * Withdraw every active authority this person holds, in one action.
+ *
+ * WHY THIS EXISTS SEPARATELY FROM `revokeAuthority`
+ *
+ * A stolen phone or a compromised account is the moment someone needs "off,"
+ * not "off, one at a time" — going through N authorities individually, in a
+ * panic, is exactly the gap between a control that works in a demo and one
+ * that works when it is actually needed. `revokeAuthority` already does the
+ * one thing that matters (flip the status-list bit every institution on
+ * Earth reads), so this is that same function run over every active code,
+ * not a second way of revoking.
+ *
+ * Deliberately not atomic across authorities: if the tenth of forty
+ * revocations fails, the first nine having already taken effect is the
+ * correct outcome — a person mid-emergency should not lose the eight
+ * revocations that already succeeded because a ninth hit a transient error.
+ */
+export async function revokeAllAuthorities(
+  userId: string,
+): Promise<{ revoked: string[]; failed: string[] }> {
+  const active = await prisma.authorization.findMany({
+    where: { case: { userId }, status: "ACTIVE" },
+    select: { code: true },
+  });
+
+  const revoked: string[] = [];
+  const failed: string[] = [];
+  for (const { code } of active) {
+    const result = await revokeAuthority(userId, code);
+    if (result.ok) revoked.push(result.code);
+    else failed.push(code);
+  }
+  return { revoked, failed };
+}

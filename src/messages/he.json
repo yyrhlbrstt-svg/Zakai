@@ -3930,7 +3930,9 @@
     "revoking": "מבטל…",
     "revoked": "בוטל",
     "revokedNote": "ההרשאה בוטלה. כל גוף שמאמת מולנו יראה זאת בבדיקה הבאה שלו.",
-    "revokeFailed": "הביטול לא הושלם. נסה שוב."
+    "revokeFailed": "הביטול לא הושלם. נסה שוב.",
+    "revokeAll": "בטל את כל ההרשאות",
+    "revokeAllConfirm": "בטוח? לחץ שוב כדי לבטל את הכול"
   },
   "inline_components_CancelTool": {
     "t_ebd6b437": "השם שלך",
