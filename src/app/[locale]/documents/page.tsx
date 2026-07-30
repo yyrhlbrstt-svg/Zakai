@@ -20,7 +20,6 @@ export default async function DocumentsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const he = locale === "he" || locale === "ar";
   const tIapp_locale_documents_page = await getTranslations({ locale, namespace: "inline_app_locale_documents_page" });
   const loc = bcp47[locale as Locale];
   const user = await getCurrentUser();
@@ -52,7 +51,7 @@ export default async function DocumentsPage({
       </p>
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? `הרשאות Mandate (${withAuth.length})` : `Mandate authorizations (${withAuth.length})`}
+        {tIapp_locale_documents_page("mandatesHeading", { count: withAuth.length })}
       </h2>
       {withAuth.length === 0 ? (
         <Card className="p-5 text-ink-soft text-[14px]">
@@ -88,7 +87,7 @@ export default async function DocumentsPage({
       )}
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? `הוכחות חיסכון (${withProof.length})` : `Savings proofs (${withProof.length})`}
+        {tIapp_locale_documents_page("savingsHeading", { count: withProof.length })}
       </h2>
       {withProof.length === 0 ? (
         <Card className="p-5 text-ink-soft text-[14px]">

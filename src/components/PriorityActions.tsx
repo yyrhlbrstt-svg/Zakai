@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { rankPriorityActions, formatPotentialHe, formatPotentialEn } from "@/lib/priority";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -8,6 +8,7 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 export function PriorityActions({ limit = 5 }: { limit?: number }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const t = useTranslations("priority");
   const items = rankPriorityActions(limit);
 
   return (
@@ -24,7 +25,7 @@ export function PriorityActions({ limit = 5 }: { limit?: number }) {
                   a count of institutions, never a sum. */}
               {potential && (
                 <div className="text-emerald text-[12px] font-bold mt-2">
-                  {he ? `פוטנציאל ${potential}` : `${potential} potential`}
+                  {t("potentialLabel", { amount: potential })}
                 </div>
               )}
             </SpotlightCard>

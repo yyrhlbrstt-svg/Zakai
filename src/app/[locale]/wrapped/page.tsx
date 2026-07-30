@@ -63,7 +63,7 @@ export default async function WrappedPage({
         Zakai Wrapped · {year}
       </div>
       <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">
-        {he ? `השנה שלך עם זכאי` : `Your year with Zakai`}
+        {tIapp_locale_wrapped_page("title")}
       </h1>
       <p className="text-ink-soft text-[15px] mt-3 leading-relaxed">
         {tIapp_locale_wrapped_page("t_b8e0de13")}
@@ -96,7 +96,7 @@ export default async function WrappedPage({
           {formatAgorot(monthly, loc)}
         </div>
         <div className="text-[13px] text-ink-soft mt-2">
-          {he ? `≈ ${formatAgorot(yearly, loc)} בשנה` : `≈ ${formatAgorot(yearly, loc)} / year`}
+          {tIapp_locale_wrapped_page("yearlyLine", { amount: formatAgorot(yearly, loc) })}
         </div>
       </Card>
 

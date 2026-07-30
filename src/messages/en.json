@@ -2862,6 +2862,9 @@
     "assumption": "This is a fixed-rate estimate for illustration. A real mortgage mixes tracks (prime, fixed, index-linked) and has an early-repayment fee — so actual savings may differ.",
     "disclaimer": "Zakai is a self-help tool, not a licensed mortgage advisor. This is an orientation estimate, not advice. Before refinancing, consult a licensed mortgage advisor and check early-repayment fees with the bank."
   },
+  "priority": {
+    "potentialLabel": "{amount} potential"
+  },
   "potential": {
     "metaTitle": "How much am I owed? — the check everyone needs | Zakai",
     "metaDesc": "A few taps and you get an estimate of how much is worth checking — tax, pension, mortgage, arnona, insurance and more. Free, no signup.",
@@ -4185,7 +4188,9 @@
     "t_ece7121c": "Documented monthly saving",
     "t_bd4c0905": "My money",
     "t_143fe31f": "Dashboard",
-    "t_b8e0de13": "Shareable summary — every number comes from your cases and SavingsProof."
+    "t_b8e0de13": "Shareable summary — every number comes from your cases and SavingsProof.",
+    "title": "Your year with Zakai",
+    "yearlyLine": "≈ {amount} / year"
   },
   "inline_app_locale_settings_page": {
     "t_6c127838": "Documents & mandates",
@@ -4252,7 +4257,9 @@
     "t_143fe31f": "Dashboard",
     "t_d3297759": "Yearly Wrapped",
     "t_bd4c0905": "My money",
-    "t_2f52f216": "Everything in one place, timestamped. Print, share with a provider, or archive."
+    "t_2f52f216": "Everything in one place, timestamped. Print, share with a provider, or archive.",
+    "mandatesHeading": "Mandate authorizations ({count})",
+    "savingsHeading": "Savings proofs ({count})"
   },
   "captive": {
     "title": "Prices sold to you when you could not say no",
