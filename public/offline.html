@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#070B12" />
+<title>זכאי — אין חיבור לאינטרנט</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #070B12;
+    color: #EAF2F0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  .wrap {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  .badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(63,203,155,0.14);
+    border: 1px solid rgba(63,203,155,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-size: 20px;
+    margin: 0 0 8px;
+  }
+  p {
+    color: rgba(234,242,240,0.7);
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 380px;
+    margin: 0 0 24px;
+  }
+  button {
+    background: linear-gradient(135deg, #3FCB9B, #2FB88A);
+    color: #06121A;
+    font-weight: 800;
+    border: 0;
+    border-radius: 14px;
+    padding: 13px 28px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  button:active { transform: translateY(1px); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="badge" aria-hidden="true">📡</div>
+    <h1>אין כרגע חיבור לאינטרנט</h1>
+    <p>הדף שביקשת דורש חיבור לרשת. ברגע שהחיבור יחזור, אפשר לנסות שוב — שום דבר לא אבד.</p>
+    <button onclick="location.reload()">נסה שוב</button>
+  </div>
+</body>
+</html>

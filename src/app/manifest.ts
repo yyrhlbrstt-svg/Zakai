@@ -18,10 +18,28 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "he",
     background_color: "#070B12",
     theme_color: "#070B12",
+    categories: ["finance", "productivity"],
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+    ],
+    // Long-press the home-screen icon for the two actions worth skipping the
+    // door grid for. Both routes already exist; this just gives Android/iOS a
+    // shortcut into them.
+    shortcuts: [
+      {
+        name: "בדיקה חדשה",
+        short_name: "בדיקה",
+        url: "/he/check",
+        icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
+      {
+        name: "לוח הבקרה שלי",
+        short_name: "לוח בקרה",
+        url: "/he/dashboard",
+        icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+      },
     ],
   };
 }

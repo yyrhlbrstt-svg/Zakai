@@ -4556,6 +4556,18 @@
     "metaTitle": "Zakai Mandate — registered issuers",
     "metaDesc": "Every party admitted to sign Zakai Mandates with its own keys, on the same terms, with the same forbidden scopes binding all of them."
   },
+  "notFoundPage": {
+    "title": "This page doesn't exist",
+    "subtitle": "The link may be old, or the address mistyped. Nothing here was lost — your account and cases are exactly as you left them.",
+    "home": "Go to homepage",
+    "money": "Check what you're owed"
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "subtitle": "That's on us, not you — the error's been logged. Try again, or head back to the homepage.",
+    "retry": "Try again",
+    "home": "Go to homepage"
+  },
   "entitlementsPage": {
     "metaTitle": "What am I entitled to? — Zakai",
     "metaDesc": "A short quiz showing which rights, grants and refunds you're owed in Israel — based on your profile, no signup."
