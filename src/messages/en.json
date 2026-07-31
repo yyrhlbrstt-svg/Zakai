@@ -3850,6 +3850,13 @@
     "tooManyRequests": "Too many requests. Try again in a few minutes.",
     "genericError": "Something went wrong. Please try again."
   },
+  "vigilWatch": {
+    "title": "On our watch",
+    "sub": "Money tied to a real deadline. We check daily and remind you before it's gone for good.",
+    "empty": "Nothing time-limited right now — everything eligible has either been acted on or has no fixed deadline.",
+    "expired": "Deadline passed",
+    "daysLeft": "{count, plural, =0 {Due today} one {1 day left} other {# days left}}"
+  },
   "score": {
     "title": "Zakai Score",
     "subtitle": "How much of the money you're owed you actually collect. Eight taps — no photos, no uploads, no bank access.",
