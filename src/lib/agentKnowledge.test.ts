@@ -22,6 +22,7 @@ const VERTICAL_HREF: Record<string, string> = {
 describe("assistant + playbook knowledge stays in sync with real verticals", () => {
   const aiSource = readFileSync("src/lib/ai.ts", "utf8");
   const playbookSource = readFileSync("src/lib/agentPlaybook.ts", "utf8");
+  const leaksSource = readFileSync("src/app/[locale]/leaks/page.tsx", "utf8");
 
   it("every full-service vertical's screen is mentioned in the assistant's system prompt", () => {
     for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
@@ -36,6 +37,20 @@ describe("assistant + playbook knowledge stays in sync with real verticals", () 
       expect(
         playbookSource.includes(href),
         `agentPlaybook.ts never mentions ${href} (pack "${pack.key}")`,
+      ).toBe(true);
+    }
+  });
+
+  it("every full-service vertical's screen is a door on the leaks map — same gap as priority.ts/ai.ts had", () => {
+    // parking, transport-fine and late-payment were absent from /leaks despite
+    // its own header comment promising "every leak points at an agent path" —
+    // the same class of bug as the assistant's stale knowledge, just on a
+    // third surface.
+    for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
+      const href = VERTICAL_HREF[pack.key] ?? `/${pack.key}`;
+      expect(
+        leaksSource.includes(`href: "${href}"`),
+        `/leaks never links to ${href} (pack "${pack.key}")`,
       ).toBe(true);
     }
   });
