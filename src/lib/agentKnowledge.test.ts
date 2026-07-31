@@ -23,6 +23,7 @@ describe("assistant + playbook knowledge stays in sync with real verticals", () 
   const aiSource = readFileSync("src/lib/ai.ts", "utf8");
   const playbookSource = readFileSync("src/lib/agentPlaybook.ts", "utf8");
   const leaksSource = readFileSync("src/app/[locale]/leaks/page.tsx", "utf8");
+  const faqSource = readFileSync("src/lib/faq.ts", "utf8");
 
   it("every full-service vertical's screen is mentioned in the assistant's system prompt", () => {
     for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
@@ -66,6 +67,36 @@ describe("assistant + playbook knowledge stays in sync with real verticals", () 
           /self-help/i.test(line),
           `line mentioning ${href} claims self-help, but it's a full-service pack: "${line.trim()}"`,
         ).toBe(false);
+      }
+    }
+  });
+
+  it("every full-service vertical's screen is mentioned in the FAQ digest fed straight into the assistant prompt", () => {
+    // faq.ts's faqDigest() is concatenated directly into ASSISTANT_SYSTEM
+    // (see ai.ts) — a vertical missing here is missing from the assistant's
+    // prompt a second, independent way, on top of the KNOWLEDGE block above.
+    for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
+      const href = VERTICAL_HREF[pack.key] ?? `/${pack.key}`;
+      expect(faqSource.includes(href), `faq.ts never mentions ${href} (pack "${pack.key}")`).toBe(true);
+    }
+  });
+
+  it("the FAQ frames every full-service vertical as agent-driven, not a bare letter template", () => {
+    // parking/transport-fine's FAQ answer used to say only "appeal letter at
+    // /parking" — true but misleading, since both are agent+Mandate services,
+    // not a template the user fills in themselves. Every FAQ entry answering
+    // for a full-service href must at least say so (Mandate, or "הסוכן"/agent).
+    for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
+      const href = VERTICAL_HREF[pack.key] ?? `/${pack.key}`;
+      const answerLines = faqSource
+        .split("\n")
+        .filter((l) => l.includes(href) && (l.trim().startsWith("a_he:") || l.trim().startsWith("a_en:")));
+      expect(answerLines.length, `no FAQ answer line mentions ${href}`).toBeGreaterThan(0);
+      for (const line of answerLines) {
+        expect(
+          /mandate|הסוכן|agent/i.test(line),
+          `FAQ answer for ${href} doesn't frame it as agent-driven: "${line.trim()}"`,
+        ).toBe(true);
       }
     }
   });
