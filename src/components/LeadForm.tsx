@@ -112,21 +112,31 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
     }
   }
 
+  // The "general" playbook (no specific campaign/vertical tag) covers almost
+  // the same ground as this page's own static button list above it — showing
+  // both stacks two nearly-identical clusters of buttons on one screen, which
+  // is exactly the kind of "too many choices, where do I even start" clutter
+  // real user feedback flagged. A tagged vertical (e.g. ?v=mortgage-insurance)
+  // still gets its own specific, non-duplicate action list.
+  const showActionsCard = vertical !== "general";
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] p-5 sm:p-6">
-        <div className="font-extrabold text-[16.5px]">{he ? pb.headlineHe : pb.headlineEn}</div>
-        <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
-          {tIcomponents_LeadForm("t_38bf6a70")}
-        </p>
-        <div className="flex flex-col gap-2.5 mt-4">
-          {pb.actions.map((a) => (
-            <Link key={a.href} href={a.href} className="no-underline">
-              <Button className="w-full !justify-start">{he ? a.labelHe : a.labelEn}</Button>
-            </Link>
-          ))}
+      {showActionsCard && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] p-5 sm:p-6">
+          <div className="font-extrabold text-[16.5px]">{he ? pb.headlineHe : pb.headlineEn}</div>
+          <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
+            {tIcomponents_LeadForm("t_38bf6a70")}
+          </p>
+          <div className="flex flex-col gap-2.5 mt-4">
+            {pb.actions.map((a) => (
+              <Link key={a.href} href={a.href} className="no-underline">
+                <Button className="w-full !justify-start">{he ? a.labelHe : a.labelEn}</Button>
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {!showContact && state !== "done" && (
         <button
