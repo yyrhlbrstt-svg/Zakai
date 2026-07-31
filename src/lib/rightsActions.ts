@@ -3,7 +3,7 @@
  * "here is the finished document, sent from inside Zakai".
  *
  * The single biggest hole in the product until now: the rights engine found
- * 55 entitlements and then ended every one of them with "go to the tax
+ * 60 entitlements and then ended every one of them with "go to the tax
  * authority's site / go to Har HaKesef / go to your municipality". That is the
  * moment the customer leaves and never comes back. Discovery without
  * fulfilment is not a product.

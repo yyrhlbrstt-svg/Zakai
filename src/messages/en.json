@@ -262,7 +262,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "55 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "60 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       },
       "miluim": {
         "title": "Reserve-duty pay",
@@ -392,7 +392,7 @@
         "points": [
           "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
           "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
-          "Free no-signup toolset: 55 rights, electricity, flights, subscriptions",
+          "Free no-signup toolset: 60 rights, electricity, flights, subscriptions",
           "Privacy by default: no trackers, in-browser scans, one-click deletion"
         ]
       }
@@ -944,7 +944,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "55 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "60 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {

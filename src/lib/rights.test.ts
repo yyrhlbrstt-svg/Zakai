@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
 import { ENTITLEMENTS, evaluateRights, type RightsProfile } from "./rights";
 
 const base: RightsProfile = {
@@ -18,6 +19,24 @@ describe("rights catalog", () => {
   it("has 40+ unique entitlements", () => {
     expect(ENTITLEMENTS.length).toBeGreaterThanOrEqual(40);
     expect(new Set(ENTITLEMENTS.map((e) => e.id)).size).toBe(ENTITLEMENTS.length);
+  });
+
+  it("marketing copy states the real count, not a number that already drifted twice (55, then 59)", () => {
+    // ai.ts derives its count live now (IL_RIGHTS_COUNT) and can't drift by
+    // construction. Marketing strings in messages/*.json and doc comments in
+    // il.ts/rightsActions.ts are plain static text and can't do that — this
+    // is the guard for those instead.
+    const count = String(
+      ENTITLEMENTS.filter((e) => !/^(us|uk|de|fr|ca|au|it)_/.test(e.id)).length,
+    );
+    const he = readFileSync("src/messages/he.json", "utf8");
+    const en = readFileSync("src/messages/en.json", "utf8");
+    expect(he.includes(`${count} זכויות`), `he.json still says a different count than ${count}`).toBe(
+      true,
+    );
+    expect(en.includes(`${count} rights`), `en.json still says a different count than ${count}`).toBe(
+      true,
+    );
   });
 
   it("every predicate is total over representative profiles", () => {

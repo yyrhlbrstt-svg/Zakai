@@ -1,7 +1,7 @@
 /**
  * Israel — the reference jurisdiction pack.
  *
- * This is the same 55 entitlements the product ships today, restated as data.
+ * This is the same 60 entitlements the product ships today, restated as data.
  * The document text is not duplicated: it is pulled from
  * `src/lib/rightsActions.ts`, so there is exactly one place a letter is
  * written and one place it is maintained.
