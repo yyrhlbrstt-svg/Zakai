@@ -2353,6 +2353,28 @@
     "genericError": "Something went wrong reading this — try again.",
     "disclaimer": "An automatic reading of the text you pasted, meant to help you notice what to ask about before you sign — not legal advice, and not a substitute for reading the actual document yourself."
   },
+  "scamCheck": {
+    "metaTitle": "Is this a scam? Check a suspicious SMS/WhatsApp message | Zakai",
+    "metaDesc": "Paste a suspicious text message and check it against known Israeli scam patterns — package/customs scams, fake bank verification, lottery scams. Free, instant, nothing leaves your browser.",
+    "title": "Is this message a scam?",
+    "subtitle": "Paste a suspicious SMS or WhatsApp message and check it against known scam patterns. Runs entirely in your browser — nothing is sent anywhere, no account needed.",
+    "placeholder": "Paste the suspicious message here…",
+    "privacyNote": "Nothing you paste here is sent anywhere or saved — the check runs entirely on your device.",
+    "riskTitle": "This matches a known scam pattern",
+    "riskSub": "The message matched one or more patterns seen in real, currently active scams:",
+    "riskAdvice": "Don't click any link in it, and don't reply with any code, password or card details. If it claims to be your bank, call the bank directly using the number on their real website or your card — never a number from the message itself.",
+    "unclearTitle": "No known scam pattern found",
+    "unclearSub": "That doesn't mean it's safe — this only checks against known patterns, not every possible scam. If it asks you for a code, password or payment, treat it with the same caution regardless.",
+    "disclaimer": "A pattern check against known scam families, not a verdict — it can miss a real scam it hasn't seen before, and it never confirms a message is safe. When in doubt, don't click, and verify directly with the organization through a channel you already trust.",
+    "patterns": {
+      "package_customs": "Package / customs hold — the most common variant",
+      "lottery_prize": "An unrequested lottery win / prize",
+      "bank_verification": "A bank / Bit / PayBox asking for a verification code or card details",
+      "gov_refund": "A government body promising a refund via a link",
+      "shortened_link_urgency": "A shortened link combined with time pressure",
+      "code_plus_urgency": "A request for a verification code combined with time pressure"
+    }
+  },
   "parking": {
     "title": "Parking-ticket appeal",
     "subtitle": "Many parking tickets fall on defects — unclear signage, a broken meter, wrong details. Fill a few fields and Zakai prepares an objection letter for you to send in your own name. Runs in your browser.",

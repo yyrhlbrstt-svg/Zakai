@@ -320,6 +320,22 @@ const CATALOG: PriorityAction[] = [
     effort: "low",
     agentic: false,
   },
+  {
+    // Protective, not a recovery tool — a scam match prevents a loss rather
+    // than recovering one already lost, so there is no honest shekel figure
+    // to attach to "a message that might have been a scam". Same hidden
+    // doctrine as contract-check and dormant.
+    id: "scam-check",
+    href: "/scam-check",
+    titleHe: "ההודעה הזו היא עוקץ?",
+    titleEn: "Is this message a scam?",
+    whyHe: "בדיקת תבניות הונאה מוכרות — חינם, בדפדפן, בלי חשבון",
+    whyEn: "Check against known scam patterns — free, in your browser, no account",
+    potentialShekels: 50,
+    cadence: "hidden",
+    effort: "low",
+    agentic: false,
+  },
 ];
 
 /** Rank: agentic boost, then potential / effort. Cadence never affects ranking, only display. */

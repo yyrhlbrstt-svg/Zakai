@@ -40,6 +40,7 @@ import {
   Calculator,
   Sparkles,
   Clock,
+  ShieldX,
   type LucideIcon,
 } from "lucide-react";
 
@@ -88,6 +89,7 @@ const ICONS: Record<string, LucideIcon> = {
   contractCheck: FileText,
   overtimeBackPay: Clock,
   latePayment: Banknote,
+  scamCheck: ShieldX,
 };
 
 export function ToolIcon({

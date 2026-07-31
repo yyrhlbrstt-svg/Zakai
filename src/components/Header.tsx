@@ -61,6 +61,7 @@ const TOOLS = [
   { href: "/contract-check", key: "contractCheck" },
   { href: "/overtime-backpay", key: "overtimeBackPay" },
   { href: "/late-payment", key: "latePayment" },
+  { href: "/scam-check", key: "scamCheck" },
 ] as const;
 
 const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
@@ -74,6 +75,7 @@ const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   contractCheck: { he: "בדיקת חוזה", en: "Contract check" },
   overtimeBackPay: { he: "שעות נוספות", en: "Unpaid overtime" },
   latePayment: { he: "לקוח לא משלם", en: "Late-paying client" },
+  scamCheck: { he: "זה עוקץ?", en: "Is this a scam?" },
 };
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {

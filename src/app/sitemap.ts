@@ -47,6 +47,7 @@ const PATHS = [
   "/contract-check",
   "/overtime-backpay",
   "/late-payment",
+  "/scam-check",
   "/vehicle-check",
   "/arnona",
   "/baggage",
