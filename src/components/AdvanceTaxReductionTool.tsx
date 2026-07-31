@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
 import { Card, Button, Input, Textarea } from "@/components/ui";
 import {
   ADVANCE_TAX_FORM_URL,
+  advanceTaxReductionDeadline,
   daysUntilAdvanceTaxDeadline,
   canStillFileForYear,
   buildAdvanceTaxReductionLetter,
@@ -20,12 +22,16 @@ const CURRENT_TAX_YEAR = new Date().getFullYear();
  */
 export function AdvanceTaxReductionTool() {
   const t = useTranslations("advanceTaxReduction");
+  const router = useRouter();
   const [taxYear, setTaxYear] = useState(CURRENT_TAX_YEAR);
   const [name, setName] = useState("");
   const [taxFileNumber, setTaxFileNumber] = useState("");
   const [reason, setReason] = useState("");
   const [letter, setLetter] = useState("");
   const [copied, setCopied] = useState(false);
+  const [reminderBusy, setReminderBusy] = useState(false);
+  const [reminderAdded, setReminderAdded] = useState(false);
+  const [reminderError, setReminderError] = useState<string | null>(null);
 
   const daysLeft = useMemo(() => daysUntilAdvanceTaxDeadline(taxYear), [taxYear]);
   const stillOpen = useMemo(() => canStillFileForYear(taxYear), [taxYear]);
@@ -44,6 +50,36 @@ export function AdvanceTaxReductionTool() {
     );
   }
 
+  async function addReminder() {
+    setReminderError(null);
+    setReminderBusy(true);
+    try {
+      const res = await fetch("/api/deadlines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          label: t("reminderLabel", { year: taxYear }),
+          dueDate: advanceTaxReductionDeadline(taxYear).toISOString(),
+          remindDaysBefore: 30,
+        }),
+      });
+      if (res.status === 401) {
+        router.replace("/login?return=/advance-tax");
+        return;
+      }
+      if (!res.ok) {
+        setReminderError(t("reminderError"));
+        return;
+      }
+      setReminderAdded(true);
+      setTimeout(() => setReminderAdded(false), 3000);
+    } catch {
+      setReminderError(t("reminderError"));
+    } finally {
+      setReminderBusy(false);
+    }
+  }
+
   return (
     <div>
       <Card className="p-6 flex flex-col gap-4">
@@ -56,6 +92,15 @@ export function AdvanceTaxReductionTool() {
         >
           {stillOpen ? t("windowOpen", { days: daysLeft }) : t("windowClosed")}
         </div>
+
+        {stillOpen && (
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button variant="ghost" onClick={addReminder} disabled={reminderBusy}>
+              {reminderBusy ? t("reminderAdding") : reminderAdded ? t("reminderAdded") : t("reminderCta")}
+            </Button>
+            {reminderError && <span className="text-[12.5px] text-amber">{reminderError}</span>}
+          </div>
+        )}
 
         <label className="block">
           <span className="text-[13px] text-ink-soft block mb-1.5">{t("yearQ")}</span>

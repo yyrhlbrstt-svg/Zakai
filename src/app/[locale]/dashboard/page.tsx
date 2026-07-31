@@ -7,6 +7,7 @@ import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
+import { VigilWatchCard } from "@/components/VigilWatchCard";
 import { ShareResult } from "@/components/ShareResult";
 import { ReferralCard } from "@/components/ReferralCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
@@ -335,6 +336,8 @@ export default async function DashboardPage({
       )}
 
       <MoneyScoreCard result={scoreResult} />
+
+      <VigilWatchCard bcp47={loc} />
 
       <StrategyInsightsCard locale={locale} bcp47={loc} />
 
