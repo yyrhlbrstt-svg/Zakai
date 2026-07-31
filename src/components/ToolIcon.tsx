@@ -41,6 +41,7 @@ import {
   Sparkles,
   Clock,
   ShieldX,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -90,6 +91,7 @@ const ICONS: Record<string, LucideIcon> = {
   overtimeBackPay: Clock,
   latePayment: Banknote,
   scamCheck: ShieldX,
+  complaintEscalation: Megaphone,
 };
 
 export function ToolIcon({

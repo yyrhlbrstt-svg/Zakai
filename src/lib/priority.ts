@@ -336,6 +336,21 @@ const CATALOG: PriorityAction[] = [
     effort: "low",
     agentic: false,
   },
+  {
+    // Also no honest figure: escalating an ignored complaint has no
+    // predictable shekel outcome or timeline — this only names the right
+    // regulator and drafts a letter, same hidden doctrine as scam-check.
+    id: "complaint-escalation",
+    href: "/complaint-escalation",
+    titleHe: "התלונה לא נענתה? הנה למי פונים",
+    titleEn: "Complaint ignored? Here's who to escalate to",
+    whyHe: "זיהוי הגוף הרגולטורי הנכון + מכתב הסלמה מוכן",
+    whyEn: "The right regulator identified + a ready escalation letter",
+    potentialShekels: 40,
+    cadence: "hidden",
+    effort: "low",
+    agentic: false,
+  },
 ];
 
 /** Rank: agentic boost, then potential / effort. Cadence never affects ranking, only display. */

@@ -2375,6 +2375,42 @@
       "code_plus_urgency": "A request for a verification code combined with time pressure"
     }
   },
+  "complaintEscalation": {
+    "metaTitle": "Complaint ignored? Escalate to the right regulator | Zakai",
+    "metaDesc": "Sent a complaint to your bank, phone/internet provider, or a business, and got no real answer? Find the actual regulator to escalate to, and get a ready escalation letter.",
+    "title": "Complaint ignored? Here's who to actually escalate to",
+    "subtitle": "A complaint that goes nowhere usually has a real next step — a regulator or public-inquiries unit whose job is exactly this. Pick what your complaint is about and get the right body plus a ready escalation letter.",
+    "categoryQ": "What is the complaint about?",
+    "categories": {
+      "bank": "A bank or credit-card company",
+      "telecom": "Cellular / internet / landline / TV provider",
+      "consumer": "Another business (general consumer complaint)"
+    },
+    "nameQ": "Your name",
+    "companyQ": "Company you complained to",
+    "dateQ": "Date you sent the original complaint (optional)",
+    "summaryQ": "Brief summary of the complaint",
+    "generateCta": "Prepare the escalation letter",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "sendHint": "Send this yourself, by email or through the body's own contact form",
+    "defaultName": "the complainant",
+    "disclaimer": "Names the real regulator for this category, and drafts a letter — not a guarantee of any outcome or timeline, and not legal advice. The letter is sent by you, in your own name.",
+    "bodies": {
+      "bank": {
+        "name": "Banking Supervision — Public Inquiries and Consumer Supervision Unit (Bank of Israel)",
+        "description": "Handles complaints against banks and credit-card companies, in particular when there's been no satisfactory reply within 45 days (60 with a notified extension)."
+      },
+      "telecom": {
+        "name": "Ministry of Communications — Public Inquiries Unit",
+        "description": "Handles complaints against telecom licensees — cellular, internet, landline, TV."
+      },
+      "consumer": {
+        "name": "Consumer Protection and Fair Trade Authority",
+        "description": "Handles general consumer complaints — deception, unauthorized charges, warranty/service, cancellation rights — outside banking or telecom. Current contact details are on gov.il."
+      }
+    }
+  },
   "parking": {
     "title": "Parking-ticket appeal",
     "subtitle": "Many parking tickets fall on defects — unclear signage, a broken meter, wrong details. Fill a few fields and Zakai prepares an objection letter for you to send in your own name. Runs in your browser.",
