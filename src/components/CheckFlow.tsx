@@ -93,6 +93,7 @@ export function CheckFlow() {
   // outcome
   const [newAmount, setNewAmount] = useState("");
   const [outcome, setOutcome] = useState<{ saving: number; fee: number; chargeable: boolean } | null>(null);
+  const [delivered, setDelivered] = useState(true);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -214,11 +215,13 @@ export function CheckFlow() {
     if (!rec) return;
     setStage("sending");
     const res = await fetch(`/api/cases/${rec.caseId}/send`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setStage("verify");
       setOwnErr("genericError");
       return;
     }
+    setDelivered(Boolean(data.delivered));
     setStage("sent");
   }
 
@@ -542,6 +545,12 @@ export function CheckFlow() {
               {t("sentSub")}
             </p>
           </div>
+
+          {!delivered && (
+            <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mt-5 text-[13.5px] font-bold text-center">
+              {t("notDeliveredNote")}
+            </div>
+          )}
 
           <Card className="p-5 mt-6">
             <div className="font-extrabold">{t("trackTitle")}</div>

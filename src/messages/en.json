@@ -498,6 +498,7 @@
     "sendingSub": "Identified, authorized and timestamped",
     "sentTitle": "Request sent",
     "sentSub": "Zakai now tracks the provider's reply. When it arrives, update the new amount here to document the saving.",
+    "notDeliveredNote": "Note: email delivery isn't configured in this environment yet, so this request hasn't actually reached the provider — it's saved and ready to send the moment it is.",
     "trackTitle": "Update the provider's reply",
     "trackSub": "When you get a reply (or a new bill), enter the new monthly amount here. Zakai compares it to the documented original.",
     "newAmountLabel": "New monthly amount (₪)",
