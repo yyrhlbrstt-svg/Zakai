@@ -1,7 +1,6 @@
 /**
  * Multi-round consumer negotiation playbooks.
- * Solo / AI-only product: user copies and sends; no call center.
- * Escalation stays written, documented, and success-fee friendly.
+ * Solo / AI-only product: written only, documented, success-fee friendly.
  */
 
 export type ProviderReplyKind =
@@ -33,6 +32,12 @@ export interface FollowUpResult {
   nextIfNoReply: string;
 }
 
+function deadlineDays(round: number): number {
+  if (round <= 2) return 5;
+  if (round === 3) return 3;
+  return 2;
+}
+
 export function buildFollowUp(input: FollowUpInput): FollowUpResult {
   const name = input.customerName.trim() || "הלקוח/ה";
   const provider = input.providerLabel;
@@ -41,15 +46,26 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
   const mid = Math.round((current + target) / 2);
   const plan = input.plan?.trim() ? ` (מסלול: ${input.plan.trim()})` : "";
   const round = input.round ?? 2;
+  const days = deadlineDays(round);
 
-  const baseClose = `\n\nמצורף/קיים מסמך הרשאה מטעם הלקוח/ה עם אפשרות אימות. אודה למענה בכתב עם הצעה מדויקת (מחיר חודשי + תנאים).\n\nבברכה,\nזכאי — סוכן דיגיטלי בשם ${name}`;
+  const baseClose = `\n\nמצורף/קיים מסמך הרשאה מטעם הלקוח/ה עם אפשרות אימות. אודה למענה בכתב עם הצעה מדויקת (מחיר חודשי + תנאים + תאריך תחילה).\n\nבברכה,\nזכאי — סוכן דיגיטלי בשם ${name}`;
+
+  const urgency =
+    round >= 4
+      ? `\n\nזו פנייה אחרונה בכתב לפני בחינת חלופות (הורדת מסלול / מעבר / ביטול חלקי).`
+      : round >= 3
+        ? `\n\nנודה למענה סופי בכתב תוך ${days} ימי עסקים.`
+        : `\n\nנודה למענה בכתב תוך ${days} ימי עסקים.`;
 
   switch (input.replyKind) {
     case "refused":
       return {
         subject: `המשך פנייה — שימור לקוח קיים | ${name}`,
-        tip: "כשאומרים לא — מבקשים נימוק בכתב + חלופות. לא נכנסים לוויכוח טלפוני בלי סיכום.",
-        nextIfNoReply: "תזכורת אחרי 5–7 ימי עסקים, ואז שקלו מתחרה / ביטול חלקי.",
+        tip: "כשאומרים לא — מבקשים נימוק בכתב + חלופות. לא נכנסים לוויכוח טלפוני.",
+        nextIfNoReply:
+          round >= 3
+            ? "אם אין חלופה כתובה — עברו למסלול ביטול/מתחרה ותעדו בזכאי."
+            : "תזכורת אחרי 5–7 ימי עסקים, ואז שקלו מתחרה / ביטול חלקי.",
         body: `לכבוד שירות הלקוחות של ${provider},
 
 פנייה חוזרת (סיבוב ${round}) מטעם ${name}, באמצעות זכאי — סוכן דיגיטלי מורשה. אינני הלקוח/ה עצמו/ה.
@@ -59,7 +75,7 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
 2. חלופות: הורדת מסלול / הטבת נאמנות / התחייבות קצרה — בכיוון ₪${target}–₪${mid} לחודש.
 3. פירוט חיובים נלווים שאינם הכרחיים לשימוש בפועל.
 
-המטרה: הסכמה שקופה בכתב.${baseClose}`,
+המטרה: הסכמה שקופה בכתב.${urgency}${baseClose}`,
       };
 
     case "too_low":
@@ -73,19 +89,22 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
 
 החיוב הנוכחי כ-₪${current} לחודש${plan}. היעד מצד הלקוח/ה כ-₪${target}; אם אין אפשרות מלאה — הצעה משופרת סביב ₪${mid} עם פירוט מה כלול.
 
-נא מענה בכתב בלבד.${baseClose}`,
+נא מענה בכתב בלבד.${urgency}${baseClose}`,
       };
 
     case "delay":
       return {
         subject: `תזכורת — פנייה ממתינה | ${name}`,
         tip: "תזכורת קצרה + תאריך יעד. שומרים על טון ענייני.",
-        nextIfNoReply: "עוד תזכורת אחת, ואז מתחרה או הורדת מסלול.",
+        nextIfNoReply:
+          round >= 3
+            ? "עוד תזכורת אחת קצרה, ואז מתחרה או הורדת מסלול."
+            : "עוד תזכורת אחת, ואז מתחרה או הורדת מסלול.",
         body: `לכבוד ${provider},
 
 תזכורת מטעם ${name} באמצעות זכאי. הפנייה לגבי התאמת מחיר (כ-₪${current} → יעד כ-₪${target}) ממתינה למענה.
 
-נא עדכון בכתב תוך 5 ימי עסקים.${baseClose}`,
+נא עדכון בכתב תוך ${days} ימי עסקים.${round >= 3 ? " זו תזכורת ממוקדת לפני בחינת חלופות." : ""}${baseClose}`,
       };
 
     case "asked_call":
@@ -95,9 +114,9 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
         nextIfNoReply: "חזרו על בקשת הכתב. אם חייבים שיחה — הלקוח מדבר ומעדכן בזכאי.",
         body: `לכבוד ${provider},
 
-מטעם ${name} (זכאי — סוכן דיגיטלי): נשמח להצעת שימור בכתב (מייל/צ׳אט רשמי) — מחיר חודשי סופי ותנאי התחייבות אם יש.
+מטעם ${name} (זכאי — סוכן דיגיטלי): נשמח להצעת שימור בכתב (מייל/צ׳אט רשמי) — מחיר חודשי סופי, מה כלול, ותנאי התחייבות אם יש.
 
-הלקוח/ה זמין/ה לשיחה לאחר קבלת ההצעה הכתובה.${baseClose}`,
+הלקוח/ה זמין/ה לשיחה לאחר קבלת ההצעה הכתובה.${urgency}${baseClose}`,
       };
 
     case "competitor": {
@@ -116,7 +135,7 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
 
 לפני החלטה — מבקשים הצעת שימור תחרותית בכתב מול החיוב הנוכחי כ-₪${current}${plan}, בכיוון כ-₪${target}.
 
-נא מענה מנומק בכתב.${baseClose}`,
+נא מענה מנומק בכתב.${urgency}${baseClose}`,
       };
     }
 
@@ -137,7 +156,7 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
         nextIfNoReply: "תזכורת אחרי כמה ימי עסקים.",
         body: `לכבוד ${provider},
 
-המשך פנייה מטעם ${name} באמצעות זכאי. נשמח למענה בכתב על התאמת חיוב (כ-₪${current}${plan} → יעד כ-₪${target}).${baseClose}`,
+המשך פנייה מטעם ${name} באמצעות זכאי. נשמח למענה בכתב על התאמת חיוב (כ-₪${current}${plan} → יעד כ-₪${target}).${urgency}${baseClose}`,
       };
   }
 }
