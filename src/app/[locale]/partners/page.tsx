@@ -4,7 +4,7 @@ import { Link } from "@/i18n/routing";
 import { Button, Card } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { EmbedPreview } from "@/components/EmbedPreview";
-import { alternateLanguages } from "@/lib/seo";
+import { alternateLanguages, SITE_URL } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -34,7 +34,7 @@ export default async function PartnersPage({
      data-locale="${locale}"
      data-ref="your-partner-id"
      data-path="money"></div>
-<script src="https://zakai-3uxj.vercel.app/embed.js" async></script>`;
+<script src="${SITE_URL}/embed.js" async></script>`;
 
   const paths = [
     { path: "money", heLabel: "הכסף שלי / סריקה", enLabel: "My money / scan" },
