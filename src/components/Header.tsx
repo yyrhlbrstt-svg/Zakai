@@ -233,7 +233,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <div className="text-[11px] font-extrabold text-ink-soft uppercase tracking-wide px-3 pt-3 pb-1">
             {t("nav.tools")}
           </div>
-          <div className="grid grid-cols-2 gap-1 max-h-[50vh] overflow-y-auto">
+          <div className="grid grid-cols-2 gap-1">
             {TOOLS.map((tool) => (
               <Link
                 key={tool.href + tool.key}
