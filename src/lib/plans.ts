@@ -9,6 +9,15 @@
  *    Zakai Free stays at 18% of the documented monthly saving — dramatically
  *    cheaper — and the paid tiers cut it further (Pro 9%, Max 0%): the
  *    subscription buys down the fee, so heavy savers upgrade themselves.
+ *  - Max was priced at ₪49.90 when it covered fewer full-service verticals.
+ *    The catalog has since grown to 10 (telecom, bank fees, subscriptions,
+ *    airlines, refunds, parking, transport fines, electricity, late-payment,
+ *    deposits), each at 0% fee under Max regardless of the saving's size —
+ *    so a heavy user recovering a large sum now costs the company real
+ *    forgone fee revenue the original price didn't account for. Raised to
+ *    ₪59.90, still at the top of RiseUp's ₪45–55 band rather than above it —
+ *    Max's job is the trust anchor ("all your savings, no cut"), not the
+ *    main revenue line; Pro is expected to carry most of that.
  *
  * Billing collection (PSP) is a later stage; the entitlements are enforced in
  * code NOW so tiers are real product behavior, not marketing copy.
@@ -31,7 +40,7 @@ export interface PlanConfig {
 export const PLANS: Record<PlanId, PlanConfig> = {
   FREE: { id: "FREE", priceAgorot: 0, feeRateBps: 1800, maxActiveCases: 1, fullScan: false },
   PRO: { id: "PRO", priceAgorot: 1990, feeRateBps: 900, maxActiveCases: 5, fullScan: true },
-  MAX: { id: "MAX", priceAgorot: 4990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
+  MAX: { id: "MAX", priceAgorot: 5990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
 };
 
 export const PLAN_IDS: PlanId[] = ["FREE", "PRO", "MAX"];
