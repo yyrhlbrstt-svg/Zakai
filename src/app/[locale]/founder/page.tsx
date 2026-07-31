@@ -3,6 +3,7 @@ import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { isEmailVerified } from "@/lib/services/emailVerification";
+import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import type { Locale } from "@/i18n/config";
@@ -116,6 +117,15 @@ export default async function FounderPage({
         המספר שמאמת את המודל: <b className="text-emerald">אחוז ההצלחה</b> — מתוך הפניות שנענו, כמה
         הניבו חיסכון אמיתי ומתועד. הרץ 20–30 תיקי סלולר אמיתיים וצפה כאן שהלופ באמת סוגר כסף.
       </p>
+
+      {!emailConfigured() && (
+        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">
+          ⚠ SMTP_HOST לא מוגדר בסביבה הזו. "נשלחו לספק (SENT+)" למטה סופר תיקים שסומנו SENT
+          באפליקציה — לא מיילים שבאמת יצאו. עד שיוגדר SMTP אמיתי, שום פנייה לא הגיעה בפועל לאף ספק,
+          ואחוז ההצלחה למטה לא אומר כלום על העולם האמיתי. הרץ <code>node scripts/preflight.mjs</code>{" "}
+          לפני שמריצים תיק אמיתי.
+        </div>
+      )}
 
       <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
         {rows.map(([label, value], i) => {

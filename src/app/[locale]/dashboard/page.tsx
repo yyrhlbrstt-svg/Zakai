@@ -25,6 +25,7 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
+import { emailConfigured } from "@/lib/messaging";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -233,6 +234,7 @@ export default async function DashboardPage({
                 proposedSaving={proposedClient}
                 proofsEmail={proofsEmail}
                 agentRound={agentRoundMap.get(c.id) ?? 0}
+                emailConfigured={emailConfigured()}
               />
             </div>
           </div>
