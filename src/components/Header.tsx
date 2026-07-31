@@ -63,6 +63,7 @@ const TOOLS = [
   { href: "/late-payment", key: "latePayment" },
   { href: "/scam-check", key: "scamCheck" },
   { href: "/complaint-escalation", key: "complaintEscalation" },
+  { href: "/deadlines", key: "deadlines" },
 ] as const;
 
 const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
@@ -78,6 +79,7 @@ const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   latePayment: { he: "לקוח לא משלם", en: "Late-paying client" },
   scamCheck: { he: "זה עוקץ?", en: "Is this a scam?" },
   complaintEscalation: { he: "התלונה לא נענתה", en: "Complaint ignored" },
+  deadlines: { he: "דדליינים", en: "Deadlines" },
 };
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {

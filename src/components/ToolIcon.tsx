@@ -42,6 +42,7 @@ import {
   Clock,
   ShieldX,
   Megaphone,
+  CalendarClock,
   type LucideIcon,
 } from "lucide-react";
 
@@ -92,6 +93,7 @@ const ICONS: Record<string, LucideIcon> = {
   latePayment: Banknote,
   scamCheck: ShieldX,
   complaintEscalation: Megaphone,
+  deadlines: CalendarClock,
 };
 
 export function ToolIcon({

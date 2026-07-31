@@ -2411,6 +2411,24 @@
       }
     }
   },
+  "deadlines": {
+    "metaTitle": "Never miss a deadline — passport, car test, filings | Zakai",
+    "metaDesc": "Track personal deadlines — passport renewal, car test, annual filings — and get a reminder before they're due. Free, no fee, just a calendar with a nudge.",
+    "title": "Never miss a deadline again",
+    "subtitle": "Add any date you need a heads-up before — passport renewal, car test, an annual filing — and get reminded before it's due. No fee, just a calendar with a nudge.",
+    "labelQ": "What is it?",
+    "labelPlaceholder": "e.g. Passport renewal",
+    "dateQ": "Due date",
+    "remindQ": "Remind me this many days before",
+    "addCta": "Add reminder",
+    "adding": "Adding…",
+    "limitError": "You've reached the limit of 40 tracked deadlines — remove one to add another.",
+    "genericError": "Something went wrong. Try again.",
+    "daysLeft": "{count, plural, =0 {Due today} one {1 day left} other {# days left}}",
+    "daysOverdue": "{count, plural, one {1 day overdue} other {# days overdue}}",
+    "remove": "Remove",
+    "empty": "No deadlines tracked yet."
+  },
   "parking": {
     "title": "Parking-ticket appeal",
     "subtitle": "Many parking tickets fall on defects — unclear signage, a broken meter, wrong details. Fill a few fields and Zakai prepares an objection letter for you to send in your own name. Runs in your browser.",
@@ -2465,6 +2483,7 @@
     "msgTax": "Zakai showed I might be owed a tax refund 💸 Check how much you're owed, free:",
     "msgReferral": "I found Zakai — a free app that finds money you are owed (tax refunds, rights, savings). Worth a look:",
     "msgSaved": "Zakai found me {amount}/mo I was owed back 🤯 a free app that checks how much money you are owed — worth a look:",
+    "msgScam": "I checked a suspicious message on Zakai and it matched a known scam pattern 😳 free, instant, checks entirely on your phone — worth checking anything suspicious you get:",
     "landingTitle": "Someone found money with Zakai",
     "landingTitleAmount": "Someone found {amount} with Zakai",
     "landingSub": "Zakai checks bills, subscriptions, payslips and tax refunds for money you're owed — free, in your browser, no phone call.",

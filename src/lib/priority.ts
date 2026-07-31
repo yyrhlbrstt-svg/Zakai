@@ -351,6 +351,20 @@ const CATALOG: PriorityAction[] = [
     effort: "low",
     agentic: false,
   },
+  {
+    // A calendar with a nudge, not a money vertical — no honest shekel figure
+    // exists for "reminded about a passport renewal on time".
+    id: "deadlines",
+    href: "/deadlines",
+    titleHe: "לא לפספס דדליין יותר",
+    titleEn: "Never miss a deadline again",
+    whyHe: "תזכורת אישית לפני חידוש דרכון, טסט, דיווח שנתי",
+    whyEn: "A personal reminder before a passport renewal, car test, annual filing",
+    potentialShekels: 30,
+    cadence: "hidden",
+    effort: "low",
+    agentic: false,
+  },
 ];
 
 /** Rank: agentic boost, then potential / effort. Cadence never affects ranking, only display. */

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, Textarea } from "@/components/ui";
 import { assessMessage } from "@/lib/scamCheck";
+import { ShareResult } from "@/components/ShareResult";
 
 /**
  * Paste a suspicious SMS/WhatsApp message, get an instant pattern check.
@@ -16,6 +17,7 @@ import { assessMessage } from "@/lib/scamCheck";
  */
 export function ScamMessageChecker() {
   const t = useTranslations("scamCheck");
+  const tShare = useTranslations("share");
   const [text, setText] = useState("");
 
   const assessment = useMemo(() => {
@@ -58,6 +60,7 @@ export function ScamMessageChecker() {
                 ))}
               </div>
               <p className="text-[12.5px] text-ink-soft mt-4 leading-relaxed">{t("riskAdvice")}</p>
+              <ShareResult message={tShare("msgScam")} path="/scam-check" />
             </>
           ) : (
             <>

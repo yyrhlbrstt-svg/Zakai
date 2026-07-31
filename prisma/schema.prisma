@@ -69,6 +69,7 @@ model User {
   pushSubscriptions  PushSubscription[]
   vigilProfile       UserProfile?
   vigilAlerts        VigilAlert[]
+  deadlines          Deadline[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -81,6 +82,24 @@ model Consent {
   purpose   String // e.g. "terms_privacy_v1"
   grantedAt DateTime  @default(now())
   revokedAt DateTime?
+
+  @@index([userId])
+}
+
+// A personal date the user wants a heads-up before — a passport renewal, a
+// car test, a filing deadline. Purely a reminder: no Case, no Mandate, no fee.
+// `notifiedAt` is set once the reminder cron actually sends it, so a user who
+// adds a deadline the day before it's due gets exactly one email, not one per
+// cron run between now and then.
+model Deadline {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label            String
+  dueDate          DateTime
+  remindDaysBefore Int       @default(14)
+  notifiedAt       DateTime?
+  createdAt        DateTime  @default(now())
 
   @@index([userId])
 }
