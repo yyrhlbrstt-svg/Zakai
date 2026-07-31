@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isReminderDue, daysUntil, normalizeRemindDaysBefore, DEFAULT_REMIND_DAYS_BEFORE } from "./deadlines";
+import {
+  isReminderDue,
+  daysUntil,
+  normalizeRemindDaysBefore,
+  computeClaimExpiry,
+  DEFAULT_REMIND_DAYS_BEFORE,
+  GENERAL_LIMITATION_YEARS,
+} from "./deadlines";
 
 describe("isReminderDue", () => {
   it("is not due long before the reminder window opens", () => {
@@ -62,5 +69,24 @@ describe("normalizeRemindDaysBefore", () => {
 
   it("passes through a sane value untouched", () => {
     expect(normalizeRemindDaysBefore(30)).toBe(30);
+  });
+});
+
+describe("computeClaimExpiry", () => {
+  it("adds the general 7-year limitation period to the event date", () => {
+    expect(GENERAL_LIMITATION_YEARS).toBe(7);
+    const expiry = computeClaimExpiry("2026-01-15");
+    expect(expiry?.getUTCFullYear()).toBe(2033);
+    expect(expiry?.getUTCMonth()).toBe(0); // January
+    expect(expiry?.getUTCDate()).toBe(15);
+  });
+
+  it("returns null for an unparsable event date rather than throwing", () => {
+    expect(computeClaimExpiry("not-a-date")).toBeNull();
+  });
+
+  it("handles a leap-day event date without throwing", () => {
+    const expiry = computeClaimExpiry("2024-02-29");
+    expect(expiry).not.toBeNull();
   });
 });

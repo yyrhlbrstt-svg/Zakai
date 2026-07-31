@@ -2427,7 +2427,16 @@
     "daysLeft": "{count, plural, =0 {Due today} one {1 day left} other {# days left}}",
     "daysOverdue": "{count, plural, one {1 day overdue} other {# days overdue}}",
     "remove": "Remove",
-    "empty": "No deadlines tracked yet."
+    "empty": "No deadlines tracked yet.",
+    "claimTitle": "When does a claim someone owes you become time-barred?",
+    "claimSub": "Under Israeli law, a civil claim is generally barred {years} years after it arose (the Statute of Limitations Law) — this is the general default, not every claim type (real estate runs longer, some claims shorter). Get reminded well before it expires.",
+    "claimDescQ": "What's the claim?",
+    "claimDescPlaceholder": "e.g. Unpaid loan from a friend",
+    "claimEventDateQ": "When did it arise? (e.g. the debt's due date)",
+    "claimExpiryNote": "Under the general default, this claim would be time-barred around {date}.",
+    "claimAddCta": "Add as a reminder",
+    "claimAdded": "Added ✓",
+    "claimLabel": "Claim expiring: {desc}"
   },
   "parking": {
     "title": "Parking-ticket appeal",

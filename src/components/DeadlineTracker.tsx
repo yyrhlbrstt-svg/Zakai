@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
-import { daysUntil } from "@/lib/deadlines";
+import { daysUntil, computeClaimExpiry, GENERAL_LIMITATION_YEARS } from "@/lib/deadlines";
 
 interface DeadlineRow {
   id: string;
@@ -29,6 +29,17 @@ export function DeadlineTracker() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [claimDesc, setClaimDesc] = useState("");
+  const [claimEventDate, setClaimEventDate] = useState("");
+  const [claimBusy, setClaimBusy] = useState(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
+  const [claimAdded, setClaimAdded] = useState(false);
+
+  const claimExpiry = useMemo(
+    () => (claimEventDate ? computeClaimExpiry(claimEventDate) : null),
+    [claimEventDate],
+  );
+
   async function load() {
     const res = await fetch("/api/deadlines");
     if (res.status === 401) {
@@ -45,37 +56,73 @@ export function DeadlineTracker() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  async function createDeadline(
+    body: { label: string; dueDate: string; remindDaysBefore: number },
+    onError: (msg: string) => void,
+  ): Promise<boolean> {
+    const res = await fetch("/api/deadlines", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.status === 401) {
+      router.replace("/login?return=/deadlines");
+      return false;
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      onError(data.error === "deadlineLimit" ? t("limitError") : t("genericError"));
+      return false;
+    }
+    await load();
+    return true;
+  }
+
   async function add() {
     if (!label.trim() || !dueDate) return;
     setError(null);
     setBusy(true);
     try {
-      const res = await fetch("/api/deadlines", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          label: label.trim(),
-          dueDate,
-          remindDaysBefore: Number(remindDays) || 14,
-        }),
-      });
-      if (res.status === 401) {
-        router.replace("/login?return=/deadlines");
-        return;
+      const ok = await createDeadline(
+        { label: label.trim(), dueDate, remindDaysBefore: Number(remindDays) || 14 },
+        setError,
+      );
+      if (ok) {
+        setLabel("");
+        setDueDate("");
+        setRemindDays("14");
       }
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error === "deadlineLimit" ? t("limitError") : t("genericError"));
-        return;
-      }
-      setLabel("");
-      setDueDate("");
-      setRemindDays("14");
-      await load();
     } catch {
       setError(t("genericError"));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function addClaimExpiry() {
+    if (!claimDesc.trim() || !claimExpiry) return;
+    setClaimError(null);
+    setClaimAdded(false);
+    setClaimBusy(true);
+    try {
+      const ok = await createDeadline(
+        {
+          label: t("claimLabel", { desc: claimDesc.trim() }),
+          dueDate: claimExpiry.toISOString(),
+          remindDaysBefore: 180,
+        },
+        setClaimError,
+      );
+      if (ok) {
+        setClaimDesc("");
+        setClaimEventDate("");
+        setClaimAdded(true);
+        setTimeout(() => setClaimAdded(false), 3000);
+      }
+    } catch {
+      setClaimError(t("genericError"));
+    } finally {
+      setClaimBusy(false);
     }
   }
 
@@ -105,6 +152,38 @@ export function DeadlineTracker() {
           {busy ? t("adding") : t("addCta")}
         </Button>
         {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+      </Card>
+
+      <Card className="mt-5 p-6 flex flex-col gap-3">
+        <div>
+          <div className="font-bold text-[14px]">{t("claimTitle")}</div>
+          <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">
+            {t("claimSub", { years: GENERAL_LIMITATION_YEARS })}
+          </p>
+        </div>
+        <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
+          <label className="block">
+            <span className="text-[13px] text-ink-soft block mb-1.5">{t("claimDescQ")}</span>
+            <Input
+              value={claimDesc}
+              onChange={(e) => setClaimDesc(e.target.value)}
+              placeholder={t("claimDescPlaceholder")}
+            />
+          </label>
+          <label className="block">
+            <span className="text-[13px] text-ink-soft block mb-1.5">{t("claimEventDateQ")}</span>
+            <Input type="date" value={claimEventDate} onChange={(e) => setClaimEventDate(e.target.value)} />
+          </label>
+        </div>
+        {claimExpiry && (
+          <p className="text-[13px] text-ink-soft m-0">
+            {t("claimExpiryNote", { date: claimExpiry.toLocaleDateString("he-IL") })}
+          </p>
+        )}
+        <Button onClick={addClaimExpiry} disabled={!claimDesc.trim() || !claimExpiry || claimBusy} variant="ghost">
+          {claimBusy ? t("adding") : claimAdded ? t("claimAdded") : t("claimAddCta")}
+        </Button>
+        {claimError && <p className="text-[13px] text-amber m-0">{claimError}</p>}
       </Card>
 
       {rows && rows.length > 0 && (

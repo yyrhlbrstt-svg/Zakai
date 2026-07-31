@@ -14,6 +14,31 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export const DEFAULT_REMIND_DAYS_BEFORE = 14;
 export const MAX_REMIND_DAYS_BEFORE = 180;
 
+/**
+ * General civil limitation period under the Statute of Limitations Law,
+ * 5718-1958 (חוק ההתיישנות, תשי"ח-1958), section 5 — verified once already
+ * this session for overtimeBackPay.ts. This is the general default a claim
+ * is barred after, not an absolute: real-estate claims run 25 years, some
+ * claims against the state or in tort run shorter, and a court can extend
+ * the period in specific circumstances (fraud concealment, minority, etc.).
+ * Treated here exactly like late-payment's statutory term — a default to
+ * warn against, never a substitute for checking the specific claim type.
+ */
+export const GENERAL_LIMITATION_YEARS = 7;
+
+/**
+ * When does a claim that arose on `eventDate` become time-barred under the
+ * general 7-year civil default? Returns null for an unparsable date rather
+ * than throwing, matching every other date-parsing helper in this app.
+ */
+export function computeClaimExpiry(eventDate: string): Date | null {
+  const d = new Date(eventDate);
+  if (Number.isNaN(d.getTime())) return null;
+  const expiry = new Date(d);
+  expiry.setFullYear(expiry.getFullYear() + GENERAL_LIMITATION_YEARS);
+  return expiry;
+}
+
 export interface DeadlineLike {
   dueDate: Date;
   remindDaysBefore: number;
