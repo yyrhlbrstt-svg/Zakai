@@ -101,6 +101,17 @@ MANDATE_ISSUE_KEY=
 MANDATE_REVOKE_KEY=
 MANDATE_ISSUER=https://zakai-3uxj.vercel.app
 
+# Collecting the success fee. Without PAYMENT_PROVIDER set to a real PSP,
+# src/lib/payments/index.ts silently runs the `mock` provider: the whole
+# checkout flow works end-to-end, but no real money ever moves and no card
+# data is ever collected. Get this wrong and the product can operate for
+# months on paper while charging nobody.
+PAYMENT_PROVIDER=payplus
+PAYPLUS_API_KEY=
+PAYPLUS_SECRET_KEY=
+PAYPLUS_PAYMENT_PAGE_UID=
+PAYPLUS_BASE_URL=            # optional; sandbox vs production
+
 # Reaching a human. Without SMTP_HOST nothing leaves the system: every message
 # stays QUEUED in the Outbox. Leads are persisted before any mail is attempted,
 # so nothing is lost either way — but nobody is told an enquiry arrived, and an
