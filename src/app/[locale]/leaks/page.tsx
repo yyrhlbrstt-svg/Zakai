@@ -110,6 +110,14 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/deposit",
+    he: "פיקדון שכירות שהמשכיר לא מחזיר",
+    en: "Rental deposit landlord won't return",
+    subHe: "דרישה בכתב + Mandate דרך הסוכן",
+    subEn: "Written demand + Mandate via agent",
+    rank: 2,
+  },
+  {
     href: "/taxrefund",
     he: "החזר מס",
     en: "Tax refund",

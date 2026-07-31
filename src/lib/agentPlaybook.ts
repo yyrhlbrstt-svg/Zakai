@@ -24,8 +24,9 @@ DEFAULT NEXT STEP (almost always):
 8. /parking — parking ticket appeal with agent
 9. /transport-fine — public-transport fine appeal with agent
 10. /late-payment — client not paying an invoice on time → agent demands with Mandate
-11. /leaks — map of high-ROI leaks
-12. /dashboard — continue open Cases (approve, send, follow-up, record saving)
+11. /deposit — landlord withholding rental deposit past the 60-day deadline → agent demands with Mandate
+12. /leaks — map of high-ROI leaks
+13. /dashboard — continue open Cases (approve, send, follow-up, record saving)
 
 SELF-HELP TOOLS (calculator/letter only — no Case, no Mandate, no fee; the user sends it themself):
 - /overtime-backpay — unpaid overtime back-pay letter (deliberately not an agent path: the employer is a current employer, so this stays self-help by design, not a gap to close)
@@ -35,7 +36,7 @@ SELF-HELP TOOLS (calculator/letter only — no Case, no Mandate, no fee; the use
 HIGH-VALUE SCREENS:
 - /money — primary entry (Money Hub)
 - /scan — logged-in scan with same one-click Case
-- /cancel /bank-fees /electricity /flights /refund-chase /parking /transport-fine /late-payment — agent paths (Case + Mandate + send + SavingsProof)
+- /cancel /bank-fees /electricity /flights /refund-chase /parking /transport-fine /late-payment /deposit — agent paths (Case + Mandate + send + SavingsProof)
 - /check — telecom negotiation
 - /leaks /proofs /partners /assistant /companies — company scores
 

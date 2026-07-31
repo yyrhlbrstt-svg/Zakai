@@ -146,6 +146,27 @@ export const latePaymentIL: VerticalRulePack = {
   counterparties: ["other"],
 };
 
+/**
+ * Rental deposit return — a tenant who already vacated chasing a landlord
+ * sitting on the deposit. One-shot recovery, same shape as late-payment: the
+ * counterparty is the tenant's own landlord, a free-text name with a direct
+ * contact email (Case.counterpartyEmail), not a providers.ts registry entry.
+ */
+export const depositIL: VerticalRulePack = {
+  key: "deposit",
+  country: "IL",
+  label: "השבת פיקדון שכירות",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "transfer_confirmation",
+    proofDescription: "אישור העברה מהמשכיר על השבת הפיקדון",
+  },
+  regulated: false,
+  counterparties: ["other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -156,4 +177,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   transportFineIL,
   electricityIL,
   latePaymentIL,
+  depositIL,
 ];

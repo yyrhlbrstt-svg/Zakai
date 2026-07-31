@@ -4,6 +4,8 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
+import { DepositReturnClaim } from "@/components/DepositReturnClaim";
+import { bcp47, type Locale } from "@/i18n/config";
 
 export async function generateMetadata({
   params,
@@ -74,15 +76,15 @@ export default async function DepositPage({
         ))}
       </ol>
 
-      {/* Copy-paste self-help demand — the tenant sends it themselves. */}
+      {/* Live calculator: real deadline check, a personalized letter, and an
+          optional Mandate-backed agent path — replaces the old fill-in-the-
+          blanks template now that the tenant has already vacated (completed
+          transaction, no ongoing-relationship risk) and there's real law
+          (60-day return deadline) to check the date against. */}
       <Reveal>
         <h2 className="font-display text-2xl mt-12 mb-3">{t("templateTitle")}</h2>
         <p className="text-ink-soft text-[14px] mb-4">{t("templateSub")}</p>
-        <div className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-5">
-          <pre className="whitespace-pre-wrap font-sans text-[14px] leading-relaxed text-ink m-0">
-            {t("template")}
-          </pre>
-        </div>
+        <DepositReturnClaim bcp47={bcp47[locale as Locale]} />
       </Reveal>
 
       <Reveal>

@@ -289,6 +289,22 @@ const CATALOG: PriorityAction[] = [
     agentic: false,
   },
   {
+    // Same completed-transaction shape as late-payment: the tenant already
+    // vacated, so an automated demand carries none of the ongoing-relationship
+    // risk overtime-backpay has. One-time by nature — a deposit is returned
+    // once, not monthly.
+    id: "deposit",
+    href: "/deposit",
+    titleHe: "המשכיר לא מחזיר פיקדון? הסוכן דורש",
+    titleEn: "Landlord withholding deposit? Agent demands",
+    whyHe: "דרישה בכתב + Mandate דרך הסוכן, לפי חוק השכירות והשאילה",
+    whyEn: "Written demand + Mandate via the agent, under the Rent and Loan Law",
+    potentialShekels: 300,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
     // Same "no honest figure" doctrine as dormant: a red-flag scan of an
     // arbitrary pasted contract has no defensible shekel amount, only a
     // count of clauses worth a second look. hidden keeps that off every

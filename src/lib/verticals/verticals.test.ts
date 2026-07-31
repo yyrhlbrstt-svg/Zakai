@@ -36,6 +36,7 @@ describe("rule pack registry", () => {
     expect(isFullService("transport-fine")).toBe(true);
     expect(isFullService("electricity")).toBe(true);
     expect(isFullService("late-payment")).toBe(true);
+    expect(isFullService("deposit")).toBe(true);
   });
 });
 
