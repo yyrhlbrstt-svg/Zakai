@@ -381,6 +381,22 @@ const CATALOG: PriorityAction[] = [
     effort: "low",
     agentic: false,
   },
+  {
+    // Only accident insurance is ever mandatory, so a specific shekel
+    // "recovery" figure would depend on what the parent was actually
+    // charged, which this catalog can't know in advance. Same hidden
+    // doctrine as scam-check/complaint-escalation.
+    id: "school-payments",
+    href: "/school-payments",
+    titleHe: "הגן ביקש כסף? בדוק אם זה חובה",
+    titleEn: "School/kindergarten asked for money? Check if it's mandatory",
+    whyHe: "רק ביטוח תאונות אישיות הוא חובה — השאר תשלום רשות",
+    whyEn: "Only accident insurance is mandatory — everything else is voluntary",
+    potentialShekels: 0,
+    cadence: "hidden",
+    effort: "low",
+    agentic: false,
+  },
 ];
 
 /** Rank: agentic boost, then potential / effort. Cadence never affects ranking, only display. */

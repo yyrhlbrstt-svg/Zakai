@@ -50,6 +50,7 @@ const PATHS = [
   "/scam-check",
   "/complaint-escalation",
   "/advance-tax",
+  "/school-payments",
   "/vehicle-check",
   "/arnona",
   "/baggage",

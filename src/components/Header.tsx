@@ -65,6 +65,7 @@ const TOOLS = [
   { href: "/complaint-escalation", key: "complaintEscalation" },
   { href: "/deadlines", key: "deadlines" },
   { href: "/advance-tax", key: "advanceTax" },
+  { href: "/school-payments", key: "schoolPayments" },
 ] as const;
 
 const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
@@ -82,6 +83,7 @@ const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   complaintEscalation: { he: "התלונה לא נענתה", en: "Complaint ignored" },
   deadlines: { he: "דדליינים", en: "Deadlines" },
   advanceTax: { he: "הקטנת מקדמות מס", en: "Reduce tax advances" },
+  schoolPayments: { he: "תשלומי הורים", en: "School payments" },
 };
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {

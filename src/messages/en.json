@@ -2375,6 +2375,32 @@
       "code_plus_urgency": "A request for a verification code combined with time pressure"
     }
   },
+  "parentPayments": {
+    "metaTitle": "Is that school/kindergarten payment mandatory? | Zakai",
+    "metaDesc": "Only one payment in the Israeli education system is mandatory: student accident insurance. Everything else needs your real consent. Check what you were charged and draft a refund request.",
+    "title": "The school or kindergarten asked for money — is it mandatory?",
+    "subtitle": "Only one payment in the Israeli education system is ever mandatory. Everything else is a voluntary payment that needs your actual consent, and can never be a condition for your child taking part in the regular program.",
+    "categoryQ": "What were you charged for?",
+    "categories": {
+      "accident_insurance": "Student personal accident insurance",
+      "other": "Something else (photos, party, trip, enrichment activity, textbooks…)"
+    },
+    "isMandatory": "This is the one payment that can be mandatory. Check the current year's circular for the actual capped amount before paying.",
+    "isVoluntary": "This is a voluntary payment (תשלום רשות). It requires your real consent and can't be made a condition for participation.",
+    "circularLink": "Ministry of Education parental-payments circular",
+    "parentNameQ": "Your name",
+    "studentNameQ": "Your child's name",
+    "institutionQ": "School / kindergarten name",
+    "chargeQ": "What was the charge for?",
+    "amountQ": "Amount charged (₪)",
+    "reasonQ": "Why do you think this shouldn't have been charged, or charged this way?",
+    "reasonPlaceholder": "e.g. never asked for consent, framed as a condition to join the class trip",
+    "generateCta": "Prepare the letter",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "sendHint": "Send this yourself, to the institution's office or parents' committee",
+    "disclaimer": "States the real mandatory-vs-voluntary rule and drafts a letter — not a guarantee of a refund, and not legal advice."
+  },
   "advanceTaxReduction": {
     "metaTitle": "Self-employed? Reduce your tax advances | Zakai",
     "metaDesc": "If your income this year is well below the year that set your income-tax advance rate, you may be overpaying every month. Check the filing window and draft the request to the assessing office.",
@@ -2512,6 +2538,7 @@
     "msgReferral": "I found Zakai — a free app that finds money you are owed (tax refunds, rights, savings). Worth a look:",
     "msgSaved": "Zakai found me {amount}/mo I was owed back 🤯 a free app that checks how much money you are owed — worth a look:",
     "msgScam": "I checked a suspicious message on Zakai and it matched a known scam pattern 😳 free, instant, checks entirely on your phone — worth checking anything suspicious you get:",
+    "msgSchoolPayment": "The school/kindergarten billed us and it turns out most of it wasn't actually mandatory — Zakai checks it against the real Ministry of Education rule, free, and drafts the letter for you:",
     "landingTitle": "Someone found money with Zakai",
     "landingTitleAmount": "Someone found {amount} with Zakai",
     "landingSub": "Zakai checks bills, subscriptions, payslips and tax refunds for money you're owed — free, in your browser, no phone call.",

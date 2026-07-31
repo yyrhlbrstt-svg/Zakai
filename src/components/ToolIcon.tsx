@@ -44,6 +44,7 @@ import {
   Megaphone,
   CalendarClock,
   Briefcase,
+  School,
   type LucideIcon,
 } from "lucide-react";
 
@@ -96,6 +97,7 @@ const ICONS: Record<string, LucideIcon> = {
   complaintEscalation: Megaphone,
   deadlines: CalendarClock,
   advanceTax: Briefcase,
+  schoolPayments: School,
 };
 
 export function ToolIcon({
