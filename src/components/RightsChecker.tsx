@@ -87,10 +87,10 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
       <span className="text-[13px] text-ink-soft">{label}</span>
       <div className="flex items-center gap-2.5" dir="ltr">
         <button type="button" aria-label="-" onClick={() => set(Math.max(0, value - 1))}
-          className="w-8 h-8 rounded-[10px] bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-ink font-black cursor-pointer">−</button>
+          className="w-11 h-11 rounded-[10px] bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-ink font-black cursor-pointer">−</button>
         <span className="font-display text-lg min-w-[22px] text-center">{value}</span>
         <button type="button" aria-label="+" onClick={() => set(Math.min(max, value + 1))}
-          className="w-8 h-8 rounded-[10px] bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-ink font-black cursor-pointer">+</button>
+          className="w-11 h-11 rounded-[10px] bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-ink font-black cursor-pointer">+</button>
       </div>
     </div>
   );

@@ -97,6 +97,22 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
 
   useEffect(() => setMobileOpen(false), [pathname]);
 
+  // Lock body scroll while the mobile menu is open — without this, a user
+  // could scroll straight past the menu panel into the page content behind
+  // it (still fully interactive, with nothing dimmed), which reads as the
+  // menu silently "ending" rather than being a real, dismissible overlay.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [mobileOpen]);
+
   function switchLocale(next: Locale) {
     router.replace(pathname, { locale: next });
   }
@@ -195,7 +211,11 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("nav.menu")}
+          className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)] max-h-[calc(100dvh-96px)] overflow-y-auto">
           <MobileLink href="/">{t("nav.home")}</MobileLink>
           <MobileLink href="/money">{tIcomponents_Header("t_bd4c0905")}</MobileLink>
           <MobileLink href="/cancel">{tIcomponents_Header("t_bc18d8da")}</MobileLink>
