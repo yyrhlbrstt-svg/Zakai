@@ -2,12 +2,21 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { MaternityCalculator } from "@/components/MaternityCalculator";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "מחשבון דמי לידה — זכאי",
-  description:
-    "כמה דמי לידה מגיעים לך מביטוח לאומי? חישוב לפי השכר ותקופת האכשרה. רץ בדפדפן, בלי להעלות מסמכים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "maternity" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/maternity") },
+  };
+}
 
 export default async function MaternityPage({
   params,

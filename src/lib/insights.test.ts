@@ -12,7 +12,7 @@ describe("computeInsights", () => {
   it("suggests the first check when there are no cases", () => {
     const out = computeInsights(base);
     expect(out[0].key).toBe("firstCheck");
-    expect(out[0].href).toBe("/check");
+    expect(out[0].href).toBe("/money");
   });
 
   it("puts a pending recommendation first, with the potential saving", () => {
@@ -63,7 +63,7 @@ describe("computeInsights", () => {
       cases: [{ status: "SAVED", amountOriginal: 10000, targetAmount: 8000, feeAgorot: 360, savedMonthlyAgorot: 2000, settledAgeDays: 200 }],
     });
     const nudge = stale.find((i) => i.key === "recheck")!;
-    expect(nudge.href).toBe("/check");
+    expect(nudge.href).toBe("/money");
     expect(nudge.params.count).toBe(1);
   });
 

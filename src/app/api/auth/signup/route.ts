@@ -7,6 +7,7 @@ import { normalizePhone } from "@/lib/phone";
 import { generateReferralCode } from "@/lib/codes";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { sendVerificationEmail } from "@/lib/services/emailVerification";
 
 export async function POST(request: Request) {
   const limited = await rateLimit("signup", clientIp(request), 10, 3600);
@@ -56,6 +57,24 @@ export async function POST(request: Request) {
     });
 
     await createSession(user.id);
+
+    // Signed in immediately, and asked to prove the address separately.
+    //
+    // Blocking on a mailbox round-trip here would put friction between somebody
+    // and finding out what they are owed, which is the thing this product is
+    // built to remove — most of it needs no account at all. Verification gates
+    // privilege instead, so the cost of an unverified address falls only where
+    // it would otherwise cost somebody else something.
+    //
+    // A failure to send must never fail the signup: the account exists, the
+    // session is live, and a link can be requested again.
+    try {
+      const origin = new URL(request.url).origin;
+      await sendVerificationEmail(user.id, origin, country === "IL" ? "he" : "en");
+    } catch (mailErr) {
+      await reportError(mailErr, { route: "signup-verification-mail" });
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     // Unexpected failure — almost always a missing DATABASE_URL/AUTH_SECRET or an

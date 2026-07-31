@@ -83,7 +83,7 @@ Aligned with production agent practice (tool-first, single-responsibility, HITL,
 | Module | Path |
 |--------|------|
 | Prisma schema | `prisma/schema.prisma` |
-| AI providers + assistant | `src/lib/ai.ts`, `src/lib/assistantSystem.ts`, `src/lib/agentPlaybook.ts` |
+| AI providers + assistant | `src/lib/ai.ts` (system prompt), `src/lib/agentPlaybook.ts` |
 | Negotiation | `src/lib/negotiation.ts` |
 | Priority ranking | `src/lib/priority.ts` |
 | Mandate | `src/lib/mandate/*` |
@@ -95,7 +95,7 @@ Aligned with production agent practice (tool-first, single-responsibility, HITL,
 
 - `src/app/[locale]/**` — pages (money, leaks, cancel, check, dashboard, assistant…)
 - `src/components/**` — LeadForm (self-serve), CaseNextStep, InstallPrompt, Header
-- Messages: `src/messages/{he,en,ar,ru}.json`
+- Messages: `src/messages/{he,en,ar,ru,de,fr}.json`
 
 UX law: every dead-end "we'll call you" is a bug.
 

@@ -34,6 +34,14 @@ interface Props {
   proofsEmail?: string;
   /** Agent auto-follow-up rounds already sent (dashboard). */
   agentRound?: number;
+  /**
+   * Whether this environment can actually deliver email (SMTP_HOST set).
+   * A case's status flips to SENT the moment the agent claims the send —
+   * that's app-internal bookkeeping, not proof the provider ever saw
+   * anything. Without a transport, "SENT" just means queued: the banner
+   * needs to say so instead of implying an active wait for a reply.
+   */
+  emailConfigured?: boolean;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -66,6 +74,8 @@ const copy: Record<string, Record<string, string>> = {
     linkCopied: "הקישור הועתק",
     sentBanner:
       "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — הסוכן ישלח סיבוב 2 לבד.",
+    notDeliveredBanner:
+      "שליחת מייל עדיין לא מוגדרת בסביבה הזו — הפנייה מוכנה אבל עוד לא יצאה בפועל לספק.",
     competitorName: "שם המתחרה",
     competitorPrice: "מחיר המתחרה ₪",
     proposedTitle: "הסוכן זיהה מהמייל",
@@ -110,6 +120,8 @@ const copy: Record<string, Record<string, string>> = {
     linkCopied: "Link copied",
     sentBanner:
       "Agent sent. If they replied — forward their email below (or enter amount). If not — agent auto-sends round 2.",
+    notDeliveredBanner:
+      "Email delivery isn't configured in this environment yet — the request is ready but hasn't actually reached the provider.",
     competitorName: "Competitor name",
     competitorPrice: "Competitor price ₪",
     proposedTitle: "Agent spotted from email",
@@ -143,6 +155,7 @@ export function CaseNextStep({
   proposedSaving,
   proofsEmail,
   agentRound = 0,
+  emailConfigured = true,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -406,7 +419,7 @@ export function CaseNextStep({
   if (status === "SENT") {
     const proposed = proposedSaving;
     const roundHint =
-      agentRound > 0
+      emailConfigured && agentRound > 0
         ? he
           ? `הסוכן כבר שלח ${agentRound} סיבוב${agentRound > 1 ? "ים" : ""} אוטומטי${agentRound > 1 ? "ים" : ""}.`
           : `Agent already sent ${agentRound} auto round${agentRound > 1 ? "s" : ""}.`
@@ -415,7 +428,7 @@ export function CaseNextStep({
     return (
       <div className="w-full mt-2 flex flex-col gap-3">
         <div className="rounded-xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-3 py-2.5 text-[12.5px] font-bold">
-          {t(locale, "sentBanner")}
+          {emailConfigured ? t(locale, "sentBanner") : t(locale, "notDeliveredBanner")}
           {roundHint && (
             <span className="block mt-1 text-emerald">
               {t(locale, "agentRoundLabel")}: {agentRound} · {roundHint}

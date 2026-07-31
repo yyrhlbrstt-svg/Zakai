@@ -54,4 +54,39 @@ describe("computePotentialTotal", () => {
     expect(keys).toContain("taxrefund");
     expect(keys).toContain("payslip");
   });
+
+  describe("includeIsraelOnly: false", () => {
+    // A visitor who already told us they're elsewhere should never see a
+    // shekel figure for a statute (arnona, Israeli pension rules, the
+    // Israeli flight-compensation cap) that was never true for them.
+    const loaded: PotentialProfile = {
+      ownsHome: true,
+      hasMortgage: true,
+      hasPension: true,
+      employed: true,
+      hasPrivateInsurance: true,
+      flewDelayed: true,
+      rents: true,
+    };
+
+    it("defaults to including Israel-only ranges when the option is omitted", () => {
+      const withOption = computePotentialTotal(loaded);
+      const withoutOption = computePotentialTotal(loaded, {});
+      expect(withOption.items.map((i) => i.key).sort()).toEqual(
+        withoutOption.items.map((i) => i.key).sort(),
+      );
+    });
+
+    it("drops every Israel-only range, keeping only the universal one", () => {
+      const r = computePotentialTotal(loaded, { includeIsraelOnly: false });
+      expect(r.items.map((i) => i.key)).toEqual(["lostmoney"]);
+      expect(r.totalHighShekels).toBeGreaterThan(0);
+    });
+
+    it("still returns a valid (never negative, low <= high) result with no matching answers", () => {
+      const r = computePotentialTotal(empty, { includeIsraelOnly: false });
+      expect(r.totalLowShekels).toBeGreaterThanOrEqual(0);
+      expect(r.totalLowShekels).toBeLessThanOrEqual(r.totalHighShekels);
+    });
+  });
 });

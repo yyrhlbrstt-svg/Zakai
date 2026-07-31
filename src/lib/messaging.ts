@@ -38,10 +38,19 @@ export async function sendEmail({ to, subject, body, caseId, attachments }: Emai
   });
 
   if (!emailConfigured()) {
-    // Dev mode: leave it in the Outbox, delivered nowhere.
+    // No transport: it stays in the Outbox and nothing leaves the system.
+    //
+    // Left QUEUED rather than marked SENT, and `sentAt` left null.
+    //
+    // Marking an undelivered message "sent" makes the ledger agree with the
+    // optimistic reading of every dashboard built on top of it, and the first
+    // person to notice is whoever was waiting for a reply that was never
+    // posted. QUEUED already means exactly this — it has not left the system —
+    // so the honest record needs no new status, only that we stop claiming the
+    // wrong one. The marker says why, for whoever reads the row later.
     return prisma.outbox.update({
       where: { id: record.id },
-      data: { status: "SENT", providerMessageId: "dev:outbox", sentAt: new Date() },
+      data: { status: "QUEUED", providerMessageId: "no-transport" },
     });
   }
 
@@ -55,7 +64,20 @@ export async function sendEmail({ to, subject, body, caseId, attachments }: Emai
         : undefined,
     });
     const info = await transport.sendMail({
-      from: process.env.SMTP_FROM || "Zakai <no-reply@zakai.example>",
+      // Falls back to the authenticated mailbox, never to an invented address.
+      //
+      // The previous default claimed to be no-reply@zakai.example — a domain
+      // nobody controls. Mail sent that way fails SPF and DKIM, because the
+      // sending server has no authority over the domain in the From header, and
+      // Gmail responds exactly as it should: a red warning banner telling the
+      // recipient the message may not be genuine, and in some cases a security
+      // alert on their account.
+      //
+      // That is the report of "it says my account is not secure". It is not a
+      // flaw in the app's authentication — it is us forging a sender. SMTP_USER
+      // is the one address the transport can actually prove it may send as, so
+      // it is the only safe fallback.
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@localhost",
       to,
       subject,
       text: body,
@@ -89,9 +111,10 @@ export async function sendSms({ to, body, caseId }: SmsArgs) {
   });
 
   if (!smsConfigured()) {
+    // Same correction as the email path: an undelivered message is not sent.
     return prisma.outbox.update({
       where: { id: record.id },
-      data: { status: "SENT", providerMessageId: "dev:outbox", sentAt: new Date() },
+      data: { status: "QUEUED", providerMessageId: "no-transport" },
     });
   }
 

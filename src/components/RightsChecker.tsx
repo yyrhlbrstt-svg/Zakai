@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, RadioChips } from "@/components/ui";
 import { ClaimDocument } from "@/components/ClaimDocument";
 import {
   evaluateRights,
@@ -13,6 +13,26 @@ import {
 } from "@/lib/rights";
 import type { CountryCode } from "@/lib/verticals/types";
 import { formatAgorot } from "@/lib/money";
+import { MARKETS, fromLegacyIsraeliProfile } from "@/lib/global/registry";
+import { GlobalPackRights } from "@/components/GlobalPackRights";
+
+/**
+ * Legacy country codes ("UK") to the global-pack market they correspond to
+ * ("GB", the actual ISO 3166-1 alpha-2 code MARKETS is keyed by). Only the
+ * seven markets with a real `JurisdictionPack` — carrying an actual letter
+ * template, not just a checklist entry — appear here. The other six
+ * `RIGHTS_COUNTRIES` have no pack yet, and showing nothing beyond the
+ * existing checklist for them is the honest choice, not a bug to route
+ * around.
+ */
+const GLOBAL_MARKET_CODE: Partial<Record<CountryCode, string>> = {
+  UK: "GB",
+  US: "US",
+  DE: "DE",
+  FR: "FR",
+  CA: "CA",
+  AU: "AU",
+};
 
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = ["employee", "self_employed", "unemployed", "student", "soldier", "retired"] as const;
@@ -45,6 +65,15 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
   const result = useMemo(() => evaluateRights(profile, country), [profile, country]);
   const money = (a: number) => formatAgorot(a, bcp47);
 
+  // The six markets with a real JurisdictionPack — a letter template, not
+  // just a checklist entry. IL deliberately excluded: it already renders
+  // through the legacy path above, and the pack is proven (by
+  // src/lib/global/engine.test.ts) to return the identical set of rights, so
+  // showing it a second time here would just be the same list twice.
+  const globalMarketCode = GLOBAL_MARKET_CODE[country];
+  const globalMarket = globalMarketCode ? MARKETS[globalMarketCode] : undefined;
+  const universalProfile = useMemo(() => fromLegacyIsraeliProfile(profile), [profile]);
+
   const chip = (active: boolean) =>
     `rounded-full px-3.5 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
       active
@@ -70,38 +99,32 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
       <Card className="p-6 flex flex-col gap-5">
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("country")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("country")}>
-            {RIGHTS_COUNTRIES.map((c) => (
-              <button key={c} type="button" role="radio" aria-checked={country === c}
-                onClick={() => setCountry(c)} className={chip(country === c)}>
-                {t(`countries.${c}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={country}
+            onChange={setCountry}
+            ariaLabel={t("country")}
+            options={RIGHTS_COUNTRIES.map((c) => ({ value: c, label: t(`countries.${c}`) }))}
+          />
         </div>
 
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("q.age")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.age")}>
-            {AGE_GROUPS.map((a) => (
-              <button key={a} type="button" role="radio" aria-checked={profile.ageGroup === a}
-                onClick={() => setProfile({ ...profile, ageGroup: a })} className={chip(profile.ageGroup === a)}>
-                {t(`q.ages.${a}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile.ageGroup}
+            onChange={(a) => setProfile({ ...profile, ageGroup: a })}
+            ariaLabel={t("q.age")}
+            options={AGE_GROUPS.map((a) => ({ value: a, label: t(`q.ages.${a}`) }))}
+          />
         </div>
 
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("q.employment")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.employment")}>
-            {EMPLOYMENTS.map((e) => (
-              <button key={e} type="button" role="radio" aria-checked={profile.employment === e}
-                onClick={() => setProfile({ ...profile, employment: e })} className={chip(profile.employment === e)}>
-                {t(`q.employments.${e}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile.employment}
+            onChange={(e) => setProfile({ ...profile, employment: e })}
+            ariaLabel={t("q.employment")}
+            options={EMPLOYMENTS.map((e) => ({ value: e, label: t(`q.employments.${e}`) }))}
+          />
         </div>
 
         {counter(t("q.children"), profile.children, (n) =>
@@ -164,14 +187,19 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
                     behind it. The action expands in place: an in-app tool for
                     rights a tool already covers, the finished letter generated
                     right here for the rest. Rights with no action defined —
-                    foreign catalogs today — render nothing rather than a
-                    "we'll handle it" button with nothing behind it. */}
+                    a country with no JurisdictionPack yet — render nothing
+                    rather than a "we'll handle it" button with nothing
+                    behind it. */}
                 <ClaimDocument rightId={e.id} />
               </details>
             ))}
           </Card>
         </div>
       ))}
+
+      {/* GB, US, DE, FR, CA: a real letter, not just a checklist entry — see
+          GLOBAL_MARKET_CODE above for why IL isn't listed here too. */}
+      {globalMarket && <GlobalPackRights market={globalMarket} profile={universalProfile} />}
 
       <p className="mt-6 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>

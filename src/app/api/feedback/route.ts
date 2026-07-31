@@ -1,3 +1,4 @@
+import { FOUNDER_EMAIL } from "@/lib/contact";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +14,7 @@ const schema = z.object({
 });
 
 const FEEDBACK_EMAIL =
-  process.env.FEEDBACK_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "feedback@zakai.example";
+  process.env.FEEDBACK_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || FOUNDER_EMAIL;
 
 /**
  * "What would you improve in Zakai?" intake. Persists every suggestion so the

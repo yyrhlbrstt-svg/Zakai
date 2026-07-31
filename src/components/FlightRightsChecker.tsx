@@ -3,7 +3,10 @@
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { Card, Button, Input, Textarea } from "@/components/ui";
+import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
+import { OutcomeReport } from "@/components/OutcomeReport";
+import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
+import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 import {
   computeEntitlement,
   computeEntitlementEU,
@@ -24,10 +27,11 @@ const EU_DELAYS = [1, 2.5, 4, 6] as const;
  * full Case (vertical=airline) with Mandate + follow-up — same closed loop as
  * cancel / telecom.
  */
-export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
+export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Stat | null }) {
   const t = useTranslations("flights");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_FlightRightsChecker = useTranslations("inline_components_FlightRightsChecker");
   const router = useRouter();
 
   const [jurisdiction, setJurisdiction] = useState<"il" | "eu">("il");
@@ -81,13 +85,6 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   const entitled =
     result.assistance || result.refundOrAlternative || compensationLabel !== "";
 
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
-
   const radios = <T extends string | number | boolean>(
     label: string,
     options: readonly T[],
@@ -97,20 +94,15 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
   ) => (
     <div className="mt-5 first:mt-0">
       <span className="text-[13.5px] text-ink-soft block mb-2">{label}</span>
-      <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={label}>
-        {options.map((o) => (
-          <button
-            key={String(o)}
-            type="button"
-            role="radio"
-            aria-checked={value === o}
-            onClick={() => set(o)}
-            className={chip(value === o)}
-          >
-            {render(o)}
-          </button>
-        ))}
-      </div>
+      <RadioChips
+        value={String(value)}
+        onChange={(v) => {
+          const found = options.find((o) => String(o) === v);
+          if (found !== undefined) set(found);
+        }}
+        ariaLabel={label}
+        options={options.map((o) => ({ value: String(o), label: render(o) }))}
+      />
     </div>
   );
 
@@ -164,6 +156,7 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
 
   return (
     <div>
+      {stat && <VerticalOutcomeStat stat={stat} bcp47={bcp47} />}
       <Card className="p-6">
         {radios(t("jurisdictionQ"), ["il", "eu"] as const, jurisdiction, setJurisdiction, (j) =>
           t(`jurisdictions.${j}`),
@@ -266,18 +259,14 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
           ) : caseId ? (
             <div>
               <div className="text-emerald font-extrabold text-[15px]">
-                {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+                {tIcomponents_FlightRightsChecker("t_360e126e")}
               </div>
               <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-                {he
-                  ? "הדרישה מוכנה ומאושרת. בדשבורד: אמת בעלות → צור Mandate → סמן כנשלח. הסוכן יעקוב ויתעד פיצוי כשיועבר."
-                  : "Demand ready and approved. On the dashboard: verify ownership → create Mandate → mark sent. The agent follows up and records the compensation when it lands."}
+                {tIcomponents_FlightRightsChecker("t_eb212a88")}
               </p>
               <Link href="/dashboard">
                 <Button className="w-full">
-                  {he
-                    ? "לדשבורד — המשך עכשיו (אימות + Mandate)"
-                    : "Dashboard — continue now (verify + Mandate)"}
+                  {tIcomponents_FlightRightsChecker("t_4a0f7a8f")}
                 </Button>
               </Link>
             </div>
@@ -344,7 +333,7 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
                     )
                   }
                 >
-                  {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+                  {tIcomponents_FlightRightsChecker("t_b4c9b341")}
                 </Button>
               </div>
               {error && <p className="text-[13px] text-amber mt-2 mb-0">{error}</p>}
@@ -369,6 +358,12 @@ export function FlightRightsChecker({ bcp47 }: { bcp47: string }) {
                     </Button>
                     <span className="text-[12px] text-ink-soft">{t("letter.sendHint")}</span>
                   </div>
+                  <OutcomeReport
+                    market={isEU ? "EU" : "IL"}
+                    vertical="flights"
+                    counterparty="airline"
+                    variantId={`${jurisdiction}_${kind}`}
+                  />
                 </div>
               )}
               <p className="text-[11px] text-ink-soft mt-3 mb-0 leading-snug">{t("letter.privacy")}</p>

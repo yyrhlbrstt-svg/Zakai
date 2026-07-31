@@ -33,6 +33,7 @@ export default async function CompensationClaimsPage({
   const t = await getTranslations("compensationClaims");
   const types = t.raw("types") as Item[];
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_compensation_claims_page = await getTranslations({ locale, namespace: "inline_app_locale_compensation_claims_page" });
 
   const steps = he
     ? [
@@ -50,15 +51,13 @@ export default async function CompensationClaimsPage({
     <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
       <Reveal>
         <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-          {he ? "פעולה מיידית באפליקציה — בלי מוקד" : "Instant in-app action — no call center"}
+          {tIapp_locale_compensation_claims_page("t_e7b22b9d")}
         </div>
         <h1 className="font-display text-[clamp(28px,5vw,44px)] leading-[1.12] m-0 text-balance">
           {t("title")}
         </h1>
         <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">
-          {he
-            ? "אובדן כושר, נכות, מחלות קשות, סיעוד וביטוח משכנתא — הרבה כיסויים שאנשים לא תובעים. בזכאי מתחילים במסך — לא בהשארת טלפון. עורך דין נכנס לתמונה רק אם בחרת להמשיך."
-            : "Loss of capacity, disability, critical illness, care and mortgage insurance — cover people often never claim. Start on screen in Zakai — not by leaving a phone number. A lawyer only if you choose to continue."}
+          {tIapp_locale_compensation_claims_page("t_70753b42")}
         </p>
       </Reveal>
 
@@ -91,7 +90,7 @@ export default async function CompensationClaimsPage({
       </div>
 
       <Reveal>
-        <h2 className="font-display text-2xl mt-14 mb-4">{he ? "איך זה עובד" : "How it works"}</h2>
+        <h2 className="font-display text-2xl mt-14 mb-4">{tIapp_locale_compensation_claims_page("t_d7059f90")}</h2>
       </Reveal>
       <ol className="flex flex-col gap-3 list-none p-0 m-0">
         {steps.map((s, i) => (
@@ -109,10 +108,10 @@ export default async function CompensationClaimsPage({
       <Reveal>
         <div className="mt-10 flex flex-wrap gap-3">
           <Link href="/assistant">
-            <Button>{he ? "שאל את הסוכן" : "Ask the agent"}</Button>
+            <Button>{tIapp_locale_compensation_claims_page("t_8abbe384")}</Button>
           </Link>
           <Link href="/what-am-i-owed">
-            <Button variant="ghost">{he ? "מה מגיע לי?" : "What am I owed?"}</Button>
+            <Button variant="ghost">{tIapp_locale_compensation_claims_page("t_cb700000")}</Button>
           </Link>
         </div>
       </Reveal>

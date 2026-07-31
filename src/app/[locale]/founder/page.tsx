@@ -2,6 +2,8 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
+import { isEmailVerified } from "@/lib/services/emailVerification";
+import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import type { Locale } from "@/i18n/config";
@@ -32,6 +34,11 @@ export default async function FounderPage({
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
   if (!isAdmin(user!.email)) redirect({ href: "/dashboard", locale });
+  // Matching the address is not the same as controlling it. Signup accepts any
+  // address, so without this an attacker who registered the ADMIN_EMAIL value
+  // first would hold a dashboard listing every lead's name, phone and company.
+  // The environment names who may be admin; this proves they are that person.
+  if (!(await isEmailVerified(user!.id))) redirect({ href: "/dashboard", locale });
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const [byStatus, savedAgg, feeAgg, paidAgg, users, checks, recovery, newUsers7d, leadsByVertical, feedbackCount] =
@@ -60,6 +67,25 @@ export default async function FounderPage({
   const money = (a: number) => formatAgorot(a, "he-IL");
 
   // Growth + pipeline signals — the scoreboard for "get users, prove it works".
+  // The counts answer "how many". They do not answer "who do I call back",
+  // which is the only question that matters on the day one arrives. Mail is a
+  // notification and can be missing, misaddressed or unread; this is the record.
+  const recentLeads = await prisma.lead.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 25,
+    select: {
+      id: true,
+      vertical: true,
+      name: true,
+      phone: true,
+      email: true,
+      company: true,
+      note: true,
+      status: true,
+      createdAt: true,
+    },
+  });
+
   const totalLeads = leadsByVertical.reduce((s, r) => s + r._count._all, 0);
   const topLead = [...leadsByVertical].sort((a, b) => b._count._all - a._count._all)[0];
   const leadsValue =
@@ -92,6 +118,15 @@ export default async function FounderPage({
         הניבו חיסכון אמיתי ומתועד. הרץ 20–30 תיקי סלולר אמיתיים וצפה כאן שהלופ באמת סוגר כסף.
       </p>
 
+      {!emailConfigured() && (
+        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">
+          ⚠ SMTP_HOST לא מוגדר בסביבה הזו. "נשלחו לספק (SENT+)" למטה סופר תיקים שסומנו SENT
+          באפליקציה — לא מיילים שבאמת יצאו. עד שיוגדר SMTP אמיתי, שום פנייה לא הגיעה בפועל לאף ספק,
+          ואחוז ההצלחה למטה לא אומר כלום על העולם האמיתי. הרץ <code>node scripts/preflight.mjs</code>{" "}
+          לפני שמריצים תיק אמיתי.
+        </div>
+      )}
+
       <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
         {rows.map(([label, value], i) => {
           const highlight = label.includes("אחוז הצלחה");
@@ -116,6 +151,54 @@ export default async function FounderPage({
           );
         })}
       </div>
+
+      {/* Who to call back. Institutional enquiries first: a bank asking for a
+          pilot is not one lead among many, and burying it under consumer volume
+          is how the one that matters gets answered a fortnight late. */}
+      <h2 className="font-display text-xl mt-10 mb-1.5">פניות — למי לחזור</h2>
+      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+        כל פנייה נשמרת כאן לפני שנשלח מייל. אם אין SMTP או שהכתובת שגויה — המייל לא יוצא, והרשומה
+        הזאת עדיין קיימת. זה המקור, המייל הוא רק התראה.
+      </p>
+      {recentLeads.length === 0 ? (
+        <p className="text-ink-soft text-[13.5px]">אין עדיין פניות.</p>
+      ) : (
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
+          {[...recentLeads]
+            .sort((a, b) => {
+              const ai = a.vertical.startsWith("business:") ? 0 : 1;
+              const bi = b.vertical.startsWith("business:") ? 0 : 1;
+              return ai - bi || b.createdAt.getTime() - a.createdAt.getTime();
+            })
+            .map((lead, i) => (
+              <div
+                key={lead.id}
+                className={`px-5 py-3.5 ${i > 0 ? "border-t border-[rgba(255,255,255,0.07)]" : ""} ${
+                  lead.vertical.startsWith("business:") ? "bg-[rgba(63,203,155,0.06)]" : ""
+                }`}
+              >
+                <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                  <span className="font-extrabold text-[14.5px]">
+                    {lead.company || lead.name}
+                  </span>
+                  <span className="text-[11.5px] text-ink-soft">
+                    {lead.vertical} · {lead.createdAt.toISOString().slice(0, 10)} · {lead.status}
+                  </span>
+                </div>
+                <div className="text-[13px] text-ink-soft mt-1" dir="ltr">
+                  {[lead.company ? lead.name : null, lead.email, lead.phone]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </div>
+                {lead.note && (
+                  <p className="text-[12.5px] text-ink-soft mt-1.5 mb-0 whitespace-pre-wrap leading-relaxed">
+                    {lead.note}
+                  </p>
+                )}
+              </div>
+            ))}
+        </div>
+      )}
 
       {/* The recovery graph — the moat. Per counterparty: what actually works. */}
       <h2 className="font-display text-xl mt-10 mb-1.5">גרף ההשבה — מה עובד מול מי</h2>

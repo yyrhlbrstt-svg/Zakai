@@ -5,12 +5,21 @@ import { Button } from "@/components/ui";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "New to Israel? The money you're owed — Zakai",
-  description:
-    "New immigrants (olim) are entitled to tax breaks, absorption benefits, arnona discounts and more — most go unclaimed. Zakai checks what you're owed, in English.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "olimPage" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/olim") },
+  };
+}
 
 /** A representative new-immigrant profile to surface the olim-relevant rights. */
 const OLIM_PROFILE: RightsProfile = {

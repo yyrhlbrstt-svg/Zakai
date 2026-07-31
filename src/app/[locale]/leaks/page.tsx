@@ -1,14 +1,23 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Button } from "@/components/ui";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "איפה הכסף בורח — זכאי Money OS",
-  description:
-    "מפת נזילות כסף גלובלית: מנויים, סלולר, עמלות, ביטוח, זכויות — הסוכן של זכאי סוגר בלי מוקד.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_leaks_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/leaks") },
+  };
+}
 
 /** Every leak points at an agent path — not a passive calculator. */
 const LEAKS = [
@@ -77,6 +86,38 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/parking",
+    he: "דוח חניה שאפשר לערער עליו",
+    en: "Parking ticket you can appeal",
+    subHe: "ערעור בכתב + Mandate דרך הסוכן",
+    subEn: "Written appeal + Mandate via agent",
+    rank: 2,
+  },
+  {
+    href: "/transport-fine",
+    he: "קנס תחבורה ציבורית",
+    en: "Public-transport fine",
+    subHe: "ערעור בכתב + Mandate דרך הסוכן",
+    subEn: "Written appeal + Mandate via agent",
+    rank: 2,
+  },
+  {
+    href: "/late-payment",
+    he: "לקוח שלא משלם בזמן",
+    en: "Client not paying on time",
+    subHe: "דרישה בכתב + Mandate דרך הסוכן",
+    subEn: "Written demand + Mandate via agent",
+    rank: 2,
+  },
+  {
+    href: "/deposit",
+    he: "פיקדון שכירות שהמשכיר לא מחזיר",
+    en: "Rental deposit landlord won't return",
+    subHe: "דרישה בכתב + Mandate דרך הסוכן",
+    subEn: "Written demand + Mandate via agent",
+    rank: 2,
+  },
+  {
     href: "/taxrefund",
     he: "החזר מס",
     en: "Tax refund",
@@ -114,29 +155,28 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
   const { locale } = await params;
   setRequestLocale(locale);
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_leaks_page = await getTranslations({ locale, namespace: "inline_app_locale_leaks_page" });
 
   return (
     <main className="max-w-[900px] mx-auto px-5 pb-24 pt-4">
       <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {he ? "מפת נזילות · Money OS" : "Money leaks map · Money OS"}
+        {tIapp_locale_leaks_page("t_c4b012f6")}
       </div>
       <h1 className="font-display text-[clamp(28px,5vw,42px)] leading-tight m-0">
-        {he ? "איפה הכסף בורח — הסוכן סוגר" : "Where money leaks — the agent closes it"}
+        {tIapp_locale_leaks_page("t_2d4d4d1b")}
       </h1>
       <p className="text-ink-soft text-[15.5px] leading-relaxed mt-4 max-w-[640px]">
-        {he
-          ? "זכאי הוא הסטנדרט לסוכן כסף צרכני: בלי מוקד, בלי להשאיר טלפון, עמלה רק על חיסכון מתועד. כל כרטיס מוביל לפעולה עם Mandate."
-          : "Zakai is the standard consumer money agent: no call center, no phone left behind, fee only on documented savings. Every card leads to Mandate action."}
+        {tIapp_locale_leaks_page("t_03cd5197")}
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link href="/money">
           <Button className="!text-[15px] !px-5 !py-3">
-            {he ? "הכסף שלי — סרוק עכשיו" : "My money — scan now"}
+            {tIapp_locale_leaks_page("t_eec058aa")}
           </Button>
         </Link>
         <Link href="/cancel">
-          <Button variant="ghost">{he ? "ביטול מנוי עם סוכן" : "Cancel with agent"}</Button>
+          <Button variant="ghost">{tIapp_locale_leaks_page("t_bc18d8da")}</Button>
         </Link>
       </div>
 
@@ -150,7 +190,7 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
             >
               {l.rank === 1 && (
                 <div className="text-[11px] font-extrabold text-emerald uppercase tracking-wide mb-1.5">
-                  {he ? "עדיפות גבוהה" : "High ROI"}
+                  {tIapp_locale_leaks_page("t_f87fbdb7")}
                 </div>
               )}
               <div className="font-extrabold text-[15px]">{he ? l.he : l.en}</div>
@@ -162,15 +202,13 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
 
       <div className="mt-14 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
         <div className="font-display text-[clamp(20px,3.5vw,28px)]">
-          {he ? "מוביל הקטגוריה לא ממתין לטלפון" : "Category leaders don’t wait on a phone call"}
+          {tIapp_locale_leaks_page("t_4c7c9f63")}
         </div>
         <p className="text-ink-soft text-[14px] mt-3 max-w-[480px] mx-auto leading-relaxed">
-          {he
-            ? "סריקה → תיק → Mandate → שליחה → מעקב → חיסכון מתועד → שיתוף. זה הלולאה."
-            : "Scan → case → Mandate → send → follow-up → documented saving → share. That’s the loop."}
+          {tIapp_locale_leaks_page("t_ace971b5")}
         </p>
         <Link href="/money" className="inline-block mt-5">
-          <Button>{he ? "התחל מהכסף שלי" : "Start with My money"}</Button>
+          <Button>{tIapp_locale_leaks_page("t_7698572b")}</Button>
         </Link>
       </div>
     </main>

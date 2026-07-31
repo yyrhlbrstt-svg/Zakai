@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select } from "@/components/ui";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
@@ -18,6 +18,7 @@ const KINDS: { value: BankFeeKind; he: string; en: string }[] = [
 export function BankFeesTool() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_BankFeesTool = useTranslations("inline_components_BankFeesTool");
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -79,16 +80,16 @@ export function BankFeesTool() {
   return (
     <div className="flex flex-col gap-4">
       <Card className="p-5 flex flex-col gap-3">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={he ? "השם שלך" : "Your name"} />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={tIcomponents_BankFeesTool("t_ebd6b437")} />
         <Input
           value={bank}
           onChange={(e) => setBank(e.target.value)}
-          placeholder={he ? "שם הבנק (לאומי, הפועלים…)" : "Bank name"}
+          placeholder={tIcomponents_BankFeesTool("t_e5cbb043")}
         />
         <Input
           value={accountLast4}
           onChange={(e) => setAccountLast4(e.target.value.replace(/\D/g, "").slice(0, 4))}
-          placeholder={he ? "4 ספרות אחרונות של החשבון (אופציונלי)" : "Account last 4 (optional)"}
+          placeholder={tIcomponents_BankFeesTool("t_832f0010")}
         />
         <Select value={feeKind} onChange={(e) => setFeeKind(e.target.value as BankFeeKind)}>
           {KINDS.map((k) => (
@@ -100,18 +101,18 @@ export function BankFeesTool() {
         <Input
           value={feeDescription}
           onChange={(e) => setFeeDescription(e.target.value)}
-          placeholder={he ? "תיאור העמלה (אופציונלי)" : "Fee description (optional)"}
+          placeholder={tIcomponents_BankFeesTool("t_b3bac430")}
         />
         <Input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder={he ? "סכום העמלה ₪" : "Fee amount ₪"}
+          placeholder={tIcomponents_BankFeesTool("t_71dfcc71")}
         />
         <Input
           value={chargeDate}
           onChange={(e) => setChargeDate(e.target.value)}
-          placeholder={he ? "תאריך החיוב (אופציונלי)" : "Charge date (optional)"}
+          placeholder={tIcomponents_BankFeesTool("t_7f6ed090")}
         />
 
         <div className="flex flex-col gap-2 mt-1">
@@ -142,7 +143,7 @@ export function BankFeesTool() {
               )
             }
           >
-            {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+            {tIcomponents_BankFeesTool("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
@@ -151,16 +152,14 @@ export function BankFeesTool() {
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">
-            {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+            {tIcomponents_BankFeesTool("t_360e126e")}
           </div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {he
-              ? "הערעור מוכן. בדשבורד: אמת בעלות → Mandate → סמן כנשלח. כשהעמלה מבוטלת — תעד כחיסכון."
-              : "Dispute ready. On the dashboard: verify ownership → Mandate → mark sent. When the fee is waived — record the saving."}
+            {tIcomponents_BankFeesTool("t_5a0296a5")}
           </p>
           <Link href="/dashboard">
             <Button className="w-full">
-              {he ? "לדשבורד — המשך עכשיו" : "Dashboard — continue now"}
+              {tIcomponents_BankFeesTool("t_8ae29d51")}
             </Button>
           </Link>
         </Card>

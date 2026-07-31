@@ -2,12 +2,21 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { VatReport } from "@/components/VatReport";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "דו״ח מע״מ תקופתי לעסקים — זכאי",
-  description:
-    "בניית דו״ח מע״מ תקופתי בדקה: מע״מ עסקאות מול מע״מ תשומות, איתור תשומות שנחסמות לפי התקנות, ובדיקת מספר הקצאה. רץ בדפדפן — החשבוניות לא עוזבות את המכשיר.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "vat" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/vat") },
+  };
+}
 
 export default async function VatPage({
   params,

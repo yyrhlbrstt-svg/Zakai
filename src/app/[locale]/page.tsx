@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { prisma } from "@/lib/prisma";
@@ -5,13 +6,42 @@ import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Ban, Scale, Zap } from "lucide-react";
+import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
-import { allMarkets } from "@/lib/global/registry";
 import { bcp47, type Locale } from "@/i18n/config";
+import { currentArm } from "@/lib/evolve/store";
+import { ENTITLEMENTS } from "@/lib/rights";
+import { DoorTracker } from "@/components/DoorTracker";
 
 export const dynamic = "force-dynamic";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
+
+/**
+ * Without this, a search engine sees four unrelated pages at the same content
+ * — one per locale — rather than four language variants of one page, which is
+ * exactly the signal duplicate-content and cross-language ranking dilution
+ * come from. `x-default` matters as much as the four explicit tags: it is
+ * what a search engine falls back to for a language it has no better match
+ * for, and an absent one means that visitor gets no signal at all rather than
+ * the sane default.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    alternates: {
+      languages: {
+        he: `${SITE_URL}/he`,
+        en: `${SITE_URL}/en`,
+        ar: `${SITE_URL}/ar`,
+        ru: `${SITE_URL}/ru`,
+        de: `${SITE_URL}/de`,
+        fr: `${SITE_URL}/fr`,
+        "x-default": `${SITE_URL}/he`,
+      },
+    },
+  };
+}
 
 async function loadProof() {
   try {
@@ -34,12 +64,13 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations();
   const proof = await loadProof();
+  // Counted from the catalogue so the front page cannot disagree with it.
+  const ilRightsCount = ENTITLEMENTS.filter((e) => !/^(us|uk|de|fr|ca|au|it)_/.test(e.id)).length;
 
   const steps = ["upload", "act", "pay"] as const;
   const trust = (t.raw("home.trust") as string[]) || [];
   const israeliVisitor = await isIsrael();
   const visitorCountry = await getCountry();
-  const markets = allMarkets();
 
   let countryTag = "";
   if (visitorCountry) {
@@ -53,7 +84,13 @@ export default async function HomePage({
     }
   }
 
-  const doors = [
+  // Which problem to lead with is decided by the self-improvement engine from
+  // what has actually been converting, not by the order the doors happened to
+  // be built in. Falls back to the baseline order if the engine is unreachable.
+  const doorArm = await currentArm<string[]>("home_door_order");
+  const doorOrder = doorArm?.payload ?? ["money", "cancel", "owed", "electricity"];
+
+  const doorsByKey = [
     {
       href: "/money",
       icon: ScanLine,
@@ -86,33 +123,49 @@ export default async function HomePage({
       ctaKey: "door.electricity.cta",
       accent: "amber",
     },
+    // The two categories nobody else covers, and they were not on this page at
+    // all. An injury reaches four to seven payers at once and one of those
+    // windows is twelve months; forgotten money is the only thing here somebody
+    // checks for a parent rather than for themselves. Leaving them off the front
+    // door meant the two strongest reasons to open the app were invisible.
+    {
+      href: "/incident",
+      icon: HeartPulse,
+      titleKey: "door.incident.title",
+      subKey: "door.incident.sub",
+      ctaKey: "door.incident.cta",
+      accent: "violet",
+    },
+    {
+      href: "/dormant",
+      icon: Archive,
+      titleKey: "door.dormant.title",
+      subKey: "door.dormant.sub",
+      ctaKey: "door.dormant.cta",
+      accent: "sky",
+    },
+    // The only door that prevents a loss instead of recovering one, and the
+    // largest single sum on the page.
+    {
+      href: "/vehicle-check",
+      icon: Car,
+      titleKey: "door.vehicleCheck.title",
+      subKey: "door.vehicleCheck.sub",
+      ctaKey: "door.vehicleCheck.cta",
+      accent: "amber",
+    },
   ];
 
-  // Fallback English titles if translation keys missing
-  const doorFallback: Record<string, { title: string; sub: string; cta: string }> = {
-    "door.money.title": "Paying too much",
-    "door.money.sub": "Scan bills · agent negotiates · documented savings",
-    "door.money.cta": "My money →",
-    "door.cancel.title": "Cancel a subscription",
-    "door.cancel.sub": "Agent sends · Mandate · auto follow-up",
-    "door.cancel.cta": "Agent cancel →",
-    "door.owed.title": "What am I owed?",
-    "door.owed.sub": "Rights · benefits · refunds you never claimed",
-    "door.owed.cta": "Check rights →",
-    "door.electricity.title": "Electricity too high",
-    "door.electricity.sub": "Compare suppliers · agent acts · Mandate switch",
-    "door.electricity.cta": "Switch supplier →",
+  const doorKey = (href: string) => href.replace("/", "").replace("what-am-i-owed", "owed");
+  // A door the experiment does not mention sorts last, not first.
+  // `indexOf` returns -1 for an unlisted key, so the previous version promoted
+  // every newly added door above the one the engine had actually chosen —
+  // silently overriding the experiment with build order.
+  const rank = (href: string) => {
+    const i = doorOrder.indexOf(doorKey(href));
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
   };
-
-  function doorText(key: string) {
-    try {
-      const val = t(key);
-      if (val && val !== key) return val;
-    } catch {
-      // fall through
-    }
-    return doorFallback[key] || key;
-  }
+  const doors = [...doorsByKey].sort((a, b) => rank(a.href) - rank(b.href));
 
   const accentBorder: Record<string, string> = {
     emerald: "border-[rgba(63,203,155,0.4)]",
@@ -141,26 +194,6 @@ export default async function HomePage({
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
-      <div className="mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold leading-relaxed">
-        The standard consumer money agent · Money OS · Mandate · No call center · v1.2.2
-      </div>
-
-      <div className="mb-6 flex flex-wrap items-center gap-2 text-[12px] text-ink-soft">
-        <Globe size={14} className="text-emerald shrink-0" aria-hidden />
-        <span className="font-bold text-ink">Markets:</span>
-        {markets.map((m) => {
-          const active = visitorCountry === m.code;
-          const cls = active
-            ? "rounded-full px-2.5 py-1 border border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.12)] text-emerald font-extrabold"
-            : "rounded-full px-2.5 py-1 border border-[rgba(255,255,255,0.1)]";
-          return (
-            <span key={m.code} className={cls}>
-              {m.code}
-            </span>
-          );
-        })}
-      </div>
-
       {!israeliVisitor && (
         <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
           <Globe size={18} className="shrink-0 text-[#3ec6ff]" aria-hidden />
@@ -185,9 +218,7 @@ export default async function HomePage({
           </Reveal>
           <Reveal delay={160}>
             <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
-              Zakai is the consumer money OS: scan, Mandate, send, follow up,
-              documented saving. No call center. No phone left behind. Fee only
-              when money is actually saved.
+              {t("home.sub")}
             </p>
           </Reveal>
         </div>
@@ -198,10 +229,12 @@ export default async function HomePage({
       </div>
 
       <Reveal>
-        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft uppercase tracking-wide">
-          Where do you start?
+        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
+          {t("door.title")}
         </h2>
       </Reveal>
+
+      <DoorTracker experimentId="home_door_order" armId={doorArm?.id ?? "money_first"} />
 
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
         {doors.map((d, i) => {
@@ -232,17 +265,17 @@ export default async function HomePage({
                       "font-extrabold text-[17px] " + accentText[d.accent]
                     }
                   >
-                    {doorText(d.titleKey)}
+                    {t(d.titleKey)}
                   </div>
                   <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed">
-                    {doorText(d.subKey)}
+                    {t(d.subKey)}
                   </div>
                   <div
                     className={
                       "mt-4 text-[14px] font-extrabold " + accentText[d.accent]
                     }
                   >
-                    {doorText(d.ctaKey)}
+                    {t(d.ctaKey)}
                   </div>
                 </SpotlightCard>
               </Link>
@@ -255,10 +288,14 @@ export default async function HomePage({
         <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
           {(
             (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
-          ).map((s) => (
+          ).map((s, i) => (
             <div key={s.label} className="text-center">
               <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
-                {s.n}
+                {/* Derived, not written down. This said 55 and the catalogue
+                    held 60 — a factual claim on the front page that went stale
+                    the moment somebody added a right, which is what a number
+                    living in a translation file always does. */}
+                {i === 1 ? ilRightsCount : s.n}
               </div>
               <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
                 {s.label}
@@ -376,19 +413,17 @@ export default async function HomePage({
       <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
-            Everything through Zakai — category leader
+            {t("home.closingTitle")}
           </div>
           <p className="text-ink-soft text-[15px] mt-3 max-w-[520px] mx-auto leading-relaxed">
-            Whoever owns scan→Mandate→saving→share owns the market. We are
-            building that loop in every market — and the infrastructure
-            institutions adopt.
+            {t("home.closingSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
-              <Button className="!text-[15px] !px-6 !py-3">My money</Button>
+              <Button className="!text-[15px] !px-6 !py-3">{t("home.closingCta")}</Button>
             </Link>
             <Link href="/business">
-              <Button variant="ghost">Business & institutions</Button>
+              <Button variant="ghost">{t("home.closingB2b")}</Button>
             </Link>
           </div>
         </div>

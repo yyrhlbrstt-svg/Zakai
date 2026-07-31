@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { prisma } from "@/lib/prisma";
 import { formatAgorot } from "@/lib/money";
 import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "קיר החיסכונות — זכאי",
-  description:
-    "כמה נחסך השבוע עם סוכן זכאי — מספרים אנונימיים מתועדים, בלי פרטים אישיים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_proofs_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/proofs") },
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -39,35 +48,46 @@ export default async function ProofsWallPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_proofs_page = await getTranslations({ locale, namespace: "inline_app_locale_proofs_page" });
   const loc = bcp47[locale as Locale];
 
   const weekAgo = new Date(Date.now() - 7 * 86_400_000);
   const monthAgo = new Date(Date.now() - 30 * 86_400_000);
 
+  // A public wall with no auth gate has to degrade rather than 500 when the
+  // database has a blip — the same reasoning /companies' loadStats() already
+  // follows for the identical table. An empty wall reads as "nothing yet,"
+  // which is honest; a crashed page reads as broken, which is worse.
   const [weekAgg, monthAgg, totalPaid, recent] = await Promise.all([
-    prisma.strategyOutcome.aggregate({
-      where: { paid: true, createdAt: { gte: weekAgo } },
-      _sum: { recoveredMinor: true },
-      _count: true,
-    }),
-    prisma.strategyOutcome.aggregate({
-      where: { paid: true, createdAt: { gte: monthAgo } },
-      _sum: { recoveredMinor: true },
-      _count: true,
-    }),
-    prisma.strategyOutcome.count({ where: { paid: true } }),
-    prisma.strategyOutcome.findMany({
-      where: { paid: true, recoveredMinor: { gt: 0 } },
-      orderBy: { createdAt: "desc" },
-      take: 24,
-      select: {
-        vertical: true,
-        counterparty: true,
-        recoveredMinor: true,
-        days: true,
-        createdAt: true,
-      },
-    }),
+    prisma.strategyOutcome
+      .aggregate({
+        where: { paid: true, createdAt: { gte: weekAgo } },
+        _sum: { recoveredMinor: true },
+        _count: true,
+      })
+      .catch(() => ({ _sum: { recoveredMinor: null }, _count: 0 })),
+    prisma.strategyOutcome
+      .aggregate({
+        where: { paid: true, createdAt: { gte: monthAgo } },
+        _sum: { recoveredMinor: true },
+        _count: true,
+      })
+      .catch(() => ({ _sum: { recoveredMinor: null }, _count: 0 })),
+    prisma.strategyOutcome.count({ where: { paid: true } }).catch(() => 0),
+    prisma.strategyOutcome
+      .findMany({
+        where: { paid: true, recoveredMinor: { gt: 0 } },
+        orderBy: { createdAt: "desc" },
+        take: 24,
+        select: {
+          vertical: true,
+          counterparty: true,
+          recoveredMinor: true,
+          days: true,
+          createdAt: true,
+        },
+      })
+      .catch(() => []),
   ]);
 
   // recoveredMinor is yearly-equivalent (monthly saving * 12) from recordSaving.
@@ -79,45 +99,41 @@ export default async function ProofsWallPage({
   return (
     <main className="max-w-[900px] mx-auto px-5 pb-24 pt-4">
       <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {he ? "קיר חיסכונות · אנונימי" : "Savings wall · anonymous"}
+        {tIapp_locale_proofs_page("t_d2c8fb14")}
       </div>
       <h1 className="font-display text-[clamp(28px,5vw,42px)] leading-tight m-0">
-        {he ? "השבוע נחסך — בלי מוקד" : "Saved this week — no call center"}
+        {tIapp_locale_proofs_page("t_027aa200")}
       </h1>
       <p className="text-ink-soft text-[15.5px] leading-relaxed mt-4 max-w-[640px]">
-        {he
-          ? "מספרים מצרפיים מ-StrategyOutcome בלבד. אין שמות, אין טלפונים, אין אימיילים — רק תוצאות מתועדות של הסוכן."
-          : "Aggregate numbers from StrategyOutcome only. No names, phones, or emails — only documented agent outcomes."}
+        {tIapp_locale_proofs_page("t_3070dd2f")}
       </p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
         <Stat
-          label={he ? "חיסכון חודשי · 7 ימים" : "Monthly · 7 days"}
+          label={tIapp_locale_proofs_page("t_be944a54")}
           value={formatAgorot(weekMonthly, loc)}
         />
         <Stat
-          label={he ? "תיקים שנסגרו · 7 ימים" : "Closed · 7 days"}
+          label={tIapp_locale_proofs_page("t_7623b6d2")}
           value={String(weekAgg._count)}
         />
         <Stat
-          label={he ? "חיסכון חודשי · 30 ימים" : "Monthly · 30 days"}
+          label={tIapp_locale_proofs_page("t_06b88ed2")}
           value={formatAgorot(monthMonthly, loc)}
         />
         <Stat
-          label={he ? "סה\"כ חיסכונות מתועדים" : "Total documented"}
+          label={tIapp_locale_proofs_page("t_838cfd06")}
           value={String(totalPaid)}
         />
       </div>
 
       <h2 className="text-[17px] font-extrabold mt-12 mb-4">
-        {he ? "דוגמאות אחרונות (אנונימי)" : "Recent examples (anonymous)"}
+        {tIapp_locale_proofs_page("t_a700ca87")}
       </h2>
 
       {recent.length === 0 ? (
         <Card className="p-6 text-ink-soft text-[14px] text-center">
-          {he
-            ? "עדיין אין תוצאות מתועדות בקנה-מידה. כל חיסכון שנסגר נכנס לכאן אוטומטית — בלי PII."
-            : "No documented outcomes yet at scale. Every closed saving lands here automatically — no PII."}
+          {tIapp_locale_proofs_page("t_152309da")}
         </Card>
       ) : (
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
@@ -130,7 +146,7 @@ export default async function ProofsWallPage({
                 </div>
                 <div className="font-display text-2xl grad-text mt-1.5">
                   −{formatAgorot(monthly, loc)}
-                  <span className="text-[12px] text-ink-soft font-sans"> /{he ? "ח׳" : "mo"}</span>
+                  <span className="text-[12px] text-ink-soft font-sans"> /{tIapp_locale_proofs_page("t_147726d1")}</span>
                 </div>
                 <div className="text-[12px] text-ink-soft mt-2">
                   {r.days > 0
@@ -151,30 +167,26 @@ export default async function ProofsWallPage({
 
       <div className="mt-14 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
         <div className="font-display text-[clamp(20px,3.5vw,28px)]">
-          {he ? "הבא ברשימה — אתה" : "Next on the list — you"}
+          {tIapp_locale_proofs_page("t_dee2cf67")}
         </div>
         <p className="text-ink-soft text-[14px] mt-3 max-w-[480px] mx-auto leading-relaxed">
-          {he
-            ? "סרוק חיובים, פתח תיק עם Mandate, תן לסוכן לעבוד. עמלה רק על חיסכון מתועד."
-            : "Scan charges, open a Mandate case, let the agent work. Fee only on documented savings."}
+          {tIapp_locale_proofs_page("t_8a82bb80")}
         </p>
         <div className="flex flex-wrap gap-3 justify-center mt-5">
           <Link href="/money">
-            <Button>{he ? "הכסף שלי" : "My money"}</Button>
+            <Button>{tIapp_locale_proofs_page("t_bd4c0905")}</Button>
           </Link>
           <Link href="/cancel">
-            <Button variant="ghost">{he ? "ביטול מנוי" : "Cancel sub"}</Button>
+            <Button variant="ghost">{tIapp_locale_proofs_page("t_00a5e771")}</Button>
           </Link>
           <Link href="/leaks">
-            <Button variant="ghost">{he ? "מפת נזילות" : "Leaks map"}</Button>
+            <Button variant="ghost">{tIapp_locale_proofs_page("t_16c6cdf1")}</Button>
           </Link>
         </div>
       </div>
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.55)] text-center max-w-[520px] mx-auto">
-        {he
-          ? "הנתונים מגיעים מטבלת StrategyOutcome בלבד — ללא קישור למשתמש או תיק. זהו קיר אמון ציבורי, לא פרופיל אישי."
-          : "Data comes only from the StrategyOutcome table — no link to a user or case. This is a public trust wall, not a personal profile."}
+        {tIapp_locale_proofs_page("t_dfa51bd3")}
       </p>
     </main>
   );

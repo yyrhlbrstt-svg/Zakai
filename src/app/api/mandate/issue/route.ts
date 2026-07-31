@@ -7,14 +7,62 @@ import {
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { prisma } from "@/lib/prisma";
+import { checkDelegation, delegationClaim, hashIssuerKey, issuerKeyMatches } from "@/lib/mandate/delegation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
+/**
+ * Two callers, and they are not the same caller.
+ *
+ * The first-party key issues mandates for this product's own users, whose
+ * identity this product verified. A delegated agent's key issues for *its*
+ * users, whom we have never met — so those mandates carry `zkm.onBehalfOf`
+ * and say in plain words who performed the verification.
+ *
+ * Conflating them would mean this company vouching for a check it never
+ * performed, which is the failure that ends a trust network permanently.
+ */
+async function resolveCaller(req: Request): Promise<
+  | { kind: "first_party" }
+  | { kind: "delegated"; slug: string; name: string; allowedScopes: string[] }
+  | { kind: "rejected" }
+> {
+  const provided = (req.headers.get("x-zakai-issue-key") || "").trim();
+  if (!provided) return { kind: "rejected" };
+
+  // Constant-time: this is the shared secret that grants full first-party
+  // issuance, and `===` short-circuits on the first mismatched byte, which is
+  // exactly the timing channel that lets a remote caller recover a secret one
+  // character at a time. `issuerKeyMatches` already solves this for delegated
+  // keys by comparing hashes; the same guarantee belongs here.
   const expected = process.env.MANDATE_ISSUE_KEY;
-  const provided = req.headers.get("x-zakai-issue-key") || "";
-  if (!expected || provided !== expected) {
+  if (expected && issuerKeyMatches(provided, hashIssuerKey(expected))) {
+    return { kind: "first_party" };
+  }
+
+  // Looked up by hash, so the table holds no usable credential. Any failure
+  // here is a rejection rather than a fallback: an issuance endpoint that
+  // degrades open is one that issues authority when the database is slow.
+  try {
+    const row = await prisma.delegatedIssuer.findUnique({
+      where: { keyHash: hashIssuerKey(provided) },
+      select: { slug: true, name: true, allowedScopes: true, status: true },
+    });
+    if (!row || row.status !== "active") return { kind: "rejected" };
+    void prisma.delegatedIssuer
+      .update({ where: { slug: row.slug }, data: { lastUsedAt: new Date() } })
+      .catch(() => {});
+    return { kind: "delegated", slug: row.slug, name: row.name, allowedScopes: row.allowedScopes };
+  } catch {
+    return { kind: "rejected" };
+  }
+}
+
+export async function POST(req: Request) {
+  const caller = await resolveCaller(req);
+  if (caller.kind === "rejected") {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
@@ -57,6 +105,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "field_too_long" }, { status: 400 });
   }
 
+  // A delegated agent may request only what it was admitted for, and never an
+  // act no mandate may carry — enforced here rather than trusted, because an
+  // issuer that can exceed its grant by asking is not constrained at all.
+  if (caller.kind === "delegated") {
+    const allowed = checkDelegation(
+      { slug: caller.slug, allowedScopes: caller.allowedScopes, status: "active" },
+      scopes,
+    );
+    if (!allowed.ok) {
+      return NextResponse.json(
+        { error: "delegation_refused", reason: allowed.reason, scope: allowed.scope },
+        { status: 403 },
+      );
+    }
+  }
+
   const jti = randomUUID();
   const issuer =
     process.env.MANDATE_ISSUER ||
@@ -78,7 +142,14 @@ export async function POST(req: Request) {
         },
         scopes,
         market,
-        statement,
+        statement:
+          caller.kind === "delegated"
+            ? `${statement}\n\n${delegationClaim(caller.slug, caller.name).note}`
+            : statement,
+        // The structured claim, not only the sentence above: a verifier's code
+        // must be able to branch on delegation without parsing free text.
+        onBehalfOf:
+          caller.kind === "delegated" ? delegationClaim(caller.slug, caller.name) : undefined,
         ttlSeconds: body.ttlSeconds,
       },
       key,
@@ -92,6 +163,9 @@ export async function POST(req: Request) {
       jti,
       token,
       exp: claims.exp,
+      // Echoed so a delegated caller can see, in its own logs, that the token
+      // it received discloses the delegation rather than passing as ours.
+      onBehalfOf: caller.kind === "delegated" ? caller.slug : undefined,
       jwks: "/.well-known/zakai-jwks.json",
       statusPath: `/api/mandate/status/${jti}`,
     });

@@ -33,6 +33,7 @@ export function StatementScan({
   const t = useTranslations("scan");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_StatementScan = useTranslations("inline_components_StatementScan");
   const router = useRouter();
   const [text, setText] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
@@ -216,7 +217,7 @@ export function StatementScan({
               {best && (
                 <Card className="mt-4 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
                   <div className="text-[12px] font-extrabold text-emerald uppercase tracking-wide">
-                    {he ? "הכי כדאי עכשיו" : "Best next move"}
+                    {tIcomponents_StatementScan("t_49d491c5")}
                   </div>
                   <div className="font-extrabold text-[17px] mt-1.5">{best.merchant}</div>
                   <div className="text-ink-soft text-[13px] mt-0.5">

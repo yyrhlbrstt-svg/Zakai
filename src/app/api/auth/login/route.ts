@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/auth/password";
+import { burnPasswordComparison, verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { loginSchema, firstError } from "@/lib/validation";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
@@ -21,8 +21,16 @@ export async function POST(request: Request) {
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    // Same response for "no user" and "bad password" to avoid user enumeration.
-    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+
+    // Same response *and* the same cost for "no user" and "bad password".
+    // Identical wording alone leaves a timing oracle: bcrypt takes ~100ms, and
+    // skipping it for an address with no account makes the two cases trivially
+    // distinguishable by how fast the rejection arrives.
+    const ok = user
+      ? await verifyPassword(password, user.passwordHash)
+      : await burnPasswordComparison(password);
+
+    if (!user || !ok) {
       return NextResponse.json({ error: "invalidCredentials" }, { status: 401 });
     }
 

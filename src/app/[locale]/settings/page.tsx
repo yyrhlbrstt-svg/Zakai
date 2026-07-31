@@ -21,6 +21,7 @@ export default async function SettingsPage({
 
   const t = await getTranslations("settings");
   const he = locale === "he" || locale === "ar";
+  const tIapp_locale_settings_page = await getTranslations({ locale, namespace: "inline_app_locale_settings_page" });
 
   const referral = await prisma.user.findUnique({
     where: { id: user!.id },
@@ -78,17 +79,17 @@ export default async function SettingsPage({
       <div className="mt-4 flex flex-wrap gap-2">
         <Link href="/documents">
           <Button variant="ghost" className="!text-[13px]">
-            {he ? "מסמכים והרשאות" : "Documents & mandates"}
+            {tIapp_locale_settings_page("t_6c127838")}
           </Button>
         </Link>
         <Link href="/wrapped">
           <Button variant="ghost" className="!text-[13px]">
-            {he ? "שנה עם זכאי" : "Year with Zakai"}
+            {tIapp_locale_settings_page("t_e2d56b43")}
           </Button>
         </Link>
         <Link href="/money">
           <Button variant="ghost" className="!text-[13px]">
-            {he ? "הכסף שלי" : "My money"}
+            {tIapp_locale_settings_page("t_bd4c0905")}
           </Button>
         </Link>
       </div>

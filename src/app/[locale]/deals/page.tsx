@@ -3,12 +3,21 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "הטבות ודילים — זכאי",
-  description:
-    "אוסף הטבות ומהלכים אמיתיים שחוסכים לך כסף מיד — סלולר, חשמל, בנק, זכויות ועוד. חינמי. קופונים בלעדיים בקרוב.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "deals" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/deals") },
+  };
+}
 
 interface Deal {
   icon: string;

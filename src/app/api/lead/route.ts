@@ -1,3 +1,4 @@
+import { FOUNDER_EMAIL } from "@/lib/contact";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +17,7 @@ const schema = z.object({
 });
 
 const LEADS_EMAIL =
-  process.env.LEADS_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "leads@zakai.example";
+  process.env.LEADS_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || FOUNDER_EMAIL;
 
 /**
  * Commissionable lead intake. A user on a high-value vertical (defects, car

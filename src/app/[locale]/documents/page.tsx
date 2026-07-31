@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale , getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
@@ -7,11 +7,21 @@ import { Card, Button } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "מרכז מסמכים — זכאי",
-  description: "Mandates, מכתבים והוכחות חיסכון — להורדה והדפסה.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "inline_app_locale_documents_page" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/documents") },
+  };
+}
 
 export default async function DocumentsPage({
   params,
@@ -20,10 +30,13 @@ export default async function DocumentsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const he = locale === "he" || locale === "ar";
+  const tIapp_locale_documents_page = await getTranslations({ locale, namespace: "inline_app_locale_documents_page" });
   const loc = bcp47[locale as Locale];
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login?return=/documents", locale });
+  if (!user) {
+    redirect({ href: "/login?return=/documents", locale });
+    return null;
+  }
 
   const cases = await prisma.case.findMany({
     where: { userId: user.id },
@@ -38,23 +51,21 @@ export default async function DocumentsPage({
   return (
     <main className="max-w-[720px] mx-auto px-5 pb-24 pt-4">
       <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {he ? "כספת מסמכים" : "Document vault"}
+        {tIapp_locale_documents_page("t_be65da89")}
       </div>
       <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">
-        {he ? "Mandates · מכתבים · הוכחות" : "Mandates · letters · proofs"}
+        {tIapp_locale_documents_page("t_f2bac17f")}
       </h1>
       <p className="text-ink-soft text-[15px] mt-3 leading-relaxed max-w-[520px]">
-        {he
-          ? "הכול במקום אחד, עם חותמת זמן. להדפסה, לשיתוף עם ספק, או לארכיון."
-          : "Everything in one place, timestamped. Print, share with a provider, or archive."}
+        {tIapp_locale_documents_page("t_2f52f216")}
       </p>
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? `הרשאות Mandate (${withAuth.length})` : `Mandate authorizations (${withAuth.length})`}
+        {tIapp_locale_documents_page("mandatesHeading", { count: withAuth.length })}
       </h2>
       {withAuth.length === 0 ? (
         <Card className="p-5 text-ink-soft text-[14px]">
-          {he ? "עדיין אין הרשאות. פתח תיק והנפק Mandate מהדשבורד." : "No authorizations yet. Open a case and issue a Mandate from the dashboard."}
+          {tIapp_locale_documents_page("t_ed1487bf")}
         </Card>
       ) : (
         <Card className="py-1.5">
@@ -77,7 +88,7 @@ export default async function DocumentsPage({
               </div>
               <Link href={`/authorization/${c.authorization!.code}`}>
                 <Button variant="ghost" className="!text-[13px] !py-2">
-                  {he ? "פתח / הדפס" : "Open / print"}
+                  {tIapp_locale_documents_page("t_4e482ddb")}
                 </Button>
               </Link>
             </div>
@@ -86,11 +97,11 @@ export default async function DocumentsPage({
       )}
 
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
-        {he ? `הוכחות חיסכון (${withProof.length})` : `Savings proofs (${withProof.length})`}
+        {tIapp_locale_documents_page("savingsHeading", { count: withProof.length })}
       </h2>
       {withProof.length === 0 ? (
         <Card className="p-5 text-ink-soft text-[14px]">
-          {he ? "עדיין אין חיסכון מתועד. אחרי שהספק מוריד מחיר — רשום בדשבורד." : "No documented savings yet. After the provider lowers the price — record it on the dashboard."}
+          {tIapp_locale_documents_page("t_7ef4c59b")}
         </Card>
       ) : (
         <Card className="py-1.5">
@@ -113,7 +124,7 @@ export default async function DocumentsPage({
               </div>
               <div className="font-display text-emerald text-lg">
                 −{formatAgorot(c.savingsProof!.savingMonthly, loc)}
-                <span className="text-[12px] text-ink-soft font-sans"> /{he ? "ח׳" : "mo"}</span>
+                <span className="text-[12px] text-ink-soft font-sans"> /{tIapp_locale_documents_page("t_147726d1")}</span>
               </div>
             </div>
           ))}
@@ -122,13 +133,13 @@ export default async function DocumentsPage({
 
       <div className="mt-10 flex flex-wrap gap-3">
         <Link href="/dashboard">
-          <Button>{he ? "דשבורד" : "Dashboard"}</Button>
+          <Button>{tIapp_locale_documents_page("t_143fe31f")}</Button>
         </Link>
         <Link href="/wrapped">
-          <Button variant="ghost">{he ? "Wrapped שנתי" : "Yearly Wrapped"}</Button>
+          <Button variant="ghost">{tIapp_locale_documents_page("t_d3297759")}</Button>
         </Link>
         <Link href="/money">
-          <Button variant="ghost">{he ? "הכסף שלי" : "My money"}</Button>
+          <Button variant="ghost">{tIapp_locale_documents_page("t_bd4c0905")}</Button>
         </Link>
       </div>
     </main>

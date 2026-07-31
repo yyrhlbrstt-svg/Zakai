@@ -7,6 +7,7 @@ import { Button } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
 import { ShareResult } from "@/components/ShareResult";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
+import { formatAgorot } from "@/lib/money";
 
 const AGES = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = [
@@ -155,7 +156,11 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
           </Link>
         </div>
 
-        <ShareResult message={t("share.msgEntitlements", { count: result.matches.length })} />
+        <ShareResult
+          message={t("share.msgEntitlements", { count: result.matches.length })}
+          amountLabel={yearly > 0 ? formatAgorot(yearly * 100, bcp47) : undefined}
+          kicker={t("entitlements.resultKicker")}
+        />
 
         <button
           type="button"

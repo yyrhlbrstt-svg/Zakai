@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/messaging";
 import { pushToUser } from "@/lib/push";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   const expected = process.env.INBOUND_EMAIL_SECRET;
   if (expected) {
     const got = request.headers.get("x-inbound-secret") || "";
-    if (got !== expected) {
+    if (!secretsMatch(got, expected)) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     }
   }

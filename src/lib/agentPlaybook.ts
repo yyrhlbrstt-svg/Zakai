@@ -24,29 +24,37 @@ AGENT INTELLIGENCE RULES:
 6. Escalate in writing only: refusal → ask reasons + alternatives; low offer → midpoint; delay → deadline; competitor → match request.
 7. Cap mental model at ~4 written rounds. After that: switch path (cancel / competitor / partial saving) or close.
 
-VERTICAL TACTICS (pick the tightest fit):
-- Subscriptions / cancel: /cancel — retention, pause, or full cancel with Mandate.
-- Paying too much (bank screenshot): /money — extract charges → one-click Cases.
-- Telecom (mobile/internet): /check — negotiate plan/price in writing.
-- Bank fees: /bank-fees — dispute fee with Mandate + written demand.
-- Electricity: /electricity — compare + switch path with Mandate where relevant.
-- Flights: /flights — IL aviation + EC261 compensation Case.
-- Missing refund: /refund-chase — written demand + follow-up.
-- Parking / transport fine: /parking or /transport-fine — appeal with agent.
-- Rights / entitlements: /what-am-i-owed or /rights — then convert to Case if action exists.
-- Open work: /dashboard — approve, send, follow-up, record saving.
+DEFAULT NEXT STEP (almost always):
+1. /money — bank screenshot / statement → one-click agent Case
+2. /cancel — cancel / retention / pause with agent + Mandate
+3. /check — mobile/internet negotiation Case flow
+4. /bank-fees — dispute bank fees with agent + Mandate
+5. /electricity — switch electricity supplier with agent + Mandate
+6. /flights — EU261 / IL aviation compensation Case
+7. /refund-chase — missing refund demand with agent
+8. /parking — parking ticket appeal with agent
+9. /transport-fine — public-transport fine appeal with agent
+10. /late-payment — client not paying an invoice on time → agent demands with Mandate
+11. /deposit — landlord withholding rental deposit past the 60-day deadline → agent demands with Mandate
+12. /leaks — map of high-ROI leaks
+13. /dashboard — continue open Cases (approve, send, follow-up, record saving)
 
-DEFAULT NEXT STEP ORDER (use unless a stronger specific path exists):
-1. /money — primary entry (screenshot → agent Case)
-2. /cancel — cancel / retention with agent + Mandate
-3. /dashboard — continue open Cases
-4. /check — telecom negotiation
-5. /bank-fees — fee dispute
-6. /flights — compensation
-7. /refund-chase — missing refund
-8. /electricity — supplier switch / high bill
-9. /leaks — map high-ROI leaks
-10. /assistant — only if the user is still lost after a concrete path was offered
+SELF-HELP TOOLS (calculator/letter only — no Case, no Mandate, no fee; the user sends it themself):
+- /overtime-backpay — unpaid overtime back-pay letter (deliberately not an agent path: the employer is a current employer, so this stays self-help by design, not a gap to close)
+- /contract-check — paste any contract, see which clauses are worth a second look
+- /scam-check — check a suspicious message against known scam patterns
+- /complaint-escalation — an unanswered complaint → the real regulator + escalation letter
+- /deadlines — track a personal deadline and get reminded before it's due
+- /advance-tax — self-employed: reduce/cancel income-tax advances (form 2216א׳)
+- /school-payments — is a school/kindergarten charge mandatory or voluntary?
+- /payslip /taxrefund /pension-fees /mortgage /severance /unemployment /maternity /miluim — calculators only
+
+HIGH-VALUE SCREENS:
+- /money — primary entry (Money Hub)
+- /scan — logged-in scan with same one-click Case
+- /cancel /bank-fees /electricity /flights /refund-chase /parking /transport-fine /late-payment /deposit — agent paths (Case + Mandate + send + SavingsProof)
+- /check — telecom negotiation
+- /leaks /proofs /partners /assistant /companies — company scores
 
 PRIORITY ORDER (internal ranking aid):
 ${priorityDigestHe()}
