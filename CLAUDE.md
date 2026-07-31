@@ -55,6 +55,7 @@ A PR that does not strengthen at least one of these is usually the wrong PR.
 | `docs/ARCHITECTURE.md` | Full system design |
 | `docs/INFRASTRUCTURE_DOCTRINE.md` | Product laws |
 | `docs/AGENT_NEGOTIATION.md` | Negotiation agent behavior |
+| `docs/COUNTRY_PACKS.md` | How to add a jurisdiction to `src/lib/global/` |
 
 ## Coding conventions
 
@@ -83,9 +84,10 @@ A PR that does not strengthen at least one of these is usually the wrong PR.
 2. Never free-text scopes from client
 
 ### New market
-1. `src/lib/global/packs/xx.ts`
-2. Register in registry
-3. One e2e path: profile → match → letter/tool
+See `docs/COUNTRY_PACKS.md` for the full process. Short version:
+1. `src/lib/global/packs/xx.ts` — every right needs a real citation
+2. Register in `registry.ts`'s `MARKETS`
+3. `npx vitest run src/lib/global/engine.test.ts` — validates every registered pack automatically
 
 ## Env checklist (production)
 
@@ -98,7 +100,39 @@ MANDATE_SIGNING_JWK=<Ed25519 private JWK JSON>
 MANDATE_ISSUE_KEY=
 MANDATE_REVOKE_KEY=
 MANDATE_ISSUER=https://zakai-3uxj.vercel.app
+
+# Reaching a human. Without SMTP_HOST nothing leaves the system: every message
+# stays QUEUED in the Outbox. Leads are persisted before any mail is attempted,
+# so nothing is lost either way — but nobody is told an enquiry arrived, and an
+# enquiry nobody reads for a week is very nearly one that never came.
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=Zakai <no-reply@yourdomain>
+SALES_EMAIL=        # institutional enquiries; falls back to the founder address
+LEADS_EMAIL=        # consumer leads; falls back to the founder address
+FEEDBACK_EMAIL=     # falls back to the founder address
+
+# A privilege, not a destination — it opens /he/founder, which lists every
+# lead's contact details. No code default on purpose, and naming an address
+# here is necessary but not sufficient: the account must also have proved it
+# controls that address (see email verification below), so an attacker who
+# registered it first still gets nothing.
+ADMIN_EMAIL=
 ```
+
+Email verification gates **privilege, never basic use**. A person can sign up,
+see what they are owed and generate letters without confirming their address —
+putting a mailbox round-trip in front of that is the friction the whole design
+exists to remove. What an unverified address cannot do is hold an
+administrative role, because that is the only place the difference between
+"typed an address" and "controls an address" costs somebody else something.
+
+Run `node scripts/preflight.mjs` before believing any of this is set. It
+separates blocking from degrading and warns about an address on a reserved
+domain — a wrong address passes every check, is accepted by the transport, and
+discards the message silently.
 
 ## Deploy protocol (critical)
 

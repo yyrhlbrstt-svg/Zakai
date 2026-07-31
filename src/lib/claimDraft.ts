@@ -25,6 +25,7 @@
  */
 
 import { RECIPIENT_HE, RIGHT_ACTIONS, type FieldKey, type RightAction } from "./rightsActions";
+import { withFooter } from "./letterFooter";
 
 export interface ClaimDraft {
   subject: string;
@@ -76,7 +77,10 @@ export function buildClaimDraft(rightId: string, fields: ClaimFields): ClaimDraf
     .filter(Boolean)
     .join("\n\n");
 
-  return { subject: fill(action.subject, fields), body };
+  // Every letter carries it. This is the product's only distribution channel to
+  // the institutions the protocol needs: each claim is a knock on a door,
+  // delivered by that institution's own customer rather than by a salesperson.
+  return { subject: fill(action.subject, fields), body: withFooter(body, "he") };
 }
 
 /**

@@ -3,7 +3,7 @@
  * "here is the finished document, sent from inside Zakai".
  *
  * The single biggest hole in the product until now: the rights engine found
- * 55 entitlements and then ended every one of them with "go to the tax
+ * 60 entitlements and then ended every one of them with "go to the tax
  * authority's site / go to Har HaKesef / go to your municipality". That is the
  * moment the customer leaves and never comes back. Discovery without
  * fulfilment is not a product.
@@ -162,6 +162,52 @@ export const RIGHT_ACTIONS: Record<string, RightAction> = {
     subject: "בקשה לפטור ממס הכנסה לפי סעיף 9(5) לפקודה",
     body: `אני, ${IDENTITY}, מבקש/ת לבחון את זכאותי לפטור ממס הכנסה בגין נכות רפואית, לפי סעיף 9(5) לפקודת מס הכנסה, לרבות בחינה רטרואקטיבית לשנים הפתוחות.
 אבקש לזמן אותי לוועדה הרפואית ולהודיע לי בכתב על החלטתכם.`,
+  },
+  credit_life_insurance: {
+    kind: "letter",
+    recipient: "tax_authority",
+    fields: ["period", "amount"],
+    subject: "בקשה לזיכוי מס בגין פרמיות ביטוח חיים ואובדן כושר עבודה — {period}",
+    body: `אני, ${IDENTITY}, שילמתי בשנת המס {period} פרמיות בגין ביטוח חיים ו/או אובדן כושר עבודה בסכום כולל של כ-{amount}.
+אבקש להחיל את הזיכוי המגיע לי בגינן לפי סעיף 45א לפקודת מס הכנסה, לרבות בחינה רטרואקטיבית לשנות המס הפתוחות.
+מצורפים אישורי הפרמיה מהמבטח. אבקש חישוב מחדש והחזר המס שנוכה ביתר לחשבוני.`,
+  },
+  credit_special_needs_child: {
+    kind: "letter",
+    recipient: "tax_authority",
+    fields: ["period"],
+    subject: "בקשה לנקודות זיכוי בגין ילד עם נכות — {period}",
+    body: `אני, ${IDENTITY}, הורה לילד/ה שנקבעה לגביו/ה נכות או החלטת ועדת השמה/זכאות ואפיון.
+אבקש להחיל את נקודות הזיכוי המגיעות לי לפי סעיף 45 לפקודת מס הכנסה, לרבות לשנות המס הפתוחות שבהן לא נוצלו.
+מצורפים המסמכים הרפואיים/החלטת הוועדה. אבקש הודעה מנומקת ותשלום ההחזר לחשבוני.`,
+  },
+  provident_withdrawal_refund: {
+    kind: "letter",
+    recipient: "tax_authority",
+    fields: ["period", "amount"],
+    subject: "בקשה להחזר מס בגין משיכת כספים מקופת גמל — {period}",
+    body: `אני, ${IDENTITY}, משכתי בשנת המס {period} כספים מקופת גמל/קרן השתלמות בסכום של כ-{amount}, ונוכה מהם מס במקור בשיעור 35%.
+שיעור זה גבוה משיעור המס השולי החל עליי בפועל באותה שנה. אבקש חישוב מס שנתי מלא והחזר ההפרש שנוכה ביתר.
+מצורפים אישור הניכוי מהקופה וטופסי 106 הרלוונטיים.`,
+  },
+  betterment_tax_refund: {
+    kind: "letter",
+    recipient: "tax_authority",
+    fields: ["period", "details"],
+    subject: "בקשה לבחינה מחדש של שומת מס שבח — {period}",
+    body: `אני, ${IDENTITY}, מכרתי זכות במקרקעין ושילמתי מס שבח בשנת {period}.
+פרטי העסקה: {details}
+אבקש לבחון מחדש את השומה, לרבות: תחולת פטורים שלא נוצלו, ניכוי מלוא ההוצאות המותרות (שכ״ט, מתווך, מס רכישה, שיפוצים ומימון), ופריסת השבח הריאלי לשנות מס קודמות.
+אבקש הודעה מנומקת בכתב, ובמידה שנוצר עודף — החזרו לחשבוני בצירוף הפרשי הצמדה וריבית.`,
+  },
+  eligible_settlement_credit: {
+    kind: "letter",
+    recipient: "tax_authority",
+    fields: ["period", "details"],
+    subject: "בקשה לזיכוי ממס לתושב יישוב מזכה — {period}",
+    body: `אני, ${IDENTITY}, תושב/ת היישוב {details}, המופיע ברשימת היישובים המזכים שבתוספת הראשונה לפקודת מס הכנסה.
+אבקש להחיל את הזיכוי לפי סעיף 11 לפקודה לשנת המס {period} ולשנות המס הפתוחות שבהן לא נוצל.
+מצורף אישור תושבות מהרשות המקומית. אבקש חישוב מחדש והחזר המס שנוכה ביתר לחשבוני.`,
   },
 
   // ---- National insurance ----

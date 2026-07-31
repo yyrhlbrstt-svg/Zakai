@@ -4,12 +4,21 @@ import { TaxRefundCalculator } from "@/components/TaxRefundCalculator";
 import { TaxEligibilityCheck } from "@/components/TaxEligibilityCheck";
 import { LeadCta } from "@/components/LeadCta";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "מחשבון החזר מס — זכאי",
-  description:
-    "עבדת רק חלק מהשנה? כנראה מגיע לך החזר מס. אומדן מהיר לפי השכר וחודשי העבודה. רץ בדפדפן, בלי מסמכים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "taxrefund" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/taxrefund") },
+  };
+}
 
 export default async function TaxRefundPage({
   params,

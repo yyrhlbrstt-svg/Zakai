@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { Button, FieldError } from "@/components/ui";
 import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
 
@@ -9,6 +9,7 @@ import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
 export function SentFollowUp({ caseId }: { caseId: string }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_SentFollowUp = useTranslations("inline_components_SentFollowUp");
   const [replyKind, setReplyKind] = useState<ProviderReplyKind>("delay");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(false);
@@ -39,12 +40,10 @@ export function SentFollowUp({ caseId }: { caseId: string }) {
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-5 mt-4">
       <div className="font-extrabold text-[15px]">
-        {he ? "מה ענו? — הסוכן מכין תשובה" : "Provider reply — agent drafts next message"}
+        {tIcomponents_SentFollowUp("t_b380dffd")}
       </div>
       <p className="text-[12.5px] text-ink-soft mt-1 mb-3 leading-relaxed">
-        {he
-          ? "בלי מוקד. בוחרים מה קרה, מקבלים הודעה להעתקה, שולחים, ואז רושמים את הסכום החדש."
-          : "No call center. Pick what happened, copy the message, send it, then record the new amount."}
+        {tIcomponents_SentFollowUp("t_acc56489")}
       </p>
       <select
         value={replyKind}
@@ -60,7 +59,7 @@ export function SentFollowUp({ caseId }: { caseId: string }) {
       <Button disabled={busy} onClick={generate} className="text-[13px]">
         {busy ? (he ? "רגע…" : "…") : he ? "הכן הודעת המשך" : "Draft follow-up"}
       </Button>
-      {err && <FieldError>{he ? "שגיאה — נסה שוב" : "Error — try again"}</FieldError>}
+      {err && <FieldError>{tIcomponents_SentFollowUp("t_894dd204")}</FieldError>}
       {tip && <p className="text-[12px] text-ink-soft mt-2 mb-0">{tip}</p>}
       {body && (
         <div className="mt-3">

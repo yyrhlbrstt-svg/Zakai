@@ -3,6 +3,9 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { chooseStance } from "@/lib/strategy/store";
+import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
+import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import { rateLimit } from "@/lib/ratelimit";
@@ -51,6 +54,19 @@ export async function POST(request: Request) {
 
   let kase;
   try {
+    // Ask the Strategy Engine how to pitch this one, and actually apply it.
+    // Recording a stance that did not change the letter would attribute an
+    // outcome to a choice that had no effect — fabricated evidence, which is
+    // worse than none because none is visibly absent.
+    const stance = await chooseStance({
+      market: "IL",
+      vertical: "bank-fees",
+      counterparty: String(data.bank).slice(0, 64),
+    });
+    const variant = variantById(stance.variantId);
+    const staged = variant ? applyStance(letter, variant) : letter;
+    const stanceApplied = variant !== undefined && stanceAffects(letter, variant);
+
     kase = await createCase({
       userId: auth.userId,
       provider: data.bank.slice(0, 80),
@@ -58,7 +74,11 @@ export async function POST(request: Request) {
       plan: data.feeDescription || data.feeKind,
       strategy: "ערעור על עמלת בנק עם Mandate",
       targetShekels: 0,
-      draftMessage: `${letter.subject}\n\n${letter.body}`,
+      draftMessage: `${staged.subject}
+
+${staged.body}`,
+      strategyVariant: stanceApplied ? stance.variantId : undefined,
+      strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "bank-fees",
       beneficiaryLabel: data.customerName || undefined,
       autoApprove: true,

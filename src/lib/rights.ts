@@ -31,6 +31,35 @@ export interface RightsProfile {
   dischargedSoldier: boolean;
   reservist: boolean;
   disability: boolean;
+  /**
+   * Facts that unlock the captive-pricing checks (see src/lib/captive).
+   *
+   * Optional on purpose. They are not entitlement inputs — no right in the
+   * catalogue turns on them — so an older stored profile that predates them
+   * must keep evaluating exactly as it did. Their absence narrows what we can
+   * check and blocks nothing.
+   */
+  hasMortgage?: boolean;
+  hasCarLoan?: boolean;
+  spendsForeignCurrency?: boolean;
+  holdsSecurities?: boolean;
+  /**
+   * Tax facts that no amount of demographic inference can supply. Each unlocks
+   * a credit worth thousands a year and each is invisible unless asked, which
+   * is why they are asked — but separately, and after the money is already on
+   * screen, so the first visit still costs eight taps.
+   */
+  specialNeedsChild?: boolean;
+  withdrewProvidentFund?: boolean;
+  soldProperty?: boolean;
+  livesInEligibleTown?: boolean;
+  /**
+   * How many employers they have had. Not an entitlement input at all — it
+   * feeds the dormant-money tracer (src/lib/dormant), and it lives here rather
+   * than in that module's own store for one reason: asking the same person the
+   * same question twice is the complaint this profile exists to answer.
+   */
+  pastEmployers?: number;
 }
 
 export type RightCategory =
@@ -74,6 +103,25 @@ export const ENTITLEMENTS: Entitlement[] = [
   { id: "credit_donations", category: "tax", eligible: working },
   { id: "credit_pension_deposit", category: "tax", eligible: working },
   { id: "tax_disability_exemption", category: "tax", eligible: (p) => p.disability },
+  // Section 45A: a credit on life and disability premiums, worth roughly a
+  // quarter of what is paid. Almost every salaried person holds cover through
+  // their pension and never claims it, which is why it belongs on the default
+  // list rather than behind a question.
+  { id: "credit_life_insurance", category: "tax", eligible: (p) => working(p) || p.hasMortgage === true, yearlyAgorot: 40_000 },
+  // Section 45: two credit points for a child with a recognised disability or
+  // placement-committee decision. Cannot be inferred from anything — a parent
+  // has to say so — and it is among the largest single credits in the code.
+  { id: "credit_special_needs_child", category: "tax", eligible: (p) => parent(p) && p.specialNeedsChild === true, yearlyAgorot: 400_000 },
+  // Provident funds withdrawn early are taxed at a flat 35% at source, which
+  // routinely exceeds the person's real marginal rate. The excess is refundable
+  // and virtually nobody asks.
+  { id: "provident_withdrawal_refund", category: "tax", eligible: (p) => p.withdrewProvidentFund === true, oneTimeAgorot: 300_000 },
+  // Betterment tax on a home sale: exemptions go unused and the computation is
+  // frequently wrong. Left unquantified — the spread is far too wide to state.
+  { id: "betterment_tax_refund", category: "tax", eligible: (p) => p.soldProperty === true },
+  // Section 11: a percentage credit for residents of designated towns. The rate
+  // varies by town, so the figure here is the conservative floor.
+  { id: "eligible_settlement_credit", category: "tax", eligible: (p) => p.livesInEligibleTown === true && working(p), yearlyAgorot: 300_000 },
 
   // ---- National insurance (ביטוח לאומי) ----
   { id: "child_allowance", category: "bituach", eligible: parent },

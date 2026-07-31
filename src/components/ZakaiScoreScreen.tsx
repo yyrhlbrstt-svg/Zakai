@@ -2,9 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui";
+import { Card, RadioChips } from "@/components/ui";
 import { ClaimDocument } from "@/components/ClaimDocument";
-import { evaluateRights, type RightsProfile } from "@/lib/rights";
+import { CaptiveCard } from "@/components/CaptiveCard";
+import { MoneyCategories } from "@/components/MoneyCategories";
+import { NextActionCard } from "@/components/NextActionCard";
+import { evaluateRights, RIGHTS_COUNTRIES, type RightsProfile } from "@/lib/rights";
+import type { CountryCode } from "@/lib/verticals/types";
 import { formatAgorot } from "@/lib/money";
 import {
   DEFAULT_PROFILE,
@@ -14,10 +18,32 @@ import {
   type StoredProfile,
 } from "@/lib/profile/store";
 import { computeEntitlementScore } from "@/lib/score/entitlementScore";
+import { summariseWatch } from "@/lib/vigil/watch";
 
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = ["employee", "self_employed", "unemployed", "student", "soldier", "retired"] as const;
 const FLAGS = ["renting", "lowIncome", "newImmigrant", "dischargedSoldier", "reservist", "disability"] as const;
+
+/**
+ * The optional second row.
+ *
+ * Deliberately behind its own heading and below the money. None of these can
+ * be inferred from anything — nobody's age tells you they sold a flat — and
+ * each unlocks either a tax credit worth thousands a year or a captive price
+ * that repeats monthly for a decade. Putting them in the first eight taps
+ * would rebuild the wall the profile exists to remove; leaving them out
+ * entirely would cost people the largest single sums in the product.
+ */
+const EXTRA_FLAGS = [
+  "hasMortgage",
+  "specialNeedsChild",
+  "withdrewProvidentFund",
+  "soldProperty",
+  "livesInEligibleTown",
+  "hasCarLoan",
+  "spendsForeignCurrency",
+  "holdsSecurities",
+] as const;
 
 /**
  * The Zakai Score screen.
@@ -33,8 +59,20 @@ const FLAGS = ["renting", "lowIncome", "newImmigrant", "dischargedSoldier", "res
  */
 export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("score");
+  // Falls back to English for a locale without `rights.countries` yet — never
+  // to Hebrew, and never a crash; same fallback chain every other namespace
+  // in the app already relies on.
+  const tRights = useTranslations("rights");
   const [stored, setStored] = useState<StoredProfile | null>(null);
   const [profile, setProfile] = useState<RightsProfile>(DEFAULT_PROFILE);
+  // The catalogue behind this has been real for all thirteen countries since
+  // before this screen existed — evaluateRights(profile, country) already
+  // worked. Nothing here reads it with anything but "IL", so a visitor from
+  // any other country was silently scored against Israeli entitlements
+  // regardless of who they actually are. Defaulting to "IL" keeps every
+  // existing Israeli user's screen pixel-identical; the fix is that anyone
+  // else can now say who they are and get their own country's real rights.
+  const [country, setCountry] = useState<CountryCode>("IL");
   const [hydrated, setHydrated] = useState(false);
   const [editing, setEditing] = useState(false);
 
@@ -56,10 +94,20 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
     setProfile(next);
     saveProfile(next, stored?.actedOn ?? []);
     setStored(loadProfile());
+
+    // Mirror to the account so the Vigil can run while the app is closed. A
+    // watchdog that only works when you are already looking is not a watchdog.
+    // Fails silently on 401: someone with no account keeps their answers on
+    // their own device, which is the whole point of storing them there first.
+    void fetch("/api/vigil/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    }).catch(() => {});
   }
 
   const result = useMemo(() => {
-    const rights = evaluateRights(profile);
+    const rights = evaluateRights(profile, country);
     return computeEntitlementScore({
       eligible: rights.matches.map((e) => ({
         id: e.id,
@@ -71,7 +119,25 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
       recoveredMinor: 0,
       profileCompleteness: completeness(stored),
     });
-  }, [profile, stored]);
+  }, [profile, stored, country]);
+
+  // The countdown. Computed from the same profile with nothing extra asked —
+  // this is the part a chat assistant cannot do, so it goes above the score.
+  // Deadline tracking (`summariseWatch`) is Israeli-statute-specific today, so
+  // it stays gated to country === "IL" below rather than firing on foreign
+  // rights it was never built to reason about.
+  const watch = useMemo(() => {
+    const rights = evaluateRights(profile, country);
+    return summariseWatch({
+      profile,
+      eligible: rights.matches.map((e) => ({
+        id: e.id,
+        yearlyMinor: e.yearlyAgorot,
+        oneTimeMinor: e.oneTimeAgorot,
+      })),
+      actedOn: stored?.actedOn ?? [],
+    });
+  }, [profile, stored, country]);
 
   const money = (agorot: number) => formatAgorot(agorot, bcp47);
 
@@ -88,6 +154,59 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
 
   return (
     <div>
+      {/* Which catalogue this screen scores against. The thirteen-country
+          catalogue (RIGHTS_CATALOGS) has been real since before this screen
+          existed; nothing here read it with anything but "IL" until now, so
+          this single choice is what makes the rest of the page honest for
+          anyone who isn't Israeli. */}
+      <Card className="p-5 mb-5">
+        <span className="text-[13px] text-ink-soft block mb-2">{tRights("country")}</span>
+        <RadioChips
+          value={country}
+          onChange={setCountry}
+          ariaLabel={tRights("country")}
+          options={RIGHTS_COUNTRIES.map((c) => ({ value: c, label: tRights(`countries.${c}`) }))}
+        />
+      </Card>
+
+      {/* The next-action engine and the deadline countdown both reason over
+          Israeli statutes and Israeli-only verticals (dormant accounts,
+          captive pricing, incident stacking) — real for Israel, not yet built
+          for anywhere else. Showing them against a foreign profile would mean
+          either silently scoring Israeli rules against a French answer set or
+          inventing urgency that was never verified, so both stay gated to the
+          one country they were actually built for. */}
+      {country === "IL" && (
+        <>
+          {/* One thing, before anything else. A person opening a money app is not
+              asking what is available — they are asking what to do now, and every
+              screen that answers with a menu has handed the work back. */}
+          <NextActionCard profile={profile} actedOn={stored?.actedOn ?? []} bcp47={bcp47} />
+
+          {/* What is about to be lost comes before what is owed. Money with a date
+              on it is the only thing here a person cannot get from a chat, and
+              burying it under a total would waste the one real advantage. */}
+        </>
+      )}
+      {country === "IL" && watch.mostUrgent && watch.atRiskSoonMinor > 0 && (
+        <Card className="p-6 mb-5 border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.07)]">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-[13px] font-extrabold text-[#f0b45c]">
+              {t("watch.title")}
+            </span>
+            <span className="text-[12px] text-ink-soft">
+              {t("watch.deadlineIn", { days: watch.mostUrgent.daysLeft ?? 0 })}
+            </span>
+          </div>
+          <div className="font-display text-3xl mt-2" dir="ltr">
+            {money(watch.atRiskSoonMinor)}
+          </div>
+          <p className="text-ink-soft text-[13px] mt-2 mb-0 leading-relaxed">
+            {t("watch.sub")}
+          </p>
+        </Card>
+      )}
+
       {/* The money first. The score is a handle for it, not the point. */}
       <Card className="p-7 text-center">
         <p className="text-ink-soft text-[13.5px] m-0 mb-2">{t("unclaimedLabel")}</p>
@@ -145,38 +264,22 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
           <div className="mt-5 flex flex-col gap-5">
             <div>
               <span className="text-[13px] text-ink-soft block mb-2">{t("q.age")}</span>
-              <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.age")}>
-                {AGE_GROUPS.map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    role="radio"
-                    aria-checked={profile.ageGroup === g}
-                    onClick={() => update({ ...profile, ageGroup: g })}
-                    className={chip(profile.ageGroup === g)}
-                  >
-                    {t(`q.ages.${g}`)}
-                  </button>
-                ))}
-              </div>
+              <RadioChips
+                value={profile.ageGroup}
+                onChange={(g) => update({ ...profile, ageGroup: g })}
+                ariaLabel={t("q.age")}
+                options={AGE_GROUPS.map((g) => ({ value: g, label: t(`q.ages.${g}`) }))}
+              />
             </div>
 
             <div>
               <span className="text-[13px] text-ink-soft block mb-2">{t("q.employment")}</span>
-              <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("q.employment")}>
-                {EMPLOYMENTS.map((e) => (
-                  <button
-                    key={e}
-                    type="button"
-                    role="radio"
-                    aria-checked={profile.employment === e}
-                    onClick={() => update({ ...profile, employment: e })}
-                    className={chip(profile.employment === e)}
-                  >
-                    {t(`q.employments.${e}`)}
-                  </button>
-                ))}
-              </div>
+              <RadioChips
+                value={profile.employment}
+                onChange={(e) => update({ ...profile, employment: e })}
+                ariaLabel={t("q.employment")}
+                options={EMPLOYMENTS.map((e) => ({ value: e, label: t(`q.employments.${e}`) }))}
+              />
             </div>
 
             <div>
@@ -219,10 +322,64 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
               </div>
             </div>
 
+            <div>
+              <span className="text-[13px] text-ink-soft block mb-1">{t("q.moreTitle")}</span>
+              <span className="text-[11.5px] text-ink-soft block mb-2 leading-relaxed">
+                {t("q.moreHint")}
+              </span>
+              <div className="flex gap-2 flex-wrap">
+                {EXTRA_FLAGS.map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    aria-pressed={profile[f] === true}
+                    onClick={() => update({ ...profile, [f]: !profile[f] })}
+                    className={chip(profile[f] === true)}
+                  >
+                    {t(`q.${f}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* One number, and the highest-yield question in the product per
+                tap: it expands into one disclosure demand per employment era. */}
+            <div>
+              <span className="text-[13px] text-ink-soft block mb-2">{t("q.pastEmployers")}</span>
+              <div className="flex gap-2 flex-wrap">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    aria-pressed={profile.pastEmployers === n}
+                    onClick={() => update({ ...profile, pastEmployers: n })}
+                    className={chip(profile.pastEmployers === n)}
+                  >
+                    {n === 6 ? "6+" : n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <p className="text-[11.5px] text-ink-soft m-0 leading-relaxed">{t("privacyNote")}</p>
           </div>
         )}
       </Card>
+
+      {/* Dormant accounts, incident stacking and captive pricing are Israeli
+          verticals today — same reasoning as the next-action/watch gate above. */}
+      {country === "IL" && (
+        <>
+          {/* The remaining categories, converged onto the same profile so nobody is
+              asked anything twice. */}
+          <MoneyCategories profile={profile} />
+
+          {/* Captive pricing. Below the entitlements because it needs a number
+              from them, and above nothing else because it is the largest recurring
+              money in the product. */}
+          <CaptiveCard profile={profile} bcp47={bcp47} />
+        </>
+      )}
 
       {/* What to do next, most valuable first, fulfilled in place. */}
       {result.gaps.length > 0 && (

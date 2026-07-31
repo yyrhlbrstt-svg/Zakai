@@ -6,6 +6,7 @@ import { US_PACK } from "./packs/us";
 import { DE_PACK } from "./packs/de";
 import { FR_PACK } from "./packs/fr";
 import { CA_PACK } from "./packs/ca";
+import { AU_PACK } from "./packs/au";
 import type { RightsProfile } from "../rights";
 
 export interface Market {
@@ -19,9 +20,10 @@ export const MARKETS: Record<string, Market> = {
   IL: { code: "IL", pack: IL_PACK, uiLocales: ["he", "ar", "ru", "en"], label: "ישראל" },
   GB: { code: "GB", pack: GB_PACK, uiLocales: ["en"], label: "United Kingdom" },
   US: { code: "US", pack: US_PACK, uiLocales: ["en"], label: "United States" },
-  DE: { code: "DE", pack: DE_PACK, uiLocales: ["en"], label: "Deutschland" },
-  FR: { code: "FR", pack: FR_PACK, uiLocales: ["en"], label: "France" },
-  CA: { code: "CA", pack: CA_PACK, uiLocales: ["en"], label: "Canada" },
+  DE: { code: "DE", pack: DE_PACK, uiLocales: ["de", "en"], label: "Deutschland" },
+  FR: { code: "FR", pack: FR_PACK, uiLocales: ["fr", "en"], label: "France" },
+  CA: { code: "CA", pack: CA_PACK, uiLocales: ["en", "fr"], label: "Canada" },
+  AU: { code: "AU", pack: AU_PACK, uiLocales: ["en"], label: "Australia" },
 };
 
 export const DEFAULT_MARKET = "IL";
@@ -62,6 +64,16 @@ export function fromLegacyIsraeliProfile(p: RightsProfile): UniversalProfile {
     migrantYears: p.newImmigrant ? 3 : undefined,
     militaryReserve: p.reservist,
     recentMilitaryDischarge: p.dischargedSoldier,
-    extra: {},
+    // The optional tax facts. Normalised to a definite false rather than left
+    // absent, because "not asked" and "answered no" must land on the same
+    // eligibility result — a right that appears only for people who happened
+    // to see a newer version of the form is a bug the parity test would miss.
+    extra: {
+      hasMortgage: p.hasMortgage === true,
+      specialNeedsChild: p.specialNeedsChild === true,
+      withdrewProvidentFund: p.withdrewProvidentFund === true,
+      soldProperty: p.soldProperty === true,
+      livesInEligibleTown: p.livesInEligibleTown === true,
+    },
   };
 }

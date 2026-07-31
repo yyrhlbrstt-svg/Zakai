@@ -84,6 +84,7 @@ export function MortgageRefiCalculator() {
               <ShareResult
                 message={t("shareMsg", { amount: money(result.totalInterestSavedShekels) })}
                 path="/mortgage"
+                amountLabel={money(result.totalInterestSavedShekels)}
               />
             </div>
             <p className="text-[11px] text-ink-soft mt-4 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">

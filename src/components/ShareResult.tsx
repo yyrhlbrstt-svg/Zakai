@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 /**
  * The viral loop, embedded in the product. After a result, one tap shares it —
@@ -14,6 +14,8 @@ export function ShareResult({
   message,
   path = "/entitlements",
   referralCode,
+  amountLabel,
+  kicker,
 }: {
   message: string;
   path?: string;
@@ -23,16 +25,34 @@ export function ShareResult({
    * the loop between the viral share and the referral reward.
    */
   referralCode?: string;
+  /**
+   * A pre-formatted amount ("₪450", "up to ₪12,000"). When present, the shared
+   * link points at /share instead of the raw path/referral link — a public
+   * landing page whose Open Graph image renders this exact amount, so the
+   * WhatsApp/iMessage preview card carries the number instead of unfurling as
+   * a bare text link. Without it, sharing behaves exactly as before.
+   */
+  amountLabel?: string;
+  /** Small label above the amount on the share card, e.g. the vertical name. */
+  kicker?: string;
 }) {
   const t = useTranslations("share");
+  const locale = useLocale();
   const [copied, setCopied] = useState(false);
 
   function url() {
     if (typeof window === "undefined") return "";
-    if (referralCode) {
-      return `${window.location.origin}/signup?ref=${encodeURIComponent(referralCode)}`;
+    const origin = window.location.origin;
+    if (amountLabel) {
+      const qs = new URLSearchParams({ amount: amountLabel });
+      if (kicker) qs.set("kicker", kicker);
+      if (referralCode) qs.set("ref", referralCode);
+      return `${origin}/${locale}/share?${qs.toString()}`;
     }
-    return `${window.location.origin}${path}`;
+    if (referralCode) {
+      return `${origin}/signup?ref=${encodeURIComponent(referralCode)}`;
+    }
+    return `${origin}${path}`;
   }
   function fullText() {
     return `${message}\n${url()}`;

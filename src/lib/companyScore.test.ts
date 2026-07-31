@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { aggregateCompanyStats, MIN_SAMPLE, type CaseOutcome } from "./companyScore";
+import {
+  aggregateCompanyStats,
+  aggregateProviderVerticalStats,
+  MIN_SAMPLE,
+  type CaseOutcome,
+  type VerticalCaseOutcome,
+} from "./companyScore";
 
 function make(provider: string, n: number, savedEach: number, savingAgorot: number): CaseOutcome[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -59,5 +65,69 @@ describe("aggregateCompanyStats", () => {
 
   it("returns empty for no input", () => {
     expect(aggregateCompanyStats([])).toEqual([]);
+  });
+});
+
+function makeVertical(
+  provider: string,
+  vertical: string,
+  n: number,
+  savedEach: number,
+  savingAgorot: number,
+): VerticalCaseOutcome[] {
+  return Array.from({ length: n }, (_, i) => ({
+    provider,
+    vertical,
+    saved: i < savedEach,
+    savingAgorot: i < savedEach ? savingAgorot : 0,
+  }));
+}
+
+describe("aggregateProviderVerticalStats", () => {
+  it("excludes a vertical below the sample gate even when the provider total clears it", () => {
+    // 5 cases total for "cellcom", but split 4/1 across two verticals — neither
+    // vertical alone clears MIN_SAMPLE, so both must be excluded even though
+    // aggregateCompanyStats would admit the provider as a whole.
+    const outcomes = [
+      ...makeVertical("cellcom", "telecom", 4, 3, 5000),
+      ...makeVertical("cellcom", "parking", 1, 1, 5000),
+    ];
+    expect(aggregateProviderVerticalStats("cellcom", outcomes)).toEqual([]);
+  });
+
+  it("includes a vertical that clears the gate, with correct facts", () => {
+    const outcomes = makeVertical("partner", "telecom", 5, 4, 5000);
+    const stats = aggregateProviderVerticalStats("partner", outcomes);
+    expect(stats).toHaveLength(1);
+    expect(stats[0]).toEqual({
+      vertical: "telecom",
+      cases: 5,
+      savedCases: 4,
+      savedRatePct: 80,
+      avgSavingAgorot: 5000,
+    });
+  });
+
+  it("only aggregates outcomes for the requested provider", () => {
+    const outcomes = [
+      ...makeVertical("bezeq", "telecom", 5, 5, 10000),
+      ...makeVertical("partner", "telecom", 5, 5, 99999),
+    ];
+    const stats = aggregateProviderVerticalStats("bezeq", outcomes);
+    expect(stats).toHaveLength(1);
+    expect(stats[0].avgSavingAgorot).toBe(10000);
+  });
+
+  it("sorts verticals by case volume, most cases first", () => {
+    const outcomes = [
+      ...makeVertical("cellcom", "telecom", 6, 6, 5000),
+      ...makeVertical("cellcom", "parking", 9, 9, 3000),
+    ];
+    const stats = aggregateProviderVerticalStats("cellcom", outcomes);
+    expect(stats.map((s) => s.vertical)).toEqual(["parking", "telecom"]);
+  });
+
+  it("returns empty for no input", () => {
+    expect(aggregateProviderVerticalStats("anyone", [])).toEqual([]);
   });
 });

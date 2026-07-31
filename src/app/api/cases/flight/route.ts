@@ -3,6 +3,9 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { chooseStance } from "@/lib/strategy/store";
+import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
+import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildFlightDemandLetter } from "@/lib/flightLetter";
 import {
@@ -88,6 +91,19 @@ export async function POST(request: Request) {
     ? "דרישת פיצוי EC261 עם Mandate"
     : "דרישת פיצוי לפי חוק שירותי תעופה עם Mandate";
 
+  // buildFlightDemandLetter returns one string rather than {subject, body},
+  // so the stance is applied to the body and the subject left untouched — the
+  // dimensions the engine measures all live in the body anyway.
+  const stance = await chooseStance({
+    market: "IL",
+    vertical: "airline",
+    counterparty: String(data.airline).slice(0, 64),
+  });
+  const variant = variantById(stance.variantId);
+  const drafted = { subject: "", body: letter };
+  const staged = variant ? applyStance(drafted, variant) : drafted;
+  const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
+
   let kase;
   try {
     kase = await createCase({
@@ -97,7 +113,9 @@ export async function POST(request: Request) {
       plan: `${data.flightNumber} · ${data.route}`,
       strategy,
       targetShekels: 0,
-      draftMessage: letter,
+      draftMessage: staged.body,
+      strategyVariant: stanceApplied ? stance.variantId : undefined,
+      strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "airline",
       beneficiaryLabel: data.passengerName || undefined,
       // Explicit agent click = consent to the draft → start APPROVED.

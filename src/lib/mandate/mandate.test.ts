@@ -1,8 +1,9 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { exportJWK, generateKeyPair } from "jose";
+import { CompactSign, exportJWK, generateKeyPair, importJWK, jwtVerify } from "jose";
 import {
   DEFAULT_TTL_SECONDS,
   MandateError,
+  LEGACY_MANDATE_TYPE,
   MandateKeyUnavailableError,
   issueMandate,
   loadSigningKeyFromEnv,
@@ -85,6 +86,27 @@ describe("issuing and verifying", () => {
     });
     expect(claims.exp - claims.iat).toBe(DEFAULT_TTL_SECONDS);
   });
+
+  it("carries delegation as a structured claim, not only a sentence", async () => {
+    // A verifier's code must be able to branch on this without parsing the
+    // free-text statement — that was the entire point of adding the field.
+    const onBehalfOf = { agent: "agent.example", name: "Agent Example", note: "verified by them" };
+    const token = await issueMandate({ ...base, onBehalfOf }, key);
+    const claims = await verifyMandate(token, {
+      audience: "bank:il:leumi",
+      publicJwks: await publicKeys(key),
+    });
+    expect(claims.onBehalfOf).toEqual(onBehalfOf);
+  });
+
+  it("leaves onBehalfOf absent for a first-party mandate", async () => {
+    const token = await issueMandate(base, key);
+    const claims = await verifyMandate(token, {
+      audience: "bank:il:leumi",
+      publicJwks: await publicKeys(key),
+    });
+    expect(claims.onBehalfOf).toBeUndefined();
+  });
 });
 
 describe("the attacks this design exists to stop", () => {
@@ -106,7 +128,9 @@ describe("the attacks this design exists to stop", () => {
     const token = await issueMandate(base, key);
     const [header, payload, signature] = token.split(".");
     const decoded = JSON.parse(Buffer.from(payload, "base64url").toString());
-    decoded.scopes.push("contract:cancel");
+    // Escalate the grant: append a scope the holder was never given. Under the
+    // JWT envelope this lives in the OAuth-style `scope` string.
+    decoded.scope = `${decoded.scope} contract:cancel`;
     const forged = [
       header,
       Buffer.from(JSON.stringify(decoded)).toString("base64url"),
@@ -222,5 +246,154 @@ describe("key loading", () => {
       MANDATE_SIGNING_KID: "zakai-2026-07",
     });
     expect(loaded.kid).toBe("zakai-2026-07");
+  });
+});
+
+describe("anyone can verify it with the library they already have", () => {
+  /**
+   * The adoption test, and the reason the envelope changed.
+   *
+   * This uses `jwtVerify` — the ordinary JWT entry point every language has an
+   * equivalent of — with no Zakai import beyond the token itself. If this test
+   * ever needs a helper from our own code to pass, the mandate has stopped
+   * being a protocol and gone back to being a product feature.
+   */
+  it("verifies with a plain jwtVerify and no Zakai code at all", async () => {
+    const token = await issueMandate(base, key);
+    const publicKey = await importJWK(await publicJwkFor(key), "EdDSA");
+
+    const { payload, protectedHeader } = await jwtVerify(token, publicKey, {
+      issuer: "https://zakai.app",
+      audience: "bank:il:leumi",
+    });
+
+    expect(protectedHeader.typ).toBe("JWT");
+    expect(protectedHeader.alg).toBe("EdDSA");
+    expect(payload.sub).toBe("usr_123");
+    expect(payload.jti).toBe("mnd_01");
+    // The grant reads as OAuth scope, so a gateway that speaks OAuth needs no
+    // schooling in what Zakai is.
+    expect(payload.scope).toBe("read:transactions dispute:charge");
+  });
+
+  it("lets a standard validator enforce audience and expiry for us", async () => {
+    const token = await issueMandate(base, key);
+    const publicKey = await importJWK(await publicJwkFor(key), "EdDSA");
+
+    // Wrong audience — rejected by the library, not by our code.
+    await expect(
+      jwtVerify(token, publicKey, { audience: "bank:il:hapoalim" }),
+    ).rejects.toThrow();
+
+    // Expired — likewise.
+    const stale = await issueMandate(
+      { ...base, now: new Date("2020-01-01T00:00:00Z"), ttlSeconds: 60 },
+      key,
+    );
+    await expect(jwtVerify(stale, publicKey, { audience: "bank:il:leumi" })).rejects.toThrow();
+  });
+
+  it("carries the non-standard parts under one namespaced claim", async () => {
+    const token = await issueMandate(base, key);
+    const publicKey = await importJWK(await publicJwkFor(key), "EdDSA");
+    const { payload } = await jwtVerify(token, publicKey, { audience: "bank:il:leumi" });
+
+    const zkm = payload.zkm as Record<string, unknown>;
+    expect(zkm.market).toBe("IL");
+    expect((zkm.principal as { name: string }).name).toBe("דנה כהן");
+    expect(typeof zkm.statement).toBe("string");
+  });
+
+  it("still verifies a mandate issued under the pre-JWT envelope", async () => {
+    // A protocol that invalidates outstanding credentials on an internal
+    // refactor is not one anybody will build against.
+    const nowSec = Math.floor(Date.now() / 1000);
+    const legacyPayload = {
+      v: 1,
+      jti: "legacy_01",
+      iss: "https://zakai.app",
+      aud: "bank:il:leumi",
+      sub: "usr_legacy",
+      principal: { name: "Old Holder" },
+      scopes: ["read:transactions"],
+      market: "IL",
+      iat: nowSec,
+      nbf: nowSec,
+      exp: nowSec + 3600,
+      statement: "legacy",
+    };
+    const privateKey = await importJWK(key.privateJwk, "EdDSA");
+    const legacyToken = await new CompactSign(
+      new TextEncoder().encode(JSON.stringify(legacyPayload)),
+    )
+      .setProtectedHeader({ alg: "EdDSA", kid: key.kid, typ: LEGACY_MANDATE_TYPE })
+      .sign(privateKey);
+
+    const claims = await verifyMandate(legacyToken, {
+      audience: "bank:il:leumi",
+      publicJwks: await publicKeys(key),
+    });
+    expect(claims.sub).toBe("usr_legacy");
+    expect(claims.scopes).toEqual(["read:transactions"]);
+  });
+});
+
+describe("a misconfigured key says which mistake was made", () => {
+  it("reports a missing variable as missing", () => {
+    const err = (() => { try { loadSigningKeyFromEnv({}); } catch (e) { return e as MandateKeyUnavailableError; } })()!;
+    expect(err.reason).toBe("missing");
+    expect(err.message).toMatch(/not set/);
+  });
+
+  it("reports quote-stripped JSON as malformed, and names the cause", () => {
+    // The single most common way this breaks: a shell sourced the value and
+    // ate the quotes. It looks exactly like not-configured, and sends an
+    // operator hunting for a variable that is already there.
+    const err = (() => {
+      try {
+        loadSigningKeyFromEnv({
+          MANDATE_SIGNING_KID: "k",
+          MANDATE_SIGNING_JWK: "{crv:Ed25519,d:abc,kty:OKP}",
+        });
+      } catch (e) { return e as MandateKeyUnavailableError; }
+    })()!;
+    expect(err.reason).toBe("malformed");
+    expect(err.message).toMatch(/quotes around the JSON were stripped/);
+  });
+
+  it("refuses the public half, and says that is what it is", () => {
+    // Otherwise this passes load and fails at signing time, surfacing as a
+    // mysterious 500 on the first mandate anyone tries to issue.
+    const err = (() => {
+      try {
+        loadSigningKeyFromEnv({
+          MANDATE_SIGNING_KID: "k",
+          MANDATE_SIGNING_JWK: JSON.stringify({ kty: "OKP", crv: "Ed25519", x: "pub" }),
+        });
+      } catch (e) { return e as MandateKeyUnavailableError; }
+    })()!;
+    expect(err.reason).toBe("malformed");
+    expect(err.message).toMatch(/public key/);
+  });
+
+  it("refuses the wrong key type by name", () => {
+    const err = (() => {
+      try {
+        loadSigningKeyFromEnv({
+          MANDATE_SIGNING_KID: "k",
+          MANDATE_SIGNING_JWK: JSON.stringify({ kty: "RSA", d: "x" }),
+        });
+      } catch (e) { return e as MandateKeyUnavailableError; }
+    })()!;
+    expect(err.message).toMatch(/kty="RSA"/);
+  });
+
+  it("tolerates surrounding whitespace, which every paste introduces", () => {
+    const jwk = JSON.stringify({ kty: "OKP", crv: "Ed25519", d: "priv", x: "pub" });
+    const loaded = loadSigningKeyFromEnv({
+      MANDATE_SIGNING_KID: "  kid-with-spaces  ",
+      MANDATE_SIGNING_JWK: `  ${jwk}  `,
+    });
+    expect(loaded.kid).toBe("kid-with-spaces");
   });
 });

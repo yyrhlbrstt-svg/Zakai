@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -84,7 +85,10 @@ export async function POST(
 
   const expected = process.env.MANDATE_REVOKE_KEY;
   const provided = req.headers.get("x-zakai-revoke-key") || "";
-  if (!expected || provided !== expected) {
+  // Constant-time via fixed-length hash comparison — the revoke key is a
+  // shared secret, and `!==` on the raw strings leaks its bytes one at a time
+  // to whoever can measure response latency across enough attempts.
+  if (!expected || !secretsMatch(provided, expected)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

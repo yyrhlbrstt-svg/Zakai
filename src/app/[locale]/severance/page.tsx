@@ -3,12 +3,21 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { LeadCta } from "@/components/LeadCta";
 import { SeveranceCalculator } from "@/components/SeveranceCalculator";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "מחשבון פיצויי פיטורים — זכאי",
-  description:
-    "כמה פיצויי פיטורים מגיעים לך? חישוב מדויק לפי המשכורת האחרונה והוותק. רץ בדפדפן, בלי להעלות מסמכים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "severance" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/severance") },
+  };
+}
 
 export default async function SeverancePage({
   params,

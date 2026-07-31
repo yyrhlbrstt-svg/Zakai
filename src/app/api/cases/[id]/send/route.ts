@@ -8,8 +8,14 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
   const { id } = await ctx.params;
 
   try {
-    await sendOutreach(id, auth.userId);
-    return NextResponse.json({ ok: true });
+    const email = await sendOutreach(id, auth.userId);
+    // The Outbox row this actually created — "SENT" only when a real
+    // transport (SMTP_HOST) delivered it. Without one it stays "QUEUED",
+    // and the caller needs to know that, not just that the API call
+    // succeeded: a case is claimed SENT the moment this route returns ok,
+    // so a screen that always says "delivered" would be true about the
+    // app's internal state and false about whether the provider ever saw it.
+    return NextResponse.json({ ok: true, delivered: email.status === "SENT" });
   } catch (err) {
     if (err instanceof CaseError) {
       const status = err.message === "NOT_FOUND" ? 404 : 409;

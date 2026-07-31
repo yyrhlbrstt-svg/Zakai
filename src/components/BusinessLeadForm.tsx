@@ -9,6 +9,7 @@ export function BusinessLeadForm() {
   const t = useTranslations("business");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_BusinessLeadForm = useTranslations("inline_components_BusinessLeadForm");
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [interest, setInterest] = useState<"employees" | "mandate" | "both">("employees");
 
@@ -56,7 +57,7 @@ export function BusinessLeadForm() {
     <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
       <fieldset className="m-0 p-0 border-0">
         <legend className="text-[13px] text-ink-soft mb-2">
-          {he ? "במה אתם מעוניינים?" : "What are you interested in?"}
+          {tIcomponents_BusinessLeadForm("t_ed765e5a")}
         </legend>
         <div className="flex flex-wrap gap-2">
           {options.map((o) => (

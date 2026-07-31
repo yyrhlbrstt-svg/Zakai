@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { Card, Input, Button } from "@/components/ui";
+import { Card, Input, Button, RadioChips } from "@/components/ui";
+import { OutcomeReport } from "@/components/OutcomeReport";
+import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
+import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 
 const REASONS = ["signage", "machine", "loading", "disabled", "details", "other"] as const;
 type Reason = (typeof REASONS)[number];
 
-export function ParkingAppeal() {
+export function ParkingAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: string }) {
   const t = useTranslations("parking");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_ParkingAppeal = useTranslations("inline_components_ParkingAppeal");
   const router = useRouter();
   const [name, setName] = useState("");
   const [ticket, setTicket] = useState("");
@@ -86,15 +90,9 @@ ${name || "____"}
     }
   }
 
-  const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-        : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-    }`;
-
   return (
     <div>
+      {stat && bcp47 && <VerticalOutcomeStat stat={stat} bcp47={bcp47} />}
       <Card className="p-6 flex flex-col gap-4">
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
@@ -110,27 +108,19 @@ ${name || "____"}
             <Input value={city} onChange={(e) => setCity(e.target.value)} maxLength={40} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{he ? "סכום הדוח ₪ (אופציונלי)" : "Ticket ₪ (optional)"}</span>
+            <span className="text-[13px] text-ink-soft block mb-1.5">{tIcomponents_ParkingAppeal("t_e3b93d14")}</span>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </label>
         </div>
 
         <div>
           <span className="text-[13px] text-ink-soft block mb-2">{t("reasonQ")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("reasonQ")}>
-            {REASONS.map((r) => (
-              <button
-                key={r}
-                type="button"
-                role="radio"
-                aria-checked={reason === r}
-                onClick={() => setReason(r)}
-                className={chip(reason === r)}
-              >
-                {t(`reasons.${r}.label`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={reason}
+            onChange={setReason}
+            ariaLabel={t("reasonQ")}
+            options={REASONS.map((r) => ({ value: r, label: t(`reasons.${r}.label`) }))}
+          />
         </div>
 
         <label className="block">
@@ -149,7 +139,7 @@ ${name || "____"}
                 : "Agent sends & tracks now"}
           </Button>
           <Button variant="ghost" onClick={generate} disabled={!ticket.trim() || !city.trim() || busy}>
-            {he ? "רק הכן מכתב להעתקה" : "Just generate letter to copy"}
+            {tIcomponents_ParkingAppeal("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber m-0">{error}</p>}
@@ -158,15 +148,13 @@ ${name || "____"}
       {caseId && (
         <Card className="mt-5 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">
-            {he ? "✓ הסוכן פתח תיק — מאושר מראש" : "✓ Agent opened a case — pre-approved"}
+            {tIcomponents_ParkingAppeal("t_360e126e")}
           </div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {he
-              ? "הערעור מוכן. בדשבורד: אמת בעלות → Mandate → סמן כנשלח. כשהדוח מבוטל — תעד כחיסכון."
-              : "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the ticket is cancelled — record the saving."}
+            {tIcomponents_ParkingAppeal("t_d489aedc")}
           </p>
           <Link href="/dashboard">
-            <Button className="w-full">{he ? "לדשבורד — המשך עכשיו" : "Dashboard — continue now"}</Button>
+            <Button className="w-full">{tIcomponents_ParkingAppeal("t_8ae29d51")}</Button>
           </Link>
         </Card>
       )}
@@ -197,6 +185,7 @@ ${name || "____"}
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport vertical="parking" counterparty="municipality" variantId={reason} />
           <p className="text-[11.5px] text-ink-soft mt-3 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">
             {t("legal")}
           </p>

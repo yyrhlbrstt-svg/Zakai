@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { rankVariants } from "@/lib/strategy/selector";
-import { VARIANTS, variantById } from "@/lib/strategy/variants";
+import { VARIANTS, variantById, variantLabel } from "@/lib/strategy/variants";
 import type { Observation, StrategyContext } from "@/lib/strategy/types";
 
 export interface StanceInsight {
@@ -20,15 +20,6 @@ export interface StrategyInsightsResult {
   avgRecoveredShekels: number | null;
   topStances: StanceInsight[];
 }
-
-const STANCE_LABELS: Record<string, { he: string; en: string }> = {
-  cooperative_plain: { he: "שיתופי פשוט", en: "Cooperative plain" },
-  cooperative_anchored: { he: "שיתופי עם סכום", en: "Cooperative + amount" },
-  firm_statutory: { he: "תקיף + חוק", en: "Firm + statute" },
-  firm_statutory_anchored: { he: "תקיף + חוק + סכום", en: "Firm + statute + amount" },
-  formal_escalation: { he: "פורמלי + הסלמה", en: "Formal escalation" },
-  formal_escalation_anchored: { he: "פורמלי + הסלמה + סכום", en: "Formal escalation + amount" },
-};
 
 /**
  * Aggregate Strategy Engine evidence for operator/customer transparency.
@@ -84,10 +75,7 @@ export async function getStrategyInsights(
     const ranked = rankVariants(VARIANTS, observations, context).slice(0, 3);
 
     const topStances: StanceInsight[] = ranked.map((r) => {
-      const labels = STANCE_LABELS[r.variantId] || {
-        he: r.variantId,
-        en: r.variantId,
-      };
+      const labels = variantLabel(r.variantId);
       // Ensure variant still exists in catalog
       const v = variantById(r.variantId);
       return {

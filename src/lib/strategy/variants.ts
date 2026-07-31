@@ -72,6 +72,26 @@ export function variantById(id: string): StrategyVariant | undefined {
 }
 
 /**
+ * Display labels for each stance, in both languages the dashboard shows this
+ * on. Kept as one map rather than duplicated per caller: it used to exist
+ * twice, once bilingual and unused, once Hebrew-only and wired into
+ * StrategyInsightsCard — so an English-locale visitor's own dashboard showed
+ * a Hebrew fragment ("נחרץ + חוק") with no English variant to fall back to.
+ */
+export const VARIANT_LABELS: Record<string, { he: string; en: string }> = {
+  cooperative_plain: { he: "שיתופי", en: "Cooperative" },
+  cooperative_anchored: { he: "שיתופי + סכום", en: "Cooperative + amount" },
+  firm_statutory: { he: "נחרץ + חוק", en: "Firm + statute" },
+  firm_statutory_anchored: { he: "נחרץ + חוק + סכום", en: "Firm + statute + amount" },
+  formal_escalation: { he: "רשמי + הסלמה", en: "Formal escalation" },
+  formal_escalation_anchored: { he: "רשמי + הסלמה + סכום", en: "Formal escalation + amount" },
+};
+
+export function variantLabel(id: string): { he: string; en: string } {
+  return VARIANT_LABELS[id] || { he: id, en: id };
+}
+
+/**
  * Turn a stance into instructions for the drafting model. Kept here so the
  * measured dimension and the written instruction can never drift apart — if
  * "firm" quietly starts meaning something else in the prompt, every prior

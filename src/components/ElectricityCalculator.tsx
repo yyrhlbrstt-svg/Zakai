@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
-import { Card, Input, Button, FieldError } from "@/components/ui";
+import { Card, Input, Button, FieldError, RadioChips } from "@/components/ui";
 import { estimatePlans, type UsageProfile } from "@/lib/electricity";
 import { formatAgorot, shekelsToAgorot, agorotToShekels } from "@/lib/money";
 
@@ -25,6 +25,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("electricity");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_ElectricityCalculator = useTranslations("inline_components_ElectricityCalculator");
   const router = useRouter();
   const [bill, setBill] = useState("400");
   const [profile, setProfile] = useState<UsageProfile>("spread");
@@ -95,24 +96,12 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
         <div className="mt-5">
           <span className="text-[13.5px] text-ink-soft block mb-2">{t("profileLabel")}</span>
-          <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t("profileLabel")}>
-            {PROFILES.map((p) => (
-              <button
-                key={p}
-                type="button"
-                role="radio"
-                aria-checked={profile === p}
-                onClick={() => setProfile(p)}
-                className={`rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
-                  profile === p
-                    ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-                    : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
-                }`}
-              >
-                {t(`profiles.${p}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile}
+            onChange={setProfile}
+            ariaLabel={t("profileLabel")}
+            options={PROFILES.map((p) => ({ value: p, label: t(`profiles.${p}`) }))}
+          />
         </div>
 
         <label className="flex gap-2.5 items-center mt-5 text-[13.5px] cursor-pointer">
@@ -130,12 +119,12 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block mt-5 max-w-[280px]">
           <span className="text-[13.5px] text-ink-soft">
-            {he ? "למי התיק? (אופציונלי — הורה / בן משפחה)" : "Who is this for? (optional — family)"}
+            {tIcomponents_ElectricityCalculator("t_3e177a1f")}
           </span>
           <Input
             value={beneficiary}
             onChange={(e) => setBeneficiary(e.target.value.slice(0, 40))}
-            placeholder={he ? "למשל: אמא · סבא" : "e.g. Mom · Grandpa"}
+            placeholder={tIcomponents_ElectricityCalculator("t_56630d92")}
             className="mt-1.5"
             maxLength={40}
           />
@@ -204,15 +193,13 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
       {err && <FieldError>{err}</FieldError>}
       {opened && (
         <p className="mt-3 text-[13px] text-emerald font-bold">
-          {he ? "תיק נפתח — ממשיכים בדשבורד (Mandate + שליחה)." : "Case opened — continue on dashboard."}
+          {tIcomponents_ElectricityCalculator("t_62d5403d")}
         </p>
       )}
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
       <p className="mt-2 text-[12px] text-ink-soft leading-relaxed">
-        {he
-          ? "לחיצה על הסוכן פותחת תיק עם Mandate: אימות בעלות → שליחה לספק → מעקב אוטומטי → חיסכון מתועד. עמלה רק אם נחסך בפועל."
-          : "Agent opens a full Case with Mandate: ownership → send → auto follow-up → documented saving. Fee only when money is saved."}
+        {tIcomponents_ElectricityCalculator("t_b1112228")}
       </p>
     </div>
   );

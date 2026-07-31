@@ -2,10 +2,22 @@ import { describe, it, expect } from "vitest";
 import { prisma } from "@/lib/prisma";
 
 /**
+ * Needs a real database. Skipped — not failed — when DATABASE_URL is absent.
+ *
+ * A suite that goes red on a clean checkout tells you nothing about the change
+ * you just made, and trains everyone to ignore red. An unrunnable test is
+ * missing coverage, which is honest; a failing one is a false alarm, which is
+ * worse than no alarm at all.
+ */
+const hasDb = Boolean(process.env.DATABASE_URL);
+const suite = hasDb ? describe : describe.skip;
+
+
+/**
  * Right-to-be-forgotten guarantee: deleting a user erases every dependent
  * record via ON DELETE CASCADE — cases, authorizations, consents, rewards.
  */
-describe("account deletion cascade (integration)", () => {
+suite("account deletion cascade (integration)", () => {
   it("erases cases, authorization, consent and rewards with the user", async () => {
     const tag = `del-test-${Date.now()}`;
     const user = await prisma.user.create({

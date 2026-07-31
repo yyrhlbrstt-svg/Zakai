@@ -7,7 +7,10 @@ import { Card, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
+import { VigilWatchCard } from "@/components/VigilWatchCard";
 import { ShareResult } from "@/components/ShareResult";
+import { ReferralCard } from "@/components/ReferralCard";
+import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { FeePayButton } from "@/components/FeePayButton";
 import { CaseNextStep } from "@/components/CaseNextStep";
 import { ReminderBanner } from "@/components/ReminderBanner";
@@ -22,6 +25,7 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
+import { emailConfigured } from "@/lib/messaging";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -129,9 +133,13 @@ export default async function DashboardPage({
   }));
 
   const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
-  const referralCode =
-    (await prisma.user.findUnique({ where: { id: user!.id }, select: { referralCode: true } }))
-      ?.referralCode ?? "";
+  const referralRow = await prisma.user.findUnique({
+    where: { id: user!.id },
+    select: { referralCode: true, referralCreditAgorot: true },
+  });
+  const referralCode = referralRow?.referralCode ?? "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const invitePath = `/${locale}/signup?ref=${referralCode}`;
 
   const renderCaseCard = (list: typeof cases) => (
     <Card className="py-1.5">
@@ -226,6 +234,7 @@ export default async function DashboardPage({
                 proposedSaving={proposedClient}
                 proofsEmail={proofsEmail}
                 agentRound={agentRoundMap.get(c.id) ?? 0}
+                emailConfigured={emailConfigured()}
               />
             </div>
           </div>
@@ -330,6 +339,8 @@ export default async function DashboardPage({
 
       <MoneyScoreCard result={scoreResult} />
 
+      <VigilWatchCard bcp47={loc} />
+
       <StrategyInsightsCard locale={locale} bcp47={loc} />
 
       <ShareResult
@@ -339,7 +350,22 @@ export default async function DashboardPage({
             : t("share.msgReferral")
         }
         referralCode={referralCode}
+        amountLabel={
+          totalDocumentedMonthly > 0
+            ? `${formatAgorot(totalDocumentedMonthly, loc)}${t("common.perMonthTag")}`
+            : undefined
+        }
       />
+
+      <div className="mt-5">
+        <ReferralCard
+          path={invitePath}
+          fallbackLink={`${appUrl}${invitePath}`}
+          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
+          rewardAgorot={REFERRAL_REWARD_AGOROT}
+          bcp47={loc}
+        />
+      </div>
 
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">

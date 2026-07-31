@@ -108,6 +108,8 @@ export async function recordOutcome(input: {
   paid: boolean;
   recoveredMinor: number;
   days: number;
+  /** True when the person told us, rather than the pipeline observing it. */
+  selfReported?: boolean;
 }): Promise<void> {
   // Cases opened before the engine carry no stance; attributing them to a
   // variant would be inventing evidence.
@@ -122,6 +124,7 @@ export async function recordOutcome(input: {
         paid: input.paid,
         recoveredMinor: Math.max(0, Math.round(input.recoveredMinor)),
         days: Math.max(0, Math.round(input.days)),
+        selfReported: input.selfReported === true,
       },
     });
   } catch (err) {
@@ -134,4 +137,49 @@ export async function recordOutcome(input: {
 export function daysBetween(from: Date | null | undefined, to: Date): number {
   if (!from) return 0;
   return Math.max(0, Math.round((to.getTime() - from.getTime()) / 86_400_000));
+}
+
+
+/**
+ * What a person told us happened after they sent one of our letters.
+ *
+ * THE GAP THIS CLOSES
+ *
+ * Until now the outcome graph could only be written by the full case pipeline —
+ * an account, ownership verification, an authorization, a provider reply. Every
+ * letter the entitlement, captive, incident and dormant paths produce went out
+ * and taught us nothing, which meant the one asset that compounds was gated
+ * behind the heaviest flow in the product and was therefore empty.
+ *
+ * A self-report needs none of that: no account, no case, one tap. It is how the
+ * graph becomes non-empty on day one, and it is the only version that does not
+ * depend on an institution integrating anything first.
+ *
+ * WHY IT IS MARKED AND NOT MERGED
+ *
+ * It is weaker evidence and pretending otherwise would be the expensive kind of
+ * wrong. A verified case carries a provider reply and a documented saving; a
+ * self-report carries somebody's recollection, with the selection bias that
+ * people who got paid are likelier to come back and say so. Both are real. They
+ * are not interchangeable, and a reader that averages them without knowing is a
+ * reader making a confident claim on a number it does not understand.
+ *
+ * So the row is flagged, and the decision is pushed to each consumer: pricing
+ * excludes it, ranking includes it. See the readers for why.
+ *
+ * DE-IDENTIFIED BY CONSTRUCTION
+ *
+ * The table has no user or case foreign key and this function takes neither.
+ * There is nothing here to link a row to a person even with the database in
+ * hand — which is the point, and is why this can be accepted from an
+ * unauthenticated caller at all.
+ */
+export async function recordSelfReport(input: {
+  context: StrategyContext;
+  variantId: string;
+  paid: boolean;
+  recoveredMinor: number;
+  days: number;
+}): Promise<void> {
+  await recordOutcome({ ...input, selfReported: true });
 }

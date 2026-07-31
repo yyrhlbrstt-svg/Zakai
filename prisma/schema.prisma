@@ -27,23 +27,26 @@ enum Plan {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  passwordHash  String
-  name          String
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
   // Product tier. Determines the success-fee rate, active-case allowance and
   // access to the recurring-charges scan. Billing collection is a later stage
   // (PSP); the tier itself is enforced in code from day one.
-  plan          Plan      @default(FREE)
-  planChangedAt DateTime?
+  plan            Plan      @default(FREE)
+  planChangedAt   DateTime?
   // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
   // are registered to; ownership verification sends a code here.
-  phone         String
+  phone           String
   // ISO-3166 alpha-2 country the user signed up from. Israel is the launch
   // market (active tools are IL-first); capturing country turns international
   // signups into a real demand signal for where to expand next.
-  country       String    @default("IL")
-  createdAt     DateTime  @default(now())
+  country         String    @default("IL")
+  createdAt       DateTime  @default(now())
+  /// When the person proved they control this address. Null until they do.
+  /// Basic use never waits on it; privilege does.
+  emailVerifiedAt DateTime?
 
   // Referrals. `referralCode` is the short, shareable code in this user's
   // invite link; a DB default keeps the NOT NULL/UNIQUE column safe if a row is
@@ -62,7 +65,11 @@ model User {
   referralRewardFor  ReferralReward?     @relation("ReferredUser")
   consents           Consent[]
   passwordResets     PasswordReset[]
+  emailVerifications EmailVerification[]
   pushSubscriptions  PushSubscription[]
+  vigilProfile       UserProfile?
+  vigilAlerts        VigilAlert[]
+  deadlines          Deadline[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -75,6 +82,24 @@ model Consent {
   purpose   String // e.g. "terms_privacy_v1"
   grantedAt DateTime  @default(now())
   revokedAt DateTime?
+
+  @@index([userId])
+}
+
+// A personal date the user wants a heads-up before — a passport renewal, a
+// car test, a filing deadline. Purely a reminder: no Case, no Mandate, no fee.
+// `notifiedAt` is set once the reminder cron actually sends it, so a user who
+// adds a deadline the day before it's due gets exactly one email, not one per
+// cron run between now and then.
+model Deadline {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label            String
+  dueDate          DateTime
+  remindDaysBefore Int       @default(14)
+  notifiedAt       DateTime?
+  createdAt        DateTime  @default(now())
 
   @@index([userId])
 }
@@ -115,6 +140,11 @@ model Case {
   // current case is unchanged; new verticals set it explicitly.
   vertical         String @default("telecom")
   provider         String // counterparty key within the vertical (cellcom, hapoalim…)
+  // Direct outreach address for a counterparty that is not a known company —
+  // late-payment's counterparty is the user's own client, never in the
+  // provider registry. Null for every registry-backed vertical, which keeps
+  // resolving contact address from `provider` via providers.ts as before.
+  counterpartyEmail String?
   planDescription  String @default("")
   // Family mode: an optional label for whom this check is run ("אמא", "אבא"…).
   // Empty = the account owner themselves. Purely a display grouping; the case
@@ -234,7 +264,19 @@ model SavingsProof {
   newAmount      Int // agorot
   savingMonthly  Int // agorot, = max(0, original - new)
   source         String   @default("manual") // how the new amount was obtained
+  /// True when the person told us they were paid, rather than the pipeline
+  /// documenting it from a provider reply.
+  ///
+  /// Both are real and they are not the same. A verified proof has a reply and
+  /// a before/after behind it; a self-report has somebody's word. That
+  /// difference decides two things and they are decided differently: it counts
+  /// toward the person's own record and the public wall, and it never produces
+  /// a chargeable Fee — eighteen percent of a number somebody typed is not a
+  /// fee this company could defend if asked to.
+  selfReported   Boolean  @default(false)
   recordedAt     DateTime @default(now())
+
+  @@index([selfReported, recordedAt])
 }
 
 enum FeeStatus {
@@ -300,9 +342,13 @@ model Feedback {
 // impersonate the professional). `vertical` is the source screen's key.
 model Lead {
   id        String   @id @default(cuid())
-  vertical  String // e.g. "construction-defects" | "car-value" | "mortgage-insurance"
+  vertical  String // e.g. "construction-defects" | "car-value" | "business:mandate"
   name      String
-  phone     String
+  /// Consumer leads leave a phone; institutional ones leave an email instead.
+  /// Optional on both so neither has to be faked to satisfy the other.
+  phone     String   @default("")
+  email     String   @default("")
+  company   String   @default("")
   note      String   @default("")
   status    String   @default("new") // new | contacted | matched | won | closed
   userId    String? // set if a logged-in user submitted it
@@ -330,10 +376,19 @@ model StrategyOutcome {
   recoveredMinor Int // minor units; 0 when nothing came back
   days           Int // send -> resolution
 
+  /// True when the person told us what happened, rather than the pipeline
+  /// observing it. Both are real evidence and they are not the same evidence:
+  /// a verified case has a provider reply and a documented saving behind it,
+  /// a self-report has somebody's memory. Mixing them in one column that no
+  /// reader distinguishes is how a dataset gets quietly poisoned, so the
+  /// column exists and every reader has to decide.
+  selfReported Boolean @default(false)
+
   createdAt DateTime @default(now())
 
   @@index([market, vertical, counterparty])
   @@index([market, vertical])
+  @@index([selfReported, createdAt])
 }
 
 /**
@@ -342,6 +397,89 @@ model StrategyOutcome {
  * discipline PhoneVerification already uses. A leaked database must not hand
  * an attacker working reset links for every account in it.
  */
+/// Proof that somebody controls the address they registered with.
+///
+/// Signup accepted any address without checking, so an account could be opened
+/// on somebody else's email — including whichever address ADMIN_EMAIL names,
+/// which would hand over a dashboard listing every lead's contact details.
+///
+/// Same discipline as PasswordReset: only the hash is stored, single use,
+/// short-lived, and every outstanding token dies when one is consumed.
+model EmailVerification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+/// A third-party agent permitted to have mandates issued on its behalf.
+///
+/// The whole "become the rail" thesis requires that other agents can issue.
+/// Until this existed they could not: issuance was gated by one shared secret,
+/// ours, so a rival consumer agent literally could not adopt the format even
+/// if it wanted to — and every one that did adopt it would have been
+/// indistinguishable from us in the resulting token.
+///
+/// Two paths exist and this is the smaller one. An agent that runs its own key
+/// infrastructure belongs in the trust registry with its own JWKS and needs no
+/// API from us at all; that is the real issuer path and the one that scales.
+/// This is for agents that do not want to run cryptography, and it comes with
+/// a hard condition: the mandate says so. `zkm.on_behalf_of` names the agent,
+/// because a token that hid the delegation would mean this company vouching
+/// for a user verification it never performed.
+model DelegatedIssuer {
+  id            String    @id @default(cuid())
+  /// Stable public identifier, e.g. "agent.example". Appears in the mandate.
+  slug          String    @unique
+  name          String
+  /// SHA-256 of the API key. Never the key: a leaked table must not hand
+  /// somebody the ability to issue authority in other people's names.
+  keyHash       String    @unique
+  /// The scopes this agent may request. Always a subset of the protocol's, and
+  /// enforced at issuance — an issuer that could exceed its grant by asking is
+  /// not constrained, it is merely trusted.
+  allowedScopes String[]
+  /// active | suspended. Suspension is immediate and needs no key rotation.
+  status        String    @default("active")
+  createdAt     DateTime  @default(now())
+  lastUsedAt    DateTime?
+
+  @@index([status])
+}
+
+/// The self-serve front door to DelegatedIssuer. Before this existed, becoming
+/// a delegated issuer required finding a human and emailing them — the exact
+/// "push" failure mode this protocol is supposed to avoid. This lets a third
+/// party do everything itself: propose a slug, request scopes, submit. A human
+/// still reviews before a real key is minted (admission to a trust boundary is
+/// not something that should ever be fully automatic), but the applicant never
+/// has to locate that human first.
+model DelegationApplication {
+  id               String   @id @default(cuid())
+  /// Proposed, not yet reserved — uniqueness against DelegatedIssuer is
+  /// enforced at approval time, not here, so two applicants proposing the same
+  /// name is a normal event, not a race to fail loudly over.
+  slug             String
+  name             String
+  contactEmail     String
+  useCase          String
+  /// Validated against the real scope catalogue at submission time — an
+  /// applicant learns immediately if a requested scope doesn't exist or is
+  /// categorically forbidden, rather than waiting days for a human to say so.
+  requestedScopes  String[]
+  status           String   @default("pending") // pending | approved | rejected
+  reviewNote       String   @default("")
+  createdAt        DateTime @default(now())
+
+  @@index([status, createdAt])
+}
+
 model PasswordReset {
   id     String @id @default(cuid())
   userId String
@@ -357,7 +495,6 @@ model PasswordReset {
 
 /**
  * Revocation list for machine-verifiable Mandates (Ed25519 JWS).
- *
  * Institutions verify the signature offline against JWKS, then call
  * GET /api/mandate/status/[jti] for recency. A signature cannot be un-signed;
  * this table is the withdraw mechanism. Append-only: never delete a row.
@@ -366,11 +503,17 @@ model PasswordReset {
  * a bank security review.
  */
 model MandateRevocation {
-  jti       String   @id
-  revokedAt DateTime @default(now())
-  reason    String   @default("user_request")
+  jti          String   @id
+  revokedAt    DateTime @default(now())
+  /**
+   * Position in the signed status list. Assigned at issue time, so a mandate
+   * can be revoked by flipping one bit rather than by growing a list every
+   * institution has to download in full.
+   */
+  statusIndex  Int?     @unique
+  reason       String   @default("user_request")
   // Optional opaque audit tag (case id, operator id) — not returned publicly.
-  internalNote String @default("")
+  internalNote String   @default("")
 
   @@index([revokedAt])
 }
@@ -392,4 +535,98 @@ model PushSubscription {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+/**
+ * One decision the self-improvement engine made, and what came of it.
+ * PII-free by construction, exactly like StrategyOutcome: an experiment ledger
+ * that carries a user id stops being publishable and starts being a liability.
+ */
+model ExperimentTrial {
+  id           String   @id @default(cuid())
+  experimentId String
+  armId        String
+  /**
+   * Did this decision lead to the outcome the experiment is optimising for.
+   */
+  converted    Boolean  @default(false)
+  /**
+   * Target metric value for this trial.
+   */
+  value        Float    @default(0)
+  /**
+   * Guardrail metric readings, keyed by metric.
+   */
+  guardrails   Json?
+  createdAt    DateTime @default(now())
+
+  @@index([experimentId, armId])
+  @@index([experimentId, createdAt])
+}
+
+/**
+ * Append-only, never updated in place. A promotion is a change the machine made
+ * to the product without asking anyone, so the history of those changes has to
+ * survive the next one — both to roll back and to answer "when did it start
+ * behaving like this, and on what evidence".
+ */
+model ExperimentPromotion {
+  id           String    @id @default(cuid())
+  experimentId String
+  armId        String
+  relativeLift Float
+  samples      Int
+  /**
+   * Plain-language reason, as shown in the weekly digest.
+   */
+  explanation  String
+  /**
+   * Set when a human or a later regression reverted this.
+   */
+  revertedAt   DateTime?
+  promotedAt   DateTime  @default(now())
+
+  @@index([experimentId, promotedAt])
+}
+
+/**
+ * The profile, mirrored to the account so the server can act while the person
+ * is not looking.
+ * The device copy stays authoritative and stays the only copy until there is an
+ * account — a profile that requires signup puts a wall in front of the first
+ * useful thing the product does, and the most sensitive answers here
+ * (disability, low income, immigration status) should not leave a phone on our
+ * say-so. But a watchdog that only runs while its owner has the app open is not
+ * a watchdog, so once someone has chosen to have an account, this is what the
+ * Vigil reads.
+ */
+model UserProfile {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /**
+   * The RightsProfile as stored on the device.
+   */
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
+/**
+ * One alert we have already sent, so we never send it twice.
+ * Without this the daily cron re-notifies about the same deadline every morning
+ * until it passes, which is how a genuinely useful alert becomes the reason
+ * somebody turns notifications off — and the right to interrupt, once spent,
+ * does not come back.
+ */
+model VigilAlert {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /**
+   * rightId plus the tax year when there is one, so each deadline alerts once.
+   */
+  alertKey String
+  sentAt   DateTime @default(now())
+
+  @@unique([userId, alertKey])
+  @@index([userId, sentAt])
 }

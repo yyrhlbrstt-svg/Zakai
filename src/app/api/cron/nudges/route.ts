@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
+import { pushToUser } from "@/lib/push";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
+import { secretsMatch } from "@/lib/security/timingSafe";
+import { isReminderDue } from "@/lib/deadlines";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +25,7 @@ const SENT_COOLDOWN_DAYS = 12;
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
-  if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (secret && !secretsMatch(request.headers.get("authorization") || "", `Bearer ${secret}`)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
@@ -66,6 +69,20 @@ export async function GET(request: Request) {
 לבדיקה: היכנסו ל"הכסף שלי" או לדשבורד.
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
+      });
+      // vigil/run.ts sends its statutory-deadline alerts through both email
+      // and push; this nudge — arguably the warmer of the two, since it's
+      // tied to a user who already has a proven, documented saving — only
+      // ever called sendEmail. A user who opted into push notifications
+      // specifically to avoid missing exactly this kind of thing was still
+      // depending entirely on email deliverability for it. Best-effort and
+      // silently a no-op with no subscription or no VAPID keys configured —
+      // matches pushToUser's own contract, never blocks the email path above.
+      await pushToUser(c.userId, {
+        title: "המבצע שלך כנראה נגמר",
+        body: "שווה לבדוק שוב אם המחיר עלה — לוקח דקה.",
+        url: "/he/dashboard",
+        tag: "recheck-nudge",
       });
       savedSent++;
     }
@@ -113,6 +130,37 @@ export async function GET(request: Request) {
       }
     }
 
+    // —— 3. Personal deadline reminders ——
+    // No Case, no Mandate — a plain calendar nudge, reusing this daily cron
+    // rather than registering a whole new Vercel cron entry for it.
+    const pendingDeadlines = await prisma.deadline.findMany({
+      where: { notifiedAt: null },
+      include: { user: { select: { email: true, name: true } } },
+      take: 500,
+    });
+
+    let deadlineNudges = 0;
+    for (const d of pendingDeadlines) {
+      if (!isReminderDue(d)) continue;
+      await sendEmail({
+        to: d.user.email,
+        subject: `זכאי — תזכורת: ${d.label}`,
+        body: `שלום ${d.user.name},
+
+תזכורת: "${d.label}" בתאריך ${d.dueDate.toLocaleDateString("he-IL")}.
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+      });
+      await pushToUser(d.userId, {
+        title: "זכאי — תזכורת",
+        body: d.label,
+        url: "/he/deadlines",
+        tag: `deadline-${d.id}`,
+      }).catch(() => null);
+      await prisma.deadline.update({ where: { id: d.id }, data: { notifiedAt: new Date() } });
+      deadlineNudges++;
+    }
+
     return NextResponse.json({
       ok: true,
       savedRecheck: { candidates: staleCases.length, sent: savedSent },
@@ -121,6 +169,7 @@ export async function GET(request: Request) {
         sent: agentFollowUps,
         skipped: agentSkipped,
       },
+      deadlineReminders: { candidates: pendingDeadlines.length, sent: deadlineNudges },
     });
   } catch (err) {
     await reportError(err, { route: "cron-nudges" });

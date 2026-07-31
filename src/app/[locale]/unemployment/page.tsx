@@ -2,12 +2,21 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { UnemploymentCalculator } from "@/components/UnemploymentCalculator";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "מחשבון דמי אבטלה — זכאי",
-  description:
-    "כמה דמי אבטלה מגיעים לך ולכמה זמן? אומדן לפי השכר והגיל. רץ בדפדפן, בלי מסמכים.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "unemployment" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/unemployment") },
+  };
+}
 
 export default async function UnemploymentPage({
   params,

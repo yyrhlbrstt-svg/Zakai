@@ -39,6 +39,12 @@ import {
   Repeat,
   Calculator,
   Sparkles,
+  Clock,
+  ShieldX,
+  Megaphone,
+  CalendarClock,
+  Briefcase,
+  School,
   type LucideIcon,
 } from "lucide-react";
 
@@ -84,6 +90,14 @@ const ICONS: Record<string, LucideIcon> = {
   score: Gauge,
   whatAmIOwed: Target,
   scan: ScanLine,
+  contractCheck: FileText,
+  overtimeBackPay: Clock,
+  latePayment: Banknote,
+  scamCheck: ShieldX,
+  complaintEscalation: Megaphone,
+  deadlines: CalendarClock,
+  advanceTax: Briefcase,
+  schoolPayments: School,
 };
 
 export function ToolIcon({

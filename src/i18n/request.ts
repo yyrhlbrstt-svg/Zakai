@@ -6,18 +6,40 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const locale: Locale =
     requested && isLocale(requested) ? requested : defaultLocale;
 
-  // Load the requested catalog, falling back to Hebrew for any locale whose
-  // catalog is not yet complete. Deep-merge keeps partially-translated locales
-  // usable without missing-key crashes.
+  // Fall back along a chain, not to a single default.
+  //
+  // Everything used to fall back to Hebrew, which is right for Arabic — a
+  // reader in Israel is far better served by Hebrew than by English for a
+  // string we have not translated yet — and wrong for Russian, where Hebrew is
+  // simply unreadable and English is not. A single global default cannot be
+  // correct for both, and the cost of getting it wrong lands entirely on the
+  // group least able to work around it.
+  //
+  // Ordered nearest-useful-first, and every chain ends at Hebrew because that
+  // is the only catalogue guaranteed complete.
+  const FALLBACKS: Record<Locale, Locale[]> = {
+    he: [],
+    en: ["he"],
+    ar: ["he", "en"],
+    ru: ["en", "he"],
+    // German and French readers are far better served by English than by
+    // Hebrew for anything not yet translated — same reasoning as ru.
+    de: ["en", "he"],
+    fr: ["en", "he"],
+  };
+
+  const layers = await Promise.all(
+    [...FALLBACKS[locale]].reverse().map(async (l) => (await import(`../messages/${l}.json`)).default),
+  );
   const primary = (await import(`../messages/${locale}.json`)).default;
-  const fallback =
-    locale === defaultLocale
-      ? primary
-      : (await import(`../messages/${defaultLocale}.json`)).default;
+  const messages = [...layers, primary].reduce(
+    (acc, layer) => deepMerge(acc, layer),
+    {} as Record<string, unknown>,
+  );
 
   return {
     locale,
-    messages: deepMerge(fallback, primary),
+    messages,
   };
 });
 

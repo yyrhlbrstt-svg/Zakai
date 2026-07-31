@@ -5,6 +5,18 @@ import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { computeFee } from "@/lib/fee";
 
 /**
+ * Needs a real database. Skipped — not failed — when DATABASE_URL is absent.
+ *
+ * A suite that goes red on a clean checkout tells you nothing about the change
+ * you just made, and trains everyone to ignore red. An unrunnable test is
+ * missing coverage, which is honest; a failing one is a false alarm, which is
+ * worse than no alarm at all.
+ */
+const hasDb = Boolean(process.env.DATABASE_URL);
+const suite = hasDb ? describe : describe.skip;
+
+
+/**
  * End-to-end referral flow against the real database:
  *  1. A referred friend's FIRST documented saving rewards the referrer.
  *  2. That credit then reduces the referrer's OWN next success fee.
@@ -58,7 +70,7 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-describe("referral rewards (integration)", () => {
+suite("referral rewards (integration)", () => {
   it("rewards the referrer on the friend's first documented saving", async () => {
     // Friend saves ₪100 -> ₪50: gross fee = 18% of ₪50 = ₪9.00.
     const kase = await sentCase(friendId, 10000, 5000);

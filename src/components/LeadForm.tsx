@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale , useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button, Input, Textarea, FieldError } from "@/components/ui";
 
@@ -83,6 +83,7 @@ function book(vertical: string) {
 export function LeadForm({ vertical }: { vertical: string; title?: string }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  const tIcomponents_LeadForm = useTranslations("inline_components_LeadForm");
   const pb = book(vertical);
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [err, setErr] = useState(false);
@@ -116,9 +117,7 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
       <div className="rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] p-5 sm:p-6">
         <div className="font-extrabold text-[16.5px]">{he ? pb.headlineHe : pb.headlineEn}</div>
         <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
-          {he
-            ? "אין צוות שחוזר בטלפון. לוחצים על כפתור — מקבלים פעולה מיידית בתוך זכאי. השארת פרטים אופציונלית ולא מבטיחה שיחה."
-            : "No call-back team. Tap a button — act inside Zakai now. Contact details are optional and never promise a call."}
+          {tIcomponents_LeadForm("t_38bf6a70")}
         </p>
         <div className="flex flex-col gap-2.5 mt-4">
           {pb.actions.map((a) => (
@@ -135,7 +134,7 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
           onClick={() => setShowContact(true)}
           className="bg-transparent border-0 text-ink-soft text-[13px] font-bold cursor-pointer"
         >
-          {he ? "שמירת פרטים לעתיד (אופציונלי — לא חובה, לא מבטיחים שיחה)" : "Optional contact for later (not required, no promised call)"}
+          {tIcomponents_LeadForm("t_99e05b72")}
         </button>
       )}
 
@@ -145,26 +144,26 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
           className="rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-5"
         >
           <div className="font-extrabold text-[15px]">
-            {he ? "פרטים (לא מבטיחים שיחה חזרה)" : "Details (no promised callback)"}
+            {tIcomponents_LeadForm("t_0a6f83fb")}
           </div>
           <div className="flex flex-col gap-3 mt-3">
-            <Input name="name" placeholder={he ? "שם מלא" : "Full name"} autoComplete="name" maxLength={120} />
-            <Input name="phone" type="tel" inputMode="tel" placeholder={he ? "טלפון" : "Phone"} autoComplete="tel" maxLength={40} />
-            <Textarea name="note" rows={3} placeholder={he ? "פרטים (לא חובה)" : "Notes (optional)"} maxLength={1000} />
+            <Input name="name" placeholder={tIcomponents_LeadForm("t_cbdaff61")} autoComplete="name" maxLength={120} />
+            <Input name="phone" type="tel" inputMode="tel" placeholder={tIcomponents_LeadForm("t_737232c2")} autoComplete="tel" maxLength={40} />
+            <Textarea name="note" rows={3} placeholder={tIcomponents_LeadForm("t_35c9a071")} maxLength={1000} />
           </div>
-          {err && <FieldError>{he ? "נא למלא שם וטלפון" : "Name and phone required"}</FieldError>}
+          {err && <FieldError>{tIcomponents_LeadForm("t_e4eb04d6")}</FieldError>}
           <Button type="submit" disabled={state === "sending"} className="w-full mt-4" variant="ghost">
             {state === "sending" ? (he ? "שולח…" : "Sending…") : he ? "שמור" : "Save"}
           </Button>
-          {state === "error" && <FieldError>{he ? "שגיאה" : "Error"}</FieldError>}
+          {state === "error" && <FieldError>{tIcomponents_LeadForm("t_e4cb6506")}</FieldError>}
         </form>
       )}
 
       {state === "done" && (
         <div className="rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.07)] p-6 text-center">
-          <div className="font-display text-xl">{he ? "נשמר" : "Saved"}</div>
+          <div className="font-display text-xl">{tIcomponents_LeadForm("t_dd1b93c4")}</div>
           <div className="text-ink-soft text-[14px] mt-2">
-            {he ? "המשך בכלים למעלה — שם מקבלים תוצאה." : "Continue with the tools above."}
+            {tIcomponents_LeadForm("t_0f3bf18e")}
           </div>
         </div>
       )}

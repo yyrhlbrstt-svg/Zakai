@@ -2,11 +2,21 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { FEE_DISPUTE_WINDOW_DAYS } from "@/lib/services/cases";
+import { alternateLanguages } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "אבטחה ואמון — זכאי",
-  description: "מדיניות האבטחה והאמון של זכאי, ומנגנון עמלת ההצלחה והערעור.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "trustPage" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/trust") },
+  };
+}
 
 const SECURITY_EMAIL = process.env.NEXT_PUBLIC_SECURITY_EMAIL || "security@zakai.example";
 const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
