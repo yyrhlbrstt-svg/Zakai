@@ -43,6 +43,7 @@ import {
   ShieldX,
   Megaphone,
   CalendarClock,
+  Briefcase,
   type LucideIcon,
 } from "lucide-react";
 
@@ -94,6 +95,7 @@ const ICONS: Record<string, LucideIcon> = {
   scamCheck: ShieldX,
   complaintEscalation: Megaphone,
   deadlines: CalendarClock,
+  advanceTax: Briefcase,
 };
 
 export function ToolIcon({

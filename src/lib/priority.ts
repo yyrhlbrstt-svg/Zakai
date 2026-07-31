@@ -365,6 +365,22 @@ const CATALOG: PriorityAction[] = [
     effort: "low",
     agentic: false,
   },
+  {
+    // For the self-employed: this returns money faster, not more of it — the
+    // advance is refunded eventually either way, so there's no honest "amount
+    // recovered" figure, only cash freed up sooner. Same hidden doctrine as
+    // contract-check/scam-check.
+    id: "advance-tax",
+    href: "/advance-tax",
+    titleHe: "עצמאי? הקטן את מקדמות המס",
+    titleEn: "Self-employed? Reduce your tax advances",
+    whyHe: "ההכנסה ירדה השנה? טופס 2216א׳ לפקיד השומה",
+    whyEn: "Income down this year? Form 2216א׳ to the assessing office",
+    potentialShekels: 0,
+    cadence: "hidden",
+    effort: "low",
+    agentic: false,
+  },
 ];
 
 /** Rank: agentic boost, then potential / effort. Cadence never affects ranking, only display. */

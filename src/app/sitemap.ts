@@ -49,6 +49,7 @@ const PATHS = [
   "/late-payment",
   "/scam-check",
   "/complaint-escalation",
+  "/advance-tax",
   "/vehicle-check",
   "/arnona",
   "/baggage",

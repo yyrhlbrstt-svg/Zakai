@@ -777,6 +777,7 @@ KNOWLEDGE (accurate 2026 facts you may use to answer — never invent numbers be
 - Deadline reminders: track a personal date (passport renewal, car test, annual filing) and get an email/push reminder before it's due. No fee, no Case. Requires login. Screen: /deadlines.
 - Proactive watch: for every entitlement the user is eligible for but hasn't acted on yet, the system tracks the real statutory deadline (e.g. tax refund 6 years, flight compensation 4 years, parking appeal 30 days) and ranks them by money at risk versus time left, sending at most one push reminder per 2 weeks. No fee, no Case, automatic once a profile exists. Screen: /score.
 - Deals & coupons: money-saving moves in one place. Screen: /deals.
+- Advance tax reduction (self-employed): if this year's income is well below the year that set the current מקדמות rate, form 2216א׳ lets them ask the assessing office to reduce or cancel it, filed by January 31 of the following year. Checks the filing window and drafts the covering letter — never invents the requested rate or a refund amount, that's the assessing office's call. No fee, no Case. Screen: /advance-tax.
 - Plans: FREE (18% success fee, 1 active check, 5 assistant questions/mo), PRO ₪19.90 (9% fee, 5 checks, full scan, 100 assistant questions/mo), MAX ₪59.90 (0% fee, unlimited checks, full scan, 300 assistant questions/mo). Screen: /pricing.
 Use these facts to give concrete, correct answers, and always point to the matching screen.
 

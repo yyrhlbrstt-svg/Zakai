@@ -2375,6 +2375,25 @@
       "code_plus_urgency": "A request for a verification code combined with time pressure"
     }
   },
+  "advanceTaxReduction": {
+    "metaTitle": "Self-employed? Reduce your tax advances | Zakai",
+    "metaDesc": "If your income this year is well below the year that set your income-tax advance rate, you may be overpaying every month. Check the filing window and draft the request to the assessing office.",
+    "title": "Self-employed and income down this year? You may be overpaying advances",
+    "subtitle": "Income-tax advances (מקדמות) are set from a prior period's turnover. When this year is meaningfully lower, form 2216א׳ lets you ask the assessing office to reduce or cancel them — filed by January 31 of the following year at the latest.",
+    "windowOpen": "{days, plural, =0 {Last day to file for this tax year} one {1 day left to file for this tax year} other {# days left to file for this tax year}}",
+    "windowClosed": "The filing window for this tax year has closed (it ends January 31 of the following year).",
+    "yearQ": "Tax year",
+    "nameQ": "Your name",
+    "fileNumberQ": "Tax file number (מספר תיק)",
+    "reasonQ": "Why is this year's income lower?",
+    "reasonPlaceholder": "e.g. a major client was lost, parental leave, the business scaled down",
+    "generateCta": "Prepare the letter",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "formLink": "Form 2216א׳ on gov.il",
+    "sendHint": "Print form 2216א׳, fill in the requested rate by hand, sign, attach this letter and supporting documents, and file at your assessing office.",
+    "disclaimer": "Explains the real filing window and drafts a covering letter — it never invents an advance-tax rate or a refund amount; the assessing office decides both. Not tax advice."
+  },
   "complaintEscalation": {
     "metaTitle": "Complaint ignored? Escalate to the right regulator | Zakai",
     "metaDesc": "Sent a complaint to your bank, phone/internet provider, or a business, and got no real answer? Find the actual regulator to escalate to, and get a ready escalation letter.",
