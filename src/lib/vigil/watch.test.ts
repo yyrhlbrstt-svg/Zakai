@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildWatchList, summariseWatch, todaysAlert } from "./watch";
+import {
+  buildWatchList,
+  summariseWatch,
+  todaysAlert,
+  shouldSuggestRescan,
+  rescanAlertKey,
+} from "./watch";
 import { DEFAULT_PROFILE } from "../profile/store";
 
 const NOW = new Date("2026-07-28T00:00:00Z");
@@ -146,5 +152,34 @@ describe("determinism", () => {
   it("gives the same watch list for the same day", () => {
     const args = { ...base, eligible: [{ id: "tax_refund", yearlyMinor: 100_000 }] };
     expect(buildWatchList(args)).toEqual(buildWatchList(args));
+  });
+});
+
+describe("the re-scan nudge", () => {
+  it("is overdue for someone who has never opened a case", () => {
+    expect(shouldSuggestRescan(null, NOW)).toBe(true);
+  });
+
+  it("stays quiet right after a scan", () => {
+    const lastWeek = new Date(NOW.getTime() - 7 * 86_400_000);
+    expect(shouldSuggestRescan(lastWeek, NOW)).toBe(false);
+  });
+
+  it("stays quiet just under the idle threshold", () => {
+    const notQuiteLongEnough = new Date(NOW.getTime() - 119 * 86_400_000);
+    expect(shouldSuggestRescan(notQuiteLongEnough, NOW)).toBe(false);
+  });
+
+  it("is due once the idle threshold is crossed", () => {
+    const longAgo = new Date(NOW.getTime() - 121 * 86_400_000);
+    expect(shouldSuggestRescan(longAgo, NOW)).toBe(true);
+  });
+
+  it("keys the alert by calendar quarter, so it can repeat but not within one", () => {
+    const q1 = new Date("2026-02-01T00:00:00Z");
+    const q1Again = new Date("2026-03-20T00:00:00Z");
+    const q2 = new Date("2026-04-01T00:00:00Z");
+    expect(rescanAlertKey(q1)).toBe(rescanAlertKey(q1Again));
+    expect(rescanAlertKey(q1)).not.toBe(rescanAlertKey(q2));
   });
 });

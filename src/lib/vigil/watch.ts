@@ -164,3 +164,33 @@ export function summariseWatch(input: WatchInput): WatchSummary {
 export function todaysAlert(summary: WatchSummary): WatchItem | null {
   return summary.alertable[0] ?? null;
 }
+
+/**
+ * A statutory deadline is worth interrupting someone for on its own; "come
+ * back and scan again" is not — it is a suggestion, not news, so it earns a
+ * much longer silence between asks than the fortnight `runVigil` gives real
+ * deadlines. Chosen to be roughly a billing quarter: long enough that new
+ * recurring charges have plausibly shown up (a gym membership, a raised
+ * subscription price), short enough to still be the reason someone who
+ * scanned once becomes a repeat user instead of a one-time visitor.
+ */
+const RESCAN_IDLE_DAYS = 120;
+
+/**
+ * Whether it has been long enough since this person last acted for a
+ * "scan again" nudge to be worth the interruption. `lastActivity` is null
+ * for someone who has never opened a case at all — silence forever is the
+ * wrong default for them too, so `null` is treated as "overdue", not
+ * "exempt".
+ */
+export function shouldSuggestRescan(lastActivity: Date | null, now: Date): boolean {
+  if (!lastActivity) return true;
+  const idleDays = (now.getTime() - lastActivity.getTime()) / 86_400_000;
+  return idleDays >= RESCAN_IDLE_DAYS;
+}
+
+/** Alerts are unique per key forever, so a nudge must vary by period to repeat. */
+export function rescanAlertKey(now: Date): string {
+  const quarter = Math.floor(now.getUTCMonth() / 3) + 1;
+  return `rescan:${now.getUTCFullYear()}-Q${quarter}`;
+}
