@@ -9,8 +9,10 @@ import { bcp47, type Locale } from "@/i18n/config";
 
 export default async function AssistantPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ ask?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -19,6 +21,10 @@ export default async function AssistantPage({
 
   const t = await getTranslations("assistant");
   const insights = await buildInsights(user!.id);
+  // Seeded from a "draft X for me" button elsewhere (LeadForm.tsx) — a
+  // specific promised action, not open text, so a generous cap is fine.
+  const { ask } = await searchParams;
+  const initialQuestion = ask ? ask.slice(0, 1000) : undefined;
 
   return (
     <main className="max-w-[720px] mx-auto px-5 pb-24 pt-2">
@@ -31,6 +37,7 @@ export default async function AssistantPage({
         chatEnabled={aiAvailable()}
         plan={planConfig(user!.plan).id}
         bcp47={bcp47[locale as Locale]}
+        initialQuestion={initialQuestion}
       />
     </main>
   );
