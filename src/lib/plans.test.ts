@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { PLANS, planConfig, canOpenCase, isPlanId, upgradeRequiresPayment } from "./plans";
+import {
+  PLANS,
+  planConfig,
+  canOpenCase,
+  isPlanId,
+  upgradeRequiresPayment,
+  proBreakevenSavingAgorot,
+} from "./plans";
 import { computeFee } from "./fee";
 
 describe("plans", () => {
@@ -81,5 +88,16 @@ describe("plans", () => {
       );
     }
     expect(source.includes("/pricing")).toBe(true);
+  });
+
+  it("derives the Pro breakeven from PLANS instead of a hand-copied constant", () => {
+    // GROWTH.md hand-derives ~₪220/mo; this must track PLANS exactly so a
+    // future price/rate tweak can't silently make the upgrade nudge wrong.
+    const expectedAgorot = Math.round(
+      (PLANS.PRO.priceAgorot / (PLANS.FREE.feeRateBps - PLANS.PRO.feeRateBps)) * 10000,
+    );
+    expect(proBreakevenSavingAgorot()).toBe(expectedAgorot);
+    expect(proBreakevenSavingAgorot()).toBeGreaterThan(20_000); // sanity: > ₪200
+    expect(proBreakevenSavingAgorot()).toBeLessThan(25_000); // sanity: < ₪250
   });
 });
