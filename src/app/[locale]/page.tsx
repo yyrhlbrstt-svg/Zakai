@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
@@ -13,6 +12,7 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { currentArm } from "@/lib/evolve/store";
 import { ENTITLEMENTS } from "@/lib/rights";
 import { DoorTracker } from "@/components/DoorTracker";
+import { provenSavings } from "@/lib/services/selfReportedSaving";
 
 export const dynamic = "force-dynamic";
 
@@ -43,16 +43,19 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/**
+ * The homepage's own copy ("home.proof") promises this figure comes "straight
+ * from the proof ledger — never typed in." That promise was false: this used
+ * to sum every SavingsProof row, verified and self-reported alike, into one
+ * number — exactly the "wall that silently mixes documented outcomes with
+ * remembered ones" that selfReportedSaving.ts's own docstring warns is a
+ * fabricated traction metric wearing a receipt. provenSavings() keeps the two
+ * apart; the flagship homepage number now only ever counts the verified side,
+ * which is the only side the copy is actually allowed to describe that way.
+ */
 async function loadProof() {
-  try {
-    const [agg, count] = await Promise.all([
-      prisma.savingsProof.aggregate({ _sum: { savingMonthly: true } }),
-      prisma.savingsProof.count({ where: { savingMonthly: { gt: 0 } } }),
-    ]);
-    return { monthlyAgorot: agg._sum.savingMonthly ?? 0, count };
-  } catch {
-    return { monthlyAgorot: 0, count: 0 };
-  }
+  const proof = await provenSavings();
+  return { monthlyAgorot: proof.verifiedMinor, count: proof.verifiedCount };
 }
 
 export default async function HomePage({
