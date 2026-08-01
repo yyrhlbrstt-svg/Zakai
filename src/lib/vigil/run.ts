@@ -2,7 +2,13 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { pushToUser, pushConfigured } from "@/lib/push";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
-import { summariseWatch, todaysAlert, type WatchItem } from "./watch";
+import {
+  summariseWatch,
+  todaysAlert,
+  shouldSuggestRescan,
+  rescanAlertKey,
+  type WatchItem,
+} from "./watch";
 
 /**
  * The watch, running while nobody is looking.
@@ -20,7 +26,6 @@ import { summariseWatch, todaysAlert, type WatchItem } from "./watch";
 const QUIET_DAYS = 14;
 /** How many accounts one run will touch. Keeps a cron inside its time budget. */
 const BATCH = 500;
-
 function alertKeyFor(item: WatchItem): string {
   return item.taxYear ? `${item.rightId}:${item.taxYear}` : item.rightId;
 }
@@ -72,12 +77,12 @@ export async function runVigil(now: Date = new Date()): Promise<VigilRunResult> 
       }
 
       const rights = evaluateRights(profile);
-      const actedOn = (
-        await prisma.case.findMany({
-          where: { userId: row.userId },
-          select: { vertical: true },
-        })
-      ).map((c) => c.vertical);
+      const cases = await prisma.case.findMany({
+        where: { userId: row.userId },
+        select: { vertical: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      });
+      const actedOn = cases.map((c) => c.vertical);
 
       const summary = summariseWatch({
         profile,
@@ -91,7 +96,30 @@ export async function runVigil(now: Date = new Date()): Promise<VigilRunResult> 
       });
 
       const item = todaysAlert(summary);
-      if (!item) continue;
+
+      // No statutory deadline due today — the fallback is a much rarer nudge
+      // to come back and scan again, for someone who has gone quiet. A real
+      // deadline always wins when both are true in the same run.
+      if (!item) {
+        const lastActivity = cases[0]?.createdAt ?? null;
+        if (!shouldSuggestRescan(lastActivity, now)) continue;
+
+        const key = rescanAlertKey(now);
+        try {
+          await prisma.vigilAlert.create({ data: { userId: row.userId, alertKey: key } });
+        } catch {
+          result.duplicates++;
+          continue;
+        }
+        await pushToUser(row.userId, {
+          title: "לבדוק שוב מה מגיע לך?",
+          body: "חיובים משתנים — מחיר שעלה, מנוי חדש שנשכח. סריקה חדשה לוקחת חצי דקה.",
+          url: "/he/money",
+          tag: `vigil:${key}`,
+        });
+        result.sent++;
+        continue;
+      }
 
       // Claim the alert first. If the push then fails we have still spent the
       // slot, which is the right way round: a notification sent twice is worse
