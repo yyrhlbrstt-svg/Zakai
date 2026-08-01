@@ -103,7 +103,12 @@ async function ownedCase(caseId: string, userId: string) {
  * re-consented to after the fact, and editing the draft at that point would
  * leave the record disagreeing with the letter in the provider's inbox.
  */
-export async function approveCase(caseId: string, userId: string, editedMessage?: string) {
+export async function approveCase(
+  caseId: string,
+  userId: string,
+  editedMessage?: string,
+  approverIp?: string,
+) {
   const kase = await ownedCase(caseId, userId);
 
   if (kase.status !== "ANALYZED" && kase.status !== "APPROVED") {
@@ -114,9 +119,10 @@ export async function approveCase(caseId: string, userId: string, editedMessage?
     where: { id: kase.id },
     data: {
       status: "APPROVED",
-      // Set once. A second approval is a no-op on the timestamp rather than a
-      // quiet rewrite of when consent was given.
+      // Set once each. A second approval is a no-op on both rather than a
+      // quiet rewrite of when — and from where — consent was given.
       approvedAt: kase.approvedAt ?? new Date(),
+      approvedIp: kase.approvedIp ?? approverIp ?? null,
       ...(editedMessage ? { draftMessage: editedMessage } : {}),
     },
   });
