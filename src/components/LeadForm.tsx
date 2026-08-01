@@ -64,6 +64,23 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
       { href: "/compensation-claims", labelHe: "מסלולי פיצוי", labelEn: "Compensation paths" },
     ],
   },
+  disability: {
+    headlineHe: "קצבת נכות — מה עושים עכשיו",
+    headlineEn: "Disability benefits — act now",
+    actions: [
+      { href: "/disability-benefits", labelHe: "סוגי קצבה ואיך מגישים", labelEn: "Benefit types & how to file" },
+      { href: "/entitlements", labelHe: "זכויות נוספות שמגיעות לך", labelEn: "Other rights you're owed" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
+  "class-action": {
+    headlineHe: "תביעה ייצוגית — מה עושים עכשיו",
+    headlineEn: "Class action — act now",
+    actions: [
+      { href: "/class-action", labelHe: "האם אתה נמנה עם התובענה", labelEn: "See if you're in scope" },
+      { href: "/entitlements", labelHe: "זכויות נוספות שמגיעות לך", labelEn: "Other rights you're owed" },
+    ],
+  },
   general: {
     headlineHe: "מה אפשר לעשות עכשיו בזכאי",
     headlineEn: "What you can do in Zakai now",

@@ -179,6 +179,21 @@ const KEYWORDS: IntentKeywords[] = [
     he: ["נפצעתי", "תאונה", "תביעת ביטוח על פציעה"],
     en: ["i was injured", "accident claim"],
   },
+  {
+    id: "mortgage",
+    he: ["מיחזור משכנתא", "ריבית המשכנתא גבוהה", "לבדוק את המשכנתא שלי"],
+    en: ["refinance my mortgage", "mortgage interest rate", "check my mortgage"],
+  },
+  {
+    id: "disability-benefits",
+    he: ["קצבת נכות", "אחוזי נכות", "ביטוח לאומי נכות"],
+    en: ["disability benefits", "disability allowance", "disability claim"],
+  },
+  {
+    id: "class-action",
+    he: ["תביעה ייצוגית", "האם אני חלק מהתביעה", "זיכוי אוטומטי לחשבון"],
+    en: ["class action", "am i part of the lawsuit", "settlement credit"],
+  },
 ];
 
 const BY_ID = new Map(CATALOG.map((a) => [a.id, a]));

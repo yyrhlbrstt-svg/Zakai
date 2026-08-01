@@ -287,6 +287,55 @@ export const CATALOG: PriorityAction[] = [
     effort: "low",
   },
   {
+    // Monthly by nature — it's an interest-rate change on the remaining
+    // balance, not a one-off payout. potentialShekels mirrors the real
+    // computeMortgageRefi() default illustration in mortgageRefi.ts
+    // (a realistic mid-size balance, a plausible achievable rate drop), not a
+    // fabricated figure — the calculator on the page itself is what gives a
+    // specific number for a specific mortgage.
+    id: "mortgage",
+    href: "/mortgage",
+    titleHe: "מיחזור משכנתא",
+    titleEn: "Mortgage refinance",
+    whyHe: "ריבית נמוכה יותר על היתרה = חיסכון חודשי",
+    whyEn: "A lower rate on the remaining balance = monthly saving",
+    potentialShekels: 350,
+    cadence: "monthly",
+    effort: "medium",
+  },
+  {
+    // Disability benefit is a recurring monthly allowance once approved, not
+    // a one-time payout — cadence follows the real-world benefit, not the
+    // one-time effort of filing. Figure kept deliberately modest/illustrative
+    // (matching payslip/severance elsewhere in this file); the page's own
+    // "bigNumber" framing carries the honest wide range, this entry doesn't
+    // try to restate it as a point estimate.
+    id: "disability-benefits",
+    href: "/disability-benefits",
+    titleHe: "קצבת נכות",
+    titleEn: "Disability benefits",
+    whyHe: "קצבה חודשית לכל החיים — רוב הזכאים לא הגישו תביעה",
+    whyEn: "A monthly allowance for life — most who qualify never filed",
+    potentialShekels: 300,
+    cadence: "monthly",
+    effort: "medium",
+  },
+  {
+    // A class-action settlement payout is one-time by nature. Figure kept
+    // deliberately modest/illustrative — the page's own "bigNumber" framing
+    // (₪50 to thousands) carries the honest range; this entry doesn't
+    // restate it as a point estimate.
+    id: "class-action",
+    href: "/class-action",
+    titleHe: "תביעה ייצוגית — אולי אתה זכאי",
+    titleEn: "Class action — you may be owed",
+    whyHe: "לפעמים זיכוי אוטומטי לחשבון, בלי לעשות כלום",
+    whyEn: "Sometimes an automatic credit, with nothing to file",
+    potentialShekels: 80,
+    cadence: "oneTime",
+    effort: "low",
+  },
+  {
     // A refund reaching back years is a one-time payment, not a recurring
     // monthly amount, however many years of tax it is computed from.
     id: "taxrefund",
