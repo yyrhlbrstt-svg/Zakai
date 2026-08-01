@@ -5,8 +5,32 @@ import { useLocale , useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button, Input, Textarea, FieldError } from "@/components/ui";
 
-type Action = { href: string; labelHe: string; labelEn: string };
+type Action = {
+  href: string;
+  labelHe: string;
+  labelEn: string;
+  /**
+   * When set, the button's real destination is /assistant?ask=<this>, not
+   * `href` — see the note above PLAYBOOK. Both languages required together:
+   * an href with only one populated would silently drop the seed on a
+   * locale switch.
+   */
+  askHe?: string;
+  askEn?: string;
+};
 
+/**
+ * A button labelled "Agent: draft insurer letter" that links to bare
+ * `/assistant` isn't wrong exactly — the agent chat CAN draft that letter —
+ * but it lands on an empty chat box with zero memory of which button was
+ * clicked, so the user re-types the whole situation the label already
+ * promised was understood. That gap ("I click something and it takes me
+ * somewhere else entirely") is what real user feedback flagged. Every action
+ * that names a SPECIFIC drafting task now carries `ask*`, which seeds and
+ * auto-sends that exact request to the assistant (see assistant/page.tsx +
+ * AssistantScreen.tsx). Actions that are honestly generic ("Ask the agent")
+ * keep a bare href — there's nothing to seed.
+ */
 const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions: Action[] }> = {
   "mortgage-insurance": {
     headlineHe: "ביטוח משכנתא — מה עושים עכשיו",
@@ -14,7 +38,13 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     actions: [
       { href: "/duplicate-insurance", labelHe: "בדוק ביטוח כפול (מיידי)", labelEn: "Check duplicate cover" },
       { href: "/mortgage", labelHe: "מחשבון משכנתא", labelEn: "Mortgage calculator" },
-      { href: "/assistant", labelHe: "הסוכן: נסח פנייה לחברת הביטוח", labelEn: "Agent: draft insurer letter" },
+      {
+        href: "/assistant",
+        labelHe: "הסוכן: נסח פנייה לחברת הביטוח",
+        labelEn: "Agent: draft insurer letter",
+        askHe: "יש לי ביטוח משכנתא שאני חושב שיקר או מיותר (כפול על ביטוח חיים קיים). תנסח לי פנייה לחברת הביטוח לבדיקת ביטול או הוזלה.",
+        askEn: "I have mortgage insurance I think is overpriced or unnecessary (duplicates existing life insurance). Draft a letter to the insurer to check cancelling or lowering it.",
+      },
       { href: "/check", labelHe: "בדיקת חיוב / משא ומתן", labelEn: "Bill check / negotiate" },
     ],
   },
@@ -24,7 +54,13 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     actions: [
       { href: "/money", labelHe: "מפה חיובים והלוואות (צילום בנק)", labelEn: "Map charges & loans (bank screenshot)" },
       { href: "/spending", labelHe: "לאן הכסף הולך", labelEn: "Where the money goes" },
-      { href: "/assistant", labelHe: "הסוכן: איך מורידים ריבית", labelEn: "Agent: how to cut interest" },
+      {
+        href: "/assistant",
+        labelHe: "הסוכן: איך מורידים ריבית",
+        labelEn: "Agent: how to cut interest",
+        askHe: "יש לי כמה הלוואות ו/או כרטיסי אשראי עם ריבית גבוהה. איך אני יכול להוריד את הריבית או לאחד אותן להלוואה אחת זולה יותר?",
+        askEn: "I have several loans and/or credit cards with high interest. How can I lower the rate or consolidate them into one cheaper loan?",
+      },
       { href: "/bank-fees", labelHe: "עמלות בנק — מכתב מוכן", labelEn: "Bank fees — ready letter" },
     ],
   },
@@ -32,7 +68,13 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     headlineHe: "תביעות ביטוח — מה עושים עכשיו",
     headlineEn: "Insurance claims — act now",
     actions: [
-      { href: "/assistant", labelHe: "הסוכן: נסח דרישה לחברת הביטוח", labelEn: "Agent: draft insurer demand" },
+      {
+        href: "/assistant",
+        labelHe: "הסוכן: נסח דרישה לחברת הביטוח",
+        labelEn: "Agent: draft insurer demand",
+        askHe: "יש לי תביעת ביטוח שלא הגשתי עדיין או שנדחתה. תעזור לי לנסח דרישה לחברת הביטוח.",
+        askEn: "I have an insurance claim I haven't filed yet, or one that was denied. Help me draft a demand to the insurer.",
+      },
       { href: "/what-am-i-owed", labelHe: "מה מגיע לי?", labelEn: "What am I owed?" },
       { href: "/lost-money", labelHe: "כסף אבוד / הר הביטוח", labelEn: "Lost money / insurance mountain" },
       { href: "/duplicate-insurance", labelHe: "בדוק כפל ביטוחי", labelEn: "Check duplicate cover" },
@@ -43,7 +85,13 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     headlineEn: "Insurance compare — act now",
     actions: [
       { href: "/duplicate-insurance", labelHe: "בדוק כפל ביטוחי (מיידי)", labelEn: "Check duplicate cover" },
-      { href: "/assistant", labelHe: "הסוכן: איך משווים מחדש", labelEn: "Agent: how to re-shop" },
+      {
+        href: "/assistant",
+        labelHe: "הסוכן: איך משווים מחדש",
+        labelEn: "Agent: how to re-shop",
+        askHe: "אני משלם על כמה פוליסות ביטוח ולא בטוח שאני לא כפול. איך אני משווה בין החברות ומצמצם את מה שאני משלם?",
+        askEn: "I pay for several insurance policies and I'm not sure I'm not doubled up. How do I compare providers and cut what I pay?",
+      },
       { href: "/mortgage-insurance", labelHe: "ביטוח משכנתא מופקע", labelEn: "Overpriced mortgage insurance" },
       { href: "/money", labelHe: "הכסף שלי — מה יורד", labelEn: "My money — monthly charges" },
     ],
@@ -52,7 +100,13 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     headlineHe: "ליקויי בנייה — מה עושים עכשיו",
     headlineEn: "Construction defects — act now",
     actions: [
-      { href: "/assistant", labelHe: "נסח מכתב ליזם / קבלן", labelEn: "Draft letter to developer" },
+      {
+        href: "/assistant",
+        labelHe: "נסח מכתב ליזם / קבלן",
+        labelEn: "Draft letter to developer",
+        askHe: "גיליתי ליקויי בנייה בדירה שלי. תעזור לי לנסח מכתב דרישה ליזם או לקבלן.",
+        askEn: "I found construction defects in my apartment. Help me draft a demand letter to the developer or contractor.",
+      },
       { href: "/what-am-i-owed", labelHe: "זכויות נוספות", labelEn: "Other rights" },
     ],
   },
@@ -60,7 +114,13 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
     headlineHe: "ירידת ערך רכב — מה עושים עכשיו",
     headlineEn: "Car value — act now",
     actions: [
-      { href: "/assistant", labelHe: "נסח ערעור מול הביטוח", labelEn: "Draft insurer appeal" },
+      {
+        href: "/assistant",
+        labelHe: "נסח ערעור מול הביטוח",
+        labelEn: "Draft insurer appeal",
+        askHe: "היה לי תאונה ואני חושב שהרכב שלי איבד ערך בגללה. תעזור לי לנסח ערעור מול חברת הביטוח.",
+        askEn: "I had an accident and I think my car lost value because of it. Help me draft an appeal to the insurer.",
+      },
       { href: "/compensation-claims", labelHe: "מסלולי פיצוי", labelEn: "Compensation paths" },
     ],
   },
@@ -146,11 +206,15 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
             {tIcomponents_LeadForm("t_38bf6a70")}
           </p>
           <div className="flex flex-col gap-2.5 mt-4">
-            {pb.actions.map((a) => (
-              <Link key={a.href} href={a.href} className="no-underline">
-                <Button className="w-full !justify-start">{he ? a.labelHe : a.labelEn}</Button>
-              </Link>
-            ))}
+            {pb.actions.map((a) => {
+              const ask = he ? a.askHe : a.askEn;
+              const target = ask ? `/assistant?ask=${encodeURIComponent(ask)}` : a.href;
+              return (
+                <Link key={a.href + (ask ?? "")} href={target} className="no-underline">
+                  <Button className="w-full !justify-start">{he ? a.labelHe : a.labelEn}</Button>
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}

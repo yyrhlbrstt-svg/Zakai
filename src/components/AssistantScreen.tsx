@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
@@ -29,11 +29,20 @@ export function AssistantScreen({
   chatEnabled,
   plan,
   bcp47,
+  initialQuestion,
 }: {
   insights: Insight[];
   chatEnabled: boolean;
   plan: "FREE" | "PRO" | "MAX";
   bcp47: string;
+  /**
+   * Arrives from /assistant?ask=... — a button elsewhere (LeadForm.tsx) that
+   * promised a SPECIFIC drafting action ("Draft letter to developer") rather
+   * than a bare "ask the agent". Auto-sending it is what makes that promise
+   * true instead of dumping the user on an empty chat box that doesn't know
+   * why they're here.
+   */
+  initialQuestion?: string;
 }) {
   const t = useTranslations("assistant");
   const locale = useLocale();
@@ -53,9 +62,7 @@ export function AssistantScreen({
     return t(`insights.${i.key}`, p as Record<string, string>);
   }
 
-  async function send(e: React.FormEvent) {
-    e.preventDefault();
-    const question = input.trim();
+  async function sendText(question: string) {
     if (!question || busy) return;
     setChatError(null);
     setMessages((m) => [...m, { role: "user", text: question }]);
@@ -80,6 +87,24 @@ export function AssistantScreen({
       setBusy(false);
     }
   }
+
+  function send(e: React.FormEvent) {
+    e.preventDefault();
+    void sendText(input.trim());
+  }
+
+  // Runs once on mount. If chat isn't enabled (no AI key configured), fall
+  // back to prefilling the box rather than silently dropping the seed — the
+  // user still sees exactly what the button meant to ask.
+  useEffect(() => {
+    if (!initialQuestion) return;
+    if (chatEnabled) {
+      void sendText(initialQuestion);
+    } else {
+      setInput(initialQuestion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
