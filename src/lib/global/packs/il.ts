@@ -39,6 +39,7 @@ const senior = any(num("ageYears", { gte: SENIOR_AGE }), oneOf("employment", "re
 const working = oneOf("employment", "employee", "self_employed");
 const employee = oneOf("employment", "employee");
 const parent = num("dependents", { gte: 1 });
+const largeFamily = num("dependents", { gte: 3 });
 const toddlerParent = num("dependentsUnder6", { gte: 1 });
 const lowIncome = oneOf("incomeBand", "low");
 const renting = oneOf("housing", "renting");
@@ -144,6 +145,7 @@ const rights: RightDef[] = [
   right("arnona_senior", "municipal", senior, "תקנות הסדרים במשק המדינה (הנחה מארנונה), התשנ״ג-1993, תקנה 2(א)(8)"),
   right("arnona_disability", "municipal", disability, "תקנות הסדרים במשק המדינה (הנחה מארנונה), התשנ״ג-1993, תקנה 2(א)(3)"),
   right("arnona_soldier", "municipal", soldier, "תקנות הסדרים במשק המדינה (הנחה מארנונה), התשנ״ג-1993, תקנה 2(א)(1)"),
+  right("arnona_large_family", "municipal", largeFamily, "תקנות הסדרים במשק המדינה (הנחה מארנונה), התשנ״ג-1993"),
   right("water_disability", "municipal", disability, "כללי תאגידי מים וביוב (חישוב עלות שירותי מים) — הקצאה לצריכה רפואית"),
 
   // ---- Banking -------------------------------------------------------------

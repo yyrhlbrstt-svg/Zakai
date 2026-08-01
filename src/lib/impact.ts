@@ -10,6 +10,17 @@ import { prisma } from "@/lib/prisma";
  * - `documentedCount`          how many checks reached a documented saving
  * - `checksRun`                total checks users have started
  * - `potentialMonthlyAgorot`   before→target gap identified across open checks
+ *
+ * `documentedMonthlyAgorot`/`documentedCount` filter to `selfReported: false`
+ * — this file's own claim above ("never typed in") was false until this
+ * filter existed: SavingsProof also holds self-reported rows (somebody's
+ * word, entered via OutcomeReport.tsx for the six verticals that never
+ * produce a provider reply), and those were being summed in here right next
+ * to a sentence promising they weren't. Same bug, same fix, as the homepage's
+ * loadProof() — see provenSavings() in selfReportedSaving.ts for the
+ * intended split; this file predates that helper and duplicates its filter
+ * rather than importing it, since it also needs `checksRun` and
+ * `potentialMonthlyAgorot`, which are outside that helper's scope.
  */
 export interface ImpactStats {
   documentedMonthlyAgorot: number;
@@ -31,8 +42,11 @@ export async function computeImpact(): Promise<ImpactStats> {
     // every Case row into memory — the marketing page must stay O(1) as the
     // table grows. GREATEST(...,0) mirrors the old Math.max(0, ...) per row.
     const [savingAgg, documentedCount, checksRun, potentialRows] = await Promise.all([
-      prisma.savingsProof.aggregate({ _sum: { savingMonthly: true } }),
-      prisma.savingsProof.count({ where: { savingMonthly: { gt: 0 } } }),
+      prisma.savingsProof.aggregate({
+        where: { selfReported: false },
+        _sum: { savingMonthly: true },
+      }),
+      prisma.savingsProof.count({ where: { selfReported: false, savingMonthly: { gt: 0 } } }),
       prisma.case.count(),
       prisma.$queryRaw<{ total: bigint | null }[]>`
         SELECT COALESCE(SUM(GREATEST("amountOriginal" - "targetAmount", 0)), 0) AS total

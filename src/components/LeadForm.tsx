@@ -141,6 +141,24 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
       { href: "/entitlements", labelHe: "זכויות נוספות שמגיעות לך", labelEn: "Other rights you're owed" },
     ],
   },
+  "alimony-guarantee": {
+    headlineHe: "מזונות מובטחים — מה עושים עכשיו",
+    headlineEn: "Guaranteed alimony — act now",
+    actions: [
+      { href: "/alimony-guarantee", labelHe: "מי זכאי ואיך מגישים", labelEn: "Who's eligible & how to file" },
+      { href: "/entitlements", labelHe: "זכויות נוספות שמגיעות לך", labelEn: "Other rights you're owed" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
+  "business-compensation": {
+    headlineHe: "פיצויי נזק עקיף — מה עושים עכשיו",
+    headlineEn: "Business war-damage compensation — act now",
+    actions: [
+      { href: "/business-compensation", labelHe: "המסלולים ואיך מגישים השגה", labelEn: "Tracks & how to file an objection" },
+      { href: "/entitlements", labelHe: "זכויות נוספות שמגיעות לך", labelEn: "Other rights you're owed" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
   general: {
     headlineHe: "מה אפשר לעשות עכשיו בזכאי",
     headlineEn: "What you can do in Zakai now",
