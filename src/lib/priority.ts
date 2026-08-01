@@ -28,7 +28,7 @@ export type PriorityAction = {
   agentic?: boolean;
 };
 
-const CATALOG: PriorityAction[] = [
+export const CATALOG: PriorityAction[] = [
   {
     id: "money",
     href: "/money",
