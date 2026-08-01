@@ -34,6 +34,9 @@ const TOOLS = [
   { href: "/arnona", key: "arnona" },
   { href: "/disability-benefits", key: "disability" },
   { href: "/construction-defects", key: "defects" },
+  { href: "/alimony-guarantee", key: "alimonyGuarantee" },
+  { href: "/business-compensation", key: "businessCompensation" },
+  { href: "/holocaust-survivors", key: "holocaustSurvivors" },
   { href: "/car-value", key: "carvalue" },
   { href: "/mortgage-insurance", key: "mortins" },
   { href: "/duplicate-insurance", key: "dupinsurance" },
@@ -84,6 +87,9 @@ const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   deadlines: { he: "דדליינים", en: "Deadlines" },
   advanceTax: { he: "הקטנת מקדמות מס", en: "Reduce tax advances" },
   schoolPayments: { he: "תשלומי הורים", en: "School payments" },
+  alimonyGuarantee: { he: "מזונות מובטחים", en: "Guaranteed alimony" },
+  businessCompensation: { he: "פיצויי נזק עקיף", en: "Business war damage" },
+  holocaustSurvivors: { he: "זכויות ניצולי שואה", en: "Holocaust survivor rights" },
 };
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {

@@ -45,6 +45,8 @@ import {
   CalendarClock,
   Briefcase,
   School,
+  Users,
+  Heart,
   type LucideIcon,
 } from "lucide-react";
 
@@ -60,6 +62,9 @@ const ICONS: Record<string, LucideIcon> = {
   arnona: House,
   disability: Accessibility,
   defects: Hammer,
+  alimonyGuarantee: Users,
+  businessCompensation: Building2,
+  holocaustSurvivors: Heart,
   carvalue: Car,
   mortins: ShieldHalf,
   dupinsurance: ShieldAlert,

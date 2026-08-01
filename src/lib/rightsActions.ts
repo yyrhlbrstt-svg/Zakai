@@ -291,6 +291,14 @@ export const RIGHT_ACTIONS: Record<string, RightAction> = {
     body: `אני, ${IDENTITY}, בשירות סדיר, ומבקש/ת את ההנחה בארנונה המגיעה לחיילים בהתאם לתקנות.
 מצורף אישור שירות. אבקש להחיל את ההנחה ולזכות אותי בגין תשלומי יתר.`,
   },
+  arnona_large_family: {
+    kind: "letter",
+    recipient: "municipality",
+    fields: ["municipality"],
+    subject: "בקשה להנחה בארנונה למשפחה מרובת ילדים",
+    body: `אני, ${IDENTITY}, הורה למשפחה מרובת ילדים, ומבקש/ת לבחון את זכאותי להנחה בארנונה בהתאם לתקנות הסדרים במשק המדינה (הנחה מארנונה) ולנוהל הרשות המקומית.
+אבקש לקבל את רשימת המסמכים הנדרשת (כולל אישור על מספר הילדים והכנסת המשפחה), ולקבל החלטה מנומקת בכתב.`,
+  },
   water_disability: {
     kind: "letter",
     recipient: "municipality",

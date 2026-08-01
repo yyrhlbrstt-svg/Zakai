@@ -304,6 +304,40 @@ export const CATALOG: PriorityAction[] = [
     effort: "medium",
   },
   {
+    // Guaranteed alimony (מזונות מובטחים) is a recurring monthly payment
+    // National Insurance makes in place of a non-paying parent — monthly by
+    // nature, not a one-off. No fabricated ceiling: the real amount depends
+    // on the court judgment and an income test, so this stays deliberately
+    // modest/illustrative like every other benefit entry in this file.
+    id: "alimony-guarantee",
+    href: "/alimony-guarantee",
+    titleHe: "מזונות מובטחים",
+    titleEn: "Guaranteed alimony",
+    whyHe: "ההורה השני לא משלם? ביטוח לאומי יכול לשלם במקומו",
+    whyEn: "Other parent not paying? National Insurance can pay instead",
+    potentialShekels: 300,
+    cadence: "monthly",
+    effort: "medium",
+  },
+  {
+    // Business war-damage compensation is a one-time claim per filing window
+    // (a new claim opens per operation, but each is its own one-time event),
+    // not a recurring monthly amount. Figure kept deliberately modest —
+    // real payouts range from low four figures to the ceiling depending on
+    // business size, and the page's own "₪15B paid, 525K claims" framing
+    // carries the honest program-scale picture rather than a fabricated
+    // per-business estimate.
+    id: "business-compensation",
+    href: "/business-compensation",
+    titleHe: "פיצויי נזק עקיף לעסקים",
+    titleEn: "Business war-damage compensation",
+    whyHe: "ירידה במחזור בגלל המלחמה — רשות המסים משלמת על זה",
+    whyEn: "Revenue drop from the war — the Tax Authority compensates for it",
+    potentialShekels: 600,
+    cadence: "oneTime",
+    effort: "medium",
+  },
+  {
     // Disability benefit is a recurring monthly allowance once approved, not
     // a one-time payout — cadence follows the real-world benefit, not the
     // one-time effort of filing. Figure kept deliberately modest/illustrative

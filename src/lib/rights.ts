@@ -138,6 +138,13 @@ export const ENTITLEMENTS: Entitlement[] = [
   { id: "arnona_senior", category: "municipal", eligible: senior },
   { id: "arnona_disability", category: "municipal", eligible: (p) => p.disability },
   { id: "arnona_soldier", category: "municipal", eligible: (p) => p.employment === "soldier" },
+  // The real rule (תקנות הסדרים במשק המדינה) is a sliding scale of household
+  // size against an income threshold, not a flat child count — too wide a
+  // spread to attach a number to, same reasoning as betterment_tax_refund
+  // below. 3+ children is a conservative, commonly-used trigger point for
+  // "מרובי ילדים" discounts elsewhere in Israeli policy, so it is used here
+  // only to decide whether to SHOW the entitlement, never to price it.
+  { id: "arnona_large_family", category: "municipal", eligible: (p) => p.children >= 3 },
   { id: "water_disability", category: "municipal", eligible: (p) => p.disability },
 
   // ---- Banking (בנקים ואשראי) ----

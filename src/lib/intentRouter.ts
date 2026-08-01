@@ -194,6 +194,16 @@ const KEYWORDS: IntentKeywords[] = [
     he: ["תביעה ייצוגית", "האם אני חלק מהתביעה", "זיכוי אוטומטי לחשבון"],
     en: ["class action", "am i part of the lawsuit", "settlement credit"],
   },
+  {
+    id: "alimony-guarantee",
+    he: ["מזונות מובטחים", "אבא לא משלם מזונות", "אמא לא משלמת מזונות", "ההורה השני לא משלם"],
+    en: ["guaranteed alimony", "other parent not paying child support", "ex not paying support"],
+  },
+  {
+    id: "business-compensation",
+    he: ["נזק עקיף", "פיצויים לעסק מהמלחמה", "ירידה במחזור בגלל המלחמה"],
+    en: ["indirect war damage", "business compensation war", "revenue drop from the war"],
+  },
 ];
 
 const BY_ID = new Map(CATALOG.map((a) => [a.id, a]));

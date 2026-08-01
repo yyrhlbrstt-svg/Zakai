@@ -262,7 +262,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "60 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "61 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       },
       "miluim": {
         "title": "Reserve-duty pay",
@@ -392,7 +392,7 @@
         "points": [
           "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
           "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
-          "Free no-signup toolset: 60 rights, electricity, flights, subscriptions",
+          "Free no-signup toolset: 61 rights, electricity, flights, subscriptions",
           "Privacy by default: no trackers, in-browser scans, one-click deletion"
         ]
       }
@@ -953,7 +953,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "60 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "61 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {
@@ -1109,6 +1109,11 @@
         "title": "Soldier arnona exemption",
         "desc": "Conscripts get an exemption/deep discount until discharge.",
         "how": "Apply with a service certificate."
+      },
+      "arnona_large_family": {
+        "title": "Large-family arnona discount",
+        "desc": "A sliding-scale discount by child count and household income — varies by municipality.",
+        "how": "Zakai prepares the application and points to the form and documents your municipality requires."
       },
       "water_disability": {
         "title": "Extra discounted water quota",
@@ -3396,11 +3401,149 @@
     ],
     "cta": {
       "title": "Check if a settlement owes you",
-      "body": "You can check the official class-action registry yourself — free. We explain how to spot a settlement that covers you and how to claim on time.",
-      "primary": "Class-action registry",
+      "body": "You can also check the official class-action registry yourself — free. We help you spot a settlement that covers you and claim on time, without leaving the app.",
+      "primary": "Check if you're owed",
       "secondary": "What else am I owed?"
     },
     "disclaimer": "Zakai is a self-help tool, not a lawyer and does not represent you in proceedings. Eligibility depends on the specific settlement's terms, your membership in the class, and the deadlines set. This is not legal advice and no outcome is promised."
+  },
+  "alimonyGuarantee": {
+    "metaTitle": "Guaranteed alimony — when the other parent doesn't pay, the state can pay instead | Zakai",
+    "metaDesc": "If a court ordered child support and the other parent isn't paying, National Insurance can pay it instead and collect from them directly — under the Alimony (Payment Guarantee) Law, 1972. Most eligible parents never apply.",
+    "kicker": "A right most single parents don't know about",
+    "title": "The other parent isn't paying child support? National Insurance can pay it instead",
+    "sub": "When a court has ruled on alimony and the liable parent isn't paying, the Alimony (Payment Guarantee) Law, 5732-1972 lets National Insurance pay you instead — then collect the money from the liable parent itself, including through enforcement proceedings. The initial check is free.",
+    "bigNumber": "A monthly payment instead of the parent who isn't paying",
+    "bigNumberSub": "The exact amount depends on your court judgment and the regulations (whichever is lower), plus an income test — National Insurance publishes an official calculator for your amount. This is a statutory right, not a favor.",
+    "kindsTitle": "Who's eligible",
+    "kinds": [
+      {
+        "icon": "⚖️",
+        "title": "There's a court judgment",
+        "body": "A court or religious court set an alimony amount — and the liable parent isn't paying it as ordered."
+      },
+      {
+        "icon": "💰",
+        "title": "Income test",
+        "body": "Eligibility depends on your income from work and other sources — checked against the alimony regulations."
+      },
+      {
+        "icon": "🏠",
+        "title": "Israeli residency",
+        "body": "The basic condition is Israeli residency — National Insurance checks this against your application details."
+      },
+      {
+        "icon": "👶",
+        "title": "Mainly child support",
+        "body": "The mechanism is mainly built for guaranteeing child support; eligibility details for spousal alimony vary by case."
+      }
+    ],
+    "howTitle": "How to apply",
+    "steps": [
+      "Gather two certified copies of the court judgment setting the alimony (and any relevant divorce agreement).",
+      "Fill out form Bl/5400 (\"Application for Payment under the Alimony Law\") at your nearest National Insurance branch.",
+      "Attach recent payslips and proof of any other income — you can add documents later so the application date isn't delayed.",
+      "Once approved, National Insurance pays you and pursues collecting the full amount from the liable parent itself."
+    ],
+    "cta": {
+      "title": "Check if you're eligible for guaranteed alimony",
+      "body": "We'll start with a free initial check and help you get organized with the right documents and form for National Insurance.",
+      "primary": "Check eligibility",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer and not National Insurance. Eligibility and the exact amount are determined by National Insurance based on your judgment, the regulations, and your income test — see the official calculator on the National Insurance site. This is not legal advice and no outcome is promised."
+  },
+  "businessCompensation": {
+    "metaTitle": "Indirect war-damage compensation for businesses — money that goes unclaimed | Zakai",
+    "metaDesc": "Businesses and self-employed people whose income was hurt by the war are entitled to compensation from the Tax Authority for indirect damage. Many file alone and get a lowball offer, or never file at all.",
+    "kicker": "Compensation for businesses hit by the war",
+    "title": "Was your business hurt by the war? The Tax Authority pays compensation for indirect damage",
+    "sub": "Under the Property Tax and Compensation Fund Law, 1961 and the emergency regulations issued for each operation, businesses and self-employed people whose income dropped because of the war are entitled to compensation from the Tax Authority — based on the drop in turnover compared to a parallel period. Over ₪15 billion has already been paid out under the program, and many eligible businesses either never filed or got a lower offer than they were owed.",
+    "bigNumber": "Over ₪15 billion paid so far across 525,000 claims",
+    "bigNumberSub": "State Comptroller data on the program overall. What a specific business is owed depends entirely on its own drop in turnover and the relevant track — there's no single \"typical\" number, and every case is assessed on its own.",
+    "kindsTitle": "The main tracks",
+    "kinds": [
+      {
+        "icon": "📉",
+        "title": "Turnover track",
+        "body": "Compares the turnover of the claimed month against the same calendar month before the war — compensation based on the percentage drop."
+      },
+      {
+        "icon": "🧾",
+        "title": "Expenses track",
+        "body": "Compensation based on the business's fixed expenses, for businesses the turnover track doesn't fit."
+      },
+      {
+        "icon": "🎯",
+        "title": "Red track / special zone",
+        "body": "More favorable terms for businesses in border communities, the Gaza envelope, and the northern zone."
+      },
+      {
+        "icon": "🏢",
+        "title": "Nationwide expenses track",
+        "body": "Open to eligible sectors across the whole country, not just war zones — subject to the terms of the active track."
+      }
+    ],
+    "howTitle": "How to file, and what to do if the offer is too low",
+    "steps": [
+      "Check the Tax Authority site (gov.il) for which tracks are currently open and the filing window — this changes between operations.",
+      "Prepare the turnover/expenses data for the comparison period, matching the track that fits your business.",
+      "File the claim online; an advance of 60% of the claimed amount is typically paid within 21 days.",
+      "Got too low an offer? You have the right to file an objection within 60 days, and appeal to the appeals committee within another 30 days if the objection is denied."
+    ],
+    "cta": {
+      "title": "Check if your business is owed more",
+      "body": "We'll start with a free initial check of your situation, and help you draft an objection if you already got too low an offer. Fee only on what's actually collected.",
+      "primary": "Check eligibility",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is a self-help tool, not a lawyer and not the Tax Authority. Tracks, filing windows and terms change between operations — verify the current status on gov.il before filing. This is not legal or accounting advice and no outcome is promised."
+  },
+  "holocaustSurvivors": {
+    "metaTitle": "Unclaimed rights for Holocaust survivors — a free guide, no fee | Zakai",
+    "metaDesc": "Holocaust survivors in Israel have several separate bodies that can pay a stipend, grant or support — and they change often. Zakai centralizes the right addresses. Always free, no fee.",
+    "kicker": "A free guide — 0% fee, always",
+    "title": "A Holocaust survivor in the family? Several bodies can pay — easy to miss one",
+    "sub": "Several separate bodies in Israel pay Holocaust survivors — the Authority for the Rights of Holocaust Survivors, the Claims Conference, and in some cases funds abroad. Each has its own criteria, and each can change. That's why a right gets missed — not because none is owed. This page never charges a fee for anything, ever.",
+    "bigNumber": "Several separate bodies — not one",
+    "bigNumberSub": "The Authority for the Rights of Holocaust Survivors, the Claims Conference (Article 2 / CEEF, the Hardship Fund), and funds in Germany and Austria — each with a different process and terms. Exact amounts change and get updated, so none are listed here — the official hotline below has the current numbers.",
+    "kindsTitle": "The main bodies",
+    "kinds": [
+      {
+        "icon": "🇮🇱",
+        "title": "Authority for the Rights of Holocaust Survivors",
+        "body": "A monthly stipend and annual grant for anyone recognized as a victim of Nazi persecution, based on immigration date and type of persecution. Related benefits: medication, arnona discounts, TV-license exemption, and more."
+      },
+      {
+        "icon": "🌍",
+        "title": "Claims Conference",
+        "body": "The Article 2/CEEF program — a fixed quarterly payment. The Hardship Fund — a one-time payment for anyone who never received other compensation. Both still open to new applicants."
+      },
+      {
+        "icon": "🇦🇹",
+        "title": "Austrian National Fund",
+        "body": "For survivors persecuted as Austrian Jews — a one-time payment plus ongoing annual support for those in financial hardship. Still open to new applications."
+      },
+      {
+        "icon": "📞",
+        "title": "Kol Zchut (Voice of Rights)",
+        "body": "The Authority's official national hotline — the first place to check which rights actually apply, instead of guessing."
+      }
+    ],
+    "howTitle": "What to do first",
+    "steps": [
+      "Call the Authority's \"Kol Zchut\" hotline — *5105 or 03-5682651 — and check what's already recognized and what isn't.",
+      "If the Israeli Authority hasn't covered everything, check with the Claims Conference for a program that fits.",
+      "For survivors persecuted as Austrian Jews, also check with the Austrian National Fund.",
+      "NGOs like Amuta Aviv (עמותת אביב) help survivors exhaust their rights for free — worth reaching out to them in parallel."
+    ],
+    "cta": {
+      "title": "Want help finding your way?",
+      "body": "You can ask Zakai's assistant general questions about these rights — no fee, no form, and we never touch your personal details. The real first step is always the call to Kol Zchut.",
+      "primary": "Ask the agent",
+      "secondary": "What else am I owed?"
+    },
+    "disclaimer": "Zakai is not the Authority for the Rights of Holocaust Survivors, the Claims Conference, or any other official body, and never charges a fee on this page under any circumstance. This information is general and not a substitute for contacting the official bodies directly, who can check your exact eligibility. This is not legal advice."
   },
   "carValue": {
     "metaTitle": "Car diminished value after an accident — compensation your insurer won't mention | Zakai",
@@ -3943,6 +4086,7 @@
       "arnona_oleh": "New-immigrant arnona discount",
       "arnona_senior": "Senior arnona discount",
       "arnona_soldier": "Soldier arnona exemption",
+      "arnona_large_family": "Large-family arnona discount",
       "au_age_pension": "Age Pension",
       "au_childcare_subsidy": "Child Care Subsidy",
       "au_disability_support_pension": "Disability Support Pension",
