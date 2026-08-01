@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale, getMessages, getTranslations } from "next-intl/server";
 import { Heebo, Suez_One, Manrope } from "next/font/google";
@@ -106,6 +107,10 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const user = await getCurrentUser();
   const t = await getTranslations({ locale });
+  // Set by middleware, per request — lets these two inline bootstrap scripts
+  // run under the Content-Security-Policy's script-src without needing
+  // 'unsafe-inline', which would otherwise allow any injected <script> tag.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
     // `suppressHydrationWarning` covers the `class="js"` that the pre-paint
@@ -121,6 +126,7 @@ export default async function LocaleLayout({
         {/* Mark JS as available before paint so scroll-reveal only hides content
             when it can actually reveal it (no-JS keeps everything visible). */}
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: "document.documentElement.classList.add('js')",
           }}
@@ -172,6 +178,7 @@ export default async function LocaleLayout({
           <span className="splash-tag">{t("home.title2")}</span>
         </div>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html:
               "(function(){try{var s=document.getElementById('zakai-splash');if(!s)return;if(sessionStorage.getItem('zk_splash')){s.className='splash-skip';}else{sessionStorage.setItem('zk_splash','1');}}catch(e){}})();",
