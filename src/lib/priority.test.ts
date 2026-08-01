@@ -48,6 +48,19 @@ describe("priority cadence", () => {
     expect(rankPriorityActions(20).some((a) => a.id === "vehicleCheck")).toBe(true);
   });
 
+  it("includes every calculator named in the assistant's own KNOWLEDGE ANCHORS, not just pension-fees", () => {
+    // pension-fees, payslip, severance, maternity, unemployment and miluim
+    // were all built, tested, and already named in assistantSystem.ts's own
+    // KNOWLEDGE ANCHORS — but absent from this catalog, so priorityDigestHe()
+    // (the ranked list actually injected into the agent's prompt) could never
+    // mention them. Same class of bug as the full-service-rule-pack check
+    // below, just for calculators instead of Case+Mandate verticals.
+    const ids = new Set(rankPriorityActions(50).map((a) => a.id));
+    for (const id of ["pension-fees", "payslip", "severance", "maternity", "unemployment", "miluim"]) {
+      expect(ids.has(id), `priority.ts CATALOG has no "${id}" entry`).toBe(true);
+    }
+  });
+
   // Three packs deliberately live at a differently-named page (telecom's
   // negotiation flow is /check, subscription's is /cancel, airline's is
   // /flights) — everything else's href is exactly /{vertical key}.

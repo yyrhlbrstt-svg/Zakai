@@ -222,6 +222,71 @@ const CATALOG: PriorityAction[] = [
     effort: "medium",
   },
   {
+    // Same gap as pension-fees, times four: payslip/severance/maternity/
+    // unemployment/miluim are all built, all tested, all named explicitly in
+    // the assistant's own KNOWLEDGE ANCHORS (assistantSystem.ts) — and every
+    // one of them was absent from this catalog, so none of them ever reached
+    // /leaks, the dashboard's next-best-action cards, or priorityDigestHe(),
+    // the ranked digest actually injected into the agent's prompt. Real
+    // entitlements here range from small to five-figure depending on tenure
+    // and salary; potentialShekels stays deliberately modest and illustrative
+    // (matching "incident"/"vehicleCheck" elsewhere in this file) rather than
+    // quoting a case-specific number as if it were typical.
+    id: "payslip",
+    href: "/payslip",
+    titleHe: "בדיקת תלוש שכר",
+    titleEn: "Payslip check",
+    whyHe: "מינימום, פנסיה, הבראה — תיקון קדימה כל חודש",
+    whyEn: "Minimum wage, pension, convalescence — corrected going forward",
+    potentialShekels: 80,
+    cadence: "monthly",
+    effort: "medium",
+  },
+  {
+    id: "severance",
+    href: "/severance",
+    titleHe: "פיצויי פיטורים",
+    titleEn: "Severance pay",
+    whyHe: "חודש שכר אחרון לכל שנת ותק",
+    whyEn: "One last month's salary per year of tenure",
+    potentialShekels: 400,
+    cadence: "oneTime",
+    effort: "low",
+  },
+  {
+    id: "maternity",
+    href: "/maternity",
+    titleHe: "דמי לידה",
+    titleEn: "Maternity allowance",
+    whyHe: "בדיקת זכאות וימי תשלום מול ביטוח לאומי",
+    whyEn: "Eligibility and paid days vs. National Insurance",
+    potentialShekels: 350,
+    cadence: "oneTime",
+    effort: "low",
+  },
+  {
+    id: "unemployment",
+    href: "/unemployment",
+    titleHe: "דמי אבטלה",
+    titleEn: "Unemployment benefit",
+    whyHe: "בדיקת שיעור וימי זכאות לפי גיל",
+    whyEn: "Rate and entitlement days by age",
+    potentialShekels: 300,
+    cadence: "oneTime",
+    effort: "low",
+  },
+  {
+    id: "miluim",
+    href: "/miluim",
+    titleHe: "תגמולי מילואים",
+    titleEn: "Reserve-duty pay",
+    whyHe: "תוספת 20% שרוב הזכאים לא יודעים שמגיעה",
+    whyEn: "The 20% supplement most claimants don't know exists",
+    potentialShekels: 250,
+    cadence: "oneTime",
+    effort: "low",
+  },
+  {
     // A refund reaching back years is a one-time payment, not a recurring
     // monthly amount, however many years of tax it is computed from.
     id: "taxrefund",
