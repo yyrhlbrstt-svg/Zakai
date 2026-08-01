@@ -20,7 +20,10 @@ const VERTICAL_HREF: Record<string, string> = {
 };
 
 describe("assistant + playbook knowledge stays in sync with real verticals", () => {
-  const aiSource = readFileSync("src/lib/ai.ts", "utf8");
+  // The assistant's system prompt is built by buildAssistantSystem() in
+  // assistantSystem.ts (ai.ts just calls it) — that's the file that actually
+  // carries this hardcoded knowledge now.
+  const aiSource = readFileSync("src/lib/assistantSystem.ts", "utf8");
   const playbookSource = readFileSync("src/lib/agentPlaybook.ts", "utf8");
   const leaksSource = readFileSync("src/app/[locale]/leaks/page.tsx", "utf8");
   const faqSource = readFileSync("src/lib/faq.ts", "utf8");
@@ -72,9 +75,10 @@ describe("assistant + playbook knowledge stays in sync with real verticals", () 
   });
 
   it("every full-service vertical's screen is mentioned in the FAQ digest fed straight into the assistant prompt", () => {
-    // faq.ts's faqDigest() is concatenated directly into ASSISTANT_SYSTEM
-    // (see ai.ts) — a vertical missing here is missing from the assistant's
-    // prompt a second, independent way, on top of the KNOWLEDGE block above.
+    // faq.ts's faqDigest() is concatenated directly into buildAssistantSystem()
+    // (see assistantSystem.ts) — a vertical missing here is missing from the
+    // assistant's prompt a second, independent way, on top of the KNOWLEDGE
+    // block above.
     for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
       const href = VERTICAL_HREF[pack.key] ?? `/${pack.key}`;
       expect(faqSource.includes(href), `faq.ts never mentions ${href} (pack "${pack.key}")`).toBe(true);
