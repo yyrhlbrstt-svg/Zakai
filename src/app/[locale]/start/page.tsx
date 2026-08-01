@@ -4,6 +4,7 @@ import { LeadForm } from "@/components/LeadForm";
 import { LogoMark } from "@/components/Logo";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
+import { IntentTriage } from "@/components/IntentTriage";
 import { alternateLanguages } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -49,6 +50,8 @@ export default async function StartPage({
       <p className="text-ink-soft text-[15.5px] leading-relaxed mb-6">
         {tIapp_locale_start_page("t_d8d013b8")}
       </p>
+
+      <IntentTriage />
 
       <div className="flex flex-col gap-2.5 mb-8">
         <Link href="/money">

@@ -47,7 +47,10 @@ const CEILING = 0;
 // 13 -> 14: StrategyInsightsCard.tsx picking data.topStance.labelHe/labelEn,
 // added the same day strategy/insights.ts stopped returning a Hebrew-only
 // label with nothing to fall back to for every other locale.
-const DATA_DRIVEN_TERNARIES_CEILING = 14;
+// 14 -> 15: IntentTriage.tsx picking match.titleHe/titleEn off the same
+// PriorityAction records PriorityActions.tsx already renders this exact way —
+// the same accepted pattern, one more call site, not a new kind of debt.
+const DATA_DRIVEN_TERNARIES_CEILING = 15;
 
 // Literal text: `{he ? "..."` or the backtick-string equivalent — user-facing
 // copy typed directly into JSX instead of pulled from a message catalogue.
