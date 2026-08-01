@@ -34,7 +34,7 @@ const CATALOG: PriorityAction[] = [
     href: "/money",
     titleHe: "הכסף שלי — סריקה + תיק סוכן",
     titleEn: "My money — scan + agent case",
-    whyHe: "צילום מסך → הסוכן פותח תיק עם Mandate",
+    whyHe: "צילום מסך → הסוכן פותח תיק עם הרשאה",
     whyEn: "Screenshot → agent opens Mandate case",
     potentialShekels: 150,
     cadence: "monthly",
@@ -95,7 +95,7 @@ const CATALOG: PriorityAction[] = [
     href: "/cancel",
     titleHe: "ביטול / הנחה — הסוכן שולח",
     titleEn: "Cancel / discount — agent sends",
-    whyHe: "תיק + Mandate + מעקב + תיעוד חיסכון",
+    whyHe: "תיק + הרשאה + מעקב + תיעוד חיסכון",
     whyEn: "Case + Mandate + follow-up + savings proof",
     potentialShekels: 70,
     cadence: "monthly",
@@ -122,7 +122,7 @@ const CATALOG: PriorityAction[] = [
     href: "/check",
     titleHe: "סלולר / אינטרנט — משא ומתן",
     titleEn: "Mobile / internet — negotiate",
-    whyHe: "משא ומתן מתועד + Mandate",
+    whyHe: "משא ומתן מתועד + הרשאה",
     whyEn: "Documented negotiation + Mandate",
     potentialShekels: 55,
     cadence: "monthly",
@@ -134,7 +134,7 @@ const CATALOG: PriorityAction[] = [
     href: "/bank-fees",
     titleHe: "עמלות בנק — הסוכן שולח",
     titleEn: "Bank fees — agent sends",
-    whyHe: "תיק מלא + Mandate + תיעוד",
+    whyHe: "תיק מלא + הרשאה + תיעוד",
     whyEn: "Full case + Mandate + proof",
     potentialShekels: 40,
     cadence: "monthly",
@@ -146,7 +146,7 @@ const CATALOG: PriorityAction[] = [
     href: "/electricity",
     titleHe: "חשמל — מעבר ספק עם סוכן",
     titleEn: "Electricity — agent switches supplier",
-    whyHe: "תיק + Mandate + שליחה + חיסכון מתועד",
+    whyHe: "תיק + הרשאה + שליחה + חיסכון מתועד",
     whyEn: "Case + Mandate + send + documented saving",
     potentialShekels: 45,
     cadence: "monthly",
@@ -202,6 +202,26 @@ const CATALOG: PriorityAction[] = [
     effort: "medium",
   },
   {
+    // Built (computePensionFees, /pension-fees) but was missing from this
+    // catalog entirely — every other calculator ranks alongside the agent
+    // paths above; this one just never got added, so it never surfaced on
+    // /leaks or in the assistant's own priority digest. The deposit-fee
+    // portion of a negotiated reduction is a genuinely ongoing monthly saving
+    // (a lower % on every future contribution, independent of the separate
+    // balance-fee compounding the tool also projects), so "monthly" is the
+    // honest cadence — not the much larger decades-out retirement number the
+    // full calculator shows, which stays inside that page as a projection.
+    id: "pension-fees",
+    href: "/pension-fees",
+    titleHe: "דמי ניהול פנסיה",
+    titleEn: "Pension management fees",
+    whyHe: "אחוז מיותר על כל הפקדה, כל חודש",
+    whyEn: "An avoidable % on every deposit, every month",
+    potentialShekels: 90,
+    cadence: "monthly",
+    effort: "medium",
+  },
+  {
     // A refund reaching back years is a one-time payment, not a recurring
     // monthly amount, however many years of tax it is computed from.
     id: "taxrefund",
@@ -236,7 +256,7 @@ const CATALOG: PriorityAction[] = [
     href: "/parking",
     titleHe: "ערעור על דוח חניה — הסוכן שולח",
     titleEn: "Parking ticket appeal — agent sends",
-    whyHe: "ערעור בכתב + Mandate דרך הסוכן, מול העירייה / רשות החניה",
+    whyHe: "ערעור בכתב + הרשאה דרך הסוכן, מול העירייה / רשות החניה",
     whyEn: "Written appeal + Mandate via the agent, to the municipality / parking authority",
     potentialShekels: 150,
     cadence: "oneTime",
@@ -250,7 +270,7 @@ const CATALOG: PriorityAction[] = [
     href: "/transport-fine",
     titleHe: "ערעור קנס תחבורה ציבורית — הסוכן שולח",
     titleEn: "Public-transport fine appeal — agent sends",
-    whyHe: "ערעור בכתב + Mandate דרך הסוכן, מול מפעיל התחבורה",
+    whyHe: "ערעור בכתב + הרשאה דרך הסוכן, מול מפעיל התחבורה",
     whyEn: "Written appeal + Mandate via the agent, to the transport operator",
     potentialShekels: 180,
     cadence: "oneTime",
@@ -264,7 +284,7 @@ const CATALOG: PriorityAction[] = [
     href: "/late-payment",
     titleHe: "לקוח לא משלם? הסוכן דורש",
     titleEn: "Client not paying? Agent demands",
-    whyHe: "דרישה בכתב + Mandate דרך הסוכן, לפי חוק מוסר תשלומים לספקים",
+    whyHe: "דרישה בכתב + הרשאה דרך הסוכן, לפי חוק מוסר תשלומים לספקים",
     whyEn: "Written demand + Mandate via the agent, under the Fair Payment Practices law",
     potentialShekels: 200,
     cadence: "oneTime",
@@ -297,7 +317,7 @@ const CATALOG: PriorityAction[] = [
     href: "/deposit",
     titleHe: "המשכיר לא מחזיר פיקדון? הסוכן דורש",
     titleEn: "Landlord withholding deposit? Agent demands",
-    whyHe: "דרישה בכתב + Mandate דרך הסוכן, לפי חוק השכירות והשאילה",
+    whyHe: "דרישה בכתב + הרשאה דרך הסוכן, לפי חוק השכירות והשאילה",
     whyEn: "Written demand + Mandate via the agent, under the Rent and Loan Law",
     potentialShekels: 300,
     cadence: "oneTime",
