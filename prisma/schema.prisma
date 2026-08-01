@@ -171,6 +171,14 @@ model Case {
 
   // trust timeline
   approvedAt          DateTime?
+  // The requesting IP at the moment consent was given — set once, alongside
+  // approvedAt, and never rewritten on a later re-approval. On its own a
+  // timestamp proves *when* consent was recorded, not *that* the person
+  // behind the account gave it; this is the second, independent fact a
+  // dispute or a lawyer's review would actually want to see next to it.
+  // Spoofing-resistant extraction (never the client-controllable leftmost
+  // x-forwarded-for hop) lives in clientIp(), src/lib/ratelimit.ts.
+  approvedIp          String?
   ownershipVerifiedAt DateTime?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
