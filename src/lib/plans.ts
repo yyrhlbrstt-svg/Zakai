@@ -67,6 +67,18 @@ export function upgradeRequiresPayment(
   return PLANS[next].priceAgorot > planConfig(current).priceAgorot;
 }
 
+/**
+ * The documented monthly saving at which Pro's lower fee rate (9% vs Free's
+ * 18%) pays for itself — the ~₪220/mo breakeven point GROWTH.md's pricing
+ * section derives by hand. Computed from PLANS so it can never drift out of
+ * sync with the actual price/rate numbers above.
+ */
+export function proBreakevenSavingAgorot(): number {
+  const rateDeltaBps = PLANS.FREE.feeRateBps - PLANS.PRO.feeRateBps;
+  if (rateDeltaBps <= 0) return Infinity;
+  return Math.round((PLANS.PRO.priceAgorot / rateDeltaBps) * 10000);
+}
+
 /** Case statuses that count against the active-case allowance. */
 export const ACTIVE_CASE_STATUSES = ["ANALYZED", "APPROVED", "VERIFIED", "SENT"] as const;
 

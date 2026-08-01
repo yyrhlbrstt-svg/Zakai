@@ -235,6 +235,11 @@ export default async function DashboardPage({
                 proofsEmail={proofsEmail}
                 agentRound={agentRoundMap.get(c.id) ?? 0}
                 emailConfigured={emailConfigured()}
+                vertical={c.vertical}
+                currentPlan={user!.plan}
+                documentedSavingShekels={
+                  c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
+                }
               />
             </div>
           </div>

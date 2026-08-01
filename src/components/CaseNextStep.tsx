@@ -6,6 +6,27 @@ import { useLocale } from "next-intl";
 import { Button, Input, FieldError } from "@/components/ui";
 import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
 import { scheduleFollowUpReminder, scheduleRecheckReminder } from "@/lib/reminders";
+import { rankPriorityActions } from "@/lib/priority";
+import { proBreakevenSavingAgorot } from "@/lib/plans";
+
+/**
+ * Case.vertical values (see prisma/schema.prisma) don't always share a name
+ * with the matching priority.ts CATALOG id — this is the seam between the
+ * two so the "what's next" doors below don't re-suggest the vertical the
+ * user just finished.
+ */
+const VERTICAL_TO_CATALOG_ID: Record<string, string> = {
+  telecom: "check",
+  "bank-fees": "bank-fees",
+  electricity: "electricity",
+  subscription: "cancel",
+  "refund-chase": "refund-chase",
+  airline: "flights",
+  parking: "parking",
+  "transport-fine": "transport-fine",
+  "late-payment": "late-payment",
+  deposit: "deposit",
+};
 
 type Status =
   | "ANALYZED"
@@ -34,6 +55,12 @@ interface Props {
   proofsEmail?: string;
   /** Agent auto-follow-up rounds already sent (dashboard). */
   agentRound?: number;
+  /** This case's vertical (Case.vertical) — excludes its own door from "what's next". */
+  vertical?: string;
+  /** Account's current plan — gates the Pro-upgrade nudge to Free users only. */
+  currentPlan?: string;
+  /** SavingsProof.savingMonthly in shekels — drives the Pro-upgrade nudge. */
+  documentedSavingShekels?: number;
   /**
    * Whether this environment can actually deliver email (SMTP_HOST set).
    * A case's status flips to SENT the moment the agent claims the send —
@@ -90,6 +117,8 @@ const copy: Record<string, Record<string, string>> = {
     agentRoundLabel: "סיבוב סוכן",
     nextDoors: "מה עוד?",
     recheckCta: "בדוק שוב אם המבצע נגמר",
+    upgradeNudge: "בקצב החיסכון הזה, Pro (עמלה 9% במקום 18%) יחסוך לך יותר ממה שהוא עולה",
+    upgradeCta: "לפרטי המסלולים",
   },
   en: {
     approve: "Approve & continue",
@@ -136,6 +165,8 @@ const copy: Record<string, Record<string, string>> = {
     agentRoundLabel: "Agent round",
     nextDoors: "What's next?",
     recheckCta: "Re-check if the promo ended",
+    upgradeNudge: "At this saving rate, Pro (9% fee instead of 18%) would save you more than it costs",
+    upgradeCta: "See plans",
   },
 };
 
@@ -156,6 +187,9 @@ export function CaseNextStep({
   proofsEmail,
   agentRound = 0,
   emailConfigured = true,
+  vertical,
+  currentPlan,
+  documentedSavingShekels,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -213,13 +247,20 @@ export function CaseNextStep({
       : `${origin}/`;
     const fullText = `${msg}\n${shareUrl}`;
 
-    const doors = [
-      { href: "/money", he: "בדוק שוב אם המבצע נגמר", en: "Re-check if promo ended" },
-      { href: "/electricity", he: "חשמל — מעבר ספק", en: "Electricity switch" },
-      { href: "/bank-fees", he: "עמלות בנק", en: "Bank fees" },
-      { href: "/cancel", he: "ביטול מנוי", en: "Cancel a sub" },
-      { href: "/what-am-i-owed", he: "מה מגיע לי", en: "What am I owed" },
-    ];
+    // Ranked, not a static shortlist — the same CATALOG ranking that feeds
+    // /leaks and the assistant's own prompt, so this list grows automatically
+    // as new verticals land in priority.ts. Excludes the vertical this case
+    // itself just closed.
+    const excludeId = vertical ? VERTICAL_TO_CATALOG_ID[vertical] : undefined;
+    const doors = rankPriorityActions(8)
+      .filter((a) => a.id !== excludeId)
+      .slice(0, 5)
+      .map((a) => ({ href: a.href, he: a.titleHe, en: a.titleEn }));
+
+    const showUpgradeNudge =
+      currentPlan === "FREE" &&
+      documentedSavingShekels != null &&
+      documentedSavingShekels * 100 >= proBreakevenSavingAgorot();
 
     return (
       <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] p-4">
@@ -270,6 +311,16 @@ export function CaseNextStep({
             {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
           </Button>
         </div>
+        {showUpgradeNudge && (
+          <div className="mt-3.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] px-3.5 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-[12.5px] text-ink-soft m-0 leading-snug">{t(locale, "upgradeNudge")}</p>
+            <Link href="/pricing">
+              <Button variant="ghost" className="!text-[12px] !py-1.5 !px-3 shrink-0">
+                {t(locale, "upgradeCta")}
+              </Button>
+            </Link>
+          </div>
+        )}
         <div className="mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
           <div className="text-[12px] font-extrabold text-ink-soft mb-2">{t(locale, "nextDoors")}</div>
           <div className="flex flex-wrap gap-2">
