@@ -61,21 +61,25 @@ describe("plans", () => {
     expect(upgradeRequiresPayment("FREE", "FREE")).toBe(false);
   });
 
-  it("the in-app assistant states the real, current plan prices — not stale ones", () => {
-    // The assistant's system prompt hardcodes prices as plain English text
-    // (an LLM prompt can't import PLANS at runtime the way UI code can), which
-    // is exactly how it silently drifted: PLANS.PRO was raised from ₪14.90 to
-    // ₪19.90 and PLANS.MAX from ₪29.90 to ₪49.90, PlanCards.tsx picked up the
-    // change automatically (it renders formatAgorot(p.priceAgorot) live), and
-    // the assistant kept telling users the old numbers — a live "never
-    // fabricate amounts" violation, just one nobody was checking for.
-    const source = readFileSync("src/lib/ai.ts", "utf8");
+  it("the assistant's system prompt never hardcodes a plan price that can go stale", () => {
+    // This used to hardcode prices as plain English text (an LLM prompt can't
+    // import PLANS at runtime the way UI code can), which is exactly how it
+    // silently drifted: PLANS.PRO was raised from ₪14.90 to ₪19.90 and
+    // PLANS.MAX from ₪29.90 to ₪49.90, PlanCards.tsx picked up the change
+    // automatically (it renders formatAgorot(p.priceAgorot) live), and the
+    // assistant kept telling users the old numbers — a live "never fabricate
+    // amounts" violation nobody was checking for. The fix that actually holds
+    // is structural, not a fresher hardcoded number: buildAssistantSystem()
+    // (src/lib/assistantSystem.ts) states no ₪ price at all and points to
+    // /pricing instead, so there is nothing left to drift. Guard both halves
+    // of that: the number's absence, and the live screen's presence.
+    const source = readFileSync("src/lib/assistantSystem.ts", "utf8");
     for (const id of ["PRO", "MAX"] as const) {
       const shekels = (PLANS[id].priceAgorot / 100).toFixed(2);
-      expect({ plan: id, promptContains: source.includes(`₪${shekels}`) }).toEqual({
-        plan: id,
-        promptContains: true,
-      });
+      expect(source.includes(`₪${shekels}`), `assistantSystem.ts hardcodes a ${id} price again`).toBe(
+        false,
+      );
     }
+    expect(source.includes("/pricing")).toBe(true);
   });
 });
