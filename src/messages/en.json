@@ -32,6 +32,7 @@
     "catalogBody": "More than {count} rights and benefits in one place — tax, national insurance, banking, army and more. Personalized check in your browser, no signup.",
     "rightsCta": "Open rights check",
     "trustCta": "Trust & privacy",
+    "protocolCta": "Protocol & fixed laws",
     "startCta": "Start with My money"
   },
   "nav": {
@@ -2149,7 +2150,9 @@
     "termsTitle": "Terms of Service",
     "privacyTitle": "Privacy Policy",
     "privacyContact": "Privacy questions and rights requests: {email}. We respond within the statutory timeframe.",
-    "updated": "Last updated: July 2026",
+    "updated": "Last updated: August 2026",
+    "protocolBlurb": "Protocol laws (fee only on proof, send after your approval, no outbound money scopes on Mandates) are also published as public JSON for institutions and partners to verify.",
+    "protocolLink": "Protocol page & fixed laws",
     "legalNote": "Drafted carefully but not yet attorney-reviewed; full legal review will precede any real charging.",
     "terms": [
       {
@@ -2170,7 +2173,23 @@
       },
       {
         "h": "Authorization",
-        "p": "Relaying a request to a provider in consumer matters is done as a messenger only — in the user's name, after ownership verification and explicit authorization limited to that request. The authorization is not a power of attorney for legal representation, does not empower Zakai to conduct proceedings or bind the user, and is revocable at any time — from which point no new outreach is made."
+        "p": "Relaying a request to a provider in consumer matters is done as a messenger only — in the user's name, after ownership verification and explicit Mandate authorization for that matter. The authorization is not a power of attorney for legal representation, does not empower Zakai to conduct proceedings or bind the user, and is revocable at any time — from which point no new outreach is made."
+      },
+      {
+        "h": "Follow-up rounds (2–4)",
+        "p": "The first message to a provider is sent only after your explicit tap in the app. While the Mandate stays active and not revoked, Zakai may send written follow-ups on the same matter if no reply arrives within several days (per the system schedule), up to four rounds total per case. Each message carries the verifiable authorization document; revoking the Mandate stops new sends immediately."
+      },
+      {
+        "h": "Three operating rules",
+        "p": "(1) Your letter — the system proposes wording and comparisons; you review and approve before the first send. (2) Messenger, not representation — we relay requests as a digital courier with a signed authorization, not as lawyers in proceedings. (3) Navigation, not a guarantee — checks and the catalog help you orient; eligibility is decided by the provider or competent authority."
+      },
+      {
+        "h": "Aggregate learning (without identifying you)",
+        "p": "De-identified strategy outcomes (StrategyOutcome) may be stored to improve recommendations for everyone — no name, email or case id. We do not sell personal data for marketing."
+      },
+      {
+        "h": "What we do not do",
+        "p": "No call centre promising to call you back; no posing as a law firm; no success fee before savings are documented in the system; no invented user counts or savings figures in marketing."
       },
       {
         "h": "User obligations",

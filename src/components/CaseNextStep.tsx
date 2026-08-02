@@ -94,7 +94,7 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
     sentBanner:
-      "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — הסוכן ישלח סיבוב 2 לבד.",
+      "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — אחרי כמה ימים, כל עוד ה-Mandate פעיל, הסוכן עשוי לשלוח סיבוב המשך (עד 4 סיבובים).",
     notDeliveredBanner:
       "שליחת מייל עדיין לא מוגדרת בסביבה הזו — הפנייה מוכנה אבל עוד לא יצאה בפועל לספק.",
     competitorName: "שם המתחרה",
@@ -151,7 +151,7 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
     sentBanner:
-      "Agent sent. If they replied — forward their email below (or enter amount). If not — agent auto-sends round 2.",
+      "Agent sent. If they replied — forward their email below (or enter amount). If not — after several days, while your Mandate is active, the agent may send a follow-up round (up to 4 total).",
     notDeliveredBanner:
       "Email delivery isn't configured in this environment yet — the request is ready but hasn't actually reached the provider.",
     competitorName: "Competitor name",

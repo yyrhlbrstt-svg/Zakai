@@ -108,6 +108,9 @@ export default async function AboutPage({
           <Link href="/trust">
             <Button variant="ghost">{t("trustCta")}</Button>
           </Link>
+          <Link href="/protocol">
+            <Button variant="ghost">{t("protocolCta")}</Button>
+          </Link>
           <Link href="/money">
             <Button>{t("startCta")}</Button>
           </Link>
