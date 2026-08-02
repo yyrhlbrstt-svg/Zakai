@@ -124,11 +124,13 @@ export function buildZakaiProtocolDocument(origin: string) {
       schema: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.rightsSchema),
       rights_catalog: `${origin}/api/rights/catalog`,
       rights_openapi: `${origin}/.well-known/zakai-openapi.json`,
+      fairness_scores: `${origin}/api/fairness/scores?market=IL`,
       features: {
         mandate_verify: mandateSigningLive(),
         outcome_graph: true,
         embedded_widget: true,
         collective_auction: false,
+        fairness_scores: true,
       },
       packs_builtin: Object.keys(MARKETS),
     },

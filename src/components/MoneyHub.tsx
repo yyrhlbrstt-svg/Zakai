@@ -47,6 +47,7 @@ const copy: Record<string, Record<string, string>> = {
     feeNote: "עמלה רק אם נחסך בפועל ותועד — לא על הסריקה עצמה.",
     occurrences: "הופיע {n} פעמים",
     nextStep: "לחץ על תיק — הסוכן מכין מכתב + Mandate ועוקב",
+    universalCancelCta: "רק מכתבי ביטול להעתקה (בלי שליחה מזכאי)",
     errGeneric: "משהו השתבש. נסה שוב.",
     errLimit: "הגעת למגבלת התיקים. שדרג או סגור תיק קיים.",
     errNeedsEmail: "חסר אימייל לספק — פתח כל חיוב בנפרד או השתמש בביטול מנוי עם כתובת.",
@@ -82,6 +83,7 @@ const copy: Record<string, Record<string, string>> = {
     feeNote: "A success fee only if a real saving is documented — not for the scan itself.",
     occurrences: "Seen {n} times",
     nextStep: "Tap a case — agent drafts letter + Mandate and tracks",
+    universalCancelCta: "Copy-only cancel letters (you send)",
     errGeneric: "Something went wrong. Try again.",
     errLimit: "Case limit reached. Upgrade or close an open case.",
     errNeedsEmail: "Missing provider email — open charges one by one or use cancel with an address.",
@@ -150,6 +152,7 @@ const copy: Record<string, Record<string, string>> = {
     feeNote: "Комиссия только с подтверждённой экономии.",
     occurrences: "Раз: {n}",
     nextStep: "Нажмите — агент откроет дело",
+    universalCancelCta: "Письма для отмены — только копирование",
     errGeneric: "Ошибка.",
     errLimit: "Лимит дел.",
     errNeedsEmail: "Нет email поставщика.",
@@ -538,6 +541,11 @@ export function MoneyHub({
               <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13.5px] font-bold">
                 {tx(locale, "nextStep")}
               </div>
+              <Link href="/cancel/universal" className="no-underline block">
+                <Button variant="ghost" className="w-full !text-[13px]">
+                  {tx(locale, "universalCancelCta")}
+                </Button>
+              </Link>
 
               {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
 

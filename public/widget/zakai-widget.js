@@ -77,10 +77,21 @@
       const text = relevant
         ? "💡 " + (relevant.display_name.he || relevant.display_name.en || relevant.id)
         : "✓ בדוק זכויות נוספות";
-      const ctaUrl = CONFIG.appOrigin + "/he/money";
+      const ctaUrl =
+        this.container.dataset.ctaUrl ||
+        CONFIG.appOrigin + "/he/money";
+      const brand = this.container.dataset.brandName || "Zakai Fairness Check";
+      const hideBadge = this.container.dataset.hideBadge === "true";
+      const badge = hideBadge
+        ? ""
+        : '<div class="zakai-badge">' + brand + "</div>";
+      const accent = this.container.dataset.accent;
+      if (accent) {
+        this.container.style.setProperty("--zakai-accent", accent);
+      }
       this.container.innerHTML =
         '<div class="zakai-widget" data-state="ready">' +
-        '<div class="zakai-badge">Zakai Fairness Check</div>' +
+        badge +
         '<div class="zakai-result">' +
         text +
         "</div>" +
@@ -100,11 +111,24 @@
     }
   }
 
-  function autoInit() {
-    document.querySelectorAll("[data-zakai-widget]").forEach(function (el) {
-      if (el._zakai) return;
-      el._zakai = new ZakaiWidget(el);
+  function parseZakaiCheck(el) {
+    const raw = el.getAttribute("data-zakai-check");
+    if (!raw) return;
+    raw.split(",").forEach(function (part) {
+      const kv = part.split(":");
+      if (kv[0] === "provider" && kv[1]) el.dataset.provider = kv[1].trim();
+      if (kv[0] === "amount" && kv[1]) el.dataset.amount = kv[1].trim();
     });
+  }
+
+  function autoInit() {
+    document
+      .querySelectorAll("[data-api-key], [data-zakai-widget], [data-zakai-check]")
+      .forEach(function (el) {
+        if (el._zakai) return;
+        parseZakaiCheck(el);
+        el._zakai = new ZakaiWidget(el);
+      });
   }
 
   if (document.readyState === "loading") {

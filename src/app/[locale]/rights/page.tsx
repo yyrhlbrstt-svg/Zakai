@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { RightsChecker } from "@/components/RightsChecker";
+import { RightsCatalogIndex } from "@/components/RightsCatalogIndex";
 import { bcp47, type Locale } from "@/i18n/config";
 
 /** Public — the literal meaning of the brand: are you getting what you're entitled to? */
@@ -19,6 +20,7 @@ export default async function RightsPage({
         {t("subtitle")}
       </p>
       <RightsChecker bcp47={bcp47[locale as Locale]} />
+      <RightsCatalogIndex locale={locale} />
     </main>
   );
 }

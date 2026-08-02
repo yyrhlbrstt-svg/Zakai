@@ -48,11 +48,13 @@
 
 ### עכשיו (קוד — סוכן / solo)
 
-1. ~~דפי SEO לזכויות~~ + sitemap
+1. ~~דפי SEO לזכויות~~ + sitemap + אינדקס ב-`/rights`
 2. ~~ביטול אוניברסלי client-only~~
-3. ~~`/api/protocol`~~
-4. 10 פוסטי SEO נוספים = תוכן ב-`rights.items` (כבר קיים) — שיווק ידני
-5. `zakai-packs` repo חיצוני + `ZML_PACKS_CDN` (מייסד + AWS)
+3. ~~`GET /api/protocol`~~
+4. ~~`GET /api/fairness/scores`~~ (StrategyOutcome, MIN_SAMPLE)
+5. ~~ווידג'ט: mount על `data-api-key`, white-label~~
+6. 10 פוסטי SEO נוספים = תוכן ב-`rights.items` (כבר קיים) — שיווק ידני
+7. `zakai-packs` repo חיצוני + `ZML_PACKS_CDN` (מייסד + AWS)
 
 ### חודש 3–9 (B2B)
 
