@@ -79,6 +79,9 @@ FULL PRODUCT MAP (pick the tightest fit)
 - /bank-loan-fee — IL loan opening/handling fee letter; use /bank-fees agent if the bank stalls
 - /water-bill — IL concealed leak water credit letter
 - /vaad-bait — IL HOA charge transparency letter
+- /landlord-repairs — IL rental essential repairs demand letter
+- /duplicate-charge — IL duplicate/wrong charge dispute letter
+- /telecom-exit — IL telecom disconnect and post-disconnect refunds letter
 - /payslip — minimum wage, pension, convalescence checks
 - /miluim — reserve-duty pay (often-missed supplement)
 - /maternity /unemployment /severance /taxrefund — calculators + paths

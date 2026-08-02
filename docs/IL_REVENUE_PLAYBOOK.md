@@ -44,8 +44,8 @@ Escalation: `/bank-loan-fee` letter pack → `/bank-fees` agent when the bank st
 ## Next verticals to build (backlog)
 
 1. **Dedicated loan-fee agent** — optional Case vertical if `/bank-fees` conflates too many bank disputes.
-2. **Letter doors on leaks** — `/landlord-repairs`, `/duplicate-charge`, `/telecom-exit` still only in sitemap/tools.
-3. **Inbound E2E test** — fixture emails for lump remaining vs refund semantics.
+2. **Inbound E2E test** — fixture emails for lump remaining vs refund semantics.
+3. **Pack i18n** — translated titles for GB/US/DE pack rights in messages (statutory source is fallback today).
 
 Machine map: `GET /api/network/opportunity-map?market=IL`
 

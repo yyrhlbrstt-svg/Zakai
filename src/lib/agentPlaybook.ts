@@ -90,6 +90,9 @@ GLOBAL DOORS (letter packs — user sends; cite sources, never invent amounts):
 - /bank-loan-fee — loan opening / handling fee letter (IL); escalate to /bank-fees agent if needed
 - /water-bill — concealed leak water bill credit letter (IL)
 - /vaad-bait — HOA / building committee charge transparency letter (IL)
+- /landlord-repairs — essential rental repairs demand letter (IL)
+- /duplicate-charge — duplicate or erroneous charge dispute letter (IL)
+- /telecom-exit — telecom disconnect and refund letter (IL)
 - /student-loan-overpayment — UK SLC overpayment (RightsChecker default UK)
 - /wage-statement-audit — US FLSA wage statements (default US)
 - /debt-collector-dispute — US FDCPA validation letter (default US)
