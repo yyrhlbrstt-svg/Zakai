@@ -51,10 +51,17 @@ is always free).
 - Reference SDK (TypeScript, MIT): `sdk/` in the repository — verify, decide,
   and build settlement records.
 - MCP server (verification-only): `zakai-mandate-mcp` in `sdk/` exposes
-  `verify_mandate`, `decide_action`, `check_revocation` and `list_scopes` to
-  any MCP-speaking agent platform. It holds no private keys and cannot issue
-  mandates or act for anyone — it only answers "is this authority real, in
-  scope, and unrevoked, right now".
+  `verify_mandate`, `decide_action`, `check_revocation`, `get_trust_registry`,
+  `list_scopes` and `predict_outcome` to any MCP-speaking agent platform.
+  Every verification resolves the issuer through the published trust registry
+  (below), so unknown or suspended issuers are rejected before cryptography.
+  The server holds no private keys and cannot issue mandates or act for
+  anyone — it only answers "is this authority real, in scope, and unrevoked,
+  right now".
+- Trust registry — who may issue mandates at all, where their keys live, and
+  the permanently forbidden scope set:
+  [/.well-known/zakai-trust-registry.json](https://zakai-3uxj.vercel.app/.well-known/zakai-trust-registry.json).
+  Becoming a delegated issuer is self-serve: `POST /api/mandate/delegation/apply`.
 - Conformance: authorization test vectors implemented independently in
   Python, Go, Java, Ruby and PHP; settlement vectors and canonical-hash
   fixtures included (`reference/` in the repository).

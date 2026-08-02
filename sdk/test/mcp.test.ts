@@ -8,26 +8,28 @@ import { createMandateMcpServer } from "../src/mcp.js";
 /**
  * The MCP surface is what a third-party agent platform actually touches, so
  * it is tested the way one would use it: a real MCP client over a real
- * (in-memory) transport, a genuinely issued Ed25519 mandate, and the JWKS +
- * revocation status served by a stubbed fetch standing in for the public
- * endpoints. No shortcuts through the tool handlers.
+ * (in-memory) transport, a genuinely issued Ed25519 mandate, and the trust
+ * registry + JWKS + revocation status served by a stubbed fetch standing in
+ * for the public endpoints. No shortcuts through the tool handlers.
  */
 
-async function connectedClient() {
-  const server = createMandateMcpServer({ baseUrl: "https://issuer.test" });
+const ISSUER = "https://issuer.test";
+
+async function connectedClient(oracleApiKey?: string) {
+  const server = createMandateMcpServer({ baseUrl: ISSUER, oracleApiKey });
   const client = new Client({ name: "test-client", version: "0.0.1" });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
   return client;
 }
 
-async function issueTestMandate() {
+async function issueTestMandate(overrides: { issuer?: string } = {}) {
   const { privateKey } = await generateKeyPair("EdDSA", { crv: "Ed25519", extractable: true });
   const key: SigningKey = { kid: "mcp-test-key", privateJwk: await exportJWK(privateKey) };
   const token = await issueMandate(
     {
       jti: "mcp-test-jti-0001",
-      issuer: "https://issuer.test",
+      issuer: overrides.issuer ?? ISSUER,
       audience: "acme-bank",
       subject: "user-42",
       principal: { name: "Test Principal" },
@@ -41,11 +43,46 @@ async function issueTestMandate() {
   return { token, publicJwk };
 }
 
-function stubPublicEndpoints(publicJwk: JWK, status: "active" | "revoked" | "down") {
+interface StubOptions {
+  status?: "active" | "revoked" | "down";
+  /** Issuer entry overrides in the served registry. */
+  issuerStatus?: "active" | "suspended";
+  allowedScopes?: string[];
+  oracle?: { probability: number };
+}
+
+function stubPublicEndpoints(publicJwk: JWK, opts: StubOptions = {}) {
+  const { status = "active", issuerStatus = "active" } = opts;
+  const allowedScopes = opts.allowedScopes ?? [
+    "contract:cancel",
+    "dispute:charge",
+    "negotiate:tariff",
+  ];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: string | URL | Request) => {
       const url = String(input);
+      if (url.includes("/.well-known/zakai-trust-registry.json")) {
+        return new Response(
+          JSON.stringify({
+            version: 1,
+            updated: "2026-08-02",
+            forbiddenScopes: ["payment:initiate"],
+            issuers: [
+              {
+                iss: ISSUER,
+                name: "Test Issuer",
+                jwks_uri: `${ISSUER}/.well-known/zakai-jwks.json`,
+                status_list_uri: `${ISSUER}/api/mandate/revocations`,
+                allowed_scopes: allowedScopes,
+                status: issuerStatus,
+                admitted_at: "2026-07-01",
+              },
+            ],
+          }),
+          { headers: { "content-type": "application/json" } },
+        );
+      }
       if (url.includes("/.well-known/zakai-jwks.json")) {
         return new Response(JSON.stringify({ keys: [publicJwk] }), {
           headers: { "content-type": "application/json" },
@@ -61,6 +98,11 @@ function stubPublicEndpoints(publicJwk: JWK, status: "active" | "revoked" | "dow
           ),
           { headers: { "content-type": "application/json" } },
         );
+      }
+      if (url.includes("/api/oracle/predict")) {
+        return new Response(JSON.stringify(opts.oracle ?? { probability: 0.7, confident: true }), {
+          headers: { "content-type": "application/json" },
+        });
       }
       throw new Error(`unexpected fetch in test: ${url}`);
     }),
@@ -84,7 +126,9 @@ describe("zakai-mandate MCP server", () => {
     expect(tools.map((t) => t.name).sort()).toEqual([
       "check_revocation",
       "decide_action",
+      "get_trust_registry",
       "list_scopes",
+      "predict_outcome",
       "verify_mandate",
     ]);
     // No issuance surface, by design.
@@ -103,9 +147,9 @@ describe("zakai-mandate MCP server", () => {
     expect(payload.forbidden).toContain("payment:initiate");
   });
 
-  it("verifies a genuinely issued mandate end to end", async () => {
+  it("verifies a genuinely issued mandate through the trust registry", async () => {
     const { token, publicJwk } = await issueTestMandate();
-    stubPublicEndpoints(publicJwk, "active");
+    stubPublicEndpoints(publicJwk);
     const client = await connectedClient();
 
     const payload = firstText(
@@ -113,15 +157,62 @@ describe("zakai-mandate MCP server", () => {
         name: "verify_mandate",
         arguments: { token, audience: "acme-bank" },
       }),
-    ) as { ok: boolean; claims: { jti: string; scopes: string[] } };
+    ) as { ok: boolean; claims: { jti: string; scopes: string[] }; issuer: { iss: string; name: string } };
     expect(payload.ok).toBe(true);
     expect(payload.claims.jti).toBe("mcp-test-jti-0001");
     expect(payload.claims.scopes).toEqual(["contract:cancel", "dispute:charge"]);
+    expect(payload.issuer).toEqual({ iss: ISSUER, name: "Test Issuer", status: "active" });
+  });
+
+  it("rejects an issuer that is not in the trust registry, before any cryptography", async () => {
+    const { token, publicJwk } = await issueTestMandate({ issuer: "https://rogue.example" });
+    stubPublicEndpoints(publicJwk);
+    const client = await connectedClient();
+
+    const payload = firstText(
+      await client.callTool({
+        name: "verify_mandate",
+        arguments: { token, audience: "acme-bank" },
+      }),
+    ) as { ok: boolean; code: string };
+    expect(payload.ok).toBe(false);
+    expect(payload.code).toBe("UNKNOWN_ISSUER");
+  });
+
+  it("a suspended issuer's perfectly-signed mandate stops verifying immediately", async () => {
+    const { token, publicJwk } = await issueTestMandate();
+    stubPublicEndpoints(publicJwk, { issuerStatus: "suspended" });
+    const client = await connectedClient();
+
+    const payload = firstText(
+      await client.callTool({
+        name: "verify_mandate",
+        arguments: { token, audience: "acme-bank" },
+      }),
+    ) as { ok: boolean; code: string };
+    expect(payload.ok).toBe(false);
+    expect(payload.code).toBe("ISSUER_SUSPENDED");
+  });
+
+  it("an issuer that granted beyond its registry entry poisons the whole mandate", async () => {
+    const { token, publicJwk } = await issueTestMandate();
+    // Registry says this issuer may only grant negotiate:tariff.
+    stubPublicEndpoints(publicJwk, { allowedScopes: ["negotiate:tariff"] });
+    const client = await connectedClient();
+
+    const payload = firstText(
+      await client.callTool({
+        name: "verify_mandate",
+        arguments: { token, audience: "acme-bank" },
+      }),
+    ) as { ok: boolean; code: string };
+    expect(payload.ok).toBe(false);
+    expect(payload.code).toBe("ISSUER_SCOPE_EXCEEDED");
   });
 
   it("rejects the same mandate for the wrong audience", async () => {
     const { token, publicJwk } = await issueTestMandate();
-    stubPublicEndpoints(publicJwk, "active");
+    stubPublicEndpoints(publicJwk);
     const client = await connectedClient();
 
     const payload = firstText(
@@ -136,7 +227,7 @@ describe("zakai-mandate MCP server", () => {
 
   it("decide_action permits a confirmed act on an active mandate", async () => {
     const { token, publicJwk } = await issueTestMandate();
-    stubPublicEndpoints(publicJwk, "active");
+    stubPublicEndpoints(publicJwk);
     const client = await connectedClient();
 
     const payload = firstText(
@@ -157,41 +248,71 @@ describe("zakai-mandate MCP server", () => {
 
   it("decide_action denies when the mandate is revoked", async () => {
     const { token, publicJwk } = await issueTestMandate();
-    stubPublicEndpoints(publicJwk, "revoked");
+    stubPublicEndpoints(publicJwk, { status: "revoked" });
     const client = await connectedClient();
 
     const payload = firstText(
       await client.callTool({
         name: "decide_action",
-        arguments: {
-          token,
-          audience: "acme-bank",
-          action: "contract:cancel",
-          actConfirmation: "ref",
-        },
+        arguments: { token, audience: "acme-bank", action: "contract:cancel", actConfirmation: "ref" },
       }),
-    ) as { ok: boolean; decision: { decision: string; reason: string } };
+    ) as { decision: { decision: string; reason: string } };
     expect(payload.decision.decision).toBe("deny");
     expect(payload.decision.reason).toBe("revoked");
   });
 
   it("fails closed when the status endpoint is unreachable", async () => {
     const { token, publicJwk } = await issueTestMandate();
-    stubPublicEndpoints(publicJwk, "down");
+    stubPublicEndpoints(publicJwk, { status: "down" });
     const client = await connectedClient();
 
     const payload = firstText(
       await client.callTool({
         name: "decide_action",
-        arguments: {
-          token,
-          audience: "acme-bank",
-          action: "contract:cancel",
-          actConfirmation: "ref",
-        },
+        arguments: { token, audience: "acme-bank", action: "contract:cancel", actConfirmation: "ref" },
       }),
-    ) as { ok: boolean; decision: { decision: string; reason: string } };
+    ) as { decision: { decision: string; reason: string } };
     expect(payload.decision.decision).toBe("deny");
     expect(payload.decision.reason).toBe("revocation_unknown");
+  });
+
+  it("get_trust_registry returns the normalised issuer list", async () => {
+    const { publicJwk } = await issueTestMandate();
+    stubPublicEndpoints(publicJwk);
+    const client = await connectedClient();
+
+    const payload = firstText(await client.callTool({ name: "get_trust_registry", arguments: {} })) as {
+      ok: boolean;
+      registry: { issuers: { iss: string; allowedScopes: string[] }[]; forbiddenScopes: string[] };
+    };
+    expect(payload.ok).toBe(true);
+    expect(payload.registry.issuers[0].iss).toBe(ISSUER);
+    expect(payload.registry.issuers[0].allowedScopes).toContain("contract:cancel");
+    expect(payload.registry.forbiddenScopes).toContain("payment:initiate");
+  });
+
+  it("predict_outcome refuses without an Oracle key and answers with one", async () => {
+    const { publicJwk } = await issueTestMandate();
+    stubPublicEndpoints(publicJwk, { oracle: { probability: 0.42 } });
+
+    const noKey = await connectedClient();
+    const refused = firstText(
+      await noKey.callTool({
+        name: "predict_outcome",
+        arguments: { market: "IL", vertical: "subscription", counterparty: "yes" },
+      }),
+    ) as { ok: boolean; code: string };
+    expect(refused.ok).toBe(false);
+    expect(refused.code).toBe("ORACLE_KEY_REQUIRED");
+
+    const withKey = await connectedClient("oracle-key-123");
+    const answered = firstText(
+      await withKey.callTool({
+        name: "predict_outcome",
+        arguments: { market: "IL", vertical: "subscription", counterparty: "yes" },
+      }),
+    ) as { ok: boolean; prediction: { probability: number } };
+    expect(answered.ok).toBe(true);
+    expect(answered.prediction.probability).toBe(0.42);
   });
 });

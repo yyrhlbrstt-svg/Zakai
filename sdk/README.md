@@ -50,8 +50,9 @@ npm install @zakai/mandate-sdk
 
 The same verification surface, packaged for the protocol agent platforms are
 converging on. One command gives an MCP client (Claude, Cursor, or anything
-else that speaks MCP) four tools — `verify_mandate`, `decide_action`,
-`check_revocation`, `list_scopes`:
+else that speaks MCP) six tools — `verify_mandate`, `decide_action`,
+`check_revocation`, `get_trust_registry`, `list_scopes`, and
+`predict_outcome` (Oracle; needs `ZAKAI_ORACLE_API_KEY`):
 
 ```bash
 npm run build && node dist/mcp-bin.js   # or, once published: npx zakai-mandate-mcp
@@ -67,9 +68,14 @@ npm run build && node dist/mcp-bin.js   # or, once published: npx zakai-mandate-
 
 Deliberately **verification-only**: the server holds no private keys, cannot
 issue mandates, and cannot act on anyone's behalf — the machine equivalent of
-reading an ID card, not signing one. `decide_action` checks live revocation
-and fails closed: an unreachable status endpoint is a deny, never a shrug.
-`ZAKAI_BASE_URL` points it at a staging or self-hosted issuer.
+reading an ID card, not signing one. Every verification resolves the token's
+issuer through the published **trust registry** first: unknown, suspended or
+withdrawn issuers are rejected before any cryptography, and an issuer that
+granted a scope beyond its registry entry poisons the whole mandate.
+`decide_action` additionally checks live revocation at the issuer's own
+status route and fails closed: an unreachable status endpoint is a deny,
+never a shrug. `ZAKAI_BASE_URL` points it at a staging or self-hosted
+registry operator.
 
 ## Quickstart: verify a mandate someone sent you
 

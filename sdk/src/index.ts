@@ -19,3 +19,4 @@ export * from "./mandate.js";
 export * from "./decision.js";
 export * from "./settlement.js";
 export * from "./conformance.js";
+export * from "./registry.js";

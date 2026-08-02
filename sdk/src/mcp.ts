@@ -5,33 +5,40 @@
  * consumer-facing agent will eventually be asked: *prove this human
  * authorised you to do that.*
  *
+ * Every verification resolves through the published trust registry, not a
+ * hardwired key: the token's issuer must be admitted, active, and within its
+ * registered scope grant before its signature even matters. That is the
+ * network position in one sentence — signatures are checked locally, but
+ * *who may issue at all* is answered by the registry Zakai operates.
+ *
  * Deliberately verification-only. The server verifies signatures, checks
  * revocation, and evaluates scope decisions — the machine equivalent of
  * reading an ID card. It cannot issue mandates, cannot act on anyone's
- * behalf, and holds no private keys; issuance stays inside Zakai, behind the
- * principal's own explicit consent. That asymmetry is the legal design, not
- * an implementation gap: a verifier that turns out to be wrong has rejected
- * or accepted a piece of paper, while an issuer that turns out to be wrong
- * has signed away somebody's authority.
+ * behalf, and holds no private keys; issuance stays inside Zakai (and its
+ * admitted delegated issuers), behind the principal's own explicit consent.
+ * That asymmetry is the legal design, not an implementation gap: a verifier
+ * that turns out to be wrong has misread a document, while an issuer that
+ * turns out to be wrong has signed away somebody's authority.
  *
- * Every tool is pure with respect to Zakai: nothing here requires an API
- * key, an account, or a network call to any endpoint that is not already
- * public (the JWKS and the revocation status route, both CORS-open by
- * design).
+ * The only tool that touches anything non-public is predict_outcome, which
+ * fronts the Oracle (calibrated outcome predictions from Zakai's
+ * de-identified outcome graph) and requires the operator's own API key.
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import {
-  MandateError,
-  verifyMandateFromUrl,
-  type MandateClaims,
-} from "./mandate.js";
+import { MandateError, type MandateClaims } from "./mandate.js";
 import { decide, type RevocationState } from "./decision.js";
 import { SCOPES, FORBIDDEN_SCOPES } from "./scopes.js";
+import {
+  REGISTRY_PATH,
+  RegistryError,
+  fetchTrustRegistry,
+  verifyMandateWithRegistry,
+  type RegistryIssuer,
+} from "./registry.js";
 
 export const DEFAULT_BASE_URL = "https://zakai-3uxj.vercel.app";
-export const DEFAULT_JWKS_URI = `${DEFAULT_BASE_URL}/.well-known/zakai-jwks.json`;
 
 /** One JSON shape for every outcome, success or failure — agents parse, not read. */
 function asText(payload: unknown): { content: { type: "text"; text: string }[] } {
@@ -39,25 +46,30 @@ function asText(payload: unknown): { content: { type: "text"; text: string }[] }
 }
 
 function errorPayload(err: unknown): { ok: false; error: string; code: string } {
-  if (err instanceof MandateError) {
+  if (err instanceof MandateError || err instanceof RegistryError) {
     return { ok: false, error: err.message, code: err.code };
   }
   return { ok: false, error: err instanceof Error ? err.message : String(err), code: "UNEXPECTED" };
 }
 
+function issuerSummary(issuer: RegistryIssuer): Pick<RegistryIssuer, "iss" | "name" | "status"> {
+  return { iss: issuer.iss, name: issuer.name, status: issuer.status };
+}
+
 /**
- * Fetch live revocation status for a jti from the issuer's public status
+ * Fetch live revocation status for a jti from an issuer's public status
  * route. Anything other than a definite answer maps to "unknown", which
  * `decide()` treats as deny — fail closed, never "probably fine".
  */
 export async function fetchRevocationState(
   jti: string,
-  baseUrl: string = DEFAULT_BASE_URL,
+  issuerOrigin: string,
 ): Promise<{ state: RevocationState; revokedAt?: string }> {
   try {
-    const res = await fetch(`${baseUrl}/api/mandate/status/${encodeURIComponent(jti)}`, {
-      headers: { accept: "application/json" },
-    });
+    const res = await fetch(
+      `${issuerOrigin.replace(/\/+$/, "")}/api/mandate/status/${encodeURIComponent(jti)}`,
+      { headers: { accept: "application/json" } },
+    );
     if (!res.ok) return { state: "unknown" };
     const body = (await res.json()) as { status?: string; revokedAt?: string };
     if (body.status === "revoked") return { state: "revoked", revokedAt: body.revokedAt };
@@ -69,8 +81,10 @@ export async function fetchRevocationState(
 }
 
 export interface MandateMcpOptions {
-  /** Issuer base URL for JWKS + revocation status. Defaults to production Zakai. */
+  /** Registry operator base URL. Defaults to production Zakai. */
   baseUrl?: string;
+  /** API key for the Oracle prediction tool (ZAKAI_ORACLE_API_KEY). */
+  oracleApiKey?: string;
 }
 
 /**
@@ -79,19 +93,19 @@ export interface MandateMcpOptions {
  */
 export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServer {
   const baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
-  const jwksUri = `${baseUrl}/.well-known/zakai-jwks.json`;
+  const registryUri = `${baseUrl}${REGISTRY_PATH}`;
 
   const server = new McpServer({
     name: "zakai-mandate",
-    version: "0.1.0",
+    version: "0.2.0",
   });
 
   server.registerTool(
     "verify_mandate",
     {
-      title: "Verify a Zakai Mandate",
+      title: "Verify a Zakai-format Mandate",
       description:
-        "Cryptographically verify a Zakai Mandate token (Ed25519 JWS) against the issuer's published JWKS and return its claims: who authorised what, for which institution (audience), in which market, valid from/until. Verification only — this does not check revocation; use decide_action for a full permit/deny answer.",
+        "Full network verification of a Mandate token (Ed25519 JWS): resolve its issuer through the published trust registry (unknown, suspended or withdrawn issuers are rejected before any cryptography), verify the signature against that issuer's registered JWKS, and confirm every granted scope is within the issuer's registry entry. Returns the claims and the issuer's registry identity. Does not check revocation — use decide_action for a full permit/deny answer.",
       inputSchema: {
         token: z.string().min(20).describe("The compact JWS mandate token presented to you"),
         audience: z
@@ -103,8 +117,8 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ token, audience }) => {
       try {
-        const claims: MandateClaims = await verifyMandateFromUrl(token, { audience, jwksUri });
-        return asText({ ok: true, claims });
+        const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
+        return asText({ ok: true, claims, issuer: issuerSummary(issuer) });
       } catch (err) {
         return asText(errorPayload(err));
       }
@@ -116,7 +130,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "May this agent do this, now?",
       description:
-        "The full authorisation decision for one concrete action under a Zakai Mandate: signature verification, audience/subject/market checks, scope grant + forbidden-scope registry, validity window, live revocation status, and per-act confirmation where the scope requires it. Returns permit with obligations, or deny with a machine-stable reason. Fail-closed: unknown revocation status is a deny, not a warning.",
+        "The full authorisation decision for one concrete action under a Mandate: trust-registry resolution of the issuer, signature verification, audience/subject/market checks, scope grant + forbidden-scope registry, validity window, live revocation status from the issuer's status route, and per-act confirmation where the scope requires it. Returns permit with obligations, or deny with a machine-stable reason. Fail-closed: unknown revocation status is a deny, not a warning.",
       inputSchema: {
         token: z.string().min(20).describe("The compact JWS mandate token"),
         audience: z.string().min(1).describe("Your own institution id"),
@@ -137,8 +151,9 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ token, audience, action, actConfirmation, subject, market }) => {
       try {
-        const claims = await verifyMandateFromUrl(token, { audience, jwksUri });
-        const revocation = await fetchRevocationState(claims.jti, baseUrl);
+        const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
+        const issuerOrigin = new URL(issuer.iss).origin;
+        const revocation = await fetchRevocationState(claims.jti, issuerOrigin);
         const decision = decide({
           claims,
           action,
@@ -148,7 +163,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
           actConfirmation,
           revocation: revocation.state,
         });
-        return asText({ ok: true, decision, revocation });
+        return asText({ ok: true, decision, revocation, issuer: issuerSummary(issuer) });
       } catch (err) {
         return asText(errorPayload(err));
       }
@@ -160,15 +175,39 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "Check mandate revocation status",
       description:
-        "Live revocation status for a mandate id (jti) from the issuer's public status route: active, revoked (with timestamp), or unknown. Treat unknown as not-authorised.",
+        "Live revocation status for a mandate id (jti) from an issuer's public status route: active, revoked (with timestamp), or unknown. Treat unknown as not-authorised. issuerOrigin defaults to the registry operator.",
       inputSchema: {
         jti: z.string().min(8).max(128).describe("The mandate's jti claim"),
+        issuerOrigin: z
+          .string()
+          .url()
+          .optional()
+          .describe("The issuer's origin (its iss URL); defaults to the registry operator"),
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    async ({ jti }) => {
-      const revocation = await fetchRevocationState(jti, baseUrl);
+    async ({ jti, issuerOrigin }) => {
+      const revocation = await fetchRevocationState(jti, issuerOrigin ?? baseUrl);
       return asText({ ok: true, jti, ...revocation });
+    },
+  );
+
+  server.registerTool(
+    "get_trust_registry",
+    {
+      title: "Fetch the Mandate trust registry",
+      description:
+        "The published registry of admitted issuers: who may issue mandates at all, where each issuer's public keys and status list live, which scopes each may grant, and each issuer's current status (active/suspended/withdrawn). Also carries the forbidden-scope set that binds every issuer permanently. This is the document that turns signature verification into network trust.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async () => {
+      try {
+        const registry = await fetchTrustRegistry(registryUri);
+        return asText({ ok: true, registryUri, registry });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
     },
   );
 
@@ -177,7 +216,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "List the Mandate scope registry",
       description:
-        "The closed set of scopes a Zakai Mandate can carry, each with its risk tier and whether it demands per-act confirmation — plus the forbidden set (outward money movement), which no mandate may ever carry. Scopes are a registry, not free text: an unknown scope is a deny.",
+        "The closed set of scopes a Mandate can carry, each with its risk tier and whether it demands per-act confirmation — plus the forbidden set (outward money movement), which no mandate and no issuer may ever carry. Scopes are a registry, not free text: an unknown scope is a deny.",
       inputSchema: {},
       annotations: { readOnlyHint: true },
     },
@@ -188,6 +227,50 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
         forbidden: FORBIDDEN_SCOPES,
         note: "Forbidden scopes are rejected at issuance AND at decision time; their presence anywhere in a token is itself a deny.",
       }),
+  );
+
+  server.registerTool(
+    "predict_outcome",
+    {
+      title: "Predict a claim outcome (Oracle)",
+      description:
+        "Calibrated prediction from Zakai's de-identified outcome graph: for a (market, vertical, counterparty), the probability a claim pays, the expected recovery, and the model's measured calibration. Returns `confident: false` when the evidence is too thin to price money against — never a bare number. Requires an Oracle API key (ZAKAI_ORACLE_API_KEY); contact Zakai institutions channel to obtain one.",
+      inputSchema: {
+        market: z.string().length(2).describe("ISO country code, e.g. IL"),
+        vertical: z.string().min(1).max(64).describe("Claim vertical, e.g. subscription"),
+        counterparty: z.string().min(1).max(64).describe("The provider/institution the claim is against"),
+        rightId: z.string().max(64).optional().describe("Specific right id, when known"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ market, vertical, counterparty, rightId }) => {
+      const apiKey = options.oracleApiKey ?? process.env.ZAKAI_ORACLE_API_KEY;
+      if (!apiKey) {
+        return asText({
+          ok: false,
+          code: "ORACLE_KEY_REQUIRED",
+          error:
+            "predict_outcome needs an Oracle API key. Set ZAKAI_ORACLE_API_KEY in this server's environment; keys are issued through Zakai's institutions channel.",
+        });
+      }
+      try {
+        const res = await fetch(`${baseUrl}/api/oracle/predict`, {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${apiKey}`,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ market, vertical, counterparty, rightId }),
+        });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (!res.ok) {
+          return asText({ ok: false, code: `ORACLE_HTTP_${res.status}`, error: body ?? "oracle error" });
+        }
+        return asText({ ok: true, prediction: body });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
   );
 
   return server;
