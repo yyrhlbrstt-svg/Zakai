@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { MoneyHub } from "@/components/MoneyHub";
+import { MoneyInstallInline } from "@/components/MoneyInstallInline";
 import { PriorityActions } from "@/components/PriorityActions";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
@@ -48,6 +49,8 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
           {tIapp_locale_money_page("proofsHint", { email: proofsEmail })}
         </p>
       ) : null}
+
+      <MoneyInstallInline />
 
       <div className="mt-2">
         <MoneyHub bcp47={loc} screenshotEnabled={aiAvailable()} />

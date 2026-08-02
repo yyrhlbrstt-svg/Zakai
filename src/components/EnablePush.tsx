@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
+import { usePathname } from "@/i18n/routing";
 
 /**
  * Registers the PWA service worker and offers one-tap Web Push opt-in.
@@ -44,6 +45,8 @@ const copy = {
 
 export function EnablePush({ loggedIn }: { loggedIn: boolean }) {
   const locale = useLocale();
+  const pathname = usePathname();
+  const moneyOs = pathname === "/money" || pathname === "/dashboard";
   const t = locale === "he" || locale === "ar" ? copy.he : copy.en;
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -73,9 +76,10 @@ export function EnablePush({ loggedIn }: { loggedIn: boolean }) {
     }
 
     // Permission default — show banner after a short delay so it doesn't fight InstallPrompt.
-    const timer = setTimeout(() => setShow(true), 4000);
+    const delay = moneyOs ? 2200 : 4000;
+    const timer = setTimeout(() => setShow(true), delay);
     return () => clearTimeout(timer);
-  }, [loggedIn]);
+  }, [loggedIn, moneyOs]);
 
   async function ensureSubscription(): Promise<boolean> {
     try {

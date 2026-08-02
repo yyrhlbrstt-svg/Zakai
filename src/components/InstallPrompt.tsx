@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/routing";
 import { LogoMark } from "@/components/Logo";
 
 interface BIPEvent extends Event {
@@ -13,6 +14,8 @@ const DISMISS_KEY = "zk_install_dismissed";
 
 export function InstallPrompt() {
   const t = useTranslations("install");
+  const pathname = usePathname();
+  const moneyOs = pathname === "/money" || pathname === "/dashboard";
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
   const [iosHint, setIosHint] = useState(false);
   const [show, setShow] = useState(false);
@@ -43,14 +46,14 @@ export function InstallPrompt() {
       timer = setTimeout(() => {
         setIosHint(true);
         setShow(true);
-      }, 2500);
+      }, moneyOs ? 900 : 2500);
     }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", onBIP);
       if (timer) clearTimeout(timer);
     };
-  }, []);
+  }, [moneyOs]);
 
   function dismiss() {
     setShow(false);

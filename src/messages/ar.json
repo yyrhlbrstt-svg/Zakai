@@ -279,7 +279,10 @@
     "sub": "أضفه إلى الشاشة الرئيسية — يفتح كتطبيق، بلا متجر.",
     "iosHint": "اضغط زر المشاركة ثم \"إضافة إلى الشاشة الرئيسية\".",
     "cta": "تثبيت",
-    "dismiss": "إغلاق"
+    "dismiss": "إغلاق",
+    "moneyTitle": "احفظ Money OS على شاشتك",
+    "moneyHintHe": "أضف إلى الشاشة الرئيسية — رسوم وحالات وتنبيهات في مكان واحد.",
+    "moneyHintEn": "Add to home screen — charges, cases, and alerts in one place."
   },
   "authority": {
     "title": "صلاحياتك",
