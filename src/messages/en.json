@@ -5104,7 +5104,13 @@
   },
   "institutions": {
     "metaTitle": "Zakai Mandate — Institutional integration",
-    "metaDesc": "Verify consumer authority offline with Ed25519 JWKS. No outbound payments. Status endpoint for revocation. The emerging standard for consumer agent authority."
+    "metaDesc": "Verify consumer authority offline with Ed25519 JWKS. No outbound payments. Status endpoint for revocation. The emerging standard for consumer agent authority.",
+    "fitTitle": "Who typically fits? (hypothesis)",
+    "fitDisclaimer": "No signed customers or promises — fit hypotheses based on what the product actually does today (Mandate verify, embed, consumer loop).",
+    "fitTierHigh": "High fit (hypothesis)",
+    "fitTierMedium": "Medium fit",
+    "fitTierExploratory": "Exploratory",
+    "fitAdoptionBand": "In Israel, 1–3 verify pilots in ~18–24 months is plausible with live consumer proof and prod Mandate/SMTP. Broad adoption (5+ banks) needs regulatory comfort and consumer volume — not code alone."
   },
   "agents": {
     "metaTitle": "Zakai Mandate for AI agents — prove a person authorised the act",
