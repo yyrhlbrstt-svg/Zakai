@@ -2684,6 +2684,15 @@
     "landingCheckCta": "See the full list of checks",
     "landingDisclaimer": "An individual result — not a guarantee. What you're owed depends on your own details."
   },
+  "campaignGo": {
+    "metaTitle": "Zakai — consumer money agent",
+    "metaDesc": "Agent case with Mandate, written send, follow-up — fee only on documented savings.",
+    "kicker": "Campaign · Money OS",
+    "trust": "No call center · no phone left behind · fee only on savings you confirm in the dashboard.",
+    "cta": "Start now →",
+    "disclaimer": "No outcome or amount is guaranteed. The agent acts only after your approval, in writing.",
+    "attribHint": "Campaign links: add ?pref=campaign-name for signup attribution (visible on founder dashboard)."
+  },
   "deals": {
     "title": "Deals & benefits — money you can save now",
     "sub": "A collection of real benefits and moves that save you money right away. Free for everyone. Exclusive partner coupons — coming soon for Pro members.",

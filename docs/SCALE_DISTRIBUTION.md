@@ -15,6 +15,7 @@ Code can widen the first three; founders must turn on SMTP, PayPlus, VAPID, cron
 | **WhatsApp / native share** | `ShareResult` after wins + `/money` growth strip | `ref=` on signup link when logged in |
 | **Refer a friend** | `ReferralCard`, ₪25 credit on friend's first documented save | `signup?ref=` |
 | **Partner embed** | `public/embed.js` → `utm_source=embed&utm_campaign=<partner>` | `zakai_partner_ref` cookie → `partnerRef` on user |
+| **Paid / social** | `/he/go/cancel?utm_source=cpc&utm_campaign=...` or `?pref=campaign-name` | Same cookie (first-touch) |
 | **AI assistants** | `llms.txt` + `utm_source=agent&utm_campaign=agent-<name>` | Same cookie column as embed |
 | **Institutions** | JWKS, `/integrations`, opportunity-map API | B2B contracts, not consumer viral |
 
