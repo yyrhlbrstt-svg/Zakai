@@ -8,19 +8,27 @@ import { headers } from "next/headers";
  * This is the foundation for region-aware content: the language default and,
  * over time, region-specific rights. It never blocks — an unknown country
  * simply falls back to the Israel-first defaults.
+ *
+ * The `headers()` call is deliberately NOT wrapped in try/catch. During
+ * Next.js's static-generation pass, `headers()` throws a special internal
+ * signal (not a real error) that Next's own machinery needs to see uncaught
+ * so it can correctly mark the route dynamic. A try/catch here used to
+ * swallow that signal, which made Next believe every page calling this
+ * function (the homepage among them) could be prerendered as static despite
+ * `dynamic = "force-dynamic"` — and then crash with a 500
+ * ("Dynamic server usage") on every real request in production, because the
+ * static shell it built couldn't actually serve the per-request data this
+ * function and the page's own DB queries need. In a real request render
+ * (the only context this ever actually runs in) `headers()` does not throw.
  */
 export async function getCountry(): Promise<string> {
-  try {
-    const h = await headers();
-    const c =
-      h.get("x-vercel-ip-country") ||
-      h.get("cf-ipcountry") ||
-      h.get("x-country") ||
-      "";
-    return c.toUpperCase();
-  } catch {
-    return "";
-  }
+  const h = await headers();
+  const c =
+    h.get("x-vercel-ip-country") ||
+    h.get("cf-ipcountry") ||
+    h.get("x-country") ||
+    "";
+  return c.toUpperCase();
 }
 
 export async function isIsrael(): Promise<boolean> {
