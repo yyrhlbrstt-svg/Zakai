@@ -308,7 +308,7 @@ export function MoneyHub({
         return;
       }
       setOpenedId(data.caseId);
-      router.push("/dashboard");
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
       setError(tx(locale, "errGeneric"));
     } finally {
@@ -348,7 +348,11 @@ export function MoneyHub({
       const n = data.openedCount ?? 0;
       setBatchCount(n);
       if (n > 0) {
-        setTimeout(() => router.push("/dashboard"), 600);
+        const firstId = data.opened?.[0]?.caseId as string | undefined;
+        setTimeout(
+          () => router.push(firstId ? `/dashboard?case=${firstId}` : "/dashboard"),
+          600,
+        );
       } else if (data.skippedCount > 0) {
         setError(tx(locale, "errLimit"));
       }

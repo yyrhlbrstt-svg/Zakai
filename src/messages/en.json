@@ -4664,7 +4664,13 @@
     "metaTitle": "My money — Zakai",
     "metaDesc": "A map of your charges and agent actions — no bank passwords, no call center.",
     "priorityTitle": "Best next moves — agent doors",
-    "proofsHint": "When the bank or provider replies by email — forward to {email}. The agent will offer one-tap record saving on your dashboard."
+    "proofsHint": "When the bank or provider replies by email — forward to {email}. The agent will offer one-tap record saving on your dashboard.",
+    "guestHint": "Sign in so the agent can open cases and track savings — no callback.",
+    "guestLogin": "Sign in",
+    "pendingCaseTitle": "You have an open case — continue on the dashboard",
+    "pendingCaseSub": "Verify, send to provider, or record saving — next step is waiting.",
+    "proposedTitle": "The agent spotted a provider reply",
+    "proposedSub": "One-tap record saving on your dashboard."
   },
   "inline_app_locale_proofs_page": {
     "t_d2c8fb14": "Savings wall · anonymous",
