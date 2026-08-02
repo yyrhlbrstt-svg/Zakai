@@ -159,6 +159,96 @@ const PLAYBOOK: Record<string, { headlineHe: string; headlineEn: string; actions
       { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
     ],
   },
+  "duplicate-insurance": {
+    headlineHe: "ביטוח כפול — מה עושים עכשיו",
+    headlineEn: "Duplicate insurance — act now",
+    actions: [
+      {
+        href: "/assistant",
+        labelHe: "הסוכן: נסח ביטול לביטוח המיותר",
+        labelEn: "Agent: draft cancellation for the redundant policy",
+        askHe: "יש לי כפל ביטוחי — משלם על שני ביטוחים שמכסים את אותו דבר. תעזור לי לנסח ביטול לפוליסה המיותרת.",
+        askEn: "I have duplicate insurance coverage — paying for two policies covering the same thing. Help me draft a cancellation for the redundant one.",
+      },
+      { href: "/insurance-compare", labelHe: "השוואת ביטוח", labelEn: "Insurance compare" },
+    ],
+  },
+  "bank-fees": {
+    headlineHe: "עמלות בנק — מה עושים עכשיו",
+    headlineEn: "Bank fees — act now",
+    actions: [
+      {
+        href: "/assistant",
+        labelHe: "הסוכן: נסח פנייה לבנק",
+        labelEn: "Agent: draft letter to the bank",
+        askHe: "יש לי עמלות בנק שנראות לי גבוהות מדי. תעזור לי לנסח פנייה לבנק לבדיקה והחזר.",
+        askEn: "My bank fees look too high. Help me draft a letter to the bank to review and refund them.",
+      },
+      { href: "/check", labelHe: "בדיקת חיוב / משא ומתן", labelEn: "Bill check / negotiate" },
+    ],
+  },
+  "pension-fees": {
+    headlineHe: "דמי ניהול פנסיה — מה עושים עכשיו",
+    headlineEn: "Pension fees — act now",
+    actions: [
+      {
+        href: "/assistant",
+        labelHe: "הסוכן: איך מורידים דמי ניהול",
+        labelEn: "Agent: how to lower management fees",
+        askHe: "אני חושב שדמי הניהול בקרן הפנסיה שלי גבוהים מדי. איך אני בודק ומוריד אותם?",
+        askEn: "I think my pension fund's management fees are too high. How do I check and lower them?",
+      },
+      { href: "/entitlements", labelHe: "זכויות נוספות שמגיעות לך", labelEn: "Other rights you're owed" },
+    ],
+  },
+  payslip: {
+    headlineHe: "בדיקת תלוש שכר — מה עושים עכשיו",
+    headlineEn: "Payslip check — act now",
+    actions: [
+      { href: "/severance", labelHe: "פיצויי פיטורים", labelEn: "Severance pay" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
+  mortgage: {
+    headlineHe: "מיחזור משכנתא — מה עושים עכשיו",
+    headlineEn: "Mortgage refinance — act now",
+    actions: [
+      { href: "/mortgage-insurance", labelHe: "ביטוח משכנתא מופקע", labelEn: "Overpriced mortgage insurance" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
+  taxrefund: {
+    headlineHe: "החזר מס — מה עושים עכשיו",
+    headlineEn: "Tax refund — act now",
+    actions: [
+      { href: "/advance-tax", labelHe: "הקטנת מקדמות מס", labelEn: "Reduce tax advances" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
+  flights: {
+    headlineHe: "פיצוי טיסה — מה עושים עכשיו",
+    headlineEn: "Flight compensation — act now",
+    actions: [
+      { href: "/baggage", labelHe: "מזוודה שאבדה או התעכבה", labelEn: "Lost or delayed baggage" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
+  severance: {
+    headlineHe: "פיצויי פיטורים — מה עושים עכשיו",
+    headlineEn: "Severance pay — act now",
+    actions: [
+      { href: "/unemployment", labelHe: "דמי אבטלה", labelEn: "Unemployment benefit" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
+  arnona: {
+    headlineHe: "הנחת ארנונה — מה עושים עכשיו",
+    headlineEn: "Arnona discount — act now",
+    actions: [
+      { href: "/rights", labelHe: "כל הזכויות שמגיעות לך", labelEn: "All your rights, checked" },
+      { href: "/assistant", labelHe: "שאל את הסוכן", labelEn: "Ask the agent" },
+    ],
+  },
   general: {
     headlineHe: "מה אפשר לעשות עכשיו בזכאי",
     headlineEn: "What you can do in Zakai now",
