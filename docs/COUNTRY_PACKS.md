@@ -95,12 +95,7 @@ every market in the registry, including yours the moment you register it.
 Fix everything it reports before opening a pull request — a pack that fails
 its own validator is not ready for anyone to rely on.
 
-## What this does not do yet
-
-UI display copy (a plain-language title and explanation for each right, in
-the app's interface languages) is a separate step, tracked apart from the
-pack itself — a pack with real citations and letters is useful before that
-copy exists, since `GlobalPackRights.tsx` falls back to showing the right's
-own `source` as its label rather than blocking on translation. Contributing
-that display copy for an existing pack is exactly as welcome as contributing
-a new one.
+UI display copy (a plain-language title in Hebrew and English for each pack
+right) lives in `src/lib/global/packLabels.generated.ts`, regenerated with
+`npm run generate:pack-labels` whenever pack ids change. `GlobalPackRights`
+shows that title in the UI and keeps the statutory `source` for letters.

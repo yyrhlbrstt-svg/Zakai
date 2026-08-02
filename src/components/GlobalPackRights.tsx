@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
 import { evaluatePack } from "@/lib/global/engine";
+import { packRightUILabel } from "@/lib/global/packLabels";
 import type { Market } from "@/lib/global/registry";
 import type { UniversalProfile } from "@/lib/global/types";
 import { GlobalPackClaimDocument } from "@/components/GlobalPackClaimDocument";
+import type { Locale } from "@/i18n/config";
 
 function formatMinor(minor: number, currency: string, minorUnits: number, locale: string): string {
   const major = minor / minorUnits;
@@ -19,22 +21,13 @@ function formatMinor(minor: number, currency: string, minorUnits: number, locale
 }
 
 /**
- * The results list for a `JurisdictionPack` market — all non-IL MARKETS in registry.
- *
- * These packs carry a real statutory citation and a real letter template for
- * every right (that is the entire point of `src/lib/global/` over the older,
- * checklist-only per-country catalog in `rights.ts`), but no locale file has
- * translated title/description copy for a French or German right's specific
- * id yet — that is a real, separate translation task, sized honestly rather
- * than rushed here. Until it exists, the right's own statutory `source` (in
- * the pack's own `docLocale`, so a French right cites French law in French)
- * stands in as the label. That is not filler text: it is the actual legal
- * basis, in the language a French reader expects it in, which is more
- * trustworthy than an invented English title would be anyway.
+ * Pack evaluation results for non-IL markets. UI titles come from
+ * `packLabels` (he/en); statutory `source` is the fallback and appears in letters.
  */
 export function GlobalPackRights({ market, profile }: { market: Market; profile: UniversalProfile }) {
   const t = useTranslations("rights");
-  const locale = market.pack.docLocale;
+  const uiLocale = useLocale() as Locale;
+  const docLocale = market.pack.docLocale;
   const result = useMemo(() => evaluatePack(market.pack, profile), [market, profile]);
 
   if (result.matches.length === 0) return null;
@@ -53,13 +46,13 @@ export function GlobalPackRights({ market, profile }: { market: Market; profile:
           >
             <summary className="cursor-pointer flex items-center gap-3 flex-wrap list-none">
               <span className="text-[13.5px] font-bold flex-1 basis-[220px] leading-snug" dir="auto">
-                {m.right.source}
+                {packRightUILabel(market.code, m.right.id, uiLocale) ?? m.right.source}
               </span>
               <span className="text-[11.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-2.5 py-1 shrink-0">
                 {m.right.yearlyMinor
-                  ? formatMinor(m.right.yearlyMinor, market.pack.currency, market.pack.minorUnits, locale)
+                  ? formatMinor(m.right.yearlyMinor, market.pack.currency, market.pack.minorUnits, docLocale)
                   : m.right.oneTimeMinor
-                    ? formatMinor(m.right.oneTimeMinor, market.pack.currency, market.pack.minorUnits, locale)
+                    ? formatMinor(m.right.oneTimeMinor, market.pack.currency, market.pack.minorUnits, docLocale)
                     : t("valueVaries")}
               </span>
             </summary>
