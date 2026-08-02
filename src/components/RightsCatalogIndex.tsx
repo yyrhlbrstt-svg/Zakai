@@ -19,7 +19,18 @@ const CATEGORY_ORDER: RightCategory[] = [
   "housing",
 ];
 
-export async function RightsCatalogIndex({ locale }: { locale: string }) {
+export async function RightsCatalogIndex({
+  locale,
+  market = "IL",
+}: {
+  locale: string;
+  market?: string;
+}) {
+  if (market.toUpperCase() !== "IL") {
+    const { ZmlCatalogTeaser } = await import("@/components/ZmlCatalogTeaser");
+    return <ZmlCatalogTeaser locale={locale} market={market} />;
+  }
+
   const t = await getTranslations({ locale, namespace: "rights" });
   const byCat = new Map<RightCategory, string[]>();
 

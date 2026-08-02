@@ -26,6 +26,7 @@ const PATHS = [
   "/check",
   "/what-am-i-owed",
   "/rights",
+  "/global",
   "/scan",
   "/spending",
   "/pricing",

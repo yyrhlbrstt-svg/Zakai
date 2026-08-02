@@ -50,7 +50,7 @@ export function GlobalMarketPicker({
                   {active ? t("selected") : t("useMarket")}
                 </a>
                 <Link
-                  href={`/rights?market=${m.code}`}
+                  href="/rights"
                   className="text-[13px] font-bold text-ink-soft no-underline hover:text-emerald"
                 >
                   {t("rights")}

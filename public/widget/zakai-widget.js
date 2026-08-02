@@ -25,13 +25,19 @@
     document.head.appendChild(link);
   }
 
+  function readMarketCookie() {
+    const m = document.cookie.match(/(?:^|;\s*)zakai_market=([^;]+)/);
+    return m ? decodeURIComponent(m[1]).toUpperCase() : null;
+  }
+
   class ZakaiWidget {
     constructor(container, options) {
       options = options || {};
       this.container = container;
       this.apiKey = options.apiKey || container.dataset.apiKey;
       this.provider = options.provider || container.dataset.provider;
-      this.market = options.market || container.dataset.market || "IL";
+      this.market =
+        options.market || container.dataset.market || readMarketCookie() || "IL";
       if (!this.apiKey) {
         console.error("[Zakai] data-api-key required");
         return;

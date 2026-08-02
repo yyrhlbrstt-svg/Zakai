@@ -743,7 +743,12 @@
     "catalogOnly": "קטלוג ZML (זכויות אירופה משותפות)",
     "useMarket": "השתמש בשוק הזה",
     "selected": "שוק נבחר",
-    "rights": "בדיקת זכויות"
+    "rights": "בדיקת זכויות",
+    "currentMarket": "שוק נוכחי: {label} ({code}).",
+    "changeMarket": "שנה שוק",
+    "catalogTeaserTitle": "קטלוג ZML — {label}",
+    "catalogTeaserSub": "{total} זכויות ממוסדות בקטלוג הציבורי (דוגמאות למטה).",
+    "catalogApiLink": "JSON מלא ב-API"
   },
   "providers": {
     "cellcom": "סלקום",

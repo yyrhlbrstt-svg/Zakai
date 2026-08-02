@@ -39,6 +39,7 @@ import {
   Repeat,
   Calculator,
   Sparkles,
+  Globe,
   Clock,
   ShieldX,
   Megaphone,
@@ -103,6 +104,7 @@ const ICONS: Record<string, LucideIcon> = {
   deadlines: CalendarClock,
   advanceTax: Briefcase,
   schoolPayments: School,
+  globalMarkets: Globe,
 };
 
 export function ToolIcon({

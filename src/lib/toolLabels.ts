@@ -35,6 +35,7 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   telecomExit: { he: "ניתוק סלולר", en: "Telecom disconnect" },
   networkProof: { he: "הוכחת רשת (ציבורי)", en: "Network proof (public)" },
   institutionLeader: { he: "מובילי אימות Mandate", en: "Mandate verification leaders" },
+  globalMarkets: { he: "עולם · שווקים", en: "World · markets" },
 };
 
 export function toolDisplayLabel(

@@ -742,7 +742,12 @@
     "catalogOnly": "ZML catalog (shared EU rights)",
     "useMarket": "Use this market",
     "selected": "Selected",
-    "rights": "Rights check"
+    "rights": "Rights check",
+    "currentMarket": "Current market: {label} ({code}).",
+    "changeMarket": "Change market",
+    "catalogTeaserTitle": "ZML catalog — {label}",
+    "catalogTeaserSub": "{total} machine-readable rights in the public catalog (sample below).",
+    "catalogApiLink": "Full JSON via API"
   },
   "providers": {
     "cellcom": "Cellcom",

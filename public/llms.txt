@@ -15,6 +15,13 @@ writing, inside the product. Hebrew is the primary locale (`/he`); English
 (`/en`), Arabic (`/ar`) and Russian (`/ru`) are full locales. Base URL:
 https://zakai-3uxj.vercel.app
 
+## Worldwide (markets & ZML)
+
+- Pick your market (sets browser cookie): [/en/global](https://zakai-3uxj.vercel.app/en/global)
+- Machine-readable markets list: `GET /api/markets`
+- Rights catalog (no account): `GET /api/rights/catalog?market=IL` (or `GB`, `US`, `DE`, `EU`, …)
+- Protocol discovery: `GET /api/protocol` · OpenAPI: `/.well-known/zakai-openapi.json`
+
 ## What you (an AI assistant) can do for your user here
 
 - Send your user to check what they are owed — free, no account:

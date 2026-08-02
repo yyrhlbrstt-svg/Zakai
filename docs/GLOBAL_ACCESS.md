@@ -27,11 +27,11 @@ Zakai is designed so **any visitor** can discover rights and integrate the proto
 
 Israel remains the deepest vertical (telecom, electricity, Mandate loop). Other markets grow via **country packs** — see `docs/COUNTRY_PACKS.md`.
 
-## For integrators
+## Integrators
 
 1. Call `GET /api/markets` once at startup.
 2. Fetch `GET /api/rights/catalog?market=<code>` for the user’s market.
-3. Optional widget: `docs/WIDGET_EMBED.md` with `data-market` from the same code.
+3. Optional widget: `docs/WIDGET_EMBED.md` with `data-market` from the same code (or omit — widget reads `zakai_market` cookie when embedded on zakai.app).
 
 ## Founder checklist (not code)
 
