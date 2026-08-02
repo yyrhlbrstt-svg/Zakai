@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { registerWidgetKey, validateWidgetKey } from "@/lib/widget/keys";
+import { registerWidgetKey } from "@/lib/widget/keys";
 
 export const runtime = "nodejs";
 
@@ -25,12 +25,3 @@ export async function POST(request: Request) {
   });
 }
 
-export async function GET(request: Request) {
-  const key = request.headers.get("X-Zakai-Widget-Key");
-  const origin = request.headers.get("Origin");
-  const valid = validateWidgetKey(key, origin);
-  if (!valid) {
-    return NextResponse.json({ valid: false }, { status: 403 });
-  }
-  return NextResponse.json({ valid: true });
-}

@@ -4942,6 +4942,10 @@
     "t_82b1161c": "Employees + infrastructure",
     "t_784db4db": "Institutions — Mandate",
     "t_ed2796c2": "One script. Your customer lands in Money OS, scans charges, opens a Mandate case — no call center, no phone left behind. You get a UTM ref. Choose entry door with data-path.",
+    "widgetTitle": "ZML fairness widget (rights catalog)",
+    "widgetSub": "Lightweight fairness strip on your site — no PII until the user clicks through to Zakai. Requires a partner API key (domain allowlist).",
+    "widgetValidate": "Key check: GET /api/widget/validate with Origin + X-Zakai-Widget-Key",
+    "widgetDocs": "Full embed guide (keys + CORS)",
     "metaTitle": "Zakai Partners — B2B embed & Money OS",
     "metaDesc": "Drop-in embed for banks, fintech and employers. Customer money agent with Mandate — no call center, fee only on documented savings. Multi-path: money, cancel, rights."
   },

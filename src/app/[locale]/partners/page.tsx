@@ -38,6 +38,14 @@ export default async function PartnersPage({
      data-path="money"></div>
 <script src="${SITE_URL}/embed.js" async></script>`;
 
+  const widgetSnippet = `<div id="zakai-fairness"
+     data-api-key="pk_live_YOUR_KEY"
+     data-provider="YourProvider"
+     data-market="IL"></div>
+<script src="${SITE_URL}/widget/zakai-widget.js"
+        data-api-base="${SITE_URL}/api"
+        async></script>`;
+
   const pathLabels: Record<string, { heLabel: string; enLabel: string }> = {
     money: { heLabel: "הכסף שלי / סריקה", enLabel: "My money / scan" },
     cancel: { heLabel: "ביטול מנוי עם סוכן", enLabel: "Cancel sub with agent" },
@@ -77,6 +85,31 @@ export default async function PartnersPage({
           {snippet}
         </pre>
       </Card>
+
+      <h2 className="text-[16px] font-extrabold mt-10 mb-2">
+        {tIapp_locale_partners_page("widgetTitle")}
+      </h2>
+      <p className="text-ink-soft text-[13px] mb-3 m-0 leading-relaxed">
+        {tIapp_locale_partners_page("widgetSub")}
+      </p>
+      <Card className="p-5">
+        <pre className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
+          {widgetSnippet}
+        </pre>
+      </Card>
+      <p className="text-[12px] text-ink-soft mt-3 mb-0">
+        <code className="text-emerald">{tIapp_locale_partners_page("widgetValidate")}</code>
+      </p>
+      <p className="text-[12.5px] mt-3">
+        <a
+          href="https://github.com/yyrhlbrstt-svg/Zakai/blob/main/docs/WIDGET_EMBED.md"
+          className="text-emerald font-bold"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {tIapp_locale_partners_page("widgetDocs")} →
+        </a>
+      </p>
 
       <div className="grid gap-3 mt-6 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
         <SpotlightCard className="p-4">

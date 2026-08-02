@@ -66,6 +66,13 @@ https://zakai-3uxj.vercel.app/api/version
 | B2B עובדים + Mandate | `/he/business` |
 | שותפים + Embed | `/he/partners` |
 | Embed script | `/embed.js` |
+| Fairness widget | `/widget/zakai-widget.js` · `docs/WIDGET_EMBED.md` |
+| פרוטוקול (JSON) | `/.well-known/zakai-protocol.json` |
+| ZML schema | `/.well-known/zakai-rights-schema.json` |
+| OpenAPI (ZML + APIs) | `/.well-known/zakai-openapi.json` |
+| קטלוג זכויות | `GET /api/rights/catalog?market=IL` |
+| אימות מפתח ווידג'ט | `GET /api/widget/validate` |
+| למה זכאי / תנאים | `/he/about` · `/he/terms` · `/he/protocol` |
 
 ### Embed לדוגמה (העתק לאתר חיצוני)
 
@@ -105,9 +112,25 @@ telecom · bank-fees · subscription · airline · refund-chase · parking · tr
 ## 6. אם משהו לא מופיע
 
 1. `/api/version` — האם `version` תואם ל-`package.json` ו-`buildMarker` תואם ל-commit האחרון ב-`main`?
-2. Vercel Dashboard → Deployments → build ירוק?
-3. Hard refresh / incognito
-4. אם UI ישן — נקה cache של הדפדפן
+2. אחרי merge ל-`main`, הרץ smoke על פרודקשן:
+
+```bash
+node scripts/verify-production-urls.mjs https://zakai-3uxj.vercel.app
+```
+
+(פרוטוקול / ZML / ווידג'ט ייכשלו עד שה-deploy החדש עלה.)
+
+3. Vercel Dashboard → Deployments → build ירוק?
+4. Hard refresh / incognito
+5. אם UI ישן — נקה cache של הדפדפן
+
+### zakai-packs → CDN
+
+```bash
+chmod +x scripts/export-zakai-packs-repo.sh
+./scripts/export-zakai-packs-repo.sh
+# push ל-repo נפרד + הגדרת secrets לפי docs/INFRA_ZAKAI_PACKS.md
+```
 
 ---
 
