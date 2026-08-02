@@ -69,6 +69,7 @@ FULL PRODUCT MAP (pick the tightest fit)
 - /flights — IL aviation + EC261 compensation Case
 - /refund-chase — missing refund demand with agent
 - /parking — parking ticket appeal with agent
+- /warranty — product warranty repair/replacement demand with agent + Mandate
 - /transport-fine — public-transport fine appeal with agent
 - /late-payment — client not paying invoice → agent demand with Mandate
 - /deposit — landlord holding deposit past 60 days → agent demand with Mandate

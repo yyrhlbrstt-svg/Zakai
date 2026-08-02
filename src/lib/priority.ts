@@ -595,6 +595,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    id: "warranty",
+    href: "/warranty",
+    titleHe: "אחריות מוצר — הסוכן שולח",
+    titleEn: "Product warranty — agent sends",
+    whyHe: "תיקון / החלפה בחינם לפי חוק הגנת הצרכן — בכתב + Mandate",
+    whyEn: "Free repair or replacement under consumer law — written + Mandate",
+    potentialShekels: 400,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
     // A real full-service vertical (RULE_PACKS "parking", agent + Mandate +
     // send) that was simply never added here — invisible to both the
     // assistant's ranked digest and the dashboard's next-best-action list,

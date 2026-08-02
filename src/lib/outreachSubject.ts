@@ -30,6 +30,8 @@ export function outreachSubjectForVertical(
       return `בקשה לביטול/החזר עמלות בשם ${name} — הרשאה ${code}`;
     case "electricity":
       return `בקשת ניוד / התאמת תעריף חשמל בשם ${name} — הרשאה ${code}`;
+    case "warranty":
+      return `מימוש אחריות מוצר בשם ${name} — הרשאה ${code}`;
   }
   return `בקשת התאמת מסלול בשם ${name} — הרשאה ${code}`;
 }

@@ -210,6 +210,23 @@ export const arnonaIL: VerticalRulePack = {
   counterparties: ["municipality", "other"],
 };
 
+/** Product warranty repair / replacement — seller or importer, lump recovery. */
+export const warrantyIL: VerticalRulePack = {
+  key: "warranty",
+  country: "IL",
+  label: "אחריות מוצר — תיקון או החלפה",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "אישור תיקון ללא תשלום / החלפת מוצר / זיכוי מהיבואן או המוכר",
+  },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -223,4 +240,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   depositIL,
   duplicateInsuranceIL,
   arnonaIL,
+  warrantyIL,
 ];

@@ -144,6 +144,14 @@ export const FAQ: FaqEntry[] = [
     a_en: "Yes, full agent service: it drafts the appeal, sends it in your name with a Mandate, and tracks the reply. At /parking or /transport-fine.",
   },
   {
+    id: "warranty",
+    category: "bills",
+    q_he: "מכשיר התקלקל בתוך האחריות — מה עושים?",
+    a_he: "הסוכן שולח דרישה בכתב למימוש אחריות (תיקון / החלפה) עם Mandate, ועוקב אחרי התשובה. ב-/warranty.",
+    q_en: "My device broke under warranty — what can I do?",
+    a_en: "The agent sends a written warranty demand (repair / replacement) with a Mandate and tracks the reply. At /warranty.",
+  },
+  {
     id: "bank-fees",
     category: "bills",
     q_he: "עמלות הבנק שלי גבוהות — אפשר לעשות משהו?",
