@@ -7,6 +7,7 @@ import { pushToUser } from "@/lib/push";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { secretsMatch } from "@/lib/security/timingSafe";
+import { shouldNotifyInbound } from "@/lib/inboundDecision";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -157,13 +158,19 @@ export async function POST(request: Request) {
   });
 
   // 4. If we have a solid match + amount, notify the user (email + push).
+  // "Solid" is defined by shouldNotifyInbound: an exact ZK-code match is
+  // always solid; a fuzzy sender-email match additionally needs extractor
+  // confidence. See inboundDecision.ts for why the two are gated differently.
   let notified = false;
   if (
     matchedCaseId &&
     matchedUserId &&
-    extract.found &&
-    extract.newAmountShekels != null &&
-    extract.confidence >= 0.6
+    shouldNotifyInbound({
+      matchMethod,
+      found: extract.found,
+      newAmountShekels: extract.newAmountShekels,
+      confidence: extract.confidence,
+    })
   ) {
     const user = await prisma.user.findUnique({ where: { id: matchedUserId } });
     if (user?.email) {
