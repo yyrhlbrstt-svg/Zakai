@@ -648,6 +648,16 @@
       "Every request discloses to the company that Zakai is a digital agent acting on your behalf — we never impersonate you.",
       "No overblown promises: Zakai is an automated tool that drafts and sends requests, not an 'expert' with human experience."
     ],
+    "differentHeading": "Why this isn't just another AI assistant",
+    "differentIntro": "Any AI assistant can draft a letter. That's not the difference. The difference is in things that need dedicated infrastructure, not just conversation — and they're here, not just in marketing copy.",
+    "different": [
+      "Cryptographically verified authorization, not just a chat promise: every request goes out with a signed authorization (Ed25519) the receiving company can verify itself against a public key — you don't take our word for it, you check.",
+      "Deterministic fee and eligibility math, not an LLM: the amount charged is computed by tested code, not guessed by a language model that can make mistakes.",
+      "Learns from real outcomes, not just general training: every closed case (won or lost) feeds back into the engine that picks how to word the next request — a proprietary dataset that grows over time.",
+      "Fee only on documented success: if you didn't actually get money back, there's no charge — our incentive is aligned with your outcome, not with how many questions you asked."
+    ],
+    "differentProof": "You can check this yourself, not just take our word for it: our public verification key is available at ",
+    "differentProofEnd": ", and the full institutional API spec is available at ",
     "disputeHeading": "Disputing a charge",
     "dispute": "When a fee is charged, we email you an automatic confirmation with a full breakdown (original amount, new amount, saving and fee). If you believe the saving did not actually materialize, you have {days} days from receiving the email to contact us for review — and if the saving turns out not to have taken effect, the fee is cancelled or refunded. Contact: {email}",
     "contactHeading": "Security contact",
