@@ -5114,7 +5114,13 @@
     "leaderCtaTitle": "Reference Verifier leaders program",
     "leaderCtaBody": "Finish JWKS + verify self-checks in ~30 minutes, opt into the public leaders wall (no sales call), and claim a Pioneer badge for the first three institutions — not regulatory certification, proof you can accept Mandates at scale.",
     "leaderCtaLink": "Join as a verification leader",
-    "leaderWallLink": "Leaders wall"
+    "leaderWallLink": "Leaders wall",
+    "inboundPressureTitle": "Documented inbound pressure (not your full mailroom)",
+    "inboundPressureBody": "When consumers close Zakai cases against a mapped bank/provider, volume accumulates. Above the sample gate it appears here and in a public API — inbox pressure, not a sales deck.",
+    "inboundPressureEmpty": "No institution yet has enough documented outbound cases to publish a number — as the loop grows, this list will fill.",
+    "inboundPressureRow": "{dispatched} dispatched · {saved} with documented savings",
+    "inboundPressureDisclaimer": "Aggregate counts only, no customer identities. Excludes letters prepared outside Zakai.",
+    "inboundPressureApi": "JSON: inbound-pressure"
   },
   "institutionLeader": {
     "metaTitle": "Mandate verification leaders — Zakai",
