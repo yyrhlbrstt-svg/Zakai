@@ -20,6 +20,7 @@ export async function generateMetadata({
 
 const SECURITY_EMAIL = process.env.NEXT_PUBLIC_SECURITY_EMAIL || "security@zakai.example";
 const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
+const SITE_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
 
 export default async function TrustPage({
   params,
@@ -32,6 +33,9 @@ export default async function TrustPage({
 
   const security = t.raw("security") as string[];
   const trust = t.raw("trust") as string[];
+  const different = t.raw("different") as string[];
+  const jwksUrl = `${SITE_ORIGIN}/.well-known/zakai-jwks.json`;
+  const openapiUrl = `${SITE_ORIGIN}/api/mandate/openapi.json`;
 
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-4">
@@ -39,6 +43,22 @@ export default async function TrustPage({
       <p className="text-ink-soft text-[15.5px] leading-relaxed mb-8 max-w-[620px]">
         {t("intro")}
       </p>
+
+      <Section heading={t("differentHeading")}>
+        <p className="text-[14.5px] leading-relaxed mb-3">{t("differentIntro")}</p>
+        <Bullets items={different} />
+        <p className="text-[13px] text-ink-soft leading-relaxed mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
+          {t("differentProof")}
+          <a href={jwksUrl} target="_blank" rel="noopener noreferrer" className="text-emerald font-bold" dir="ltr">
+            /.well-known/zakai-jwks.json
+          </a>
+          {t("differentProofEnd")}
+          <a href={openapiUrl} target="_blank" rel="noopener noreferrer" className="text-emerald font-bold" dir="ltr">
+            /api/mandate/openapi.json
+          </a>
+          .
+        </p>
+      </Section>
 
       <Section heading={t("securityHeading")}>
         <Bullets items={security} />
