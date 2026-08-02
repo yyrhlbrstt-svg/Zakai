@@ -8,6 +8,11 @@ import { FR_PACK } from "./packs/fr";
 import { CA_PACK } from "./packs/ca";
 import { AU_PACK } from "./packs/au";
 import { IE_PACK } from "./packs/ie";
+import { NL_PACK } from "./packs/nl";
+import { ES_PACK } from "./packs/es";
+import { IT_PACK } from "./packs/it";
+import { SE_PACK } from "./packs/se";
+import { PL_PACK } from "./packs/pl";
 import type { RightsProfile } from "../rights";
 
 export interface Market {
@@ -26,6 +31,11 @@ export const MARKETS: Record<string, Market> = {
   CA: { code: "CA", pack: CA_PACK, uiLocales: ["en", "fr"], label: "Canada" },
   AU: { code: "AU", pack: AU_PACK, uiLocales: ["en"], label: "Australia" },
   IE: { code: "IE", pack: IE_PACK, uiLocales: ["en"], label: "Ireland" },
+  NL: { code: "NL", pack: NL_PACK, uiLocales: ["en"], label: "Nederland" },
+  ES: { code: "ES", pack: ES_PACK, uiLocales: ["en"], label: "España" },
+  IT: { code: "IT", pack: IT_PACK, uiLocales: ["en"], label: "Italia" },
+  SE: { code: "SE", pack: SE_PACK, uiLocales: ["en"], label: "Sverige" },
+  PL: { code: "PL", pack: PL_PACK, uiLocales: ["en"], label: "Polska" },
 };
 
 export const DEFAULT_MARKET = "IL";

@@ -19,7 +19,7 @@ function formatMinor(minor: number, currency: string, minorUnits: number, locale
 }
 
 /**
- * The results list for a `JurisdictionPack` market — GB, US, DE, FR, CA today.
+ * The results list for a `JurisdictionPack` market — all non-IL MARKETS in registry.
  *
  * These packs carry a real statutory citation and a real letter template for
  * every right (that is the entire point of `src/lib/global/` over the older,

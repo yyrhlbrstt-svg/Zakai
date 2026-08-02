@@ -18,12 +18,10 @@ import { GlobalPackRights } from "@/components/GlobalPackRights";
 
 /**
  * Legacy country codes ("UK") to the global-pack market they correspond to
- * ("GB", the actual ISO 3166-1 alpha-2 code MARKETS is keyed by). Only the
- * eight markets with a real `JurisdictionPack` — carrying an actual letter
- * template, not just a checklist entry — appear here. The other
- * `RIGHTS_COUNTRIES` have no pack yet, and showing nothing beyond the
- * existing checklist for them is the honest choice, not a bug to route
- * around.
+ * ("GB", the actual ISO 3166-1 alpha-2 code MARKETS is keyed by). Every
+ * `RIGHTS_COUNTRIES` entry that has a real `JurisdictionPack` appears here.
+ * IL is excluded: it renders through the legacy path (pack parity is proven in
+ * engine.test.ts).
  */
 const GLOBAL_MARKET_CODE: Partial<Record<CountryCode, string>> = {
   UK: "GB",
@@ -33,6 +31,11 @@ const GLOBAL_MARKET_CODE: Partial<Record<CountryCode, string>> = {
   CA: "CA",
   AU: "AU",
   IE: "IE",
+  NL: "NL",
+  ES: "ES",
+  IT: "IT",
+  SE: "SE",
+  PL: "PL",
 };
 
 const AGE_GROUPS = ["18_24", "25_44", "45_66", "67_plus"] as const;
@@ -66,11 +69,8 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
   const result = useMemo(() => evaluateRights(profile, country), [profile, country]);
   const money = (a: number) => formatAgorot(a, bcp47);
 
-  // The eight markets with a real JurisdictionPack — a letter template, not
-  // just a checklist entry. IL deliberately excluded: it already renders
-  // through the legacy path above, and the pack is proven (by
-  // src/lib/global/engine.test.ts) to return the identical set of rights, so
-  // showing it a second time here would just be the same list twice.
+  // Markets with a real JurisdictionPack (letter templates). IL uses legacy
+  // ClaimDocument above; pack parity is proven in engine.test.ts.
   const globalMarketCode = GLOBAL_MARKET_CODE[country];
   const globalMarket = globalMarketCode ? MARKETS[globalMarketCode] : undefined;
   const universalProfile = useMemo(() => fromLegacyIsraeliProfile(profile), [profile]);

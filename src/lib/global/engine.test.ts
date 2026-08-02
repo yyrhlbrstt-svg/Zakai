@@ -210,6 +210,13 @@ describe("market registry", () => {
     expect(preferredLocale(getMarket("IL"), ["fr-FR"])).toBe("he");
   });
 
+  it("ships thirteen jurisdiction packs in MARKETS", () => {
+    expect(allMarkets()).toHaveLength(13);
+    expect(allMarkets().map((m) => m.code).sort()).toEqual(
+      ["AU", "CA", "DE", "ES", "FR", "GB", "IE", "IL", "IT", "NL", "PL", "SE", "US"].sort(),
+    );
+  });
+
   it("falls back to the default market for an unknown country", () => {
     expect(getMarket("ZZ").code).toBe("IL");
     expect(getMarket(undefined).code).toBe("IL");

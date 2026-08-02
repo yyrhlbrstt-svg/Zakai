@@ -21,8 +21,7 @@ and a citation, not auditing new code paths.
 
 1. Read `src/lib/global/types.ts` in full — the type definitions are
    commented as the specification, not just as code.
-2. Pick a market that does not already have a pack. Check
-   `src/lib/global/registry.ts` for the current list.
+Zakai ships **13** jurisdiction packs (IL, GB, US, DE, FR, CA, AU, IE, NL, ES, IT, SE, PL) — see `src/lib/global/registry.ts`.
 3. Every right you add needs a real citation — the actual statute,
    regulation, or directive, in enough detail that someone else could look it
    up. "It's common knowledge" is not a citation. If you cannot cite it,

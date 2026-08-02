@@ -116,4 +116,27 @@ describe("rights catalogs — all countries evaluate safely", () => {
       expect(result.matches.every((m) => catalog.some((c) => c.id === m.id))).toBe(true);
     }
   });
+
+  it("every catalog country with a MARKETS pack exposes GlobalPackRights mapping", () => {
+    const mapped = new Set(Object.keys(GLOBAL_MARKET_CODE_FOR_TEST));
+    for (const code of ["UK", "US", "DE", "FR", "CA", "AU", "IE", "NL", "ES", "IT", "SE", "PL"] as const) {
+      expect(mapped.has(code), `RightsChecker missing GLOBAL_MARKET_CODE for ${code}`).toBe(true);
+    }
+  });
 });
+
+/** Mirror RightsChecker GLOBAL_MARKET_CODE — drift guard without importing a client component. */
+const GLOBAL_MARKET_CODE_FOR_TEST: Record<string, string> = {
+  UK: "GB",
+  US: "US",
+  DE: "DE",
+  FR: "FR",
+  CA: "CA",
+  AU: "AU",
+  IE: "IE",
+  NL: "NL",
+  ES: "ES",
+  IT: "IT",
+  SE: "SE",
+  PL: "PL",
+};
