@@ -15,6 +15,7 @@ import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
 import { pushToUser } from "@/lib/push";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
+import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { withFooter } from "@/lib/letterFooter";
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
 
@@ -373,9 +374,10 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   if (result.feeNet > 0) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true, name: true },
+      select: { email: true, name: true, country: true },
     });
     if (user) {
+      const payUrl = feePayAbsoluteUrl(appBaseUrl(), user.country, caseId);
       await sendEmail({
         to: user.email,
         subject: `זכאי — אישור חיסכון ועמלת הצלחה (${providerHebrewName(kase.provider)})`,
@@ -389,6 +391,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
           grossFeeAgorot: fee.amount,
           creditAgorot: result.creditApplied,
           netFeeAgorot: result.feeNet,
+          payUrl,
         }),
         caseId,
       });
@@ -397,10 +400,18 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
 
   if (fee.savingMonthly > 0) {
     const savingShekels = Math.round(fee.savingMonthly / 100);
+    const profile = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { country: true },
+    });
+    const dashPay = feePayDashboardPath(localeForCountry(profile?.country), caseId);
     await pushToUser(userId, {
       title: "זכאי — חיסכון מתועד",
-      body: `תועד חיסכון של ₪${savingShekels}. שתף או השלם עמלה בדשבורד — בלחיצה אחת.`,
-      url: `/dashboard?saved=1&case=${caseId}`,
+      body:
+        result.feeNet > 0
+          ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת בדשבורד.`
+          : `תועד חיסכון של ₪${savingShekels}. שתף או המשך בדשבורד.`,
+      url: result.feeNet > 0 ? dashPay : `/dashboard?saved=1&case=${caseId}`,
       tag: `saved-${caseId}`,
     }).catch(() => null);
   }
@@ -418,6 +429,7 @@ function feeConfirmationBody(p: {
   grossFeeAgorot: number;
   creditAgorot: number;
   netFeeAgorot: number;
+  payUrl?: string;
 }): string {
   const f = (a: number) => formatAgorot(a, "he-IL");
   const pct = `${(p.rateBps / 100).toLocaleString("he-IL", { maximumFractionDigits: 2 })}%`;
@@ -438,7 +450,7 @@ function feeConfirmationBody(p: {
 ${creditLines}
 
 ערעור על החיוב: אם לדעתך החיסכון לא מומש בפועל, יש לך ${FEE_DISPUTE_WINDOW_DAYS} ימים מתאריך הודעה זו לפנות אלינו לבדיקה, ואם יתברר שהחיסכון לא נכנס לתוקף — העמלה תבוטל או תוחזר. לפנייה: ${supportEmail()}
-
+${p.payUrl ? `\nלתשלום עמלת ההצלחה (חד-פעמי, מאובטח): ${p.payUrl}\n` : ""}
 זכאי הוא שירות סוכן דיגיטלי אוטומטי הפועל מטעמך בהרשאתך. אין באמור ייעוץ משפטי, פיננסי או ביטוחי.
 
 בברכה,

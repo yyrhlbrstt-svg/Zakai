@@ -57,10 +57,16 @@ export default async function DashboardPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ fee?: string; intent?: string; case?: string; saved?: string }>;
+  searchParams: Promise<{ fee?: string; intent?: string; case?: string; saved?: string; payFee?: string }>;
 }) {
   const { locale } = await params;
-  const { fee: feeStatus, intent, case: highlightCase, saved: savedCelebrate } = await searchParams;
+  const {
+    fee: feeStatus,
+    intent,
+    case: highlightCase,
+    saved: savedCelebrate,
+    payFee,
+  } = await searchParams;
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
@@ -111,6 +117,16 @@ export default async function DashboardPage({
     (sum, c) => sum + Math.max(0, c.amountOriginal - c.targetAmount),
     0,
   );
+
+  const pendingFeeCases = cases.filter(
+    (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
+  );
+  const pendingFeeAgorot = pendingFeeCases.reduce((s, c) => s + (c.fee?.amount ?? 0), 0);
+
+  const payFeeCaseId =
+    payFee === "1" && highlightCase && pendingFeeCases.some((c) => c.id === highlightCase)
+      ? highlightCase
+      : null;
 
   const pendingActions = cases.filter(
     (c) =>
@@ -313,6 +329,28 @@ export default async function DashboardPage({
 
       <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
 
+      {payFeeCaseId ? (
+        <div className="sr-only" aria-hidden>
+          <FeePayButton caseId={payFeeCaseId} autoStart />
+        </div>
+      ) : null}
+
+      {pendingFeeAgorot > 0 && feeStatus !== "paid" && !payFeeCaseId && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] px-5 py-4 mb-5 flex flex-wrap items-center gap-3 justify-between">
+          <div>
+            <div className="font-extrabold text-[14.5px] text-emerald">{t("dashboard.feeOutstandingTitle")}</div>
+            <p className="text-[13px] text-ink-soft mt-1 mb-0">
+              {t("dashboard.feeOutstandingSub", {
+                amount: formatAgorot(pendingFeeAgorot, loc),
+              })}
+            </p>
+          </div>
+          {pendingFeeCases[0] ? (
+            <FeePayButton caseId={pendingFeeCases[0].id} />
+          ) : null}
+        </div>
+      )}
+
       {!paymentsFullyLive() && (
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed">
           {locale === "he"
@@ -385,7 +423,7 @@ export default async function DashboardPage({
                 <span className="text-[13px] font-bold text-ink-soft">
                   {t("dashboard.feeTag")}: {formatAgorot(celebrateCase.fee.amount, loc)}
                 </span>
-                <FeePayButton caseId={celebrateCase.id} />
+                <FeePayButton caseId={celebrateCase.id} autoStart={payFeeCaseId === celebrateCase.id} />
               </div>
             )}
         </div>
