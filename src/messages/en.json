@@ -4543,7 +4543,11 @@
     "revokedNote": "Withdrawn. Any institution verifying with us will see this on its next check.",
     "revokeFailed": "The withdrawal did not complete. Please try again.",
     "revokeAll": "Withdraw everything",
-    "revokeAllConfirm": "Sure? Tap again to withdraw all"
+    "revokeAllConfirm": "Sure? Tap again to withdraw all",
+    "exportWallet": "Export authority wallet (JSON)",
+    "exporting": "Exporting…",
+    "exportDone": "Download started",
+    "exportFailed": "Could not export. Try again."
   },
   "agentFlow": {
     "openCase": "Open case — continue on dashboard (verify & send)",

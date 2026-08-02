@@ -104,6 +104,7 @@ export function buildZakaiProtocolDocument(origin: string) {
       consumer_loop: {
         description: "Detect → approve → verify → send → prove → fee on proof → share",
         app: process.env.NEXT_PUBLIC_APP_URL || origin,
+        authority_wallet_export: `${origin}/api/authority/wallet-export`,
       },
     },
     operations: {

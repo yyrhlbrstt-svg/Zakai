@@ -36,6 +36,7 @@ const copy = {
     institutions: "לאינטגרציות מוסדות",
     proofs: "קיר הוכחות",
     start: "התחל כצרכן",
+    authorityWallet: "ארנק הרשאות",
     disclaimer:
       "זה לא מטבע קריפטו ולא הבטחת תשואה — זה פרוטוקול לסמכות ולתיעוד. הערך גדל כשמוסדות מאמתים mandates וכשיותר תוצאות מתועדות בכנות.",
   },
@@ -66,6 +67,7 @@ const copy = {
     institutions: "For institutions",
     proofs: "Proofs wall",
     start: "Start as consumer",
+    authorityWallet: "Authority wallet",
     disclaimer:
       "This is not a cryptocurrency or a return promise — it's a protocol for authority and proof. Value grows when institutions verify mandates and outcomes are recorded honestly.",
   },
@@ -160,6 +162,11 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
           <Link href="/proofs">
             <Button variant="ghost" className="!text-[12.5px]">
               {c.proofs}
+            </Button>
+          </Link>
+          <Link href="/authority">
+            <Button variant="ghost" className="!text-[12.5px]">
+              {c.authorityWallet}
             </Button>
           </Link>
         </div>
