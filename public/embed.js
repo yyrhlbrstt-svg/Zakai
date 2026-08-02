@@ -5,7 +5,9 @@
  *   <div id="zakai-embed" data-locale="he" data-ref="partner-acme" data-path="money"></div>
  *   <script src="https://zakai-3uxj.vercel.app/embed.js" async></script>
  *
- * data-path options: money (default) | cancel | what-am-i-owed | leaks | electricity
+ * data-path: money (default) | cancel | check | bank-fees | electricity | leaks |
+ *   refund-chase | flights | deposit | duplicate-insurance | arnona | warranty |
+ *   parking | what-am-i-owed | start
  * Opens the chosen entry door with UTM + partner ref. No credentials, no
  * callback phone number — the closed-loop doctrine holds for B2B too.
  */
@@ -26,17 +28,102 @@
   var ALLOWED_PATHS = {
     money: "/money",
     cancel: "/cancel",
+    check: "/check",
+    "bank-fees": "/bank-fees",
+    bankfees: "/bank-fees",
+    electricity: "/electricity",
+    power: "/electricity",
     "what-am-i-owed": "/what-am-i-owed",
     rights: "/what-am-i-owed",
     leaks: "/leaks",
     start: "/start",
-    electricity: "/electricity",
-    power: "/electricity",
+    "refund-chase": "/refund-chase",
+    refund: "/refund-chase",
+    flights: "/flights",
+    deposit: "/deposit",
+    "duplicate-insurance": "/duplicate-insurance",
+    dupinsurance: "/duplicate-insurance",
+    arnona: "/arnona",
+    warranty: "/warranty",
+    parking: "/parking",
+  };
+
+  var LABELS = {
+    money: {
+      he: "סרוק חיובים ופתח תיק עם הסוכן",
+      en: "Scan charges and open an agent case",
+    },
+    cancel: {
+      he: "בטל מנוי עם סוכן זכאי",
+      en: "Cancel a subscription with Zakai agent",
+    },
+    check: {
+      he: "הוזל חשבון סלולר / אינטרנט — הסוכן שולח",
+      en: "Lower mobile/internet bill — agent sends",
+    },
+    "bank-fees": {
+      he: "ערעור על עמלות בנק — עם Mandate",
+      en: "Dispute bank fees — with Mandate",
+    },
+    electricity: {
+      he: "השווה ספקי חשמל — הסוכן עובר בשמך",
+      en: "Compare electricity — agent switches for you",
+    },
+    leaks: {
+      he: "מפת נזילות כסף — בחר מסלול סוכן",
+      en: "Money leak map — pick an agent path",
+    },
+    "refund-chase": {
+      he: "דרישת החזר כספי — הסוכן שולח",
+      en: "Missing refund — agent sends demand",
+    },
+    flights: {
+      he: "פיצוי טיסה — תיק סוכן",
+      en: "Flight compensation — agent case",
+    },
+    deposit: {
+      he: "פיקדון שכירות שלא הוחזר — הסוכן דורש",
+      en: "Rental deposit not returned — agent demands",
+    },
+    "duplicate-insurance": {
+      he: "ביטול ביטוח כפול — הסוכן שולח",
+      en: "Cancel duplicate insurance — agent sends",
+    },
+    arnona: {
+      he: "ארנונה — הנחה או תיקון חיוב",
+      en: "Arnona discount or billing fix",
+    },
+    warranty: {
+      he: "מימוש אחריות מוצר — הסוכן שולח",
+      en: "Product warranty — agent sends",
+    },
+    parking: {
+      he: "ערעור על דוח חניה — הסוכן שולח",
+      en: "Parking ticket appeal — agent sends",
+    },
+    "what-am-i-owed": {
+      he: "מה מגיע לי? בדוק עם זכאי",
+      en: "What am I owed? Check with Zakai",
+    },
+    start: {
+      he: "תאר את הבעיה — זכאי יבחר את הדלת",
+      en: "Describe the problem — Zakai picks the door",
+    },
   };
 
   function qs(el, name, fallback) {
     var v = el.getAttribute("data-" + name);
     return v && v.trim() ? v.trim() : fallback;
+  }
+
+  function isHe(locale) {
+    return locale === "he" || locale === "ar";
+  }
+
+  function labelFor(pathKey, locale) {
+    var row = LABELS[pathKey];
+    if (row) return isHe(locale) ? row.he : row.en;
+    return isHe(locale) ? "בדוק זכויות וחיסכון עם זכאי" : "Check rights & savings with Zakai";
   }
 
   function mount(el) {
@@ -47,28 +134,13 @@
     var ref = qs(el, "ref", "embed");
     var pathKey = qs(el, "path", "money").toLowerCase();
     var path = ALLOWED_PATHS[pathKey] || ALLOWED_PATHS.money;
+    var resolvedKey = ALLOWED_PATHS[pathKey] ? pathKey : "money";
 
-    var label =
-      qs(el, "label", null) ||
-      (pathKey === "cancel"
-        ? locale === "he" || locale === "ar"
-          ? "בטל מנוי עם סוכן זכאי"
-          : "Cancel a subscription with Zakai agent"
-        : pathKey === "what-am-i-owed" || pathKey === "rights"
-          ? locale === "he" || locale === "ar"
-            ? "מה מגיע לי? בדוק עם זכאי"
-            : "What am I owed? Check with Zakai"
-          : pathKey === "electricity" || pathKey === "power"
-            ? locale === "he" || locale === "ar"
-              ? "השווה ספקי חשמל — הסוכן עובר בשמך"
-              : "Compare electricity — agent switches for you"
-            : locale === "he" || locale === "ar"
-              ? "בדוק זכויות וחיסכון עם זכאי"
-              : "Check rights & savings with Zakai");
+    var label = qs(el, "label", null) || labelFor(resolvedKey, locale);
 
     var sub =
       qs(el, "sub", null) ||
-      (locale === "he" || locale === "ar"
+      (isHe(locale)
         ? "בלי מוקד · בלי להשאיר טלפון · עמלה רק על חיסכון מתועד"
         : "No call center · no phone left behind · fee only on documented savings");
 
@@ -112,8 +184,7 @@
       "display:inline-block;text-decoration:none;font-weight:800;font-size:14px;" +
       "padding:11px 18px;border-radius:12px;color:#06121A;" +
       "background:linear-gradient(105deg,#3FCB9B,#23cbb6)";
-    btn.textContent =
-      locale === "he" || locale === "ar" ? "התחל עכשיו →" : "Start now →";
+    btn.textContent = isHe(locale) ? "התחל עכשיו →" : "Start now →";
 
     card.appendChild(kicker);
     card.appendChild(title);

@@ -21,6 +21,12 @@ describe("revenueVerticals", () => {
     expect(il.find((v) => v.id === "il_vaad_bait")?.route).toBe("/vaad-bait");
   });
 
+  it("lists warranty as live agent on opportunity map", () => {
+    const w = revenueVerticalsForMarket("IL").find((v) => v.id === "il_consumer_warranty");
+    expect(w?.status).toBe("live_agent");
+    expect(w?.route).toBe("/warranty");
+  });
+
   it("includes GB student loan vertical with pack right", () => {
     const gb = revenueVerticalsForMarket("GB");
     const sl = gb.find((v) => v.id === "gb_student_loan_overpayment");

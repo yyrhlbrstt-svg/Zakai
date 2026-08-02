@@ -2,13 +2,15 @@
 
 import { useEffect } from "react";
 
+import type { EmbedPartnerPathKey } from "@/lib/embedPartnerPaths";
+
 /** Mounts public/embed.js into a host node for the partners docs page. */
 export function EmbedPreview({
   locale,
   path = "money",
 }: {
   locale: string;
-  path?: "money" | "cancel" | "what-am-i-owed" | "leaks";
+  path?: EmbedPartnerPathKey;
 }) {
   useEffect(() => {
     const existing = document.querySelector('script[data-zakai-embed-loader]');

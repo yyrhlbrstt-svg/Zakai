@@ -6,6 +6,7 @@ import { Button, Card } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { EmbedPreview } from "@/components/EmbedPreview";
 import { alternateLanguages, SITE_URL } from "@/lib/seo";
+import { EMBED_PARTNER_PATH_KEYS } from "@/lib/embedPartnerPaths";
 
 export async function generateMetadata({
   params,
@@ -37,12 +38,28 @@ export default async function PartnersPage({
      data-path="money"></div>
 <script src="${SITE_URL}/embed.js" async></script>`;
 
-  const paths = [
-    { path: "money", heLabel: "הכסף שלי / סריקה", enLabel: "My money / scan" },
-    { path: "cancel", heLabel: "ביטול מנוי עם סוכן", enLabel: "Cancel sub with agent" },
-    { path: "what-am-i-owed", heLabel: "מה מגיע לי", enLabel: "What am I owed" },
-    { path: "leaks", heLabel: "מפת נזילות", enLabel: "Leaks map" },
-  ];
+  const pathLabels: Record<string, { heLabel: string; enLabel: string }> = {
+    money: { heLabel: "הכסף שלי / סריקה", enLabel: "My money / scan" },
+    cancel: { heLabel: "ביטול מנוי עם סוכן", enLabel: "Cancel sub with agent" },
+    check: { heLabel: "סלולר / אינטרנט", enLabel: "Mobile / internet" },
+    "bank-fees": { heLabel: "עמלות בנק", enLabel: "Bank fees" },
+    electricity: { heLabel: "חשמל", enLabel: "Electricity" },
+    leaks: { heLabel: "מפת נזילות", enLabel: "Leaks map" },
+    "refund-chase": { heLabel: "החזר כספי", enLabel: "Refund chase" },
+    flights: { heLabel: "פיצוי טיסה", enLabel: "Flights" },
+    deposit: { heLabel: "פיקדון שכירות", enLabel: "Rental deposit" },
+    "duplicate-insurance": { heLabel: "ביטוח כפול", enLabel: "Duplicate insurance" },
+    arnona: { heLabel: "ארנונה", enLabel: "Arnona" },
+    warranty: { heLabel: "אחריות מוצר", enLabel: "Product warranty" },
+    parking: { heLabel: "דוח חניה", enLabel: "Parking appeal" },
+    "what-am-i-owed": { heLabel: "מה מגיע לי", enLabel: "What am I owed" },
+    start: { heLabel: "תאר את הבעיה", enLabel: "Describe your problem" },
+  };
+  const paths = EMBED_PARTNER_PATH_KEYS.map((path) => ({
+    path,
+    heLabel: pathLabels[path]?.heLabel ?? path,
+    enLabel: pathLabels[path]?.enLabel ?? path,
+  }));
 
   return (
     <VerticalPageShell
@@ -75,7 +92,7 @@ export default async function PartnersPage({
         <SpotlightCard className="p-4">
           <div className="font-extrabold text-[14px]">data-path</div>
           <div className="text-ink-soft text-[12.5px] mt-1">
-            money · cancel · what-am-i-owed · leaks
+            {EMBED_PARTNER_PATH_KEYS.slice(0, 6).join(" · ")} …
           </div>
         </SpotlightCard>
         <SpotlightCard className="p-4">

@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { MoneyHub } from "@/components/MoneyHub";
 import { MoneyInstallInline } from "@/components/MoneyInstallInline";
 import { MoneyPageContextPanel } from "@/components/MoneyPageContextPanel";
+import { MoneyGrowthPanel } from "@/components/MoneyGrowthPanel";
 import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
@@ -58,6 +59,8 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       <div className="mt-2">
         <MoneyHub bcp47={loc} screenshotEnabled={aiAvailable()} />
       </div>
+
+      <MoneyGrowthPanel locale={locale as Locale} />
 
       <div className="mt-10 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-5">
         <div className="font-extrabold text-[14px]">{tIapp_locale_money_page("t_26d7de3c")}</div>

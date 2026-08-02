@@ -60,4 +60,4 @@ Run `GET /api/release-gate` and `/he/founder` **release score** — consumer lau
 - **PAID fee agorot** (actual revenue).
 - Leads by vertical → which door gets product polish next.
 
-See also: `docs/IL_REVENUE_PLAYBOOK.md`, `docs/MONEY_OS.md`, `docs/GOLDEN_SHIP_COMPLETE.md`.
+See also: `docs/IL_REVENUE_PLAYBOOK.md`, `docs/MONEY_OS.md`, `docs/SCALE_DISTRIBUTION.md`, `docs/GOLDEN_SHIP_COMPLETE.md`.

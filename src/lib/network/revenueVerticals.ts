@@ -296,7 +296,7 @@ export const REVENUE_VERTICALS: readonly RevenueVertical[] = [
     avgRecoveryMinor: 500_00,
     currency: "ILS",
     monetization: "success_fee",
-    status: "letter_pack",
+    status: "live_agent",
     route: "/warranty",
     packRightId: "consumer_warranty_il",
     citation: "חוק הגנת הצרכן, התשמ״א-1981",
