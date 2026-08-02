@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
@@ -40,6 +41,11 @@ export async function POST(request: Request) {
       if (referrer) referredById = referrer.id;
     }
 
+    // Set once at signup, never touched again — see middleware.ts's
+    // capturePartnerRef for why this exists (the B2B embed channel had no
+    // attribution at all before this).
+    const partnerRef = (await cookies()).get("zakai_partner_ref")?.value || undefined;
+
     const user = await prisma.user.create({
       data: {
         name,
@@ -49,6 +55,7 @@ export async function POST(request: Request) {
         passwordHash: await hashPassword(password),
         referralCode: generateReferralCode(),
         referredById,
+        partnerRef,
         // The signup form requires an explicit terms/privacy checkbox; record
         // that consent durably (Amendment 13 — documented informed consent).
         consents: { create: { purpose: "terms_privacy_v1" } },

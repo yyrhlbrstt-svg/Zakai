@@ -54,6 +54,7 @@ export default async function FounderPage({
     feedbackCount,
     leads,
     feedbackRows,
+    partnerSignups,
   ] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
@@ -74,6 +75,15 @@ export default async function FounderPage({
     // read and prioritise from real user input." Nothing ever rendered it;
     // /founder showed only a count. This is that promise, finally kept.
     prisma.feedback.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
+    // Signups per B2B embed partner — the only way to answer "did this
+    // partner send us anyone" now that middleware.ts actually captures the
+    // ref. Excludes null so an empty partnerRef group doesn't show as "0"
+    // pretending to be a partner.
+    prisma.user.groupBy({
+      by: ["partnerRef"],
+      where: { partnerRef: { not: null } },
+      _count: { _all: true },
+    }),
   ]);
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
@@ -154,6 +164,33 @@ export default async function FounderPage({
           );
         })}
       </div>
+
+      {/* B2B embed partner performance — see middleware.ts capturePartnerRef.
+          Before this section existed, there was no way to answer "did this
+          partner's embed actually send us anyone" — the whole channel was
+          marketing with zero measurement behind it. */}
+      <h2 className="font-display text-xl mt-10 mb-1.5">ביצועי שותפים (embed)</h2>
+      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+        הרשמות שהגיעו דרך widget מוטמע (utm_source=embed) — לפי ref של השותף.
+      </p>
+      {partnerSignups.length === 0 ? (
+        <p className="text-ink-soft text-[13.5px]">
+          עדיין אין הרשמות משותף. ה-widget לא מטמיע את עצמו — צריך שותף שיטמיע אותו בפועל.
+        </p>
+      ) : (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {[...partnerSignups]
+            .sort((a, b) => b._count._all - a._count._all)
+            .map((p) => (
+              <span
+                key={p.partnerRef}
+                className="text-[12.5px] font-bold text-ink-soft border border-[rgba(255,255,255,0.12)] rounded-full px-3 py-1.5"
+              >
+                {p.partnerRef} · <b className="text-ink">{p._count._all}</b>
+              </span>
+            ))}
+        </div>
+      )}
 
       {/* Who to call back. Institutional enquiries first: a bank asking for a
           pilot is not one lead among many, and burying it under consumer volume
