@@ -249,6 +249,21 @@ export const RIGHT_ACTIONS: Record<string, RightAction> = {
     body: `אני, ${IDENTITY}, מבקש/ת לבחון את זכאותי לגמלת ניידות ולהטבות הנלוות (הלוואה עומדת, חניית נכה, פטור מאגרת רישוי).
 אבקש זימון לוועדה הרפואית לניידות והחלטה מנומקת בכתב.`,
   },
+  long_term_care_benefit: {
+    kind: "letter",
+    recipient: "national_insurance",
+    subject: "בקשה לבחינת זכאות לגמלת סיעוד",
+    body: `אני, ${IDENTITY}, מבקש/ת לבחון את זכאותי לגמלת סיעוד לפי חוק הביטוח הלאומי (פרק הסיעוד).
+אבקש לזמן אותי להערכת תלות תפקודית בבית, ולקבל החלטה מנומקת בכתב הכוללת את הזכאות למבחן ההכנסות.`,
+  },
+  tax_coordination: {
+    kind: "letter",
+    recipient: "tax_authority",
+    fields: ["details"],
+    subject: "בקשה לתיאום מס בין מספר מעסיקים",
+    body: `אני, ${IDENTITY}, עובד/ת אצל יותר ממעסיק אחד או החלפתי מקום עבודה במהלך השנה: {details}.
+כל מעסיק מנכה מס כאילו הוא המעסיק היחיד, מה שגורם לניכוי ביתר. אבקש לתאם את המס בין המעסיקים או לבדוק זכאותי להחזר בגין ניכוי ביתר.`,
+  },
 
   // ---- Municipal ----
   arnona_income: {
@@ -365,6 +380,14 @@ export const RIGHT_ACTIONS: Record<string, RightAction> = {
     body: `אני, ${IDENTITY}, מבקש/ת לבצע איתור של חשבונות, פיקדונות, ניירות ערך וכספים רדומים הרשומים על שמי או על שם קרוב שנפטר ואני יורשו.
 אבקש דוח מפורט של כל הנכסים שאותרו ואת הליך שחרורם.`,
   },
+  hishtalmut_withdrawal: {
+    kind: "letter",
+    recipient: "pension_fund",
+    fields: ["counterparty", "accountNumber"],
+    subject: "בקשה למשיכת כספי קרן השתלמות",
+    body: `אני, ${IDENTITY}, עמית/ה מספר {accountNumber} בקרן ההשתלמות. חלפו 6 שנים לפחות מהפקדתי הראשונה.
+אבקש לקבל אישור על זכאותי למשיכה פטורה ממס, ולבצע את המשיכה בהתאם.`,
+  },
 
   // ---- Consumer ----
   mobile_check: { kind: "tool", tool: "/check" },
@@ -402,6 +425,30 @@ export const RIGHT_ACTIONS: Record<string, RightAction> = {
     subject: "תלונה על חיוב כפול / שגוי",
     body: `אני, ${IDENTITY}, מזהה חיוב כפול או שגוי בסך {amount} ₪ בעסקה שביצעתי אצלכם: {details}.
 מצורף פירוט/צילום הקבלה או דף החשבון המראה את החיוב הכפול. אבקש לתקן את החיוב ולזכות אותי בסכום ששולם ביתר בהקדם האפשרי.`,
+  },
+  train_delay_compensation: {
+    kind: "letter",
+    recipient: "provider",
+    fields: ["counterparty", "details"],
+    subject: "בקשה לפיצוי בגין איחור/ביטול רכבת",
+    body: `אני, ${IDENTITY}, נסעתי ברכבת ישראל וחוויתי איחור או ביטול משמעותי: {details}.
+בהתאם לנוהל הפיצוי המפורסם של רכבת ישראל, אבקש לממש את הפיצוי המגיע לי (כרטיסייה/נסיעה חינם) בגין האירוע.`,
+  },
+  route6_dispute: {
+    kind: "letter",
+    recipient: "provider",
+    fields: ["counterparty", "details"],
+    subject: "ערר על חיוב כביש 6",
+    body: `אני, ${IDENTITY}, מערער/ת על חיוב כביש 6 שקיבלתי: {details}.
+אבקש להעביר את הערר לוועדת הערר הסטטוטורית ולבטל או לתקן את החיוב, לרבות במקרה שבו אינני הבעלים הרשום בעת ביצוע הנסיעה.`,
+  },
+  vehicle_license_fee_refund: {
+    kind: "letter",
+    recipient: "provider",
+    fields: ["counterparty", "details"],
+    subject: "בקשה להחזר יחסי על אגרת רישוי רכב",
+    body: `אני, ${IDENTITY}, הוצאתי את רכבי מהכביש (ביטול רישוי) או שהרכב הוכרז אבדן גמור: {details}.
+אבקש החזר יחסי על אגרת הרישוי ששולמה עבור התקופה שלאחר מכן, בהתאם לתקנות משרד התחבורה.`,
   },
   consumer_cancel14: {
     kind: "letter",

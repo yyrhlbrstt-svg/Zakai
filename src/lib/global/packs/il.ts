@@ -123,6 +123,7 @@ const rights: RightDef[] = [
     "פקודת מס הכנסה, סעיף 11 והתוספת הראשונה",
     { yearlyMinor: 300_000 },
   ),
+  right("tax_coordination", "tax", working, "פקודת מס הכנסה — כללי ניכוי במקור, טופס 101 ותיאום מס"),
 
   // ---- Social security -----------------------------------------------------
   right("child_allowance", "social_security", parent, "חוק הביטוח הלאומי [נוסח משולב], התשנ״ה-1995, פרק ד'"),
@@ -138,6 +139,7 @@ const rights: RightDef[] = [
   right("miluim_pay", "social_security", reservist, "חוק הביטוח הלאומי, פרק י״ב"),
   right("disability_allowance", "social_security", disability, "חוק הביטוח הלאומי, פרק ט'"),
   right("mobility_allowance", "social_security", disability, "הסכם הניידות בין המדינה למוסד לביטוח לאומי"),
+  right("long_term_care_benefit", "social_security", senior, "חוק הביטוח הלאומי [נוסח משולב], התשנ״ה-1995, פרק ו' (סיעוד)"),
 
   // ---- Municipal -----------------------------------------------------------
   right("arnona_income", "municipal", lowIncome, "תקנות הסדרים במשק המדינה (הנחה מארנונה), התשנ״ג-1993"),
@@ -158,6 +160,7 @@ const rights: RightDef[] = [
   right("bank_soldier_student", "banking", any(soldier, student), "כללי הבנקאות (שירות ללקוח)(עמלות) — פטורים לחיילים ולסטודנטים"),
   right("credit_report_free", "banking", always, "חוק נתוני אשראי, התשע״ו-2016"),
   right("dormant_money", "banking", always, "הוראות ניהול בנקאי תקין — חשבונות ללא תנועה"),
+  right("hishtalmut_withdrawal", "banking", working, "פקודת מס הכנסה — כללי מס הכנסה (כללים לאישור ולניהול קופות גמל)"),
 
   // ---- Consumer ------------------------------------------------------------
   right("mobile_check", "consumer", always, "חוק התקשורת (בזק ושידורים), התשמ״ב-1982"),
@@ -173,6 +176,11 @@ const rights: RightDef[] = [
   // cancellation right is, and guessing a section number here would be
   // exactly the kind of unverified citation this file exists to avoid.
   right("duplicate_charge_dispute", "consumer", always, "חוק עשיית עושר ולא במשפט, התשל״ט-1979"),
+  // Deliberately NOT cited as a statutory right — it's Israel Railways' own
+  // published compensation procedure, and at least one district-court ruling
+  // has held cash compensation beyond it isn't legally claimable. The
+  // citation says so rather than dressing this up as law like flight_comp.
+  right("train_delay_compensation", "consumer", always, "נוהל פיצוי נוסעים של רכבת ישראל (מדיניות מפעילה, לא חוק — ראו הערה)"),
   right("consumer_cancel14", "consumer", always, "חוק הגנת הצרכן, התשמ״א-1981, סעיף 14ג"),
   right("consumer_telecom_exit", "consumer", always, "חוק התקשורת (בזק ושידורים), התשמ״ב-1982, סעיף 13ג"),
 
@@ -194,6 +202,16 @@ const rights: RightDef[] = [
     "transport",
     any(num("ageYears", { gte: 18, lte: 24 }), student, soldier),
     "צו פיקוח על מחירי מצרכים ושירותים (מחירי נסיעה בקווי שירות באוטובוסים)",
+  ),
+  right("route6_dispute", "transport", always, "חקיקת כביש חוצה ישראל — ועדת ערר סטטוטורית"),
+  // Corrected scope: NOT "sold your car → refund" (a common misconception).
+  // Only deregistration (took the car off the road) or a total-loss write-off
+  // triggers a prorated refund — never an ordinary sale.
+  right(
+    "vehicle_license_fee_refund",
+    "transport",
+    always,
+    "תקנות התעבורה — החזר יחסי על אגרת רישוי בעת ביטול רישוי או אבדן גמור",
   ),
 
   // ---- Education -----------------------------------------------------------
