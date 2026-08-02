@@ -1,7 +1,7 @@
-import type { CountryCode, VerticalRulePack } from "./types";
+import type { CountryCode, VerticalRulePack, FeeBasis } from "./types";
 import { RULE_PACKS } from "./packs";
 
-export type { CountryCode, VerticalRulePack, ServiceLevel, ServiceChannel, VerificationMethod, VerificationSpec } from "./types";
+export type { CountryCode, VerticalRulePack, ServiceLevel, ServiceChannel, VerificationMethod, VerificationSpec, FeeBasis } from "./types";
 export { RULE_PACKS } from "./packs";
 
 /** Default market until a user's country routes them elsewhere. */
@@ -39,4 +39,12 @@ export function isFullService(vertical: string, country: CountryCode = DEFAULT_C
  */
 export function effectiveFeeRateBps(pack: VerticalRulePack | null, planRateBps: number): number {
   return pack?.feeRateBps ?? planRateBps;
+}
+
+/** Fee semantics for settlement UI and outcome graph. */
+export function feeBasisForVertical(
+  vertical: string,
+  country: CountryCode = DEFAULT_COUNTRY,
+): FeeBasis {
+  return getRulePack(vertical, country)?.feeBasis ?? "monthly";
 }

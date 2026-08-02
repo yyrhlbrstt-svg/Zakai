@@ -4,6 +4,7 @@ import {
   listRulePacks,
   isFullService,
   effectiveFeeRateBps,
+  feeBasisForVertical,
   RULE_PACKS,
 } from "./index";
 import { PLANS } from "@/lib/plans";
@@ -43,10 +44,15 @@ describe("rule pack registry", () => {
 });
 
 describe("feeBasis on rule packs", () => {
-  it("lump verticals use transfer or decision proof paths", () => {
+  it("feeBasis on rule packs", () => {
     expect(getRulePack("deposit")?.feeBasis).toBe("lump");
     expect(getRulePack("telecom")?.feeBasis).toBe("monthly");
     expect(getRulePack("duplicate-insurance")?.feeBasis).toBe("monthly");
+  });
+
+  it("feeBasisForVertical defaults to monthly", () => {
+    expect(feeBasisForVertical("deposit")).toBe("lump");
+    expect(feeBasisForVertical("unknown")).toBe("monthly");
   });
 });
 

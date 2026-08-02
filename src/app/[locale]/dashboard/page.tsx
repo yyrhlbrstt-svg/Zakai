@@ -28,6 +28,7 @@ import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
+import { feeBasisForVertical } from "@/lib/verticals";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -239,6 +240,7 @@ export default async function DashboardPage({
                 agentRound={agentRoundMap.get(c.id) ?? 0}
                 emailConfigured={emailConfigured()}
                 vertical={c.vertical}
+                feeBasis={feeBasisForVertical(c.vertical)}
                 currentPlan={user!.plan}
                 documentedSavingShekels={
                   c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined

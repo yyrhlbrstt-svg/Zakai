@@ -8,6 +8,7 @@ import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
 import { scheduleFollowUpReminder, scheduleRecheckReminder } from "@/lib/reminders";
 import { rankPriorityActions } from "@/lib/priority";
 import { proBreakevenSavingAgorot } from "@/lib/plans";
+import type { FeeBasis } from "@/lib/verticals/types";
 
 /**
  * Case.vertical values (see prisma/schema.prisma) don't always share a name
@@ -59,6 +60,8 @@ interface Props {
   agentRound?: number;
   /** This case's vertical (Case.vertical) — excludes its own door from "what's next". */
   vertical?: string;
+  /** Lump vs monthly settlement semantics for the SENT → SAVED form. */
+  feeBasis?: FeeBasis;
   /** Account's current plan — gates the Pro-upgrade nudge to Free users only. */
   currentPlan?: string;
   /** SavingsProof.savingMonthly in shekels — drives the Pro-upgrade nudge. */
@@ -83,8 +86,11 @@ const copy: Record<string, Record<string, string>> = {
     dispatch: "הסוכן שולח עכשיו (Mandate + שליחה)",
     openDoc: "פתח מסמך הרשאה (הדפסה / PDF)",
     newAmt: "סכום חדש אחרי התשובה (₪)",
+    newAmtLump: "נותר לשלם / בחוב (₪) — 0 אם התקבל במלואו",
     record: "רשום חיסכון",
+    recordLump: "רשום החזר מתועד",
     noChange: "לא השתנה",
+    fullRecovery: "התקבל במלואו (₪0 נותר)",
     working: "רגע…",
     err: "משהו השתבש. נסה שוב.",
     nextHint: "השלב הבא",
@@ -131,8 +137,11 @@ const copy: Record<string, Record<string, string>> = {
     dispatch: "Agent sends now (Mandate + dispatch)",
     openDoc: "Open authorization (print / PDF)",
     newAmt: "New amount after reply (₪)",
+    newAmtLump: "Still owed (₪) — enter 0 if paid in full",
     record: "Record saving",
+    recordLump: "Record documented recovery",
     noChange: "No change",
+    fullRecovery: "Paid in full (₪0 left)",
     working: "One moment…",
     err: "Something went wrong.",
     nextHint: "Next step",
@@ -190,6 +199,7 @@ export function CaseNextStep({
   agentRound = 0,
   emailConfigured = true,
   vertical,
+  feeBasis = "monthly",
   currentPlan,
   documentedSavingShekels,
 }: Props) {
@@ -627,7 +637,7 @@ export function CaseNextStep({
             type="number"
             value={newAmt}
             onChange={(e) => setNewAmt(e.target.value)}
-            placeholder={t(locale, "newAmt")}
+            placeholder={t(locale, feeBasis === "lump" ? "newAmtLump" : "newAmt")}
             className="max-w-[180px] text-[13px]"
           />
           <Button
@@ -645,25 +655,45 @@ export function CaseNextStep({
               })
             }
           >
-            {busy ? t(locale, "working") : t(locale, "record")}
+            {busy ? t(locale, "working") : t(locale, feeBasis === "lump" ? "recordLump" : "record")}
           </Button>
-          <Button
-            variant="ghost"
-            disabled={busy}
-            className="text-[13px] py-2 px-3"
-            onClick={() =>
-              run(async () => {
-                const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ newAmountShekels: amountOriginalShekels }),
-                });
-                if (!res.ok) throw new Error("save");
-              })
-            }
-          >
-            {t(locale, "noChange")}
-          </Button>
+          {feeBasis === "lump" ? (
+            <Button
+              variant="ghost"
+              disabled={busy}
+              className="text-[13px] py-2 px-3"
+              onClick={() =>
+                run(async () => {
+                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ newAmountShekels: 0 }),
+                  });
+                  if (!res.ok) throw new Error("save");
+                })
+              }
+            >
+              {t(locale, "fullRecovery")}
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              disabled={busy}
+              className="text-[13px] py-2 px-3"
+              onClick={() =>
+                run(async () => {
+                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ newAmountShekels: amountOriginalShekels }),
+                  });
+                  if (!res.ok) throw new Error("save");
+                })
+              }
+            >
+              {t(locale, "noChange")}
+            </Button>
+          )}
         </div>
         {err && <FieldError>{err}</FieldError>}
       </div>
