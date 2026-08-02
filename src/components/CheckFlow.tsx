@@ -99,7 +99,12 @@ export function CheckFlow() {
 
   // outcome
   const [newAmount, setNewAmount] = useState("");
-  const [outcome, setOutcome] = useState<{ saving: number; fee: number; chargeable: boolean } | null>(null);
+  const [outcome, setOutcome] = useState<{
+    saving: number;
+    fee: number;
+    chargeable: boolean;
+    checkoutUrl?: string;
+  } | null>(null);
   const [delivered, setDelivered] = useState(true);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -276,7 +281,7 @@ export function CheckFlow() {
     const res = await fetch(`/api/cases/${rec.caseId}/record-saving`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ newAmountShekels: amt }),
+      body: JSON.stringify({ newAmountShekels: amt, locale }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
@@ -285,6 +290,7 @@ export function CheckFlow() {
         saving: data.savingMonthlyShekels,
         fee: data.feeShekels,
         chargeable: data.chargeable,
+        checkoutUrl: data.checkoutUrl as string | undefined,
       });
       setStage("result");
     } else {
@@ -710,6 +716,16 @@ export function CheckFlow() {
                 <div className="font-display grad-text text-2xl">₪{nf.format(outcome.fee)}</div>
               </div>
               <div className="text-[13px] text-ink-soft mt-1.5">{t("feeExplain")}</div>
+              {outcome.checkoutUrl ? (
+                <Button
+                  className="w-full mt-4"
+                  onClick={() => {
+                    window.location.href = outcome.checkoutUrl!;
+                  }}
+                >
+                  {t("payFeeNow")}
+                </Button>
+              ) : null}
             </Card>
           )}
 

@@ -511,6 +511,7 @@
     "annualSaving": "Annual saving",
     "feeNote": "Success fee (18%)",
     "feeExplain": "You pay only because it worked. No saving, no fee.",
+    "payFeeNow": "Pay success fee now",
     "noSaving": "No saving was documented for this request — so there is no fee. You can try another provider or plan.",
     "newCase": "Check another bill",
     "toDash": "To dashboard",
