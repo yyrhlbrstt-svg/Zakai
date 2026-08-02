@@ -53,9 +53,18 @@ const PARTNER_REF_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
  * it — no way to answer "did this partner send us anyone," let alone bill a
  * referral fee on it. This is the fix: capture it once per visit into a
  * cookie, first-touch (never overwritten), and api/auth/signup reads it.
+ *
+ * `utm_source=agent` is the same channel for third-party AI assistants: the
+ * handoff convention published in /llms.txt tells an agent to link its user
+ * here with utm_campaign=agent-<name>, so the day an assistant starts sending
+ * people, the founder can see it in the same partnerRef column instead of
+ * wondering where the signups came from.
  */
+const ATTRIBUTED_SOURCES = new Set(["embed", "agent"]);
+
 function capturePartnerRef(request: NextRequest, res: NextResponse): void {
-  if (request.nextUrl.searchParams.get("utm_source") !== "embed") return;
+  const source = request.nextUrl.searchParams.get("utm_source") || "";
+  if (!ATTRIBUTED_SOURCES.has(source)) return;
   if (request.cookies.get(PARTNER_REF_COOKIE)) return; // first-touch wins
   const ref = request.nextUrl.searchParams.get("utm_campaign");
   if (!ref) return;
