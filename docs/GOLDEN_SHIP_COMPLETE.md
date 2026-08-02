@@ -31,4 +31,4 @@ This is the honest “we can sell this” checklist after the golden IL + global
 ## Optional later (not blocking ship)
 
 - Dedicated `/bank-loan-fee` Case vertical (escalation via `/bank-fees` exists).
-- Inbound-email integration test with mocked Prisma.
+- ~~Inbound-email integration test with mocked Prisma.~~ Done: `inboundEmailRoute.test.ts`.
