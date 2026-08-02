@@ -8,8 +8,10 @@ This is the honest “we can sell this” checklist after the golden IL + global
 - [x] Production build (`npm run build`)
 - [x] **13** jurisdiction packs + `validatePack` + `packsIntegrity.test.ts`
 - [x] IL pack ↔ `ENTITLEMENTS` parity (`engine.test.ts`)
-- [x] Hebrew + English UI titles for all pack rights (`npm run generate:pack-labels`, `npm run verify:pack-labels` in CI optional)
-- [x] IL revenue doors: agents (arnona, duplicate-insurance), letter packs, leaks/priority, fee lump/monthly, inbound proof
+- [x] Money OS entry: `/money` priority doors + proofs forward hint
+- [x] Inbound notify uses `recordAmountShekels` + deep link `?case=`
+- [x] Push on SAVED documented saving
+- [x] `docs/MONEY_OS.md` — institution + consumer thesis
 
 ## Production (you must verify)
 
