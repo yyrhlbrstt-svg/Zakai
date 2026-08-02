@@ -79,6 +79,16 @@ export function proBreakevenSavingAgorot(): number {
   return Math.round((PLANS.PRO.priceAgorot / rateDeltaBps) * 10000);
 }
 
+/**
+ * Documented monthly saving at which Max's 0% fee pays for the subscription vs
+ * staying on Free (18%) or Pro (9%).
+ */
+export function maxBreakevenSavingAgorot(fromPlan: "FREE" | "PRO" = "FREE"): number {
+  const rateDeltaBps = fromPlan === "FREE" ? PLANS.FREE.feeRateBps : PLANS.PRO.feeRateBps;
+  if (rateDeltaBps <= 0) return Infinity;
+  return Math.round((PLANS.MAX.priceAgorot / rateDeltaBps) * 10000);
+}
+
 /** Case statuses that count against the active-case allowance. */
 export const ACTIVE_CASE_STATUSES = ["ANALYZED", "APPROVED", "VERIFIED", "SENT"] as const;
 

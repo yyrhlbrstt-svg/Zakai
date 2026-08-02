@@ -1,0 +1,16 @@
+{
+  "pack_version": "2026-08-01",
+  "market": "EU",
+  "language": "en",
+  "maintainer": "eu-maintainer@zakai.io",
+  "rights_count": 1,
+  "rights": ["eu_flight_delay_261"],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T00:00:00Z"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_income_support",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "income support",
+    "he": "income support"
+  },
+  "market": "IL",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "incomeBand",
+            "operator": "in",
+            "value": [
+              "low"
+            ],
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "NOT",
+        "conditions": [
+          {
+            "operator": "AND",
+            "conditions": [
+              {
+                "field": "employment",
+                "operator": "in",
+                "value": [
+                  "employee",
+                  "self_employed"
+                ],
+                "source": "user_input"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_income_support",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק הבטחת הכנסה, התשמ״א-1980"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

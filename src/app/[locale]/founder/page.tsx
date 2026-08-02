@@ -77,6 +77,8 @@ export default async function FounderPage({
     leads,
     feedbackRows,
     partnerSignups,
+    outboxQueued,
+    outboxFailed,
   ] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
@@ -111,6 +113,8 @@ export default async function FounderPage({
       where: { partnerRef: { not: null } },
       _count: { _all: true },
     }),
+    prisma.outbox.count({ where: { status: "QUEUED" } }),
+    prisma.outbox.count({ where: { status: "FAILED" } }),
   ]);
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
@@ -149,6 +153,8 @@ export default async function FounderPage({
     ["עמלות שנוצרו", `${feeAgg._count._all} · ${money(feeAgg._sum.amount ?? 0)}`],
     ["עמלות ממתינות לגבייה", `${pendingFeeAgg._count._all} · ${money(pendingFeeAgg._sum.amount ?? 0)}`],
     ["עמלות ששולמו", `${paidAgg._count._all} · ${money(paidAgg._sum.amount ?? 0)}`],
+    ["— Outbox בתור (SMTP?) —", String(outboxQueued)],
+    ["— Outbox נכשל —", String(outboxFailed)],
   ];
 
   return (

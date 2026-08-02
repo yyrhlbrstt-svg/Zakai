@@ -7,6 +7,8 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
 import { PROVIDER_KEYS } from "@/lib/providers";
+import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
+import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachEmail";
 
 type Stage =
   | "input"
@@ -19,6 +21,7 @@ type Stage =
 
 interface Rec {
   caseId: string;
+  provider?: string;
   providerLabelKey: string;
   amountShekels: number;
   targetShekels: number;
@@ -27,6 +30,7 @@ interface Rec {
   strategy: string;
   draftMessage: string;
   source: "ai" | "template";
+  needsOutreachEmail?: boolean;
 }
 
 interface AuthDoc {
@@ -57,6 +61,7 @@ function fileToBase64(file: File): Promise<string> {
 
 export function CheckFlow() {
   const t = useTranslations("flow");
+  const tFlow = useTranslations("agentFlow");
   const tp = useTranslations("providers");
   const tv = useTranslations("verify");
   const locale = useLocale() as Locale;
@@ -70,6 +75,7 @@ export function CheckFlow() {
   const [fieldErr, setFieldErr] = useState(false);
 
   const [provider, setProvider] = useState("");
+  const [providerContactEmail, setProviderContactEmail] = useState("");
   const [amount, setAmount] = useState("");
   const [plan, setPlan] = useState("");
   // Family mode: an optional label for whom this check is ("אמא", "אבא"…).
@@ -89,10 +95,16 @@ export function CheckFlow() {
   const [ownErr, setOwnErr] = useState<string | null>(null);
   const [auth, setAuth] = useState<AuthDoc | null>(null);
   const [busy, setBusy] = useState(false);
+  const [approveErr, setApproveErr] = useState<string | null>(null);
 
   // outcome
   const [newAmount, setNewAmount] = useState("");
-  const [outcome, setOutcome] = useState<{ saving: number; fee: number; chargeable: boolean } | null>(null);
+  const [outcome, setOutcome] = useState<{
+    saving: number;
+    fee: number;
+    chargeable: boolean;
+    checkoutUrl?: string;
+  } | null>(null);
   const [delivered, setDelivered] = useState(true);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -148,18 +160,40 @@ export function CheckFlow() {
       return;
     }
     setFieldErr(false);
-    analyze({ mode: "manual", provider, amountShekels: amt, plan });
+    analyze({
+      mode: "manual",
+      provider,
+      amountShekels: amt,
+      plan,
+      providerContactEmail: providerContactEmail.trim() || undefined,
+    });
+  }
+
+  function outreachReady(): boolean {
+    if (!rec) return false;
+    const key = rec.provider || "other";
+    return !telecomNeedsContactEmail(key, providerContactEmail);
   }
 
   async function approve() {
-    if (!rec) return;
+    if (!rec || !outreachReady()) return;
+    setApproveErr(null);
     setBusy(true);
-    await fetch(`/api/cases/${rec.caseId}/approve`, {
+    const res = await fetch(`/api/cases/${rec.caseId}/approve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ editedMessage: draft }),
+      body: JSON.stringify({
+        editedMessage: draft,
+        counterpartyEmail: providerContactEmail.trim() || undefined,
+      }),
     });
+    const data = await res.json().catch(() => ({}));
     setBusy(false);
+    if (!res.ok) {
+      if (data.error === "ALREADY_SENT") setApproveErr(tFlow("errorAlreadySent"));
+      else setApproveErr(tFlow("errorGeneric"));
+      return;
+    }
     setStage("verify");
   }
 
@@ -204,11 +238,16 @@ export function CheckFlow() {
 
   async function generateAuth() {
     if (!rec) return;
+    setOwnErr(null);
     setBusy(true);
     const res = await fetch(`/api/cases/${rec.caseId}/authorization`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    if (res.ok) setAuth(data);
+    if (!res.ok) {
+      setOwnErr("genericError");
+      return;
+    }
+    setAuth(data);
   }
 
   async function send() {
@@ -218,7 +257,18 @@ export function CheckFlow() {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setStage("verify");
-      setOwnErr("genericError");
+      if (isOutreachEmailApiError(data.error)) {
+        setOwnErr("needsEmail");
+      } else if (data.error === "ALREADY_SENT") {
+        setOwnErr("alreadySent");
+      } else if (
+        data.error === "AUTHORIZATION_REQUIRED" ||
+        data.error === "OWNERSHIP_REQUIRED"
+      ) {
+        setOwnErr("genericError");
+      } else {
+        setOwnErr("genericError");
+      }
       return;
     }
     setDelivered(Boolean(data.delivered));
@@ -231,7 +281,7 @@ export function CheckFlow() {
     const res = await fetch(`/api/cases/${rec.caseId}/record-saving`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ newAmountShekels: amt }),
+      body: JSON.stringify({ newAmountShekels: amt, locale }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
@@ -240,8 +290,11 @@ export function CheckFlow() {
         saving: data.savingMonthlyShekels,
         fee: data.feeShekels,
         chargeable: data.chargeable,
+        checkoutUrl: data.checkoutUrl as string | undefined,
       });
       setStage("result");
+    } else {
+      setOwnErr("genericError");
     }
   }
 
@@ -371,8 +424,22 @@ export function CheckFlow() {
                 placeholder={t("planPlaceholder")}
                 aria-label={t("planPlaceholder")}
               />
+              {provider === "other" && (
+                <Input
+                  type="email"
+                  className="mt-3"
+                  value={providerContactEmail}
+                  onChange={(e) => setProviderContactEmail(e.target.value)}
+                  placeholder={t("providerEmailPlaceholder")}
+                  dir="ltr"
+                />
+              )}
               {fieldErr && <FieldError>{t("needAmount")}</FieldError>}
-              <Button onClick={analyzeManual} className="w-full mt-3.5">
+              <Button
+                onClick={analyzeManual}
+                disabled={provider === "other" && !normalizeOutreachEmail(providerContactEmail)}
+                className="w-full mt-3.5"
+              >
                 {t("analyzeBtn")}
               </Button>
             </Card>
@@ -410,6 +477,18 @@ export function CheckFlow() {
               {t("draftTitle")}
             </div>
             <div className="text-[12px] text-ink-soft mt-1.5 mb-2.5">{t("draftNote")}</div>
+            {(rec.needsOutreachEmail || telecomNeedsContactEmail(rec.provider || "other")) && (
+              <div className="mb-3">
+                <Input
+                  type="email"
+                  value={providerContactEmail}
+                  onChange={(e) => setProviderContactEmail(e.target.value)}
+                  placeholder={t("providerEmailPlaceholder")}
+                  dir="ltr"
+                />
+                <p className="text-[12px] text-amber mt-1.5 mb-0">{tFlow("contactEmailHint")}</p>
+              </div>
+            )}
             <Textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -431,13 +510,14 @@ export function CheckFlow() {
           </label>
 
           <div className="flex gap-2.5 mt-4">
-            <Button onClick={approve} disabled={!consent || busy} className="flex-1">
+            <Button onClick={approve} disabled={!consent || busy || !outreachReady()} className="flex-1">
               {t("approveBtn")}
             </Button>
             <Button variant="ghost" onClick={() => location.reload()}>
               {t("startOver")}
             </Button>
           </div>
+          {approveErr && <FieldError>{approveErr}</FieldError>}
         </div>
       )}
 
@@ -636,6 +716,16 @@ export function CheckFlow() {
                 <div className="font-display grad-text text-2xl">₪{nf.format(outcome.fee)}</div>
               </div>
               <div className="text-[13px] text-ink-soft mt-1.5">{t("feeExplain")}</div>
+              {outcome.checkoutUrl ? (
+                <Button
+                  className="w-full mt-4"
+                  onClick={() => {
+                    window.location.href = outcome.checkoutUrl!;
+                  }}
+                >
+                  {t("payFeeNow")}
+                </Button>
+              ) : null}
             </Card>
           )}
 
@@ -643,7 +733,7 @@ export function CheckFlow() {
             <Button variant="ghost" onClick={() => location.reload()} className="flex-1">
               {t("newCase")}
             </Button>
-            <Button onClick={() => router.push("/dashboard")} className="flex-1">
+            <Button onClick={() => router.push(rec ? `/dashboard?case=${rec.caseId}` : "/dashboard")} className="flex-1">
               {t("toDash")}
             </Button>
           </div>

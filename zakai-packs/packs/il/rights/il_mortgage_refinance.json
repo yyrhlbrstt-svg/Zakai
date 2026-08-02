@@ -1,0 +1,42 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_mortgage_refinance",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "mortgage refinance",
+    "he": "mortgage refinance"
+  },
+  "market": "IL",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "housing",
+        "operator": "in",
+        "value": [
+          "owner",
+          "other"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_mortgage_refinance",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק הבנקאות (שירות ללקוח), התשמ״א-1981 — גילוי נאות ופירעון מוקדם"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

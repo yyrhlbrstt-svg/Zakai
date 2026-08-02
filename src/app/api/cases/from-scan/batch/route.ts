@@ -4,8 +4,13 @@ import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
 import { canOpenCase, ACTIVE_CASE_STATUSES, planConfig } from "@/lib/plans";
-import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
+import type { CancelIntent } from "@/lib/cancelLetter";
 import { rateLimit } from "@/lib/ratelimit";
+import {
+  buildFromScanDraft,
+  defaultScanIntent,
+  resolveFromScanOutreach,
+} from "@/lib/fromScanOutreach";
 
 const itemSchema = z.object({
   merchant: z.string().min(1).max(120),
@@ -15,6 +20,7 @@ const itemSchema = z.object({
     .enum(["cellular", "tv_internet", "electricity", "insurance", "fitness", "digital", "other"])
     .default("other"),
   intent: z.enum(["cancel", "retention", "downgrade", "pause"]).optional(),
+  contactEmail: z.string().max(120).optional(),
 });
 
 const schema = z.object({
@@ -59,20 +65,20 @@ export async function POST(request: Request) {
       continue;
     }
 
-    const intent: CancelIntent =
-      data.intent ??
-      (data.category === "digital" || data.category === "fitness" || data.category === "other"
-        ? "cancel"
-        : "retention");
+    const intent: CancelIntent = data.intent ?? defaultScanIntent(data.category);
 
     const product = data.product?.trim() || data.merchant;
-    const letter = buildCancelLetter({
-      customerName: user.name || "",
-      company: data.merchant,
+    const { vertical, providerKey, outreachTo } = resolveFromScanOutreach({
+      merchant: data.merchant,
       product,
-      monthlyShekels: data.monthlyShekels,
-      intent,
+      category: data.category,
+      contactEmail: data.contactEmail,
     });
+
+    if (!outreachTo) {
+      skipped.push({ merchant: data.merchant, reason: "needsOutreachEmail" });
+      continue;
+    }
 
     const amount = Math.round(data.monthlyShekels);
     const target =
@@ -87,25 +93,26 @@ export async function POST(request: Request) {
             ? "הורדת מסלול מסריקה"
             : "הקפאת מנוי מסריקה";
 
-    const vertical =
-      data.category === "cellular" || data.category === "tv_internet"
-        ? "telecom"
-        : data.category === "electricity"
-          ? "electricity"
-          : data.category === "insurance"
-            ? "insurance"
-            : "subscription";
+    const { draftMessage } = buildFromScanDraft({
+      customerName: user.name || "",
+      merchant: data.merchant,
+      product,
+      monthlyShekels: amount,
+      intent,
+      country: user.country,
+    });
 
     try {
       const kase = await createCase({
         userId: auth.userId,
-        provider: data.merchant.slice(0, 80),
+        provider: providerKey.slice(0, 80),
         amountShekels: amount,
         plan: product.slice(0, 120),
         strategy,
         targetShekels: target,
-        draftMessage: `${letter.subject}\n\n${letter.body}`,
+        draftMessage,
         vertical,
+        counterpartyEmail: outreachTo,
         autoApprove: true,
       });
       opened.push({

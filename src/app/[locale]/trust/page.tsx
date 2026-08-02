@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { FEE_DISPUTE_WINDOW_DAYS } from "@/lib/services/cases";
 import { alternateLanguages } from "@/lib/seo";
+import { publicSecurityEmail, publicSupportEmail } from "@/lib/contact";
 
 export async function generateMetadata({
   params,
@@ -18,8 +19,8 @@ export async function generateMetadata({
   };
 }
 
-const SECURITY_EMAIL = process.env.NEXT_PUBLIC_SECURITY_EMAIL || "security@zakai.example";
-const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
+const SECURITY_EMAIL = publicSecurityEmail();
+const SUPPORT_EMAIL = publicSupportEmail();
 const SITE_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
 
 export default async function TrustPage({

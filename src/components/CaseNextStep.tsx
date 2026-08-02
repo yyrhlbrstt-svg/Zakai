@@ -10,6 +10,8 @@ import { rankPriorityActions } from "@/lib/priority";
 import { proBreakevenSavingAgorot } from "@/lib/plans";
 import type { FeeBasis } from "@/lib/verticals/types";
 import { VERTICAL_TO_CATALOG_ID } from "@/lib/priorityCatalogMap";
+import { providerContactEmail } from "@/lib/providers";
+import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 
 type Status =
   | "ANALYZED"
@@ -40,6 +42,10 @@ interface Props {
   agentRound?: number;
   /** This case's vertical (Case.vertical) — excludes its own door from "what's next". */
   vertical?: string;
+  /** Known provider key or label (Case.provider). */
+  provider?: string;
+  /** Destination inbox if captured at case open (Case.counterpartyEmail). */
+  counterpartyEmail?: string | null;
   /** Lump vs monthly settlement semantics for the SENT → SAVED form. */
   feeBasis?: FeeBasis;
   /** Account's current plan — gates the Pro-upgrade nudge to Free users only. */
@@ -63,7 +69,7 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "קוד מ-6 ספרות",
     verifyCode: "אמת",
     magicHint: "נשלח גם קישור למייל — לחיצה אחת בלי SMS.",
-    dispatch: "הסוכן שולח עכשיו (Mandate + שליחה)",
+    dispatch: "שלח לספק (Mandate)",
     openDoc: "פתח מסמך הרשאה (הדפסה / PDF)",
     newAmt: "סכום חדש אחרי התשובה (₪)",
     newAmtLump: "נותר לשלם / בחוב (₪) — 0 אם התקבל במלואו",
@@ -88,7 +94,7 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
     sentBanner:
-      "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — הסוכן ישלח סיבוב 2 לבד.",
+      "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — אחרי כמה ימים, כל עוד ה-Mandate פעיל, הסוכן עשוי לשלוח סיבוב המשך (עד 4 סיבובים).",
     notDeliveredBanner:
       "שליחת מייל עדיין לא מוגדרת בסביבה הזו — הפנייה מוכנה אבל עוד לא יצאה בפועל לספק.",
     competitorName: "שם המתחרה",
@@ -102,12 +108,17 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopy: "העתק כתובת",
     proofsCopied: "הועתק",
     proofsHint: "Forward Email / העברת מייל — הסוכן מזהה סכום ומציע רישום בלחיצה אחת.",
-    ownDone: "בעלות אומתה — לחיצה אחת והסוכן שולח לספק עם Mandate.",
+    ownDone: "בעלות אומתה — לחיצה אחת לשליחה לספק עם Mandate.",
     agentRoundLabel: "סיבוב סוכן",
     nextDoors: "מה עוד?",
     recheckCta: "בדוק שוב אם המבצע נגמר",
     upgradeNudge: "בקצב החיסכון הזה, Pro (עמלה 9% במקום 18%) יחסוך לך יותר ממה שהוא עולה",
     upgradeCta: "לפרטי המסלולים",
+    errNeedsEmail:
+      "חסר אימייל לספק — הזינו כתובת ביטולים/שירות לקוחות ונסו שוב.",
+    errDelivery: "שליחת המייל נכשלה — נסו שוב בעוד רגע.",
+    errAlreadySent: "כבר נשלח — רעננו את הדשבורד.",
+    outreachEmailPh: "אימייל לשליחה (ספק / עירייה / חנות)",
   },
   en: {
     approve: "Approve & continue",
@@ -115,7 +126,7 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "6-digit code",
     verifyCode: "Verify",
     magicHint: "Also sent an email magic link — one tap, no SMS needed.",
-    dispatch: "Agent sends now (Mandate + dispatch)",
+    dispatch: "Send to provider (Mandate)",
     openDoc: "Open authorization (print / PDF)",
     newAmt: "New amount after reply (₪)",
     newAmtLump: "Still owed (₪) — enter 0 if paid in full",
@@ -140,7 +151,7 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
     sentBanner:
-      "Agent sent. If they replied — forward their email below (or enter amount). If not — agent auto-sends round 2.",
+      "Agent sent. If they replied — forward their email below (or enter amount). If not — after several days, while your Mandate is active, the agent may send a follow-up round (up to 4 total).",
     notDeliveredBanner:
       "Email delivery isn't configured in this environment yet — the request is ready but hasn't actually reached the provider.",
     competitorName: "Competitor name",
@@ -154,12 +165,17 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopy: "Copy address",
     proofsCopied: "Copied",
     proofsHint: "Forward Email — agent extracts the amount and offers one-tap record.",
-    ownDone: "Ownership verified — one tap and the agent sends with Mandate.",
+    ownDone: "Ownership verified — one tap to send to the provider with Mandate.",
     agentRoundLabel: "Agent round",
     nextDoors: "What's next?",
     recheckCta: "Re-check if the promo ended",
     upgradeNudge: "At this saving rate, Pro (9% fee instead of 18%) would save you more than it costs",
     upgradeCta: "See plans",
+    errNeedsEmail:
+      "Missing provider email — enter billing / support address and try again.",
+    errDelivery: "Email delivery failed — try again in a moment.",
+    errAlreadySent: "Already sent — refresh the dashboard.",
+    outreachEmailPh: "Send-to email (provider / municipality / merchant)",
   },
 };
 
@@ -181,6 +197,8 @@ export function CaseNextStep({
   agentRound = 0,
   emailConfigured = true,
   vertical,
+  provider,
+  counterpartyEmail: counterpartyEmailProp,
   feeBasis = "monthly",
   currentPlan,
   documentedSavingShekels,
@@ -190,6 +208,11 @@ export function CaseNextStep({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const resolvedOutreach =
+    counterpartyEmailProp?.trim() ||
+    (provider ? providerContactEmail(provider, vertical).trim() : "");
+  const needsOutreachInput = !resolvedOutreach || !/@/.test(resolvedOutreach);
+  const [outreachEmail, setOutreachEmail] = useState(counterpartyEmailProp?.trim() ?? "");
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
@@ -431,13 +454,49 @@ export function CaseNextStep({
         {localOwn && (
           <>
             <p className="text-[12.5px] text-emerald font-bold m-0">{t(locale, "ownDone")}</p>
+            {needsOutreachInput && (
+              <div className="flex flex-col gap-1.5 w-full max-w-md">
+                <Input
+                  type="email"
+                  value={outreachEmail}
+                  onChange={(e) => setOutreachEmail(e.target.value)}
+                  placeholder={t(locale, "outreachEmailPh")}
+                  dir="ltr"
+                  className="text-[13px]"
+                />
+              </div>
+            )}
             <Button
-              disabled={busy}
+              disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
               className="text-[13px] py-2.5 px-4 self-start"
               onClick={() =>
                 run(async () => {
-                  const res = await fetch(`/api/cases/${caseId}/dispatch`, { method: "POST" });
-                  if (!res.ok) throw new Error("dispatch");
+                  const res = await fetch(`/api/cases/${caseId}/dispatch`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      counterpartyEmail: needsOutreachInput
+                        ? outreachEmail.trim()
+                        : undefined,
+                    }),
+                  });
+                  if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    if (isOutreachEmailApiError(data.error)) {
+                      setErr(t(locale, "errNeedsEmail"));
+                      return;
+                    }
+                    if (data.error === "OUTREACH_DELIVERY_FAILED") {
+                      setErr(t(locale, "errDelivery"));
+                      return;
+                    }
+                    if (data.error === "ALREADY_SENT") {
+                      setErr(t(locale, "errAlreadySent"));
+                      router.refresh();
+                      return;
+                    }
+                    throw new Error("dispatch");
+                  }
                   const data = await res.json().catch(() => ({}));
                   if (data.authCode) setAuthCode(data.authCode);
                   if (data.mandateJti) {

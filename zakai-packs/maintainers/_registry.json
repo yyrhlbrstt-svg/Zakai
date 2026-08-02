@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "maintainers": {
+    "il-maintainer@zakai.io": {
+      "name": "Zakai IL Core",
+      "pgp_key": "https://keys.openpgp.org/",
+      "markets": ["IL"],
+      "since": "2024-01-01"
+    },
+    "eu-maintainer@zakai.io": {
+      "name": "Zakai EU Community",
+      "pgp_key": "https://keys.openpgp.org/",
+      "markets": ["FR", "DE", "ES", "IT"],
+      "since": "2026-08-01"
+    }
+  }
+}

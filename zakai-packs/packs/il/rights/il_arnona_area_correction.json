@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_arnona_area_correction",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "arnona area correction",
+    "he": "arnona area correction"
+  },
+  "market": "IL",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_arnona_area_correction",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק הרשויות המקומיות (ערר על קביעת ארנונה כללית), התשל״ו-1976"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -7,6 +7,8 @@ import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
 import { requireCronAuth } from "@/lib/security/cronAuth";
 import { isReminderDue } from "@/lib/deadlines";
+import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
+import { localeForCountry } from "@/lib/localePath";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,9 @@ const NUDGE_COOLDOWN_DAYS = 60;
 /** SENT cases older than this get an agent auto-follow-up (round 2+ to provider). */
 const SENT_AFTER_DAYS = 5;
 const SENT_COOLDOWN_DAYS = 12;
+const FEE_NUDGE_SUBJECT = "זכאי — עמלת הצלחה ממתינה לתשלום";
+const FEE_NUDGE_AFTER_DAYS = 3;
+const FEE_NUDGE_COOLDOWN_DAYS = 7;
 
 /**
  * Daily cron (Vercel):
@@ -36,6 +41,11 @@ export async function GET(request: Request) {
     let savedSent = 0;
     let agentFollowUps = 0;
     let agentSkipped = 0;
+    let feeNudges = 0;
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
+    const feeCutoff = new Date(Date.now() - FEE_NUDGE_AFTER_DAYS * 86_400_000);
+    const feeCooldown = new Date(Date.now() - FEE_NUDGE_COOLDOWN_DAYS * 86_400_000);
 
     // —— 1. SAVED re-check ——
     const staleCases = await prisma.case.findMany({
@@ -159,6 +169,67 @@ export async function GET(request: Request) {
       deadlineNudges++;
     }
 
+    // —— 4. PENDING success fees ——
+    const pendingFees = await prisma.fee.findMany({
+      where: {
+        status: "PENDING",
+        amount: { gt: 0 },
+        createdAt: { lt: feeCutoff },
+      },
+      include: {
+        case: {
+          select: {
+            id: true,
+            userId: true,
+            user: { select: { email: true, name: true, country: true } },
+          },
+        },
+      },
+      take: 120,
+      orderBy: { createdAt: "asc" },
+    });
+
+    const seenFeeUser = new Set<string>();
+    for (const fee of pendingFees) {
+      const u = fee.case.user;
+      if (seenFeeUser.has(fee.case.userId)) continue;
+
+      const recent = await prisma.outbox.findFirst({
+        where: {
+          toAddress: u.email,
+          subject: FEE_NUDGE_SUBJECT,
+          createdAt: { gt: feeCooldown },
+        },
+        select: { id: true },
+      });
+      if (recent) continue;
+
+      const payUrl = feePayAbsoluteUrl(appUrl, u.country, fee.case.id);
+      await sendEmail({
+        to: u.email,
+        subject: FEE_NUDGE_SUBJECT,
+        body: `שלום ${u.name},
+
+תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה (רק על מה שנחסך בפועל).
+
+לתשלום מאובטח בלחיצה אחת:
+${payUrl}
+
+שאלות או ערעור בתוך 14 יום — השב למייל זה.
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+        caseId: fee.case.id,
+      });
+      await pushToUser(fee.case.userId, {
+        title: "עמלת הצלחה ממתינה",
+        body: "תשלום בלחיצה אחת — רק על חיסכון מתועד.",
+        url: feePayDashboardPath(localeForCountry(u.country), fee.case.id),
+        tag: `fee-nudge-${fee.case.id}`,
+      }).catch(() => null);
+      seenFeeUser.add(fee.case.userId);
+      feeNudges++;
+    }
+
     return NextResponse.json({
       ok: true,
       savedRecheck: { candidates: staleCases.length, sent: savedSent },
@@ -168,6 +239,7 @@ export async function GET(request: Request) {
         skipped: agentSkipped,
       },
       deadlineReminders: { candidates: pendingDeadlines.length, sent: deadlineNudges },
+      pendingFeeNudges: { candidates: pendingFees.length, sent: feeNudges },
     });
   } catch (err) {
     await reportError(err, { route: "cron-nudges" });

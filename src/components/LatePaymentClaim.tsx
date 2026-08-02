@@ -95,6 +95,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         return;
       }
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
       setAgentError(t("genericError"));
     } finally {
@@ -198,7 +199,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {t("caseOpenedBody")}
           </p>
-          <Link href="/dashboard">
+          <Link href={`/dashboard?case=${caseId}`}>
             <Button className="w-full">{t("goToDashboard")}</Button>
           </Link>
         </Card>

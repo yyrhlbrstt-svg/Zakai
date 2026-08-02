@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_electricity_switch",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "electricity switch",
+    "he": "electricity switch"
+  },
+  "market": "IL",
+  "category": "energy",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/electricity",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "אמות מידה של רשות החשמל — מעבר בין ספקים"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

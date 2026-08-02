@@ -73,8 +73,8 @@ DEFAULT NEXT STEP (almost always):
 10. /transport-fine — public-transport fine appeal with agent
 11. /late-payment — client not paying an invoice on time → agent demands with Mandate
 12. /deposit — landlord withholding rental deposit past the 60-day deadline → agent demands with Mandate
-13. /duplicate-insurance — wasteful indemnity overlap → agent sends cancellation request with Mandate
-14. /arnona — arnona discount or billing correction → agent sends municipal request with Mandate
+13. /duplicate-insurance — indemnity overlap → case + Mandate send after verification
+14. /arnona — arnona discount or billing correction → municipal case + Mandate after verification
 15. /leaks — map of high-ROI leaks
 16. /dashboard — continue open Cases (approve, send, follow-up, record saving)
 

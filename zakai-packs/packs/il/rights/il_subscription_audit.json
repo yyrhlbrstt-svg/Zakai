@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_subscription_audit",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "subscription audit",
+    "he": "subscription audit"
+  },
+  "market": "IL",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/scan",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק הגנת הצרכן, התשמ״א-1981, סעיף 13ד"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

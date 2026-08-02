@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui";
 
 export default async function TermsPage({
@@ -26,6 +27,10 @@ export default async function TermsPage({
         ))}
       </Card>
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("legalNote")}</p>
+      <p className="mt-4 text-[12.5px] text-ink-soft leading-relaxed">{t("protocolBlurb")}</p>
+      <Link href="/protocol" className="text-[13px] font-bold text-emerald mt-2 inline-block">
+        {t("protocolLink")} →
+      </Link>
     </main>
   );
 }

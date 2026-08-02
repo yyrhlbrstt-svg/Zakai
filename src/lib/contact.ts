@@ -26,3 +26,22 @@
  */
 
 export const FOUNDER_EMAIL = "yyrhlbrstt@gmail.com";
+
+/** RFC 2606 and other placeholder domains must never be shown to users. */
+function isPlaceholderMailbox(email: string): boolean {
+  const domain = email.split("@")[1]?.toLowerCase() ?? "";
+  return domain.endsWith(".example") || domain === "example.com" || domain === "example.org";
+}
+
+/** Privacy, support links, and case footers — env wins; never a dead `.example` inbox. */
+export function publicSupportEmail(): string {
+  const raw = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim();
+  if (raw && !isPlaceholderMailbox(raw)) return raw;
+  return FOUNDER_EMAIL;
+}
+
+export function publicSecurityEmail(): string {
+  const raw = process.env.NEXT_PUBLIC_SECURITY_EMAIL?.trim();
+  if (raw && !isPlaceholderMailbox(raw)) return raw;
+  return FOUNDER_EMAIL;
+}

@@ -8,6 +8,8 @@ import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { formatCaseDraft } from "@/lib/caseDraft";
 
 const REASON_BODY: Record<string, string> = {
   validator: "ניסיתי לתקף / לרכוש כרטיס אך המאמת/האפליקציה לא פעלו.",
@@ -25,6 +27,7 @@ const schema = z.object({
   reason: z.enum(["validator", "balance", "notime", "details", "student", "other"]),
   details: z.string().max(500).optional(),
   amountShekels: z.number().min(0).max(5000).optional(),
+  operatorEmail: z.string().max(120).optional(),
 });
 
 export async function POST(request: Request) {
@@ -38,6 +41,11 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
+
+  const outreachTo = firstOutreachEmail(data.operatorEmail);
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -88,11 +96,12 @@ ${name}
       plan: `קנס ${data.report}`,
       strategy: "ערעור קנס תחבורה ציבורית עם Mandate",
       targetShekels: 0,
-      draftMessage: `${staged.subject}\n\n${staged.body}`,
+      draftMessage: formatCaseDraft(staged.subject, staged.body, user.country),
       strategyVariant: stanceApplied ? stance.variantId : undefined,
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "transport-fine",
       beneficiaryLabel: data.customerName || undefined,
+      counterpartyEmail: outreachTo,
       autoApprove: true,
     });
   } catch (err) {

@@ -1,0 +1,40 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_bank_loan_opening_commission_il",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "bank loan opening commission il",
+    "he": "bank loan opening commission il"
+  },
+  "market": "IL",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_bank_loan_opening_commission_il",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "כללי הבנקאות (שירות ללקוח)(עמלות), התשס״ח-2008 — שקיפות עמלות הלוואה"
+  },
+  "financial": {
+    "unit": "ILS",
+    "estimate": {
+      "typical_minor": 12000,
+      "basis": "Conservative yearly estimate (minor units)"
+    },
+    "success_fee_basis": "saving_amount"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_rental_essential_repairs_il",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "rental essential repairs il",
+    "he": "rental essential repairs il"
+  },
+  "market": "IL",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "housing",
+        "operator": "in",
+        "value": [
+          "renting"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_rental_essential_repairs_il",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק השכירות והשאילה, התשל״ג-1973 — תחזוקה בסיסית של המשכיר"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -11,13 +11,14 @@ interface PublicAuth {
   principalName: string;
   principalPhoneMasked: string;
   provider: string;
+  mandateAudience?: string;
+  institutionVerifierLeader?: boolean;
   scope: string;
   issuedAt: string;
 }
 
 export function VerifyLookup({ initialCode }: { initialCode?: string }) {
   const t = useTranslations("verifyPage");
-  const tp = useTranslations("providers");
   const locale = useLocale() as Locale;
   const [code, setCode] = useState(initialCode ?? "");
   const [result, setResult] = useState<PublicAuth | null>(null);
@@ -89,8 +90,14 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
           >
             {result.status === "ACTIVE" ? `✓ ${t("found")}` : `✕ ${t("revoked")}`}
           </div>
+          {result.institutionVerifierLeader && (
+            <p className="text-[12.5px] text-emerald font-bold mb-3 leading-relaxed">{t("leaderBadge")}</p>
+          )}
           <Row label={t("principalLabel")} value={`${result.principalName} · ${result.principalPhoneMasked}`} />
-          <Row label={t("providerLabel")} value={tp(result.provider)} />
+          <Row label={t("providerLabel")} value={result.provider} />
+          {result.mandateAudience ? (
+            <Row label={t("mandateAudienceLabel")} value={result.mandateAudience} />
+          ) : null}
           <Row label={t("issuedLabel")} value={new Date(result.issuedAt).toLocaleString(bcp47[locale])} />
           <div className="mt-3">
             <div className="text-[12px] font-bold text-ink-soft">
