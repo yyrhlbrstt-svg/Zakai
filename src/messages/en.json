@@ -575,7 +575,9 @@
     "principalLabel": "Customer",
     "providerLabel": "Provider",
     "issuedLabel": "Issued on",
-    "scopeLabel": "Scope of authorization"
+    "scopeLabel": "Scope of authorization",
+    "mandateAudienceLabel": "Institution id (Mandate aud)",
+    "leaderBadge": "Zakai Mandate verification leader — public JWKS verify path"
   },
   "dashboard": {
     "title": "My dashboard",
@@ -5167,7 +5169,9 @@
     "leadersPioneerSub": "The first three institutions that finished the wizard and opted in.",
     "leadersReferenceHeading": "Verification leaders",
     "tierPioneer": "Pioneer",
-    "tierReference": "Reference verifier"
+    "tierReference": "Reference verifier",
+    "consumerStripHint": "Banks that opted into the public leaders wall after self-serve verify checks — not supervisory approval, but a signal they can verify Mandates instead of manual PDFs.",
+    "consumerStripDisclaimer": "The list stays empty until an institution registers. No fabricated partnerships."
   },
   "agents": {
     "metaTitle": "Zakai Mandate for AI agents — prove a person authorised the act",

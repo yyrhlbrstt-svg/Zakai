@@ -4,6 +4,8 @@ import {
   aggregateInboundPressure,
   disclosedInboundPressure,
   INSTITUTION_PROVIDER_MAP,
+  pressureRowsFromCases,
+  CASE_PRESSURE_SELECT,
 } from "@/lib/institutionInboundPressure";
 
 export const dynamic = "force-dynamic";
@@ -15,18 +17,17 @@ const CORS = {
 
 /**
  * Public aggregate: how much documented consumer outbound volume targets each
- * institution slug. Not total mail to the bank — only Zakai cases that
- * reached dispatch to a mapped provider key.
+ * institution slug. Uses stored mandate `aud` when present.
  */
 export async function GET() {
-  const rows = await prisma.case
+  const cases = await prisma.case
     .findMany({
       where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
-      select: { provider: true, status: true },
+      select: CASE_PRESSURE_SELECT,
     })
-    .catch(() => [] as { provider: string; status: string }[]);
+    .catch(() => [] as Parameters<typeof pressureRowsFromCases>[0]);
 
-  const all = aggregateInboundPressure(rows);
+  const all = aggregateInboundPressure(pressureRowsFromCases(cases));
   const leaders = disclosedInboundPressure(all);
 
   return NextResponse.json(

@@ -24,4 +24,11 @@ describe("aggregateInboundPressure", () => {
     expect(stats[0]?.institutionId).toBe("bank-hapoalim");
     expect(stats[0]?.disclosed).toBe(true);
   });
+
+  it("prefers mandateAudience over unmapped provider text", () => {
+    const stats = aggregateInboundPressure([
+      { provider: "בנק לאומי", status: "SENT", mandateAudience: "bank-leumi" },
+    ]);
+    expect(stats[0]?.institutionId).toBe("bank-leumi");
+  });
 });

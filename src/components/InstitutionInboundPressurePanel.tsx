@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import {
   aggregateInboundPressure,
   disclosedInboundPressure,
+  pressureRowsFromCases,
+  CASE_PRESSURE_SELECT,
 } from "@/lib/institutionInboundPressure";
 
 export async function InstitutionInboundPressurePanel({ locale }: { locale: string }) {
@@ -13,11 +15,11 @@ export async function InstitutionInboundPressurePanel({ locale }: { locale: stri
   const rows = await prisma.case
     .findMany({
       where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
-      select: { provider: true, status: true },
+      select: CASE_PRESSURE_SELECT,
     })
-    .catch(() => [] as { provider: string; status: string }[]);
+    .catch(() => [] as Parameters<typeof pressureRowsFromCases>[0]);
 
-  const disclosed = disclosedInboundPressure(aggregateInboundPressure(rows));
+  const disclosed = disclosedInboundPressure(aggregateInboundPressure(pressureRowsFromCases(rows)));
 
   return (
     <Card className="p-6 mb-4 border-[rgba(255,200,80,0.25)]">

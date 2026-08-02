@@ -7,6 +7,7 @@ import { MIN_SAMPLE } from "@/lib/companyScore";
 export interface ProviderCaseRow {
   provider: string;
   status: string;
+  mandateAudience?: string | null;
 }
 
 export interface InboundPressureStat {
@@ -48,6 +49,14 @@ function providerToInstitution(): Map<string, string> {
 
 const REVERSE = providerToInstitution();
 
+/** Prefer stored mandate `aud`; fall back to provider alias map. */
+export function institutionIdFromOutboundRow(row: ProviderCaseRow): string | null {
+  if (!isOutboundCaseStatus(row.status)) return null;
+  const aud = row.mandateAudience?.trim().toLowerCase();
+  if (aud && aud in INSTITUTION_PROVIDER_MAP) return aud;
+  return REVERSE.get(row.provider.trim().toLowerCase()) ?? null;
+}
+
 /**
  * Aggregate documented consumer outbound volume per institution slug.
  * Pure — safe to test without DB.
@@ -56,8 +65,7 @@ export function aggregateInboundPressure(rows: readonly ProviderCaseRow[]): Inbo
   const byInst = new Map<string, { dispatched: number; saved: number }>();
 
   for (const row of rows) {
-    if (!OUTBOUND_STATUSES.has(row.status)) continue;
-    const institutionId = REVERSE.get(row.provider.trim().toLowerCase());
+    const institutionId = institutionIdFromOutboundRow(row);
     if (!institutionId) continue;
     const cur = byInst.get(institutionId) ?? { dispatched: 0, saved: 0 };
     cur.dispatched += 1;
@@ -82,3 +90,25 @@ export function aggregateInboundPressure(rows: readonly ProviderCaseRow[]): Inbo
 export function disclosedInboundPressure(stats: readonly InboundPressureStat[]): InboundPressureStat[] {
   return stats.filter((s) => s.disclosed);
 }
+
+const CASE_PRESSURE_SELECT = {
+  provider: true,
+  status: true,
+  authorization: { select: { mandateAudience: true } },
+} as const;
+
+export type CasePressureDbRow = {
+  provider: string;
+  status: string;
+  authorization: { mandateAudience: string | null } | null;
+};
+
+export function pressureRowsFromCases(cases: readonly CasePressureDbRow[]): ProviderCaseRow[] {
+  return cases.map((c) => ({
+    provider: c.provider,
+    status: c.status,
+    mandateAudience: c.authorization?.mandateAudience ?? null,
+  }));
+}
+
+export { CASE_PRESSURE_SELECT };

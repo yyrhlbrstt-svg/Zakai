@@ -6,8 +6,9 @@ import { requireCronAuth } from "@/lib/security/cronAuth";
 import { INSTITUTION_INBOUND_DIGEST_SUBJECT } from "@/lib/institutionInboundDigest";
 import {
   aggregateInboundPressure,
-  isOutboundCaseStatus,
-  providerKeysForInstitution,
+  institutionIdFromOutboundRow,
+  pressureRowsFromCases,
+  CASE_PRESSURE_SELECT,
 } from "@/lib/institutionInboundPressure";
 
 export const dynamic = "force-dynamic";
@@ -48,12 +49,10 @@ export async function GET(request: Request) {
     }
 
     const allCases = await prisma.case.findMany({
-      select: { provider: true, status: true, updatedAt: true },
+      select: { ...CASE_PRESSURE_SELECT, updatedAt: true },
     });
 
-    const pressure = aggregateInboundPressure(
-      allCases.map((c) => ({ provider: c.provider, status: c.status })),
-    );
+    const pressure = aggregateInboundPressure(pressureRowsFromCases(allCases));
 
     let sent = 0;
     const origin = appOrigin();
@@ -69,15 +68,15 @@ export async function GET(request: Request) {
       });
       if (recent) continue;
 
-      const keys = providerKeysForInstitution(v.institutionId);
       let weekly = 0;
-      if (keys.length > 0) {
-        const keySet = new Set(keys.map((k) => k.toLowerCase()));
-        for (const c of allCases) {
-          if (!isOutboundCaseStatus(c.status)) continue;
-          if (!keySet.has(c.provider.trim().toLowerCase())) continue;
-          if (c.updatedAt >= weekAgo) weekly += 1;
-        }
+      for (const c of allCases) {
+        const inst = institutionIdFromOutboundRow({
+          provider: c.provider,
+          status: c.status,
+          mandateAudience: c.authorization?.mandateAudience ?? null,
+        });
+        if (inst !== v.institutionId) continue;
+        if (c.updatedAt >= weekAgo) weekly += 1;
       }
 
       const total =

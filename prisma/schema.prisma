@@ -238,6 +238,8 @@ model Authorization {
   principalEmail String // shown masked on the public verify page
   provider       String
   scope          String
+  /// JWT `aud` at mandate issue time (institution slug for banks).
+  mandateAudience String?
 
   status    AuthorizationStatus @default(ACTIVE)
   issuedAt  DateTime            @default(now())

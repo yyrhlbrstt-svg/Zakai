@@ -9,6 +9,7 @@ import {
   loadSigningKeyFromEnv,
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
+import { resolveMandateAudience } from "@/lib/institutionAudience";
 
 /** Scope text stored on the authorization (the mandate the provider can read). */
 const SCOPE =
@@ -47,6 +48,8 @@ export async function createAuthorization(caseId: string): Promise<Authorization
   });
   if (!kase) throw new Error("case not found");
 
+  const mandateAudience = resolveMandateAudience(kase.provider);
+
   let doc: Authorization | undefined;
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateAuthorizationCode();
@@ -61,6 +64,7 @@ export async function createAuthorization(caseId: string): Promise<Authorization
         principalEmail: kase.user.email,
         provider: kase.provider,
         scope: SCOPE,
+        mandateAudience,
       },
     });
     break;
@@ -76,6 +80,7 @@ export async function createAuthorization(caseId: string): Promise<Authorization
     provider: kase.provider,
     country: kase.user.country || "IL",
     authCode: doc.code,
+    mandateAudience,
   });
 
   return { ...doc, ...mandate };
@@ -90,6 +95,7 @@ async function tryIssueCaseMandate(input: {
   provider: string;
   country: string;
   authCode: string;
+  mandateAudience: string;
 }): Promise<{ mandateJti?: string; mandateToken?: string }> {
   try {
     const key = loadSigningKeyFromEnv();
@@ -103,7 +109,7 @@ async function tryIssueCaseMandate(input: {
       {
         jti,
         issuer,
-        audience: input.provider,
+        audience: input.mandateAudience,
         subject: input.userId,
         principal: {
           name: input.name,
@@ -159,12 +165,27 @@ export async function getPublicAuthorization(code: string) {
     where: { code: code.trim().toUpperCase() },
   });
   if (!auth) return null;
+
+  const mandateAudience = auth.mandateAudience ?? resolveMandateAudience(auth.provider);
+  let institutionVerifierLeader = false;
+  try {
+    const row = await prisma.referenceVerifier.findUnique({
+      where: { institutionId: mandateAudience },
+      select: { institutionId: true },
+    });
+    institutionVerifierLeader = !!row;
+  } catch {
+    institutionVerifierLeader = false;
+  }
+
   return {
     code: auth.code,
     status: auth.status,
     principalName: auth.principalName,
     principalPhoneMasked: maskPhone(auth.principalPhone),
     provider: auth.provider,
+    mandateAudience,
+    institutionVerifierLeader,
     scope: auth.scope,
     issuedAt: auth.issuedAt,
     revokedAt: auth.revokedAt,

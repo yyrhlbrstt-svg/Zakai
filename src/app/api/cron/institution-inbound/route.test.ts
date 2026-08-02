@@ -52,6 +52,7 @@ describe("/api/cron/institution-inbound", () => {
         provider: "leumi",
         status: "SENT",
         updatedAt: new Date(),
+        authorization: { mandateAudience: "bank-leumi" },
       },
     ]);
     vi.mocked(prisma.outbox.findFirst).mockResolvedValue(null);

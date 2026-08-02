@@ -575,7 +575,9 @@
     "principalLabel": "לקוח",
     "providerLabel": "ספק",
     "issuedLabel": "הופק בתאריך",
-    "scopeLabel": "היקף ההרשאה"
+    "scopeLabel": "היקף ההרשאה",
+    "mandateAudienceLabel": "מזהה מוסד (Mandate aud)",
+    "leaderBadge": "מוביל אימות Mandate בזכאי — אימות JWKS ציבורי"
   },
   "dashboard": {
     "title": "הדשבורד שלי",
@@ -5167,7 +5169,9 @@
     "leadersPioneerSub": "שלושת המוסדות הראשונים שסיימו את האשף ואישרו פרסום.",
     "leadersReferenceHeading": "מובילי אימות",
     "tierPioneer": "Pioneer",
-    "tierReference": "Reference verifier"
+    "tierReference": "Reference verifier",
+    "consumerStripHint": "בנקים שבחרו להופיע בקיר המובילים אחרי בדיקות אימות self-serve — לא אישור פיקוח, אבל סימן שהם מוכנים לאמת Mandate במקום לקרוא PDF ידני.",
+    "consumerStripDisclaimer": "הרשימה ריקה עד שמוסד נרשם. אין כאן «שותפות» מומצאת."
   },
   "agents": {
     "metaTitle": "Zakai Mandate לסוכני AI — הוכחה שאדם אישר את הפעולה",
