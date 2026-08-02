@@ -46,7 +46,7 @@ describe("buildAssistantCasesSnapshot", () => {
         savingsProof: null,
         fee: null,
       },
-    ]);
+    ] as never);
     const snap = await buildAssistantCasesSnapshot("user_1");
     expect(snap).toContain("PROPOSED_SAVING");
     expect(snap).toContain("case_1");

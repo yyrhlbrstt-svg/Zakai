@@ -31,7 +31,7 @@ describe("ZML validate", () => {
 
   it("rejects wrong zml_version", () => {
     const rights = packToZmlRights(IL_PACK, { origin: ORIGIN });
-    const bad = { ...rights[0], zml_version: "2.0.0" } as ZmlRight;
+    const bad = { ...rights[0], zml_version: "2.0.0" } as unknown as ZmlRight;
     expect(validateZML(bad).ok).toBe(false);
   });
 });

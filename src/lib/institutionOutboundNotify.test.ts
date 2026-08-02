@@ -27,8 +27,12 @@ describe("notifyInstitutionOnOutboundSend", () => {
 
   it("emails registered verifier", async () => {
     vi.mocked(prisma.referenceVerifier.findUnique).mockResolvedValue({
+      institutionId: "bank-leumi",
+      displayNameHe: "בנק",
       contactEmail: "risk@bank.example",
       displayNameEn: "Bank",
+      tier: "reference",
+      listedAt: new Date(),
     });
     await notifyInstitutionOnOutboundSend("bank-leumi");
     expect(sendEmail).toHaveBeenCalledOnce();
