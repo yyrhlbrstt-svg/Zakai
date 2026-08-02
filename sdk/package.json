@@ -10,7 +10,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/mcp.d.ts",
+      "import": "./dist/mcp.js"
     }
+  },
+  "bin": {
+    "zakai-mandate-mcp": "./dist/mcp-bin.js"
   },
   "files": [
     "dist",
@@ -22,7 +29,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "jose": "^5.9.6"
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "jose": "^5.9.6",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

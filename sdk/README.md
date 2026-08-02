@@ -46,6 +46,31 @@ npm install @zakai/mandate-sdk
 
 (Not on npm yet — see the note at the top of this file.)
 
+## MCP server: give any AI agent a Mandate verifier
+
+The same verification surface, packaged for the protocol agent platforms are
+converging on. One command gives an MCP client (Claude, Cursor, or anything
+else that speaks MCP) four tools — `verify_mandate`, `decide_action`,
+`check_revocation`, `list_scopes`:
+
+```bash
+npm run build && node dist/mcp-bin.js   # or, once published: npx zakai-mandate-mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "zakai-mandate": { "command": "zakai-mandate-mcp" }
+  }
+}
+```
+
+Deliberately **verification-only**: the server holds no private keys, cannot
+issue mandates, and cannot act on anyone's behalf — the machine equivalent of
+reading an ID card, not signing one. `decide_action` checks live revocation
+and fails closed: an unreachable status endpoint is a deny, never a shrug.
+`ZAKAI_BASE_URL` points it at a staging or self-hosted issuer.
+
 ## Quickstart: verify a mandate someone sent you
 
 ```ts

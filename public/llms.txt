@@ -50,6 +50,11 @@ is always free).
 
 - Reference SDK (TypeScript, MIT): `sdk/` in the repository — verify, decide,
   and build settlement records.
+- MCP server (verification-only): `zakai-mandate-mcp` in `sdk/` exposes
+  `verify_mandate`, `decide_action`, `check_revocation` and `list_scopes` to
+  any MCP-speaking agent platform. It holds no private keys and cannot issue
+  mandates or act for anyone — it only answers "is this authority real, in
+  scope, and unrevoked, right now".
 - Conformance: authorization test vectors implemented independently in
   Python, Go, Java, Ruby and PHP; settlement vectors and canonical-hash
   fixtures included (`reference/` in the repository).
