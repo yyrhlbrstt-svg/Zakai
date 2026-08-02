@@ -22,6 +22,7 @@ https://zakai-3uxj.vercel.app
   [Describe the problem in free text](https://zakai-3uxj.vercel.app/he/start)
 - Common entry doors: [recurring charges](https://zakai-3uxj.vercel.app/he/money) ·
   [cancel a subscription](https://zakai-3uxj.vercel.app/he/cancel) ·
+  [full tools map](https://zakai-3uxj.vercel.app/he/tools) ·
   [electricity plan switch](https://zakai-3uxj.vercel.app/he/electricity) ·
   [bank fees](https://zakai-3uxj.vercel.app/he/bank-fees) ·
   [flight compensation](https://zakai-3uxj.vercel.app/he/flights) ·

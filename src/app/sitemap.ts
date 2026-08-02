@@ -68,6 +68,7 @@ const PATHS = [
   "/disability-benefits",
   "/duplicate-insurance",
   "/entitlements",
+  "/tools",
   "/integrations",
   "/student-loan-overpayment",
   "/wage-statement-audit",

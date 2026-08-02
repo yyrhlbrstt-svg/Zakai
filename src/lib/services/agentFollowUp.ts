@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { buildFollowUp } from "@/lib/negotiation";
+import { buildAirlineFollowUp } from "@/lib/flightNegotiation";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { agorotToShekels } from "@/lib/money";
 import { pushToUser } from "@/lib/push";
@@ -69,15 +70,26 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
 
   const auth = kase.authorization;
   const provider = providerHebrewName(kase.provider);
-  const follow = buildFollowUp({
-    customerName: kase.user.name,
-    providerLabel: provider,
-    amountOriginalShekels: agorotToShekels(kase.amountOriginal),
-    targetShekels: agorotToShekels(kase.targetAmount),
-    plan: kase.planDescription || undefined,
-    replyKind: "delay",
-    round,
-  });
+  const follow =
+    kase.vertical === "airline"
+      ? buildAirlineFollowUp({
+          customerName: kase.user.name,
+          providerLabel: provider,
+          amountOriginalShekels: agorotToShekels(kase.amountOriginal),
+          targetShekels: agorotToShekels(kase.targetAmount),
+          plan: kase.planDescription || undefined,
+          replyKind: "delay",
+          round,
+        })
+      : buildFollowUp({
+          customerName: kase.user.name,
+          providerLabel: provider,
+          amountOriginalShekels: agorotToShekels(kase.amountOriginal),
+          targetShekels: agorotToShekels(kase.targetAmount),
+          plan: kase.planDescription || undefined,
+          replyKind: "delay",
+          round,
+        });
 
   const subject = `${AGENT_SUBJECT_PREFIX} ${round} — תזכורת ל-${provider} | ${kase.user.name}`;
 

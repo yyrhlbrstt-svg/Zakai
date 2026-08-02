@@ -37,6 +37,7 @@
     "severance": "Severance",
     "maternity": "Maternity",
     "tools": "Tools",
+    "allTools": "All tools — product map",
     "taxrefund": "Tax refund",
     "unemployment": "Unemployment",
     "olim": "New immigrants",
@@ -5000,6 +5001,22 @@
     "ilSub": "Use our overtime calculator and full agent loops for mobile, electricity, and more.",
     "ilCta": "Israel overtime calculator"
   },
+  "toolsPage": {
+    "metaTitle": "All tools — Zakai",
+    "metaDesc": "Full product map: full agent loops, rights, global letters, developers — without header clutter.",
+    "kicker": "Product map",
+    "title": "Everything Zakai can do",
+    "sub": "Full agent = Case, Mandate, written send, follow-up, success fee only on documented savings. Other tools = calculators and letters you send yourself.",
+    "agentBadge": "Full agent",
+    "categories": {
+      "agent": "Agent — closes in writing",
+      "rights": "Rights & benefits",
+      "global": "Global — letter packs",
+      "selfHelp": "Self-help",
+      "developers": "Developers & institutions"
+    },
+    "footer": "Institutions & AI agents: /.well-known/zakai-mandate.json · /integrations · llms.txt"
+  },
   "integrations": {
     "metaTitle": "Mandate integration for institutions — Zakai",
     "metaDesc": "Verify consumer-agent authority in ~30 minutes: discovery, registry, verify, decide, revocation.",
@@ -5031,7 +5048,10 @@
     ],
     "linksTitle": "Direct links",
     "moreDetail": "ROI calculator, delegation apply, and institutional lead form:",
-    "institutionsCta": "Institutions page"
+    "institutionsCta": "Institutions page",
+    "proofTitle": "60-second proof (no sales call)",
+    "proofBody": "Run verify against public discovery. If it works, the protocol is real before you ever email us.",
+    "proofCurl": "curl -s $ORIGIN/.well-known/zakai-mandate.json | head -c 400"
   },
   "debtCollectorDispute": {
     "metaTitle": "FDCPA debt validation — Zakai",

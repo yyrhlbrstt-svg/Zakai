@@ -9,98 +9,8 @@ import { PlanBadge } from "@/components/PlanBadge";
 import { ToolIcon } from "@/components/ToolIcon";
 import { Menu, X, ChevronDown } from "lucide-react";
 
-const TOOLS = [
-  { href: "/money", key: "money" },
-  { href: "/incident", key: "incident" },
-  { href: "/dormant", key: "dormant" },
-  { href: "/vehicle-check", key: "vehicleCheck" },
-  { href: "/leaks", key: "leaks" },
-  { href: "/proofs", key: "proofs" },
-  { href: "/cancel", key: "cancel" },
-  { href: "/what-am-i-owed", key: "whatAmIOwed" },
-  { href: "/credit-card", key: "creditcard" },
-  { href: "/refund-chase", key: "refundchase" },
-  { href: "/score", key: "score" },
-  { href: "/scan", key: "scan" },
-  { href: "/spending", key: "spending" },
-  { href: "/check", key: "newCheck" },
-  { href: "/vat", key: "vat" },
-  { href: "/insurance-compare", key: "insurancecompare" },
-  { href: "/debt-consolidation", key: "debt" },
-  { href: "/lost-money", key: "lostmoney" },
-  { href: "/compensation-claims", key: "compensation" },
-  { href: "/class-action", key: "classaction" },
-  { href: "/child-savings", key: "childsavings" },
-  { href: "/arnona", key: "arnona" },
-  { href: "/disability-benefits", key: "disability" },
-  { href: "/construction-defects", key: "defects" },
-  { href: "/alimony-guarantee", key: "alimonyGuarantee" },
-  { href: "/business-compensation", key: "businessCompensation" },
-  { href: "/holocaust-survivors", key: "holocaustSurvivors" },
-  { href: "/car-value", key: "carvalue" },
-  { href: "/mortgage-insurance", key: "mortins" },
-  { href: "/duplicate-insurance", key: "dupinsurance" },
-  { href: "/pension-fees", key: "pension" },
-  { href: "/mortgage", key: "mortgage" },
-  { href: "/deposit", key: "deposit" },
-  { href: "/deals", key: "deals" },
-  { href: "/integrations", key: "integrations" },
-  { href: "/student-loan-overpayment", key: "studentLoan" },
-  { href: "/wage-statement-audit", key: "wageAudit" },
-  { href: "/debt-collector-dispute", key: "debtCollector" },
-  { href: "/train-delay", key: "trainDelay" },
-  { href: "/entitlements", key: "entitlements" },
-  { href: "/payslip", key: "payslip" },
-  { href: "/severance", key: "severance" },
-  { href: "/maternity", key: "maternity" },
-  { href: "/taxrefund", key: "taxrefund" },
-  { href: "/unemployment", key: "unemployment" },
-  { href: "/olim", key: "olim" },
-  { href: "/parking", key: "parking" },
-  { href: "/transport-fine", key: "transportFine" },
-  { href: "/baggage", key: "baggage" },
-  { href: "/bank-fees", key: "bankfees" },
-  { href: "/price-protection", key: "priceprotection" },
-  { href: "/warranty", key: "warranty" },
-  { href: "/miluim", key: "miluim" },
-  { href: "/rights", key: "rights" },
-  { href: "/electricity", key: "electricity" },
-  { href: "/flights", key: "flights" },
-  { href: "/contract-check", key: "contractCheck" },
-  { href: "/overtime-backpay", key: "overtimeBackPay" },
-  { href: "/late-payment", key: "latePayment" },
-  { href: "/scam-check", key: "scamCheck" },
-  { href: "/complaint-escalation", key: "complaintEscalation" },
-  { href: "/deadlines", key: "deadlines" },
-  { href: "/advance-tax", key: "advanceTax" },
-  { href: "/school-payments", key: "schoolPayments" },
-] as const;
-
-const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
-  money: { he: "הכסף שלי", en: "My money" },
-  leaks: { he: "מפת נזילות", en: "Leaks map" },
-  proofs: { he: "קיר חיסכונות", en: "Savings wall" },
-  cancel: { he: "ביטול מנוי", en: "Cancel sub" },
-  whatAmIOwed: { he: "מה מגיע לי", en: "What am I owed" },
-  creditcard: { he: "ריבית כרטיס", en: "Card interest" },
-  refundchase: { he: "החזר שלא הגיע", en: "Missing refund" },
-  contractCheck: { he: "בדיקת חוזה", en: "Contract check" },
-  overtimeBackPay: { he: "שעות נוספות", en: "Unpaid overtime" },
-  latePayment: { he: "לקוח לא משלם", en: "Late-paying client" },
-  scamCheck: { he: "זה עוקץ?", en: "Is this a scam?" },
-  complaintEscalation: { he: "התלונה לא נענתה", en: "Complaint ignored" },
-  deadlines: { he: "דדליינים", en: "Deadlines" },
-  advanceTax: { he: "הקטנת מקדמות מס", en: "Reduce tax advances" },
-  schoolPayments: { he: "תשלומי הורים", en: "School payments" },
-  alimonyGuarantee: { he: "מזונות מובטחים", en: "Guaranteed alimony" },
-  businessCompensation: { he: "פיצויי נזק עקיף", en: "Business war damage" },
-  holocaustSurvivors: { he: "זכויות ניצולי שואה", en: "Holocaust survivor rights" },
-  integrations: { he: "אינטגרציה למוסדות", en: "Institution integration" },
-  studentLoan: { he: "הלוואת סטודנטים (UK)", en: "UK student loan" },
-  wageAudit: { he: "תלוש שכר (US)", en: "US wage audit" },
-  debtCollector: { he: "גביית חוב (US)", en: "US debt validation" },
-  trainDelay: { he: "עיכוב רכבת", en: "Train delay" },
-};
+import { FEATURED_TOOLS } from "@/lib/toolsCatalog";
+import { TOOL_EXTRA_LABELS } from "@/lib/toolLabels";
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {
   const t = useTranslations();
@@ -165,7 +75,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   );
 
   function toolLabel(href: string, key: string) {
-    const extra = EXTRA_LABELS[key];
+    const extra = TOOL_EXTRA_LABELS[key];
     if (extra) return he ? extra.he : extra.en;
     try {
       return t(`nav.${key}`);
@@ -192,13 +102,13 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             <>
               <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
               <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
-              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} />
+              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
               <NavLink href="/check">{t("nav.newCheck")}</NavLink>
               {accountChip}
             </>
           ) : (
             <>
-              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} />
+              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
               <NavLink href="/business">{tIcomponents_Header("t_79771be3")}</NavLink>
               <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
               <NavLink href="/login">{t("nav.login")}</NavLink>
@@ -250,7 +160,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             {t("nav.tools")}
           </div>
           <div className="grid grid-cols-2 gap-1">
-            {TOOLS.map((tool) => (
+            {FEATURED_TOOLS.map((tool) => (
               <Link
                 key={tool.href + tool.key}
                 href={tool.href}
@@ -261,6 +171,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
               </Link>
             ))}
           </div>
+          <MobileLink href="/tools">{t("nav.allTools")}</MobileLink>
 
           <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
           {user ? (
@@ -284,9 +195,11 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
 function ToolsMenu({
   label,
   toolLabel,
+  allToolsLabel,
 }: {
   label: string;
   toolLabel: (href: string, key: string) => string;
+  allToolsLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -332,7 +245,7 @@ function ToolsMenu({
           role="menu"
           className="absolute top-[calc(100%+8px)] end-0 z-50 w-[320px] max-h-[70vh] overflow-y-auto p-2 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] grid grid-cols-2 gap-1"
         >
-          {TOOLS.map((tool) => (
+          {FEATURED_TOOLS.map((tool) => (
             <Link
               key={tool.href + tool.key}
               href={tool.href}
@@ -343,6 +256,13 @@ function ToolsMenu({
               <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
             </Link>
           ))}
+          <Link
+            href="/tools"
+            role="menuitem"
+            className="col-span-2 mt-1 flex items-center justify-center gap-2 no-underline rounded-xl px-3 py-2.5 text-emerald font-extrabold text-[13px] border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] hover:bg-[rgba(63,203,155,0.14)]"
+          >
+            {allToolsLabel}
+          </Link>
         </div>
       )}
     </div>

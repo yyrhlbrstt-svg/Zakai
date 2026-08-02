@@ -76,6 +76,14 @@ export default async function IntegrationsPage({
         </ul>
       </div>
 
+      <section className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-5 mb-8">
+        <h2 className="font-display text-lg m-0 mb-2">{t("proofTitle")}</h2>
+        <p className="text-[14px] text-ink-soft leading-relaxed m-0 mb-3">{t("proofBody")}</p>
+        <pre className="text-[11.5px] overflow-x-auto p-3 rounded-lg bg-[#060b12] border border-[rgba(255,255,255,0.08)] text-ink-soft m-0">
+          {`ORIGIN=${ORIGIN}\n${t("proofCurl")}`}
+        </pre>
+      </section>
+
       <p className="text-[14px] text-ink-soft mb-4">{t("moreDetail")}</p>
       <Link href="/institutions" className="text-emerald font-bold underline">
         {t("institutionsCta")}

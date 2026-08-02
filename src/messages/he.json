@@ -37,6 +37,7 @@
     "severance": "פיצויי פיטורים",
     "maternity": "דמי לידה",
     "tools": "כלים",
+    "allTools": "כל הכלים — מפת מוצר",
     "taxrefund": "החזר מס",
     "unemployment": "דמי אבטלה",
     "olim": "עולים חדשים",
@@ -5000,6 +5001,22 @@
     "ilSub": "יש מחשבון שעות נוספות ומסלולי סוכן על סלולר, חשמל ועוד.",
     "ilCta": "למחשבון שעות נוספות בישראל"
   },
+  "toolsPage": {
+    "metaTitle": "כל הכלים — זכאי",
+    "metaDesc": "מפת מוצר מלאה: סוכן מלא, זכויות, גלובלי, ומפתחים — בלי לבלבל בתפריט.",
+    "kicker": "מפת מוצר",
+    "title": "כל מה שזכאי יודע לעשות",
+    "sub": "סוכן מלא = תיק, Mandate, שליחה בכתב, מעקב ועמלת הצלחה רק על חיסכון מתועד. שאר הכלים = מחשבונים ומכתבים שאתם שולחים בעצמכם.",
+    "agentBadge": "סוכן מלא",
+    "categories": {
+      "agent": "סוכן — סוגר בכתב",
+      "rights": "זכויות ומענקים",
+      "global": "גלובלי — מכתבים",
+      "selfHelp": "עזרה עצמית",
+      "developers": "למפתחים ומוסדות"
+    },
+    "footer": "מוסדות וסוכני AI: /.well-known/zakai-mandate.json · /integrations · llms.txt"
+  },
   "integrations": {
     "metaTitle": "אינטגרציית Mandate למוסדות — זכאי",
     "metaDesc": "אימות הרשאת סוכן צרכן בכ~30 דקות: גילוי, registry, verify, decide, ביטול.",
@@ -5031,7 +5048,10 @@
     ],
     "linksTitle": "קישורים ישירים",
     "moreDetail": "מחשבון ROI, בקשת delegation וטופס לידים:",
-    "institutionsCta": "לעמוד המוסדות"
+    "institutionsCta": "לעמוד המוסדות",
+    "proofTitle": "הוכחה ב־60 שניות (בלי שיחת מכירה)",
+    "proofBody": "הריצו verify מול ה-discovery הציבורי. אם עובד — אתם יודעים שהפרוטוקול אמיתי לפני שאתם כותבים לנו.",
+    "proofCurl": "curl -s $ORIGIN/.well-known/zakai-mandate.json | head -c 400"
   },
   "debtCollectorDispute": {
     "metaTitle": "אימות חוב לפי FDCPA (ארה״ב) — זכאי",
