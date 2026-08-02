@@ -23,9 +23,9 @@ describe("dashboardFeeRedirectPath", () => {
 
   it("uses user country when fee resolves", async () => {
     vi.mocked(prisma.fee.findUnique).mockResolvedValue({
-      case: { user: { country: "GB" } },
+      case: { id: "case_1", user: { country: "GB" } },
     } as never);
     const path = await dashboardFeeRedirectPath("paid", "fee_1", "he");
-    expect(path).toBe("/en/dashboard?fee=paid");
+    expect(path).toBe("/en/dashboard?fee=paid&case=case_1");
   });
 });

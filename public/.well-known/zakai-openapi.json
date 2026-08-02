@@ -1,0 +1,130 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Zakai Rights Protocol API",
+    "version": "2026-08-01",
+    "description": "Public API for consumer rights discovery. Catalog access requires no PII.",
+    "contact": { "name": "Zakai Protocol", "url": "https://zakai-3uxj.vercel.app" }
+  },
+  "servers": [{ "url": "/api", "description": "Same origin as the Zakai deployment" }],
+  "paths": {
+    "/rights/catalog": {
+      "get": {
+        "operationId": "listRightsCatalog",
+        "summary": "List available rights by market",
+        "tags": ["Catalog"],
+        "parameters": [
+          {
+            "name": "market",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[A-Z]{2}$", "example": "IL" }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "telecom",
+                "energy",
+                "finance",
+                "transport",
+                "insurance",
+                "tax",
+                "housing",
+                "employment",
+                "consumer_protection",
+                "health",
+                "education"
+              ]
+            }
+          },
+          { "name": "cursor", "in": "query", "schema": { "type": "string" } },
+          { "name": "zml_version", "in": "query", "schema": { "type": "string", "default": "1.0.0" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated catalog",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CatalogResponse" }
+              }
+            }
+          },
+          "404": { "description": "Unknown market" },
+          "429": { "description": "Rate limited" }
+        }
+      }
+    },
+    "/rights/catalog/{id}": {
+      "get": {
+        "operationId": "getRightById",
+        "summary": "Get a right summary or full ZML document",
+        "tags": ["Catalog"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "full", "in": "query", "schema": { "type": "boolean", "default": false } }
+        ],
+        "responses": {
+          "200": { "description": "Right" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/rights/evaluate/{id}": {
+      "get": {
+        "operationId": "getEvaluationGuide",
+        "summary": "Evaluation field guide (no server-side PII)",
+        "tags": ["Evaluation"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Guide",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EvaluationGuide" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CatalogResponse": {
+        "type": "object",
+        "required": ["zml_version", "api_version", "market", "total", "rights"],
+        "properties": {
+          "zml_version": { "type": "string" },
+          "api_version": { "type": "string" },
+          "market": { "type": "string" },
+          "total": { "type": "integer" },
+          "rights": { "type": "array", "items": { "$ref": "#/components/schemas/RightSummary" } }
+        }
+      },
+      "RightSummary": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "display_name": { "type": "object", "additionalProperties": { "type": "string" } },
+          "category": { "type": "string" },
+          "auto_eligible": { "type": "boolean" }
+        }
+      },
+      "EvaluationGuide": {
+        "type": "object",
+        "required": ["right_id", "required_fields", "predicate_structure"],
+        "properties": {
+          "right_id": { "type": "string" },
+          "required_fields": { "type": "array", "items": { "type": "object" } },
+          "predicate_structure": { "type": "object" },
+          "requires_human_gate": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

@@ -12,11 +12,13 @@ export async function dashboardFeeRedirectPath(
   if (feeId) {
     const fee = await prisma.fee.findUnique({
       where: { id: feeId },
-      select: { case: { select: { user: { select: { country: true } } } } },
+      select: { case: { select: { id: true, user: { select: { country: true } } } } },
     });
     if (fee?.case?.user) {
       locale = localeForCountry(fee.case.user.country);
     }
+    const caseQ = fee?.case?.id ? `&case=${encodeURIComponent(fee.case.id)}` : "";
+    return localePath(locale, `/dashboard?fee=${feeParam}${caseQ}`);
   }
   return localePath(locale, `/dashboard?fee=${feeParam}`);
 }

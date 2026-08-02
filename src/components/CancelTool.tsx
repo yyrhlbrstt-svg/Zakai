@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useLocale , useTranslations } from "next-intl";
+import { useState, useEffect, useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
+import { subscriptionOutreachReady } from "@/lib/normalizeSubscriptionProvider";
+import { withFooter } from "@/lib/letterFooter";
 
 const INTENTS: CancelIntent[] = ["cancel", "retention", "downgrade", "pause"];
 
@@ -16,8 +18,8 @@ function parseIntent(v: string | null): CancelIntent {
 
 export function CancelTool() {
   const locale = useLocale();
-  const he = locale === "he" || locale === "ar";
-  const tIcomponents_CancelTool = useTranslations("inline_components_CancelTool");
+  const footerLocale = locale === "he" || locale === "ar" ? "he" : "en";
+  const t = useTranslations("inline_components_CancelTool");
   const router = useRouter();
   const search = useSearchParams();
 
@@ -25,6 +27,7 @@ export function CancelTool() {
   const [company, setCompany] = useState("");
   const [product, setProduct] = useState("");
   const [account, setAccount] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [monthly, setMonthly] = useState("");
   const [intent, setIntent] = useState<CancelIntent>("cancel");
   const [reason, setReason] = useState("");
@@ -34,6 +37,14 @@ export function CancelTool() {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
+
+  const agentReady = useMemo(
+    () =>
+      company.trim().length > 0 &&
+      product.trim().length > 0 &&
+      subscriptionOutreachReady(company, product, contactEmail || undefined),
+    [company, product, contactEmail],
+  );
 
   useEffect(() => {
     const c = search.get("company") || search.get("merchant");
@@ -53,17 +64,19 @@ export function CancelTool() {
   function generate() {
     setError(null);
     setCaseId(null);
-    setOut(
-      buildCancelLetter({
-        customerName: name,
-        company,
-        product,
-        accountOrEmail: account,
-        monthlyShekels: monthly ? Number(monthly) : undefined,
-        intent,
-        reason,
-      }),
-    );
+    const letter = buildCancelLetter({
+      customerName: name,
+      company,
+      product,
+      accountOrEmail: account,
+      monthlyShekels: monthly ? Number(monthly) : undefined,
+      intent,
+      reason,
+    });
+    setOut({
+      subject: letter.subject,
+      body: withFooter(letter.body, footerLocale),
+    });
   }
 
   async function sendWithAgent() {
@@ -78,6 +91,7 @@ export function CancelTool() {
           company,
           product,
           accountOrEmail: account || undefined,
+          contactEmail: contactEmail.trim() || undefined,
           monthlyShekels: monthly ? Number(monthly) : undefined,
           intent,
           reason: reason || undefined,
@@ -89,61 +103,75 @@ export function CancelTool() {
         return;
       }
       if (!res.ok) {
+        if (data.error === "needsOutreachEmail") {
+          setError(t("errorNeedsEmail"));
+          return;
+        }
         setError(
-          data.error === "caseLimit"
-            ? he
-              ? "הגעת למגבלת התיקים. שדרג או סגור תיק קיים."
-              : "Case limit reached. Upgrade or close an open case."
-            : he
-              ? "משהו השתבש. נסה שוב."
-              : "Something went wrong. Try again.",
+          res.status === 403 && data.error === "caseLimit" ? t("errorCaseLimit") : t("errorGeneric"),
         );
         return;
       }
-      setOut({ subject: data.subject, body: data.body });
+      const letter = buildCancelLetter({
+        customerName: name,
+        company,
+        product,
+        accountOrEmail: account,
+        monthlyShekels: monthly ? Number(monthly) : undefined,
+        intent,
+        reason,
+      });
+      setOut({
+        subject: letter.subject,
+        body: withFooter(letter.body, footerLocale),
+      });
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
-      setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
+      setError(t("errorGeneric"));
     } finally {
       setBusy(false);
     }
   }
 
+  const showContactHint = company.trim().length > 0 && !subscriptionOutreachReady(company, product);
+
   return (
     <div className="flex flex-col gap-4">
       {prefilled && (
         <div className="rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13px] font-bold">
-          {tIcomponents_CancelTool("t_cf09ad5a")}
+          {t("t_cf09ad5a")}
         </div>
       )}
 
       <Card className="p-5 flex flex-col gap-3">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={tIcomponents_CancelTool("t_ebd6b437")} />
-        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={tIcomponents_CancelTool("t_524bf65a")} />
-        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={tIcomponents_CancelTool("t_39e161aa")} />
-        <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={tIcomponents_CancelTool("t_ad08a6d5")} />
-        <Input type="number" value={monthly} onChange={(e) => setMonthly(e.target.value)} placeholder={tIcomponents_CancelTool("t_e7275f0c")} />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("t_ebd6b437")} />
+        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={t("t_524bf65a")} />
+        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={t("t_39e161aa")} />
+        <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={t("t_ad08a6d5")} />
+        <Input
+          type="email"
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
+          placeholder={t("contactEmailPlaceholder")}
+        />
+        {showContactHint && (
+          <p className="text-[12px] text-amber mb-0 -mt-1 leading-relaxed">{t("contactEmailHint")}</p>
+        )}
+        <Input type="number" value={monthly} onChange={(e) => setMonthly(e.target.value)} placeholder={t("t_e7275f0c")} />
         <Select value={intent} onChange={(e) => setIntent(e.target.value as CancelIntent)}>
-          <option value="cancel">{tIcomponents_CancelTool("t_265eb5c4")}</option>
-          <option value="retention">{tIcomponents_CancelTool("t_3bb646d8")}</option>
-          <option value="downgrade">{tIcomponents_CancelTool("t_59c6dced")}</option>
-          <option value="pause">{tIcomponents_CancelTool("t_9824add7")}</option>
+          <option value="cancel">{t("t_265eb5c4")}</option>
+          <option value="retention">{t("t_3bb646d8")}</option>
+          <option value="downgrade">{t("t_59c6dced")}</option>
+          <option value="pause">{t("t_9824add7")}</option>
         </Select>
-        <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={tIcomponents_CancelTool("t_d5befca9")} />
+        <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={t("t_d5befca9")} />
+
+        <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{t("agentHonestNote")}</p>
 
         <div className="flex flex-col gap-2 mt-1">
-          <Button
-            onClick={sendWithAgent}
-            disabled={!company.trim() || !product.trim() || busy}
-            className="w-full"
-          >
-            {busy
-              ? he
-                ? "הסוכן פותח תיק…"
-                : "Agent opening case…"
-              : he
-                ? "הסוכן שולח ומעקוב עכשיו"
-                : "Agent sends & tracks now"}
+          <Button onClick={sendWithAgent} disabled={!agentReady || busy} className="w-full">
+            {busy ? t("agentOpening") : t("agentOpenCase")}
           </Button>
           <Button
             variant="ghost"
@@ -151,7 +179,7 @@ export function CancelTool() {
             disabled={!company.trim() || !product.trim() || busy}
             className="w-full text-[13px]"
           >
-            {tIcomponents_CancelTool("t_b4c9b341")}
+            {t("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
@@ -159,23 +187,17 @@ export function CancelTool() {
 
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
-          <div className="text-emerald font-extrabold text-[15px]">
-            {tIcomponents_CancelTool("t_360e126e")}
-          </div>
-          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {tIcomponents_CancelTool("t_11cf65f5")}
-          </p>
-          <Link href="/dashboard">
-            <Button className="w-full">
-              {tIcomponents_CancelTool("t_9fc8b2a9")}
-            </Button>
+          <div className="text-emerald font-extrabold text-[15px]">{t("t_360e126e")}</div>
+          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("t_11cf65f5")}</p>
+          <Link href={`/dashboard?case=${caseId}`}>
+            <Button className="w-full">{t("t_9fc8b2a9")}</Button>
           </Link>
         </Card>
       )}
 
       {out && (
         <Card className="p-5">
-          <div className="text-[12px] text-ink-soft font-bold">{tIcomponents_CancelTool("t_550c1f87")}</div>
+          <div className="text-[12px] text-ink-soft font-bold">{t("t_550c1f87")}</div>
           <div className="font-extrabold mt-1">{out.subject}</div>
           <pre className="mt-4 whitespace-pre-wrap text-[13px] leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
             {out.body}
@@ -193,11 +215,9 @@ export function CancelTool() {
               }
             }}
           >
-            {copied ? (he ? "הועתק" : "Copied") : he ? "העתק הכול" : "Copy all"}
+            {copied ? t("copied") : t("copyAll")}
           </Button>
-          <p className="text-[12px] text-ink-soft mt-3 mb-0">
-            {tIcomponents_CancelTool("t_d628bea2")}
-          </p>
+          <p className="text-[12px] text-ink-soft mt-3 mb-0">{t("t_d628bea2")}</p>
         </Card>
       )}
     </div>

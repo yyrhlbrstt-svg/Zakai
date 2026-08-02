@@ -158,8 +158,25 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
         )}
       </Card>
 
+      {CATEGORY_ORDER.filter((c) => result.byCategory.has(c)).length > 0 && (
+        <nav
+          aria-label={t("categoryNav")}
+          className="mt-5 flex gap-2 flex-wrap sticky top-[72px] z-10 py-2 bg-[rgba(7,11,18,0.92)] backdrop-blur-sm"
+        >
+          {CATEGORY_ORDER.filter((c) => result.byCategory.has(c)).map((cat) => (
+            <a
+              key={cat}
+              href={`#rights-cat-${cat}`}
+              className="text-[12px] font-bold rounded-full px-3 py-1.5 border border-[rgba(255,255,255,0.12)] text-ink-soft hover:text-emerald hover:border-[rgba(63,203,155,0.4)] no-underline"
+            >
+              {t(`categories.${cat}`)}
+            </a>
+          ))}
+        </nav>
+      )}
+
       {CATEGORY_ORDER.filter((c) => result.byCategory.has(c)).map((cat) => (
-        <div key={cat} className="mt-6">
+        <div key={cat} id={`rights-cat-${cat}`} className="mt-6 scroll-mt-28">
           <h2 className="text-[15px] font-extrabold mb-3">{t(`categories.${cat}`)}</h2>
           <Card className="py-1">
             {result.byCategory.get(cat)!.map((e, i, arr) => (

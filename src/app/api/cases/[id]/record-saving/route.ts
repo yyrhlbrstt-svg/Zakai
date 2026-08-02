@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { recordSaving, CaseError } from "@/lib/services/cases";
+import { initiateFeePayment, PaymentError } from "@/lib/services/payments";
 import { agorotToShekels } from "@/lib/money";
 
-const schema = z.object({ newAmountShekels: z.number().min(0).max(100000) });
+const schema = z.object({
+  newAmountShekels: z.number().min(0).max(100000),
+  locale: z.string().max(8).optional(),
+});
 
 export async function POST(request: Request, ctx: { params: Promise<{ id: string }> }) {
   const auth = await requireUserId();
@@ -16,12 +20,29 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   if (!parsed.success) return badRequest("genericError");
 
   try {
-    const { fee } = await recordSaving(id, auth.userId, parsed.data.newAmountShekels);
+    const result = await recordSaving(id, auth.userId, parsed.data.newAmountShekels);
+    const fee = result.fee;
+    let checkoutUrl: string | undefined;
+    if (result.feeNet > 0) {
+      const origin = new URL(request.url).origin;
+      try {
+        const checkout = await initiateFeePayment(
+          id,
+          auth.userId,
+          origin,
+          parsed.data.locale ?? "he",
+        );
+        checkoutUrl = checkout.checkoutUrl;
+      } catch (err) {
+        if (!(err instanceof PaymentError)) throw err;
+      }
+    }
     return NextResponse.json({
       ok: true,
       savingMonthlyShekels: agorotToShekels(fee.savingMonthly),
       feeShekels: agorotToShekels(fee.amount),
       chargeable: fee.chargeable,
+      checkoutUrl,
     });
   } catch (err) {
     if (err instanceof CaseError) {

@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_maternity_grant",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "maternity grant",
+    "he": "maternity grant"
+  },
+  "market": "IL",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "dependentsUnder6",
+        "operator": "gte",
+        "value": 1,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/maternity",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק הביטוח הלאומי, פרק ג' סימן ב'"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

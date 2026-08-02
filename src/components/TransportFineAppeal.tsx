@@ -8,6 +8,8 @@ import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 
+import { normalizeOutreachEmail } from "@/lib/outreachEmail";
+
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
 
@@ -16,10 +18,12 @@ export function TransportFineAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const tIcomponents_TransportFineAppeal = useTranslations("inline_components_TransportFineAppeal");
+  const tFlow = useTranslations("agentFlow");
   const router = useRouter();
   const [name, setName] = useState("");
   const [report, setReport] = useState("");
   const [operator, setOperator] = useState("");
+  const [operatorEmail, setOperatorEmail] = useState("");
   const [reason, setReason] = useState<Reason>("validator");
   const [details, setDetails] = useState("");
   const [amount, setAmount] = useState("");
@@ -28,6 +32,11 @@ export function TransportFineAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const agentReady =
+    report.trim().length > 0 &&
+    operator.trim().length > 0 &&
+    normalizeOutreachEmail(operatorEmail) !== null;
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);
@@ -62,6 +71,7 @@ ${name || "____"}
           reason,
           details: details || undefined,
           amountShekels: amount ? Number(amount) : undefined,
+          operatorEmail: operatorEmail.trim(),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -70,21 +80,20 @@ ${name || "____"}
         return;
       }
       if (!res.ok) {
+        if (data.error === "needsOutreachEmail") {
+          setError(tFlow("errorNeedsEmail"));
+          return;
+        }
         setError(
-          data.error === "caseLimit"
-            ? he
-              ? "הגעת למגבלת התיקים."
-              : "Case limit reached."
-            : he
-              ? "משהו השתבש. נסה שוב."
-              : "Something went wrong.",
+          data.error === "caseLimit" ? tFlow("errorCaseLimit") : tFlow("errorGeneric"),
         );
         return;
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
-      setError(he ? "משהו השתבש." : "Something went wrong.");
+      setError(tFlow("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -128,15 +137,22 @@ ${name || "____"}
           <Input value={details} onChange={(e) => setDetails(e.target.value)} maxLength={300} />
         </label>
 
+        <label className="block">
+          <span className="text-[13px] text-ink-soft block mb-1.5">{tIcomponents_TransportFineAppeal("operatorEmail")}</span>
+          <Input
+            type="email"
+            value={operatorEmail}
+            onChange={(e) => setOperatorEmail(e.target.value)}
+            maxLength={120}
+            dir="ltr"
+          />
+        </label>
+
+        <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
+
         <div className="flex flex-col gap-2">
-          <Button onClick={sendWithAgent} disabled={!report.trim() || !operator.trim() || busy}>
-            {busy
-              ? he
-                ? "הסוכן פותח תיק…"
-                : "Agent opening case…"
-              : he
-                ? "הסוכן שולח ומעקוב עכשיו"
-                : "Agent sends & tracks now"}
+          <Button onClick={sendWithAgent} disabled={!agentReady || busy}>
+            {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>
           <Button
             variant="ghost"
@@ -157,7 +173,7 @@ ${name || "____"}
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {tIcomponents_TransportFineAppeal("t_013fe61d")}
           </p>
-          <Link href="/dashboard">
+          <Link href={`/dashboard?case=${caseId}`}>
             <Button className="w-full">{tIcomponents_TransportFineAppeal("t_8ae29d51")}</Button>
           </Link>
         </Card>

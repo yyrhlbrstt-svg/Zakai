@@ -6,6 +6,7 @@ import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
 import { BankFeesTool } from "@/components/BankFeesTool";
+import { InstitutionLeadersConsumerStrip } from "@/components/InstitutionLeadersConsumerStrip";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 
 export async function generateMetadata({
@@ -51,6 +52,7 @@ export default async function BankFeesPage({
           {tIapp_locale_bank_fees_page("t_ab015246")}
         </p>
       </Reveal>
+      <InstitutionLeadersConsumerStrip locale={locale} />
       <BankFeesTool />
 
       <Reveal>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 
 /**
@@ -9,11 +9,18 @@ import { useTranslations, useLocale } from "next-intl";
  * configured the mock flow routes through the internal callback, so the button
  * works end-to-end today.
  */
-export function FeePayButton({ caseId }: { caseId: string }) {
+export function FeePayButton({
+  caseId,
+  autoStart = false,
+}: {
+  caseId: string;
+  autoStart?: boolean;
+}) {
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const started = useRef(false);
 
   async function pay() {
     setBusy(true);
@@ -36,6 +43,12 @@ export function FeePayButton({ caseId }: { caseId: string }) {
       setBusy(false);
     }
   }
+
+  useEffect(() => {
+    if (!autoStart || started.current) return;
+    started.current = true;
+    void pay();
+  }, [autoStart, caseId]);
 
   return (
     <button

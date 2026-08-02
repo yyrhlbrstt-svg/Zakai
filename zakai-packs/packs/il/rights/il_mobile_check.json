@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_mobile_check",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "mobile check",
+    "he": "mobile check"
+  },
+  "market": "IL",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/check",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק התקשורת (בזק ושידורים), התשמ״ב-1982"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

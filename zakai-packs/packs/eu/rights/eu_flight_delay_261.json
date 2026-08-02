@@ -1,0 +1,54 @@
+{
+  "zml_version": "1.0.0",
+  "id": "eu_flight_delay_261",
+  "display_name": {
+    "en": "Flight Delay Compensation (EU 261/2004)",
+    "he": "פיצוי על טיסה מתעכבת (תקנה 261/2004)",
+    "de": "Flugverspätungsentschädigung (EU 261/2004)"
+  },
+  "market": "FR",
+  "category": "transport",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "flight_delay_minutes",
+        "operator": "gte",
+        "value": 180,
+        "source": "user_input"
+      },
+      {
+        "field": "flight_distance_km",
+        "operator": "lte",
+        "value": 1500,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "claim",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Regulation (EC) No 261/2004",
+    "url": "https://eur-lex.europa.eu/eli/reg/2004/261",
+    "effective_date": "2004-02-17",
+    "authority": "European Parliament and Council"
+  },
+  "financial": {
+    "unit": "EUR",
+    "estimate": {
+      "typical_minor": 25000,
+      "basis": "Statutory flat rate for delays 3h+ under 1500km (minor units)"
+    },
+    "success_fee_basis": "saving_amount"
+  },
+  "metadata": {
+    "maintainer": "eu-maintainer@zakai.io",
+    "last_verified": "2026-01-15",
+    "confidence": "high"
+  }
+}

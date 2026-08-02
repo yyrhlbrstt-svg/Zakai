@@ -210,6 +210,8 @@ exception.
 
 ## Learn more
 
+- **Protocol manifest (start here):** `https://zakai-3uxj.vercel.app/.well-known/zakai-protocol.json`
+- **Network feed (outcome graph stats):** `https://zakai-3uxj.vercel.app/api/network`
 - Discovery document: `https://zakai-3uxj.vercel.app/.well-known/zakai-mandate.json`
 - Trust registry: `https://zakai-3uxj.vercel.app/.well-known/zakai-trust-registry.json`
   (human-readable: `https://zakai-3uxj.vercel.app/en/registry`)

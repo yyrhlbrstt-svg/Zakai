@@ -6,7 +6,8 @@ import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
-import { providerContactEmail, providerHebrewName } from "@/lib/providers";
+import { providerHebrewName } from "@/lib/providers";
+import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { createAuthorization } from "./authorization";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
@@ -14,6 +15,10 @@ import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
 import { pushToUser } from "@/lib/push";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
+import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
+import { withFooter } from "@/lib/letterFooter";
+import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
+import { publicSupportEmail } from "@/lib/contact";
 
 export class CaseError extends Error {}
 
@@ -25,7 +30,7 @@ function marketForCase(vertical: string): string {
 }
 
 function supportEmail(): string {
-  return process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
+  return publicSupportEmail();
 }
 
 function appBaseUrl(): string {
@@ -110,6 +115,7 @@ export async function approveCase(
   userId: string,
   editedMessage?: string,
   approverIp?: string,
+  counterpartyEmail?: string,
 ) {
   const kase = await ownedCase(caseId, userId);
 
@@ -117,15 +123,19 @@ export async function approveCase(
     throw new CaseError("ALREADY_SENT");
   }
 
+  const outreach =
+    counterpartyEmail?.trim() && /@/.test(counterpartyEmail)
+      ? counterpartyEmail.trim().toLowerCase()
+      : undefined;
+
   return prisma.case.update({
     where: { id: kase.id },
     data: {
       status: "APPROVED",
-      // Set once each. A second approval is a no-op on both rather than a
-      // quiet rewrite of when — and from where — consent was given.
       approvedAt: kase.approvedAt ?? new Date(),
       approvedIp: kase.approvedIp ?? approverIp ?? null,
       ...(editedMessage ? { draftMessage: editedMessage } : {}),
+      ...(outreach ? { counterpartyEmail: outreach } : {}),
     },
   });
 }
@@ -162,6 +172,11 @@ export async function sendOutreach(caseId: string, userId: string) {
 
   if (!kase.ownershipVerifiedAt) throw new CaseError("OWNERSHIP_REQUIRED");
   if (!auth || auth.status !== "ACTIVE") throw new CaseError("AUTHORIZATION_REQUIRED");
+
+  const to = resolveCaseOutreachTo(kase);
+  if (!to) {
+    throw new CaseError("NEEDS_OUTREACH_EMAIL");
+  }
 
   // Claim the send before making it, with a conditional update.
   //
@@ -202,13 +217,26 @@ export async function sendOutreach(caseId: string, userId: string) {
     status: auth.status,
   });
 
+  const loc = localeForCountry(user?.country);
+  const footerLocale = loc === "he" || loc === "ar" ? "he" : "en";
+  const messageBody = withFooter(kase.draftMessage, footerLocale);
+
   const email = await sendEmail({
-    to: kase.counterpartyEmail || providerContactEmail(kase.provider, kase.vertical),
+    to,
     subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
-    body: kase.draftMessage + footer,
+    body: messageBody + footer,
     caseId,
     attachments: [attachment],
   });
+
+  if (email.status === "FAILED") {
+    await prisma.case.update({ where: { id: caseId }, data: { status: "VERIFIED" } });
+    throw new CaseError("OUTREACH_DELIVERY_FAILED");
+  }
+
+  if (email.status === "SENT") {
+    void notifyInstitutionOnOutboundSend(auth.mandateAudience).catch(() => {});
+  }
 
   // Status was already claimed above, before the letter went out.
 
@@ -347,9 +375,10 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   if (result.feeNet > 0) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true, name: true },
+      select: { email: true, name: true, country: true },
     });
     if (user) {
+      const payUrl = feePayAbsoluteUrl(appBaseUrl(), user.country, caseId);
       await sendEmail({
         to: user.email,
         subject: `זכאי — אישור חיסכון ועמלת הצלחה (${providerHebrewName(kase.provider)})`,
@@ -363,6 +392,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
           grossFeeAgorot: fee.amount,
           creditAgorot: result.creditApplied,
           netFeeAgorot: result.feeNet,
+          payUrl,
         }),
         caseId,
       });
@@ -371,10 +401,18 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
 
   if (fee.savingMonthly > 0) {
     const savingShekels = Math.round(fee.savingMonthly / 100);
+    const profile = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { country: true },
+    });
+    const dashPay = feePayDashboardPath(localeForCountry(profile?.country), caseId);
     await pushToUser(userId, {
       title: "זכאי — חיסכון מתועד",
-      body: `תועד חיסכון של ₪${savingShekels}. שתף או השלם עמלה בדשבורד — בלחיצה אחת.`,
-      url: `/dashboard?saved=1&case=${caseId}`,
+      body:
+        result.feeNet > 0
+          ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת בדשבורד.`
+          : `תועד חיסכון של ₪${savingShekels}. שתף או המשך בדשבורד.`,
+      url: result.feeNet > 0 ? dashPay : `/dashboard?saved=1&case=${caseId}`,
       tag: `saved-${caseId}`,
     }).catch(() => null);
   }
@@ -392,6 +430,7 @@ function feeConfirmationBody(p: {
   grossFeeAgorot: number;
   creditAgorot: number;
   netFeeAgorot: number;
+  payUrl?: string;
 }): string {
   const f = (a: number) => formatAgorot(a, "he-IL");
   const pct = `${(p.rateBps / 100).toLocaleString("he-IL", { maximumFractionDigits: 2 })}%`;
@@ -412,7 +451,7 @@ function feeConfirmationBody(p: {
 ${creditLines}
 
 ערעור על החיוב: אם לדעתך החיסכון לא מומש בפועל, יש לך ${FEE_DISPUTE_WINDOW_DAYS} ימים מתאריך הודעה זו לפנות אלינו לבדיקה, ואם יתברר שהחיסכון לא נכנס לתוקף — העמלה תבוטל או תוחזר. לפנייה: ${supportEmail()}
-
+${p.payUrl ? `\nלתשלום עמלת ההצלחה (חד-פעמי, מאובטח): ${p.payUrl}\n` : ""}
 זכאי הוא שירות סוכן דיגיטלי אוטומטי הפועל מטעמך בהרשאתך. אין באמור ייעוץ משפטי, פיננסי או ביטוחי.
 
 בברכה,

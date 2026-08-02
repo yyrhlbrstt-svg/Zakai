@@ -1,0 +1,66 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_credit_life_insurance",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "credit life insurance",
+    "he": "credit life insurance"
+  },
+  "market": "IL",
+  "category": "tax",
+  "predicate": {
+    "operator": "OR",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "employment",
+            "operator": "in",
+            "value": [
+              "employee",
+              "self_employed"
+            ],
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "extra.hasMortgage",
+            "operator": "eq",
+            "value": true,
+            "source": "user_input"
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_credit_life_insurance",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "פקודת מס הכנסה, סעיף 45א"
+  },
+  "financial": {
+    "unit": "ILS",
+    "estimate": {
+      "typical_minor": 40000,
+      "basis": "Conservative yearly estimate (minor units)"
+    },
+    "success_fee_basis": "saving_amount"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

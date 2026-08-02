@@ -1,0 +1,59 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_rent_assistance",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "rent assistance",
+    "he": "rent assistance"
+  },
+  "market": "IL",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "housing",
+            "operator": "in",
+            "value": [
+              "renting"
+            ],
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "incomeBand",
+            "operator": "in",
+            "value": [
+              "low"
+            ],
+            "source": "user_input"
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_rent_assistance",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "נהלי הסיוע בשכר דירה, משרד הבינוי והשיכון"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

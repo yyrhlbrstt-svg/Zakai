@@ -9,12 +9,19 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
 import { rateLimit } from "@/lib/ratelimit";
+import {
+  pickOutreachEmail,
+  resolveSubscriptionCompany,
+} from "@/lib/normalizeSubscriptionProvider";
+import { withFooter } from "@/lib/letterFooter";
+import { localeForCountry } from "@/lib/localePath";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   company: z.string().min(1).max(120),
   product: z.string().min(1).max(120),
   accountOrEmail: z.string().max(120).optional(),
+  contactEmail: z.string().max(120).optional(),
   monthlyShekels: z.number().min(0).max(100000).optional(),
   intent: z.enum(["cancel", "retention", "downgrade", "pause"]),
   reason: z.string().max(500).optional(),
@@ -40,9 +47,19 @@ export async function POST(request: Request) {
   });
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
+  const resolved = resolveSubscriptionCompany(data.company, data.product);
+  const outreachTo = pickOutreachEmail({
+    contactEmail: data.contactEmail,
+    accountOrEmail: data.accountOrEmail,
+    defaultContactEmail: resolved.defaultContactEmail,
+  });
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
+
   const letter = buildCancelLetter({
     customerName: data.customerName || user.name || "",
-    company: data.company,
+    company: resolved.displayName,
     product: data.product,
     accountOrEmail: data.accountOrEmail,
     monthlyShekels: data.monthlyShekels,
@@ -51,7 +68,6 @@ export async function POST(request: Request) {
   });
 
   const amount = data.monthlyShekels && data.monthlyShekels > 0 ? data.monthlyShekels : 50;
-  // Cancel / pause → target 0. Retention / downgrade → ~70% of current.
   const target =
     data.intent === "cancel" || data.intent === "pause"
       ? 0
@@ -68,34 +84,34 @@ export async function POST(request: Request) {
 
   let kase;
   try {
-    // Ask the Strategy Engine how to pitch this one, and actually apply it.
-    // Recording a stance that did not change the letter would attribute an
-    // outcome to a choice that had no effect — fabricated evidence, which is
-    // worse than none because none is visibly absent.
     const stance = await chooseStance({
       market: "IL",
       vertical: "subscription",
-      counterparty: String(data.company).slice(0, 64),
+      counterparty: resolved.providerKey.slice(0, 64),
     });
     const variant = variantById(stance.variantId);
     const staged = variant ? applyStance(letter, variant) : letter;
     const stanceApplied = variant !== undefined && stanceAffects(letter, variant);
 
+    const loc = localeForCountry(user.country || "IL");
+    const footerLocale = loc === "he" || loc === "ar" ? "he" : "en";
+    const bodyWithFooter = withFooter(staged.body, footerLocale);
+
     kase = await createCase({
       userId: auth.userId,
-      provider: data.company.slice(0, 80),
+      provider: resolved.providerKey.slice(0, 80),
       amountShekels: amount,
       plan: data.product,
       strategy,
       targetShekels: target,
       draftMessage: `${staged.subject}
 
-${staged.body}`,
+${bodyWithFooter}`,
       strategyVariant: stanceApplied ? stance.variantId : undefined,
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "subscription",
       beneficiaryLabel: data.customerName || undefined,
-      // Explicit "agent sends" click = consent to the draft → start APPROVED.
+      counterpartyEmail: outreachTo,
       autoApprove: true,
     });
   } catch (err) {
@@ -111,5 +127,6 @@ ${staged.body}`,
     body: letter.body,
     status: kase.status,
     message: "case_opened",
+    outreachEmail: outreachTo,
   });
 }

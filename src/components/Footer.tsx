@@ -76,6 +76,7 @@ export function Footer() {
         <span className="flex flex-wrap gap-4">
           {(
             [
+              { href: "/about", key: "footer.about" as const },
               { href: "/feedback", key: "footer.feedback" as const },
               { href: "/faq", key: "footer.faq" as const },
               { href: "/results", key: "footer.results" as const },

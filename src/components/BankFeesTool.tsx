@@ -1,28 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale , useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select } from "@/components/ui";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
-
-const KINDS: { value: BankFeeKind; he: string; en: string }[] = [
-  { value: "account_mgmt", he: "ניהול חשבון / פעולות", en: "Account / activity fee" },
-  { value: "atm", he: "כספומט / משיכה", en: "ATM / cash withdrawal" },
-  { value: "foreign_fx", he: "המרה / חו״ל", en: "FX / foreign transaction" },
-  { value: "check", he: "שיק", en: "Check fee" },
-  { value: "rejected", he: "החזרת הוראה", en: "Rejected order / NSF" },
-  { value: "other", he: "אחר", en: "Other" },
-];
+import {
+  IL_BANK_OPTIONS,
+  type BankProviderKey,
+  bankOptionLabel,
+  feeKindLabel,
+  BANK_FEE_KINDS,
+} from "@/lib/normalizeBankProvider";
+import { withFooter } from "@/lib/letterFooter";
 
 export function BankFeesTool() {
   const locale = useLocale();
-  const he = locale === "he" || locale === "ar";
-  const tIcomponents_BankFeesTool = useTranslations("inline_components_BankFeesTool");
+  const footerLocale = locale === "he" || locale === "ar" ? "he" : "en";
+  const t = useTranslations("inline_components_BankFeesTool");
   const router = useRouter();
 
   const [name, setName] = useState("");
-  const [bank, setBank] = useState("");
+  const [bankKey, setBankKey] = useState<BankProviderKey>("leumi");
+  const [bankCustom, setBankCustom] = useState("");
   const [accountLast4, setAccountLast4] = useState("");
   const [feeKind, setFeeKind] = useState<BankFeeKind>("account_mgmt");
   const [feeDescription, setFeeDescription] = useState("");
@@ -34,6 +34,22 @@ export function BankFeesTool() {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const bankLabel =
+    bankKey === "other" ? bankCustom.trim() : bankOptionLabel(bankKey, locale);
+  const bankReady = bankKey !== "other" ? true : bankCustom.trim().length > 1;
+
+  function letterInput() {
+    return {
+      customerName: name,
+      bank: bankLabel || bankOptionLabel("leumi", locale),
+      accountLast4: accountLast4 || undefined,
+      feeKind,
+      feeDescription: feeDescription || undefined,
+      amountShekels: amount ? Number(amount) : undefined,
+      chargeDate: chargeDate || undefined,
+    };
+  }
+
   async function sendWithAgent() {
     setError(null);
     setBusy(true);
@@ -43,7 +59,8 @@ export function BankFeesTool() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customerName: name,
-          bank,
+          bankKey,
+          bank: bankLabel,
           accountLast4: accountLast4 || undefined,
           feeKind,
           feeDescription: feeDescription || undefined,
@@ -57,21 +74,18 @@ export function BankFeesTool() {
         return;
       }
       if (!res.ok) {
-        setError(
-          data.error === "caseLimit"
-            ? he
-              ? "הגעת למגבלת התיקים. שדרג או סגור תיק קיים."
-              : "Case limit reached."
-            : he
-              ? "משהו השתבש. נסה שוב."
-              : "Something went wrong.",
-        );
+        setError(res.status === 403 && data.error === "caseLimit" ? t("errorCaseLimit") : t("errorGeneric"));
         return;
       }
-      setOut({ subject: data.subject, body: data.body });
+      const letter = buildBankFeeLetter(letterInput());
+      setOut({
+        subject: letter.subject,
+        body: withFooter(letter.body, footerLocale),
+      });
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
-      setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
+      setError(t("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -80,70 +94,68 @@ export function BankFeesTool() {
   return (
     <div className="flex flex-col gap-4">
       <Card className="p-5 flex flex-col gap-3">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={tIcomponents_BankFeesTool("t_ebd6b437")} />
-        <Input
-          value={bank}
-          onChange={(e) => setBank(e.target.value)}
-          placeholder={tIcomponents_BankFeesTool("t_e5cbb043")}
-        />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("t_ebd6b437")} />
+        <label className="text-[12px] text-ink-soft font-bold">{t("bankLabel")}</label>
+        <Select value={bankKey} onChange={(e) => setBankKey(e.target.value as BankProviderKey)}>
+          {IL_BANK_OPTIONS.map((b) => (
+            <option key={b.key} value={b.key}>
+              {bankOptionLabel(b.key, locale)}
+            </option>
+          ))}
+        </Select>
+        {bankKey === "other" && (
+          <Input
+            value={bankCustom}
+            onChange={(e) => setBankCustom(e.target.value)}
+            placeholder={t("t_e5cbb043")}
+          />
+        )}
         <Input
           value={accountLast4}
           onChange={(e) => setAccountLast4(e.target.value.replace(/\D/g, "").slice(0, 4))}
-          placeholder={tIcomponents_BankFeesTool("t_832f0010")}
+          placeholder={t("t_832f0010")}
         />
         <Select value={feeKind} onChange={(e) => setFeeKind(e.target.value as BankFeeKind)}>
-          {KINDS.map((k) => (
-            <option key={k.value} value={k.value}>
-              {he ? k.he : k.en}
+          {BANK_FEE_KINDS.map((k) => (
+            <option key={k} value={k}>
+              {feeKindLabel(k, locale)}
             </option>
           ))}
         </Select>
         <Input
           value={feeDescription}
           onChange={(e) => setFeeDescription(e.target.value)}
-          placeholder={tIcomponents_BankFeesTool("t_b3bac430")}
+          placeholder={t("t_b3bac430")}
         />
         <Input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder={tIcomponents_BankFeesTool("t_71dfcc71")}
+          placeholder={t("t_71dfcc71")}
         />
         <Input
           value={chargeDate}
           onChange={(e) => setChargeDate(e.target.value)}
-          placeholder={tIcomponents_BankFeesTool("t_7f6ed090")}
+          placeholder={t("t_7f6ed090")}
         />
 
         <div className="flex flex-col gap-2 mt-1">
-          <Button onClick={sendWithAgent} disabled={!bank.trim() || busy} className="w-full">
-            {busy
-              ? he
-                ? "הסוכן פותח תיק…"
-                : "Agent opening case…"
-              : he
-                ? "הסוכן שולח ומעקוב עכשיו"
-                : "Agent sends & tracks now"}
+          <Button onClick={sendWithAgent} disabled={!bankReady || busy} className="w-full">
+            {busy ? t("agentOpening") : t("agentSend")}
           </Button>
           <Button
             variant="ghost"
             className="w-full text-[13px]"
-            disabled={!bank.trim() || busy}
-            onClick={() =>
-              setOut(
-                buildBankFeeLetter({
-                  customerName: name,
-                  bank,
-                  accountLast4: accountLast4 || undefined,
-                  feeKind,
-                  feeDescription: feeDescription || undefined,
-                  amountShekels: amount ? Number(amount) : undefined,
-                  chargeDate: chargeDate || undefined,
-                }),
-              )
-            }
+            disabled={!bankReady || busy}
+            onClick={() => {
+              const letter = buildBankFeeLetter(letterInput());
+              setOut({
+                subject: letter.subject,
+                body: withFooter(letter.body, footerLocale),
+              });
+            }}
           >
-            {tIcomponents_BankFeesTool("t_b4c9b341")}
+            {t("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
@@ -151,16 +163,10 @@ export function BankFeesTool() {
 
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
-          <div className="text-emerald font-extrabold text-[15px]">
-            {tIcomponents_BankFeesTool("t_360e126e")}
-          </div>
-          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {tIcomponents_BankFeesTool("t_5a0296a5")}
-          </p>
-          <Link href="/dashboard">
-            <Button className="w-full">
-              {tIcomponents_BankFeesTool("t_8ae29d51")}
-            </Button>
+          <div className="text-emerald font-extrabold text-[15px]">{t("t_360e126e")}</div>
+          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("t_5a0296a5")}</p>
+          <Link href={`/dashboard?case=${caseId}`}>
+            <Button className="w-full">{t("t_8ae29d51")}</Button>
           </Link>
         </Card>
       )}
@@ -184,7 +190,7 @@ export function BankFeesTool() {
               }
             }}
           >
-            {copied ? (he ? "הועתק" : "Copied") : he ? "העתק" : "Copy"}
+            {copied ? t("copied") : t("copy")}
           </Button>
         </Card>
       )}

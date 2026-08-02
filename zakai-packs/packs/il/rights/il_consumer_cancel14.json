@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_consumer_cancel14",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "consumer cancel14",
+    "he": "consumer cancel14"
+  },
+  "market": "IL",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_consumer_cancel14",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "חוק הגנת הצרכן, התשמ״א-1981, סעיף 14ג"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

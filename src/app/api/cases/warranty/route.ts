@@ -8,10 +8,13 @@ import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { formatCaseDraft } from "@/lib/caseDraft";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   seller: z.string().min(1).max(80),
+  sellerEmail: z.string().max(120).optional(),
   product: z.string().min(1).max(120),
   fault: z.string().min(3).max(500),
   repairCostShekels: z.number().min(0).max(100_000).optional(),
@@ -28,6 +31,11 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
+
+  const outreachTo = firstOutreachEmail(data.sellerEmail);
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -78,11 +86,12 @@ ${name}
       plan: data.product.slice(0, 120),
       strategy: "מימוש אחריות מוצר עם Mandate",
       targetShekels: 0,
-      draftMessage: `${staged.subject}\n\n${staged.body}`,
+      draftMessage: formatCaseDraft(staged.subject, staged.body, user.country),
       strategyVariant: stanceApplied ? stance.variantId : undefined,
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "warranty",
       beneficiaryLabel: data.customerName || undefined,
+      counterpartyEmail: outreachTo,
       autoApprove: true,
     });
   } catch (err) {

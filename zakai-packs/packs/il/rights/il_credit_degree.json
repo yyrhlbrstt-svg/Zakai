@@ -1,0 +1,58 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_credit_degree",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "credit degree",
+    "he": "credit degree"
+  },
+  "market": "IL",
+  "category": "tax",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "employment",
+            "operator": "in",
+            "value": [
+              "employee",
+              "self_employed"
+            ],
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "ageYears",
+            "operator": "lte",
+            "value": 66,
+            "source": "user_input"
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_credit_degree",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "פקודת מס הכנסה, סעיף 40ג"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

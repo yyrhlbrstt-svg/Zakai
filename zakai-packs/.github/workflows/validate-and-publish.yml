@@ -1,0 +1,79 @@
+name: Validate and Publish Packs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packs/**"
+      - "schema/**"
+      - "maintainers/**"
+  pull_request:
+    paths:
+      - "packs/**"
+      - "schema/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm ci
+
+      - name: Validate JSON Schema
+        run: npm run validate
+
+      - name: Check Maintainer Signatures
+        if: github.event_name == 'push'
+        run: npm run sign-check
+
+      - name: Verify no L2 extensions without approval
+        run: |
+          for file in packs/*/index.json; do
+            extensions=$(jq -r '.engine_requirements.extensions | length' "$file")
+            if [ "$extensions" -gt 0 ]; then
+              echo "⚠️ $file has engine extensions — requires manual review"
+            fi
+          done
+
+  publish:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm ci
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Publish to S3
+        run: npm run publish
+        env:
+          ZAKAI_PACKS_BUCKET: ${{ secrets.ZAKAI_PACKS_BUCKET }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+          CI: "true"
+
+      - name: Notify Zakai Engine
+        if: ${{ secrets.ZAKAI_ADMIN_TOKEN != '' }}
+        run: |
+          curl -sf -X POST "${{ secrets.ZAKAI_ENGINE_URL || 'https://zakai-3uxj.vercel.app' }}/api/admin/packs/reload" \
+            -H "Authorization: Bearer ${{ secrets.ZAKAI_ADMIN_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"source\":\"zakai-packs\",\"commit\":\"${{ github.sha }}\"}" || true

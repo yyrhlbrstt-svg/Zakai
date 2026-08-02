@@ -62,7 +62,9 @@ export function PlanCards({
           const p = PLANS[id];
           const isCurrent = currentPlan === id;
           const highlight = id === "PRO";
-          const features = t.raw(`plans.${id}.features`) as string[];
+          const features = (t.raw(`plans.${id}.features`) as string[]).filter(
+            (f) => !/\(בקרוב\)|\(coming soon\)/i.test(f),
+          );
           return (
             <SpotlightCard
               key={id}

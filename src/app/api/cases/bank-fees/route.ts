@@ -8,10 +8,13 @@ import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
+import { resolveBankProvider } from "@/lib/normalizeBankProvider";
+import { formatCaseDraft } from "@/lib/caseDraft";
 import { rateLimit } from "@/lib/ratelimit";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
+  bankKey: z.string().max(32).optional(),
   bank: z.string().min(1).max(120),
   accountLast4: z.string().max(8).optional(),
   feeKind: z.enum(["account_mgmt", "atm", "foreign_fx", "check", "rejected", "other"]),
@@ -40,9 +43,14 @@ export async function POST(request: Request) {
   });
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
+  const { providerKey, displayName } = resolveBankProvider({
+    bankKey: data.bankKey,
+    bankName: data.bank,
+  });
+
   const letter = buildBankFeeLetter({
     customerName: data.customerName || user.name || "",
-    bank: data.bank,
+    bank: displayName,
     accountLast4: data.accountLast4,
     feeKind: data.feeKind as BankFeeKind,
     feeDescription: data.feeDescription,
@@ -61,7 +69,7 @@ export async function POST(request: Request) {
     const stance = await chooseStance({
       market: "IL",
       vertical: "bank-fees",
-      counterparty: String(data.bank).slice(0, 64),
+      counterparty: providerKey.slice(0, 64),
     });
     const variant = variantById(stance.variantId);
     const staged = variant ? applyStance(letter, variant) : letter;
@@ -69,14 +77,12 @@ export async function POST(request: Request) {
 
     kase = await createCase({
       userId: auth.userId,
-      provider: data.bank.slice(0, 80),
+      provider: providerKey,
       amountShekels: amount,
       plan: data.feeDescription || data.feeKind,
       strategy: "ערעור על עמלת בנק עם Mandate",
       targetShekels: 0,
-      draftMessage: `${staged.subject}
-
-${staged.body}`,
+      draftMessage: formatCaseDraft(staged.subject, staged.body, user.country),
       strategyVariant: stanceApplied ? stance.variantId : undefined,
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "bank-fees",

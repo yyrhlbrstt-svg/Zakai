@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zakai.io/.well-known/zakai-rights-schema.json",
+  "title": "Zakai Rights Markup Language v1.0",
+  "description": "Machine-readable consumer rights definition for federation and embed",
+  "type": "object",
+  "required": ["zml_version", "id", "predicate", "action", "source", "market"],
+  "additionalProperties": false,
+  "properties": {
+    "zml_version": { "type": "string", "const": "1.0.0" },
+    "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "version": { "type": "string", "description": "Right revision date YYYY-MM-DD" },
+    "display_name": {
+      "type": "object",
+      "required": ["en"],
+      "additionalProperties": { "type": "string" }
+    },
+    "market": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "category": {
+      "type": "string",
+      "enum": [
+        "telecom",
+        "energy",
+        "finance",
+        "transport",
+        "insurance",
+        "tax",
+        "housing",
+        "employment",
+        "consumer_protection",
+        "health",
+        "education"
+      ]
+    },
+    "predicate": { "$ref": "#/$defs/Predicate" },
+    "action": { "$ref": "#/$defs/Action" },
+    "source": { "$ref": "#/$defs/Source" },
+    "financial": { "$ref": "#/$defs/Financial" },
+    "metadata": { "$ref": "#/$defs/Metadata" }
+  },
+  "$defs": {
+    "Condition": {
+      "type": "object",
+      "required": ["field", "operator", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "field": { "type": "string" },
+        "operator": {
+          "type": "string",
+          "enum": ["eq", "ne", "gt", "gte", "lt", "lte", "in", "contains", "exists"]
+        },
+        "value": {},
+        "source": {
+          "type": "string",
+          "enum": ["user_input", "bill_scan", "external_api", "calculation"],
+          "default": "user_input"
+        }
+      }
+    },
+    "Predicate": {
+      "type": "object",
+      "required": ["operator", "conditions"],
+      "additionalProperties": false,
+      "properties": {
+        "operator": { "type": "string", "enum": ["AND", "OR", "NOT"] },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "oneOf": [{ "$ref": "#/$defs/Condition" }, { "$ref": "#/$defs/Predicate" }]
+          }
+        }
+      }
+    },
+    "Action": {
+      "type": "object",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["letter", "form", "calculation", "claim", "appeal"]
+        },
+        "template_ref": { "type": "string" },
+        "auto_eligible": { "type": "boolean", "default": false },
+        "requires_human_gate": { "type": "boolean", "default": true },
+        "output_format": {
+          "type": "string",
+          "enum": ["pdf", "email", "json", "webhook"],
+          "default": "email"
+        },
+        "internal_tool": { "type": "string", "description": "In-app route when kind is calculation" }
+      }
+    },
+    "Source": {
+      "type": "object",
+      "required": ["type", "reference"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["statute", "regulation", "contract", "case_law", "guideline"]
+        },
+        "reference": { "type": "string" },
+        "url": { "type": "string" },
+        "effective_date": { "type": "string" },
+        "authority": { "type": "string" }
+      }
+    },
+    "Financial": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unit": { "type": "string", "enum": ["ILS", "EUR", "USD", "GBP", "CAD", "AUD", "PLN", "SEK"] },
+        "estimate": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min_minor": { "type": "integer" },
+            "max_minor": { "type": "integer" },
+            "typical_minor": { "type": "integer" },
+            "basis": { "type": "string" }
+          }
+        },
+        "success_fee_basis": {
+          "type": "string",
+          "enum": ["saving_amount", "fixed", "hourly"],
+          "default": "saving_amount"
+        }
+      }
+    },
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maintainer": { "type": "string" },
+        "last_verified": { "type": "string" },
+        "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+        "replaces": { "type": "array", "items": { "type": "string" } },
+        "sunset_date": { "type": "string" },
+        "evaluation_engine": { "type": "string" }
+      }
+    }
+  }
+}

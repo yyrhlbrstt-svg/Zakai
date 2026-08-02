@@ -9,10 +9,13 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildRefundLetter } from "@/lib/refundChase";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { formatCaseDraft } from "@/lib/caseDraft";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   company: z.string().min(1).max(120),
+  contactEmail: z.string().max(120).optional(),
   orderId: z.string().max(80).optional(),
   product: z.string().max(120).optional(),
   amountShekels: z.number().min(0).max(500000).optional(),
@@ -30,6 +33,11 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
+
+  const outreachTo = firstOutreachEmail(data.contactEmail);
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -50,8 +58,6 @@ export async function POST(request: Request) {
 
   const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 100;
 
-  // The stance is chosen and applied before the letter is staged, so what the
-  // engine recorded and what the counterparty received are the same document.
   const stance = await chooseStance({
     market: "IL",
     vertical: "refund-chase",
@@ -71,11 +77,12 @@ export async function POST(request: Request) {
       plan: data.product || data.orderId || "החזר",
       strategy: "דרישת החזר כספי עם Mandate",
       targetShekels: 0,
-      draftMessage: `${staged.subject}\n\n${staged.body}`,
+      draftMessage: formatCaseDraft(staged.subject, staged.body, user.country),
       strategyVariant: stanceApplied ? stance.variantId : undefined,
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "refund-chase",
       beneficiaryLabel: data.customerName || undefined,
+      counterpartyEmail: outreachTo,
       autoApprove: true,
     });
   } catch (err) {

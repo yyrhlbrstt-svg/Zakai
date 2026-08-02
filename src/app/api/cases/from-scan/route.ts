@@ -4,8 +4,13 @@ import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
-import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
 import { rateLimit } from "@/lib/ratelimit";
+import type { CancelIntent } from "@/lib/cancelLetter";
+import {
+  buildFromScanDraft,
+  defaultScanIntent,
+  resolveFromScanOutreach,
+} from "@/lib/fromScanOutreach";
 
 const schema = z.object({
   merchant: z.string().min(1).max(120),
@@ -14,16 +19,10 @@ const schema = z.object({
   category: z
     .enum(["cellular", "tv_internet", "electricity", "insurance", "fitness", "digital", "other"])
     .default("other"),
-  /** cancel = target 0; retention = negotiate ~30% off */
+  contactEmail: z.string().max(120).optional(),
   intent: z.enum(["cancel", "retention", "downgrade", "pause"]).optional(),
 });
 
-/**
- * One-click Case from Money Hub scan.
- * Maps category → best default intent, builds letter + Mandate path,
- * returns caseId so the client can send the user straight to the dashboard.
- * autoApprove: the "open case now" click is explicit consent to the draft.
- */
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
@@ -44,21 +43,18 @@ export async function POST(request: Request) {
   });
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
-  // Default intent by category: digital/fitness → cancel; telecom → retention.
-  const intent: CancelIntent =
-    data.intent ??
-    (data.category === "digital" || data.category === "fitness" || data.category === "other"
-      ? "cancel"
-      : "retention");
-
+  const intent: CancelIntent = data.intent ?? defaultScanIntent(data.category);
   const product = data.product?.trim() || data.merchant;
-  const letter = buildCancelLetter({
-    customerName: user.name || "",
-    company: data.merchant,
+  const { vertical, providerKey, outreachTo } = resolveFromScanOutreach({
+    merchant: data.merchant,
     product,
-    monthlyShekels: data.monthlyShekels,
-    intent,
+    category: data.category,
+    contactEmail: data.contactEmail,
   });
+
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const amount = Math.round(data.monthlyShekels);
   const target =
@@ -73,26 +69,27 @@ export async function POST(request: Request) {
           ? "הורדת מסלול מסריקה"
           : "הקפאת מנוי מסריקה";
 
-  const vertical =
-    data.category === "cellular" || data.category === "tv_internet"
-      ? "telecom"
-      : data.category === "electricity"
-        ? "electricity"
-        : data.category === "insurance"
-          ? "insurance"
-          : "subscription";
+  const { draftMessage } = buildFromScanDraft({
+    customerName: user.name || "",
+    merchant: data.merchant,
+    product,
+    monthlyShekels: amount,
+    intent,
+    country: user.country,
+  });
 
   let kase;
   try {
     kase = await createCase({
       userId: auth.userId,
-      provider: data.merchant.slice(0, 80),
+      provider: providerKey.slice(0, 80),
       amountShekels: amount,
       plan: product.slice(0, 120),
       strategy,
       targetShekels: target,
-      draftMessage: `${letter.subject}\n\n${letter.body}`,
+      draftMessage,
       vertical,
+      counterpartyEmail: outreachTo,
       autoApprove: true,
     });
   } catch (err) {
@@ -104,11 +101,6 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
-    status: kase.status,
-    intent,
-    targetShekels: target,
-    message: "case_opened_from_scan",
+    message: "case_opened",
   });
 }
