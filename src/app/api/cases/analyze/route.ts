@@ -14,6 +14,8 @@ import { PROVIDERS, isProviderKey, resolveProviderKey, providerHebrewName } from
 import { chooseStance } from "@/lib/strategy/store";
 import { rateLimit } from "@/lib/ratelimit";
 import { isSupportedMarket } from "@/lib/global/registry";
+import { withFooter } from "@/lib/letterFooter";
+import { footerLocaleForCountry } from "@/lib/caseDraft";
 
 const MAX_IMAGE_B64 = 5_500_000;
 const ALLOWED_MEDIA = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
@@ -114,7 +116,10 @@ export async function POST(request: Request) {
       targetShekels: rec.targetShekels,
       marketLowShekels: rec.marketLowShekels,
       marketHighShekels: rec.marketHighShekels,
-      draftMessage: rec.draftMessage,
+      draftMessage: withFooter(
+        rec.draftMessage,
+        footerLocaleForCountry(user.country),
+      ),
       beneficiaryLabel: data.beneficiary,
       strategyVariant: stance.variantId,
       strategySeed: stance.seed,
