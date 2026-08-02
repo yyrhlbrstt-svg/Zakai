@@ -81,6 +81,38 @@ suite("ownership verification (integration)", () => {
     expect(results[5]).toEqual({ ok: false, error: "too_many_attempts" });
   });
 
+  it("a code minted for one case cannot verify a different case", async () => {
+    await prisma.phoneVerification.deleteMany({ where: { userId } });
+    await prisma.outbox.deleteMany({ where: { toAddress: phone } });
+
+    const [caseA, caseB] = await Promise.all([
+      prisma.case.create({
+        data: { userId, provider: "cellcom", amountOriginal: 10_000, targetAmount: 8_000 },
+      }),
+      prisma.case.create({
+        data: { userId, provider: "hot", amountOriginal: 20_000, targetAmount: 15_000 },
+      }),
+    ]);
+
+    await sendOwnershipCode(userId, phone, caseA.id);
+    const code = await readLatestCode();
+
+    // Replaying case A's code against case B must not verify case B.
+    const crossCase = await verifyOwnershipCode(userId, code, caseB.id);
+    expect(crossCase).toEqual({ ok: false, error: "no_code" });
+    const caseBAfter = await prisma.case.findUnique({ where: { id: caseB.id } });
+    expect(caseBAfter?.ownershipVerifiedAt).toBeNull();
+
+    // The same code still works for the case it was issued for.
+    const rightCase = await verifyOwnershipCode(userId, code, caseA.id);
+    expect(rightCase).toEqual({ ok: true });
+    const caseAAfter = await prisma.case.findUnique({ where: { id: caseA.id } });
+    expect(caseAAfter?.ownershipVerifiedAt).not.toBeNull();
+
+    await prisma.outbox.deleteMany({ where: { caseId: { in: [caseA.id, caseB.id] } } });
+    await prisma.case.deleteMany({ where: { id: { in: [caseA.id, caseB.id] } } });
+  });
+
   it("rejects an expired code", async () => {
     await prisma.phoneVerification.deleteMany({ where: { userId } });
     await prisma.outbox.deleteMany({ where: { toAddress: phone } });

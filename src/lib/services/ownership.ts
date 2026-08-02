@@ -179,7 +179,16 @@ export async function verifyOwnershipCode(
   caseId?: string,
 ): Promise<OwnershipVerifyResult> {
   const record = await prisma.phoneVerification.findFirst({
-    where: { userId, consumedAt: null },
+    // A code minted for one case must not stamp a different case as verified:
+    // the verification lands on whatever caseId the caller passes, so matching
+    // "the user's latest code, whichever case it was for" would let the code
+    // sent for case A verify case B. Codes issued without a case (generic
+    // phone verification) stay usable for any of the user's cases.
+    where: {
+      userId,
+      consumedAt: null,
+      ...(caseId ? { OR: [{ caseId }, { caseId: null }] } : {}),
+    },
     orderBy: { createdAt: "desc" },
   });
   if (!record) return { ok: false, error: "no_code" };
