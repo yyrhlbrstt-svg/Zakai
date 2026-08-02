@@ -40,6 +40,32 @@ function cspHeader(nonce: string): string {
   ].join("; ");
 }
 
+/** First-touch attribution window for a B2B embed click — see PARTNER_REF_COOKIE below. */
+const PARTNER_REF_COOKIE = "zakai_partner_ref";
+const PARTNER_REF_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
+
+/**
+ * Every embed.js click (public/embed.js) lands on a page like
+ * /he/money?utm_source=embed&utm_campaign=<partner-ref> — but a visitor
+ * rarely signs up on that exact page, and nothing was ever carrying the ref
+ * forward to the eventual /signup. The result: the entire "Partners · Embed"
+ * channel marketed on /business and /partners had zero attribution behind
+ * it — no way to answer "did this partner send us anyone," let alone bill a
+ * referral fee on it. This is the fix: capture it once per visit into a
+ * cookie, first-touch (never overwritten), and api/auth/signup reads it.
+ */
+function capturePartnerRef(request: NextRequest, res: NextResponse): void {
+  if (request.nextUrl.searchParams.get("utm_source") !== "embed") return;
+  if (request.cookies.get(PARTNER_REF_COOKIE)) return; // first-touch wins
+  const ref = request.nextUrl.searchParams.get("utm_campaign");
+  if (!ref) return;
+  res.cookies.set(PARTNER_REF_COOKIE, ref.slice(0, 80), {
+    maxAge: PARTNER_REF_MAX_AGE_SECONDS,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
 /**
  * Geo-aware locale routing. next-intl handles all locale-prefixed paths; we
  * only override the bare-root redirect ("/") to pick the language by the
@@ -64,12 +90,14 @@ export default function middleware(request: NextRequest) {
     const target = country && country !== "IL" ? "/en" : "/he";
     const res = NextResponse.redirect(new URL(target, request.url));
     res.headers.set("Content-Security-Policy", policy);
+    capturePartnerRef(request, res);
     return res;
   }
 
   const res = intlMiddleware(request);
   res.headers.set("Content-Security-Policy", policy);
   res.headers.set("x-nonce", nonce);
+  capturePartnerRef(request, res);
   return res;
 }
 

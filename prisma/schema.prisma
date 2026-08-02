@@ -59,6 +59,18 @@ model User {
   referrals            User[]  @relation("Referrals")
   referralCreditAgorot Int     @default(0)
 
+  // B2B embed attribution — a DIFFERENT thing from the peer referral above.
+  // embed.js (public/embed.js) sends every click as
+  // ?utm_source=embed&utm_campaign=<partner ref>, but until this field
+  // existed nothing on the server ever read or stored it: a bank could embed
+  // the widget, send real traffic, and there would be no way to answer "did
+  // this partner send us anyone" — let alone bill them a referral fee. Set
+  // once at signup from the zakai_partner_ref cookie (middleware.ts), never
+  // overwritten after. No FK, no relation — same reasoning as
+  // StrategyOutcome staying unlinked: this is attribution bookkeeping, not a
+  // reason to add another place a user row can be joined from.
+  partnerRef String?
+
   cases              Case[]
   phoneVerifications PhoneVerification[]
   referralRewards    ReferralReward[]    @relation("Referrer")
