@@ -145,6 +145,18 @@ export const ENTITLEMENTS: Entitlement[] = [
   // "מרובי ילדים" discounts elsewhere in Israeli policy, so it is used here
   // only to decide whether to SHOW the entitlement, never to price it.
   { id: "arnona_large_family", category: "municipal", eligible: (p) => p.children >= 3 },
+  // Any registered property, not a demographic flag — the trigger is a
+  // mismatch between the municipality's recorded square meters and reality,
+  // which nothing in RightsProfile can detect. Shown to everyone, like
+  // mobile_check/subscription_audit below: a "go measure your home" nudge,
+  // not a claim we already know something is wrong.
+  { id: "arnona_area_correction", category: "municipal", eligible: () => true },
+  // Real right (כללי תאגידי מים וביוב), but narrower than "credit": a reduced
+  // tariff on the EXCESS above normal usage, capped at two billing periods,
+  // and it requires a licensed plumber's repair confirmation — not automatic.
+  // No yearlyAgorot/oneTimeAgorot: the amount is entirely usage-dependent and
+  // there is no "typical" figure to attach without inventing one.
+  { id: "water_leak_credit", category: "municipal", eligible: () => true },
   { id: "water_disability", category: "municipal", eligible: (p) => p.disability },
 
   // ---- Banking (בנקים ואשראי) ----
@@ -162,6 +174,11 @@ export const ENTITLEMENTS: Entitlement[] = [
   { id: "subscription_audit", category: "consumer", eligible: () => true },
   { id: "insurance_duplicates", category: "consumer", eligible: () => true },
   { id: "pension_fees", category: "consumer", eligible: working },
+  // Universal, not eligibility-gated — same reasoning as mobile_check above.
+  // The claim comes from the PERSON'S OWN receipt/statement (a billing
+  // error a store or supplier already made), never from us asserting one
+  // exists — the letter this drafts always requires the user's own evidence.
+  { id: "duplicate_charge_dispute", category: "consumer", eligible: () => true },
 
   // ---- Health (בריאות) ----
   { id: "health_dental_kids", category: "health", eligible: parent },

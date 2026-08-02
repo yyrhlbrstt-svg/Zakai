@@ -262,7 +262,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "61 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "64 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       },
       "miluim": {
         "title": "Reserve-duty pay",
@@ -392,7 +392,7 @@
         "points": [
           "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
           "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
-          "Free no-signup toolset: 61 rights, electricity, flights, subscriptions",
+          "Free no-signup toolset: 64 rights, electricity, flights, subscriptions",
           "Privacy by default: no trackers, in-browser scans, one-click deletion"
         ]
       }
@@ -963,7 +963,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "61 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "64 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {
@@ -1130,6 +1130,16 @@
         "desc": "National Insurance beneficiaries get a larger low-rate quota.",
         "how": "Verify it appears on your water bill."
       },
+      "arnona_area_correction": {
+        "title": "Fix an incorrect property size on arnona",
+        "desc": "If the registered area is larger than the real one, you can object within 90 days of the tax notice.",
+        "how": "Zakai prepares the correction request and objection to the municipality's arnona manager."
+      },
+      "water_leak_credit": {
+        "title": "Concealed water-leak credit",
+        "desc": "An unusually high water bill from a leak you couldn't have known about — a discount on the excess usage, not the whole bill. Requires a plumber's confirmation.",
+        "how": "Zakai prepares the request to the water corporation, including where to attach the repair confirmation."
+      },
       "bank_basic_track": {
         "title": "Bank basic fee track",
         "desc": "By law: a low flat-fee track instead of per-action fees. Most people never switch.",
@@ -1184,6 +1194,11 @@
         "title": "Duplicate insurance check (\"Har HaBituach\")",
         "desc": "Duplicate health/accident coverage is very common.",
         "how": "Free check on Har HaBituach; cancel the duplicate."
+      },
+      "duplicate_charge_dispute": {
+        "title": "Duplicate or incorrect charge",
+        "desc": "Charged twice for the same purchase, or the charge doesn't match the receipt — you're entitled to a correction and credit.",
+        "how": "Zakai prepares the complaint to the provider, including where to attach your receipt or statement as proof."
       },
       "pension_fees": {
         "title": "Pension management fees",
@@ -4097,6 +4112,9 @@
       "arnona_senior": "Senior arnona discount",
       "arnona_soldier": "Soldier arnona exemption",
       "arnona_large_family": "Large-family arnona discount",
+      "arnona_area_correction": "Fix an incorrect property size on arnona",
+      "water_leak_credit": "Concealed water-leak credit",
+      "duplicate_charge_dispute": "Duplicate or incorrect charge",
       "au_age_pension": "Age Pension",
       "au_childcare_subsidy": "Child Care Subsidy",
       "au_disability_support_pension": "Disability Support Pension",
