@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { activeLocales } from "@/i18n/config";
 import { listKnownProviders } from "@/lib/companyScore";
+import { IL_RIGHT_SLUGS } from "@/lib/rightsSeo";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
 // A hardcoded locale list here drifted from i18n/config.ts before: when de
@@ -16,6 +17,7 @@ const PATHS = [
   "/leaks",
   "/proofs",
   "/cancel",
+  "/cancel/universal",
   "/flights",
   "/partners",
   "/business",
@@ -143,6 +145,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
             : path === "/money" || path === "/leaks" || path === "/proofs"
               ? 0.95
               : 0.6,
+      });
+    }
+    for (const slug of IL_RIGHT_SLUGS) {
+      entries.push({
+        url: `${SITE}/${locale}/rights/${slug}`,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.55,
       });
     }
   }

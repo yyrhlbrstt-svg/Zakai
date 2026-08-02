@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -16,6 +16,7 @@ import { formatAgorot, shekelsToAgorot } from "@/lib/money";
  */
 export function Zakameter({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("zakameter");
+  const locale = useLocale();
   const [mobile, setMobile] = useState(120);
   const [electricity, setElectricity] = useState(450);
   const [flights, setFlights] = useState(0);
@@ -109,7 +110,7 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
 
       <div className="mt-6 pt-5 text-center" style={{ borderTop: "1px solid rgba(255,255,255,0.09)" }}>
         <div className="text-[12.5px] text-ink-soft font-bold">{t("totalLabel")}</div>
-        <div className="font-display grad-text text-[42px] leading-tight mt-1" aria-live="polite">
+        <div className="font-display grad-text text-[42px] leading-tight mt-1 transition-all duration-300 ease-out" aria-live="polite">
           {money(r.totalAgorot)}
         </div>
         {lines.length > 0 && (
@@ -130,6 +131,11 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
         <Link href="/money" className="no-underline block mt-2">
           <Button variant="ghost" className="w-full !text-[13px]">
             {t("ctaScan")}
+          </Button>
+        </Link>
+        <Link href="/cancel/universal" className="no-underline block mt-2">
+          <Button variant="ghost" className="w-full !text-[13px] !border-amber/40">
+            {locale === "he" || locale === "ar" ? "ביטול מנויים מרוכז (ללא שליחה אוטומטית)" : "Bulk cancel letters (you send)"}
           </Button>
         </Link>
         <p className="text-[10.5px] text-ink-soft mt-3 mb-0 leading-snug">{t("note")}</p>

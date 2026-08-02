@@ -1002,6 +1002,24 @@
     "ctaScan": "Scan recurring charges (CSV)",
     "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
   },
+  "universalCancel": {
+    "metaTitle": "Universal subscription cancel — Zakai",
+    "metaDesc": "Upload a card statement or CSV — Zakai finds recurring charges and drafts cancel letters. You send from your own email. No automatic send from Zakai servers.",
+    "kicker": "Universal cancel button",
+    "title": "Cancel every subscription — one letter per recurring charge",
+    "sub": "Parsing runs in your browser only. We do not store your file. Copy each letter and send from your email — Word, not a law firm.",
+    "privacy": "Data never leaves your device until you copy a letter. Zakai does not auto-send.",
+    "uploadCsv": "Upload CSV / statement file",
+    "pastePlaceholder": "Or paste statement lines here (text)",
+    "found": "Found {count} recurring charges",
+    "totalMonthly": "Estimated total: {amount} / month",
+    "month": "month",
+    "placeholderName": "Full name",
+    "copySendYours": "Copy letter — send from your email",
+    "copied": "Copied",
+    "agentOptional": "Want Mandate-backed send and dashboard tracking?",
+    "agentLink": "Open cancel case"
+  },
   "intentTriage": {
     "label": "What happened?",
     "placeholder": "e.g. My landlord won't return my deposit",
