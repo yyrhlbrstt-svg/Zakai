@@ -234,6 +234,8 @@ export const ENTITLEMENTS: Entitlement[] = [
   // ---- More consumer rights ----
   { id: "consumer_cancel14", category: "consumer", eligible: () => true },
   { id: "consumer_telecom_exit", category: "consumer", eligible: () => true },
+  { id: "collection_agency_complaint_il", category: "consumer", eligible: () => true },
+  { id: "car_insurance_pro_rata_refund", category: "consumer", eligible: () => true },
 
   // ---- More national insurance ----
   { id: "mobility_allowance", category: "bituach", eligible: (p) => p.disability },

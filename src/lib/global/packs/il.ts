@@ -183,6 +183,13 @@ const rights: RightDef[] = [
   right("train_delay_compensation", "consumer", always, "נוהל פיצוי נוסעים של רכבת ישראל (מדיניות מפעילה, לא חוק — ראו הערה)"),
   right("consumer_cancel14", "consumer", always, "חוק הגנת הצרכן, התשמ״א-1981, סעיף 14ג"),
   right("consumer_telecom_exit", "consumer", always, "חוק התקשורת (בזק ושידורים), התשמ״ב-1982, סעיף 13ג"),
+  right(
+    "collection_agency_complaint_il",
+    "consumer",
+    always,
+    "חוק הגנת הצרכן, התשמ״א-1981; הנחיות רשות שוק ההון — גביית חובות",
+  ),
+  right("car_insurance_pro_rata_refund", "consumer", always, "חוק חוזי הביטוח, התשמ״א-1981 — סילוק פוליסה והחזר פרמיה יחסי"),
 
   // ---- Health --------------------------------------------------------------
   right("health_dental_kids", "health", parent, "חוק ביטוח בריאות ממלכתי, התשנ״ד-1994 — סל שירותי בריאות השן לילדים"),

@@ -264,7 +264,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "70 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "72 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       },
       "miluim": {
         "title": "Reserve-duty pay",
@@ -394,7 +394,7 @@
         "points": [
           "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
           "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
-          "Free no-signup toolset: 70 rights, electricity, flights, subscriptions",
+          "Free no-signup toolset: 72 rights, electricity, flights, subscriptions",
           "Privacy by default: no trackers, in-browser scans, one-click deletion"
         ]
       }
@@ -969,7 +969,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "70 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "72 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {
@@ -1335,6 +1335,16 @@
         "title": "Friction-free telecom disconnection",
         "desc": "Mobile/internet disconnection must be simple, without exit fines beyond the law.",
         "how": "Demand in writing; stalling is grounds for a ministry complaint."
+      },
+      "collection_agency_complaint_il": {
+        "title": "Harassed by a debt collector?",
+        "desc": "Consumer law and capital-market rules require fair collection — you can demand details and stop harassment.",
+        "how": "Zakai drafts a complaint and debt-documentation demand before you pay."
+      },
+      "car_insurance_pro_rata_refund": {
+        "title": "Cancelled car insurance? Pro-rata refund",
+        "desc": "Cancelling mid-term entitles you to unused premium back under the Insurance Contracts Law.",
+        "how": "Zakai drafts cancellation and refund demand to the insurer."
       },
       "mobility_allowance": {
         "title": "Mobility allowance",
@@ -5115,8 +5125,54 @@
     "sub": "The FDCPA gives you the right to dispute and request verification before paying. Zakai generates a cited letter — you send it to the collector.",
     "cite": "Based on 15 U.S.C. § 1692g — not a promise of outcome or non-payment.",
     "ilTitle": "Based in Israel?",
-    "ilSub": "For missing refunds or provider disputes — we have a documented chase path.",
-    "ilCta": "Missing refund chase"
+    "ilSub": "For Israeli collectors — complaint and verify debt before paying.",
+    "ilCta": "IL collector complaint"
+  },
+  "consumerCancelDoor": {
+    "metaTitle": "14-day remote cancellation — Zakai",
+    "metaDesc": "Gym, online course, door-to-door sale — Consumer Protection Law cancellation letter.",
+    "kicker": "14-day law",
+    "title": "Bought online and changed your mind?",
+    "sub": "Remote sales can be cancelled within 14 days with a full refund — ready letter to send.",
+    "cite": "Not every deal qualifies (e.g. bespoke services) — the checker explains what applies.",
+    "subsNote": "Recurring subscription instead?",
+    "subsCta": "Agent subscription cancel path"
+  },
+  "tollDispute": {
+    "metaTitle": "Highway 6 toll dispute — Zakai",
+    "metaDesc": "Wrong charge, sold car, duplicate — appeal to the statutory committee.",
+    "kicker": "Road 6",
+    "title": "Charged on Highway 6 unfairly?",
+    "sub": "Appeal under Cross-Israel Highway legislation — including when you are no longer the registered owner.",
+    "cite": "There is a time window from the notice — keep documents."
+  },
+  "vehicleLicenseRefund": {
+    "metaTitle": "Vehicle licence fee refund — Zakai",
+    "metaDesc": "Deregistration or total loss — not a normal sale. Prorated refund letter.",
+    "kicker": "Licence fee",
+    "title": "Took the car off the road?",
+    "sub": "Annual licence fee may be refunded pro-rata on deregistration or total write-off — not on a sale to a third party.",
+    "cite": "Selling the car does not trigger a refund — only leaving the road or total loss."
+  },
+  "collectionComplaint": {
+    "metaTitle": "Debt collector complaint — Zakai",
+    "metaDesc": "Stop harassment and verify the debt in writing under Israeli consumer law.",
+    "kicker": "Debt collection",
+    "title": "Collector won't stop calling?",
+    "sub": "Letter demanding itemised debt, fair conduct and documentation before payment.",
+    "cite": "No promise to erase valid debt — only fair-process rights.",
+    "usTitle": "US debt?",
+    "usSub": "FDCPA validation before you pay.",
+    "usCta": "FDCPA letter"
+  },
+  "carInsuranceRefund": {
+    "metaTitle": "Car insurance refund — Zakai",
+    "metaDesc": "Mid-term cancellation — pro-rata premium refund demand.",
+    "kicker": "Car insurance",
+    "title": "Sold the car or switched insurer?",
+    "sub": "Cancel the policy and demand unused premium back.",
+    "cite": "Insurers must return unused premium within statutory timeframes.",
+    "dupCta": "Duplicate cover? Check overlaps"
   },
   "trainDelay": {
     "metaTitle": "Train delay compensation — Zakai",

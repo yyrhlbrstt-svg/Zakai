@@ -2,6 +2,8 @@
 
 Run locally: `node scripts/preflight.mjs` — must pass **blocking** before you trust production.
 
+**Consumer ship (100/100):** `npm run release-gate` or `GET /api/release-gate` — see `docs/RELEASE_100_HE.md`.
+
 ## Blocking (loop breaks without these)
 
 | Variable | Why |

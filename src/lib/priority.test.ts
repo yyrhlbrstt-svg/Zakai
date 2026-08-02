@@ -18,7 +18,7 @@ describe("priority cadence", () => {
   });
 
   it("renders nothing at all for a hidden-cadence entry", () => {
-    const dormant = rankPriorityActions(20).find((a) => a.id === "dormant");
+    const dormant = rankPriorityActions(80).find((a) => a.id === "dormant");
     expect(dormant).toBeDefined();
     expect(dormant!.cadence).toBe("hidden");
     expect(formatPotentialHe(dormant!)).toBe("");

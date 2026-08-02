@@ -135,6 +135,26 @@ const KEYWORDS: IntentKeywords[] = [
     en: ["landlord deposit", "security deposit not returned"],
   },
   {
+    id: "consumer-cancel",
+    he: ["ביטול תוך 14 יום", "קניתי מרחוק", "קורס אונליין", "מכירה מדלת לדלת", "ביטול עסקה"],
+    en: ["14 day cancellation", "bought online", "online course cancel", "door to door sale"],
+  },
+  {
+    id: "collection-complaint",
+    he: ["גובה חוב", "מעגל שלישי", "מתקשרים על חוב", "הטרדה על חוב"],
+    en: ["debt collector", "collection agency", "harassing calls about debt"],
+  },
+  {
+    id: "toll-dispute",
+    he: ["כביש 6", "חיוב כביש", "דרך ארץ", "חויבתי בכביש"],
+    en: ["highway 6", "toll charge", "road 6 charge"],
+  },
+  {
+    id: "car-insurance-refund",
+    he: ["ביטלתי ביטוח רכב", "החזר ביטוח", "מכרתי את הרכב ביטוח"],
+    en: ["cancelled car insurance", "car insurance refund"],
+  },
+  {
     id: "contract-check",
     he: ["לפני שאני חותם", "לבדוק חוזה", "מה כתוב בקטן"],
     en: ["review a contract", "before i sign"],

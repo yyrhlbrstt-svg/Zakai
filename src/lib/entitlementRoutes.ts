@@ -79,7 +79,11 @@ const ROUTES: Record<string, string> = {
   insurance_duplicates: "/duplicate-insurance",
   pension_fees: "/pension-fees",
   duplicate_charge_dispute: "/refund-chase",
-  consumer_cancel14: "/cancel",
+  consumer_cancel14: "/consumer-cancel",
+  collection_agency_complaint_il: "/collection-complaint",
+  car_insurance_pro_rata_refund: "/car-insurance-refund",
+  route6_dispute: "/toll-dispute",
+  vehicle_license_fee_refund: "/vehicle-license-refund",
   consumer_telecom_exit: "/cancel",
 
   // Work
@@ -90,8 +94,6 @@ const ROUTES: Record<string, string> = {
   work_sick: "/rights",
 
   // Transport / family / housing
-  route6_dispute: "/transport-fine",
-  vehicle_license_fee_refund: "/rights",
   student_scholarships: "/rights",
   daycare_subsidy: "/rights",
   child_savings: "/child-savings",

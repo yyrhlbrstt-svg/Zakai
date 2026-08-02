@@ -8,7 +8,7 @@ import {
 describe("actionRouteForEntitlement", () => {
   it("routes monetizable consumer verticals to agent loops", () => {
     expect(actionRouteForEntitlement("electricity_switch")).toBe("/electricity");
-    expect(actionRouteForEntitlement("consumer_cancel14")).toBe("/cancel");
+    expect(actionRouteForEntitlement("consumer_cancel14")).toBe("/consumer-cancel");
     expect(actionRouteForEntitlement("duplicate_charge_dispute")).toBe("/refund-chase");
   });
 
@@ -24,6 +24,8 @@ describe("actionRouteForEntitlement", () => {
     );
     expect(actionRouteForEntitlement("us_wage_statement_audit")).toBe("/wage-statement-audit");
     expect(actionRouteForEntitlement("train_delay_compensation")).toBe("/train-delay");
+    expect(actionRouteForEntitlement("collection_agency_complaint_il")).toBe("/collection-complaint");
+    expect(actionRouteForEntitlement("route6_dispute")).toBe("/toll-dispute");
   });
 
   it("flags full-service ids", () => {

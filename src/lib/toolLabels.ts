@@ -23,6 +23,11 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   wageAudit: { he: "תלוש שכר (US)", en: "US wage audit" },
   debtCollector: { he: "גביית חוב (US)", en: "US debt validation" },
   trainDelay: { he: "עיכוב רכבת", en: "Train delay" },
+  consumerCancel: { he: "ביטול 14 יום", en: "14-day cancel" },
+  tollDispute: { he: "ערעור כביש 6", en: "Toll dispute" },
+  vehicleLicenseRefund: { he: "החזר אגרת רישוי", en: "Licence refund" },
+  collectionComplaint: { he: "תלונה על גובה חוב", en: "Collector complaint" },
+  carInsuranceRefund: { he: "החזר ביטוח רכב", en: "Car insurance refund" },
   networkProof: { he: "הוכחת רשת (ציבורי)", en: "Network proof (public)" },
 };
 
