@@ -54,6 +54,7 @@ export async function GET() {
       "late-payment",
       "deposit",
       "duplicate-insurance",
+      "arnona",
     ],
     see: {
       app: process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app",

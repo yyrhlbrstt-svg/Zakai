@@ -3127,6 +3127,35 @@
     },
     "disclaimer": "Zakai is a self-help tool, not a lawyer. The letter is a template you send in your own name, and is not legal advice. Objection outcomes depend on the property data and the municipality's policy."
   },
+  "arnonaAgent": {
+    "title": "Send a discount / objection with Zakai",
+    "sub": "The agent sends a Mandate-backed letter to the municipality, tracks replies, and charges a success fee only on documented monthly arnona savings.",
+    "claimType": "Request type",
+    "monthlyQ": "Current monthly arnona (₪)",
+    "municipalityQ": "Municipality name",
+    "emailQ": "Arnona department email",
+    "nameQ": "Your full name",
+    "idQ": "ID number",
+    "addressQ": "Property address (optional)",
+    "detailsQ": "Area / classification details (optional)",
+    "sendBtn": "Open a case and send with Zakai",
+    "sending": "Opening case…",
+    "caseOpenedTitle": "Case opened — the agent takes it from here",
+    "caseOpenedBody": "On your dashboard you can approve, send the letter to the municipality, and record savings after a written decision.",
+    "dashboard": "Go to dashboard",
+    "caseLimitError": "You've reached the active-case limit on your plan.",
+    "genericError": "Couldn't open a case. Try again or sign in again.",
+    "disclaimer": "Not legal advice. Zakai sends a written request; documents and decisions remain your responsibility.",
+    "rights": {
+      "arnona_income": "Income-test discount",
+      "arnona_oleh": "New immigrant discount",
+      "arnona_senior": "Senior citizen discount",
+      "arnona_disability": "Disability discount",
+      "arnona_soldier": "Active-duty soldier discount",
+      "arnona_large_family": "Large-family discount",
+      "arnona_area_correction": "Area / size correction"
+    }
+  },
   "dupInsurance": {
     "metaTitle": "Duplicate insurance — premium refund | Zakai",
     "metaDesc": "Israelis pay ~3.5B ILS a year on duplicate insurance. With indemnity policies you pay twice but can claim once. Here's how to spot duplicates and get a refund, with a ready letter.",

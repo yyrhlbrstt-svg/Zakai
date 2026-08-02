@@ -177,7 +177,6 @@ export const depositIL: VerticalRulePack = {
   counterparties: ["other"],
 };
 
-/** Overlapping private indemnity health cover — cancel redundant premium lines. */
 export const duplicateInsuranceIL: VerticalRulePack = {
   key: "duplicate-insurance",
   country: "IL",
@@ -194,6 +193,23 @@ export const duplicateInsuranceIL: VerticalRulePack = {
   counterparties: ["other"],
 };
 
+/** Municipal arnona discount / billing correction — decision letter proof, monthly savings. */
+export const arnonaIL: VerticalRulePack = {
+  key: "arnona",
+  country: "IL",
+  label: "ארנונה — הנחה / תיקון חיוב",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "החלטה מנומקת מהעירייה על הנחה או תיקון חיוב",
+  },
+  feeBasis: "monthly",
+  regulated: false,
+  counterparties: ["municipality", "other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -206,4 +222,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   latePaymentIL,
   depositIL,
   duplicateInsuranceIL,
+  arnonaIL,
 ];

@@ -38,6 +38,7 @@ describe("rule pack registry", () => {
     expect(isFullService("late-payment")).toBe(true);
     expect(isFullService("deposit")).toBe(true);
     expect(isFullService("duplicate-insurance")).toBe(true);
+    expect(isFullService("arnona")).toBe(true);
   });
 });
 

@@ -27,6 +27,7 @@ const VERTICAL_TO_CATALOG_ID: Record<string, string> = {
   "late-payment": "late-payment",
   deposit: "deposit",
   "duplicate-insurance": "duplicate-insurance",
+  arnona: "arnona",
 };
 
 type Status =

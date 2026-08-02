@@ -127,6 +127,14 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/arnona",
+    he: "ארנונה ביתר / הנחה שלא הופעלה",
+    en: "Arnona overcharge / missed discount",
+    subHe: "הסוכן שולח השגה בכתב + Mandate",
+    subEn: "Agent objection + Mandate",
+    rank: 2,
+  },
+  {
     href: "/parking",
     he: "דוח חניה שאפשר לערער עליו",
     en: "Parking ticket you can appeal",

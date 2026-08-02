@@ -41,7 +41,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/compensation-claims", key: "compensation", category: "rights" },
   { href: "/class-action", key: "classaction", category: "rights" },
   { href: "/child-savings", key: "childsavings", category: "rights" },
-  { href: "/arnona", key: "arnona", category: "rights" },
+  { href: "/arnona", key: "arnona", category: "agent", agentic: true },
   { href: "/disability-benefits", key: "disability", category: "rights" },
   { href: "/construction-defects", key: "defects", category: "rights" },
   { href: "/alimony-guarantee", key: "alimonyGuarantee", category: "rights" },

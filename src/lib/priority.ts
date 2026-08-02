@@ -320,6 +320,19 @@ export const CATALOG: PriorityAction[] = [
     potentialShekels: 60,
     cadence: "monthly",
     effort: "medium",
+    agentic: true,
+  },
+  {
+    id: "arnona",
+    href: "/arnona",
+    titleHe: "ארנונה — הנחה או תיקון",
+    titleEn: "Arnona discount / fix",
+    whyHe: "הסוכן שולח לעירייה עם Mandate",
+    whyEn: "Agent sends to municipality with Mandate",
+    potentialShekels: 200,
+    cadence: "monthly",
+    effort: "medium",
+    agentic: true,
   },
   {
     // Built (computePensionFees, /pension-fees) but was missing from this

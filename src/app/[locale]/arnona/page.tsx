@@ -3,6 +3,7 @@ import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { GradientCtaCard } from "@/components/GradientCtaCard";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { LeadCta } from "@/components/LeadCta";
+import { ArnonaAgent } from "@/components/ArnonaAgent";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -84,6 +85,10 @@ export default async function ArnonaPage({
             {t("template")}
           </pre>
         </div>
+      </Reveal>
+
+      <Reveal>
+        <ArnonaAgent />
       </Reveal>
 
       <Reveal>

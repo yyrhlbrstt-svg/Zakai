@@ -19,6 +19,8 @@ export function outreachSubjectForVertical(
       return `דרישת השבת פיקדון בשם ${name} — הרשאה ${code}`;
     case "duplicate-insurance":
       return `בקשה לביטול כיסוי כפול בשם ${name} — הרשאה ${code}`;
+    case "arnona":
+      return `בקשת הנחה / תיקון ארנונה בשם ${name} — הרשאה ${code}`;
     case "late-payment":
       return `דרישת תשלום חשבונית בשם ${name} — הרשאה ${code}`;
     case "parking":

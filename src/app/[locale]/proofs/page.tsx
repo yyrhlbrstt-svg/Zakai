@@ -92,7 +92,7 @@ export default async function ProofsWallPage({
       .catch(() => []),
   ]);
 
-  // recoveredMinor is yearly-equivalent (monthly saving * 12) from recordSaving.
+  // StrategyOutcome.recoveredMinor: yearly-equivalent for monthly verticals; lump sums as documented.
   const weekYearly = weekAgg._sum.recoveredMinor ?? 0;
   const monthYearly = monthAgg._sum.recoveredMinor ?? 0;
   const weekMonthly = Math.round(weekYearly / 12);

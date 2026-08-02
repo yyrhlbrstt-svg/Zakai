@@ -192,6 +192,14 @@ export const FAQ: FaqEntry[] = [
     a_en: "Indemnity cover only pays actual cost once. If you overlap with work/kupah cover, the agent sends a written cancellation request with a Mandate. At /duplicate-insurance.",
   },
   {
+    id: "arnona",
+    category: "bills",
+    q_he: "אפשר להוזיל ארנונה או לתקן חיוב שגוי?",
+    a_he: "הסוכן שולח בקשת הנחה או השגה בכתב לעירייה עם Mandate, ועוקב עד להחלטה בכתב. ב-/arnona.",
+    q_en: "Can I lower arnona or fix a wrong charge?",
+    a_en: "The agent sends a written discount or objection to the municipality with a Mandate, and tracks it through a written decision. At /arnona.",
+  },
+  {
     id: "data",
     category: "privacy",
     q_he: "מה קורה עם המידע שלי? זה בטוח?",
