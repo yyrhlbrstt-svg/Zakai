@@ -40,7 +40,10 @@ export type AuthorizationWithMandate = Authorization & {
  */
 export async function createAuthorization(caseId: string): Promise<AuthorizationWithMandate> {
   const existing = await prisma.authorization.findUnique({ where: { caseId } });
-  if (existing) return existing;
+  if (existing?.status === "ACTIVE") return existing;
+  if (existing?.status === "REVOKED") {
+    return reissueAuthorization(caseId, existing);
+  }
 
   const kase = await prisma.case.findUnique({
     where: { id: caseId },
@@ -65,6 +68,56 @@ export async function createAuthorization(caseId: string): Promise<Authorization
         provider: kase.provider,
         scope: SCOPE,
         mandateAudience,
+      },
+    });
+    break;
+  }
+  if (!doc) throw new Error("could not allocate a unique authorization code");
+
+  const mandate = await tryIssueCaseMandate({
+    caseId,
+    userId: kase.userId,
+    name: kase.user.name,
+    email: kase.user.email,
+    phone: kase.user.phone,
+    provider: kase.provider,
+    country: kase.user.country || "IL",
+    authCode: doc.code,
+    mandateAudience,
+  });
+
+  return { ...doc, ...mandate };
+}
+
+async function reissueAuthorization(
+  caseId: string,
+  prior: Authorization,
+): Promise<AuthorizationWithMandate> {
+  const kase = await prisma.case.findUnique({
+    where: { id: caseId },
+    include: { user: true },
+  });
+  if (!kase) throw new Error("case not found");
+
+  const mandateAudience = resolveMandateAudience(kase.provider);
+  let doc: Authorization | undefined;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = generateAuthorizationCode();
+    const clash = await prisma.authorization.findUnique({ where: { code } });
+    if (clash) continue;
+    doc = await prisma.authorization.update({
+      where: { id: prior.id },
+      data: {
+        status: "ACTIVE",
+        revokedAt: null,
+        code,
+        principalName: kase.user.name,
+        principalPhone: kase.user.phone,
+        principalEmail: kase.user.email,
+        provider: kase.provider,
+        scope: SCOPE,
+        mandateAudience,
+        issuedAt: new Date(),
       },
     });
     break;

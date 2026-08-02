@@ -6,7 +6,8 @@ import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
-import { providerContactEmail, providerHebrewName } from "@/lib/providers";
+import { providerHebrewName } from "@/lib/providers";
+import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { createAuthorization } from "./authorization";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
@@ -170,10 +171,8 @@ export async function sendOutreach(caseId: string, userId: string) {
   if (!kase.ownershipVerifiedAt) throw new CaseError("OWNERSHIP_REQUIRED");
   if (!auth || auth.status !== "ACTIVE") throw new CaseError("AUTHORIZATION_REQUIRED");
 
-  const to =
-    kase.counterpartyEmail?.trim() ||
-    providerContactEmail(kase.provider, kase.vertical).trim();
-  if (!to || !/@/.test(to)) {
+  const to = resolveCaseOutreachTo(kase);
+  if (!to) {
     throw new CaseError("NEEDS_OUTREACH_EMAIL");
   }
 
@@ -227,6 +226,11 @@ export async function sendOutreach(caseId: string, userId: string) {
     caseId,
     attachments: [attachment],
   });
+
+  if (email.status === "FAILED") {
+    await prisma.case.update({ where: { id: caseId }, data: { status: "VERIFIED" } });
+    throw new CaseError("OUTREACH_DELIVERY_FAILED");
+  }
 
   if (email.status === "SENT") {
     void notifyInstitutionOnOutboundSend(auth.mandateAudience).catch(() => {});

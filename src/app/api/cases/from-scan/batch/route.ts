@@ -20,6 +20,7 @@ const itemSchema = z.object({
     .enum(["cellular", "tv_internet", "electricity", "insurance", "fitness", "digital", "other"])
     .default("other"),
   intent: z.enum(["cancel", "retention", "downgrade", "pause"]).optional(),
+  contactEmail: z.string().max(120).optional(),
 });
 
 const schema = z.object({
@@ -71,6 +72,7 @@ export async function POST(request: Request) {
       merchant: data.merchant,
       product,
       category: data.category,
+      contactEmail: data.contactEmail,
     });
 
     if (!outreachTo) {

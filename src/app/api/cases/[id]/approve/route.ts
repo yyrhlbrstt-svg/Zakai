@@ -28,7 +28,15 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     await refreshVerifiedStatus(id);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    if (err instanceof CaseError) return badRequest(err.message, 404);
+    if (err instanceof CaseError) {
+      const status =
+        err.message === "NOT_FOUND"
+          ? 404
+          : err.message === "ALREADY_SENT"
+            ? 409
+            : 400;
+      return badRequest(err.message, status);
+    }
     throw err;
   }
 }

@@ -8,7 +8,7 @@ import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/co
 import { FallNumber } from "@/components/FallNumber";
 import { PROVIDER_KEYS } from "@/lib/providers";
 import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
+import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachEmail";
 
 type Stage =
   | "input"
@@ -95,6 +95,7 @@ export function CheckFlow() {
   const [ownErr, setOwnErr] = useState<string | null>(null);
   const [auth, setAuth] = useState<AuthDoc | null>(null);
   const [busy, setBusy] = useState(false);
+  const [approveErr, setApproveErr] = useState<string | null>(null);
 
   // outcome
   const [newAmount, setNewAmount] = useState("");
@@ -171,8 +172,9 @@ export function CheckFlow() {
 
   async function approve() {
     if (!rec || !outreachReady()) return;
+    setApproveErr(null);
     setBusy(true);
-    await fetch(`/api/cases/${rec.caseId}/approve`, {
+    const res = await fetch(`/api/cases/${rec.caseId}/approve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -180,7 +182,13 @@ export function CheckFlow() {
         counterpartyEmail: providerContactEmail.trim() || undefined,
       }),
     });
+    const data = await res.json().catch(() => ({}));
     setBusy(false);
+    if (!res.ok) {
+      if (data.error === "ALREADY_SENT") setApproveErr(tFlow("errorAlreadySent"));
+      else setApproveErr(tFlow("errorGeneric"));
+      return;
+    }
     setStage("verify");
   }
 
@@ -225,11 +233,16 @@ export function CheckFlow() {
 
   async function generateAuth() {
     if (!rec) return;
+    setOwnErr(null);
     setBusy(true);
     const res = await fetch(`/api/cases/${rec.caseId}/authorization`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    if (res.ok) setAuth(data);
+    if (!res.ok) {
+      setOwnErr("genericError");
+      return;
+    }
+    setAuth(data);
   }
 
   async function send() {
@@ -239,8 +252,15 @@ export function CheckFlow() {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setStage("verify");
-      if (data.error === "NEEDS_OUTREACH_EMAIL") {
+      if (isOutreachEmailApiError(data.error)) {
         setOwnErr("needsEmail");
+      } else if (data.error === "ALREADY_SENT") {
+        setOwnErr("alreadySent");
+      } else if (
+        data.error === "AUTHORIZATION_REQUIRED" ||
+        data.error === "OWNERSHIP_REQUIRED"
+      ) {
+        setOwnErr("genericError");
       } else {
         setOwnErr("genericError");
       }
@@ -267,6 +287,8 @@ export function CheckFlow() {
         chargeable: data.chargeable,
       });
       setStage("result");
+    } else {
+      setOwnErr("genericError");
     }
   }
 
@@ -489,6 +511,7 @@ export function CheckFlow() {
               {t("startOver")}
             </Button>
           </div>
+          {approveErr && <FieldError>{approveErr}</FieldError>}
         </div>
       )}
 

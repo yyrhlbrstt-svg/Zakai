@@ -49,6 +49,7 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "לחץ על תיק — הסוכן מכין מכתב + Mandate ועוקב",
     errGeneric: "משהו השתבש. נסה שוב.",
     errLimit: "הגעת למגבלת התיקים. שדרג או סגור תיק קיים.",
+    errNeedsEmail: "חסר אימייל לספק — פתח כל חיוב בנפרד או השתמש בביטול מנוי עם כתובת.",
     batchOpen: "הסוכן פותח את כל התיקים המומלצים",
     batchOpening: "פותח תיקים…",
     batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
@@ -83,6 +84,7 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "Tap a case — agent drafts letter + Mandate and tracks",
     errGeneric: "Something went wrong. Try again.",
     errLimit: "Case limit reached. Upgrade or close an open case.",
+    errNeedsEmail: "Missing provider email — open charges one by one or use cancel with an address.",
     batchOpen: "Agent opens all recommended cases",
     batchOpening: "Opening cases…",
     batchDone: "✓ Opened {n} cases — dashboard",
@@ -116,6 +118,7 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "اضغط لفتح ملف مع الوكيل",
     errGeneric: "حدث خطأ.",
     errLimit: "وصلت للحد.",
+    errNeedsEmail: "لا يوجد بريد للمزود.",
     batchOpen: "الوكيل يفتح كل الملفات الموصى بها",
     batchOpening: "جارٍ الفتح…",
     batchDone: "✓ فُتح {n} ملفات",
@@ -149,6 +152,7 @@ const copy: Record<string, Record<string, string>> = {
     nextStep: "Нажмите — агент откроет дело",
     errGeneric: "Ошибка.",
     errLimit: "Лимит дел.",
+    errNeedsEmail: "Нет email поставщика.",
     batchOpen: "Агент открывает все рекомендованные дела",
     batchOpening: "Открываем…",
     batchDone: "✓ Открыто {n} дел",
@@ -274,11 +278,12 @@ export function MoneyHub({
     }
   }
 
-  function toggleSelect(merchant: string) {
+  function toggleSelect(index: number) {
+    const key = String(index);
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(merchant)) next.delete(merchant);
-      else if (next.size < 5) next.add(merchant);
+      if (next.has(key)) next.delete(key);
+      else if (next.size < 5) next.add(key);
       return next;
     });
   }
@@ -329,9 +334,10 @@ export function MoneyHub({
     setBatchBusy(true);
     try {
       const items = result.recurring
-        .filter((r) => selected.has(r.merchant))
+        .map((r, i) => ({ r, i }))
+        .filter(({ i }) => selected.has(String(i)))
         .slice(0, 5)
-        .map((r) => ({
+        .map(({ r }) => ({
           merchant: r.merchant,
           product: r.merchant,
           monthlyShekels: Math.max(1, Math.round(r.monthlyAgorot / 100)),
@@ -353,15 +359,24 @@ export function MoneyHub({
         return;
       }
       const n = data.openedCount ?? 0;
+      const skipped = (data.skipped as Array<{ reason?: string }> | undefined) ?? [];
       setBatchCount(n);
       if (n > 0) {
+        if (data.skippedCount > 0) {
+          setError(tx(locale, "batchPartial").replace("{n}", String(n)));
+        }
         const firstId = data.opened?.[0]?.caseId as string | undefined;
         setTimeout(
           () => router.push(firstId ? `/dashboard?case=${firstId}` : "/dashboard"),
           600,
         );
       } else if (data.skippedCount > 0) {
-        setError(tx(locale, "errLimit"));
+        const allNeedEmail =
+          skipped.length > 0 && skipped.every((s) => s.reason === "needsOutreachEmail");
+        const allLimit = skipped.length > 0 && skipped.every((s) => s.reason === "caseLimit");
+        if (allNeedEmail) setError(tx(locale, "errNeedsEmail"));
+        else if (allLimit) setError(tx(locale, "errLimit"));
+        else setError(tx(locale, "errGeneric"));
       }
     } catch {
       setError(tx(locale, "errGeneric"));
@@ -541,8 +556,8 @@ export function MoneyHub({
                     <label className="flex items-center gap-2 cursor-pointer shrink-0">
                       <input
                         type="checkbox"
-                        checked={selected.has(r.merchant)}
-                        onChange={() => toggleSelect(r.merchant)}
+                        checked={selected.has(String(i))}
+                        onChange={() => toggleSelect(i)}
                         className="w-4 h-4 accent-[#3FCB9B]"
                       />
                     </label>

@@ -11,6 +11,7 @@ import { proBreakevenSavingAgorot } from "@/lib/plans";
 import type { FeeBasis } from "@/lib/verticals/types";
 import { VERTICAL_TO_CATALOG_ID } from "@/lib/priorityCatalogMap";
 import { providerContactEmail } from "@/lib/providers";
+import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 
 type Status =
   | "ANALYZED"
@@ -115,6 +116,8 @@ const copy: Record<string, Record<string, string>> = {
     upgradeCta: "לפרטי המסלולים",
     errNeedsEmail:
       "חסר אימייל לספק — הזינו כתובת ביטולים/שירות לקוחות ונסו שוב.",
+    errDelivery: "שליחת המייל נכשלה — נסו שוב בעוד רגע.",
+    errAlreadySent: "כבר נשלח — רעננו את הדשבורד.",
     outreachEmailPh: "אימייל לשליחה (ספק / עירייה / חנות)",
   },
   en: {
@@ -170,6 +173,8 @@ const copy: Record<string, Record<string, string>> = {
     upgradeCta: "See plans",
     errNeedsEmail:
       "Missing provider email — enter billing / support address and try again.",
+    errDelivery: "Email delivery failed — try again in a moment.",
+    errAlreadySent: "Already sent — refresh the dashboard.",
     outreachEmailPh: "Send-to email (provider / municipality / merchant)",
   },
 };
@@ -477,8 +482,17 @@ export function CaseNextStep({
                   });
                   if (!res.ok) {
                     const data = await res.json().catch(() => ({}));
-                    if (data.error === "NEEDS_OUTREACH_EMAIL") {
+                    if (isOutreachEmailApiError(data.error)) {
                       setErr(t(locale, "errNeedsEmail"));
+                      return;
+                    }
+                    if (data.error === "OUTREACH_DELIVERY_FAILED") {
+                      setErr(t(locale, "errDelivery"));
+                      return;
+                    }
+                    if (data.error === "ALREADY_SENT") {
+                      setErr(t(locale, "errAlreadySent"));
+                      router.refresh();
                       return;
                     }
                     throw new Error("dispatch");

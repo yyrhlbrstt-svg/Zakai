@@ -13,3 +13,7 @@ export function firstOutreachEmail(...candidates: (string | undefined | null)[])
   }
   return null;
 }
+
+export function isOutreachEmailApiError(error: unknown): boolean {
+  return error === "NEEDS_OUTREACH_EMAIL" || error === "needsOutreachEmail";
+}

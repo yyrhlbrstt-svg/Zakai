@@ -46,7 +46,13 @@ export async function dispatchAgent(
   }
 
   await refreshVerifiedStatus(caseId);
-  await sendOutreach(caseId, userId);
+  const email = await sendOutreach(caseId, userId);
 
-  return { ok: true as const, authCode, mandateJti, status: "SENT" as const };
+  return {
+    ok: true as const,
+    authCode,
+    mandateJti,
+    status: "SENT" as const,
+    delivered: email.status === "SENT",
+  };
 }

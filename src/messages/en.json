@@ -532,6 +532,7 @@
     "codeSent": "Code sent.",
     "codeInvalid": "Wrong or expired code. Try again.",
     "needsEmail": "Missing provider email — go back and enter a service address.",
+    "alreadySent": "Already sent — track replies on the dashboard.",
     "codeExpired": "The code expired. Request a new one.",
     "tooManyAttempts": "Too many attempts. Request a new code in a few minutes.",
     "ownershipVerified": "Ownership verified.",
@@ -4548,6 +4549,7 @@
     "errorNeedsEmail": "Missing destination email — enter a valid address.",
     "errorCaseLimit": "Case limit reached. Upgrade or close an open case.",
     "errorGeneric": "Something went wrong. Try again.",
+    "errorAlreadySent": "This case was already sent — open the dashboard.",
     "copied": "Copied",
     "copyAll": "Copy all"
   },

@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { buildFollowUp } from "@/lib/negotiation";
 import { buildAirlineFollowUp } from "@/lib/flightNegotiation";
-import { providerContactEmail, providerHebrewName } from "@/lib/providers";
+import { providerHebrewName } from "@/lib/providers";
+import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { agorotToShekels } from "@/lib/money";
 import { pushToUser } from "@/lib/push";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
@@ -115,8 +116,13 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
     status: auth.status,
   });
 
+  const to = resolveCaseOutreachTo(kase);
+  if (!to) {
+    return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL" };
+  }
+
   await sendEmail({
-    to: providerContactEmail(kase.provider, kase.vertical),
+    to,
     subject,
     body: follow.body + footer,
     caseId,
