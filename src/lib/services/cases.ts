@@ -13,6 +13,7 @@ import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/docu
 import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
 import { pushToUser } from "@/lib/push";
+import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
 
 export class CaseError extends Error {}
 
@@ -156,7 +157,7 @@ export async function sendOutreach(caseId: string, userId: string) {
   const auth = await prisma.authorization.findUnique({ where: { caseId } });
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { name: true, email: true },
+    select: { name: true, email: true, country: true },
   });
 
   if (!kase.ownershipVerifiedAt) throw new CaseError("OWNERSHIP_REQUIRED");
@@ -214,6 +215,11 @@ export async function sendOutreach(caseId: string, userId: string) {
   // Closed-loop: tell the user where to forward the provider reply.
   const proofsAddr = proofsInboundAddress();
   if (user?.email) {
+    const dashUrl = absoluteLocaleUrl(
+      appUrl,
+      localeForCountry(user.country),
+      "/dashboard",
+    );
     await sendEmail({
       to: user.email,
       subject: `זכאי — נשלח ל-${provider} | מה הלאה`,
@@ -227,7 +233,7 @@ export async function sendOutreach(caseId: string, userId: string) {
 • אם לא ענו תוך כמה ימים — הסוכן ישלח סיבוב 2 אוטומטית.
 • לעצירה — בטלו את ההרשאה במסמך האימות.
 
-דשבורד: ${appUrl}/he/dashboard
+דשבורד: ${dashUrl}
 
 הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
 
@@ -238,7 +244,7 @@ export async function sendOutreach(caseId: string, userId: string) {
     await pushToUser(userId, {
       title: "זכאי — נשלח לספק",
       body: `פנייה ל-${provider} יצאה. העבירו תשובה ל-${proofsAddr}`,
-      url: "/he/dashboard",
+      url: "/dashboard",
       tag: `sent-${caseId}`,
     }).catch(() => null);
   }
@@ -368,7 +374,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     await pushToUser(userId, {
       title: "זכאי — חיסכון מתועד",
       body: `תועד חיסכון של ₪${savingShekels}. שתף או השלם עמלה בדשבורד — בלחיצה אחת.`,
-      url: `/he/dashboard?case=${caseId}`,
+      url: `/dashboard?saved=1&case=${caseId}`,
       tag: `saved-${caseId}`,
     }).catch(() => null);
   }

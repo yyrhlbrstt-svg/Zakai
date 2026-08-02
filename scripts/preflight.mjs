@@ -58,6 +58,10 @@ const CHECKS = [
   // a website in a wrapper, and users read as not really being an app.
   { key: "ANDROID_CERT_FINGERPRINTS", level: "optional",
     cost: "No Digital Asset Links. A Play TWA build will display the URL bar. Set it from Play Console → App integrity → App signing key certificate." },
+  { key: "VAPID_PUBLIC_KEY", level: "degrading", alt: ["NEXT_PUBLIC_VAPID_PUBLIC_KEY"],
+    cost: "Web Push disabled — inbound/saved nudges reach users by email only; PWA re-engagement drops." },
+  { key: "VAPID_PRIVATE_KEY", level: "degrading",
+    cost: "Web Push disabled — same as missing public VAPID key." },
 ];
 
 // A configured address on a reserved domain is worse than an absent one: the

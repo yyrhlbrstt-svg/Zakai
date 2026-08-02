@@ -31,6 +31,8 @@ describe("evaluateConsumerReleaseGate", () => {
       ANTHROPIC_API_KEY: "sk",
       LEADS_EMAIL: "leads@zakai.example",
       SALES_EMAIL: "sales@zakai.example",
+      VAPID_PUBLIC_KEY: "pub",
+      VAPID_PRIVATE_KEY: "priv",
     };
     const r = evaluateConsumerReleaseGate();
     expect(r.releaseScore).toBe(100);

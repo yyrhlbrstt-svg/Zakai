@@ -24,6 +24,7 @@ const RELEASE_LABEL_HE: Record<string, string> = {
   ai: "מפתח AI",
   leads_email: "LEADS_EMAIL",
   sales_email: "SALES_EMAIL",
+  vapid: "Web Push (VAPID)",
 };
 
 export const dynamic = "force-dynamic";
@@ -66,6 +67,7 @@ export default async function FounderPage({
     savedAgg,
     feeAgg,
     paidAgg,
+    pendingFeeAgg,
     users,
     checks,
     recovery,
@@ -80,6 +82,11 @@ export default async function FounderPage({
     prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
     prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
     prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
+    prisma.fee.aggregate({
+      where: { status: "PENDING", amount: { gt: 0 } },
+      _sum: { amount: true },
+      _count: { _all: true },
+    }),
     prisma.user.count(),
     prisma.case.count(),
     computeRecoveryGraph(),
@@ -140,6 +147,7 @@ export default async function FounderPage({
     ["סה״כ חיסכון חודשי מתועד", money(savedAgg._sum.savingMonthly ?? 0)],
     ["הוכחות חיסכון", String(savedAgg._count._all)],
     ["עמלות שנוצרו", `${feeAgg._count._all} · ${money(feeAgg._sum.amount ?? 0)}`],
+    ["עמלות ממתינות לגבייה", `${pendingFeeAgg._count._all} · ${money(pendingFeeAgg._sum.amount ?? 0)}`],
     ["עמלות ששולמו", `${paidAgg._count._all} · ${money(paidAgg._sum.amount ?? 0)}`],
   ];
 

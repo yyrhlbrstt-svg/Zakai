@@ -372,6 +372,16 @@ export default async function DashboardPage({
             </div>
           ) : null}
           <p className="text-[13.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{t("dashboard.savedCelebrateSub")}</p>
+          {celebrateCase?.fee &&
+            celebrateCase.fee.status === "PENDING" &&
+            celebrateCase.fee.amount > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <span className="text-[13px] font-bold text-ink-soft">
+                  {t("dashboard.feeTag")}: {formatAgorot(celebrateCase.fee.amount, loc)}
+                </span>
+                <FeePayButton caseId={celebrateCase.id} />
+              </div>
+            )}
         </div>
       )}
       {(user!.plan === "PRO" || user!.plan === "MAX") && (

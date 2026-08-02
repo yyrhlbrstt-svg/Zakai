@@ -1,5 +1,20 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { localePath, localeForCountry } from "@/lib/localePath";
+import type { Locale } from "@/i18n/config";
+
+const LOCALE_PREFIX = /^\/(he|en|ar|ru|de|fr)(\/|$)/;
+
+async function resolvePushUrl(userId: string, url: string): Promise<string> {
+  if (!url.startsWith("/") || LOCALE_PREFIX.test(url.split("?")[0] ?? url)) {
+    return url;
+  }
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { country: true },
+  });
+  return localePath(localeForCountry(user?.country), url);
+}
 
 /**
  * Web Push (PWA). When VAPID keys are set, the agent can notify the installed
@@ -65,7 +80,7 @@ export async function pushToUser(userId: string, payload: PushPayload): Promise<
   const body = JSON.stringify({
     title: payload.title,
     body: payload.body,
-    url: payload.url || "/he/dashboard",
+    url: await resolvePushUrl(userId, payload.url || "/dashboard"),
     tag: payload.tag || "zakai",
   });
 

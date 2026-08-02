@@ -79,7 +79,7 @@ export async function GET(request: Request) {
       await pushToUser(c.userId, {
         title: "המבצע שלך כנראה נגמר",
         body: "שווה לבדוק שוב אם המחיר עלה — לוקח דקה.",
-        url: "/he/dashboard",
+        url: "/dashboard",
         tag: "recheck-nudge",
       });
       savedSent++;
@@ -152,7 +152,7 @@ export async function GET(request: Request) {
       await pushToUser(d.userId, {
         title: "זכאי — תזכורת",
         body: d.label,
-        url: "/he/deadlines",
+        url: "/deadlines",
         tag: `deadline-${d.id}`,
       }).catch(() => null);
       await prisma.deadline.update({ where: { id: d.id }, data: { notifiedAt: new Date() } });

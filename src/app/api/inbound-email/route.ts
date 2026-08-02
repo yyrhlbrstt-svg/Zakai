@@ -10,6 +10,7 @@ import { secretsMatch } from "@/lib/security/timingSafe";
 import { shouldNotifyInbound } from "@/lib/inboundDecision";
 import { resolveInboundRecordAmountShekels } from "@/lib/fee";
 import { feeBasisForVertical } from "@/lib/verticals";
+import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -241,7 +242,11 @@ export async function POST(request: Request) {
             ? "זוהה אישור החזר במלואו. אשר בדשבורד בלחיצה אחת."
             : `נותר לשלם בערך ₪${recordShekels}. אשר בדשבורד.`
           : `זוהה סכום חדש ₪${recordShekels}. אשר בדשבורד בלחיצה אחת.`;
-      const dashboardUrl = `${appUrl}/he/dashboard?case=${matchedCaseId}`;
+      const dashboardUrl = absoluteLocaleUrl(
+        appUrl,
+        localeForCountry(user.country),
+        `/dashboard?case=${matchedCaseId}`,
+      );
 
       await sendEmail({
         to: user.email,
@@ -263,7 +268,7 @@ export async function POST(request: Request) {
       await pushToUser(matchedUserId, {
         title: "זכאי — אישור חיסכון הגיע",
         body: pushBody,
-        url: `/he/dashboard?case=${matchedCaseId}`,
+        url: `/dashboard?case=${matchedCaseId}`,
         tag: `inbound-${matchedCaseId}`,
       }).catch(() => null);
 
