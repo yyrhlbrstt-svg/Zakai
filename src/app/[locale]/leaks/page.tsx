@@ -184,6 +184,14 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/warranty",
+    he: "אחריות מוצר שלא ממומשת",
+    en: "Product warranty not honored",
+    subHe: "דרישת תיקון / החלפה בכתב + Mandate",
+    subEn: "Written repair/replacement + Mandate",
+    rank: 2,
+  },
+  {
     href: "/parking",
     he: "דוח חניה שאפשר לערער עליו",
     en: "Parking ticket you can appeal",

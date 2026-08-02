@@ -6,6 +6,7 @@ import { askZakai, aiAvailable } from "@/lib/ai";
 import { planConfig } from "@/lib/plans";
 import { rateLimit, refundRateLimit } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { buildAssistantCasesSnapshot } from "@/lib/services/assistantContext";
 
 const schema = z.object({
   question: z.string().trim().min(2).max(1000),
@@ -22,6 +23,7 @@ NEGOTIATION COACHING (use when the user has SENT cases or asks how to lower a pr
 - If the offer is too low: thank them and request a bridge toward the target amount.
 - If no reply: send a polite written reminder with a 5 business-day ask.
 - After any new price: tell the user to open Dashboard → enter the new monthly amount → Record saving.
+- If PROPOSED_SAVING appears in the snapshot: link /dashboard?case=<id> for one-tap record — do not open a duplicate case.
 - Screens: /dashboard (follow-up + record), /money (see charges), /check (new case).
 - Never promise a specific outcome. Never invent savings numbers.
 `.trim();
@@ -47,38 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "quotaExceeded", plan }, { status: 429 });
   }
 
-  const cases = await prisma.case.findMany({
-    where: { userId: auth.userId },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-    select: {
-      provider: true,
-      status: true,
-      amountOriginal: true,
-      targetAmount: true,
-      savingsProof: { select: { savingMonthly: true } },
-      fee: { select: { amount: true, status: true } },
-    },
-  });
-
-  const sentCount = cases.filter((c) => c.status === "SENT").length;
-  const casesSummary =
-    cases.length === 0
-      ? "No checks yet. Suggest /money or /check as first step."
-      : cases
-          .map(
-            (c) =>
-              `${c.provider}: status=${c.status}, pays ₪${(c.amountOriginal / 100).toFixed(0)}/mo, target ₪${(c.targetAmount / 100).toFixed(0)}` +
-              (c.savingsProof
-                ? `, documented saving ₪${(c.savingsProof.savingMonthly / 100).toFixed(0)}/mo`
-                : "") +
-              (c.fee ? `, fee ₪${(c.fee.amount / 100).toFixed(2)} (${c.fee.status})` : ""),
-          )
-          .join("\n") +
-        (sentCount > 0
-          ? `\n\n${sentCount} case(s) awaiting provider reply — user can draft follow-ups on /dashboard.`
-          : "") +
-        `\n\n${NEGOTIATION_COACH}`;
+  const casesSummary = `${await buildAssistantCasesSnapshot(auth.userId)}\n\n${NEGOTIATION_COACH}`;
 
   try {
     const answer = await askZakai(parsed.data.question, {

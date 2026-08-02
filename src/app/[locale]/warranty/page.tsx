@@ -7,6 +7,7 @@ import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
 import { RightsChecker } from "@/components/RightsChecker";
+import { WarrantyAppeal } from "@/components/WarrantyAppeal";
 import { bcp47, type Locale } from "@/i18n/config";
 
 export async function generateMetadata({
@@ -82,6 +83,10 @@ export default async function WarrantyPage({
             {t("template")}
           </pre>
         </div>
+      </Reveal>
+
+      <Reveal>
+        <WarrantyAppeal />
       </Reveal>
 
       <Reveal>

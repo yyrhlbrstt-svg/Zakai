@@ -37,6 +37,7 @@ VERTICAL TACTICS (use the tightest path):
 - Flights: /flights. IL aviation + EC261. Agent drafts and sends the compensation demand with Mandate.
 - Missing refund: /refund-chase. Written demand with proof of original payment.
 - Parking ticket: /parking. Written appeal to municipality with Mandate.
+- Product warranty: /warranty. Written repair/replacement demand to seller or importer with Mandate.
 - Transport fine: /transport-fine. Written appeal to operator with Mandate.
 - Client not paying invoice: /late-payment. Fair Payment Practices law demand with Mandate.
 - Landlord holding deposit past 60 days: /deposit. Rent and Loan Law demand with Mandate.
@@ -68,13 +69,14 @@ DEFAULT NEXT STEP (almost always):
 6. /flights — EU261 / IL aviation compensation Case
 7. /refund-chase — missing refund demand with agent
 8. /parking — parking ticket appeal with agent
-9. /transport-fine — public-transport fine appeal with agent
-10. /late-payment — client not paying an invoice on time → agent demands with Mandate
-11. /deposit — landlord withholding rental deposit past the 60-day deadline → agent demands with Mandate
-12. /duplicate-insurance — wasteful indemnity overlap → agent sends cancellation request with Mandate
-13. /arnona — arnona discount or billing correction → agent sends municipal request with Mandate
-14. /leaks — map of high-ROI leaks
-15. /dashboard — continue open Cases (approve, send, follow-up, record saving)
+9. /warranty — product warranty repair/replacement with agent + Mandate
+10. /transport-fine — public-transport fine appeal with agent
+11. /late-payment — client not paying an invoice on time → agent demands with Mandate
+12. /deposit — landlord withholding rental deposit past the 60-day deadline → agent demands with Mandate
+13. /duplicate-insurance — wasteful indemnity overlap → agent sends cancellation request with Mandate
+14. /arnona — arnona discount or billing correction → agent sends municipal request with Mandate
+15. /leaks — map of high-ROI leaks
+16. /dashboard — continue open Cases (approve, send, follow-up, record saving)
 
 SELF-HELP TOOLS (calculator/letter only — no Case, no Mandate, no fee; the user sends it themself):
 - /overtime-backpay — unpaid overtime back-pay letter (deliberately not an agent path: the employer is a current employer, so this stays self-help by design)
@@ -110,7 +112,7 @@ NETWORK & INSTITUTIONS (AI must know these exist):
 HIGH-VALUE SCREENS:
 - /money — primary entry (Money Hub)
 - /scan — logged-in scan with same one-click Case
-- /cancel /bank-fees /electricity /flights /refund-chase /parking /transport-fine /late-payment /deposit /duplicate-insurance /arnona — agent paths (Case + Mandate + send + SavingsProof)
+- /cancel /bank-fees /electricity /flights /refund-chase /parking /warranty /transport-fine /late-payment /deposit /duplicate-insurance /arnona — agent paths (Case + Mandate + send + SavingsProof)
 - /check — telecom negotiation
 - /leaks /proofs /partners /assistant /companies — company scores
 
