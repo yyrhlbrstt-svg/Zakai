@@ -53,8 +53,10 @@
 3. ~~`GET /api/protocol`~~
 4. ~~`GET /api/fairness/scores`~~ (StrategyOutcome, MIN_SAMPLE)
 5. ~~ווידג'ט: mount על `data-api-key`, white-label~~
-6. 10 פוסטי SEO נוספים = תוכן ב-`rights.items` (כבר קיים) — שיווק ידני
-7. `zakai-packs` repo חיצוני + `ZML_PACKS_CDN` (מייסד + AWS)
+6. ~~OpenAPI: fairness + widget validate~~
+7. ~~ציון הוגנות ב-`/companies` + מסלול העתקה ב-`/check`~~
+8. 10 פוסטי SEO נוספים = תוכן ב-`rights.items` (כבר קיים) — שיווק ידני
+9. `zakai-packs` repo חיצוני + `ZML_PACKS_CDN` (מייסד + AWS)
 
 ### חודש 3–9 (B2B)
 

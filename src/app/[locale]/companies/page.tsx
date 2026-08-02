@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
 import { aggregateCompanyStats, type CompanyStat } from "@/lib/companyScore";
+import { fairnessScoreMap } from "@/lib/services/fairnessScoreMap";
 import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -50,6 +51,7 @@ export default async function CompaniesPage({
   const tp = await getTranslations("providers");
   const loc = bcp47[locale as Locale];
   const stats = await loadStats();
+  const fairness = await fairnessScoreMap("IL");
 
   return (
     <VerticalPageShell
@@ -89,6 +91,13 @@ export default async function CompaniesPage({
               <div className="text-[14px] font-extrabold text-emerald">
                 {t("companies.avgTag", { amount: formatAgorot(s.avgSavingAgorot, loc) })}
               </div>
+              {fairness.get(s.provider) && (
+                <div className="text-[12px] text-ink-soft w-full basis-full">
+                  {t("companies.fairnessScoreTag", {
+                    score: fairness.get(s.provider)!.fairnessScore,
+                  })}
+                </div>
+              )}
             </Link>
           ))}
         </div>
@@ -97,6 +106,7 @@ export default async function CompaniesPage({
       {stats.length > 0 && (
         <div className="mt-6 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-5 py-4">
           <p className="text-[13.5px] leading-relaxed m-0 mb-3">{t("companies.institutionNote")}</p>
+          <p className="text-[11.5px] text-ink-soft m-0 mb-3">{t("companies.fairnessScoreHint")}</p>
           <Link href="/institutions" className="text-[13.5px] font-bold text-emerald underline">
             {t("companies.institutionCta")} →
           </Link>
