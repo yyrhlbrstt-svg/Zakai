@@ -454,13 +454,6 @@
     "closingCta": "Start now",
     "closingB2b": "Business & institutions"
   },
-  "calc": {
-    "title": "How much could you save?",
-    "sub": "Move the slider to match what you pay for mobile each month",
-    "cell": "Mobile",
-    "result": "Estimated annual savings potential",
-    "note": "Estimate only, based on a typical 10%–25% negotiation range. Actual results depend on provider and plan, and are not guaranteed."
-  },
   "flow": {
     "steps": [
       "Upload",
@@ -4484,11 +4477,6 @@
     "t_3acbdf22": "months to clear",
     "t_ac9dc79a": "Debt tools",
     "t_a5b579f8": "Bank fees"
-  },
-  "inline_components_SentFollowUp": {
-    "t_b380dffd": "Provider reply — agent drafts next message",
-    "t_894dd204": "Error — try again",
-    "t_acc56489": "No call center. Pick what happened, copy the message, send it, then record the new amount."
   },
   "inline_components_BusinessLeadForm": {
     "t_ed765e5a": "What are you interested in?"
