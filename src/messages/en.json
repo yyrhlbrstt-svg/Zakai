@@ -490,6 +490,7 @@
     "strategyTitle": "What Zakai plans to ask for",
     "draftTitle": "The request sent on your behalf",
     "draftNote": "This is exactly what will be sent to the provider. You approve it before it goes out.",
+    "providerEmailPlaceholder": "Provider customer-service email (required for Other)",
     "editDraft": "Want to change something? Edit the text",
     "consentLabel": "I authorize Zakai to act on my behalf with",
     "consentLabel2": "regarding this matter, as described above. This authorization is recorded with a timestamp.",
@@ -530,6 +531,7 @@
     "verifyCode": "Verify code",
     "codeSent": "Code sent.",
     "codeInvalid": "Wrong or expired code. Try again.",
+    "needsEmail": "Missing provider email — go back and enter a service address.",
     "codeExpired": "The code expired. Request a new one.",
     "tooManyAttempts": "Too many attempts. Request a new code in a few minutes.",
     "ownershipVerified": "Ownership verified.",
@@ -3174,7 +3176,7 @@
   },
   "arnonaAgent": {
     "title": "Send a discount / objection with Zakai",
-    "sub": "The agent sends a Mandate-backed letter to the municipality, tracks replies, and charges a success fee only on documented monthly arnona savings.",
+    "sub": "Municipal objection case: letter, authority email, dashboard verification, Mandate send and tracking. Success fee only on documented savings.",
     "claimType": "Request type",
     "monthlyQ": "Current monthly arnona (₪)",
     "municipalityQ": "Municipality name",
@@ -3183,14 +3185,14 @@
     "idQ": "ID number",
     "addressQ": "Property address (optional)",
     "detailsQ": "Area / classification details (optional)",
-    "sendBtn": "Open a case and send with Zakai",
+    "sendBtn": "Open case — continue on dashboard",
     "sending": "Opening case…",
-    "caseOpenedTitle": "Case opened — the agent takes it from here",
+    "caseOpenedTitle": "Case opened",
     "caseOpenedBody": "On your dashboard you can approve, send the letter to the municipality, and record savings after a written decision.",
     "dashboard": "Go to dashboard",
     "caseLimitError": "You've reached the active-case limit on your plan.",
     "genericError": "Couldn't open a case. Try again or sign in again.",
-    "disclaimer": "Not legal advice. Zakai sends a written request; documents and decisions remain your responsibility.",
+    "disclaimer": "Not legal advice. You send after verification; documents and decisions remain your responsibility.",
     "rights": {
       "arnona_income": "Income-test discount",
       "arnona_oleh": "New immigrant discount",
@@ -3483,20 +3485,20 @@
     "disclaimer": "This is an illustrative first check that runs in your browser and isn't saved. Not insurance advice — before cancelling a policy, confirm with your insurer that no unique cover is lost."
   },
   "dupInsuranceAgent": {
-    "title": "Zakai sends a written cancellation request to your insurer",
-    "sub": "After flagging indemnity overlap, enter your private insurer's details — the agent sends a Mandate-backed letter, tracks replies, and charges a success fee only on documented monthly savings.",
+    "title": "Cancel duplicate cover — case with Mandate",
+    "sub": "After flagging indemnity overlap: insurer details and email → dashboard case → verify → send. Success fee only on documented savings.",
     "estMonthly": "Estimated monthly premium on redundant cover: {amount}",
     "nameQ": "Your full name (optional)",
     "insurerQ": "Private insurer name",
     "emailQ": "Insurer correspondence email",
-    "sendBtn": "Open a case and send with Zakai",
+    "sendBtn": "Open case — continue on dashboard",
     "sending": "Opening case…",
-    "caseOpenedTitle": "Case opened — the agent takes it from here",
+    "caseOpenedTitle": "Case opened",
     "caseOpenedBody": "On your dashboard you can approve, send the letter to the insurer, and track replies. Success fee only on documented monthly savings.",
     "dashboard": "Go to dashboard",
     "caseLimitError": "You've reached the active-case limit on your plan.",
     "genericError": "Couldn't open a case. Try again or sign in again.",
-    "disclaimer": "Not insurance advice. Zakai sends a written request; you decide whether to cancel."
+    "disclaimer": "Not insurance advice. You send after verification; the decision to cancel stays yours."
   },
   "constructionDefects": {
     "metaTitle": "Construction defects — up to tens of thousands ₪ from the developer | Zakai",
@@ -4491,12 +4493,12 @@
     "title": "Where do you start?",
     "money": {
       "title": "I'm paying too much",
-      "sub": "Photograph a bill — the agent drafts, sends, follows up and documents the saving.",
+      "sub": "Photograph a bill — open a case, verify on the dashboard, then Mandate send and follow-up.",
       "cta": "Check my money"
     },
     "cancel": {
       "title": "Cancel a subscription",
-      "sub": "The agent sends the cancellation in your name, with verified authority, and chases the reply.",
+      "sub": "Case + verified Mandate send to the provider — not an instant send from this page.",
       "cta": "Cancel it for me"
     },
     "owed": {

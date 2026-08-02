@@ -16,6 +16,8 @@ import { rateLimit } from "@/lib/ratelimit";
 import { isSupportedMarket } from "@/lib/global/registry";
 import { withFooter } from "@/lib/letterFooter";
 import { footerLocaleForCountry } from "@/lib/caseDraft";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { resolveTelecomContactEmail } from "@/lib/telecomContacts";
 
 const MAX_IMAGE_B64 = 5_500_000;
 const ALLOWED_MEDIA = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
@@ -27,6 +29,7 @@ const schema = z.union([
     mediaType: z.string().default("image/jpeg"),
     beneficiary: z.string().max(40).optional(),
     locale: z.string().default("he"),
+    providerContactEmail: z.string().max(120).optional(),
   }),
   z.object({
     mode: z.literal("manual"),
@@ -35,6 +38,7 @@ const schema = z.union([
     plan: z.string().default(""),
     beneficiary: z.string().max(40).optional(),
     locale: z.string().default("he"),
+    providerContactEmail: z.string().max(120).optional(),
   }),
 ]);
 
@@ -105,6 +109,9 @@ export async function POST(request: Request) {
     stance: stance.instructions,
   });
 
+  const outreachTo =
+    firstOutreachEmail(data.providerContactEmail) ?? resolveTelecomContactEmail(providerKey);
+
   let kase;
   try {
     kase = await createCase({
@@ -123,6 +130,8 @@ export async function POST(request: Request) {
       beneficiaryLabel: data.beneficiary,
       strategyVariant: stance.variantId,
       strategySeed: stance.seed,
+      vertical: "telecom",
+      counterpartyEmail: outreachTo ?? undefined,
     });
   } catch (err) {
     if (err instanceof CaseError && err.message === "CASE_LIMIT") {
@@ -143,5 +152,6 @@ export async function POST(request: Request) {
     marketHighShekels: rec.marketHighShekels,
     draftMessage: rec.draftMessage,
     source: rec.source,
+    needsOutreachEmail: !outreachTo,
   });
 }

@@ -304,6 +304,13 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
+        if (data.error === "needsOutreachEmail") {
+          const monthlyShekels = Math.max(1, Math.round(r.monthlyAgorot / 100));
+          router.push(
+            `/cancel?company=${encodeURIComponent(r.merchant)}&monthly=${monthlyShekels}`,
+          );
+          return;
+        }
         setError(data.error === "caseLimit" ? tx(locale, "errLimit") : tx(locale, "errGeneric"));
         return;
       }

@@ -112,6 +112,7 @@ export async function approveCase(
   userId: string,
   editedMessage?: string,
   approverIp?: string,
+  counterpartyEmail?: string,
 ) {
   const kase = await ownedCase(caseId, userId);
 
@@ -119,15 +120,19 @@ export async function approveCase(
     throw new CaseError("ALREADY_SENT");
   }
 
+  const outreach =
+    counterpartyEmail?.trim() && /@/.test(counterpartyEmail)
+      ? counterpartyEmail.trim().toLowerCase()
+      : undefined;
+
   return prisma.case.update({
     where: { id: kase.id },
     data: {
       status: "APPROVED",
-      // Set once each. A second approval is a no-op on both rather than a
-      // quiet rewrite of when — and from where — consent was given.
       approvedAt: kase.approvedAt ?? new Date(),
       approvedIp: kase.approvedIp ?? approverIp ?? null,
       ...(editedMessage ? { draftMessage: editedMessage } : {}),
+      ...(outreach ? { counterpartyEmail: outreach } : {}),
     },
   });
 }
@@ -164,6 +169,13 @@ export async function sendOutreach(caseId: string, userId: string) {
 
   if (!kase.ownershipVerifiedAt) throw new CaseError("OWNERSHIP_REQUIRED");
   if (!auth || auth.status !== "ACTIVE") throw new CaseError("AUTHORIZATION_REQUIRED");
+
+  const to =
+    kase.counterpartyEmail?.trim() ||
+    providerContactEmail(kase.provider, kase.vertical).trim();
+  if (!to || !/@/.test(to)) {
+    throw new CaseError("NEEDS_OUTREACH_EMAIL");
+  }
 
   // Claim the send before making it, with a conditional update.
   //
@@ -209,7 +221,7 @@ export async function sendOutreach(caseId: string, userId: string) {
   const messageBody = withFooter(kase.draftMessage, footerLocale);
 
   const email = await sendEmail({
-    to: kase.counterpartyEmail || providerContactEmail(kase.provider, kase.vertical),
+    to,
     subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
     body: messageBody + footer,
     caseId,

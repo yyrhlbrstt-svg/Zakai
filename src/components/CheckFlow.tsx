@@ -7,6 +7,8 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
 import { PROVIDER_KEYS } from "@/lib/providers";
+import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
+import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 
 type Stage =
   | "input"
@@ -19,6 +21,7 @@ type Stage =
 
 interface Rec {
   caseId: string;
+  provider?: string;
   providerLabelKey: string;
   amountShekels: number;
   targetShekels: number;
@@ -27,6 +30,7 @@ interface Rec {
   strategy: string;
   draftMessage: string;
   source: "ai" | "template";
+  needsOutreachEmail?: boolean;
 }
 
 interface AuthDoc {
@@ -57,6 +61,7 @@ function fileToBase64(file: File): Promise<string> {
 
 export function CheckFlow() {
   const t = useTranslations("flow");
+  const tFlow = useTranslations("agentFlow");
   const tp = useTranslations("providers");
   const tv = useTranslations("verify");
   const locale = useLocale() as Locale;
@@ -70,6 +75,7 @@ export function CheckFlow() {
   const [fieldErr, setFieldErr] = useState(false);
 
   const [provider, setProvider] = useState("");
+  const [providerContactEmail, setProviderContactEmail] = useState("");
   const [amount, setAmount] = useState("");
   const [plan, setPlan] = useState("");
   // Family mode: an optional label for whom this check is ("אמא", "אבא"…).
@@ -148,16 +154,31 @@ export function CheckFlow() {
       return;
     }
     setFieldErr(false);
-    analyze({ mode: "manual", provider, amountShekels: amt, plan });
+    analyze({
+      mode: "manual",
+      provider,
+      amountShekels: amt,
+      plan,
+      providerContactEmail: providerContactEmail.trim() || undefined,
+    });
+  }
+
+  function outreachReady(): boolean {
+    if (!rec) return false;
+    const key = rec.provider || "other";
+    return !telecomNeedsContactEmail(key, providerContactEmail);
   }
 
   async function approve() {
-    if (!rec) return;
+    if (!rec || !outreachReady()) return;
     setBusy(true);
     await fetch(`/api/cases/${rec.caseId}/approve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ editedMessage: draft }),
+      body: JSON.stringify({
+        editedMessage: draft,
+        counterpartyEmail: providerContactEmail.trim() || undefined,
+      }),
     });
     setBusy(false);
     setStage("verify");
@@ -218,7 +239,11 @@ export function CheckFlow() {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setStage("verify");
-      setOwnErr("genericError");
+      if (data.error === "NEEDS_OUTREACH_EMAIL") {
+        setOwnErr("needsEmail");
+      } else {
+        setOwnErr("genericError");
+      }
       return;
     }
     setDelivered(Boolean(data.delivered));
@@ -371,8 +396,22 @@ export function CheckFlow() {
                 placeholder={t("planPlaceholder")}
                 aria-label={t("planPlaceholder")}
               />
+              {provider === "other" && (
+                <Input
+                  type="email"
+                  className="mt-3"
+                  value={providerContactEmail}
+                  onChange={(e) => setProviderContactEmail(e.target.value)}
+                  placeholder={t("providerEmailPlaceholder")}
+                  dir="ltr"
+                />
+              )}
               {fieldErr && <FieldError>{t("needAmount")}</FieldError>}
-              <Button onClick={analyzeManual} className="w-full mt-3.5">
+              <Button
+                onClick={analyzeManual}
+                disabled={provider === "other" && !normalizeOutreachEmail(providerContactEmail)}
+                className="w-full mt-3.5"
+              >
                 {t("analyzeBtn")}
               </Button>
             </Card>
@@ -410,6 +449,18 @@ export function CheckFlow() {
               {t("draftTitle")}
             </div>
             <div className="text-[12px] text-ink-soft mt-1.5 mb-2.5">{t("draftNote")}</div>
+            {(rec.needsOutreachEmail || telecomNeedsContactEmail(rec.provider || "other")) && (
+              <div className="mb-3">
+                <Input
+                  type="email"
+                  value={providerContactEmail}
+                  onChange={(e) => setProviderContactEmail(e.target.value)}
+                  placeholder={t("providerEmailPlaceholder")}
+                  dir="ltr"
+                />
+                <p className="text-[12px] text-amber mt-1.5 mb-0">{tFlow("contactEmailHint")}</p>
+              </div>
+            )}
             <Textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -431,7 +482,7 @@ export function CheckFlow() {
           </label>
 
           <div className="flex gap-2.5 mt-4">
-            <Button onClick={approve} disabled={!consent || busy} className="flex-1">
+            <Button onClick={approve} disabled={!consent || busy || !outreachReady()} className="flex-1">
               {t("approveBtn")}
             </Button>
             <Button variant="ghost" onClick={() => location.reload()}>

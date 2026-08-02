@@ -4,6 +4,7 @@
  * (banks, electricity, airlines) — providerHebrewName resolves those too.
  */
 import { resolveAirlineContactEmail } from "@/lib/airlineContacts";
+import { resolveTelecomContactEmail } from "@/lib/telecomContacts";
 
 export type ProviderKey =
   | "cellcom"
@@ -17,18 +18,18 @@ export interface ProviderInfo {
   key: ProviderKey;
   /** i18n key under `providers.*` for the display name. */
   labelKey: string;
-  /** Outreach destination (placeholder in the prototype). */
+  /** Public customer-service inbox (verify on provider site). */
   contactEmail: string;
   category: "mobile";
 }
 
 export const PROVIDERS: Record<ProviderKey, ProviderInfo> = {
-  cellcom: { key: "cellcom", labelKey: "cellcom", contactEmail: "service@cellcom.example", category: "mobile" },
-  partner: { key: "partner", labelKey: "partner", contactEmail: "service@partner.example", category: "mobile" },
-  bezeq: { key: "bezeq", labelKey: "bezeq", contactEmail: "service@bezeq.example", category: "mobile" },
-  hot: { key: "hot", labelKey: "hot", contactEmail: "service@hot.example", category: "mobile" },
-  yes: { key: "yes", labelKey: "yes", contactEmail: "service@yes.example", category: "mobile" },
-  other: { key: "other", labelKey: "other", contactEmail: "service@provider.example", category: "mobile" },
+  cellcom: { key: "cellcom", labelKey: "cellcom", contactEmail: "service@cellcom.co.il", category: "mobile" },
+  partner: { key: "partner", labelKey: "partner", contactEmail: "service@partner.co.il", category: "mobile" },
+  bezeq: { key: "bezeq", labelKey: "bezeq", contactEmail: "service@bezeq.co.il", category: "mobile" },
+  hot: { key: "hot", labelKey: "hot", contactEmail: "service@hotmobile.co.il", category: "mobile" },
+  yes: { key: "yes", labelKey: "yes", contactEmail: "service@yes.co.il", category: "mobile" },
+  other: { key: "other", labelKey: "other", contactEmail: "", category: "mobile" },
 };
 
 export const PROVIDER_KEYS = Object.keys(PROVIDERS) as ProviderKey[];
@@ -89,9 +90,22 @@ export function providerContactEmail(key: string, vertical?: string): string {
   if (vertical === "airline") return resolveAirlineContactEmail(key);
   if (vertical === "subscription") {
     if (SUBSCRIPTION_CONTACT[key]) return SUBSCRIPTION_CONTACT[key];
-    if (isProviderKey(key)) return PROVIDERS[key].contactEmail;
+    if (isProviderKey(key)) {
+      const tel = resolveTelecomContactEmail(key);
+      if (tel) return tel;
+      const raw = PROVIDERS[key].contactEmail;
+      if (raw) return raw;
+    }
   }
-  return isProviderKey(key) ? PROVIDERS[key].contactEmail : PROVIDERS.other.contactEmail;
+  if (vertical === "telecom" || !vertical) {
+    const tel = resolveTelecomContactEmail(key);
+    if (tel) return tel;
+  }
+  if (isProviderKey(key)) {
+    const raw = PROVIDERS[key].contactEmail;
+    if (raw) return raw;
+  }
+  return "";
 }
 
 export function resolveProviderKey(name: string): ProviderKey {

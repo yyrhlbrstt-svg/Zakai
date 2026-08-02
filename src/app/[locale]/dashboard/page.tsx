@@ -254,6 +254,8 @@ export default async function DashboardPage({
                 documentedSavingShekels={
                   c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
                 }
+                provider={c.provider}
+                counterpartyEmail={c.counterpartyEmail}
               />
             </div>
           </div>

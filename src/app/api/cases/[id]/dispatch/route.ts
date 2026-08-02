@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { dispatchAgent } from "@/lib/services/dispatch";
 import { CaseError } from "@/lib/services/cases";
 import { rateLimit } from "@/lib/ratelimit";
+
+const schema = z.object({
+  counterpartyEmail: z.string().max(120).optional(),
+});
 
 /**
  * POST /api/cases/:id/dispatch
@@ -17,8 +22,15 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
   const limited = await rateLimit("case-dispatch", auth.userId, 30, 3600);
   if (!limited.ok) return badRequest("tooManyRequests", 429);
 
+  const body = await _request.json().catch(() => ({}));
+  const parsed = schema.safeParse(body ?? {});
+
   try {
-    const result = await dispatchAgent(id, auth.userId);
+    const result = await dispatchAgent(
+      id,
+      auth.userId,
+      parsed.success ? parsed.data.counterpartyEmail : undefined,
+    );
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof CaseError) {
