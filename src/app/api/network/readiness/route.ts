@@ -13,7 +13,8 @@ const cors = {
  * Payment provider name only — not keys.
  */
 export async function GET() {
-  const { layers, paymentProvider, operationalScore, tier } = buildReadinessSnapshot();
+  const { layers, paymentProvider, operationalScore, tier, consumerReleaseScore, canReleaseConsumerApp } =
+    buildReadinessSnapshot();
 
   return NextResponse.json(
     {
@@ -22,6 +23,8 @@ export async function GET() {
       disclaimer: "Booleans only — no secrets. Consumer agent loops need SMTP for outbound mail.",
       operationalScore,
       tier,
+      consumerReleaseScore,
+      canReleaseConsumerApp,
       paymentProvider,
       layers,
       urls: {
@@ -29,6 +32,7 @@ export async function GET() {
         mandate_verify: "/api/mandate/verify",
         integrations: "/en/integrations",
         network_proof: "/en/network-proof",
+        release_gate: "/api/release-gate",
       },
     },
     { headers: cors },

@@ -2,10 +2,11 @@ import "server-only";
 
 import { emailConfigured, smsConfigured } from "@/lib/messaging";
 import { readinessOperationalScore, readinessTier } from "./readinessScore";
+import { evaluateConsumerReleaseGate, paymentsFullyLive } from "@/lib/deploy/releaseGate";
 
 export function buildReadinessSnapshot() {
   const paymentProvider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
-  const paymentsLive = paymentProvider !== "mock" && Boolean(process.env.PAYPLUS_API_KEY);
+  const paymentsLive = paymentsFullyLive();
 
   const layers = {
     database: Boolean(process.env.DATABASE_URL || process.env.NEON_DATABASE_URL),
@@ -24,11 +25,14 @@ export function buildReadinessSnapshot() {
   };
 
   const operationalScore = readinessOperationalScore(layers);
+  const release = evaluateConsumerReleaseGate();
 
   return {
     layers,
     paymentProvider: paymentsLive ? paymentProvider : "mock",
     operationalScore,
     tier: readinessTier(operationalScore),
+    consumerReleaseScore: release.releaseScore,
+    canReleaseConsumerApp: release.canReleaseConsumerApp,
   };
 }

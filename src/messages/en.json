@@ -5058,6 +5058,7 @@
     "statMandatesHint": "ACTIVE authorizations now",
     "statDisclaimer": "Excludes self-reported memory. No fee amounts or PII.",
     "deployScore": "Deploy readiness (env layers, no secrets): {score}/100 · {tier}",
+    "consumerReleaseScore": "Consumer release gate: {score}/100 · ship={ready}",
     "verifyTitle": "What to verify before you email us",
     "bullets": [
       "Discovery: /.well-known/zakai-mandate.json",

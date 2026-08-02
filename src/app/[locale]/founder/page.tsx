@@ -6,7 +6,25 @@ import { isEmailVerified } from "@/lib/services/emailVerification";
 import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
+import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
 import type { Locale } from "@/i18n/config";
+
+const RELEASE_LABEL_HE: Record<string, string> = {
+  database: "מסד נתונים",
+  auth_secret: "AUTH_SECRET",
+  mandate_signing_jwk: "חתימת Mandate (JWK)",
+  mandate_signing_kid: "MANDATE_SIGNING_KID",
+  cron_secret: "CRON_SECRET",
+  mandate_issuer: "MANDATE_ISSUER",
+  app_url: "NEXT_PUBLIC_APP_URL",
+  smtp: "דואר יוצא (SMTP)",
+  smtp_from: "SMTP_FROM",
+  payments_live: "סליקה אמיתית (PayPlus)",
+  admin_email: "ADMIN_EMAIL + אימות",
+  ai: "מפתח AI",
+  leads_email: "LEADS_EMAIL",
+  sales_email: "SALES_EMAIL",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +57,8 @@ export default async function FounderPage({
   // first would hold a dashboard listing every lead's name, phone and company.
   // The environment names who may be admin; this proves they are that person.
   if (!(await isEmailVerified(user!.id))) redirect({ href: "/dashboard", locale });
+
+  const releaseGate = evaluateConsumerReleaseGate();
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const [
@@ -130,6 +150,54 @@ export default async function FounderPage({
         המספר שמאמת את המודל: <b className="text-emerald">אחוז ההצלחה</b> — מתוך הפניות שנענו, כמה
         הניבו חיסכון אמיתי ומתועד. הרץ 20–30 תיקי סלולר אמיתיים וצפה כאן שהלופ באמת סוגר כסף.
       </p>
+
+      <div
+        className={`rounded-2xl border px-5 py-4 mb-6 ${
+          releaseGate.canReleaseConsumerApp
+            ? "border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.08)]"
+            : "border-[rgba(240,138,107,0.45)] bg-[rgba(240,138,107,0.08)]"
+        }`}
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <span className="font-extrabold text-[15px]">שער שחרור צרכני</span>
+          <span
+            className={`font-display text-3xl tabular-nums ${
+              releaseGate.canReleaseConsumerApp ? "grad-text" : "text-[#F08A6B]"
+            }`}
+          >
+            {releaseGate.releaseScore}/100
+          </span>
+        </div>
+        {!releaseGate.canReleaseConsumerApp && (
+          <>
+            <p className="text-[13px] text-ink-soft mt-2 mb-3 leading-relaxed m-0">
+              לא משחררים את האפליקציה עד שהציון 100. תקן ב־Vercel, Redeploy, ובדוק שוב:{" "}
+              <code className="text-[12px]">/api/release-gate</code> · מדריך:{" "}
+              <code className="text-[12px]">docs/RELEASE_100_HE.md</code>
+            </p>
+            <ul className="list-none p-0 m-0 flex flex-col gap-1.5">
+              {releaseGate.checks
+                .filter((c) => c.level !== "optional" && !c.ok)
+                .map((c) => (
+                  <li key={c.id} className="text-[12.5px] leading-snug">
+                    <span className="text-[#F08A6B] font-bold">✗</span>{" "}
+                    <b>{RELEASE_LABEL_HE[c.id] ?? c.id}</b>
+                    <span className="text-ink-soft"> — {c.envKeys.join(", ")}</span>
+                  </li>
+                ))}
+            </ul>
+            <p className="text-[11.5px] text-ink-soft mt-3 mb-0">
+              יצירת סודות: <code>node scripts/bootstrap-release-env.mjs</code> · מפתח Mandate:{" "}
+              <code>node scripts/generate-mandate-key.mjs</code>
+            </p>
+          </>
+        )}
+        {releaseGate.canReleaseConsumerApp && (
+          <p className="text-[13px] text-emerald font-bold mt-2 mb-0">
+            כל שכבות השחרור ירוקות — מותר לפרסם מבחינת תצורה. עדיין לוודא תיק אמיתי אחד end-to-end.
+          </p>
+        )}
+      </div>
 
       {!emailConfigured() && (
         <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">

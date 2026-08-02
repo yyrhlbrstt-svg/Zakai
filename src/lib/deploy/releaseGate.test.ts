@@ -1,0 +1,47 @@
+import { describe, expect, it, afterEach } from "vitest";
+import { evaluateConsumerReleaseGate, paymentsFullyLive } from "@/lib/deploy/releaseGate";
+
+const snapshot = { ...process.env };
+
+afterEach(() => {
+  process.env = { ...snapshot };
+});
+
+describe("evaluateConsumerReleaseGate", () => {
+  it("scores 100 only when all blocking and consumer checks pass", () => {
+    process.env = {
+      ...snapshot,
+      NODE_ENV: "production",
+      NEON_DATABASE_URL: "postgres://x",
+      AUTH_SECRET: "secret",
+      MANDATE_SIGNING_JWK: "{}",
+      MANDATE_SIGNING_KID: "kid",
+      CRON_SECRET: "cron",
+      MANDATE_ISSUER: "https://zakai.example",
+      NEXT_PUBLIC_APP_URL: "https://zakai.example",
+      SMTP_HOST: "smtp.example",
+      SMTP_USER: "u",
+      SMTP_PASS: "p",
+      SMTP_FROM: "Zakai <no-reply@zakai.example>",
+      PAYMENT_PROVIDER: "payplus",
+      PAYPLUS_API_KEY: "k",
+      PAYPLUS_SECRET_KEY: "s",
+      PAYPLUS_PAYMENT_PAGE_UID: "page",
+      ADMIN_EMAIL: "founder@zakai.example",
+      ANTHROPIC_API_KEY: "sk",
+      LEADS_EMAIL: "leads@zakai.example",
+      SALES_EMAIL: "sales@zakai.example",
+    };
+    const r = evaluateConsumerReleaseGate();
+    expect(r.releaseScore).toBe(100);
+    expect(r.canReleaseConsumerApp).toBe(true);
+    expect(r.failingIds).toEqual([]);
+  });
+
+  it("fails closed on mock payments", () => {
+    delete process.env.PAYMENT_PROVIDER;
+    expect(paymentsFullyLive()).toBe(false);
+    const r = evaluateConsumerReleaseGate();
+    expect(r.failingIds).toContain("payments_live");
+  });
+});

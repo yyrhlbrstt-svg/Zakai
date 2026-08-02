@@ -27,6 +27,7 @@ import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { emailConfigured } from "@/lib/messaging";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -273,6 +274,14 @@ export default async function DashboardPage({
       </div>
 
       <ReminderBanner />
+
+      {!paymentsFullyLive() && (
+        <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed">
+          {locale === "he"
+            ? "סליקה במצב דמו — עמלת הצלחה לא גובה כסף אמיתי עד PayPlus מלא (בדיקה: /api/release-gate)."
+            : "Payments are in demo mode — success fees do not collect real money until PayPlus is fully configured (/api/release-gate)."}
+        </div>
+      )}
 
       {proposedCount > 0 && (
         <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-5 py-3.5 mb-5 text-[14px] font-bold">

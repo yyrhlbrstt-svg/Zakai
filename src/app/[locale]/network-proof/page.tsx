@@ -70,6 +70,12 @@ export default async function NetworkProofPage({
         <p className="text-[13px] text-ink-soft mt-4 font-mono">
           {t("deployScore", { score: readiness.operationalScore, tier: readiness.tier })}
         </p>
+        <p className="text-[13px] text-ink-soft mt-2 font-mono">
+          {t("consumerReleaseScore", {
+            score: readiness.consumerReleaseScore,
+            ready: readiness.canReleaseConsumerApp ? "yes" : "no",
+          })}
+        </p>
       </Reveal>
 
       <Reveal delay={100}>

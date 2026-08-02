@@ -5058,6 +5058,7 @@
     "statMandatesHint": "הרשאות ACTIVE כרגע",
     "statDisclaimer": "לא כולל דיווחי זכרון עצמי. לא מציג סכומי עמלה או PII.",
     "deployScore": "מוכנות פרוד (שכבות env, בלי סודות): {score}/100 · {tier}",
+    "consumerReleaseScore": "שער שחרור צרכני: {score}/100 · ship={ready}",
     "verifyTitle": "מה לבדוק לפני שאתם כותבים לנו",
     "bullets": [
       "מסמך גילוי: /.well-known/zakai-mandate.json",

@@ -37,3 +37,5 @@ Run: `npm run test && npm run build` — must stay green on `main`.
 3. At least one documented SAVED case with real SMTP delivery (not QUEUED).
 
 Until then: product can be **best-in-class in code**; market leadership is **earned by ops + adoption**, not asserted in copy.
+
+**Consumer ship bar:** `npm run release-gate` or `GET /api/release-gate` must show `releaseScore: 100` and `canReleaseConsumerApp: true`. Founder guide: `docs/RELEASE_100_HE.md`.
