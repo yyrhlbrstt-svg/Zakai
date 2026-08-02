@@ -1,6 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
+import { partnerRefFromSearchParams } from "./lib/partnerAttribution";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -59,16 +60,16 @@ const PARTNER_REF_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
  * here with utm_campaign=agent-<name>, so the day an assistant starts sending
  * people, the founder can see it in the same partnerRef column instead of
  * wondering where the signups came from.
+ *
+ * Paid/social: utm_source=cpc|paid|social|partner + utm_campaign, or ?pref=
+ * on short campaign links (/go/cancel?pref=...). Do not use ?ref= for
+ * campaigns — /signup?ref= is the consumer referral code.
  */
-const ATTRIBUTED_SOURCES = new Set(["embed", "agent"]);
-
 function capturePartnerRef(request: NextRequest, res: NextResponse): void {
-  const source = request.nextUrl.searchParams.get("utm_source") || "";
-  if (!ATTRIBUTED_SOURCES.has(source)) return;
   if (request.cookies.get(PARTNER_REF_COOKIE)) return; // first-touch wins
-  const ref = request.nextUrl.searchParams.get("utm_campaign");
+  const ref = partnerRefFromSearchParams(request.nextUrl.searchParams);
   if (!ref) return;
-  res.cookies.set(PARTNER_REF_COOKIE, ref.slice(0, 80), {
+  res.cookies.set(PARTNER_REF_COOKIE, ref, {
     maxAge: PARTNER_REF_MAX_AGE_SECONDS,
     sameSite: "lax",
     path: "/",

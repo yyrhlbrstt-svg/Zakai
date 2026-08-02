@@ -137,4 +137,83 @@ describe("POST /api/inbound-email", () => {
     const res = await post({ from: "" });
     expect(res.status).toBe(400);
   });
+
+  it("telecom monthly + email match with high confidence → notify", async () => {
+    const caseId = "case_tel_1";
+    const userId = "user_2";
+    const from = "billing@cellcom.co.il";
+
+    extractSavingsFromEmail.mockResolvedValue({
+      found: true,
+      newAmountShekels: 89,
+      authorizationCode: null,
+      confidence: 0.72,
+      amountKind: "monthly",
+      reason: "test",
+    });
+
+    findAuthUnique.mockResolvedValue(null);
+    findAuthFirst.mockResolvedValue({
+      principalEmail: from,
+      status: "ACTIVE",
+      caseId,
+      case: { id: caseId, userId, status: "SENT" },
+    });
+
+    findCaseUnique.mockResolvedValue({
+      vertical: "telecom",
+      amountOriginal: 12_900,
+    });
+
+    findUserUnique.mockResolvedValue({
+      id: userId,
+      email: "user2@example.com",
+      name: "User",
+      country: "IL",
+    });
+
+    const res = await post({
+      from,
+      subject: "עדכון חיוב",
+      text: "החיוב החודשי החדש 89 שקל",
+    });
+    const json = await res.json();
+
+    expect(json.matched).toBe(true);
+    expect(json.matchMethod).toBe("email");
+    expect(json.notified).toBe(true);
+
+    const outboxBody = outboxCreate.mock.calls[0]![0].data.body as string;
+    const logged = JSON.parse(outboxBody) as {
+      extract: { recordAmountShekels?: number };
+    };
+    expect(logged.extract.recordAmountShekels).toBe(89);
+  });
+
+  it("email match below confidence threshold → matched but not notified", async () => {
+    extractSavingsFromEmail.mockResolvedValue({
+      found: true,
+      newAmountShekels: 89,
+      confidence: 0.55,
+      authorizationCode: null,
+      reason: "test",
+    });
+    findAuthUnique.mockResolvedValue(null);
+    findAuthFirst.mockResolvedValue({
+      status: "ACTIVE",
+      caseId: "c1",
+      case: { id: "c1", userId: "u1", status: "SENT" },
+    });
+    findCaseUnique.mockResolvedValue({ vertical: "telecom", amountOriginal: 12_900 });
+
+    const res = await post({
+      from: "billing@example.com",
+      subject: "bill",
+      text: "89",
+    });
+    const json = await res.json();
+    expect(json.matched).toBe(true);
+    expect(json.notified).toBe(false);
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
 });
