@@ -8,6 +8,10 @@ import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Reveal } from "@/components/Reveal";
 import { buildReadinessSnapshot } from "@/lib/network/readinessLayers";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { StatTile } from "@/components/StatTile";
+import { CodeBlock } from "@/components/CodeBlock";
+import { SectionHeading } from "@/components/SectionHeading";
 
 export const dynamic = "force-dynamic";
 
@@ -53,18 +57,12 @@ export default async function NetworkProofPage({
   const bullets = t.raw("bullets") as string[];
 
   return (
-    <main className="max-w-[760px] mx-auto px-5 pb-24 pt-6" dir={locale === "he" || locale === "ar" ? "rtl" : "ltr"}>
-      <Reveal>
-        <p className="text-[12px] uppercase tracking-wide text-emerald font-bold mb-2">{t("kicker")}</p>
-        <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">{t("title")}</h1>
-        <p className="text-ink-soft text-[15.5px] leading-relaxed mt-4 max-w-[620px]">{t("sub")}</p>
-      </Reveal>
-
+    <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
       <Reveal delay={60}>
-        <div className="mt-10 grid gap-3 sm:grid-cols-3">
-          <StatCard label={t("statVerified")} value={verifiedMonthly} hint={t("statVerifiedHint", { count: proof.verifiedCount })} />
-          <StatCard label={t("statSaved")} value={String(savedCases)} hint={t("statSavedHint")} />
-          <StatCard label={t("statMandates")} value={String(mandateCount)} hint={t("statMandatesHint")} />
+        <div className="mt-2 grid gap-3 sm:grid-cols-3">
+          <StatTile label={t("statVerified")} value={verifiedMonthly} hint={t("statVerifiedHint", { count: proof.verifiedCount })} />
+          <StatTile label={t("statSaved")} value={String(savedCases)} hint={t("statSavedHint")} />
+          <StatTile label={t("statMandates")} value={String(mandateCount)} hint={t("statMandatesHint")} />
         </div>
         <p className="text-[11.5px] text-ink-soft mt-3 leading-relaxed">{t("statDisclaimer")}</p>
         <p className="text-[13px] text-ink-soft mt-4 font-mono">
@@ -79,50 +77,40 @@ export default async function NetworkProofPage({
       </Reveal>
 
       <Reveal delay={100}>
-        <h2 className="font-display text-xl mt-12 mb-3">{t("verifyTitle")}</h2>
+        <SectionHeading title={t("verifyTitle")} className="mt-10 mb-3" />
         <ul className="list-disc ps-5 flex flex-col gap-2 text-[14px] text-ink-soft leading-relaxed">
           {bullets.map((b) => (
             <li key={b}>{b}</li>
           ))}
         </ul>
-        <pre className="mt-4 text-[11.5px] overflow-x-auto p-3 rounded-lg bg-[#060b12] border border-[rgba(255,255,255,0.08)] text-ink-soft">
+        <CodeBlock className="mt-4">
           {`curl -s ${ORIGIN}/.well-known/zakai-trust-registry.json | head -c 500`}
-        </pre>
+        </CodeBlock>
       </Reveal>
 
       <Reveal delay={120}>
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
             href="/integrations"
-            className="inline-block text-emerald font-extrabold text-[14px] no-underline border border-[rgba(63,203,155,0.4)] rounded-xl px-5 py-2.5"
+            className="inline-block text-emerald font-extrabold text-[14px] no-underline border border-[rgba(63,203,155,0.4)] rounded-xl px-5 py-2.5 hover:bg-[rgba(63,203,155,0.08)] transition-colors"
           >
             {t("ctaIntegrations")}
           </Link>
           <Link
             href="/proofs"
-            className="inline-block text-ink-soft font-bold text-[14px] no-underline border border-[rgba(255,255,255,0.12)] rounded-xl px-5 py-2.5"
+            className="inline-block text-ink-soft font-bold text-[14px] no-underline border border-[rgba(255,255,255,0.12)] rounded-xl px-5 py-2.5 hover:border-[rgba(255,255,255,0.2)] transition-colors"
           >
             {t("ctaProofs")}
           </Link>
           <a
             href={`${ORIGIN}/api/network/readiness`}
-            className="inline-block text-ink-soft font-bold text-[14px] no-underline border border-[rgba(255,255,255,0.12)] rounded-xl px-5 py-2.5"
+            className="inline-block text-ink-soft font-bold text-[14px] no-underline border border-[rgba(255,255,255,0.12)] rounded-xl px-5 py-2.5 hover:border-[rgba(255,255,255,0.2)] transition-colors"
           >
             {t("ctaReadiness")}
           </a>
         </div>
         <p className="text-[12.5px] text-ink-soft mt-6 leading-relaxed">{t("inboundNote")}</p>
       </Reveal>
-    </main>
-  );
-}
-
-function StatCard({ label, value, hint }: { label: string; value: string; hint: string }) {
-  return (
-    <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] px-4 py-4">
-      <div className="text-[11px] font-extrabold text-ink-soft uppercase tracking-wide">{label}</div>
-      <div className="font-display text-2xl mt-1 grad-text">{value}</div>
-      <div className="text-[11.5px] text-ink-soft mt-1 leading-snug">{hint}</div>
-    </div>
+    </VerticalPageShell>
   );
 }

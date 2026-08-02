@@ -361,6 +361,27 @@ select option {
   }
 }
 
+/* Subtle hero ambient on select marketing pages (compositor-friendly). */
+.page-hero-wrap {
+  position: relative;
+  overflow: clip;
+}
+.page-hero-glow {
+  position: absolute;
+  top: -120px;
+  inset-inline: 0;
+  height: 420px;
+  margin-inline: auto;
+  max-width: 900px;
+  background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(63, 203, 155, 0.14), rgba(63, 203, 155, 0) 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+.page-hero-wrap > main {
+  position: relative;
+  z-index: 1;
+}
+
 /* Range input, used by the savings calculator. */
 input[type="range"] {
   -webkit-appearance: none;

@@ -4,6 +4,8 @@ import { Link } from "@/i18n/routing";
 import { ToolIcon } from "@/components/ToolIcon";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { SectionHeading } from "@/components/SectionHeading";
 import { CATEGORY_ORDER, toolsInCategory, type ToolCategory } from "@/lib/toolsCatalog";
 import { alternateLanguages } from "@/lib/seo";
 import { toolDisplayLabel } from "@/lib/toolLabels";
@@ -36,28 +38,27 @@ export default async function ToolsHubPage({ params }: { params: Promise<{ local
   const catTitle = (c: ToolCategory) => t(`categories.${c}`);
 
   return (
-    <main className="max-w-[900px] mx-auto px-5 pb-24 pt-6">
-      <Reveal>
-        <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-4">
-          {t("kicker")}
-        </div>
-        <h1 className="font-display text-[clamp(28px,5vw,42px)] leading-tight m-0">{t("title")}</h1>
-        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
-      </Reveal>
-
+    <VerticalPageShell
+      heroGlow
+      width="wide"
+      className="max-w-[900px] mx-auto px-5 pb-24 pt-6 relative"
+      kicker={t("kicker")}
+      title={t("title")}
+      sub={t("sub")}
+    >
       {CATEGORY_ORDER.map((cat, ci) => {
         const items = toolsInCategory(cat);
         if (items.length === 0) return null;
         return (
-          <section key={cat} className="mt-12">
+          <section key={cat} className="mt-10 first:mt-2">
             <Reveal delay={ci * 40}>
-              <h2 className="font-display text-xl mb-4">{catTitle(cat)}</h2>
+              <SectionHeading title={catTitle(cat)} className="mt-0 mb-4" as="h2" />
             </Reveal>
             <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
               {items.map((tool, i) => (
                 <Reveal key={tool.href} delay={i * 30}>
-                  <Link href={tool.href} className="no-underline block h-full">
-                    <SpotlightCard className="p-5 h-full hover:border-[rgba(63,203,155,0.35)] transition-colors">
+                  <Link href={tool.href} className="no-underline block h-full group">
+                    <SpotlightCard className="p-5 h-full border-[rgba(255,255,255,0.08)] group-hover:border-[rgba(63,203,155,0.35)] transition-[border-color,transform] duration-[var(--dur)] group-hover:-translate-y-0.5">
                       <div className="flex items-start gap-3">
                         <ToolIcon name={tool.key} size={22} className="text-emerald shrink-0 mt-0.5" />
                         <div>
@@ -83,6 +84,6 @@ export default async function ToolsHubPage({ params }: { params: Promise<{ local
           {t("footer")}
         </p>
       </Reveal>
-    </main>
+    </VerticalPageShell>
   );
 }

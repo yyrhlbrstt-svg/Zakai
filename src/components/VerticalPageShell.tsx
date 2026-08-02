@@ -1,4 +1,11 @@
 import type { ReactNode } from "react";
+import { PageKicker } from "@/components/PageKicker";
+
+const WIDTH = {
+  default: "max-w-[760px]",
+  wide: "max-w-[900px]",
+  narrow: "max-w-[640px]",
+} as const;
 
 /**
  * Shared shell for money vertical landing pages — consistent hero rhythm.
@@ -11,6 +18,8 @@ export function VerticalPageShell({
   children,
   footer,
   className,
+  width = "default",
+  heroGlow = false,
 }: {
   kicker?: string;
   title: string;
@@ -20,25 +29,22 @@ export function VerticalPageShell({
   footer?: ReactNode;
   /** Override default max width (e.g. bank-fees grids). */
   className?: string;
+  width?: keyof typeof WIDTH;
+  /** Soft emerald ambient behind the hero — marketing pages only. */
+  heroGlow?: boolean;
 }) {
   return (
-    <main
-      className={
-        className ??
-        "max-w-[760px] mx-auto px-5 pb-24 pt-2"
-      }
-    >
-      {kicker && (
-        <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-4">
-          {kicker}
-        </div>
-      )}
-      <h1 className="font-display text-[clamp(26px,5vw,38px)] leading-tight m-0 text-balance">{title}</h1>
-      <p className="text-ink-soft text-[15px] leading-relaxed mt-3 mb-2 max-w-[600px]">{sub}</p>
-      {cite && <p className="text-[12.5px] text-ink-soft mb-6 max-w-[600px]">{cite}</p>}
-      {!cite && <div className="mb-6" />}
-      {children}
-      {footer}
-    </main>
+    <div className={heroGlow ? "page-hero-wrap" : undefined}>
+      {heroGlow && <div className="page-hero-glow" aria-hidden />}
+      <main className={className ?? `${WIDTH[width]} mx-auto px-5 pb-24 pt-2 relative`}>
+        {kicker && <PageKicker>{kicker}</PageKicker>}
+        <h1 className="font-display text-[clamp(26px,5vw,38px)] leading-tight m-0 text-balance">{title}</h1>
+        <p className="text-ink-soft text-[15px] leading-relaxed mt-3 mb-2 max-w-[600px]">{sub}</p>
+        {cite && <p className="text-[12.5px] text-ink-soft mb-6 max-w-[600px]">{cite}</p>}
+        {!cite && <div className="mb-6" />}
+        {children}
+        {footer}
+      </main>
+    </div>
   );
 }
