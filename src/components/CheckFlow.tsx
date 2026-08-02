@@ -96,6 +96,7 @@ export function CheckFlow() {
   const [auth, setAuth] = useState<AuthDoc | null>(null);
   const [busy, setBusy] = useState(false);
   const [approveErr, setApproveErr] = useState<string | null>(null);
+  const [selfCopied, setSelfCopied] = useState(false);
 
   // outcome
   const [newAmount, setNewAmount] = useState("");
@@ -273,6 +274,18 @@ export function CheckFlow() {
     }
     setDelivered(Boolean(data.delivered));
     setStage("sent");
+  }
+
+  async function copyDraftForSelf() {
+    const text = draft.trim() || rec?.draftMessage || "";
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setSelfCopied(true);
+      setTimeout(() => setSelfCopied(false), 4000);
+    } catch {
+      /* ignore */
+    }
   }
 
   async function recordSaving(amt: number) {
@@ -509,8 +522,11 @@ export function CheckFlow() {
             </span>
           </label>
 
-          <div className="flex gap-2.5 mt-4">
-            <Button onClick={approve} disabled={!consent || busy || !outreachReady()} className="flex-1">
+          <div className="flex flex-col gap-2.5 mt-4">
+            <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
+              {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
+            </Button>
+            <Button onClick={approve} disabled={!consent || busy || !outreachReady()} className="flex-1 w-full">
               {t("approveBtn")}
             </Button>
             <Button variant="ghost" onClick={() => location.reload()}>
@@ -603,9 +619,12 @@ export function CheckFlow() {
             )}
           </Card>
 
-          <div className="flex gap-2.5 mt-4">
-            <Button onClick={send} disabled={!ownershipOk || !auth} className="flex-1">
-              {tv("proceed")}
+          <div className="flex flex-col gap-2.5 mt-4">
+            <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
+              {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
+            </Button>
+            <Button onClick={send} disabled={!ownershipOk || !auth} className="flex-1 w-full">
+              {t("sendViaZakai")}
             </Button>
           </div>
           {(!ownershipOk || !auth) && (

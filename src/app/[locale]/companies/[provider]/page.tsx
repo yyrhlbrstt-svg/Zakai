@@ -14,6 +14,7 @@ import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
+import { fairnessScoreMap } from "@/lib/services/fairnessScoreMap";
 
 export const revalidate = 3600;
 
@@ -90,6 +91,7 @@ export default async function CompanyDetailPage({
   if (!listKnownProviders().includes(provider)) notFound();
 
   const outcomes = await loadOutcomes();
+  const fairness = (await fairnessScoreMap("IL")).get(provider);
   // MIN_SAMPLE still gates any *stat* about this provider — see companyScore.ts.
   // It no longer gates the page's existence: the categories a provider
   // appears in are static rule-pack config, not a data-driven claim, so a
@@ -107,6 +109,13 @@ export default async function CompanyDetailPage({
       </Link>
 
       <h1 className="font-display text-[clamp(26px,4.5vw,36px)] leading-tight mt-4 mb-2">{name}</h1>
+
+      {fairness && (
+        <p className="text-[14px] text-ink-soft mb-4">
+          {t("companies.fairnessScoreTag", { score: fairness.fairnessScore })} ·{" "}
+          <span className="text-[12px]">{t("companies.fairnessScoreHint")}</span>
+        </p>
+      )}
 
       {overall ? (
         <p className="text-ink-soft text-[15px] leading-relaxed mb-6">

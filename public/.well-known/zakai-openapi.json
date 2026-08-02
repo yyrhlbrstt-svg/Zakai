@@ -91,6 +91,43 @@
           }
         }
       }
+    },
+    "/fairness/scores": {
+      "get": {
+        "operationId": "listFairnessScores",
+        "summary": "De-identified provider win rates (0–100) from StrategyOutcome",
+        "tags": ["Fairness"],
+        "parameters": [
+          {
+            "name": "market",
+            "in": "query",
+            "schema": { "type": "string", "default": "IL", "pattern": "^[A-Z]{2}$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scores (empty until MIN_SAMPLE observations per provider)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FairnessScoresResponse" }
+              }
+            }
+          },
+          "429": { "description": "Rate limited" }
+        }
+      }
+    },
+    "/widget/validate": {
+      "get": {
+        "operationId": "validateWidgetKey",
+        "summary": "Validate partner widget API key for Origin",
+        "tags": ["Widget"],
+        "parameters": [],
+        "responses": {
+          "200": { "description": "Valid key" },
+          "403": { "description": "Invalid or missing key" }
+        }
+      }
     }
   },
   "components": {
@@ -123,6 +160,30 @@
           "required_fields": { "type": "array", "items": { "type": "object" } },
           "predicate_structure": { "type": "object" },
           "requires_human_gate": { "type": "boolean" }
+        }
+      },
+      "FairnessScoresResponse": {
+        "type": "object",
+        "required": ["market", "min_observations", "providers", "disclaimer"],
+        "properties": {
+          "market": { "type": "string" },
+          "min_observations": { "type": "integer" },
+          "disclaimer": { "type": "string" },
+          "providers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FairnessProviderScore" }
+          },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "FairnessProviderScore": {
+        "type": "object",
+        "properties": {
+          "provider": { "type": "string" },
+          "fairnessScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "observations": { "type": "integer" },
+          "wins": { "type": "integer" },
+          "methodology": { "type": "string", "enum": ["strategy_outcome_win_rate"] }
         }
       }
     }
