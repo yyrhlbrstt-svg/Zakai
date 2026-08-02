@@ -26,6 +26,8 @@ import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
+import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
+import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { feeBasisForVertical } from "@/lib/verticals";
@@ -307,6 +309,8 @@ export default async function DashboardPage({
 
       <ReminderBanner />
 
+      <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
+
       {!paymentsFullyLive() && (
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed">
           {locale === "he"
@@ -450,6 +454,12 @@ export default async function DashboardPage({
             <Link href="/electricity">
               <Button variant="ghost">{locale === "he" ? "חשמל" : "Electricity"}</Button>
             </Link>
+          </div>
+          <div className="mt-8 text-start">
+            <div className="text-[12.5px] font-extrabold text-ink-soft mb-3 uppercase tracking-wide">
+              {locale === "he" ? "מה כדאי לפתוח עכשיו" : "What to open now"}
+            </div>
+            <PriorityActionsRanked limit={4} />
           </div>
           <EmptyDashboardActions />
         </Card>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { confirmFeePayment } from "@/lib/services/payments";
+import { dashboardFeeRedirectPath } from "@/lib/services/paymentRedirect";
 import { paymentProvider, type CallbackContext } from "@/lib/payments";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
@@ -21,22 +22,21 @@ function toHeaders(request: Request): Record<string, string> {
 }
 
 async function handle(ctx: CallbackContext, redirect: boolean, origin: string) {
+  const localeHint = ctx.query.loc ?? ctx.query.locale ?? null;
+  const feeIdFromQuery = ctx.query.feeId ?? (ctx.body.feeId as string | undefined);
   try {
     const verified = await paymentProvider().verifyCallback(ctx);
     if (!verified) {
-      // Unauthenticated / unverifiable callback — refuse to confirm anything.
       if (redirect) {
-        const to = new URL("/he/dashboard", origin);
-        to.searchParams.set("fee", "error");
-        return NextResponse.redirect(to);
+        const path = await dashboardFeeRedirectPath("error", feeIdFromQuery, localeHint);
+        return NextResponse.redirect(new URL(path, origin));
       }
       return NextResponse.json({ ok: false, error: "unverified" }, { status: 400 });
     }
     const ok = await confirmFeePayment(verified.feeId, verified.providerRef);
     if (redirect) {
-      const to = new URL("/he/dashboard", origin);
-      to.searchParams.set("fee", ok ? "paid" : "error");
-      return NextResponse.redirect(to);
+      const path = await dashboardFeeRedirectPath(ok ? "paid" : "error", verified.feeId, localeHint);
+      return NextResponse.redirect(new URL(path, origin));
     }
     return NextResponse.json({ ok });
   } catch (err) {

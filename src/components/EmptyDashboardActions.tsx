@@ -3,7 +3,6 @@
 import { useLocale , useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
-import { PriorityActions } from "@/components/PriorityActions";
 
 /** Shown when the user has zero cases — problem doors first, then ranked actions. */
 export function EmptyDashboardActions() {
@@ -48,11 +47,6 @@ export function EmptyDashboardActions() {
           </Link>
         </div>
       </div>
-
-      <div className="text-[12.5px] font-extrabold text-ink-soft mb-3 uppercase tracking-wide">
-        {tIcomponents_EmptyDashboardActions("t_ca829952")}
-      </div>
-      <PriorityActions limit={4} />
     </div>
   );
 }

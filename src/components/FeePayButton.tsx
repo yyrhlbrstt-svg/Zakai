@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 /**
  * "Pay your success fee" — kicks off the PSP checkout for a case's pending fee
@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
  */
 export function FeePayButton({ caseId }: { caseId: string }) {
   const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
 
@@ -18,7 +19,11 @@ export function FeePayButton({ caseId }: { caseId: string }) {
     setBusy(true);
     setError(false);
     try {
-      const res = await fetch(`/api/cases/${caseId}/fee/checkout`, { method: "POST" });
+      const res = await fetch(`/api/cases/${caseId}/fee/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locale }),
+      });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.checkoutUrl) {
         window.location.href = data.checkoutUrl;

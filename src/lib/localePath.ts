@@ -1,4 +1,5 @@
-import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
+import type { Locale } from "@/i18n/config";
+import { defaultLocale, isLocale } from "@/i18n/config";
 
 const LOCALE_PREFIX = /^\/(he|en|ar|ru|de|fr)(\/|$)/;
 
@@ -33,4 +34,9 @@ export function absoluteLocaleUrl(
 ): string {
   const base = baseUrl.replace(/\/+$/, "");
   return `${base}${localePath(locale, pathname)}`;
+}
+
+export function parseLocaleParam(value: string | null | undefined): Locale {
+  if (value && isLocale(value)) return value;
+  return defaultLocale;
 }
