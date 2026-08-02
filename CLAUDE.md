@@ -101,6 +101,12 @@ MANDATE_ISSUE_KEY=
 MANDATE_REVOKE_KEY=
 MANDATE_ISSUER=https://zakai-3uxj.vercel.app
 
+# Cron authentication. In production every /api/cron/* endpoint fails closed
+# (503) until this is set — the alternative was crons anyone on the internet
+# could trigger, which is the state production was actually found in. Vercel
+# sends the value automatically as a Bearer header once the env var exists.
+CRON_SECRET=
+
 # Collecting the success fee. Without PAYMENT_PROVIDER set to a real PSP,
 # src/lib/payments/index.ts silently runs the `mock` provider: the whole
 # checkout flow works end-to-end, but no real money ever moves and no card

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { reportError } from "@/lib/report-error";
-import { secretsMatch } from "@/lib/security/timingSafe";
+import { requireCronAuth } from "@/lib/security/cronAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +18,11 @@ const DIGEST_COOLDOWN_DAYS = 25;
  * recovery becomes an ongoing relationship. Every number comes from that user's
  * own real cases; nothing is invented.
  *
- * Runs via Vercel Cron (monthly). Guarded by CRON_SECRET when set.
+ * Runs via Vercel Cron (monthly). Guarded by requireCronAuth (fail-closed).
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret && !secretsMatch(request.headers.get("authorization") || "", `Bearer ${secret}`)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const unauthorized = requireCronAuth(request);
+  if (unauthorized) return unauthorized;
 
   const cooldown = new Date(Date.now() - DIGEST_COOLDOWN_DAYS * 86_400_000);
 

@@ -5,7 +5,7 @@ import { pushToUser } from "@/lib/push";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
-import { secretsMatch } from "@/lib/security/timingSafe";
+import { requireCronAuth } from "@/lib/security/cronAuth";
 import { isReminderDue } from "@/lib/deadlines";
 
 export const dynamic = "force-dynamic";
@@ -24,10 +24,8 @@ const SENT_COOLDOWN_DAYS = 12;
  *    (Mandate-backed, written, no phone, no human).
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret && !secretsMatch(request.headers.get("authorization") || "", `Bearer ${secret}`)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const unauthorized = requireCronAuth(request);
+  if (unauthorized) return unauthorized;
 
   const cutoff = new Date(Date.now() - RECHECK_AFTER_DAYS * 86_400_000);
   const cooldown = new Date(Date.now() - NUDGE_COOLDOWN_DAYS * 86_400_000);

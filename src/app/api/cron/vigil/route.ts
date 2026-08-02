@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { runVigil } from "@/lib/vigil/run";
 import { reportError } from "@/lib/report-error";
-import { secretsMatch } from "@/lib/security/timingSafe";
+import { requireCronAuth } from "@/lib/security/cronAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +15,8 @@ export const dynamic = "force-dynamic";
  * has already passed.
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret && !secretsMatch(request.headers.get("authorization") || "", `Bearer ${secret}`)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const unauthorized = requireCronAuth(request);
+  if (unauthorized) return unauthorized;
 
   try {
     const result = await runVigil();

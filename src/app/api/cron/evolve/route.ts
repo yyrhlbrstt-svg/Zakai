@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { runEvolutionCycle } from "@/lib/evolve/store";
 import { assessOracleCalibration } from "@/lib/oracle/store";
 import { reportError } from "@/lib/report-error";
-import { secretsMatch } from "@/lib/security/timingSafe";
+import { requireCronAuth } from "@/lib/security/cronAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +22,8 @@ export const dynamic = "force-dynamic";
  * turned off for good.
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret && !secretsMatch(request.headers.get("authorization") || "", `Bearer ${secret}`)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const unauthorized = requireCronAuth(request);
+  if (unauthorized) return unauthorized;
 
   try {
     const result = await runEvolutionCycle();
