@@ -228,18 +228,26 @@ export function CaseNextStep({
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [proofsCopied, setProofsCopied] = useState(false);
+  let navigatedAfterSave = false;
 
   const proofsAddr =
     proofsEmail ||
     (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PROOFS_EMAIL) ||
     "proofs@zakai.app";
 
+  function finishSaving() {
+    scheduleRecheckReminder(caseId);
+    navigatedAfterSave = true;
+    router.push(`/dashboard?saved=1&case=${caseId}`);
+  }
+
   async function run(fn: () => Promise<void>) {
     setErr(null);
     setBusy(true);
+    navigatedAfterSave = false;
     try {
       await fn();
-      router.refresh();
+      if (!navigatedAfterSave) router.refresh();
     } catch {
       setErr(t(locale, "err"));
     } finally {
@@ -279,6 +287,12 @@ export function CaseNextStep({
     return (
       <div className="w-full mt-2 rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] p-4">
         <div className="text-[15px] font-extrabold text-emerald">{t(locale, "savedTitle")}</div>
+        {documentedSavingShekels != null && documentedSavingShekels > 0 ? (
+          <div className="text-[26px] font-display font-black grad-text mt-2 mb-1">
+            ₪{documentedSavingShekels}
+            {feeBasis === "monthly" ? (he ? "/ח׳" : "/mo") : he ? " מתועד" : " documented"}
+          </div>
+        ) : null}
         <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
         <div className="flex flex-wrap gap-2">
           <button
@@ -547,7 +561,7 @@ export function CaseNextStep({
                     body: JSON.stringify({ newAmountShekels: proposed.newAmountShekels }),
                   });
                   if (!res.ok) throw new Error("save");
-                  scheduleRecheckReminder(caseId);
+                  finishSaving();
                 })
               }
             >
@@ -654,7 +668,7 @@ export function CaseNextStep({
                   body: JSON.stringify({ newAmountShekels: Number(newAmt) }),
                 });
                 if (!res.ok) throw new Error("save");
-                scheduleRecheckReminder(caseId);
+                finishSaving();
               })
             }
           >
@@ -673,6 +687,7 @@ export function CaseNextStep({
                     body: JSON.stringify({ newAmountShekels: 0 }),
                   });
                   if (!res.ok) throw new Error("save");
+                  finishSaving();
                 })
               }
             >
@@ -691,6 +706,7 @@ export function CaseNextStep({
                     body: JSON.stringify({ newAmountShekels: amountOriginalShekels }),
                   });
                   if (!res.ok) throw new Error("save");
+                  finishSaving();
                 })
               }
             >

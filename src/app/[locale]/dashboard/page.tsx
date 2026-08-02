@@ -55,10 +55,10 @@ export default async function DashboardPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ fee?: string; intent?: string; case?: string }>;
+  searchParams: Promise<{ fee?: string; intent?: string; case?: string; saved?: string }>;
 }) {
   const { locale } = await params;
-  const { fee: feeStatus, intent, case: highlightCase } = await searchParams;
+  const { fee: feeStatus, intent, case: highlightCase, saved: savedCelebrate } = await searchParams;
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
@@ -76,6 +76,12 @@ export default async function DashboardPage({
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
   const proposedMap = await getProposedSavingsMap(sentIds);
   const proposedCount = proposedMap.size;
+
+  const celebrateCase =
+    (highlightCase
+      ? cases.find((c) => c.id === highlightCase && c.status === "SAVED")
+      : undefined) ??
+    cases.find((c) => c.status === "SAVED" && (c.savingsProof?.savingMonthly ?? 0) > 0);
 
   const agentRoundMap = new Map<string, number>();
   if (sentIds.length > 0) {
@@ -268,6 +274,29 @@ export default async function DashboardPage({
   const moneyLabel =
     locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
 
+  const justDocumentedSaving = savedCelebrate === "1";
+  const celebrateSavingAgorot = celebrateCase?.savingsProof?.savingMonthly ?? 0;
+  const celebrateFeeBasis = celebrateCase ? feeBasisForVertical(celebrateCase.vertical) : "monthly";
+  const celebrateProviderLabel = celebrateCase ? providerHebrewName(celebrateCase.provider) : "";
+  const celebrateAmountLabel =
+    celebrateSavingAgorot > 0
+      ? celebrateFeeBasis === "monthly"
+        ? `${formatAgorot(celebrateSavingAgorot, loc)}${t("common.perMonthTag")}`
+        : formatAgorot(celebrateSavingAgorot, loc)
+      : undefined;
+  const shareMessage =
+    justDocumentedSaving && celebrateSavingAgorot > 0
+      ? t("share.msgSaved", { amount: formatAgorot(celebrateSavingAgorot, loc) })
+      : totalDocumentedMonthly > 0
+        ? t("share.msgSaved", { amount: formatAgorot(totalDocumentedMonthly, loc) })
+        : t("share.msgReferral");
+  const shareAmountLabel =
+    justDocumentedSaving && celebrateAmountLabel
+      ? celebrateAmountLabel
+      : totalDocumentedMonthly > 0
+        ? `${formatAgorot(totalDocumentedMonthly, loc)}${t("common.perMonthTag")}`
+        : undefined;
+
   return (
     <main className="max-w-[900px] mx-auto px-5 pb-20 pt-1">
       <CaseHighlightScroll caseId={highlightCase} />
@@ -333,6 +362,18 @@ export default async function DashboardPage({
           {t("dashboard.feeErrorBanner")}
         </div>
       )}
+      {justDocumentedSaving && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.14)] px-5 py-4 mb-5">
+          <div className="font-display text-2xl grad-text m-0">{t("dashboard.savedCelebrateTitle")}</div>
+          {celebrateSavingAgorot > 0 ? (
+            <div className="font-display text-3xl font-black text-emerald mt-2">
+              {formatAgorot(celebrateSavingAgorot, loc)}
+              {celebrateFeeBasis === "monthly" ? t("common.perMonthTag") : null}
+            </div>
+          ) : null}
+          <p className="text-[13.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{t("dashboard.savedCelebrateSub")}</p>
+        </div>
+      )}
       {(user!.plan === "PRO" || user!.plan === "MAX") && (
         <div
           className={`rounded-2xl p-[1px] mb-6 ${
@@ -364,17 +405,10 @@ export default async function DashboardPage({
       <StrategyInsightsCard locale={locale} bcp47={loc} />
 
       <ShareResult
-        message={
-          totalDocumentedMonthly > 0
-            ? t("share.msgSaved", { amount: formatAgorot(totalDocumentedMonthly, loc) })
-            : t("share.msgReferral")
-        }
+        message={shareMessage}
         referralCode={referralCode}
-        amountLabel={
-          totalDocumentedMonthly > 0
-            ? `${formatAgorot(totalDocumentedMonthly, loc)}${t("common.perMonthTag")}`
-            : undefined
-        }
+        amountLabel={shareAmountLabel}
+        kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
       />
 
       <div className="mt-5">

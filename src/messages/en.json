@@ -607,6 +607,8 @@
     "feePaid": "paid",
     "feePaidBanner": "Payment received — thank you! The fee was paid successfully.",
     "feeErrorBanner": "Payment did not complete. You can try again from the fee below.",
+    "savedCelebrateTitle": "Saving documented — nice work!",
+    "savedCelebrateSub": "Share with someone who overpays — one tap below.",
     "intentTitle": "We’ve started handling your request",
     "intentGeneric": "Zakai will check your eligibility and handle the whole claim end-to-end — without you ever leaving the app.",
     "intentCta": "Let’s start",
@@ -2364,7 +2366,10 @@
     "sub": "Add it to your home screen — opens like an app, no store.",
     "iosHint": "Tap the Share button, then \"Add to Home Screen\".",
     "cta": "Install",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "moneyTitle": "Keep Money OS on your home screen",
+    "moneyHintHe": "הוסיפו למסך הבית — חיובים, תיקים והתראות במקום אחד.",
+    "moneyHintEn": "Add to home screen — charges, cases, and alerts in one place, no app store."
   },
   "unemployment": {
     "title": "Unemployment benefit estimator",
