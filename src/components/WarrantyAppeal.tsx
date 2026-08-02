@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Input, Button, Textarea } from "@/components/ui";
+import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 
 export function WarrantyAppeal() {
   const t = useTranslations("warranty");
   const router = useRouter();
   const [name, setName] = useState("");
   const [seller, setSeller] = useState("");
+  const [sellerEmail, setSellerEmail] = useState("");
   const [product, setProduct] = useState("");
   const [fault, setFault] = useState("");
   const [repairCost, setRepairCost] = useState("");
@@ -32,6 +34,7 @@ export function WarrantyAppeal() {
         body: JSON.stringify({
           customerName: name,
           seller,
+          sellerEmail: sellerEmail.trim(),
           product,
           fault,
           repairCostShekels: repairCost ? Number(repairCost) : undefined,
@@ -43,6 +46,10 @@ export function WarrantyAppeal() {
         return;
       }
       if (!res.ok) {
+        if (data.error === "needsOutreachEmail") {
+          setError(t("agentNeedsEmail"));
+          return;
+        }
         setError(
           data.error === "caseLimit"
             ? t("agentCaseLimit")
@@ -52,6 +59,7 @@ export function WarrantyAppeal() {
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
       setError(t("agentError"));
     } finally {
@@ -59,7 +67,11 @@ export function WarrantyAppeal() {
     }
   }
 
-  const ready = seller.trim() && product.trim() && fault.trim().length >= 3;
+  const ready =
+    seller.trim() &&
+    product.trim() &&
+    fault.trim().length >= 3 &&
+    normalizeOutreachEmail(sellerEmail) !== null;
 
   return (
     <div className="mt-8">
@@ -74,6 +86,16 @@ export function WarrantyAppeal() {
           <label className="block">
             <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentSeller")}</span>
             <Input value={seller} onChange={(e) => setSeller(e.target.value)} maxLength={80} />
+          </label>
+          <label className="block">
+            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentSellerEmail")}</span>
+            <Input
+              type="email"
+              value={sellerEmail}
+              onChange={(e) => setSellerEmail(e.target.value)}
+              maxLength={120}
+              dir="ltr"
+            />
           </label>
           <label className="block">
             <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentProduct")}</span>

@@ -17,6 +17,23 @@
     "perMonthTag": "/mo",
     "currency": "₪"
   },
+  "opsBanner": {
+    "preBilling": "Transparency: paid subscriptions (Pro/Max) are not charged yet — billing is not connected. Success fees are recorded per plan; nothing is charged automatically without an explicit action from you."
+  },
+  "about": {
+    "metaTitle": "Why Zakai",
+    "metaDesc": "How Zakai differs from DIY or traditional bill-negotiation services — no fake testimonials, only documented proof.",
+    "title": "Why Zakai",
+    "subtitle": "The same story as the homepage — in full, with links to tools and proof. No invented quotes: only what appears in the proof ledger.",
+    "proofPitch": "Want to see it's real? The proofs wall and results page show documented savings only — not fabricated success stories.",
+    "proofsCta": "Proofs wall",
+    "resultsCta": "Documented results",
+    "catalogTitle": "Rights catalog",
+    "catalogBody": "More than {count} rights and benefits in one place — tax, national insurance, banking, army and more. Personalized check in your browser, no signup.",
+    "rightsCta": "Open rights check",
+    "trustCta": "Trust & privacy",
+    "startCta": "Start with My money"
+  },
   "nav": {
     "home": "Home",
     "dashboard": "My dashboard",
@@ -235,12 +252,12 @@
     "kicker": "The agent that gives you back your money — and your time",
     "title1": "You're overpaying.",
     "title2": "Zakai gets it back.",
-    "sub": "Zakai scans your bills, drafts the request, sends it in your name and follows up until the money comes back — without you calling anyone. No call centre, no waiting on hold, no forms. Fee only on money that actually returns to you.",
+    "sub": "Zakai scans charges, drafts outreach, and after you approve and verify — sends in your name with a Mandate and tracks documented savings. No call centre, no forms. Fee only on money that actually returns.",
     "cta": "Check a bill now",
     "heroLeaks": "Money leak map",
     "howTitle": "How it works",
     "trust": [
-      "Zero phone calls — the agent calls for you, not the other way round",
+      "Zero phone calls — everything in-app, under your mandate",
       "Success fee only — 18% of the saving",
       "Full disclosure — a digital agent under your mandate, publicly verifiable"
     ],
@@ -490,6 +507,7 @@
     "strategyTitle": "What Zakai plans to ask for",
     "draftTitle": "The request sent on your behalf",
     "draftNote": "This is exactly what will be sent to the provider. You approve it before it goes out.",
+    "providerEmailPlaceholder": "Provider customer-service email (required for Other)",
     "editDraft": "Want to change something? Edit the text",
     "consentLabel": "I authorize Zakai to act on my behalf with",
     "consentLabel2": "regarding this matter, as described above. This authorization is recorded with a timestamp.",
@@ -510,6 +528,7 @@
     "annualSaving": "Annual saving",
     "feeNote": "Success fee (18%)",
     "feeExplain": "You pay only because it worked. No saving, no fee.",
+    "payFeeNow": "Pay success fee now",
     "noSaving": "No saving was documented for this request — so there is no fee. You can try another provider or plan.",
     "newCase": "Check another bill",
     "toDash": "To dashboard",
@@ -530,6 +549,8 @@
     "verifyCode": "Verify code",
     "codeSent": "Code sent.",
     "codeInvalid": "Wrong or expired code. Try again.",
+    "needsEmail": "Missing provider email — go back and enter a service address.",
+    "alreadySent": "Already sent — track replies on the dashboard.",
     "codeExpired": "The code expired. Request a new one.",
     "tooManyAttempts": "Too many attempts. Request a new code in a few minutes.",
     "ownershipVerified": "Ownership verified.",
@@ -575,7 +596,9 @@
     "principalLabel": "Customer",
     "providerLabel": "Provider",
     "issuedLabel": "Issued on",
-    "scopeLabel": "Scope of authorization"
+    "scopeLabel": "Scope of authorization",
+    "mandateAudienceLabel": "Institution id (Mandate aud)",
+    "leaderBadge": "Zakai Mandate verification leader — public JWKS verify path"
   },
   "dashboard": {
     "title": "My dashboard",
@@ -616,6 +639,10 @@
     "agentNudgeSub": "Continue the agent flow (verify, send, or record saving). No phone call.",
     "proposedNudgeTitle": "The agent spotted a provider reply",
     "proposedNudgeSub": "Tap to one-tap record the saving — this step closes the money loop.",
+    "feeNudgeTitle": "Success fee ready — pay in one tap",
+    "feeNudgeSub": "You documented real savings. Amount due: {amount} — only on what you actually saved.",
+    "feeOutstandingTitle": "Outstanding success fees",
+    "feeOutstandingSub": "Total {amount} — secure checkout, no call center.",
     "intentTitle": "We’ve started handling your request",
     "intentGeneric": "Zakai will check your eligibility and handle the whole claim end-to-end — without you ever leaving the app.",
     "intentCta": "Let’s start",
@@ -693,7 +720,8 @@
     "whatAmIOwed": "What am I owed?",
     "companies": "Zakai Score",
     "allTools": "All tools",
-    "networkProof": "Network proof"
+    "networkProof": "Network proof",
+    "about": "Why Zakai"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -743,8 +771,7 @@
           "Full recurring-charges scan — every finding",
           "\"Stealth price-hike\" radar: automatic monthly re-check + alert when a price quietly jumps",
           "The smart assistant — up to 100 questions a month",
-          "Priority handling of your cases",
-          "Exclusive coupons & deals for savers (coming soon)"
+          "Priority handling of your cases"
         ]
       },
       "MAX": {
@@ -755,13 +782,18 @@
           "Unlimited checks",
           "The smart assistant — up to 300 questions a month",
           "Everything in Pro",
-          "Zakai Family — protect your parents and grandparents too (coming soon)",
-          "Premium coupons & deals (coming soon)",
           "Full priority + first access to new features"
         ]
       }
     },
-    "paymentComing": "Paid plans open the moment we connect billing. Leave it with us — you will be first to upgrade. (Downgrading to Free works now.)"
+    "paymentComing": "Paid plans open the moment we connect billing. Leave it with us — you will be first to upgrade. (Downgrading to Free works now.)",
+    "maxRoiTitle": "Does Max pay off for you?",
+    "maxRoiSub": "Max costs ₪59.90/month and removes success fees. Enter the documented monthly saving you expect — we'll compare to what you'd pay on Free or Pro.",
+    "maxRoiInput": "Estimated documented monthly saving",
+    "maxRoiYes": "At this level, Max likely pays for itself in fees you avoid — worth considering.",
+    "maxRoiNo": "At this level, Free or Pro is still cheaper on fees — unless you need the higher limits.",
+    "maxRoiBreakevenFree": "Breakeven vs Free (18% fee): about {amount} documented saving per month.",
+    "maxRoiBreakevenPro": "Breakeven vs Pro (9% fee): about {amount} documented saving per month."
   },
   "scan": {
     "title": "What am I paying for?",
@@ -965,7 +997,8 @@
       "flights": "Flight compensation",
       "subs": "Subscriptions"
     },
-    "cta": "Start getting it back",
+    "cta": "Check my bills — free",
+    "ctaScan": "Scan recurring charges (CSV)",
     "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
   },
   "intentTriage": {
@@ -979,6 +1012,7 @@
   "rights": {
     "title": "The Big Rights Check",
     "subtitle": "76 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "categoryNav": "Jump to category",
     "q": {
       "age": "Age",
       "ages": {
@@ -2114,6 +2148,7 @@
   "legalPages": {
     "termsTitle": "Terms of Service",
     "privacyTitle": "Privacy Policy",
+    "privacyContact": "Privacy questions and rights requests: {email}. We respond within the statutory timeframe.",
     "updated": "Last updated: July 2026",
     "legalNote": "Drafted carefully but not yet attorney-reviewed; full legal review will precede any real charging.",
     "terms": [
@@ -2197,7 +2232,7 @@
       },
       {
         "h": "Contact",
-        "p": "Privacy questions and rights requests: support@zakai.example (to be updated). We respond within the statutory timeframe."
+        "p": "Privacy questions and rights requests: {email}. We respond within the statutory timeframe."
       }
     ]
   },
@@ -2271,14 +2306,14 @@
     "copied": "Copied!",
     "sendHint": "Send the letter yourself, by email or registered mail",
     "clientEmailQ": "Client's email",
-    "agentSendCta": "Agent sends & tracks now",
+    "agentSendCta": "Open case — continue on dashboard (verify & send)",
     "agentBusy": "Agent opening case…",
     "agentNeedsLate": "The agent can only chase a payment that's actually overdue — not yet, based on the date above.",
     "caseLimitError": "You've reached your case limit. Upgrade or close an existing case.",
     "notLateYetError": "This invoice isn't overdue yet under the law — nothing to escalate.",
     "genericError": "Something went wrong. Try again.",
     "caseOpenedTitle": "Case opened",
-    "caseOpenedBody": "Zakai's agent will send the demand to your client with a Mandate authorization attached, and track the reply. A success fee applies only once the invoice is actually paid.",
+    "caseOpenedBody": "Case opened with the letter. On the dashboard: verify → send to your client with Mandate → track. Success fee only when the invoice is actually paid.",
     "goToDashboard": "Go to dashboard",
     "disclaimer": "An estimate only, based on what you entered. The actual interest and indexation owed are computed under the law and are not estimated here — not a substitute for legal advice."
   },
@@ -3086,16 +3121,18 @@
     "templateTitle": "Ready-to-copy letter",
     "templateSub": "Copy it, fill in the details in brackets, and send it yourself to the importer/manufacturer. This is a letter you send in your own name — Zakai does not represent you.",
     "template": "To Customer Service, [importer/manufacturer name],\n\nMy name is [full name]. On [purchase date] I bought [product name and model], serial number [serial], as shown in the attached proof of purchase.\n\nThe product is within its warranty period and recently developed a fault: [describe the fault]. I request to exercise the warranty and repair the defect at no cost, and if it cannot be repaired in a reasonable number of attempts — to replace it or refund me, as provided by law.\n\nI'd be glad to schedule a time and receive a written reply within a reasonable period. Thank you,\n[full name] · [phone] · [date]",
-    "agentTitle": "Agent sends on your behalf — with Mandate",
-    "agentSub": "Fill in the details; the agent opens a Case, attaches a Mandate, and sends the demand in writing. Success fee only on a documented outcome (free repair / replacement / refund).",
+    "agentTitle": "Agent case — send after verification (Mandate)",
+    "agentSub": "Fill in details and the importer's email. We open a pre-approved case — send from the dashboard after verification, with Mandate.",
     "agentName": "Full name",
     "agentSeller": "Seller / importer",
+    "agentSellerEmail": "Service / importer email (for sending)",
     "agentProduct": "Product name and model",
     "agentFault": "What is the fault?",
     "agentRepairCost": "Estimated repair cost (₪) — optional",
-    "agentCta": "Agent send and track now",
+    "agentCta": "Open case — continue on dashboard (verify & send)",
     "agentBusy": "Opening your case…",
     "agentCaseLimit": "You've reached the active-case limit on your plan.",
+    "agentNeedsEmail": "Missing importer email — enter a service address.",
     "agentError": "Something went wrong. Try again.",
     "templateOnly": "Template only (no agent)",
     "agentOpenedTitle": "Case opened",
@@ -3170,7 +3207,7 @@
   },
   "arnonaAgent": {
     "title": "Send a discount / objection with Zakai",
-    "sub": "The agent sends a Mandate-backed letter to the municipality, tracks replies, and charges a success fee only on documented monthly arnona savings.",
+    "sub": "Municipal objection case: letter, authority email, dashboard verification, Mandate send and tracking. Success fee only on documented savings.",
     "claimType": "Request type",
     "monthlyQ": "Current monthly arnona (₪)",
     "municipalityQ": "Municipality name",
@@ -3179,14 +3216,14 @@
     "idQ": "ID number",
     "addressQ": "Property address (optional)",
     "detailsQ": "Area / classification details (optional)",
-    "sendBtn": "Open a case and send with Zakai",
+    "sendBtn": "Open case — continue on dashboard",
     "sending": "Opening case…",
-    "caseOpenedTitle": "Case opened — the agent takes it from here",
+    "caseOpenedTitle": "Case opened",
     "caseOpenedBody": "On your dashboard you can approve, send the letter to the municipality, and record savings after a written decision.",
     "dashboard": "Go to dashboard",
     "caseLimitError": "You've reached the active-case limit on your plan.",
     "genericError": "Couldn't open a case. Try again or sign in again.",
-    "disclaimer": "Not legal advice. Zakai sends a written request; documents and decisions remain your responsibility.",
+    "disclaimer": "Not legal advice. You send after verification; documents and decisions remain your responsibility.",
     "rights": {
       "arnona_income": "Income-test discount",
       "arnona_oleh": "New immigrant discount",
@@ -3387,7 +3424,7 @@
     "landlordQ": "Landlord's name",
     "landlordEmailQ": "Landlord's email",
     "addressQ": "Property address",
-    "agentSendCta": "Agent sends & tracks now",
+    "agentSendCta": "Open case — continue on dashboard (verify & send)",
     "agentBusy": "Agent opening case…",
     "generateCta": "Just give me the letter",
     "agentNeedsLate": "The agent can only chase a deposit that's actually overdue — not yet, based on the vacate date above.",
@@ -3395,7 +3432,7 @@
     "notLateYetError": "The return deadline hasn't passed yet under the law — nothing to escalate.",
     "genericError": "Something went wrong. Try again.",
     "caseOpenedTitle": "Case opened",
-    "caseOpenedBody": "Zakai's agent will send the demand to your landlord with a Mandate authorization attached, and track the reply. A success fee applies only once the deposit is actually returned.",
+    "caseOpenedBody": "Case opened with the letter. On the dashboard: verify → send to your landlord with Mandate → track. Success fee only when the deposit is actually returned.",
     "goToDashboard": "Go to dashboard",
     "copy": "Copy",
     "copied": "Copied!",
@@ -3479,20 +3516,20 @@
     "disclaimer": "This is an illustrative first check that runs in your browser and isn't saved. Not insurance advice — before cancelling a policy, confirm with your insurer that no unique cover is lost."
   },
   "dupInsuranceAgent": {
-    "title": "Zakai sends a written cancellation request to your insurer",
-    "sub": "After flagging indemnity overlap, enter your private insurer's details — the agent sends a Mandate-backed letter, tracks replies, and charges a success fee only on documented monthly savings.",
+    "title": "Cancel duplicate cover — case with Mandate",
+    "sub": "After flagging indemnity overlap: insurer details and email → dashboard case → verify → send. Success fee only on documented savings.",
     "estMonthly": "Estimated monthly premium on redundant cover: {amount}",
     "nameQ": "Your full name (optional)",
     "insurerQ": "Private insurer name",
     "emailQ": "Insurer correspondence email",
-    "sendBtn": "Open a case and send with Zakai",
+    "sendBtn": "Open case — continue on dashboard",
     "sending": "Opening case…",
-    "caseOpenedTitle": "Case opened — the agent takes it from here",
+    "caseOpenedTitle": "Case opened",
     "caseOpenedBody": "On your dashboard you can approve, send the letter to the insurer, and track replies. Success fee only on documented monthly savings.",
     "dashboard": "Go to dashboard",
     "caseLimitError": "You've reached the active-case limit on your plan.",
     "genericError": "Couldn't open a case. Try again or sign in again.",
-    "disclaimer": "Not insurance advice. Zakai sends a written request; you decide whether to cancel."
+    "disclaimer": "Not insurance advice. You send after verification; the decision to cancel stays yours."
   },
   "constructionDefects": {
     "metaTitle": "Construction defects — up to tens of thousands ₪ from the developer | Zakai",
@@ -4158,7 +4195,7 @@
     "desc": "The AI agent that gets back the money you’re owed: tax refunds, lost money, flight compensation, benefits, bill reductions and more — a fee only on documented savings."
   },
   "claim": {
-    "intro": "Fill in the details and Zakai prepares the formal letter here — ready to send. Nothing leaves the app.",
+    "intro": "Draft prep tool: fill in the fields and tap «Prepare the letter». The letter is generated in your browser — it is not sent automatically to anyone.",
     "generate": "Prepare the letter",
     "subject": "Subject",
     "copy": "Copy",
@@ -4487,12 +4524,12 @@
     "title": "Where do you start?",
     "money": {
       "title": "I'm paying too much",
-      "sub": "Photograph a bill — the agent drafts, sends, follows up and documents the saving.",
+      "sub": "Photograph a bill — open a case, verify on the dashboard, then Mandate send and follow-up.",
       "cta": "Check my money"
     },
     "cancel": {
       "title": "Cancel a subscription",
-      "sub": "The agent sends the cancellation in your name, with verified authority, and chases the reply.",
+      "sub": "Case + verified Mandate send to the provider — not an instant send from this page.",
       "cta": "Cancel it for me"
     },
     "owed": {
@@ -4531,7 +4568,24 @@
     "revokedNote": "Withdrawn. Any institution verifying with us will see this on its next check.",
     "revokeFailed": "The withdrawal did not complete. Please try again.",
     "revokeAll": "Withdraw everything",
-    "revokeAllConfirm": "Sure? Tap again to withdraw all"
+    "revokeAllConfirm": "Sure? Tap again to withdraw all",
+    "exportWallet": "Export authority wallet (JSON)",
+    "exporting": "Exporting…",
+    "exportDone": "Download started",
+    "exportFailed": "Could not export. Try again."
+  },
+  "agentFlow": {
+    "openCase": "Open case — continue on dashboard (verify & send)",
+    "opening": "Opening case…",
+    "honestNote": "The agent does not send from this page: case → verify on dashboard → one Mandate send.",
+    "contactEmail": "Email to send to (support / billing / supplier)",
+    "contactEmailHint": "Without a real address, outreach will not reach the right inbox.",
+    "errorNeedsEmail": "Missing destination email — enter a valid address.",
+    "errorCaseLimit": "Case limit reached. Upgrade or close an open case.",
+    "errorGeneric": "Something went wrong. Try again.",
+    "errorAlreadySent": "This case was already sent — open the dashboard.",
+    "copied": "Copied",
+    "copyAll": "Copy all"
   },
   "inline_components_CancelTool": {
     "t_ebd6b437": "Your name",
@@ -4549,8 +4603,18 @@
     "t_9fc8b2a9": "Dashboard — verify + agent dispatch",
     "t_550c1f87": "Subject",
     "t_cf09ad5a": "Prefilled from scan / link — review and let the agent act",
-    "t_11cf65f5": "Letter ready and approved. On the dashboard: verify ownership (code / email link) → one tap and the agent sends with Mandate. Then forward the provider reply to proofs@.",
-    "t_d628bea2": "If you chose ‘agent sends’ — it goes with Mandate and tracks. Otherwise: send yourself via the company’s email/chat. If the price drops — record the saving on your dashboard."
+    "t_11cf65f5": "Letter ready and pre-approved. On the dashboard: verify ownership (code / email link) → one tap and the agent sends with Mandate. Then forward the provider reply to proofs@.",
+    "t_d628bea2": "‘Open case with agent’ sends from the dashboard after verification, with Mandate and tracking. ‘Letter only’ means you send it yourself.",
+    "contactEmailPlaceholder": "Company support / cancellations email (required if we have no known address)",
+    "contactEmailHint": "We do not have a public inbox for this merchant — enter the cancellations address from their site or invoice.",
+    "agentHonestNote": "The agent does not send from this page: we open a case, you verify ownership on the dashboard, then one send with Mandate to the email you provide.",
+    "agentOpenCase": "Open case — continue on dashboard (verify & send)",
+    "agentOpening": "Opening case…",
+    "errorCaseLimit": "Case limit reached. Upgrade or close an open case.",
+    "errorGeneric": "Something went wrong. Try again.",
+    "errorNeedsEmail": "Missing provider email — enter cancellations / support address.",
+    "copied": "Copied",
+    "copyAll": "Copy all"
   },
   "inline_components_MoneyHub": {
     "t_38d0577a": "My dashboard",
@@ -4602,14 +4666,16 @@
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_f9f3c72c": "Demand ready. On the dashboard: verify ownership → Mandate → mark sent. When the refund lands — record it as a saving."
+    "t_f9f3c72c": "Demand ready. On the dashboard: verify ownership → Mandate → send. When the refund lands — record it as a saving.",
+    "contactEmailPlaceholder": "Store / site email (for sending)"
   },
   "inline_components_ParkingAppeal": {
     "t_e3b93d14": "Ticket ₪ (optional)",
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_d489aedc": "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the ticket is cancelled — record the saving."
+    "t_d489aedc": "Appeal ready. On the dashboard: verify ownership → Mandate → send. When the ticket is cancelled — record the saving.",
+    "authorityEmail": "Municipality billing / appeals email"
   },
   "inline_components_CreditCardTool": {
     "t_540e7429": "Card balance ₪",
@@ -4629,7 +4695,8 @@
     "t_3e177a1f": "Who is this for? (optional — family)",
     "t_56630d92": "e.g. Mom · Grandpa",
     "t_62d5403d": "Case opened — continue on dashboard.",
-    "t_b1112228": "Agent opens a full Case with Mandate: ownership → send → auto follow-up → documented saving. Fee only when money is saved."
+    "t_b1112228": "Opens a pre-approved case — send from the dashboard after verification, with Mandate.",
+    "supplierEmail": "Electricity supplier email (for switch request)"
   },
   "inline_components_LeadForm": {
     "t_99e05b72": "Optional contact for later (not required, no promised call)",
@@ -4648,7 +4715,8 @@
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_013fe61d": "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the fine is cancelled — record the saving."
+    "t_013fe61d": "Appeal ready. On the dashboard: verify ownership → Mandate → send. When the fine is cancelled — record the saving.",
+    "operatorEmail": "Operator appeals / fines email"
   },
   "inline_components_FlightRightsChecker": {
     "t_360e126e": "✓ Agent opened a case — pre-approved",
@@ -4676,7 +4744,14 @@
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_5a0296a5": "Dispute ready. On the dashboard: verify ownership → Mandate → mark sent. When the fee is waived — record the saving."
+    "t_5a0296a5": "Dispute ready. On the dashboard: verify ownership → Mandate → mark sent. When the fee is waived — record the saving.",
+    "bankLabel": "Choose bank",
+    "agentOpening": "Agent opening case…",
+    "agentSend": "Open case — continue on dashboard (verify & send)",
+    "copy": "Copy",
+    "copied": "Copied",
+    "errorGeneric": "Something went wrong. Try again.",
+    "errorCaseLimit": "Case limit reached. Upgrade or close an existing case."
   },
   "inline_app_locale_money_page": {
     "t_98667843": "Money OS · My money",
@@ -4685,7 +4760,7 @@
     "t_bc18d8da": "Cancel sub with agent",
     "t_a4c2b6a9": "Cellular bill check",
     "t_38d0577a": "My dashboard",
-    "t_ef77bbd3": "No bank password. Screenshot or scan → Zakai finds recurring charges → opens a Mandate case → sends and follows up. Fee only on documented savings.",
+    "t_ef77bbd3": "Screenshot or scan → find recurring charges → open a Mandate case → verify and send on the dashboard. Fee only on documented savings.",
     "t_3e37c3c8": "Potentials are for prioritization only — not a promise. Fee only on documented savings. No call center, no phone left behind.",
     "metaTitle": "My money — Zakai",
     "metaDesc": "A map of your charges and agent actions — no bank passwords, no call center.",
@@ -4744,10 +4819,10 @@
     "t_cb700000": "What am I owed?",
     "t_8447dd09": "Loading…",
     "t_2764ad9b": "My money →",
-    "t_1bb70faa": "Netflix, gym, cloud, apps — the agent drafts, sends with Mandate, follows up and records the saving. No waiting on anyone.",
-    "t_5812ab29": "Agent sends, follows up, and records. Fee only on documented savings. No phone left behind.",
+    "t_1bb70faa": "Netflix, gym, cloud, apps — open a case, verify on the dashboard, send with Mandate, track savings. No call centre.",
+    "t_5812ab29": "Case, verify, send, track. Fee only on documented savings.",
     "metaTitle": "Cancel a subscription or get a discount — Zakai",
-    "metaDesc": "The Zakai agent cancels a subscription, asks for a discount, or freezes it — sends with a Mandate, follows up, and documents the saving. No call center, no leaving your phone number."
+    "metaDesc": "Cancel, discount, or pause — agent case, verification, Mandate send and tracking. No call centre."
   },
   "inline_app_locale_start_page": {
     "t_eb8bdcd9": "Money OS · no callback",
@@ -4756,10 +4831,10 @@
     "t_87c0ebfc": "Electricity high — agent switch",
     "t_e2ca32d5": "Cancel a sub with agent",
     "t_a5b579f8": "Bank fees",
-    "t_warranty_agent": "Product warranty — agent sends",
+    "t_warranty_agent": "Product warranty — agent case",
     "t_cb700000": "What am I owed?",
     "t_16c6cdf1": "Leaks map",
-    "t_d8d013b8": "Pick a problem. The agent opens a case, Mandate, sends and follows up. Fee only on documented savings.",
+    "t_d8d013b8": "Pick a problem — open a case, verify, send with Mandate, document savings. Fee only on documented outcomes.",
     "metaTitle": "Start now — Zakai Money OS",
     "metaDesc": "Scan → agent case with a Mandate. No call center. No leaving your phone number."
   },
@@ -5110,7 +5185,66 @@
     "fitTierHigh": "High fit (hypothesis)",
     "fitTierMedium": "Medium fit",
     "fitTierExploratory": "Exploratory",
-    "fitAdoptionBand": "In Israel, 1–3 verify pilots in ~18–24 months is plausible with live consumer proof and prod Mandate/SMTP. Broad adoption (5+ banks) needs regulatory comfort and consumer volume — not code alone."
+    "fitAdoptionBand": "In Israel, 1–3 verify pilots in ~18–24 months is plausible with live consumer proof and prod Mandate/SMTP. Broad adoption (5+ banks) needs regulatory comfort and consumer volume — not code alone.",
+    "leaderCtaTitle": "Reference Verifier leaders program",
+    "leaderCtaBody": "Finish JWKS + verify self-checks in ~30 minutes, opt into the public leaders wall (no sales call), and claim a Pioneer badge for the first three institutions — not regulatory certification, proof you can accept Mandates at scale.",
+    "leaderCtaLink": "Join as a verification leader",
+    "leaderWallLink": "Leaders wall",
+    "inboundPressureTitle": "Documented inbound pressure (not your full mailroom)",
+    "inboundPressureBody": "When consumers close Zakai cases against a mapped bank/provider, volume accumulates. Above the sample gate it appears here and in a public API — inbox pressure, not a sales deck.",
+    "inboundPressureEmpty": "No institution yet has enough documented outbound cases to publish a number — as the loop grows, this list will fill.",
+    "inboundPressureRow": "{dispatched} dispatched · {saved} with documented savings",
+    "inboundPressureDisclaimer": "Aggregate counts only, no customer identities. Excludes letters prepared outside Zakai.",
+    "inboundPressureApi": "JSON: inbound-pressure"
+  },
+  "institutionLeader": {
+    "metaTitle": "Mandate verification leaders — Zakai",
+    "metaDesc": "Self-serve wizard: JWKS, discovery, verify — optional listing on the institutions wall. Not regulatory approval.",
+    "kicker": "For institutions · no sales call",
+    "title": "Become a verification leader — on your timeline",
+    "sub": "A bank or institution that proves it hits the same endpoints every integrator needs, and passes verify on a demo token, can appear on the public wall and share co-branded embed — without claiming Zakai endorses it regulatorily.",
+    "disclaimerTitle": "What this is not",
+    "disclaimerBody": "Listing on the leaders wall is not supervisory approval, a credit rating, or legal advice. It means you ran the readiness checks on your side and agreed to publish your institution name.",
+    "benefit1": "Pioneer placement for the first three institutions that complete the wizard — a public signal of “we verified offline first.”",
+    "benefit2": "Co-branded embed link to your consumer page — the same Mandate loop already running in production.",
+    "benefit3": "For risk teams: the same test vectors and decide flow documented on /integrations — less time to pilot.",
+    "seeLeaders": "Public leaders wall",
+    "integrationsLink": "Integration guide",
+    "wizardTitle": "Verification readiness wizard",
+    "wizardSub": "Click “Run checks”. If everything is green — fill in details for optional listing on the leaders wall.",
+    "verifyAudienceHint": "The verify step uses audience: {aud}",
+    "runChecks": "Run checks",
+    "check_jwks": "Public JWKS",
+    "check_discovery": "Discovery (zakai-mandate.json)",
+    "check_registry": "Trust registry",
+    "check_scopes": "Scope list",
+    "check_verify": "POST /api/mandate/verify (demo token)",
+    "checksPassed": "All checks passed — you can request a wall listing",
+    "fieldInstitutionId": "Institution id (aud) — lowercase, e.g. bank-leumi",
+    "fieldNameHe": "Display name (Hebrew)",
+    "fieldNameEn": "Display name (English)",
+    "fieldEmail": "Technical contact email",
+    "registerCta": "Join the leaders wall",
+    "registerBusy": "Submitting…",
+    "registerConflict": "This id is already listed. If this is your institution — contact us via the institutions page.",
+    "registerError": "Could not register right now. Try again or use the pilot form.",
+    "registerOk": "Listed as a verification leader ({id}).",
+    "registerPioneer": "Listed as Pioneer ({id}) — one of the first three slots on the wall.",
+    "leadersMetaTitle": "Mandate verification leaders wall — Zakai",
+    "leadersMetaDesc": "Institutions that opted in after self-serve readiness checks. Not a list of signed customers.",
+    "leadersKicker": "Transparency · opt-in",
+    "leadersTitle": "Verification leaders wall",
+    "leadersSub": "Institutions that finished the readiness wizard and asked to be listed. The wall stays empty until someone completes it — no fabricated names.",
+    "leadersDisclaimer": "Appearance here is not regulatory approval or a Zakai recommendation. Rely on your own verification against JWKS before trusting mandates.",
+    "leaderProgramCta": "Join as a verification leader →",
+    "leadersEmpty": "No institutions on the wall yet. Be first: complete the wizard on the leader program page.",
+    "leadersPioneerHeading": "Pioneer (slots 1–3)",
+    "leadersPioneerSub": "The first three institutions that finished the wizard and opted in.",
+    "leadersReferenceHeading": "Verification leaders",
+    "tierPioneer": "Pioneer",
+    "tierReference": "Reference verifier",
+    "consumerStripHint": "Banks that opted into the public leaders wall after self-serve verify checks — not supervisory approval, but a signal they can verify Mandates instead of manual PDFs.",
+    "consumerStripDisclaimer": "The list stays empty until an institution registers. No fabricated partnerships."
   },
   "agents": {
     "metaTitle": "Zakai Mandate for AI agents — prove a person authorised the act",

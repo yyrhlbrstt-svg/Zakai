@@ -8,5 +8,6 @@ describe("outreachSubjectForVertical", () => {
 
   it("uses telecom default for mobile", () => {
     expect(outreachSubjectForVertical("telecom", "דנה", "ZK-1")).toContain("התאמת מסלול");
+    expect(outreachSubjectForVertical("subscription", "דנה", "ZK-1")).toContain("ביטול");
   });
 });

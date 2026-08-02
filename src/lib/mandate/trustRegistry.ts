@@ -96,6 +96,28 @@ export const ISSUERS: RegisteredIssuer[] = [
   },
 ];
 
+function extraIssuersFromEnv(): RegisteredIssuer[] {
+  const raw = process.env.ZAKAI_EXTRA_ISSUERS_JSON;
+  if (!raw?.trim()) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed as RegisteredIssuer[];
+  } catch {
+    return [];
+  }
+}
+
+/** Core issuers plus validated entries from `ZAKAI_EXTRA_ISSUERS_JSON` (federation). */
+export function listRegisteredIssuers(): RegisteredIssuer[] {
+  const merged: RegisteredIssuer[] = [...ISSUERS];
+  for (const candidate of extraIssuersFromEnv()) {
+    const problems = validateIssuer(candidate, merged);
+    if (problems.length === 0) merged.push(candidate);
+  }
+  return merged;
+}
+
 export type AdmissionProblem =
   | { kind: "unknown_scope"; scope: string }
   | { kind: "forbidden_scope"; scope: string }
@@ -160,7 +182,7 @@ export function resolveIssuerKeysUri(iss: string): string | null {
 }
 
 export function findIssuer(iss: string): RegisteredIssuer | undefined {
-  return ISSUERS.find((i) => i.iss === iss);
+  return listRegisteredIssuers().find((i) => i.iss === iss);
 }
 
 export type TrustDecision =
@@ -217,7 +239,13 @@ export function registryDocument() {
         "Some Zakai-signed mandates act on behalf of a third-party agent that holds no key of its own and therefore has no entry in `issuers`. Check zkm.onBehalfOf on the verified claims, not this list, to find them.",
       claim: "zkm.onBehalfOf",
     },
-    issuers: ISSUERS.map((i) => ({
+    admission: {
+      delegated_apply: "POST /api/mandate/delegation/apply",
+      full_issuer_note:
+        "Full issuers with their own JWKS submit via ZAKAI_EXTRA_ISSUERS_JSON after conformance review, or run their own registry fork.",
+      env_extra_issuers: "ZAKAI_EXTRA_ISSUERS_JSON",
+    },
+    issuers: listRegisteredIssuers().map((i) => ({
       iss: i.iss,
       name: i.name,
       jwks_uri: i.jwksUri,

@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/vigil",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/institution-inbound",
+      "schedule": "0 10 * * 1"
     }
   ]
 }

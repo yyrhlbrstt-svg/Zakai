@@ -6,6 +6,7 @@ import { DashboardNextActionClient } from "@/components/DashboardNextActionClien
 import type { Locale } from "@/i18n/config";
 import { bcp47 } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { formatAgorot } from "@/lib/money";
 
 const SETTLED = new Set(["SENT", "SAVED", "NO_SAVING", "REVOKED"]);
 const PRE_SEND = new Set(["ANALYZED", "APPROVED", "VERIFIED"]);
@@ -20,14 +21,33 @@ export async function DashboardNextActionPanel({
   const t = await getTranslations({ locale, namespace: "dashboard" });
   const loc = bcp47[locale];
 
-  const [profileRow, cases] = await Promise.all([
+  const [profileRow, cases, pendingFeeCase] = await Promise.all([
     prisma.userProfile.findUnique({ where: { userId }, select: { data: true } }),
     prisma.case.findMany({
       where: { userId },
       select: { id: true, vertical: true, status: true },
       orderBy: { updatedAt: "desc" },
     }),
+    prisma.case.findFirst({
+      where: { userId, fee: { status: "PENDING", amount: { gt: 0 } } },
+      select: { id: true, fee: { select: { amount: true } } },
+      orderBy: { updatedAt: "desc" },
+    }),
   ]);
+
+  if (pendingFeeCase?.fee) {
+    return (
+      <Link
+        href={`/dashboard?case=${pendingFeeCase.id}&payFee=1`}
+        className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.16)] px-5 py-4 hover:border-[rgba(63,203,155,0.7)] transition-colors"
+      >
+        <div className="font-extrabold text-[15px] text-emerald">{t("feeNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">
+          {t("feeNudgeSub", { amount: formatAgorot(pendingFeeCase.fee.amount, loc) })}
+        </p>
+      </Link>
+    );
+  }
 
   const preSend = cases.find((c) => PRE_SEND.has(c.status));
   if (preSend) {

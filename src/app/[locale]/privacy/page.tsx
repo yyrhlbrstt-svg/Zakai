@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
+import { publicSupportEmail } from "@/lib/contact";
 
 export default async function PrivacyPage({
   params,
@@ -10,6 +11,7 @@ export default async function PrivacyPage({
   setRequestLocale(locale);
   const t = await getTranslations("legalPages");
   const sections = t.raw("privacy") as Array<{ h: string; p: string }>;
+  const supportEmail = publicSupportEmail();
 
   return (
     <main className="max-w-[720px] mx-auto px-5 pb-24 pt-2">
@@ -21,7 +23,11 @@ export default async function PrivacyPage({
             <h2 className="text-[15px] font-extrabold m-0 mb-1.5">
               {i + 1}. {s.h}
             </h2>
-            <p className="text-ink-soft text-[13.5px] leading-relaxed m-0">{s.p}</p>
+            <p className="text-ink-soft text-[13.5px] leading-relaxed m-0">
+              {s.p.includes("{email}")
+                ? t("privacyContact", { email: supportEmail })
+                : s.p}
+            </p>
           </section>
         ))}
       </Card>

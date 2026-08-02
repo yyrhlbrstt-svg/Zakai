@@ -32,6 +32,8 @@ export function outreachSubjectForVertical(
       return `בקשת ניוד / התאמת תעריף חשמל בשם ${name} — הרשאה ${code}`;
     case "warranty":
       return `מימוש אחריות מוצר בשם ${name} — הרשאה ${code}`;
+    case "subscription":
+      return `בקשת ביטול / שינוי מנוי בשם ${name} — הרשאה ${code}`;
   }
   return `בקשת התאמת מסלול בשם ${name} — הרשאה ${code}`;
 }

@@ -127,6 +127,11 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
         <Link href="/what-am-i-owed" className="no-underline">
           <Button className="mt-5 w-full">{t("cta")}</Button>
         </Link>
+        <Link href="/money" className="no-underline block mt-2">
+          <Button variant="ghost" className="w-full !text-[13px]">
+            {t("ctaScan")}
+          </Button>
+        </Link>
         <p className="text-[10.5px] text-ink-soft mt-3 mb-0 leading-snug">{t("note")}</p>
       </div>
     </SpotlightCard>

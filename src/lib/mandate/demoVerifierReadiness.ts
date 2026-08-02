@@ -1,0 +1,38 @@
+import "server-only";
+import { randomUUID } from "node:crypto";
+import {
+  issueMandate,
+  loadSigningKeyFromEnv,
+} from "@/lib/mandate/mandate";
+import { VERIFIER_READINESS_AUDIENCE } from "@/lib/referenceVerifier";
+
+function mandateIssuer(): string {
+  return (
+    process.env.MANDATE_ISSUER?.trim() ||
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    "https://zakai-3uxj.vercel.app"
+  );
+}
+
+/** Short-lived mandate for institutions to prove their verify client works. */
+export async function issueVerifierReadinessDemoToken(): Promise<string | null> {
+  try {
+    const key = loadSigningKeyFromEnv();
+    return await issueMandate(
+      {
+        jti: `readiness_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
+        issuer: mandateIssuer(),
+        audience: VERIFIER_READINESS_AUDIENCE,
+        subject: "verifier-readiness-demo",
+        principal: { name: "Verifier readiness demo", reference: "demo" },
+        scopes: ["claim:submit"],
+        market: "IL",
+        statement: "Demo mandate for Reference Verifier readiness self-test only.",
+        ttlSeconds: 3600,
+      },
+      key,
+    );
+  } catch {
+    return null;
+  }
+}

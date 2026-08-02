@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Card, Button } from "@/components/ui";
 import type { GrantedAuthority } from "@/lib/services/authorityControl";
 
@@ -14,7 +14,11 @@ import type { GrantedAuthority } from "@/lib/services/authorityControl";
  */
 export function AuthorityList({ authorities }: { authorities: GrantedAuthority[] }) {
   const t = useTranslations("authority");
+  const locale = useLocale();
   const [state, setState] = useState<Record<string, "idle" | "busy" | "revoked" | "error">>({});
+  const [exportState, setExportState] = useState<Record<string, "idle" | "busy" | "done" | "error">>(
+    {},
+  );
   // Two-step, not a native confirm() dialog: the button itself becomes the
   // confirmation, so there is nothing to dismiss by habit the way a browser
   // confirm() is — this is the one action on the page a reflexive click
@@ -22,6 +26,34 @@ export function AuthorityList({ authorities }: { authorities: GrantedAuthority[]
   const [revokeAllState, setRevokeAllState] = useState<"idle" | "armed" | "busy" | "done" | "error">(
     "idle",
   );
+
+  async function exportWallet(code: string) {
+    setExportState((s) => ({ ...s, [code]: "busy" }));
+    try {
+      const res = await fetch("/api/authority/wallet-export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, locale }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.bundle) {
+        setExportState((s) => ({ ...s, [code]: "error" }));
+        return;
+      }
+      const blob = new Blob([JSON.stringify(data.bundle, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `zakai-authority-${code.replace(/[^A-Z0-9-]/gi, "")}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportState((s) => ({ ...s, [code]: "done" }));
+    } catch {
+      setExportState((s) => ({ ...s, [code]: "error" }));
+    }
+  }
 
   async function revoke(code: string) {
     setState((s) => ({ ...s, [code]: "busy" }));
@@ -115,17 +147,36 @@ export function AuthorityList({ authorities }: { authorities: GrantedAuthority[]
                   {t("revoked")}
                 </span>
               ) : (
-                <Button
-                  variant="ghost"
-                  disabled={local === "busy"}
-                  onClick={() => revoke(a.code)}
-                  className="!text-[13px] !px-4 !py-2"
-                >
-                  {local === "busy" ? t("revoking") : t("revoke")}
-                </Button>
+                <div className="flex flex-col gap-2 items-end">
+                  <Button
+                    variant="ghost"
+                    disabled={local === "busy"}
+                    onClick={() => revoke(a.code)}
+                    className="!text-[13px] !px-4 !py-2"
+                  >
+                    {local === "busy" ? t("revoking") : t("revoke")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    disabled={exportState[a.code] === "busy"}
+                    onClick={() => exportWallet(a.code)}
+                    className="!text-[12px] !px-3 !py-1.5"
+                  >
+                    {exportState[a.code] === "busy"
+                      ? t("exporting")
+                      : exportState[a.code] === "done"
+                        ? t("exportDone")
+                        : t("exportWallet")}
+                  </Button>
+                </div>
               )}
             </div>
 
+            {exportState[a.code] === "error" && (
+              <p role="alert" className="text-[12.5px] text-[#ff8f8f] mt-3 mb-0">
+                {t("exportFailed")}
+              </p>
+            )}
             {local === "error" && (
               <p role="alert" className="text-[12.5px] text-[#ff8f8f] mt-3 mb-0">
                 {t("revokeFailed")}

@@ -16,6 +16,17 @@
 
 **ציון משולב «מוכן לצרכן שמשלם»**: **6–7** אחרי `release-gate` ירוק + deploy Ready; **4** בלי env חוסם.
 
+### אחרי env מלא (סליקה, SMTP, Mandate, CRON, AI)
+
+| ממד | ציון השערה |
+|-----|------------|
+| קוד + ארכיטקטורה | **8.5–9** |
+| מוצר צרכני חי | **7.5–8** |
+| פרוטוקול Mandate | **8.5–9** |
+| מנהיגות שוק | **נפח + פיילוט inbound** — לא מ-env |
+
+מפת 100/10: `docs/NORTH_STAR_100.md`.
+
 ## מה מצדיק 8.5 במוצר
 
 - תזה עקבית: סוכן בכתב, Mandate, הוכחה, עמלה רק על מתועד.
@@ -46,4 +57,4 @@
 3. מקרה SAVED אמיתי E2E בפרוד (מייל יוצא, לא QUEUED).
 4. מוסד ראשון שמאמת Mandate בלי שיחת מכירה (inbound).
 
-ראה גם: `docs/EXCELLENCE_SCORECARD.md`, `docs/SCALE_REVENUE.md`, `docs/SCALE_DISTRIBUTION.md`.
+ראה גם: `docs/EXCELLENCE_SCORECARD.md`, `docs/NORTH_STAR_100.md`, `docs/SCALE_REVENUE.md`, `docs/SCALE_DISTRIBUTION.md`.

@@ -18,7 +18,14 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
     return NextResponse.json({ ok: true, delivered: email.status === "SENT" });
   } catch (err) {
     if (err instanceof CaseError) {
-      const status = err.message === "NOT_FOUND" ? 404 : 409;
+      const status =
+        err.message === "NOT_FOUND"
+          ? 404
+          : err.message === "ALREADY_SENT"
+            ? 409
+            : err.message === "OUTREACH_DELIVERY_FAILED"
+              ? 502
+              : 409;
       return badRequest(err.message, status);
     }
     throw err;

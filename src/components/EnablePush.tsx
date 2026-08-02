@@ -29,7 +29,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 const copy = {
   he: {
     title: "הסוכן יעדכן אותך בטלפון",
-    sub: "כשהוא שולח תזכורת לספק או מקבל אישור חיסכון — תקבל התראה. בלי SMS, בלי מוקד.",
+    sub: "כשיש תזכורת לספק או אישור חיסכון — תקבל התראה. בלי SMS, בלי מוקד.",
     cta: "הפעל התראות",
     done: "התראות פעילות",
     dismiss: "לא עכשיו",
