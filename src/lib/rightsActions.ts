@@ -307,6 +307,22 @@ export const RIGHT_ACTIONS: Record<string, RightAction> = {
     body: `אני, ${IDENTITY}, מבקש/ת להכיר בזכאותי להקצאת מים נוספת בשל צריכה רפואית מוגברת, בהתאם לכללי תאגידי המים.
 מצורף האישור הרפואי. אבקש להחיל את ההקצאה ולזכות אותי בגין חיובים שנגבו ביתר.`,
   },
+  arnona_area_correction: {
+    kind: "letter",
+    recipient: "municipality",
+    fields: ["municipality", "details"],
+    subject: "בקשה לתיקון שטח הנכס לצורכי ארנונה",
+    body: `אני, ${IDENTITY}, מבקש/ת לבדוק את השטח הרשום לנכסי לצורכי חיוב ארנונה: {details}.
+אם השטח הרשום גבוה מהשטח בפועל, אבקש לתקן את החיוב מכאן ואילך ולזכות אותי בגין תשלומי יתר בהתאם למדיניות הרשות.`,
+  },
+  water_leak_credit: {
+    kind: "letter",
+    recipient: "provider",
+    fields: ["counterparty", "accountNumber", "details"],
+    subject: "בקשה להנחה בגין נזילה סמויה",
+    body: `אני, ${IDENTITY}, לקוח/ה מספר {accountNumber}. חשבון המים שלי חריג בתקופה האחרונה עקב נזילה סמויה שתוקנה: {details}.
+מצורף אישור אינסטלטור מוסמך על תיקון הנזילה. אבקש להחיל את ההנחה בתעריף החל על נזילה סמויה בהתאם לכללי תאגיד המים, בכפוף למועדים ולתנאים הנהוגים אצלכם.`,
+  },
 
   // ---- Banking ----
   bank_basic_track: {
@@ -378,6 +394,14 @@ export const RIGHT_ACTIONS: Record<string, RightAction> = {
     subject: "בקשה להפחתת דמי ניהול בחיסכון הפנסיוני",
     body: `אני, ${IDENTITY}, עמית/ה מספר {accountNumber}. אבקש לקבל את שיעורי דמי הניהול מהצבירה ומההפקדה החלים עליי, ולהפחיתם לרמה התחרותית המוצעת ללקוחות חדשים.
 אבקש הודעה בכתב על השיעורים החדשים ועל מועד תחילתם. ככל שלא תתקבל הצעה מתאימה, אשקול ניוד הכספים.`,
+  },
+  duplicate_charge_dispute: {
+    kind: "letter",
+    recipient: "provider",
+    fields: ["counterparty", "amount", "details"],
+    subject: "תלונה על חיוב כפול / שגוי",
+    body: `אני, ${IDENTITY}, מזהה חיוב כפול או שגוי בסך {amount} ₪ בעסקה שביצעתי אצלכם: {details}.
+מצורף פירוט/צילום הקבלה או דף החשבון המראה את החיוב הכפול. אבקש לתקן את החיוב ולזכות אותי בסכום ששולם ביתר בהקדם האפשרי.`,
   },
   consumer_cancel14: {
     kind: "letter",

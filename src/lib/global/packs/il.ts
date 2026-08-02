@@ -147,6 +147,8 @@ const rights: RightDef[] = [
   right("arnona_soldier", "municipal", soldier, "תקנות הסדרים במשק המדינה (הנחה מארנונה), התשנ״ג-1993, תקנה 2(א)(1)"),
   right("arnona_large_family", "municipal", largeFamily, "תקנות הסדרים במשק המדינה (הנחה מארנונה), התשנ״ג-1993"),
   right("water_disability", "municipal", disability, "כללי תאגידי מים וביוב (חישוב עלות שירותי מים) — הקצאה לצריכה רפואית"),
+  right("arnona_area_correction", "municipal", always, "חוק הרשויות המקומיות (ערר על קביעת ארנונה כללית), התשל״ו-1976"),
+  right("water_leak_credit", "municipal", always, "כללי תאגידי מים וביוב (תעריפים לשירותי מים וביוב), התש״ע-2009 — הנחה בגין נזילה סמויה"),
 
   // ---- Banking -------------------------------------------------------------
   right("bank_basic_track", "banking", always, "כללי הבנקאות (שירות ללקוח)(עמלות), התשס״ח-2008", {
@@ -165,6 +167,12 @@ const rights: RightDef[] = [
   right("subscription_audit", "consumer", always, "חוק הגנת הצרכן, התשמ״א-1981, סעיף 13ד"),
   right("insurance_duplicates", "consumer", always, "חוזר ביטוח — כפל ביטוח בביטוחי בריאות ונסיעות"),
   right("pension_fees", "consumer", working, "חוק הפיקוח על שירותים פיננסיים (קופות גמל), התשס״ה-2005"),
+  // Deliberately cites the general unjust-enrichment principle rather than a
+  // specific Consumer Protection Law section number: "charged twice for the
+  // same purchase" isn't a named statutory violation the way the 14-day
+  // cancellation right is, and guessing a section number here would be
+  // exactly the kind of unverified citation this file exists to avoid.
+  right("duplicate_charge_dispute", "consumer", always, "חוק עשיית עושר ולא במשפט, התשל״ט-1979"),
   right("consumer_cancel14", "consumer", always, "חוק הגנת הצרכן, התשמ״א-1981, סעיף 14ג"),
   right("consumer_telecom_exit", "consumer", always, "חוק התקשורת (בזק ושידורים), התשמ״ב-1982, סעיף 13ג"),
 
