@@ -14,6 +14,7 @@ export async function initiateFeePayment(
   caseId: string,
   userId: string,
   origin: string,
+  locale = "he",
 ): Promise<{ checkoutUrl: string }> {
   const kase = await prisma.case.findFirst({
     where: { id: caseId, userId },
@@ -25,7 +26,8 @@ export async function initiateFeePayment(
   if (fee.status === "WAIVED" || fee.amount <= 0) throw new PaymentError("NOTHING_TO_COLLECT");
 
   const provider = paymentProvider();
-  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback`;
+  const loc = encodeURIComponent(locale);
+  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}`;
   const checkout = await provider.createCheckout({
     feeId: fee.id,
     amountAgorot: fee.amount,

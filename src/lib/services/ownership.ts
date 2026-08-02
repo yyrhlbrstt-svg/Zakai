@@ -3,6 +3,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
 import { generateNumericCode, hashCode, safeEqualHex } from "@/lib/codes";
 import { sendSms, sendEmail, smsConfigured } from "@/lib/messaging";
+import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
 
 const CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const MAGIC_TTL_SECONDS = 15 * 60; // 15 minutes
@@ -87,7 +88,7 @@ export async function sendOwnershipMagicLink(
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { email: true, name: true },
+    select: { email: true, name: true, country: true },
   });
   if (!user?.email) return { ok: false, error: "no_email" };
 
@@ -106,7 +107,11 @@ export async function sendOwnershipMagicLink(
     .sign(ownershipSecret());
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${appUrl}/he/ownership/confirm?token=${encodeURIComponent(token)}`;
+  const url = absoluteLocaleUrl(
+    appUrl,
+    localeForCountry(user.country),
+    `/ownership/confirm?token=${encodeURIComponent(token)}`,
+  );
 
   await sendEmail({
     to: user.email,

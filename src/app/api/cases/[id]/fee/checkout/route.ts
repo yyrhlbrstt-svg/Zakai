@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { initiateFeePayment, PaymentError } from "@/lib/services/payments";
 import { PaymentUnavailableError } from "@/lib/payments";
 import { reportError } from "@/lib/report-error";
+import { isLocale } from "@/i18n/config";
 
 /**
  * Start collecting the success fee for a case the user owns. Returns a hosted
@@ -15,9 +17,12 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   const { id } = await ctx.params;
 
   const origin = new URL(request.url).origin;
+  const body = await request.json().catch(() => ({}));
+  const locale =
+    typeof body?.locale === "string" && isLocale(body.locale) ? body.locale : "he";
 
   try {
-    const { checkoutUrl } = await initiateFeePayment(id, auth.userId, origin);
+    const { checkoutUrl } = await initiateFeePayment(id, auth.userId, origin, locale);
     return NextResponse.json({ ok: true, checkoutUrl });
   } catch (err) {
     if (err instanceof PaymentError) {
