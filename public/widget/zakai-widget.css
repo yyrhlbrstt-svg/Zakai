@@ -35,7 +35,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #3b82f6;
+  color: var(--zakai-accent, #3b82f6);
   margin-bottom: 8px;
 }
 
@@ -53,7 +53,7 @@
   box-sizing: border-box;
   text-align: center;
   padding: 10px 16px;
-  background: #111827;
+  background: var(--zakai-accent, #111827);
   color: #ffffff;
   border: none;
   border-radius: 8px;

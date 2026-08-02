@@ -36,7 +36,22 @@ Redeploy after updating env. Keys registered only in memory (same process) are l
 ></script>
 ```
 
-The script auto-mounts on `[data-api-key]` containers.
+The script auto-mounts on `[data-api-key]`, `[data-zakai-widget]`, or `[data-zakai-check]`.
+
+### White-label (optional)
+
+| Attribute | Purpose |
+|-----------|---------|
+| `data-brand-name` | Badge text instead of "Zakai Fairness Check" |
+| `data-hide-badge="true"` | Hide badge entirely |
+| `data-accent="#005EB8"` | Bank brand color (CSS variable) |
+| `data-cta-url` | Override CTA link |
+
+Brief-style check attribute:
+
+```html
+<div data-api-key="pk_live_..." data-zakai-check="provider:cellcom,amount:120"></div>
+```
 
 ## 3. Validate key (browser / partner CI)
 

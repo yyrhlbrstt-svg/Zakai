@@ -24,7 +24,7 @@ const paths = [
   { path: "/.well-known/zakai-openapi.json", expect: 200 },
   { path: "/api/rights/catalog?market=IL", expect: 200 },
   { path: "/widget/zakai-widget.js", expect: 200 },
-  { path: "/api/protocol", expect: 200 },
+  { path: "/api/fairness/scores?market=IL", expect: 200 },
   { path: "/he/rights/tax-refund", expect: 200 },
   { path: "/he/cancel/universal", expect: 200 },
   { path: "/api/widget/validate", expect: 403, note: "no key" },

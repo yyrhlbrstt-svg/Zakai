@@ -48,6 +48,10 @@ const CHECKS = [
   // with, and a hardcoded value would publish which address to claim.
   { key: "ADMIN_EMAIL", level: "degrading",
     cost: "The founder dashboard at /he/founder is closed to everyone, including you. Nothing else is affected." },
+  { key: "PAYMENT_PROVIDER", level: "degrading",
+    cost: "Success-fee checkout runs on the mock provider — no real card charges until PayPlus (or another PSP) is configured." },
+  { key: "PAYPLUS_API_KEY", level: "degrading", alt: ["PAYPLUS_SECRET_KEY"],
+    cost: "PayPlus is selected but credentials are missing — fee collection stays mock." },
   // A From address on a domain the sending server has no authority over fails
   // SPF and DKIM, and Gmail responds by warning the recipient that the message
   // may not be genuine — which reads to them as "this account is not secure".
