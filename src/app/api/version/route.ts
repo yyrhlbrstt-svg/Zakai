@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { aiAvailable, aiProvider } from "@/lib/ai";
+import { version as pkgVersion } from "../../../../package.json";
 
 export const dynamic = "force-dynamic";
 
@@ -7,8 +8,8 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     name: "zakai",
-    version: "1.2.1",
-    buildMarker: "jsx-clean-rebuild-2026-07-28-1528",
+    version: pkgVersion,
+    buildMarker: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? "local",
     positioning: "standard consumer money agent + Mandate infrastructure",
     tracks: {
       consumer:

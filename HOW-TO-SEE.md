@@ -1,4 +1,4 @@
-# איך רואים את הכול — זכאי v1.2.0 FINAL
+# איך רואים את הכול — זכאי
 
 אתר חי: **https://zakai-3uxj.vercel.app**
 
@@ -14,14 +14,10 @@
 https://zakai-3uxj.vercel.app/api/version
 ```
 
-צריך לראות:
+- `version` חייב להיות זהה ל-`version` שב-`package.json` ב-`main` (הוא נקרא משם אוטומטית — אין יותר מספר קשיח בקוד).
+- `buildMarker` הוא 12 התווים הראשונים של ה-commit SHA שנפרס. השווה אותו ל-`git log -1` ב-`main` — אם הם שונים, Vercel עדיין לא פרס את הקומיט האחרון (או שה-deploy נכשל).
 
-```json
-"version": "1.2.0"
-"buildMarker": "final-dual-track-production-2026-07-28"
-```
-
-אם עדיין 1.1.0 — ה-deploy עדיין רץ. חכה דקה ורענן.
+אם הגרסה ישנה — ה-deploy עדיין רץ. חכה דקה ורענן.
 
 ---
 
@@ -108,11 +104,10 @@ telecom · bank-fees · subscription · airline · refund-chase · parking · tr
 
 ## 6. אם משהו לא מופיע
 
-1. `/api/version` — האם `1.2.0`?
+1. `/api/version` — האם `version` תואם ל-`package.json` ו-`buildMarker` תואם ל-commit האחרון ב-`main`?
 2. Vercel Dashboard → Deployments → build ירוק?
 3. Hard refresh / incognito
-4. `DEPLOY_MARKER.txt` ב-repo = `version=1.2.0`
-5. אם UI ישן — נקה cache של הדפדפן
+4. אם UI ישן — נקה cache של הדפדפן
 
 ---
 
