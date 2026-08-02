@@ -4652,7 +4652,9 @@
     "t_ef77bbd3": "No bank password. Screenshot or scan → Zakai finds recurring charges → opens a Mandate case → sends and follows up. Fee only on documented savings.",
     "t_3e37c3c8": "Potentials are for prioritization only — not a promise. Fee only on documented savings. No call center, no phone left behind.",
     "metaTitle": "My money — Zakai",
-    "metaDesc": "A map of your charges and agent actions — no bank passwords, no call center."
+    "metaDesc": "A map of your charges and agent actions — no bank passwords, no call center.",
+    "priorityTitle": "Best next moves — agent doors",
+    "proofsHint": "When the bank or provider replies by email — forward to {email}. The agent will offer one-tap record saving on your dashboard."
   },
   "inline_app_locale_proofs_page": {
     "t_d2c8fb14": "Savings wall · anonymous",

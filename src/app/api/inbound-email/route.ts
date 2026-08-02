@@ -8,7 +8,7 @@ import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { secretsMatch } from "@/lib/security/timingSafe";
 import { shouldNotifyInbound } from "@/lib/inboundDecision";
-import { inboundProposedRemainingShekels, resolveInboundRecordAmountShekels } from "@/lib/fee";
+import { resolveInboundRecordAmountShekels } from "@/lib/fee";
 import { feeBasisForVertical } from "@/lib/verticals";
 
 /**
@@ -225,15 +225,10 @@ export async function POST(request: Request) {
       where: { id: matchedCaseId },
       select: { vertical: true, amountOriginal: true },
     });
-    if (user?.email && kase && extract.newAmountShekels != null) {
+    if (user?.email && kase && recordAmountShekels != null) {
       const appUrl = appBaseUrl();
       const basis = feeBasisForVertical(kase.vertical);
-      const originalShekels = Math.round(kase.amountOriginal / 100);
-      const recordShekels = inboundProposedRemainingShekels(
-        basis,
-        originalShekels,
-        extract.newAmountShekels,
-      );
+      const recordShekels = recordAmountShekels;
       const amountLine =
         basis === "lump"
           ? recordShekels === 0
@@ -246,6 +241,7 @@ export async function POST(request: Request) {
             ? "זוהה אישור החזר במלואו. אשר בדשבורד בלחיצה אחת."
             : `נותר לשלם בערך ₪${recordShekels}. אשר בדשבורד.`
           : `זוהה סכום חדש ₪${recordShekels}. אשר בדשבורד בלחיצה אחת.`;
+      const dashboardUrl = `${appUrl}/he/dashboard?case=${matchedCaseId}`;
 
       await sendEmail({
         to: user.email,
@@ -257,7 +253,7 @@ export async function POST(request: Request) {
           amountLine,
           ``,
           `כדי לסגור את התיק ולתעד את החיסכון (העמלה נגזרת רק אחרי אישור שלך):`,
-          `${appUrl}/he/dashboard`,
+          dashboardUrl,
           ``,
           `זכאי — סוכן כסף לצרכן.`,
         ].join("\n"),
@@ -267,7 +263,7 @@ export async function POST(request: Request) {
       await pushToUser(matchedUserId, {
         title: "זכאי — אישור חיסכון הגיע",
         body: pushBody,
-        url: "/he/dashboard",
+        url: `/he/dashboard?case=${matchedCaseId}`,
         tag: `inbound-${matchedCaseId}`,
       }).catch(() => null);
 

@@ -363,6 +363,16 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     }
   }
 
+  if (fee.savingMonthly > 0) {
+    const savingShekels = Math.round(fee.savingMonthly / 100);
+    await pushToUser(userId, {
+      title: "זכאי — חיסכון מתועד",
+      body: `תועד חיסכון של ₪${savingShekels}. שתף או השלם עמלה בדשבורד — בלחיצה אחת.`,
+      url: `/he/dashboard?case=${caseId}`,
+      tag: `saved-${caseId}`,
+    }).catch(() => null);
+  }
+
   return result;
 }
 
