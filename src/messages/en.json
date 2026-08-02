@@ -725,7 +725,24 @@
     "companies": "Zakai Score",
     "allTools": "All tools",
     "networkProof": "Network proof",
-    "about": "Why Zakai"
+    "about": "Why Zakai",
+    "global": "World · Markets"
+  },
+  "global": {
+    "metaTitle": "Zakai worldwide — pick your market",
+    "metaDesc": "13 countries with a full rights engine, public ZML catalog API, and a path to contribute your jurisdiction.",
+    "title": "Zakai is open worldwide",
+    "intro": "Choose your market — we remember it in your browser. Catalog and API are public; no account required.",
+    "apiTitle": "API",
+    "apiBody": "Markets: GET /api/markets · Rights catalog: GET /api/rights/catalog?market=… · Protocol: GET /api/protocol",
+    "contributeTitle": "Add a country",
+    "contributeBody": "Each market is a pack with real legal citations. See docs/COUNTRY_PACKS.md in the repo.",
+    "contributeCta": "Country packs guide",
+    "fullPack": "Rights engine + letters + ZML catalog",
+    "catalogOnly": "ZML catalog (shared EU rights)",
+    "useMarket": "Use this market",
+    "selected": "Selected",
+    "rights": "Rights check"
   },
   "providers": {
     "cellcom": "Cellcom",

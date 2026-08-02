@@ -132,7 +132,9 @@ export function buildZakaiProtocolDocument(origin: string) {
         collective_auction: false,
         fairness_scores: true,
       },
-      packs_builtin: Object.keys(MARKETS),
+      packs_builtin: [...Object.keys(MARKETS), "EU"],
+      markets_api: `${origin}/api/markets`,
+      global_hub: `${origin}/en/global`,
     },
   };
 }

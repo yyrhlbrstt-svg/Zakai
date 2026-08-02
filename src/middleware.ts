@@ -2,6 +2,11 @@ import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
 import { partnerRefFromSearchParams } from "./lib/partnerAttribution";
+import {
+  MARKET_COOKIE,
+  MARKET_COOKIE_MAX_AGE_SEC,
+  marketFromGeoCountry,
+} from "./lib/global/marketGeo";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -76,6 +81,25 @@ function capturePartnerRef(request: NextRequest, res: NextResponse): void {
   });
 }
 
+function geoCountry(request: NextRequest): string {
+  return (
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("cf-ipcountry") ||
+    ""
+  ).toUpperCase();
+}
+
+/** First visit: remember inferred market for rights catalog + checker defaults. */
+function ensureMarketCookie(request: NextRequest, res: NextResponse): void {
+  if (request.cookies.get(MARKET_COOKIE)) return;
+  const market = marketFromGeoCountry(geoCountry(request) || null);
+  res.cookies.set(MARKET_COOKIE, market, {
+    maxAge: MARKET_COOKIE_MAX_AGE_SEC,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
 /**
  * Geo-aware locale routing. next-intl handles all locale-prefixed paths; we
  * only override the bare-root redirect ("/") to pick the language by the
@@ -92,15 +116,12 @@ export default function middleware(request: NextRequest) {
   request.headers.set("x-nonce", nonce);
 
   if (request.nextUrl.pathname === "/") {
-    const country = (
-      request.headers.get("x-vercel-ip-country") ||
-      request.headers.get("cf-ipcountry") ||
-      ""
-    ).toUpperCase();
+    const country = geoCountry(request);
     const target = country && country !== "IL" ? "/en" : "/he";
     const res = NextResponse.redirect(new URL(target, request.url));
     res.headers.set("Content-Security-Policy", policy);
     capturePartnerRef(request, res);
+    ensureMarketCookie(request, res);
     return res;
   }
 
@@ -108,6 +129,7 @@ export default function middleware(request: NextRequest) {
   res.headers.set("Content-Security-Policy", policy);
   res.headers.set("x-nonce", nonce);
   capturePartnerRef(request, res);
+  ensureMarketCookie(request, res);
   return res;
 }
 

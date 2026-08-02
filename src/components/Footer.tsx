@@ -50,6 +50,12 @@ export function Footer() {
         <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
           |
         </span>
+        <Link href="/global" className="text-ink-soft no-underline hover:text-emerald">
+          {t("footer.global")}
+        </Link>
+        <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
+          |
+        </span>
         <Link href="/business" className="text-ink-soft no-underline hover:text-emerald">
           {bizLabel}
         </Link>

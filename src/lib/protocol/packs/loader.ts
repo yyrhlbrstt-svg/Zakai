@@ -14,7 +14,11 @@ import { validateZML } from "@/lib/protocol/zml/validate";
 const PACKS_CDN = (process.env.ZML_PACKS_CDN || "https://packs.zakai.io").replace(/\/+$/, "");
 
 function packsLocalRoot(): string | undefined {
-  return process.env.ZML_PACKS_LOCAL?.trim() || undefined;
+  const env = process.env.ZML_PACKS_LOCAL?.trim();
+  if (env) return env;
+  const bundled = join(process.cwd(), "zakai-packs");
+  if (existsSync(join(bundled, "packs", "il", "index.json"))) return bundled;
+  return undefined;
 }
 const CACHE_TTL_MS = (Number(process.env.ZML_PACK_CACHE_TTL_SEC) || 300) * 1000;
 const FALLBACK_TO_BUILTIN = process.env.ZML_PACKS_FALLBACK !== "false";
@@ -122,6 +126,14 @@ export function loadZmlFromLocalPack(market: string, root: string): ZmlRight[] {
 function loadBuiltinZml(market: string, origin: string): ZmlRight[] {
   const code = market.toUpperCase();
   if (code === "EU") {
+    const root = packsLocalRoot();
+    if (root) {
+      try {
+        return loadZmlFromLocal("EU", root);
+      } catch {
+        return [];
+      }
+    }
     return [];
   }
   const builtin = MARKETS[code];

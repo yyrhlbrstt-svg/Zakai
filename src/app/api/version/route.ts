@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { aiAvailable, aiProvider } from "@/lib/ai";
 import { version as pkgVersion } from "../../../../package.json";
+import { allMarkets } from "@/lib/global/registry";
+import { CATALOG_ONLY_MARKETS } from "@/lib/global/marketGeo";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const marketCodes = [
+    ...allMarkets().map((m) => m.code),
+    ...Object.keys(CATALOG_ONLY_MARKETS),
+  ].sort();
   return NextResponse.json({
     ok: true,
     name: "zakai",
@@ -41,7 +47,7 @@ export async function GET() {
       webPush: true,
     },
     ai: { available: aiAvailable(), provider: aiProvider() },
-    markets: ["IL", "GB", "US", "DE", "FR", "CA"],
+    markets: marketCodes,
     fullVerticalsIL: [
       "telecom",
       "bank-fees",
@@ -61,7 +67,9 @@ export async function GET() {
       version: "/api/version",
       protocol: "/.well-known/zakai-protocol.json",
       zml_schema: "/.well-known/zakai-rights-schema.json",
-      rights_catalog: "/api/rights/catalog?market=IL",
+      rights_catalog: "/api/rights/catalog?market={market}",
+      markets: "/api/markets",
+      global_hub: "/en/global",
       network: "/api/network",
       mandate: "/.well-known/zakai-mandate.json",
       jwks: "/.well-known/zakai-jwks.json",

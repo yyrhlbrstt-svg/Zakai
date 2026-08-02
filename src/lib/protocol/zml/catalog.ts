@@ -1,4 +1,5 @@
-import { MARKETS, isSupportedMarket } from "@/lib/global/registry";
+import { MARKETS } from "@/lib/global/registry";
+import { isCatalogMarket } from "@/lib/global/marketGeo";
 import type { JurisdictionPack } from "@/lib/global/types";
 import { loadZmlRightsForMarket } from "@/lib/protocol/packs/loader";
 import { predicateSummaryForRight } from "./legacy-adapter";
@@ -12,8 +13,8 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 
 function getPack(market: string): JurisdictionPack | null {
   const code = market.toUpperCase();
-  if (!isSupportedMarket(code)) return null;
-  return MARKETS[code].pack;
+  if (!isCatalogMarket(code)) return null;
+  return MARKETS[code]?.pack ?? null;
 }
 
 export async function buildZmlCatalogForMarket(
@@ -58,6 +59,7 @@ export async function buildCatalogResponse(
   opts?: { category?: string; cursor?: string; limit?: number },
 ): Promise<ZmlCatalogResponse | null> {
   const code = market.toUpperCase();
+  if (!isCatalogMarket(code)) return null;
   const pack = getPack(code);
 
   let rights = await buildZmlCatalogForMarket(origin, code);

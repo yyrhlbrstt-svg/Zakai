@@ -726,7 +726,24 @@
     "companies": "ציון זכאי",
     "allTools": "כל הכלים",
     "networkProof": "הוכחת רשת",
-    "about": "למה זכאי"
+    "about": "למה זכאי",
+    "global": "עולם · שווקים"
+  },
+  "global": {
+    "metaTitle": "זכאי בעולם — בחירת שוק",
+    "metaDesc": "13 מדינות עם מנוע זכויות מלא, קטלוג ZML ציבורי, ומסלול לתרום pack לשוק שלך.",
+    "title": "זכאי פתוח לעולם",
+    "intro": "בחרו את השוק שלכם — נזכור את הבחירה בדפדפן. הקטלוג וה-API זמינים לכל מפתח בלי חשבון.",
+    "apiTitle": "API",
+    "apiBody": "רשימת שווקים: GET /api/markets · קטלוג זכויות: GET /api/rights/catalog?market=… · פרוטוקול: GET /api/protocol",
+    "contributeTitle": "להוסיף מדינה",
+    "contributeBody": "כל שוק הוא pack עם ציטוטים משפטיים אמיתיים. ראו docs/COUNTRY_PACKS.md במאגר.",
+    "contributeCta": "מדריך Country packs",
+    "fullPack": "מנוע זכויות + מכתבים + קטלוג ZML",
+    "catalogOnly": "קטלוג ZML (זכויות אירופה משותפות)",
+    "useMarket": "השתמש בשוק הזה",
+    "selected": "שוק נבחר",
+    "rights": "בדיקת זכויות"
   },
   "providers": {
     "cellcom": "סלקום",
