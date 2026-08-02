@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { localePath, localeForCountry } from "@/lib/localePath";
 import type { Locale } from "@/i18n/config";
+import { publicSupportEmail } from "@/lib/contact";
 
 const LOCALE_PREFIX = /^\/(he|en|ar|ru|de|fr)(\/|$)/;
 
@@ -72,7 +73,7 @@ export async function pushToUser(userId: string, payload: PushPayload): Promise<
   }
 
   webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || "mailto:support@zakai.example",
+    process.env.VAPID_SUBJECT || `mailto:${publicSupportEmail()}`,
     process.env.VAPID_PUBLIC_KEY as string,
     process.env.VAPID_PRIVATE_KEY as string,
   );

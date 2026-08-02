@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { getCurrentUser } from "@/lib/auth/user";
 import { PlanCards } from "@/components/PlanCards";
+import { MaxPlanRoi } from "@/components/MaxPlanRoi";
 import { isPlanId, type PlanId } from "@/lib/plans";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -25,6 +26,7 @@ export default async function PricingPage({
         {t("subtitle")}
       </p>
       <PlanCards currentPlan={currentPlan} bcp47={bcp47[locale as Locale]} />
+      <MaxPlanRoi bcp47={bcp47[locale as Locale]} />
     </main>
   );
 }

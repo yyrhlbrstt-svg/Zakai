@@ -17,6 +17,23 @@
     "perMonthTag": "/mo",
     "currency": "₪"
   },
+  "opsBanner": {
+    "preBilling": "Transparency: paid subscriptions (Pro/Max) are not charged yet — billing is not connected. Success fees are recorded per plan; nothing is charged automatically without an explicit action from you."
+  },
+  "about": {
+    "metaTitle": "Why Zakai",
+    "metaDesc": "How Zakai differs from DIY or traditional bill-negotiation services — no fake testimonials, only documented proof.",
+    "title": "Why Zakai",
+    "subtitle": "The same story as the homepage — in full, with links to tools and proof. No invented quotes: only what appears in the proof ledger.",
+    "proofPitch": "Want to see it's real? The proofs wall and results page show documented savings only — not fabricated success stories.",
+    "proofsCta": "Proofs wall",
+    "resultsCta": "Documented results",
+    "catalogTitle": "Rights catalog",
+    "catalogBody": "More than {count} rights and benefits in one place — tax, national insurance, banking, army and more. Personalized check in your browser, no signup.",
+    "rightsCta": "Open rights check",
+    "trustCta": "Trust & privacy",
+    "startCta": "Start with My money"
+  },
   "nav": {
     "home": "Home",
     "dashboard": "My dashboard",
@@ -703,7 +720,8 @@
     "whatAmIOwed": "What am I owed?",
     "companies": "Zakai Score",
     "allTools": "All tools",
-    "networkProof": "Network proof"
+    "networkProof": "Network proof",
+    "about": "Why Zakai"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -753,8 +771,7 @@
           "Full recurring-charges scan — every finding",
           "\"Stealth price-hike\" radar: automatic monthly re-check + alert when a price quietly jumps",
           "The smart assistant — up to 100 questions a month",
-          "Priority handling of your cases",
-          "Exclusive coupons & deals for savers (coming soon)"
+          "Priority handling of your cases"
         ]
       },
       "MAX": {
@@ -765,13 +782,18 @@
           "Unlimited checks",
           "The smart assistant — up to 300 questions a month",
           "Everything in Pro",
-          "Zakai Family — protect your parents and grandparents too (coming soon)",
-          "Premium coupons & deals (coming soon)",
           "Full priority + first access to new features"
         ]
       }
     },
-    "paymentComing": "Paid plans open the moment we connect billing. Leave it with us — you will be first to upgrade. (Downgrading to Free works now.)"
+    "paymentComing": "Paid plans open the moment we connect billing. Leave it with us — you will be first to upgrade. (Downgrading to Free works now.)",
+    "maxRoiTitle": "Does Max pay off for you?",
+    "maxRoiSub": "Max costs ₪59.90/month and removes success fees. Enter the documented monthly saving you expect — we'll compare to what you'd pay on Free or Pro.",
+    "maxRoiInput": "Estimated documented monthly saving",
+    "maxRoiYes": "At this level, Max likely pays for itself in fees you avoid — worth considering.",
+    "maxRoiNo": "At this level, Free or Pro is still cheaper on fees — unless you need the higher limits.",
+    "maxRoiBreakevenFree": "Breakeven vs Free (18% fee): about {amount} documented saving per month.",
+    "maxRoiBreakevenPro": "Breakeven vs Pro (9% fee): about {amount} documented saving per month."
   },
   "scan": {
     "title": "What am I paying for?",
@@ -975,7 +997,8 @@
       "flights": "Flight compensation",
       "subs": "Subscriptions"
     },
-    "cta": "Start getting it back",
+    "cta": "Check my bills — free",
+    "ctaScan": "Scan recurring charges (CSV)",
     "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
   },
   "intentTriage": {
@@ -989,6 +1012,7 @@
   "rights": {
     "title": "The Big Rights Check",
     "subtitle": "76 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "categoryNav": "Jump to category",
     "q": {
       "age": "Age",
       "ages": {
@@ -2124,6 +2148,7 @@
   "legalPages": {
     "termsTitle": "Terms of Service",
     "privacyTitle": "Privacy Policy",
+    "privacyContact": "Privacy questions and rights requests: {email}. We respond within the statutory timeframe.",
     "updated": "Last updated: July 2026",
     "legalNote": "Drafted carefully but not yet attorney-reviewed; full legal review will precede any real charging.",
     "terms": [
@@ -2207,7 +2232,7 @@
       },
       {
         "h": "Contact",
-        "p": "Privacy questions and rights requests: support@zakai.example (to be updated). We respond within the statutory timeframe."
+        "p": "Privacy questions and rights requests: {email}. We respond within the statutory timeframe."
       }
     ]
   },
@@ -4170,7 +4195,7 @@
     "desc": "The AI agent that gets back the money you’re owed: tax refunds, lost money, flight compensation, benefits, bill reductions and more — a fee only on documented savings."
   },
   "claim": {
-    "intro": "Fill in the details and Zakai prepares the formal letter here — ready to send. Nothing leaves the app.",
+    "intro": "Draft prep tool: fill in the fields and tap «Prepare the letter». The letter is generated in your browser — it is not sent automatically to anyone.",
     "generate": "Prepare the letter",
     "subject": "Subject",
     "copy": "Copy",

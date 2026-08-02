@@ -18,6 +18,7 @@ import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { withFooter } from "@/lib/letterFooter";
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
+import { publicSupportEmail } from "@/lib/contact";
 
 export class CaseError extends Error {}
 
@@ -29,7 +30,7 @@ function marketForCase(vertical: string): string {
 }
 
 function supportEmail(): string {
-  return process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@zakai.example";
+  return publicSupportEmail();
 }
 
 function appBaseUrl(): string {
