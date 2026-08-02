@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterAll } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { revokeAllAuthorities, revokeAuthority, listAuthorities } from "./authorityControl";
 
@@ -6,8 +6,23 @@ import { revokeAllAuthorities, revokeAuthority, listAuthorities } from "./author
 const hasDb = Boolean(process.env.DATABASE_URL);
 const suite = hasDb ? describe : describe.skip;
 
+// Everything this suite creates is tracked and removed afterwards. It used to
+// leave rows behind with codes derived from `Date.now()`'s leading digits —
+// identical for months at a stretch — so the suite passed on a clean database
+// and failed with a unique-constraint violation on every run after the first.
+const createdUserIds: string[] = [];
+const createdCodes: string[] = [];
+
+afterAll(async () => {
+  if (!hasDb) return;
+  await prisma.mandateRevocation.deleteMany({ where: { jti: { in: createdCodes } } });
+  // Cases and authorizations cascade from the user.
+  await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
+  await prisma.$disconnect();
+});
+
 async function makeUser(tag: string) {
-  return prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       email: `authority-${tag}-${Math.random().toString(36).slice(2)}@zakai.test`,
       name: "Authority Tester",
@@ -16,13 +31,19 @@ async function makeUser(tag: string) {
     },
     select: { id: true },
   });
+  createdUserIds.push(user.id);
+  return user;
 }
 
 async function makeActiveAuthority(userId: string, tag: string) {
   const kase = await prisma.case.create({
     data: { userId, provider: `provider-${tag}`, amountOriginal: 10_000, targetAmount: 8_000 },
   });
-  const code = `ZK-${tag.slice(0, 4).toUpperCase()}-TEST`;
+  const code = `ZK-${tag.slice(0, 1).toUpperCase()}${Math.random()
+    .toString(36)
+    .slice(2, 9)
+    .toUpperCase()}-TEST`;
+  createdCodes.push(code);
   await prisma.authorization.create({
     data: {
       caseId: kase.id,
