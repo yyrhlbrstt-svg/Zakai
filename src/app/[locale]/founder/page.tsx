@@ -41,19 +41,40 @@ export default async function FounderPage({
   if (!(await isEmailVerified(user!.id))) redirect({ href: "/dashboard", locale });
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const [byStatus, savedAgg, feeAgg, paidAgg, users, checks, recovery, newUsers7d, leadsByVertical, feedbackCount] =
-    await Promise.all([
-      prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
-      prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
-      prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
-      prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
-      prisma.user.count(),
-      prisma.case.count(),
-      computeRecoveryGraph(),
-      prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
-      prisma.lead.groupBy({ by: ["vertical"], _count: { _all: true } }),
-      prisma.feedback.count(),
-    ]);
+  const [
+    byStatus,
+    savedAgg,
+    feeAgg,
+    paidAgg,
+    users,
+    checks,
+    recovery,
+    newUsers7d,
+    leadsByVertical,
+    feedbackCount,
+    leads,
+    feedbackRows,
+  ] = await Promise.all([
+    prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
+    prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
+    prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
+    prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
+    prisma.user.count(),
+    prisma.case.count(),
+    computeRecoveryGraph(),
+    prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
+    prisma.lead.groupBy({ by: ["vertical"], _count: { _all: true } }),
+    prisma.feedback.count(),
+    // Every /start submission, in full — this used to be split across this
+    // page (a 25-row preview) and a separate, unlinked /leads page (a full
+    // table). One inbox, not two half-built ones.
+    prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 300 }),
+    // What people actually typed into "what would you improve in Zakai?" —
+    // api/feedback's own comment promises this is stored "so the team can
+    // read and prioritise from real user input." Nothing ever rendered it;
+    // /founder showed only a count. This is that promise, finally kept.
+    prisma.feedback.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
+  ]);
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
   const sent = count("SENT") + count("SAVED") + count("NO_SAVING");
@@ -66,25 +87,7 @@ export default async function FounderPage({
 
   const money = (a: number) => formatAgorot(a, "he-IL");
 
-  // Growth + pipeline signals — the scoreboard for "get users, prove it works".
-  // The counts answer "how many". They do not answer "who do I call back",
-  // which is the only question that matters on the day one arrives. Mail is a
-  // notification and can be missing, misaddressed or unread; this is the record.
-  const recentLeads = await prisma.lead.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 25,
-    select: {
-      id: true,
-      vertical: true,
-      name: true,
-      phone: true,
-      email: true,
-      company: true,
-      note: true,
-      status: true,
-      createdAt: true,
-    },
-  });
+  const topVerticals = [...leadsByVertical].sort((a, b) => b._count._all - a._count._all).slice(0, 8);
 
   const totalLeads = leadsByVertical.reduce((s, r) => s + r._count._all, 0);
   const topLead = [...leadsByVertical].sort((a, b) => b._count._all - a._count._all)[0];
@@ -154,17 +157,32 @@ export default async function FounderPage({
 
       {/* Who to call back. Institutional enquiries first: a bank asking for a
           pilot is not one lead among many, and burying it under consumer volume
-          is how the one that matters gets answered a fortnight late. */}
+          is how the one that matters gets answered a fortnight late. This used
+          to be a 25-row preview here, duplicated by a separate, unlinked
+          /leads page carrying the full 300-row table — one inbox now, not two
+          half-built ones; /leads redirects here. */}
       <h2 className="font-display text-xl mt-10 mb-1.5">פניות — למי לחזור</h2>
       <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
         כל פנייה נשמרת כאן לפני שנשלח מייל. אם אין SMTP או שהכתובת שגויה — המייל לא יוצא, והרשומה
-        הזאת עדיין קיימת. זה המקור, המייל הוא רק התראה.
+        הזאת עדיין קיימת. זה המקור, המייל הוא רק התראה. סה״כ: <b className="text-emerald">{totalLeads}</b>
       </p>
-      {recentLeads.length === 0 ? (
+      {topVerticals.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {topVerticals.map((v) => (
+            <span
+              key={v.vertical}
+              className="text-[12px] font-bold text-ink-soft border border-[rgba(255,255,255,0.12)] rounded-full px-3 py-1.5"
+            >
+              {v.vertical} · <b className="text-ink">{v._count._all}</b>
+            </span>
+          ))}
+        </div>
+      )}
+      {leads.length === 0 ? (
         <p className="text-ink-soft text-[13.5px]">אין עדיין פניות.</p>
       ) : (
         <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
-          {[...recentLeads]
+          {[...leads]
             .sort((a, b) => {
               const ai = a.vertical.startsWith("business:") ? 0 : 1;
               const bi = b.vertical.startsWith("business:") ? 0 : 1;
@@ -197,6 +215,42 @@ export default async function FounderPage({
                 )}
               </div>
             ))}
+        </div>
+      )}
+
+      {/* User feedback — api/feedback's own comment has promised since it was
+          written that submissions are stored "so the team can read and
+          prioritise from real user input." Nothing ever rendered them; this
+          page showed only a count. A parent typing "קשה" into the feedback
+          widget produced a row nobody could read without querying the DB
+          directly — exactly the "tin can" gap this section closes. */}
+      <h2 className="font-display text-xl mt-10 mb-1.5">משוב ממשתמשים</h2>
+      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+        כל מה שנכתב בתיבת "מה היית משפר בזכאי" — מהאתר, בלי צורך בחשבון. סה״כ:{" "}
+        <b className="text-emerald">{feedbackCount}</b>
+      </p>
+      {feedbackRows.length === 0 ? (
+        <p className="text-ink-soft text-[13.5px]">אין עדיין משוב.</p>
+      ) : (
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
+          {feedbackRows.map((f, i) => (
+            <div
+              key={f.id}
+              className={`px-5 py-3.5 ${i > 0 ? "border-t border-[rgba(255,255,255,0.07)]" : ""}`}
+            >
+              <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                <span className="text-[11.5px] text-ink-soft">
+                  {f.context || "—"} · {f.createdAt.toISOString().slice(0, 10)}
+                </span>
+                {f.email && (
+                  <a href={`mailto:${f.email}`} className="text-[11.5px] text-emerald font-bold" dir="ltr">
+                    {f.email}
+                  </a>
+                )}
+              </div>
+              <p className="text-[13.5px] mt-1.5 mb-0 whitespace-pre-wrap leading-relaxed">{f.message}</p>
+            </div>
+          ))}
         </div>
       )}
 
