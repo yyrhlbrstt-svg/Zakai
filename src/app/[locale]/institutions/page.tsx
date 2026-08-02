@@ -8,6 +8,7 @@ import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator";
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
+import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
 import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
 import { alternateLanguages } from "@/lib/seo";
 
@@ -98,6 +99,21 @@ export default async function InstitutionsPage({
         }}
         rows={fitRows}
       />
+
+      <InstitutionInboundPressurePanel locale={locale} />
+
+      <Card className="p-6 mb-4 border-emerald/30">
+        <h2 className="font-display text-xl mb-2">{t("leaderCtaTitle")}</h2>
+        <p className="text-[14.5px] leading-relaxed mb-4">{t("leaderCtaBody")}</p>
+        <div className="flex flex-wrap gap-4">
+          <Link href="/institutions/leader" className="text-emerald font-bold no-underline">
+            {t("leaderCtaLink")} →
+          </Link>
+          <Link href="/institutions/leaders" className="text-ink-soft font-bold no-underline">
+            {t("leaderWallLink")} →
+          </Link>
+        </div>
+      </Card>
 
       <Section heading="Quick integration">
         <p className="text-[14.5px] leading-relaxed">

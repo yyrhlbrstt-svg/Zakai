@@ -650,3 +650,18 @@ model VigilAlert {
   @@unique([userId, alertKey])
   @@index([userId, sentAt])
 }
+
+/**
+ * Institutions that completed the public verifier-readiness flow and opted into
+ * listing. Marketing positioning only — not regulatory certification.
+ */
+model ReferenceVerifier {
+  institutionId String   @id
+  displayNameHe String
+  displayNameEn String
+  contactEmail  String
+  tier          String   @default("reference") // reference | pioneer
+  listedAt      DateTime @default(now())
+
+  @@index([listedAt])
+}
