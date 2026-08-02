@@ -8,7 +8,7 @@ import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { secretsMatch } from "@/lib/security/timingSafe";
 import { shouldNotifyInbound } from "@/lib/inboundDecision";
-import { inboundProposedRemainingShekels } from "@/lib/fee";
+import { inboundProposedRemainingShekels, resolveInboundRecordAmountShekels } from "@/lib/fee";
 import { feeBasisForVertical } from "@/lib/verticals";
 
 /**
@@ -135,6 +135,31 @@ export async function POST(request: Request) {
     }
   }
 
+  // Lump verticals: re-extract with case context so refunds vs remaining balance map correctly.
+  if (matchedCaseId) {
+    const kaseCtx = await prisma.case.findUnique({
+      where: { id: matchedCaseId },
+      select: { vertical: true, amountOriginal: true },
+    });
+    if (kaseCtx && feeBasisForVertical(kaseCtx.vertical) === "lump") {
+      const originalShekels = Math.round(kaseCtx.amountOriginal / 100);
+      try {
+        const refined = await extractSavingsFromEmail(bodyText, {
+          feeBasis: "lump",
+          originalAmountShekels: originalShekels,
+          vertical: kaseCtx.vertical,
+        });
+        extract = {
+          ...extract,
+          ...refined,
+          authorizationCode: refined.authorizationCode ?? extract.authorizationCode,
+        };
+      } catch {
+        // keep first-pass extract
+      }
+    }
+  }
+
   let recordAmountShekels: number | null = null;
   if (matchedCaseId && extract.newAmountShekels != null) {
     const kaseForRecord = await prisma.case.findUnique({
@@ -142,10 +167,11 @@ export async function POST(request: Request) {
       select: { vertical: true, amountOriginal: true },
     });
     if (kaseForRecord) {
-      recordAmountShekels = inboundProposedRemainingShekels(
+      recordAmountShekels = resolveInboundRecordAmountShekels(
         feeBasisForVertical(kaseForRecord.vertical),
         Math.round(kaseForRecord.amountOriginal / 100),
         extract.newAmountShekels,
+        extract.amountKind ?? null,
       );
     }
   }

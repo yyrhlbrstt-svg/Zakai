@@ -77,6 +77,8 @@ FULL PRODUCT MAP (pick the tightest fit)
 - /what-am-i-owed or /entitlements — rights quiz → action
 - /rights — statutory rights catalog (${IL_RIGHTS_COUNT}+ IL rights)
 - /bank-loan-fee — IL loan opening/handling fee letter; use /bank-fees agent if the bank stalls
+- /water-bill — IL concealed leak water credit letter
+- /vaad-bait — IL HOA charge transparency letter
 - /payslip — minimum wage, pension, convalescence checks
 - /miluim — reserve-duty pay (often-missed supplement)
 - /maternity /unemployment /severance /taxrefund — calculators + paths

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeFee, computeRecoveryFee, computeCaseSuccessFee, documentedRecoveryMinor, inboundProposedRemainingShekels, monthlySaving, FEE_RATE_BPS } from "./fee";
+import { computeFee, computeRecoveryFee, computeCaseSuccessFee, documentedRecoveryMinor, inboundProposedRemainingShekels, resolveInboundRecordAmountShekels, monthlySaving, FEE_RATE_BPS } from "./fee";
 import { shekelsToAgorot } from "./money";
 
 describe("monthlySaving", () => {
@@ -110,6 +110,20 @@ describe("inboundProposedRemainingShekels", () => {
   it("maps lump transfer amount to remaining owed", () => {
     expect(inboundProposedRemainingShekels("lump", 5000, 5000)).toBe(0);
     expect(inboundProposedRemainingShekels("lump", 5000, 3000)).toBe(2000);
+  });
+});
+
+describe("resolveInboundRecordAmountShekels", () => {
+  it("uses remaining balance directly on lump cases", () => {
+    expect(resolveInboundRecordAmountShekels("lump", 5000, 2000, "remaining")).toBe(2000);
+  });
+
+  it("maps lump refund credits via original minus credit", () => {
+    expect(resolveInboundRecordAmountShekels("lump", 5000, 1200, "refund")).toBe(3800);
+  });
+
+  it("passes monthly amounts through", () => {
+    expect(resolveInboundRecordAmountShekels("monthly", 100, 70, "refund")).toBe(70);
   });
 });
 

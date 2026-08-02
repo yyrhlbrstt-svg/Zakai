@@ -113,6 +113,25 @@ export function inboundProposedRemainingShekels(
   return Math.max(0, amountOriginalShekels - extractedShekels);
 }
 
+export type InboundAmountKind = "monthly" | "remaining" | "refund";
+
+/** Map inbound extract + vertical fee basis to remaining owed for recordSaving. */
+export function resolveInboundRecordAmountShekels(
+  feeBasis: FeeBasis,
+  amountOriginalShekels: number,
+  newAmountShekels: number | null,
+  amountKind?: InboundAmountKind | null,
+): number | null {
+  if (newAmountShekels == null) return null;
+  if (feeBasis === "monthly") return newAmountShekels;
+  if (amountKind === "remaining") return Math.max(0, Math.round(newAmountShekels));
+  const kind = amountKind ?? "refund";
+  if (kind === "refund") {
+    return inboundProposedRemainingShekels(feeBasis, amountOriginalShekels, Math.round(newAmountShekels));
+  }
+  return inboundProposedRemainingShekels(feeBasis, amountOriginalShekels, Math.round(newAmountShekels));
+}
+
 export function computeRecoveryFee(
   recoveredAgorot: number,
   rateBps: number = FEE_RATE_BPS,

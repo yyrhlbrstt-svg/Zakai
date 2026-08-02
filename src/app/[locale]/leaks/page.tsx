@@ -103,6 +103,22 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/water-bill",
+    he: "חשבון מים אחרי נזילה",
+    en: "Water bill after hidden leak",
+    subHe: "מכתב להנחה לפי כללי תאגיד המים",
+    subEn: "Leak-credit letter to water corp",
+    rank: 2,
+  },
+  {
+    href: "/vaad-bait",
+    he: "ועד בית — חיובים לא מפורטים",
+    en: "HOA charges without breakdown",
+    subHe: "מכתב לפירוט ועדכון חיוב",
+    subEn: "Transparency demand letter",
+    rank: 2,
+  },
+  {
     href: "/car-insurance-refund",
     he: "החזר ביטוח רכב",
     en: "Car insurance refund",

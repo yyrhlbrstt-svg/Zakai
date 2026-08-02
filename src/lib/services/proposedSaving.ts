@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { inboundProposedRemainingShekels } from "@/lib/fee";
+import { inboundProposedRemainingShekels, resolveInboundRecordAmountShekels } from "@/lib/fee";
 import { feeBasisForVertical } from "@/lib/verticals";
 
 /**
@@ -27,6 +27,7 @@ type InboundRow = {
     found?: boolean;
     newAmountShekels?: number | null;
     recordAmountShekels?: number | null;
+    amountKind?: "monthly" | "remaining" | "refund" | null;
     confidence?: number;
     authorizationCode?: string | null;
   };
@@ -47,7 +48,12 @@ function mapExtractToProposal(
   const mapped =
     ex.recordAmountShekels != null && ex.recordAmountShekels >= 0
       ? ex.recordAmountShekels
-      : inboundProposedRemainingShekels(
+      : resolveInboundRecordAmountShekels(
+          basis,
+          amountOriginalShekels,
+          Math.round(ex.newAmountShekels),
+          ex.amountKind ?? null,
+        ) ?? inboundProposedRemainingShekels(
           basis,
           amountOriginalShekels,
           Math.round(ex.newAmountShekels),

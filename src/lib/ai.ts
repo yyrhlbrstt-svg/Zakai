@@ -592,6 +592,14 @@ export interface SavingsEmailExtract {
   authorizationCode: string | null;
   confidence: number; // 0–1
   reason: string;
+  /** Lump cases: whether newAmount is remaining owed vs refund/credit applied. */
+  amountKind?: "monthly" | "remaining" | "refund" | null;
+}
+
+export interface SavingsEmailExtractContext {
+  feeBasis?: "monthly" | "lump";
+  originalAmountShekels?: number;
+  vertical?: string;
 }
 
 const SAVINGS_EMAIL_SYSTEM = `You extract savings-confirmation signals from emails about Israeli consumer bills (mobile, bank fees, subscriptions, flights, parking, etc.).
@@ -599,18 +607,56 @@ Look for:
 - A new / reduced monthly charge amount (plain number in ILS or ₪).
 - An authorization / reference code that looks like ZK-XXXX-XXXX (Zakai format).
 - Whether the email is clearly a confirmation of a price reduction, refund, or cancelled charge.
-Respond ONLY with JSON: {"found":boolean,"newAmount":number_or_null,"authorizationCode":string_or_null,"confidence":0to1,"reason":"short"}`;
+Respond ONLY with JSON: {"found":boolean,"newAmount":number_or_null,"authorizationCode":string_or_null,"confidence":0to1,"reason":"short","amountKind":"monthly"|"remaining"|"refund"|null}`;
+
+function savingsEmailSystemPrompt(ctx?: SavingsEmailExtractContext): string {
+  if (ctx?.feeBasis !== "lump") return SAVINGS_EMAIL_SYSTEM;
+  const orig = ctx.originalAmountShekels ?? 0;
+  const vertical = ctx.vertical ? ` Vertical: ${ctx.vertical}.` : "";
+  return `${SAVINGS_EMAIL_SYSTEM}
+
+This email belongs to a ONE-TIME (lump) recovery case. Original amount in dispute was about ${orig} ILS.${vertical}
+For amountKind:
+- "remaining" — email states how much is still owed / outstanding balance after partial payment.
+- "refund" — email states a credit, refund, or payment transferred to the customer (not the remaining balance).
+- "monthly" — only if a new recurring monthly rate is explicit (unusual for lump).
+Put the relevant number in newAmount. Never invent amounts.`;
+}
 
 /**
  * Deterministic fallback when AI is unavailable: regex for ZK- codes and
  * common "new monthly" / "reduced to" patterns. Never invents amounts.
  */
-function deterministicSavingsExtract(body: string): SavingsEmailExtract {
+function deterministicSavingsExtract(body: string, ctx?: SavingsEmailExtractContext): SavingsEmailExtract {
   const codeMatch = body.match(/\b(ZK-[A-Z0-9]{4}-[A-Z0-9]{4})\b/i);
+  const refundMatch =
+    ctx?.feeBasis === "lump"
+      ? body.match(
+          /(?:הוחזר|זיכוי|זוכה|credit(?:ed)?|refund(?:ed)?)[^\d]{0,40}(?:₪|ILS|ש"ח)?\s*(\d{2,6}(?:\.\d{1,2})?)/i,
+        )
+      : null;
+  const remainingMatch =
+    ctx?.feeBasis === "lump"
+      ? body.match(
+          /(?:יתרה|נותר|remaining|outstanding|חוב נותר)[^\d]{0,40}(?:₪|ILS|ש"ח)?\s*(\d{2,6}(?:\.\d{1,2})?)/i,
+        )
+      : null;
   const amountMatch =
+    remainingMatch ||
+    refundMatch ||
     body.match(/(?:חדש|new|reduced to|הופחת ל|סכום חדש|monthly|חודשי)[^\d]{0,40}(?:₪|ILS|ש"ח)?\s*(\d{2,5}(?:\.\d{1,2})?)/i) ||
     body.match(/(?:₪|ILS)\s*(\d{2,5}(?:\.\d{1,2})?)/);
   const amount = amountMatch ? Math.round(Number(amountMatch[1])) : null;
+  const amountKind: SavingsEmailExtract["amountKind"] =
+    ctx?.feeBasis === "lump"
+      ? remainingMatch
+        ? "remaining"
+        : refundMatch
+          ? "refund"
+          : null
+      : amount != null
+        ? "monthly"
+        : null;
   const hasCode = Boolean(codeMatch);
   const found = hasCode || (amount != null && amount > 0 && amount < 50000);
   return {
@@ -619,16 +665,21 @@ function deterministicSavingsExtract(body: string): SavingsEmailExtract {
     authorizationCode: codeMatch ? codeMatch[1].toUpperCase() : null,
     confidence: hasCode && amount != null ? 0.55 : hasCode ? 0.4 : amount != null ? 0.35 : 0,
     reason: found ? "deterministic" : "no_signal",
+    amountKind,
   };
 }
 
-export async function extractSavingsFromEmail(body: string): Promise<SavingsEmailExtract> {
-  if (!aiAvailable()) return deterministicSavingsExtract(body);
+export async function extractSavingsFromEmail(
+  body: string,
+  context?: SavingsEmailExtractContext,
+): Promise<SavingsEmailExtract> {
+  const system = savingsEmailSystemPrompt(context);
+  if (!aiAvailable()) return deterministicSavingsExtract(body, context);
   try {
     let text: string;
     if (aiProvider() !== "anthropic") {
       text = await fallbackGenerate({
-        system: SAVINGS_EMAIL_SYSTEM,
+        system,
         userText: body.slice(0, 8000),
         maxTokens: 300,
         temperature: 0,
@@ -639,7 +690,7 @@ export async function extractSavingsFromEmail(body: string): Promise<SavingsEmai
         model: EXTRACT_MODEL,
         max_tokens: 300,
         temperature: 0,
-        system: cachedSystem(SAVINGS_EMAIL_SYSTEM),
+        system: cachedSystem(system),
         messages: [{ role: "user", content: body.slice(0, 8000) }],
       });
       text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
@@ -650,16 +701,22 @@ export async function extractSavingsFromEmail(body: string): Promise<SavingsEmai
       authorizationCode?: string | null;
       confidence?: number;
       reason?: string;
+      amountKind?: SavingsEmailExtract["amountKind"];
     };
+    const amountKind =
+      p.amountKind === "monthly" || p.amountKind === "remaining" || p.amountKind === "refund"
+        ? p.amountKind
+        : null;
     return {
       found: Boolean(p.found),
       newAmountShekels: p.newAmount != null ? Math.round(Number(p.newAmount)) : null,
       authorizationCode: p.authorizationCode ? String(p.authorizationCode).toUpperCase() : null,
       confidence: Math.max(0, Math.min(1, Number(p.confidence) || 0)),
       reason: p.reason || "ai",
+      amountKind,
     };
   } catch {
-    return deterministicSavingsExtract(body);
+    return deterministicSavingsExtract(body, context);
   }
 }
 

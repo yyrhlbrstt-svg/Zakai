@@ -43,9 +43,9 @@ Escalation: `/bank-loan-fee` letter pack → `/bank-fees` agent when the bank st
 
 ## Next verticals to build (backlog)
 
-1. **Municipal water + HOA** — wire `/water-bill` and `/vaad-bait` into priority + assistant anchors (letters exist).
-2. **Stronger lump inbound extract** — pass vertical hint into `extractSavingsFromEmail` so refunds map to remaining owed without manual edit.
-3. **Dedicated loan-fee agent** — optional Case vertical if `/bank-fees` conflates too many bank disputes.
+1. **Dedicated loan-fee agent** — optional Case vertical if `/bank-fees` conflates too many bank disputes.
+2. **Letter doors on leaks** — `/landlord-repairs`, `/duplicate-charge`, `/telecom-exit` still only in sitemap/tools.
+3. **Inbound E2E test** — fixture emails for lump remaining vs refund semantics.
 
 Machine map: `GET /api/network/opportunity-map?market=IL`
 

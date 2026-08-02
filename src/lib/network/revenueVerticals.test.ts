@@ -15,6 +15,12 @@ describe("revenueVerticals", () => {
     expect(loan?.status).toBe("letter_pack");
   });
 
+  it("includes IL water and HOA letter packs", () => {
+    const il = revenueVerticalsForMarket("IL");
+    expect(il.find((v) => v.id === "il_water_leak")?.route).toBe("/water-bill");
+    expect(il.find((v) => v.id === "il_vaad_bait")?.route).toBe("/vaad-bait");
+  });
+
   it("includes GB student loan vertical with pack right", () => {
     const gb = revenueVerticalsForMarket("GB");
     const sl = gb.find((v) => v.id === "gb_student_loan_overpayment");
