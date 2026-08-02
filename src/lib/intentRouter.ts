@@ -115,6 +115,11 @@ const KEYWORDS: IntentKeywords[] = [
     en: ["parking ticket", "parking fine appeal"],
   },
   {
+    id: "warranty",
+    he: ["אחריות מוצר", "המכשיר התקלקל", "תיקון באחריות", "יבואן לא מתקן", "איבדתי קבלה אבל באחריות"],
+    en: ["product warranty", "device broke under warranty", "warranty repair", "importer won't fix"],
+  },
+  {
     id: "transport-fine",
     he: ["קנס תחבורה ציבורית", "נסעתי בלי כרטיס", "קנס באוטובוס", "קנס ברכבת"],
     en: ["public transport fine", "bus fine", "train fine"],

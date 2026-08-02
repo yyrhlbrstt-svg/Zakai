@@ -5,8 +5,10 @@ import type { RightsProfile } from "@/lib/rights";
 import { DashboardNextActionClient } from "@/components/DashboardNextActionClient";
 import type { Locale } from "@/i18n/config";
 import { bcp47 } from "@/i18n/config";
+import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 
 const SETTLED = new Set(["SENT", "SAVED", "NO_SAVING", "REVOKED"]);
+const PRE_SEND = new Set(["ANALYZED", "APPROVED", "VERIFIED"]);
 
 export async function DashboardNextActionPanel({
   userId,
@@ -27,19 +29,47 @@ export async function DashboardNextActionPanel({
     }),
   ]);
 
-  const pending = cases.find((c) =>
-    ["ANALYZED", "APPROVED", "VERIFIED", "SENT"].includes(c.status),
-  );
-  if (pending) {
+  const preSend = cases.find((c) => PRE_SEND.has(c.status));
+  if (preSend) {
     return (
       <Link
-        href={`/dashboard?case=${pending.id}`}
+        href={`/dashboard?case=${preSend.id}`}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("agentNudgeTitle")}</div>
         <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("agentNudgeSub")}</p>
       </Link>
     );
+  }
+
+  const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
+  if (sentIds.length > 0) {
+    const proposed = await getProposedSavingsMap(sentIds);
+    const proposedCaseId = sentIds.find((id) => proposed.has(id));
+    if (proposedCaseId) {
+      return (
+        <Link
+          href={`/dashboard?case=${proposedCaseId}`}
+          className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-5 py-4 hover:border-[rgba(63,203,155,0.55)] transition-colors"
+        >
+          <div className="font-extrabold text-[15px] text-emerald">{t("proposedNudgeTitle")}</div>
+          <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("proposedNudgeSub")}</p>
+        </Link>
+      );
+    }
+
+    const sent = cases.find((c) => c.status === "SENT");
+    if (sent) {
+      return (
+        <Link
+          href={`/dashboard?case=${sent.id}`}
+          className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
+        >
+          <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("agentNudgeTitle")}</div>
+          <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("agentNudgeSub")}</p>
+        </Link>
+      );
+    }
   }
 
   if (!profileRow?.data) {

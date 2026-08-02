@@ -12,7 +12,7 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 | `/electricity` | Switch / social tariff |
 | `/flights` | Aviation compensation |
 | `/deposit` | Rental deposit return |
-| `/refund-chase`, `/parking`, `/transport-fine`, `/late-payment` | Written chase |
+| `/refund-chase`, `/parking`, `/transport-fine`, `/late-payment`, `/warranty` | Written chase / lump recovery |
 
 ## New letter-pack doors (this batch)
 
@@ -29,7 +29,6 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 | `/landlord-repairs` | Rental essential repairs | חוק השכירות והשאילה |
 | `/duplicate-charge` | Duplicate/wrong charge | עשיית עושר ולא במשפט |
 | `/telecom-exit` | Disconnect + refunds | חוק התקשורת |
-| `/warranty` | Product warranty letter | חוק הגנת הצרכן |
 | `/bank-loan-fee` | Loan opening / handling fee | כללי הבנקאות (עמלות) |
 
 ## Full agent doors (shipped on golden branch)
@@ -38,6 +37,7 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 |------|-----------|
 | `/duplicate-insurance` | monthly (premium drop) |
 | `/arnona` | monthly (bill correction) |
+| `/warranty` | lump (repair / replacement / refund) |
 
 Escalation: `/bank-loan-fee` letter pack → `/bank-fees` agent when the bank stalls.
 
