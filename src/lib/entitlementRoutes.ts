@@ -65,6 +65,7 @@ const ROUTES: Record<string, string> = {
 
   // Banking / consumer money
   bank_basic_track: "/bank-fees",
+  bank_loan_opening_commission_il: "/bank-loan-fee",
   bank_senior_track: "/bank-fees",
   bank_soldier_student: "/bank-fees",
   credit_report_free: "/rights",

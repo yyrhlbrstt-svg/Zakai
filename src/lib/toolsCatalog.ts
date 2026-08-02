@@ -19,6 +19,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/cancel", key: "cancel", category: "agent", featured: true, agentic: true },
   { href: "/check", key: "newCheck", category: "agent", featured: true, agentic: true },
   { href: "/bank-fees", key: "bankfees", category: "agent", featured: true, agentic: true },
+  { href: "/bank-loan-fee", key: "bankloanfee", category: "rights" },
   { href: "/electricity", key: "electricity", category: "agent", featured: true, agentic: true },
   { href: "/flights", key: "flights", category: "agent", featured: true, agentic: true },
   { href: "/refund-chase", key: "refundchase", category: "agent", featured: true, agentic: true },

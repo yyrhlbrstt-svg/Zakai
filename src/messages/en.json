@@ -264,7 +264,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "75 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "76 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       },
       "miluim": {
         "title": "Reserve-duty pay",
@@ -394,7 +394,7 @@
         "points": [
           "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
           "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
-          "Free no-signup toolset: 75 rights, electricity, flights, subscriptions",
+          "Free no-signup toolset: 76 rights, electricity, flights, subscriptions",
           "Privacy by default: no trackers, in-browser scans, one-click deletion"
         ]
       }
@@ -969,7 +969,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "75 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "76 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {
@@ -1230,6 +1230,11 @@
         "title": "Duplicate or incorrect charge",
         "desc": "Charged twice for the same purchase, or the charge doesn't match the receipt — you're entitled to a correction and credit.",
         "how": "Zakai prepares the complaint to the provider, including where to attach your receipt or statement as proof."
+      },
+      "bank_loan_opening_commission_il": {
+        "title": "Loan opening / handling fee",
+        "desc": "Banks must be transparent — fees not disclosed upfront or charged twice can be challenged.",
+        "how": "Zakai drafts a demand for breakdown and refund; for ongoing bank fees use the agent at /bank-fees."
       },
       "train_delay_compensation": {
         "title": "Train delay/cancellation compensation",
@@ -5270,6 +5275,16 @@
     "sub": "Demand a credit based on your receipt or statement — you supply the proof.",
     "cite": "No outcome guaranteed; merchants must review documented complaints.",
     "agentCta": "Recurring charges? Scan my money"
+  },
+  "bankLoanFee": {
+    "metaTitle": "Loan opening fee — demand letter to bank | Zakai",
+    "metaDesc": "Letter requesting breakdown of loan opening/handling fees and refund of undisclosed charges.",
+    "kicker": "Banking",
+    "title": "Charged a loan opening or handling fee?",
+    "sub": "Banks must be transparent. A letter demanding breakdown, legal basis, and refund of impermissible or duplicate fees.",
+    "cite": "Banking (Customer Service)(Fees) Regulations, 2008",
+    "agentCta": "Ongoing fees — bank-fees agent",
+    "disclaimer": "Not credit or legal advice. Zakai drafts a letter; you remain responsible for documents and decisions."
   },
   "telecomExit": {
     "metaTitle": "Disconnect mobile or internet — Zakai",

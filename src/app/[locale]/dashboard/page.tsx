@@ -29,7 +29,6 @@ import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { feeBasisForVertical } from "@/lib/verticals";
-import { inboundProposedRemainingShekels } from "@/lib/fee";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -158,15 +157,10 @@ export default async function DashboardPage({
               })
             : undefined;
         const amountOriginalShekels = Math.round(c.amountOriginal / 100);
-        const basis = feeBasisForVertical(c.vertical);
         const proposed = proposedMap.get(c.id);
         const proposedClient = proposed
           ? {
-              newAmountShekels: inboundProposedRemainingShekels(
-                basis,
-                amountOriginalShekels,
-                proposed.newAmountShekels,
-              ),
+              newAmountShekels: proposed.newAmountShekels,
               confidence: proposed.confidence,
               from: proposed.from,
             }

@@ -170,6 +170,12 @@ export const ENTITLEMENTS: Entitlement[] = [
 
   // ---- Banking (בנקים ואשראי) ----
   { id: "bank_basic_track", category: "banking", eligible: () => true, yearlyAgorot: 15_000 },
+  {
+    id: "bank_loan_opening_commission_il",
+    category: "banking",
+    eligible: () => true,
+    yearlyAgorot: 12_000,
+  },
   { id: "bank_senior_track", category: "banking", eligible: (p) => senior(p) || p.disability },
   { id: "bank_soldier_student", category: "banking", eligible: (p) => p.employment === "soldier" || p.employment === "student" },
   { id: "credit_report_free", category: "banking", eligible: () => true },

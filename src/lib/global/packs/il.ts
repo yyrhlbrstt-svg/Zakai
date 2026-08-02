@@ -156,6 +156,13 @@ const rights: RightDef[] = [
   right("bank_basic_track", "banking", always, "כללי הבנקאות (שירות ללקוח)(עמלות), התשס״ח-2008", {
     yearlyMinor: 15_000,
   }),
+  right(
+    "bank_loan_opening_commission_il",
+    "banking",
+    always,
+    "כללי הבנקאות (שירות ללקוח)(עמלות), התשס״ח-2008 — שקיפות עמלות הלוואה",
+    { yearlyMinor: 12_000 },
+  ),
   right("bank_senior_track", "banking", any(senior, disability), "הוראות המפקח על הבנקים — הטבות בעמלות לאזרחים ותיקים ולבעלי מוגבלות"),
   right("bank_soldier_student", "banking", any(soldier, student), "כללי הבנקאות (שירות ללקוח)(עמלות) — פטורים לחיילים ולסטודנטים"),
   right("credit_report_free", "banking", always, "חוק נתוני אשראי, התשע״ו-2016"),

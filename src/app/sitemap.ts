@@ -84,6 +84,7 @@ const PATHS = [
   "/water-bill",
   "/landlord-repairs",
   "/duplicate-charge",
+  "/bank-loan-fee",
   "/telecom-exit",
   "/holocaust-survivors",
   "/insurance-compare",

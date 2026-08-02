@@ -8,6 +8,8 @@ import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { secretsMatch } from "@/lib/security/timingSafe";
 import { shouldNotifyInbound } from "@/lib/inboundDecision";
+import { inboundProposedRemainingShekels } from "@/lib/fee";
+import { feeBasisForVertical } from "@/lib/verticals";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -173,8 +175,32 @@ export async function POST(request: Request) {
     })
   ) {
     const user = await prisma.user.findUnique({ where: { id: matchedUserId } });
-    if (user?.email) {
+    const kase = await prisma.case.findUnique({
+      where: { id: matchedCaseId },
+      select: { vertical: true, amountOriginal: true },
+    });
+    if (user?.email && kase && extract.newAmountShekels != null) {
       const appUrl = appBaseUrl();
+      const basis = feeBasisForVertical(kase.vertical);
+      const originalShekels = Math.round(kase.amountOriginal / 100);
+      const recordShekels = inboundProposedRemainingShekels(
+        basis,
+        originalShekels,
+        extract.newAmountShekels,
+      );
+      const amountLine =
+        basis === "lump"
+          ? recordShekels === 0
+            ? `זוהה אישור על החזר/תשלום — ניתן לרשום התקבל במלואו (נותר ₪0).`
+            : `זוהה סכום שקשור להחזר — נותר לשלם בערך ₪${recordShekels} (אשר בדשבורד).`
+          : `סכום חודשי חדש שזוהה: ₪${recordShekels}.`;
+      const pushBody =
+        basis === "lump"
+          ? recordShekels === 0
+            ? "זוהה אישור החזר במלואו. אשר בדשבורד בלחיצה אחת."
+            : `נותר לשלם בערך ₪${recordShekels}. אשר בדשבורד.`
+          : `זוהה סכום חדש ₪${recordShekels}. אשר בדשבורד בלחיצה אחת.`;
+
       await sendEmail({
         to: user.email,
         subject: "זכאי — קיבלנו אישור חיסכון, אשר בלחיצה אחת",
@@ -182,7 +208,7 @@ export async function POST(request: Request) {
           `שלום ${user.name},`,
           ``,
           `קיבלנו הודעה שנראית כמו אישור חיסכון לתיק שלך.`,
-          `סכום חודשי חדש שזוהה: ₪${extract.newAmountShekels}.`,
+          amountLine,
           ``,
           `כדי לסגור את התיק ולתעד את החיסכון (העמלה נגזרת רק אחרי אישור שלך):`,
           `${appUrl}/he/dashboard`,
@@ -194,7 +220,7 @@ export async function POST(request: Request) {
 
       await pushToUser(matchedUserId, {
         title: "זכאי — אישור חיסכון הגיע",
-        body: `זוהה סכום חדש ₪${extract.newAmountShekels}. אשר בדשבורד בלחיצה אחת.`,
+        body: pushBody,
         url: "/he/dashboard",
         tag: `inbound-${matchedCaseId}`,
       }).catch(() => null);
