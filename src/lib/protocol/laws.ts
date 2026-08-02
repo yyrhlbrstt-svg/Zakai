@@ -37,6 +37,7 @@ export type ProtocolLawId = (typeof PROTOCOL_LAWS)[number]["id"];
 
 export const WELL_KNOWN_RELATIVE = {
   protocol: "/.well-known/zakai-protocol.json",
+  rightsSchema: "/.well-known/zakai-rights-schema.json",
   mandate: "/.well-known/zakai-mandate.json",
   jwks: "/.well-known/zakai-jwks.json",
   trustRegistry: "/.well-known/zakai-trust-registry.json",

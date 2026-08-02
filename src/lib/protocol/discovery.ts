@@ -4,6 +4,8 @@ import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { emailConfigured } from "@/lib/messaging";
 import { MandateKeyUnavailableError, loadSigningKeyFromEnv } from "@/lib/mandate/mandate";
 import { PROTOCOL_LAWS, WELL_KNOWN_RELATIVE, absoluteWellKnown } from "@/lib/protocol/laws";
+import { MARKETS } from "@/lib/global/registry";
+import { ZML_VERSION } from "@/lib/protocol/zml/constants";
 
 export interface OutcomeGraphPublicStats {
   totalOutcomes: number;
@@ -117,6 +119,18 @@ export function buildZakaiProtocolDocument(origin: string) {
       agents: `${origin}/he/agents`,
     },
     license: "Specifications and public endpoints are open for verification; Zakai consumer app is proprietary.",
+    zml: {
+      version: ZML_VERSION,
+      schema: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.rightsSchema),
+      rights_catalog: `${origin}/api/rights/catalog`,
+      features: {
+        mandate_verify: mandateSigningLive(),
+        outcome_graph: true,
+        embedded_widget: false,
+        collective_auction: false,
+      },
+      packs_builtin: Object.keys(MARKETS),
+    },
   };
 }
 
