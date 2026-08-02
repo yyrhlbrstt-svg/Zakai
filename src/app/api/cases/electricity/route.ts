@@ -9,10 +9,13 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildElectricityLetter } from "@/lib/electricityLetter";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { formatCaseDraft } from "@/lib/caseDraft";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   targetSupplier: z.string().min(1).max(120),
+  supplierEmail: z.string().max(120).optional(),
   planName: z.string().max(120).optional(),
   currentSupplier: z.string().max(120).optional(),
   monthlyBillShekels: z.number().min(0).max(50000).optional(),
@@ -33,6 +36,11 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
+
+  const outreachTo = firstOutreachEmail(data.supplierEmail);
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -82,13 +90,12 @@ export async function POST(request: Request) {
       plan: data.planName || "מעבר ספק חשמל",
       strategy: "מעבר ספק חשמל עם Mandate",
       targetShekels: target,
-      draftMessage: `${staged.subject}
-
-${staged.body}`,
+      draftMessage: formatCaseDraft(staged.subject, staged.body, user.country),
       strategyVariant: stanceApplied ? stance.variantId : undefined,
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "electricity",
       beneficiaryLabel: data.beneficiaryLabel || data.customerName || undefined,
+      counterpartyEmail: outreachTo,
       autoApprove: true,
     });
   } catch (err) {

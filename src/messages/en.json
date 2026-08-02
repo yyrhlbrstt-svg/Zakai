@@ -3089,15 +3089,17 @@
     "templateSub": "Copy it, fill in the details in brackets, and send it yourself to the importer/manufacturer. This is a letter you send in your own name — Zakai does not represent you.",
     "template": "To Customer Service, [importer/manufacturer name],\n\nMy name is [full name]. On [purchase date] I bought [product name and model], serial number [serial], as shown in the attached proof of purchase.\n\nThe product is within its warranty period and recently developed a fault: [describe the fault]. I request to exercise the warranty and repair the defect at no cost, and if it cannot be repaired in a reasonable number of attempts — to replace it or refund me, as provided by law.\n\nI'd be glad to schedule a time and receive a written reply within a reasonable period. Thank you,\n[full name] · [phone] · [date]",
     "agentTitle": "Agent sends on your behalf — with Mandate",
-    "agentSub": "Fill in the details; the agent opens a Case, attaches a Mandate, and sends the demand in writing. Success fee only on a documented outcome (free repair / replacement / refund).",
+    "agentSub": "Fill in details and the importer's email. We open a pre-approved case — send from the dashboard after verification, with Mandate.",
     "agentName": "Full name",
     "agentSeller": "Seller / importer",
+    "agentSellerEmail": "Service / importer email (for sending)",
     "agentProduct": "Product name and model",
     "agentFault": "What is the fault?",
     "agentRepairCost": "Estimated repair cost (₪) — optional",
-    "agentCta": "Agent send and track now",
+    "agentCta": "Open case — continue on dashboard (verify & send)",
     "agentBusy": "Opening your case…",
     "agentCaseLimit": "You've reached the active-case limit on your plan.",
+    "agentNeedsEmail": "Missing importer email — enter a service address.",
     "agentError": "Something went wrong. Try again.",
     "templateOnly": "Template only (no agent)",
     "agentOpenedTitle": "Case opened",
@@ -4535,6 +4537,18 @@
     "revokeAll": "Withdraw everything",
     "revokeAllConfirm": "Sure? Tap again to withdraw all"
   },
+  "agentFlow": {
+    "openCase": "Open case — continue on dashboard (verify & send)",
+    "opening": "Opening case…",
+    "honestNote": "The agent does not send from this page: case → verify on dashboard → one Mandate send.",
+    "contactEmail": "Email to send to (support / billing / supplier)",
+    "contactEmailHint": "Without a real address, outreach will not reach the right inbox.",
+    "errorNeedsEmail": "Missing destination email — enter a valid address.",
+    "errorCaseLimit": "Case limit reached. Upgrade or close an open case.",
+    "errorGeneric": "Something went wrong. Try again.",
+    "copied": "Copied",
+    "copyAll": "Copy all"
+  },
   "inline_components_CancelTool": {
     "t_ebd6b437": "Your name",
     "t_524bf65a": "Company name",
@@ -4614,14 +4628,16 @@
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_f9f3c72c": "Demand ready. On the dashboard: verify ownership → Mandate → mark sent. When the refund lands — record it as a saving."
+    "t_f9f3c72c": "Demand ready. On the dashboard: verify ownership → Mandate → send. When the refund lands — record it as a saving.",
+    "contactEmailPlaceholder": "Store / site email (for sending)"
   },
   "inline_components_ParkingAppeal": {
     "t_e3b93d14": "Ticket ₪ (optional)",
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_d489aedc": "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the ticket is cancelled — record the saving."
+    "t_d489aedc": "Appeal ready. On the dashboard: verify ownership → Mandate → send. When the ticket is cancelled — record the saving.",
+    "authorityEmail": "Municipality billing / appeals email"
   },
   "inline_components_CreditCardTool": {
     "t_540e7429": "Card balance ₪",
@@ -4641,7 +4657,8 @@
     "t_3e177a1f": "Who is this for? (optional — family)",
     "t_56630d92": "e.g. Mom · Grandpa",
     "t_62d5403d": "Case opened — continue on dashboard.",
-    "t_b1112228": "Agent opens a full Case with Mandate: ownership → send → auto follow-up → documented saving. Fee only when money is saved."
+    "t_b1112228": "Opens a pre-approved case — send from the dashboard after verification, with Mandate.",
+    "supplierEmail": "Electricity supplier email (for switch request)"
   },
   "inline_components_LeadForm": {
     "t_99e05b72": "Optional contact for later (not required, no promised call)",
@@ -4660,7 +4677,8 @@
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_013fe61d": "Appeal ready. On the dashboard: verify ownership → Mandate → mark sent. When the fine is cancelled — record the saving."
+    "t_013fe61d": "Appeal ready. On the dashboard: verify ownership → Mandate → send. When the fine is cancelled — record the saving.",
+    "operatorEmail": "Operator appeals / fines email"
   },
   "inline_components_FlightRightsChecker": {
     "t_360e126e": "✓ Agent opened a case — pre-approved",
@@ -4691,7 +4709,7 @@
     "t_5a0296a5": "Dispute ready. On the dashboard: verify ownership → Mandate → mark sent. When the fee is waived — record the saving.",
     "bankLabel": "Choose bank",
     "agentOpening": "Agent opening case…",
-    "agentSend": "Agent sends & tracks now",
+    "agentSend": "Open case — continue on dashboard (verify & send)",
     "copy": "Copy",
     "copied": "Copied",
     "errorGeneric": "Something went wrong. Try again.",

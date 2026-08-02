@@ -83,6 +83,7 @@ export function BankFeesTool() {
         body: withFooter(letter.body, footerLocale),
       });
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
       setError(t("errorGeneric"));
     } finally {

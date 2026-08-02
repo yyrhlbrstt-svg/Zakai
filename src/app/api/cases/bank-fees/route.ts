@@ -9,8 +9,7 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import { resolveBankProvider } from "@/lib/normalizeBankProvider";
-import { withFooter } from "@/lib/letterFooter";
-import { localeForCountry } from "@/lib/localePath";
+import { formatCaseDraft } from "@/lib/caseDraft";
 import { rateLimit } from "@/lib/ratelimit";
 
 const schema = z.object({
@@ -76,10 +75,6 @@ export async function POST(request: Request) {
     const staged = variant ? applyStance(letter, variant) : letter;
     const stanceApplied = variant !== undefined && stanceAffects(letter, variant);
 
-    const loc = localeForCountry(user.country || "IL");
-    const footerLocale = loc === "he" || loc === "ar" ? "he" : "en";
-    const bodyWithFooter = withFooter(staged.body, footerLocale);
-
     kase = await createCase({
       userId: auth.userId,
       provider: providerKey,
@@ -87,9 +82,7 @@ export async function POST(request: Request) {
       plan: data.feeDescription || data.feeKind,
       strategy: "ערעור על עמלת בנק עם Mandate",
       targetShekels: 0,
-      draftMessage: `${staged.subject}
-
-${bodyWithFooter}`,
+      draftMessage: formatCaseDraft(staged.subject, staged.body, user.country),
       strategyVariant: stanceApplied ? stance.variantId : undefined,
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "bank-fees",

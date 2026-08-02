@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/routing";
 import { Card, Input, Button, FieldError, RadioChips } from "@/components/ui";
 import { estimatePlans, type UsageProfile } from "@/lib/electricity";
 import { formatAgorot, shekelsToAgorot, agorotToShekels } from "@/lib/money";
+import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 
 const PROFILES: UsageProfile[] = ["spread", "day_home", "evening_family", "ev_night"];
 
@@ -26,11 +27,13 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const tIcomponents_ElectricityCalculator = useTranslations("inline_components_ElectricityCalculator");
+  const tFlow = useTranslations("agentFlow");
   const router = useRouter();
   const [bill, setBill] = useState("400");
   const [profile, setProfile] = useState<UsageProfile>("spread");
   const [smartMeter, setSmartMeter] = useState(true);
   const [beneficiary, setBeneficiary] = useState("");
+  const [supplierEmail, setSupplierEmail] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [opened, setOpened] = useState<string | null>(null);
@@ -45,6 +48,11 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
   async function openAgentCase(planId: string, providerKey: string, nameKey: string, savingAgorot: number) {
     setErr(null);
+    const email = normalizeOutreachEmail(supplierEmail);
+    if (!email) {
+      setErr(tFlow("errorNeedsEmail"));
+      return;
+    }
     setBusyId(planId);
     try {
       const res = await fetch("/api/cases/electricity", {
@@ -58,6 +66,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
           hasSmartMeter: smartMeter,
           beneficiaryLabel: beneficiary.trim() || undefined,
           customerName: beneficiary.trim() || undefined,
+          supplierEmail: email,
         }),
       });
       if (res.status === 401) {
@@ -65,12 +74,17 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
         return;
       }
       if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.error === "needsOutreachEmail") {
+          setErr(tFlow("errorNeedsEmail"));
+          return;
+        }
         setErr(he ? "לא ניתן לפתוח תיק כרגע. נסו שוב או התחברו." : "Could not open case. Try again or log in.");
         return;
       }
       const data = await res.json();
       setOpened(data.caseId);
-      router.push("/dashboard");
+      router.push(`/dashboard?case=${data.caseId}`);
       router.refresh();
     } catch {
       setErr(he ? "שגיאת רשת. נסו שוב." : "Network error. Try again.");
@@ -129,6 +143,17 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
             maxLength={40}
           />
         </label>
+        <label className="block mt-5 max-w-[320px]">
+          <span className="text-[13.5px] text-ink-soft">{tIcomponents_ElectricityCalculator("supplierEmail")}</span>
+          <Input
+            type="email"
+            value={supplierEmail}
+            onChange={(e) => setSupplierEmail(e.target.value)}
+            className="mt-1.5"
+            dir="ltr"
+          />
+        </label>
+        <p className="text-[12px] text-ink-soft mt-2 mb-0 leading-snug">{tFlow("honestNote")}</p>
       </Card>
 
       {results.length > 0 && (
@@ -176,13 +201,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
                     )
                   }
                 >
-                  {busyId === r.plan.id
-                    ? he
-                      ? "פותח תיק…"
-                      : "Opening…"
-                    : he
-                      ? "הסוכן פונה בשמי →"
-                      : "Agent acts for me →"}
+                  {busyId === r.plan.id ? tFlow("opening") : tFlow("openCase")}
                 </Button>
               )}
             </div>

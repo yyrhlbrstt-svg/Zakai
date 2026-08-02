@@ -32,6 +32,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const tIcomponents_FlightRightsChecker = useTranslations("inline_components_FlightRightsChecker");
+  const tFlow = useTranslations("agentFlow");
   const router = useRouter();
 
   const [jurisdiction, setJurisdiction] = useState<"il" | "eu">("il");
@@ -147,6 +148,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
       setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
     } finally {
@@ -300,13 +302,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                   disabled={!formComplete || busy}
                   onClick={sendWithAgent}
                 >
-                  {busy
-                    ? he
-                      ? "הסוכן פותח תיק…"
-                      : "Agent opening case…"
-                    : he
-                      ? "הסוכן שולח ומעקוב עכשיו"
-                      : "Agent sends & tracks now"}
+                  {busy ? tFlow("opening") : tFlow("openCase")}
                 </Button>
                 <Button
                   variant="ghost"

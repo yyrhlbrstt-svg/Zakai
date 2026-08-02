@@ -7,6 +7,7 @@ import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
+import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 
 const REASONS = ["signage", "machine", "loading", "disabled", "details", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -16,10 +17,12 @@ export function ParkingAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: str
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const tIcomponents_ParkingAppeal = useTranslations("inline_components_ParkingAppeal");
+  const tFlow = useTranslations("agentFlow");
   const router = useRouter();
   const [name, setName] = useState("");
   const [ticket, setTicket] = useState("");
   const [city, setCity] = useState("");
+  const [authorityEmail, setAuthorityEmail] = useState("");
   const [reason, setReason] = useState<Reason>("signage");
   const [details, setDetails] = useState("");
   const [amount, setAmount] = useState("");
@@ -28,6 +31,11 @@ export function ParkingAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: str
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const agentReady =
+    ticket.trim().length > 0 &&
+    city.trim().length > 0 &&
+    normalizeOutreachEmail(authorityEmail) !== null;
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);
@@ -62,6 +70,7 @@ ${name || "____"}
           reason,
           details: details || undefined,
           amountShekels: amount ? Number(amount) : undefined,
+          authorityEmail: authorityEmail.trim(),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -70,21 +79,20 @@ ${name || "____"}
         return;
       }
       if (!res.ok) {
+        if (data.error === "needsOutreachEmail") {
+          setError(tFlow("errorNeedsEmail"));
+          return;
+        }
         setError(
-          data.error === "caseLimit"
-            ? he
-              ? "הגעת למגבלת התיקים."
-              : "Case limit reached."
-            : he
-              ? "משהו השתבש. נסה שוב."
-              : "Something went wrong.",
+          data.error === "caseLimit" ? tFlow("errorCaseLimit") : tFlow("errorGeneric"),
         );
         return;
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
-      setError(he ? "משהו השתבש." : "Something went wrong.");
+      setError(tFlow("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -128,15 +136,22 @@ ${name || "____"}
           <Input value={details} onChange={(e) => setDetails(e.target.value)} maxLength={300} />
         </label>
 
+        <label className="block">
+          <span className="text-[13px] text-ink-soft block mb-1.5">{tIcomponents_ParkingAppeal("authorityEmail")}</span>
+          <Input
+            type="email"
+            value={authorityEmail}
+            onChange={(e) => setAuthorityEmail(e.target.value)}
+            maxLength={120}
+            dir="ltr"
+          />
+        </label>
+
+        <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
+
         <div className="flex flex-col gap-2">
-          <Button onClick={sendWithAgent} disabled={!ticket.trim() || !city.trim() || busy}>
-            {busy
-              ? he
-                ? "הסוכן פותח תיק…"
-                : "Agent opening case…"
-              : he
-                ? "הסוכן שולח ומעקוב עכשיו"
-                : "Agent sends & tracks now"}
+          <Button onClick={sendWithAgent} disabled={!agentReady || busy}>
+            {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>
           <Button variant="ghost" onClick={generate} disabled={!ticket.trim() || !city.trim() || busy}>
             {tIcomponents_ParkingAppeal("t_b4c9b341")}
@@ -153,7 +168,7 @@ ${name || "____"}
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {tIcomponents_ParkingAppeal("t_d489aedc")}
           </p>
-          <Link href="/dashboard">
+          <Link href={`/dashboard?case=${caseId}`}>
             <Button className="w-full">{tIcomponents_ParkingAppeal("t_8ae29d51")}</Button>
           </Link>
         </Card>

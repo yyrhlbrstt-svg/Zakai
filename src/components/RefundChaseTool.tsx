@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useLocale , useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
 import { buildRefundLetter } from "@/lib/refundChase";
+import { normalizeOutreachEmail } from "@/lib/outreachEmail";
+import { withFooter } from "@/lib/letterFooter";
 
 export function RefundChaseTool() {
   const locale = useLocale();
-  const he = locale === "he" || locale === "ar";
-  const tIcomponents_RefundChaseTool = useTranslations("inline_components_RefundChaseTool");
+  const footerLocale = locale === "he" || locale === "ar" ? "he" : "en";
+  const t = useTranslations("inline_components_RefundChaseTool");
+  const tFlow = useTranslations("agentFlow");
   const router = useRouter();
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
   const [orderId, setOrderId] = useState("");
   const [product, setProduct] = useState("");
   const [amount, setAmount] = useState("");
@@ -22,6 +26,9 @@ export function RefundChaseTool() {
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const agentReady =
+    company.trim().length > 0 && normalizeOutreachEmail(contactEmail) !== null;
 
   async function sendWithAgent() {
     setError(null);
@@ -33,6 +40,7 @@ export function RefundChaseTool() {
         body: JSON.stringify({
           customerName: name,
           company,
+          contactEmail: contactEmail.trim(),
           orderId: orderId || undefined,
           product: product || undefined,
           amountShekels: amount ? Number(amount) : undefined,
@@ -45,21 +53,33 @@ export function RefundChaseTool() {
         return;
       }
       if (!res.ok) {
+        if (data.error === "needsOutreachEmail") {
+          setError(tFlow("errorNeedsEmail"));
+          return;
+        }
         setError(
-          data.error === "caseLimit"
-            ? he
-              ? "הגעת למגבלת התיקים. שדרג או סגור תיק קיים."
-              : "Case limit reached."
-            : he
-              ? "משהו השתבש. נסה שוב."
-              : "Something went wrong.",
+          res.status === 403 && data.error === "caseLimit"
+            ? tFlow("errorCaseLimit")
+            : tFlow("errorGeneric"),
         );
         return;
       }
-      setOut({ subject: data.subject, body: data.body });
+      const letter = buildRefundLetter({
+        customerName: name,
+        company,
+        orderId,
+        product,
+        amountShekels: amount ? Number(amount) : undefined,
+        daysWaiting: Number(days) || 0,
+      });
+      setOut({
+        subject: letter.subject,
+        body: withFooter(letter.body, footerLocale),
+      });
       setCaseId(data.caseId);
+      router.push(`/dashboard?case=${data.caseId}`);
     } catch {
-      setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
+      setError(tFlow("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -68,41 +88,45 @@ export function RefundChaseTool() {
   return (
     <div className="flex flex-col gap-4">
       <Card className="p-5 flex flex-col gap-3">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_ebd6b437")} />
-        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_6a05400b")} />
-        <Input value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_8ef9df6f")} />
-        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_1b118af5")} />
-        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_824751e8")} />
-        <Input type="number" value={days} onChange={(e) => setDays(e.target.value)} placeholder={tIcomponents_RefundChaseTool("t_d6fd4e06")} />
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("t_ebd6b437")} />
+        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={t("t_6a05400b")} />
+        <Input
+          type="email"
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
+          placeholder={t("contactEmailPlaceholder")}
+        />
+        <Input value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder={t("t_8ef9df6f")} />
+        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={t("t_1b118af5")} />
+        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={t("t_824751e8")} />
+        <Input type="number" value={days} onChange={(e) => setDays(e.target.value)} placeholder={t("t_d6fd4e06")} />
+
+        <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
 
         <div className="flex flex-col gap-2 mt-1">
-          <Button onClick={sendWithAgent} disabled={!company.trim() || busy} className="w-full">
-            {busy
-              ? he
-                ? "הסוכן פותח תיק…"
-                : "Agent opening case…"
-              : he
-                ? "הסוכן שולח ומעקוב עכשיו"
-                : "Agent sends & tracks now"}
+          <Button onClick={sendWithAgent} disabled={!agentReady || busy} className="w-full">
+            {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>
           <Button
             variant="ghost"
             className="w-full text-[13px]"
             disabled={!company.trim() || busy}
-            onClick={() =>
-              setOut(
-                buildRefundLetter({
-                  customerName: name,
-                  company,
-                  orderId,
-                  product,
-                  amountShekels: amount ? Number(amount) : undefined,
-                  daysWaiting: Number(days) || 0,
-                }),
-              )
-            }
+            onClick={() => {
+              const letter = buildRefundLetter({
+                customerName: name,
+                company,
+                orderId,
+                product,
+                amountShekels: amount ? Number(amount) : undefined,
+                daysWaiting: Number(days) || 0,
+              });
+              setOut({
+                subject: letter.subject,
+                body: withFooter(letter.body, footerLocale),
+              });
+            }}
           >
-            {tIcomponents_RefundChaseTool("t_b4c9b341")}
+            {t("t_b4c9b341")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
@@ -110,16 +134,10 @@ export function RefundChaseTool() {
 
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
-          <div className="text-emerald font-extrabold text-[15px]">
-            {tIcomponents_RefundChaseTool("t_360e126e")}
-          </div>
-          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
-            {tIcomponents_RefundChaseTool("t_f9f3c72c")}
-          </p>
-          <Link href="/dashboard">
-            <Button className="w-full">
-              {tIcomponents_RefundChaseTool("t_8ae29d51")}
-            </Button>
+          <div className="text-emerald font-extrabold text-[15px]">{t("t_360e126e")}</div>
+          <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("t_f9f3c72c")}</p>
+          <Link href={`/dashboard?case=${caseId}`}>
+            <Button className="w-full">{t("t_8ae29d51")}</Button>
           </Link>
         </Card>
       )}
@@ -143,7 +161,7 @@ export function RefundChaseTool() {
               }
             }}
           >
-            {copied ? (he ? "הועתק" : "Copied") : he ? "העתק" : "Copy"}
+            {copied ? tFlow("copied") : tFlow("copyAll")}
           </Button>
         </Card>
       )}
