@@ -4551,8 +4551,18 @@
     "t_9fc8b2a9": "Dashboard — verify + agent dispatch",
     "t_550c1f87": "Subject",
     "t_cf09ad5a": "Prefilled from scan / link — review and let the agent act",
-    "t_11cf65f5": "Letter ready and approved. On the dashboard: verify ownership (code / email link) → one tap and the agent sends with Mandate. Then forward the provider reply to proofs@.",
-    "t_d628bea2": "If you chose ‘agent sends’ — it goes with Mandate and tracks. Otherwise: send yourself via the company’s email/chat. If the price drops — record the saving on your dashboard."
+    "t_11cf65f5": "Letter ready and pre-approved. On the dashboard: verify ownership (code / email link) → one tap and the agent sends with Mandate. Then forward the provider reply to proofs@.",
+    "t_d628bea2": "‘Open case with agent’ sends from the dashboard after verification, with Mandate and tracking. ‘Letter only’ means you send it yourself.",
+    "contactEmailPlaceholder": "Company support / cancellations email (required if we have no known address)",
+    "contactEmailHint": "We do not have a public inbox for this merchant — enter the cancellations address from their site or invoice.",
+    "agentHonestNote": "The agent does not send from this page: we open a case, you verify ownership on the dashboard, then one send with Mandate to the email you provide.",
+    "agentOpenCase": "Open case — continue on dashboard (verify & send)",
+    "agentOpening": "Opening case…",
+    "errorCaseLimit": "Case limit reached. Upgrade or close an open case.",
+    "errorGeneric": "Something went wrong. Try again.",
+    "errorNeedsEmail": "Missing provider email — enter cancellations / support address.",
+    "copied": "Copied",
+    "copyAll": "Copy all"
   },
   "inline_components_MoneyHub": {
     "t_38d0577a": "My dashboard",

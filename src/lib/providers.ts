@@ -80,8 +80,17 @@ export function isProviderKey(v: string): v is ProviderKey {
   return v in PROVIDERS;
 }
 
+const SUBSCRIPTION_CONTACT: Record<string, string> = {
+  netflix: "info@netflix.com",
+  spotify: "support@spotify.com",
+};
+
 export function providerContactEmail(key: string, vertical?: string): string {
   if (vertical === "airline") return resolveAirlineContactEmail(key);
+  if (vertical === "subscription") {
+    if (SUBSCRIPTION_CONTACT[key]) return SUBSCRIPTION_CONTACT[key];
+    if (isProviderKey(key)) return PROVIDERS[key].contactEmail;
+  }
   return isProviderKey(key) ? PROVIDERS[key].contactEmail : PROVIDERS.other.contactEmail;
 }
 
