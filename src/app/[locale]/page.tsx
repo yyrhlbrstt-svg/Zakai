@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
+import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
@@ -214,10 +215,10 @@ export default async function HomePage({
       <div className="flex flex-wrap gap-12 items-center mb-10">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
-            <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-6">
+            <PageKicker className="mb-6">
               {t("home.kicker")}
               {countryTag}
-            </div>
+            </PageKicker>
           </Reveal>
           <Reveal delay={80}>
             <h1 className="font-display text-[clamp(36px,5.4vw,52px)] leading-[1.12] m-0 text-balance">

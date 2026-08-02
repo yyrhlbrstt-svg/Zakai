@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { EmeraldInfoPanel } from "@/components/EmeraldInfoPanel";
 import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
@@ -32,23 +34,18 @@ export default async function InstitutionsPage({
   setRequestLocale(locale);
 
   return (
-    <main className="max-w-[760px] mx-auto px-5 pb-24 pt-4" dir="ltr">
-      <p className="text-[12px] uppercase tracking-wide text-emerald font-bold mb-2">
-        For banks · insurers · utilities · municipalities · fintechs
-      </p>
-      <h1 className="font-display text-[32px] mb-3">Zakai Mandate</h1>
-      <p className="text-ink-soft text-[15.5px] leading-relaxed mb-8 max-w-[620px]">
-        A signed statement that a named person authorised an agent to do specific
-        things on their behalf — verifiable offline against a public key, without
-        calling Zakai on every request, and without any ability to move money out
-        of the principal&apos;s accounts.
-      </p>
-
-      <div className="mb-6 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13.5px] leading-relaxed">
-        <strong className="text-emerald">Why institutions adopt this:</strong> the worst
-        case of a compromised Mandate is unwanted correspondence, not an emptied
-        account. Forbidden payment scopes are enforced in code.
-      </div>
+    <VerticalPageShell
+      heroGlow
+      dir="ltr"
+      kicker="For banks · insurers · utilities · municipalities · fintechs"
+      title="Zakai Mandate"
+      sub="A signed statement that a named person authorised an agent to do specific things on their behalf — verifiable offline against a public key, without calling Zakai on every request, and without any ability to move money out of the principal's accounts."
+    >
+      <EmeraldInfoPanel className="mb-6">
+        <strong className="text-emerald">Why institutions adopt this:</strong> the worst case of a
+        compromised Mandate is unwanted correspondence, not an emptied account. Forbidden payment
+        scopes are enforced in code.
+      </EmeraldInfoPanel>
 
       <p className="text-[13px] text-ink-soft mb-6">
         Building an AI agent rather than receiving mandates on behalf of an
@@ -501,7 +498,7 @@ Content-Type: application/json
           </a>
         </div>
       </Section>
-    </main>
+    </VerticalPageShell>
   );
 }
 

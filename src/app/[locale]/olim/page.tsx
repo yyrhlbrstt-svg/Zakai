@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
@@ -59,32 +60,24 @@ export default async function OlimPage({
   });
 
   return (
-    <main className="max-w-[900px] mx-auto px-5 pb-24 pt-6">
-      <div className="max-w-[620px]">
-        <Reveal>
-          <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-            {t("olim.kicker")}
-          </div>
-        </Reveal>
-        <Reveal delay={80}>
-          <h1 className="font-display text-[clamp(30px,5.4vw,46px)] leading-[1.14] m-0 text-balance">
-            {t("olim.title")}
-          </h1>
-        </Reveal>
-        <Reveal delay={160}>
-          <p className="text-ink-soft text-[16px] leading-[1.7] my-6">{t("olim.sub")}</p>
-        </Reveal>
-        <Reveal delay={240}>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/entitlements">
-              <Button>{t("olim.cta")}</Button>
-            </Link>
-            <Link href="/taxrefund">
-              <Button variant="ghost">{t("olim.ctaTax")}</Button>
-            </Link>
-          </div>
-        </Reveal>
-      </div>
+    <VerticalPageShell
+      heroGlow
+      width="wide"
+      className="max-w-[900px] mx-auto px-5 pb-24 pt-6 relative"
+      kicker={t("olim.kicker")}
+      title={t("olim.title")}
+      sub={t("olim.sub")}
+    >
+      <Reveal delay={80}>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/entitlements">
+            <Button>{t("olim.cta")}</Button>
+          </Link>
+          <Link href="/taxrefund">
+            <Button variant="ghost">{t("olim.ctaTax")}</Button>
+          </Link>
+        </div>
+      </Reveal>
 
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">{t("olim.listTitle")}</h2>
@@ -115,6 +108,6 @@ export default async function OlimPage({
       <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed max-w-[620px]">
         {t("olim.disclaimer")}
       </p>
-    </main>
+    </VerticalPageShell>
   );
 }

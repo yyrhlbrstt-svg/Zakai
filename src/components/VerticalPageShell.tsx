@@ -20,6 +20,7 @@ export function VerticalPageShell({
   className,
   width = "default",
   heroGlow = false,
+  dir,
 }: {
   kicker?: string;
   title: string;
@@ -32,9 +33,10 @@ export function VerticalPageShell({
   width?: keyof typeof WIDTH;
   /** Soft emerald ambient behind the hero — marketing pages only. */
   heroGlow?: boolean;
+  dir?: "ltr" | "rtl";
 }) {
   return (
-    <div className={heroGlow ? "page-hero-wrap" : undefined}>
+    <div className={heroGlow ? "page-hero-wrap" : undefined} dir={dir}>
       {heroGlow && <div className="page-hero-glow" aria-hidden />}
       <main className={className ?? `${WIDTH[width]} mx-auto px-5 pb-24 pt-2 relative`}>
         {kicker && <PageKicker>{kicker}</PageKicker>}

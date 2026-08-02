@@ -200,6 +200,7 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
 
   return (
     <VerticalPageShell
+      heroGlow
       className="max-w-[900px] mx-auto px-5 pb-24 pt-4"
       kicker={tIapp_locale_leaks_page("t_c4b012f6")}
       title={tIapp_locale_leaks_page("t_2d4d4d1b")}

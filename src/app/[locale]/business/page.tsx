@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import { PageKicker } from "@/components/PageKicker";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
@@ -41,9 +42,7 @@ export default async function BusinessPage({
     <main className="max-w-[980px] mx-auto px-5 pb-24 pt-6">
       <div className="max-w-[680px]">
         <Reveal>
-          <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-            {tIapp_locale_business_page("t_bfc91c2c")}
-          </div>
+          <PageKicker>{tIapp_locale_business_page("t_bfc91c2c")}</PageKicker>
         </Reveal>
         <Reveal delay={80}>
           <h1 className="font-display text-[clamp(30px,5.4vw,48px)] leading-[1.12] m-0 text-balance">

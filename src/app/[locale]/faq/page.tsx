@@ -31,15 +31,7 @@ export default async function FaqPage({
   const catName = (c: (typeof FAQ_CATEGORIES)[number]) => (he ? c.he : c.en);
 
   return (
-    <main className="max-w-[760px] mx-auto px-5 pb-24 pt-5">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {t("kicker")}
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,42px)] leading-[1.12] m-0 text-balance">
-        {t("title")}
-      </h1>
-      <p className="text-ink-soft text-[16px] leading-relaxed mt-3 max-w-[600px]">{t("sub")}</p>
-
+    <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
       {/* Category jump-links — quick scanning on mobile. */}
       <nav className="flex flex-wrap gap-2 mt-6" aria-label={t("title")}>
         {FAQ_CATEGORIES.map((c) => (
@@ -86,8 +78,7 @@ export default async function FaqPage({
         })}
       </div>
 
-      {/* Still stuck → the assistant. The FAQ and the agent share one brain. */}
-      <div className="mt-14 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-6 py-7 text-center">
+      <SpotlightCard className="mt-14 px-6 py-7 text-center">
         <div className="font-display text-xl">{t("more.title")}</div>
         <p className="text-ink-soft text-[14px] mt-2 max-w-[460px] mx-auto">{t("more.body")}</p>
         <div className="flex flex-wrap gap-3 justify-center mt-5">
@@ -98,7 +89,7 @@ export default async function FaqPage({
             <Button variant="ghost">{t("more.checkBtn")}</Button>
           </Link>
         </div>
-      </div>
-    </main>
+      </SpotlightCard>
+    </VerticalPageShell>
   );
 }

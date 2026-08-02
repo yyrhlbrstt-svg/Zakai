@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
@@ -49,17 +50,13 @@ export default async function DocumentsPage({
   const withProof = cases.filter((c) => c.savingsProof);
 
   return (
-    <main className="max-w-[720px] mx-auto px-5 pb-24 pt-4">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {tIapp_locale_documents_page("t_be65da89")}
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">
-        {tIapp_locale_documents_page("t_f2bac17f")}
-      </h1>
-      <p className="text-ink-soft text-[15px] mt-3 leading-relaxed max-w-[520px]">
-        {tIapp_locale_documents_page("t_2f52f216")}
-      </p>
-
+    <VerticalPageShell
+      heroGlow
+      className="max-w-[720px] mx-auto px-5 pb-24 pt-4 relative"
+      kicker={tIapp_locale_documents_page("t_be65da89")}
+      title={tIapp_locale_documents_page("t_f2bac17f")}
+      sub={tIapp_locale_documents_page("t_2f52f216")}
+    >
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
         {tIapp_locale_documents_page("mandatesHeading", { count: withAuth.length })}
       </h2>
@@ -142,6 +139,6 @@ export default async function DocumentsPage({
           <Button variant="ghost">{tIapp_locale_documents_page("t_bd4c0905")}</Button>
         </Link>
       </div>
-    </main>
+    </VerticalPageShell>
   );
 }

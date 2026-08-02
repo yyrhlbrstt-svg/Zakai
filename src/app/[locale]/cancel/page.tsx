@@ -28,6 +28,7 @@ export default async function CancelPage({ params }: { params: Promise<{ locale:
 
   return (
     <VerticalPageShell
+      heroGlow
       kicker={tIapp_locale_cancel_page("t_97c08415")}
       title={tIapp_locale_cancel_page("t_9af4e618")}
       sub={tIapp_locale_cancel_page("t_1bb70faa")}

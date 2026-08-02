@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { GradientCtaCard } from "@/components/GradientCtaCard";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
@@ -33,16 +35,14 @@ export default async function BusinessCompensationPage({
   const steps = t.raw("steps") as string[];
 
   return (
-    <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
-      <Reveal>
-        <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-          {t("kicker")}
-        </div>
-        <h1 className="font-display text-[clamp(28px,5vw,44px)] leading-[1.12] m-0 text-balance">
-          {t("title")}
-        </h1>
-        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
-      </Reveal>
+    <VerticalPageShell
+      heroGlow
+      width="wide"
+      className="max-w-[820px] mx-auto px-5 pb-24 pt-5 relative"
+      kicker={t("kicker")}
+      title={t("title")}
+      sub={t("sub")}
+    >
 
       <Reveal delay={80}>
         <div className="mt-8 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-6 text-center">
@@ -89,9 +89,7 @@ export default async function BusinessCompensationPage({
       </ol>
 
       <Reveal>
-        <div className="mt-12 rounded-2xl p-[1px] bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_55%,#8b5cf6)]">
-          <div className="rounded-2xl bg-[#0a1119] px-6 py-7 text-center">
-            <div className="font-display text-xl">{t("cta.title")}</div>
+        <GradientCtaCard><div className="font-display text-xl">{t("cta.title")}</div>
             <p className="text-ink-soft text-[14px] mt-2 max-w-[520px] mx-auto leading-relaxed">
               {t("cta.body")}
             </p>
@@ -103,13 +101,12 @@ export default async function BusinessCompensationPage({
                 <Button variant="ghost">{t("cta.secondary")}</Button>
               </Link>
             </div>
-          </div>
-        </div>
+        </GradientCtaCard>
       </Reveal>
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}
       </p>
-    </main>
+    </VerticalPageShell>
   );
 }

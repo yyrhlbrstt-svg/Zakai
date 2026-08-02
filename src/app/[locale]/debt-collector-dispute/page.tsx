@@ -32,6 +32,7 @@ export default async function DebtCollectorDisputePage({
 
   return (
     <VerticalPageShell
+      heroGlow
       kicker={t("kicker")}
       title={t("title")}
       sub={t("sub")}

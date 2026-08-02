@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button, Card } from "@/components/ui";
@@ -44,17 +45,13 @@ export default async function PartnersPage({
   ];
 
   return (
-    <main className="max-w-[720px] mx-auto px-5 pb-24 pt-4">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        B2B · Partners · multi-path
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">
-        {tIapp_locale_partners_page("t_b2d930bc")}
-      </h1>
-      <p className="text-ink-soft text-[15.5px] leading-relaxed mt-4 max-w-[560px]">
-        {tIapp_locale_partners_page("t_ed2796c2")}
-      </p>
-
+    <VerticalPageShell
+      heroGlow
+      className="max-w-[720px] mx-auto px-5 pb-24 pt-4 relative"
+      kicker="B2B · Partners · multi-path"
+      title={tIapp_locale_partners_page("t_b2d930bc")}
+      sub={tIapp_locale_partners_page("t_ed2796c2")}
+    >
       <h2 className="text-[16px] font-extrabold mt-10 mb-3">
         {tIapp_locale_partners_page("t_51ab2ede")}
       </h2>
@@ -133,6 +130,6 @@ export default async function PartnersPage({
           <Button variant="ghost">Money OS</Button>
         </Link>
       </div>
-    </main>
+    </VerticalPageShell>
   );
 }

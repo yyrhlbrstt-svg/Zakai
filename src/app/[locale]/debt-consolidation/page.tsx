@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
@@ -48,18 +49,14 @@ export default async function DebtConsolidationPage({
       ];
 
   return (
-    <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
-      <Reveal>
-        <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-          {tIapp_locale_debt_consolidation_page("t_e7b22b9d")}
-        </div>
-        <h1 className="font-display text-[clamp(28px,5vw,44px)] leading-[1.12] m-0 text-balance">
-          {t("title")}
-        </h1>
-        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">
-          {tIapp_locale_debt_consolidation_page("t_bd447869")}
-        </p>
-      </Reveal>
+    <VerticalPageShell
+      heroGlow
+      width="wide"
+      className="max-w-[820px] mx-auto px-5 pb-24 pt-5 relative"
+      kicker={tIapp_locale_debt_consolidation_page("t_e7b22b9d")}
+      title={t("title")}
+      sub={tIapp_locale_debt_consolidation_page("t_bd447869")}
+    >
 
       <Reveal delay={80}>
         <div className="mt-8 rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-6 text-center">
@@ -125,6 +122,6 @@ export default async function DebtConsolidationPage({
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}
       </p>
-    </main>
+    </VerticalPageShell>
   );
 }

@@ -33,7 +33,7 @@ export default async function FlightsPage({
   const stat = await getVerticalOutcomeStat("flights", "airline");
 
   return (
-    <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("subtitle")}>
+    <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("subtitle")}>
       <FlightRightsChecker bcp47={bcp47[locale as Locale]} stat={stat} />
       <LeadCta vertical="flights" />
     </VerticalPageShell>

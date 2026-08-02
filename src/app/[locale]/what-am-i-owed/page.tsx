@@ -30,7 +30,7 @@ export default async function WhatAmIOwedPage({
   const tIapp_locale_what_am_i_owed_page = await getTranslations({ locale, namespace: "inline_app_locale_what_am_i_owed_page" });
 
   return (
-    <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("sub")}>
+    <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
       <div className="flex flex-wrap gap-2.5 mb-8">
         <Link href="/entitlements">
           <Button className="!text-[13.5px] !px-4 !py-2.5">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 
 export async function generateMetadata({
   params,
@@ -22,15 +23,15 @@ export default async function FeedbackPage({
   const t = await getTranslations("feedback");
 
   return (
-    <main className="max-w-[620px] mx-auto px-5 pb-24 pt-8">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        🙏 {t("navCta")}
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-[1.14] m-0 text-balance">
-        {t("pageTitle")}
-      </h1>
-      <p className="text-ink-soft text-[16px] leading-relaxed mt-3 mb-8">{t("pageSub")}</p>
+    <VerticalPageShell
+      heroGlow
+      width="narrow"
+      className="max-w-[620px] mx-auto px-5 pb-24 pt-8 relative"
+      kicker={`🙏 ${t("navCta")}`}
+      title={t("pageTitle")}
+      sub={t("pageSub")}
+    >
       <FeedbackWidget compact />
-    </main>
+    </VerticalPageShell>
   );
 }

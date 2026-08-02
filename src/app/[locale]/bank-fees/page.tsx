@@ -37,6 +37,7 @@ export default async function BankFeesPage({
 
   return (
     <VerticalPageShell
+      heroGlow
       className="max-w-[820px] mx-auto px-5 pb-24 pt-5"
       kicker={t("kicker")}
       title={t("title")}

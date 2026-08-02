@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageKicker } from "@/components/PageKicker";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { LeadForm } from "@/components/LeadForm";
 import { LogoMark } from "@/components/Logo";
@@ -40,9 +41,9 @@ export default async function StartPage({
     <main className="max-w-[560px] mx-auto px-5 pb-24 pt-8">
       <div className="flex items-center gap-3 mb-5">
         <LogoMark size={44} />
-        <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5">
+        <PageKicker className="mb-0">
           {tIapp_locale_start_page("t_eb8bdcd9")}
-        </div>
+        </PageKicker>
       </div>
       <h1 className="font-display text-[clamp(26px,5vw,38px)] leading-[1.14] m-0 text-balance mb-3">
         {tIapp_locale_start_page("t_b39acbd2")}

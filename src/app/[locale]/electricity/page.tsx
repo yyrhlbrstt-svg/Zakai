@@ -30,7 +30,7 @@ export default async function ElectricityPage({
   const t = await getTranslations("electricity");
 
   return (
-    <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("subtitle")}>
+    <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("subtitle")}>
       <ElectricityCalculator bcp47={bcp47[locale as Locale]} />
     </VerticalPageShell>
   );

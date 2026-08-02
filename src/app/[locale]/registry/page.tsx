@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { alternateLanguages } from "@/lib/seo";
@@ -30,19 +31,13 @@ export default async function RegistryPage({
   const doc = registryDocument();
 
   return (
-    <main className="max-w-[760px] mx-auto px-5 pb-24 pt-4" dir="ltr">
-      <p className="text-[12px] uppercase tracking-wide text-emerald font-bold mb-2">
-        Registered Mandate issuers
-      </p>
-      <h1 className="font-display text-[32px] mb-3">Who may sign a Zakai Mandate</h1>
-      <p className="text-ink-soft text-[15.5px] leading-relaxed mb-8 max-w-[620px]">
-        Every party listed here signs mandates with its own Ed25519 keys and
-        appears on the same terms as every other issuer — the same admitted
-        scopes, the same categorical prohibitions, no operator privilege.
-        Machine-readable version:{" "}
-        <code className="text-[13px]">{ORIGIN}/.well-known/zakai-trust-registry.json</code>.
-      </p>
-
+    <VerticalPageShell
+      heroGlow
+      dir="ltr"
+      kicker="Registered Mandate issuers"
+      title="Who may sign a Zakai Mandate"
+      sub={`Every party listed here signs mandates with its own Ed25519 keys and appears on the same terms as every other issuer — the same admitted scopes, the same categorical prohibitions, no operator privilege. Machine-readable version: ${ORIGIN}/.well-known/zakai-trust-registry.json.`}
+    >
       <Card className="p-6 mb-6">
         <h2 className="font-display text-xl mb-4">
           {doc.issuers.length} registered issuer{doc.issuers.length === 1 ? "" : "s"}
@@ -106,6 +101,6 @@ export default async function RegistryPage({
           Run the independent conformance probe →
         </a>
       </Card>
-    </main>
+    </VerticalPageShell>
   );
 }

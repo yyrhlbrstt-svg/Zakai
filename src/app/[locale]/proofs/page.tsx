@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { EmeraldInfoPanel } from "@/components/EmeraldInfoPanel";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { prisma } from "@/lib/prisma";
@@ -97,18 +99,15 @@ export default async function ProofsWallPage({
   const monthMonthly = Math.round(monthYearly / 12);
 
   return (
-    <main className="max-w-[900px] mx-auto px-5 pb-24 pt-4">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {tIapp_locale_proofs_page("t_d2c8fb14")}
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,42px)] leading-tight m-0">
-        {tIapp_locale_proofs_page("t_027aa200")}
-      </h1>
-      <p className="text-ink-soft text-[15.5px] leading-relaxed mt-4 max-w-[640px]">
-        {tIapp_locale_proofs_page("t_3070dd2f")}
-      </p>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+    <VerticalPageShell
+      heroGlow
+      width="wide"
+      className="max-w-[900px] mx-auto px-5 pb-24 pt-4 relative"
+      kicker={tIapp_locale_proofs_page("t_d2c8fb14")}
+      title={tIapp_locale_proofs_page("t_027aa200")}
+      sub={tIapp_locale_proofs_page("t_3070dd2f")}
+    >
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
         <Stat
           label={tIapp_locale_proofs_page("t_be944a54")}
           value={formatAgorot(weekMonthly, loc)}
@@ -165,7 +164,7 @@ export default async function ProofsWallPage({
         </div>
       )}
 
-      <div className="mt-14 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
+      <EmeraldInfoPanel className="mt-14 text-center px-6 py-8">
         <div className="font-display text-[clamp(20px,3.5vw,28px)]">
           {tIapp_locale_proofs_page("t_dee2cf67")}
         </div>
@@ -183,12 +182,12 @@ export default async function ProofsWallPage({
             <Button variant="ghost">{tIapp_locale_proofs_page("t_16c6cdf1")}</Button>
           </Link>
         </div>
-      </div>
+      </EmeraldInfoPanel>
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.55)] text-center max-w-[520px] mx-auto">
         {tIapp_locale_proofs_page("t_dfa51bd3")}
       </p>
-    </main>
+    </VerticalPageShell>
   );
 }
 

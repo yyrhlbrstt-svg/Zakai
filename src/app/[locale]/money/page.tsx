@@ -30,6 +30,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
 
   return (
     <VerticalPageShell
+      heroGlow
       kicker={tIapp_locale_money_page("t_98667843")}
       title={tIapp_locale_money_page("t_2144de53")}
       sub={tIapp_locale_money_page("t_ef77bbd3")}

@@ -31,7 +31,7 @@ export default async function CarInsuranceRefundPage({
   const t = await getTranslations("carInsuranceRefund");
 
   return (
-    <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("sub")} cite={t("cite")}>
+    <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")} cite={t("cite")}>
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
       <div className="mt-8 text-center">
         <Link href="/duplicate-insurance">

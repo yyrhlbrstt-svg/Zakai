@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale , getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
@@ -68,17 +69,14 @@ export default async function WrappedPage({
       : `Started with Zakai in ${year} — consumer money agent, no call center.`;
 
   return (
-    <main className="max-w-[640px] mx-auto px-5 pb-24 pt-4">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        Zakai Wrapped · {year}
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,40px)] leading-tight m-0">
-        {tIapp_locale_wrapped_page("title")}
-      </h1>
-      <p className="text-ink-soft text-[15px] mt-3 leading-relaxed">
-        {tIapp_locale_wrapped_page("t_b8e0de13")}
-      </p>
-
+    <VerticalPageShell
+      heroGlow
+      width="narrow"
+      className="max-w-[640px] mx-auto px-5 pb-24 pt-4 relative"
+      kicker={`Zakai Wrapped · ${year}`}
+      title={tIapp_locale_wrapped_page("title")}
+      sub={tIapp_locale_wrapped_page("t_b8e0de13")}
+    >
       <div className="grid grid-cols-2 gap-3 mt-8">
         <Stat
           label={tIapp_locale_wrapped_page("t_8bdc4d33")}
@@ -125,7 +123,7 @@ export default async function WrappedPage({
           <Button variant="ghost">{tIapp_locale_wrapped_page("t_143fe31f")}</Button>
         </Link>
       </div>
-    </main>
+    </VerticalPageShell>
   );
 }
 

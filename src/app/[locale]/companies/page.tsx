@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
@@ -51,17 +52,12 @@ export default async function CompaniesPage({
   const stats = await loadStats();
 
   return (
-    <main className="max-w-[760px] mx-auto px-5 pb-24 pt-5">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {t("companies.kicker")}
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,42px)] leading-[1.14] m-0 text-balance">
-        {t("companies.title")}
-      </h1>
-      <p className="text-ink-soft text-[16px] leading-relaxed mt-3 mb-8 max-w-[600px]">
-        {t("companies.sub")}
-      </p>
-
+    <VerticalPageShell
+      heroGlow
+      kicker={t("companies.kicker")}
+      title={t("companies.title")}
+      sub={t("companies.sub")}
+    >
       {stats.length === 0 ? (
         <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] p-8 text-center">
           <div className="text-[40px] mb-3">📊</div>
@@ -110,6 +106,6 @@ export default async function CompaniesPage({
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed max-w-[600px]">
         {t("companies.disclaimer")}
       </p>
-    </main>
+    </VerticalPageShell>
   );
 }

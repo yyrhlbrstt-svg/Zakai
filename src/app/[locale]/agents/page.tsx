@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { alternateLanguages } from "@/lib/seo";
@@ -28,23 +29,13 @@ export default async function AgentsPage({
   setRequestLocale(locale);
 
   return (
-    <main className="max-w-[760px] mx-auto px-5 pb-24 pt-4" dir="ltr">
-      <p className="text-[12px] uppercase tracking-wide text-emerald font-bold mb-2">
-        For builders of AI agents — not only Zakai&apos;s own
-      </p>
-      <h1 className="font-display text-[32px] mb-3">
-        Every agent that acts for a person eventually needs to prove it
-      </h1>
-      <p className="text-ink-soft text-[15.5px] leading-relaxed mb-8 max-w-[620px]">
-        Cancel a subscription, dispute a charge, request a record, appeal a
-        fine — any agent that does one of these on a person&apos;s behalf will
-        eventually be asked, by the counterparty on the other end,{" "}
-        <em>who told you that you could do this?</em> Today almost nobody
-        outside finance has a real answer, and most of finance&apos;s answer is
-        a person reading a scanned form. This is Zakai&apos;s answer, and it is
-        not proprietary to Zakai&apos;s own product.
-      </p>
-
+    <VerticalPageShell
+      heroGlow
+      dir="ltr"
+      kicker="For builders of AI agents — not only Zakai's own"
+      title="Every agent that acts for a person eventually needs to prove it"
+      sub="Cancel a subscription, dispute a charge, request a record, appeal a fine — any agent that does one of these on a person's behalf will eventually be asked, by the counterparty on the other end, who told you that you could do this? Today almost nobody outside finance has a real answer. This is Zakai's Mandate protocol — not proprietary to Zakai's own product."
+    >
       <div className="mb-6 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13.5px] leading-relaxed">
         <strong className="text-emerald">This page is an invitation, not a claim.</strong>{" "}
         Nothing here says any agent already uses this. It says the protocol,
@@ -196,7 +187,7 @@ const claims = await verifyMandateFromUrl(token, {
           </a>
         </div>
       </Section>
-    </main>
+    </VerticalPageShell>
   );
 }
 
