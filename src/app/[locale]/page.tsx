@@ -231,6 +231,16 @@ export default async function HomePage({
             <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
               {t("home.sub")}
             </p>
+            <div className="flex flex-wrap gap-3 mb-2">
+              <Link href="/money">
+                <Button className="!text-[15px] !px-6 !py-3">{t("home.cta")}</Button>
+              </Link>
+              <Link href="/leaks">
+                <Button variant="ghost" className="!text-[14px]">
+                  {t("home.heroLeaks")}
+                </Button>
+              </Link>
+            </div>
           </Reveal>
         </div>
 
