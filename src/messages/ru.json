@@ -270,7 +270,9 @@
     "faq": "Частые вопросы",
     "feedback": "Улучшить Zakai",
     "whatAmIOwed": "Сколько мне положено?",
-    "companies": "Рейтинг Zakai"
+    "companies": "Рейтинг Zakai",
+    "allTools": "Все инструменты",
+    "networkProof": "Доказательство сети"
   },
   "install": {
     "title": "Установите Zakai",

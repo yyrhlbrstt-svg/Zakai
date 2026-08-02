@@ -682,7 +682,9 @@
     "faq": "FAQ",
     "feedback": "Improve Zakai",
     "whatAmIOwed": "What am I owed?",
-    "companies": "Zakai Score"
+    "companies": "Zakai Score",
+    "allTools": "All tools",
+    "networkProof": "Network proof"
   },
   "providers": {
     "cellcom": "Cellcom",
@@ -868,6 +870,7 @@
     "disclaimer": "Estimates assume a typical usage profile and public price lists as of July 2026 — verify the exact rate with the supplier before switching. The switch itself is currently done with the supplier; automatic switching via Zakai is in development. Not advice."
   },
   "flights": {
+    "kicker": "Full agent · flights",
     "title": "Flight cancelled or delayed? You're owed money.",
     "subtitle": "Israel's Aviation Services Law obligates airlines to fixed compensation, an alternative ticket and assistance — low-cost carriers included. Three taps to know what you're owed.",
     "whatHappened": "What happened to the flight?",
@@ -1413,6 +1416,16 @@
         "desc": "By law you can get free reports from all three bureaus — spotting errors can save real money.",
         "how": "Get them at annualcreditreport.com."
       },
+      "us_wage_statement_audit": {
+        "title": "Pay stub / wage statement check",
+        "desc": "Missing overtime, wrong withholdings, or payroll errors? A written request and your own records can surface money owed.",
+        "how": "Use Zakai's wage-statement audit door for a cited letter you send to payroll or HR."
+      },
+      "us_fdcpa_debt_validation": {
+        "title": "Debt collector validation (FDCPA)",
+        "desc": "A collector must prove the debt in writing before you pay — you can dispute and pause collection while they respond.",
+        "how": "Use Zakai's debt-collector dispute door for a validation letter with statutory citations."
+      },
       "uk_universal_credit": {
         "title": "Universal Credit",
         "desc": "The main monthly payment for people on a low income or out of work.",
@@ -1472,6 +1485,11 @@
         "title": "Student finance & grants",
         "desc": "Tuition and maintenance loans, plus grants for eligible students.",
         "how": "Apply through Student Finance on GOV.UK."
+      },
+      "uk_student_loan_overpayment": {
+        "title": "Student loan overpayment refund",
+        "desc": "If repayments continued after the balance was cleared, you may be owed a refund from the Student Loans Company.",
+        "how": "Use Zakai's UK student-loan overpayment door for a letter citing SLC guidance."
       },
       "uk_pension_auto_enrolment": {
         "title": "Workplace pension (auto-enrolment)",
@@ -2408,7 +2426,8 @@
       "privacy": "Details are used for business contact only and never shared with third parties."
     },
     "metaTitle": "Zakai for Business — Employee benefits + Mandate infrastructure",
-    "metaDesc": "Employee money-rights benefit + verifiable Mandate API for banks, insurers and fintechs. No outbound payments. Success fee only on documented savings."
+    "metaDesc": "Employee money-rights benefit + verifiable Mandate API for banks, insurers and fintechs. No outbound payments. Success fee only on documented savings.",
+    "networkProofLink": "Live network proof"
   },
   "contractCheck": {
     "metaTitle": "Contract red flags — what's in the fine print? | Zakai",

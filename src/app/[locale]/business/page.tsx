@@ -181,6 +181,12 @@ export default async function BusinessPage({
             >
               Integration quickstart
             </Link>
+            <Link
+              href="/network-proof"
+              className="inline-block text-emerald font-extrabold text-[14px] no-underline border border-[rgba(63,203,155,0.35)] rounded-xl px-5 py-2.5"
+            >
+              {t("networkProofLink")}
+            </Link>
             <a
               href={`${ORIGIN}/api/mandate/openapi.json`}
               target="_blank"

@@ -280,13 +280,11 @@ export const US_ENTITLEMENTS: Entitlement[] = [
     id: "us_wage_statement_audit",
     category: "work",
     eligible: (p) => p.employment === "employee",
-    oneTimeAgorot: 5_000_000,
   },
   {
     id: "us_fdcpa_debt_validation",
     category: "consumer",
     eligible: () => true,
-    oneTimeAgorot: 1_000_00,
   },
 ];
 
@@ -311,7 +309,6 @@ export const UK_ENTITLEMENTS: Entitlement[] = [
     id: "uk_student_loan_overpayment",
     category: "education",
     eligible: (p) => p.employment === "student",
-    oneTimeAgorot: 24_000,
   },
   { id: "uk_pension_auto_enrolment", category: "work", eligible: (p) => p.employment === "employee" },
   { id: "uk_free_prescriptions", category: "health", eligible: () => true },

@@ -58,6 +58,12 @@ export function Footer() {
         <Link href="/institutions" className="text-ink-soft no-underline hover:text-emerald">
           {instLabel}
         </Link>
+        <Link href="/tools" className="text-ink-soft no-underline hover:text-emerald">
+          {t("footer.allTools")}
+        </Link>
+        <Link href="/network-proof" className="text-ink-soft no-underline hover:text-emerald">
+          {t("footer.networkProof")}
+        </Link>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">

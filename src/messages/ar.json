@@ -270,7 +270,9 @@
     "faq": "أسئلة شائعة",
     "feedback": "تحسين زكاي",
     "whatAmIOwed": "كم يستحقه؟",
-    "companies": "تقييم زكاي"
+    "companies": "تقييم زكاي",
+    "allTools": "كل الأدوات",
+    "networkProof": "إثبات الشبكة"
   },
   "install": {
     "title": "ثبّت زكاي",

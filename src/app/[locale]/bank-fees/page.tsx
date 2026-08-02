@@ -6,6 +6,7 @@ import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
 import { BankFeesTool } from "@/components/BankFeesTool";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 
 export async function generateMetadata({
   params,
@@ -32,23 +33,17 @@ export default async function BankFeesPage({
   const t = await getTranslations("bankFees");
   const fees = t.raw("fees") as FeeItem[];
   const steps = t.raw("steps") as string[];
-  const he = locale === "he" || locale === "ar";
   const tIapp_locale_bank_fees_page = await getTranslations({ locale, namespace: "inline_app_locale_bank_fees_page" });
 
   return (
-    <main className="max-w-[820px] mx-auto px-5 pb-24 pt-5">
+    <VerticalPageShell
+      className="max-w-[820px] mx-auto px-5 pb-24 pt-5"
+      kicker={t("kicker")}
+      title={t("title")}
+      sub={t("sub")}
+    >
       <Reveal>
-        <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-          {t("kicker")}
-        </div>
-        <h1 className="font-display text-[clamp(28px,5vw,44px)] leading-[1.12] m-0 text-balance">
-          {t("title")}
-        </h1>
-        <p className="text-ink-soft text-[16px] leading-relaxed mt-4 max-w-[640px]">{t("sub")}</p>
-      </Reveal>
-
-      <Reveal>
-        <h2 className="font-display text-2xl mt-10 mb-3">
+        <h2 className="font-display text-2xl mt-4 mb-3">
           {tIapp_locale_bank_fees_page("t_17d5ad42")}
         </h2>
         <p className="text-ink-soft text-[14px] mb-4 leading-relaxed">
@@ -111,6 +106,6 @@ export default async function BankFeesPage({
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}
       </p>
-    </main>
+    </VerticalPageShell>
   );
 }

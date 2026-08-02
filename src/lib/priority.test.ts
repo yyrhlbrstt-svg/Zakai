@@ -33,10 +33,10 @@ describe("priority cadence", () => {
   });
 
   it("still renders a genuine monthly entry with a monthly suffix", () => {
-    const cancel = rankPriorityActions(20).find((a) => a.id === "cancel");
-    expect(cancel!.cadence).toBe("monthly");
-    expect(formatPotentialHe(cancel!)).toContain("/ח׳");
-    expect(formatPotentialEn(cancel!)).toContain("/mo");
+    const monthly = rankPriorityActions(50).find((a) => a.cadence === "monthly");
+    expect(monthly).toBeDefined();
+    expect(formatPotentialHe(monthly!)).toContain("/ח׳");
+    expect(formatPotentialEn(monthly!)).toContain("/mo");
   });
 
   it("the assistant's own digest never claims a hidden or one-time figure repeats monthly", () => {
