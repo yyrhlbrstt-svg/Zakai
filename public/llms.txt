@@ -27,6 +27,10 @@ https://zakai-3uxj.vercel.app
   [electricity plan switch](https://zakai-3uxj.vercel.app/he/electricity) ·
   [bank fees](https://zakai-3uxj.vercel.app/he/bank-fees) ·
   [flight compensation](https://zakai-3uxj.vercel.app/he/flights) ·
+  [product warranty agent](https://zakai-3uxj.vercel.app/he/warranty) ·
+  [rental deposit agent](https://zakai-3uxj.vercel.app/he/deposit) ·
+  [duplicate insurance agent](https://zakai-3uxj.vercel.app/he/duplicate-insurance) ·
+  [arnona agent](https://zakai-3uxj.vercel.app/he/arnona) ·
   [UK student loan overpayment letter](https://zakai-3uxj.vercel.app/en/student-loan-overpayment) ·
   [US wage statement audit letter](https://zakai-3uxj.vercel.app/en/wage-statement-audit) ·
   [US FDCPA debt validation](https://zakai-3uxj.vercel.app/en/debt-collector-dispute) ·

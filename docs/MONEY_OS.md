@@ -52,4 +52,4 @@ Consumer adoption pulls institution demand; institution trust pulls consumer tru
 - Auto-charge without SAVED proof
 - Outbound payment Mandate scopes
 
-See also: `docs/GOLDEN_SHIP_COMPLETE.md`, `docs/IL_REVENUE_PLAYBOOK.md`.
+See also: `docs/GOLDEN_SHIP_COMPLETE.md`, `docs/IL_REVENUE_PLAYBOOK.md`, `docs/SCALE_DISTRIBUTION.md`.
