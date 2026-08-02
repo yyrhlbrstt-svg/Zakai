@@ -4978,6 +4978,17 @@
     "metaTitle": "What am I entitled to? — Zakai",
     "metaDesc": "A short quiz showing which rights, grants and refunds you're owed in Israel — based on your profile, no signup."
   },
+  "studentLoanOverpayment": {
+    "metaTitle": "UK student loan overpayment — Zakai",
+    "metaDesc": "If you repaid more than you owed to the SLC, you can request a refund in writing — with official citations, no invented amounts.",
+    "kicker": "United Kingdom · global rights engine",
+    "title": "Paid too much on your student loan?",
+    "sub": "The Student Loans Company (SLC) collects against an annual income threshold. If you were overcharged, you can request a refund in writing. Zakai generates the letter with regulatory citations; you send it to the SLC.",
+    "cite": "Based on the Education (Student Loans) Regulations 1998 and SLC guidance — not a promise of eligibility or amount.",
+    "ilTitle": "Based in Israel?",
+    "ilSub": "We run full agent loops for mobile, electricity, cancellations and more — success fee only on documented savings.",
+    "ilCta": "Take the entitlements quiz"
+  },
   "olimPage": {
     "metaTitle": "New to Israel? The money you're owed — Zakai",
     "metaDesc": "New immigrants (olim) are entitled to tax breaks, absorption benefits, arnona discounts and more — most go unclaimed. Zakai checks what you're owed, in English."

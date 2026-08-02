@@ -295,6 +295,12 @@ export const UK_ENTITLEMENTS: Entitlement[] = [
   { id: "uk_housing_benefit", category: "housing", eligible: (p) => p.renting && p.lowIncome },
   { id: "uk_free_childcare", category: "family", eligible: (p) => p.childrenUnder6 > 0 && working(p) },
   { id: "uk_student_finance", category: "education", eligible: (p) => p.employment === "student" },
+  {
+    id: "uk_student_loan_overpayment",
+    category: "education",
+    eligible: (p) => p.employment === "student",
+    oneTimeAgorot: 24_000,
+  },
   { id: "uk_pension_auto_enrolment", category: "work", eligible: (p) => p.employment === "employee" },
   { id: "uk_free_prescriptions", category: "health", eligible: () => true },
   { id: "uk_help_to_save", category: "banking", eligible: (p) => p.lowIncome && working(p) },

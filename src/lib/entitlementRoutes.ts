@@ -105,6 +105,9 @@ const ROUTES: Record<string, string> = {
   health_dental_kids: "/rights",
   health_glasses_kids: "/rights",
   health_er_exemption: "/rights",
+
+  // Global verticals (dedicated pages)
+  uk_student_loan_overpayment: "/student-loan-overpayment",
 };
 
 /**

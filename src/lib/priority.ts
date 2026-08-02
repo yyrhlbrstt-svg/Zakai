@@ -115,6 +115,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: false,
   },
   {
+    id: "student-loan-overpayment",
+    href: "/student-loan-overpayment",
+    titleHe: "בריטניה — החזר יתר על הלוואת סטודנטים",
+    titleEn: "UK — student loan overpayment refund",
+    whyHe: "מכתב SLC עם ציטוט רגולטורי — דלת גלובלית ראשונה",
+    whyEn: "SLC letter with regulatory citation — first global door",
+    potentialShekels: 120,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: false,
+  },
+  {
     // A hub whose own linked tool already says its total "mixes one-time,
     // annual and multi-year amounts" — never monthly, so this cannot claim
     // to be either without contradicting the page it points to.

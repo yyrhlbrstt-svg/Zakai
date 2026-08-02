@@ -60,6 +60,7 @@ const RECIPIENTS: Record<string, string> = {
   energy_supplier: "To\n{counterparty}\nCustomer Services",
   childcare_service: "To\nChildcare Service\nHM Revenue & Customs",
   nhs_bsa: "To\nNHS Business Services Authority\nHelp with Health Costs",
+  slc: "To\nStudent Loans Company\n100 Bothwell Street\nGlasgow G2 7JD",
 };
 
 const IDENTITY = "I am {name}, National Insurance number {id}.";
@@ -474,6 +475,26 @@ Where the calculation has produced an underpayment, please pay the shortfall and
     },
   ),
 
+  // ---- Education / student finance -----------------------------------------
+  right(
+    "student_loan_overpayment",
+    "education",
+    student,
+    "Education (Student Loans) Regulations 1998 (repayment account); Student Loans Company published repayment guidance",
+    {
+      kind: "letter",
+      recipient: "slc",
+      fields: ["details"],
+      subject: "Request for refund of student loan overpayment",
+      body: `${IDENTITY} I believe repayments have continued after my loan balance was cleared, or that an incorrect balance has caused me to overpay.
+
+Plan and account details: {details}
+
+Please confirm the current balance, any credit balance on the account, and repay any sum paid in excess of the amount properly due.`,
+    },
+    { oneTimeMinor: 24_000 },
+  ),
+
   // ---- Housing -------------------------------------------------------------
   right(
     "tenancy_deposit_check",
@@ -494,8 +515,8 @@ If the deposit was not protected within the statutory period, please confirm how
 
 export const GB_PACK: JurisdictionPack = {
   market: "GB",
-  version: "2026.07.2",
-  reviewed: "2026-07-28",
+  version: "2026.08.1",
+  reviewed: "2026-08-02",
   docLocale: "en-GB",
   currency: "GBP",
   minorUnits: 100,

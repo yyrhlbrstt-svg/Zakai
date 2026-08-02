@@ -17,9 +17,11 @@ describe("actionRouteForEntitlement", () => {
     expect(actionRouteForEntitlement("miluim_pay")).toBe("/miluim");
   });
 
-  it("falls international ids to /rights", () => {
+  it("falls international ids to /rights unless a vertical ships", () => {
     expect(actionRouteForEntitlement("us_eitc")).toBe("/rights");
-    expect(actionRouteForEntitlement("gb_student_loan_overpayment")).toBe("/rights");
+    expect(actionRouteForEntitlement("uk_student_loan_overpayment")).toBe(
+      "/student-loan-overpayment",
+    );
   });
 
   it("flags full-service ids", () => {
