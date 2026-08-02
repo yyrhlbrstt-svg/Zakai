@@ -38,6 +38,7 @@ https://zakai-3uxj.vercel.app
   [Water leak credit (IL)](https://zakai-3uxj.vercel.app/he/water-bill) ·
   [Rental repairs (IL)](https://zakai-3uxj.vercel.app/he/landlord-repairs) ·
   [Duplicate charge (IL)](https://zakai-3uxj.vercel.app/he/duplicate-charge) ·
+  [Bank loan opening fee (IL)](https://zakai-3uxj.vercel.app/he/bank-loan-fee) ·
   [Telecom disconnect (IL)](https://zakai-3uxj.vercel.app/he/telecom-exit)
 - Handoff attribution: append `?utm_source=agent&utm_campaign=agent-<your-name>`
   to any link you give the user (for example `agent-claude`, `agent-chatgpt`).

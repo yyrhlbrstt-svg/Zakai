@@ -26,6 +26,7 @@ type InboundRow = {
   extract?: {
     found?: boolean;
     newAmountShekels?: number | null;
+    recordAmountShekels?: number | null;
     confidence?: number;
     authorizationCode?: string | null;
   };
@@ -43,11 +44,14 @@ function mapExtractToProposal(
   if (ex.newAmountShekels < 0 || ex.newAmountShekels > 100_000) return null;
 
   const basis = feeBasisForVertical(vertical);
-  const mapped = inboundProposedRemainingShekels(
-    basis,
-    amountOriginalShekels,
-    Math.round(ex.newAmountShekels),
-  );
+  const mapped =
+    ex.recordAmountShekels != null && ex.recordAmountShekels >= 0
+      ? ex.recordAmountShekels
+      : inboundProposedRemainingShekels(
+          basis,
+          amountOriginalShekels,
+          Math.round(ex.newAmountShekels),
+        );
 
   return {
     newAmountShekels: mapped,

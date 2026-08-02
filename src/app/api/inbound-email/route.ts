@@ -135,12 +135,32 @@ export async function POST(request: Request) {
     }
   }
 
+  let recordAmountShekels: number | null = null;
+  if (matchedCaseId && extract.newAmountShekels != null) {
+    const kaseForRecord = await prisma.case.findUnique({
+      where: { id: matchedCaseId },
+      select: { vertical: true, amountOriginal: true },
+    });
+    if (kaseForRecord) {
+      recordAmountShekels = inboundProposedRemainingShekels(
+        feeBasisForVertical(kaseForRecord.vertical),
+        Math.round(kaseForRecord.amountOriginal / 100),
+        extract.newAmountShekels,
+      );
+    }
+  }
+
+  const extractLogged = {
+    ...extract,
+    ...(recordAmountShekels != null ? { recordAmountShekels } : {}),
+  };
+
   // 3. Persist a structured inbound log via Outbox (audit + proposed-saving source).
   const note = JSON.stringify({
     direction: "inbound",
     from,
     subject,
-    extract,
+    extract: extractLogged,
     matchedCaseId,
     matchMethod,
     ip,

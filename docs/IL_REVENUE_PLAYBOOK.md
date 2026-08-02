@@ -35,7 +35,7 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 
 1. **Private health duplicate billing** — `/duplicate-insurance` — full agent loop (Mandate + send).
 2. **Loan commission clawback** — `/bank-loan-fee` letter pack; agent path `/bank-fees`.
-1. **Arnona** — `/arnona` full agent loop (Mandate + send + monthly fee on documented bill drop).
+3. **Arnona** — `/arnona` full agent loop (Mandate + send + monthly fee on documented bill drop).
 
 Machine map: `GET /api/network/opportunity-map?market=IL`
 
