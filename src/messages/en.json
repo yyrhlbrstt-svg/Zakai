@@ -262,7 +262,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "64 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "70 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       },
       "miluim": {
         "title": "Reserve-duty pay",
@@ -392,7 +392,7 @@
         "points": [
           "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
           "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
-          "Free no-signup toolset: 64 rights, electricity, flights, subscriptions",
+          "Free no-signup toolset: 70 rights, electricity, flights, subscriptions",
           "Privacy by default: no trackers, in-browser scans, one-click deletion"
         ]
       }
@@ -963,7 +963,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "64 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "70 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {
@@ -1095,6 +1095,11 @@
         "desc": "Monthly allowance when earning capacity is impaired.",
         "how": "Claim + medical committee at National Insurance."
       },
+      "long_term_care_benefit": {
+        "title": "Long-term care benefit",
+        "desc": "Funds home-care hours for elderly people who need help with daily activities — depends on a functional assessment and an income test.",
+        "how": "Zakai prepares the request to National Insurance and the functional-dependency assessment."
+      },
       "arnona_income": {
         "title": "Income-based arnona discount",
         "desc": "Up to 90% off by per-person income test.",
@@ -1165,6 +1170,11 @@
         "desc": "Forgotten accounts and deposits — billions await owners.",
         "how": "Free search on the Treasury's Har HaKesef site."
       },
+      "hishtalmut_withdrawal": {
+        "title": "Hishtalmut fund withdrawal",
+        "desc": "Withdrawable tax-free 6 years after the first deposit — many people don't realize it or forget.",
+        "how": "Zakai prepares the withdrawal request to the fund."
+      },
       "mobile_check": {
         "title": "Mobile bill check",
         "desc": "Typical proactive saving: ~18% of the bill. Zakai does it for you.",
@@ -1199,6 +1209,11 @@
         "title": "Duplicate or incorrect charge",
         "desc": "Charged twice for the same purchase, or the charge doesn't match the receipt — you're entitled to a correction and credit.",
         "how": "Zakai prepares the complaint to the provider, including where to attach your receipt or statement as proof."
+      },
+      "train_delay_compensation": {
+        "title": "Train delay/cancellation compensation",
+        "desc": "Israel Railways' own published compensation policy (not a law) — a free ticket for a significant delay.",
+        "how": "Zakai prepares the request to Israel Railways to claim the compensation."
       },
       "pension_fees": {
         "title": "Pension management fees",
@@ -1289,6 +1304,16 @@
         "title": "Youth public-transport discounts",
         "desc": "Youth/student/soldier Rav-Kav profiles cut fares by tens of percent.",
         "how": "Update your profile at Rav-Kav stations or the app."
+      },
+      "route6_dispute": {
+        "title": "Route 6 toll charge dispute",
+        "desc": "A wrong or duplicate charge, including a previous owner still being billed after a sale — a statutory appeals committee exists, 30 days from the charge notice.",
+        "how": "Zakai prepares the appeal to the committee."
+      },
+      "vehicle_license_fee_refund": {
+        "title": "Prorated vehicle license fee refund",
+        "desc": "Only when you deregister a vehicle (take it off the road) or it's a total loss — not on an ordinary sale.",
+        "how": "Zakai prepares the prorated-refund request to the Ministry of Transport."
       },
       "student_scholarships": {
         "title": "Student scholarships",
@@ -1999,6 +2024,11 @@
         "title": "Designated-town residence credit",
         "desc": "Residents of towns on the statutory list get a percentage credit against income tax — and many never register it with their employer.",
         "how": "Zakai drafts the section 11 claim here, including the open years."
+      },
+      "tax_coordination": {
+        "title": "Tax coordination across employers",
+        "desc": "Working more than one job, or changed jobs this year? Each employer withholds as if it's the only one — over-withholding that doesn't come back on its own.",
+        "how": "Zakai prepares the tax-coordination request to the Tax Authority."
       }
     },
     "moreInfo": "Full details on Kol-Zchut →",
@@ -4169,6 +4199,12 @@
       "disability_allowance": "General disability allowance",
       "discharged_deposit": "Discharged-soldier deposit",
       "dormant_money": "Dormant money (\"Har HaKesef\")",
+      "long_term_care_benefit": "Long-term care benefit",
+      "tax_coordination": "Tax coordination across employers",
+      "hishtalmut_withdrawal": "Hishtalmut fund withdrawal",
+      "train_delay_compensation": "Train delay/cancellation compensation",
+      "route6_dispute": "Route 6 toll charge dispute",
+      "vehicle_license_fee_refund": "Prorated vehicle license fee refund",
       "electricity_social": "Statutory electricity discount",
       "electricity_switch": "Electricity supplier switch",
       "es_ayuda_alquiler": "Ayuda al alquiler",

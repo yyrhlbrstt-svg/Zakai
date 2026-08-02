@@ -122,6 +122,11 @@ export const ENTITLEMENTS: Entitlement[] = [
   // Section 11: a percentage credit for residents of designated towns. The rate
   // varies by town, so the figure here is the conservative floor.
   { id: "eligible_settlement_credit", category: "tax", eligible: (p) => p.livesInEligibleTown === true && working(p), yearlyAgorot: 300_000 },
+  // Two (or more) employers each withhold as if they're the only one, so
+  // over-withholding is routine unless the person actively coordinates —
+  // it is never automatic. No amount attached: the refund is exactly the
+  // over-withholding, which only the person's actual pay stubs can show.
+  { id: "tax_coordination", category: "tax", eligible: working },
 
   // ---- National insurance (ביטוח לאומי) ----
   { id: "child_allowance", category: "bituach", eligible: parent },
@@ -131,6 +136,10 @@ export const ENTITLEMENTS: Entitlement[] = [
   { id: "old_age_pension", category: "bituach", eligible: senior },
   { id: "miluim_pay", category: "bituach", eligible: (p) => p.reservist },
   { id: "disability_allowance", category: "bituach", eligible: (p) => p.disability },
+  // Real, but not automatic: a functional-dependency assessment visit plus a
+  // separate income test decide the rate. No amount attached — both the
+  // level and the income test move the real figure too much to state one.
+  { id: "long_term_care_benefit", category: "bituach", eligible: senior },
 
   // ---- Municipal (ארנונה ומים) ----
   { id: "arnona_income", category: "municipal", eligible: (p) => p.lowIncome },
@@ -165,6 +174,10 @@ export const ENTITLEMENTS: Entitlement[] = [
   { id: "bank_soldier_student", category: "banking", eligible: (p) => p.employment === "soldier" || p.employment === "student" },
   { id: "credit_report_free", category: "banking", eligible: () => true },
   { id: "dormant_money", category: "banking", eligible: () => true },
+  // Tax-free after 6 years from first deposit (3 for some professions) — no
+  // ceiling amount stated, since the tax-exempt deposit cap changes yearly
+  // and this file only attaches figures that are stable and well-known.
+  { id: "hishtalmut_withdrawal", category: "banking", eligible: working },
 
   // ---- Consumer (הבית של זכאי) ----
   { id: "mobile_check", category: "consumer", eligible: () => true },
@@ -179,6 +192,11 @@ export const ENTITLEMENTS: Entitlement[] = [
   // error a store or supplier already made), never from us asserting one
   // exists — the letter this drafts always requires the user's own evidence.
   { id: "duplicate_charge_dispute", category: "consumer", eligible: () => true },
+  // UNLIKE flight_comp, this is not a statutory right — it is Israel
+  // Railways' own published compensation procedure, and at least one
+  // district-court ruling has held cash compensation isn't claimable beyond
+  // it. Shown, but the copy must say "operator policy," never "the law."
+  { id: "train_delay_compensation", category: "consumer", eligible: () => true },
 
   // ---- Health (בריאות) ----
   { id: "health_dental_kids", category: "health", eligible: parent },
@@ -199,6 +217,16 @@ export const ENTITLEMENTS: Entitlement[] = [
     eligible: (p) =>
       p.ageGroup === "18_24" || p.employment === "student" || p.employment === "soldier",
   },
+  // Real statutory appeals committee, independent of the road operator —
+  // covers wrong/duplicate charges and even a non-registered ex-owner still
+  // being billed. 30-day window from the charge notice.
+  { id: "route6_dispute", category: "transport", eligible: () => true },
+  // Corrected from a common misconception: selling a car does NOT refund the
+  // seller anything — the licensing fee follows the registration year
+  // regardless of ownership. The real right is narrower: a prorated refund
+  // only when the car is taken off the road (deregistered) or written off,
+  // never on an ordinary sale. The copy must not imply otherwise.
+  { id: "vehicle_license_fee_refund", category: "transport", eligible: () => true },
 
   // ---- Education (השכלה) ----
   { id: "student_scholarships", category: "education", eligible: (p) => p.employment === "student" },
