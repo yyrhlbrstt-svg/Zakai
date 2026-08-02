@@ -8,7 +8,9 @@ describe("/api/network/readiness", () => {
     expect(body.ok).toBe(true);
     expect(body.layers).toBeDefined();
     expect(typeof body.layers.mandateSigning).toBe("boolean");
-    expect(body.layers.paymentProvider).toBeDefined();
+    expect(body.paymentProvider).toBeDefined();
+    expect(typeof body.operationalScore).toBe("number");
+    expect(["blocked", "degraded", "operational"]).toContain(body.tier);
     expect(body).not.toHaveProperty("CRON_SECRET");
     expect(body).not.toHaveProperty("ANTHROPIC_API_KEY");
   });

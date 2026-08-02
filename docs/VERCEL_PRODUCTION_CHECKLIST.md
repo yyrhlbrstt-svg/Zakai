@@ -28,6 +28,8 @@ Run locally: `node scripts/preflight.mjs` — must pass **blocking** before you 
 3. `/he/leaks`, `/he/start`, `/he/entitlements`, `/.well-known/zakai-jwks.json`.
 4. Optional: `/he/network-proof` — public ledger snapshot for inbound institutions.
 
+See also: `docs/EXCELLENCE_SCORECARD.md` — honest definition of product vs ops “10/10”.
+
 ## Inbound institutions (no outbound sales)
 
 Point engineers to `/integrations` and `/network-proof` — not a sales call.

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Reveal } from "@/components/Reveal";
+import { buildReadinessSnapshot } from "@/lib/network/readinessLayers";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,7 @@ export default async function NetworkProofPage({
   ]);
 
   const verifiedMonthly = formatAgorot(proof.verifiedMinor, loc);
+  const readiness = buildReadinessSnapshot();
 
   const bullets = t.raw("bullets") as string[];
 
@@ -65,6 +67,9 @@ export default async function NetworkProofPage({
           <StatCard label={t("statMandates")} value={String(mandateCount)} hint={t("statMandatesHint")} />
         </div>
         <p className="text-[11.5px] text-ink-soft mt-3 leading-relaxed">{t("statDisclaimer")}</p>
+        <p className="text-[13px] text-ink-soft mt-4 font-mono">
+          {t("deployScore", { score: readiness.operationalScore, tier: readiness.tier })}
+        </p>
       </Reveal>
 
       <Reveal delay={100}>

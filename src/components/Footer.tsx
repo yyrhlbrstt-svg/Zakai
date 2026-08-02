@@ -3,6 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/Logo";
+import { FooterAppVersion } from "@/components/FooterAppVersion";
 
 export function Footer() {
   const t = useTranslations();
@@ -69,7 +70,8 @@ export function Footer() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-[12.5px] text-ink-soft">
           <Logo height={15} />
-          <span>© {new Date().getFullYear()} · v1.1</span>
+          <span>© {new Date().getFullYear()}</span>
+          <FooterAppVersion />
         </span>
         <span className="flex flex-wrap gap-4">
           {(

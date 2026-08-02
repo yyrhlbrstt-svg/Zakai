@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { Button } from "@/components/ui";
+import { Button, CheckboxChips, RadioChips } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
 import { ShareResult } from "@/components/ShareResult";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
@@ -60,12 +60,18 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
     setProfile((p) => ({ ...p, [k]: v }));
   }
 
-  const chip = (active: boolean) =>
-    `px-4 py-3 rounded-xl text-[15px] font-bold border transition-colors duration-200 ${
-      active
-        ? "bg-[rgba(63,203,155,0.14)] border-emerald text-ink"
-        : "bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(63,203,155,0.4)]"
-    }`;
+  const ageOptions = useMemo(
+    () => AGES.map((a) => ({ value: a, label: t(`rights.q.ages.${a}`) })),
+    [t],
+  );
+  const employmentOptions = useMemo(
+    () => EMPLOYMENTS.map((e) => ({ value: e, label: t(`rights.q.employments.${e}`) })),
+    [t],
+  );
+  const flagOptions = useMemo(
+    () => FLAGS.map((f) => ({ value: f, label: t(`rights.q.${f}`) })),
+    [t],
+  );
 
   // ---- Intro ----
   if (phase === "intro") {
@@ -186,41 +192,25 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
 
       {step === 0 && (
         <Question title={t("rights.q.age")}>
-          <div className="flex gap-2.5 flex-wrap">
-            {AGES.map((a) => (
-              <button
-                key={a}
-                type="button"
-                className={chip(profile.ageGroup === a)}
-                onClick={() => {
-                  set("ageGroup", a);
-                  setPhase(1);
-                }}
-              >
-                {t(`rights.q.ages.${a}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile.ageGroup}
+            onChange={(a) => set("ageGroup", a)}
+            options={ageOptions}
+            ariaLabel={t("rights.q.age")}
+          />
+          <StepNav onBack={() => setPhase("intro")} onNext={() => setPhase(1)} t={t} />
         </Question>
       )}
 
       {step === 1 && (
         <Question title={t("rights.q.employment")}>
-          <div className="flex gap-2.5 flex-wrap">
-            {EMPLOYMENTS.map((e) => (
-              <button
-                key={e}
-                type="button"
-                className={chip(profile.employment === e)}
-                onClick={() => {
-                  set("employment", e);
-                  setPhase(2);
-                }}
-              >
-                {t(`rights.q.employments.${e}`)}
-              </button>
-            ))}
-          </div>
+          <RadioChips
+            value={profile.employment}
+            onChange={(e) => set("employment", e)}
+            options={employmentOptions}
+            ariaLabel={t("rights.q.employment")}
+          />
+          <StepNav onBack={() => setPhase(0)} onNext={() => setPhase(2)} t={t} />
         </Question>
       )}
 
@@ -245,19 +235,12 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
 
       {step === 3 && (
         <Question title={t("rights.q.flags")}>
-          <div className="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
-            {FLAGS.map((f) => (
-              <button
-                key={f}
-                type="button"
-                aria-pressed={profile[f]}
-                className={chip(profile[f]) + " text-start leading-snug"}
-                onClick={() => set(f, !profile[f])}
-              >
-                {t(`rights.q.${f}`)}
-              </button>
-            ))}
-          </div>
+          <CheckboxChips
+            selected={(f) => profile[f]}
+            onToggle={(f) => set(f, !profile[f])}
+            options={flagOptions}
+            ariaLabel={t("rights.q.flags")}
+          />
           <div className="flex gap-3 justify-between mt-7">
             <Button variant="ghost" onClick={() => setPhase(2)}>
               {t("entitlements.back")}

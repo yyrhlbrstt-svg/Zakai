@@ -21,6 +21,7 @@ https://zakai-3uxj.vercel.app
   [What am I owed](https://zakai-3uxj.vercel.app/he/what-am-i-owed) ·
   [Describe the problem in free text](https://zakai-3uxj.vercel.app/he/start)
 - Common entry doors: [recurring charges](https://zakai-3uxj.vercel.app/he/money) ·
+  [money leak map](https://zakai-3uxj.vercel.app/he/leaks) ·
   [cancel a subscription](https://zakai-3uxj.vercel.app/he/cancel) ·
   [full tools map](https://zakai-3uxj.vercel.app/he/tools) ·
   [electricity plan switch](https://zakai-3uxj.vercel.app/he/electricity) ·
@@ -75,6 +76,7 @@ is always free).
 - Global revenue / vertical map (machine-readable, CORS):
   `GET /api/network/opportunity-map` · optional `?market=GB` or `IL`.
 - Deploy readiness (non-secret booleans): `GET /api/network/readiness`
+  (`operationalScore` 0–100 from env layers — honest, not marketing)
 - Institution integration checklist: [/en/integrations](https://zakai-3uxj.vercel.app/en/integrations)
 - Public ledger snapshot (inbound): [/en/network-proof](https://zakai-3uxj.vercel.app/en/network-proof)
 

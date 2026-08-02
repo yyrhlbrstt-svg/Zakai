@@ -89,10 +89,6 @@ export function FieldError({ children }: { children: React.ReactNode }) {
  * the rendered element's computed `direction`, not assumed from locale),
  * matching the WAI-ARIA authoring practice that horizontal arrow keys follow
  * visual order; Up/Down always mean previous/next regardless of direction.
- *
- * This is rolled out to one component so far (RightsChecker) as the proven
- * pattern; the other ~11 places with the same hand-rolled shape are a real,
- * separate follow-up, not fixed by this change.
  */
 export function RadioChips<T extends string>({
   value,
@@ -161,6 +157,87 @@ export function RadioChips<T extends string>({
               active
                 ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
                 : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Multi-select chip group — checkbox semantics with roving focus + arrow keys. */
+export function CheckboxChips<T extends string>({
+  selected,
+  onToggle,
+  options,
+  ariaLabel,
+  className = "",
+}: {
+  selected: (value: T) => boolean;
+  onToggle: (value: T) => void;
+  options: readonly { value: T; label: React.ReactNode }[];
+  ariaLabel: string;
+  className?: string;
+}) {
+  const buttonRefs = React.useRef<Record<string, HTMLButtonElement | null>>({});
+  const [focusValue, setFocusValue] = React.useState<T | null>(options[0]?.value ?? null);
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const idx = options.findIndex((o) => o.value === focusValue);
+    if (idx === -1) return;
+
+    const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
+    let delta = 0;
+    if (e.key === "ArrowDown" || (e.key === "ArrowRight" && !rtl) || (e.key === "ArrowLeft" && rtl)) {
+      delta = 1;
+    } else if (
+      e.key === "ArrowUp" ||
+      (e.key === "ArrowLeft" && !rtl) ||
+      (e.key === "ArrowRight" && rtl)
+    ) {
+      delta = -1;
+    } else if (e.key === "Home") {
+      delta = -idx;
+    } else if (e.key === "End") {
+      delta = options.length - 1 - idx;
+    } else {
+      return;
+    }
+
+    e.preventDefault();
+    const next = options[(idx + delta + options.length) % options.length];
+    setFocusValue(next.value);
+    buttonRefs.current[next.value]?.focus();
+  }
+
+  return (
+    <div
+      role="group"
+      aria-label={ariaLabel}
+      onKeyDown={onKeyDown}
+      className={`grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))] ${className}`}
+    >
+      {options.map((o) => {
+        const on = selected(o.value);
+        const focused = focusValue === o.value;
+        return (
+          <button
+            key={o.value}
+            ref={(el) => {
+              buttonRefs.current[o.value] = el;
+            }}
+            type="button"
+            role="checkbox"
+            aria-checked={on}
+            tabIndex={focused ? 0 : -1}
+            onFocus={() => setFocusValue(o.value)}
+            onClick={() => onToggle(o.value)}
+            className={`rounded-xl px-4 py-3 text-[15px] font-bold border transition-colors duration-200 text-start leading-snug cursor-pointer ${
+              on
+                ? "bg-[rgba(63,203,155,0.14)] border-emerald text-ink"
+                : "bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(63,203,155,0.4)]"
             }`}
           >
             {o.label}

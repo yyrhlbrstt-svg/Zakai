@@ -3,6 +3,7 @@ import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Button } from "@/components/ui";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { alternateLanguages } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -158,18 +159,13 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
   const tIapp_locale_leaks_page = await getTranslations({ locale, namespace: "inline_app_locale_leaks_page" });
 
   return (
-    <main className="max-w-[900px] mx-auto px-5 pb-24 pt-4">
-      <div className="inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-5">
-        {tIapp_locale_leaks_page("t_c4b012f6")}
-      </div>
-      <h1 className="font-display text-[clamp(28px,5vw,42px)] leading-tight m-0">
-        {tIapp_locale_leaks_page("t_2d4d4d1b")}
-      </h1>
-      <p className="text-ink-soft text-[15.5px] leading-relaxed mt-4 max-w-[640px]">
-        {tIapp_locale_leaks_page("t_03cd5197")}
-      </p>
-
-      <div className="mt-8 flex flex-wrap gap-3">
+    <VerticalPageShell
+      className="max-w-[900px] mx-auto px-5 pb-24 pt-4"
+      kicker={tIapp_locale_leaks_page("t_c4b012f6")}
+      title={tIapp_locale_leaks_page("t_2d4d4d1b")}
+      sub={tIapp_locale_leaks_page("t_03cd5197")}
+    >
+      <div className="flex flex-wrap gap-3">
         <Link href="/money">
           <Button className="!text-[15px] !px-5 !py-3">
             {tIapp_locale_leaks_page("t_eec058aa")}
@@ -211,6 +207,6 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
           <Button>{tIapp_locale_leaks_page("t_7698572b")}</Button>
         </Link>
       </div>
-    </main>
+    </VerticalPageShell>
   );
 }
