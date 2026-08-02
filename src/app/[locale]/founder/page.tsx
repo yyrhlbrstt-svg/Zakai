@@ -140,6 +140,19 @@ export default async function FounderPage({
         </div>
       )}
 
+      <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
+        <div className="font-extrabold text-[#3EC6FF] mb-2">שכבות רשת (בלי סודות)</div>
+        <p className="m-0 mb-2 text-ink-soft">
+          <code>/api/network/readiness</code> · <code>/api/network/opportunity-map</code> ·{" "}
+          <a className="text-emerald underline" href="/he/integrations">
+            /integrations
+          </a>
+        </p>
+        <p className="m-0 text-ink-soft">
+          תבנית outreach לבנק: <code>docs/BANK_OUTREACH.md</code> בריפו.
+        </p>
+      </div>
+
       <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
         {rows.map(([label, value], i) => {
           const highlight = label.includes("אחוז הצלחה");

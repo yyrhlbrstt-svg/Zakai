@@ -14,6 +14,7 @@ import {
   type DistanceTier,
   type EuDistanceTier,
 } from "@/lib/flightRights";
+import { resolveAirlineContactEmail, resolveAirlineProviderKey } from "@/lib/airlineContacts";
 import { rateLimit } from "@/lib/ratelimit";
 
 const schema = z.object({
@@ -22,6 +23,7 @@ const schema = z.object({
   flightNumber: z.string().min(1).max(40),
   flightDate: z.string().min(1).max(40),
   route: z.string().min(1).max(120),
+  airlineContactEmail: z.string().email().max(120).optional(),
   jurisdiction: z.enum(["il", "eu"]),
   kind: z.enum(["cancelled", "delay"]),
   tier: z.enum(["short", "medium", "long"]),
@@ -108,7 +110,7 @@ export async function POST(request: Request) {
   try {
     kase = await createCase({
       userId: auth.userId,
-      provider: data.airline.slice(0, 80),
+      provider: resolveAirlineProviderKey(data.airline),
       amountShekels,
       plan: `${data.flightNumber} · ${data.route}`,
       strategy,
@@ -118,6 +120,8 @@ export async function POST(request: Request) {
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "airline",
       beneficiaryLabel: data.passengerName || undefined,
+      counterpartyEmail:
+        data.airlineContactEmail || resolveAirlineContactEmail(data.airline),
       // Explicit agent click = consent to the draft → start APPROVED.
       autoApprove: true,
     });

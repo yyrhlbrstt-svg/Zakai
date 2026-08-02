@@ -264,7 +264,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
               <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
                 {tIcomponents_FlightRightsChecker("t_eb212a88")}
               </p>
-              <Link href="/dashboard">
+              <Link href={`/dashboard?case=${caseId}`}>
                 <Button className="w-full">
                   {tIcomponents_FlightRightsChecker("t_4a0f7a8f")}
                 </Button>

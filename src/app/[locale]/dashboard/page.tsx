@@ -25,6 +25,7 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
+import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { emailConfigured } from "@/lib/messaging";
 
 const STATUS_KEY: Record<string, string> = {
@@ -52,10 +53,10 @@ export default async function DashboardPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ fee?: string; intent?: string }>;
+  searchParams: Promise<{ fee?: string; intent?: string; case?: string }>;
 }) {
   const { locale } = await params;
-  const { fee: feeStatus, intent } = await searchParams;
+  const { fee: feeStatus, intent, case: highlightCase } = await searchParams;
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
@@ -165,6 +166,7 @@ export default async function DashboardPage({
         return (
           <div
             key={c.id}
+            id={`case-${c.id}`}
             className="flex items-center gap-3.5 px-5 py-4 flex-wrap"
             style={{
               borderBottom: i < list.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
@@ -264,6 +266,7 @@ export default async function DashboardPage({
 
   return (
     <main className="max-w-[900px] mx-auto px-5 pb-20 pt-1">
+      <CaseHighlightScroll caseId={highlightCase} />
       <div className="flex items-center gap-3 flex-wrap my-3 mb-5">
         <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
         <PlanBadge plan={user!.plan} />

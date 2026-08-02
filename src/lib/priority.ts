@@ -151,6 +151,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: false,
   },
   {
+    id: "debt-collector-dispute",
+    href: "/debt-collector-dispute",
+    titleHe: "ארה״ב — אימות חוב FDCPA",
+    titleEn: "US — FDCPA debt validation",
+    whyHe: "מכתב validation — דלת גלובלית",
+    whyEn: "Validation letter — global door",
+    potentialShekels: 40,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: false,
+  },
+  {
     id: "wage-statement-audit",
     href: "/wage-statement-audit",
     titleHe: "ארה״ב — ביקורת תלוש שכר (FLSA)",

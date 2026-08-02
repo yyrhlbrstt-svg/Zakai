@@ -104,7 +104,7 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
   });
 
   await sendEmail({
-    to: providerContactEmail(kase.provider),
+    to: providerContactEmail(kase.provider, kase.vertical),
     subject,
     body: follow.body + footer,
     caseId,

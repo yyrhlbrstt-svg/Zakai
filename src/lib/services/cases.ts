@@ -11,6 +11,7 @@ import { createAuthorization } from "./authorization";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
+import { outreachSubjectForVertical } from "@/lib/outreachSubject";
 import { pushToUser } from "@/lib/push";
 
 export class CaseError extends Error {}
@@ -201,8 +202,8 @@ export async function sendOutreach(caseId: string, userId: string) {
   });
 
   const email = await sendEmail({
-    to: kase.counterpartyEmail || providerContactEmail(kase.provider),
-    subject: `בקשת התאמת מסלול בשם ${auth.principalName} — הרשאה ${auth.code}`,
+    to: kase.counterpartyEmail || providerContactEmail(kase.provider, kase.vertical),
+    subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
     body: kase.draftMessage + footer,
     caseId,
     attachments: [attachment],

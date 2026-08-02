@@ -3,6 +3,7 @@
  * Mobile keys are structured; other verticals pass free-text provider names
  * (banks, electricity, airlines) — providerHebrewName resolves those too.
  */
+import { resolveAirlineContactEmail } from "@/lib/airlineContacts";
 
 export type ProviderKey =
   | "cellcom"
@@ -79,7 +80,8 @@ export function isProviderKey(v: string): v is ProviderKey {
   return v in PROVIDERS;
 }
 
-export function providerContactEmail(key: string): string {
+export function providerContactEmail(key: string, vertical?: string): string {
+  if (vertical === "airline") return resolveAirlineContactEmail(key);
   return isProviderKey(key) ? PROVIDERS[key].contactEmail : PROVIDERS.other.contactEmail;
 }
 
