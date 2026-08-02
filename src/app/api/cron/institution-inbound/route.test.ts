@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { NextResponse } from "next/server";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -31,7 +32,7 @@ describe("/api/cron/institution-inbound", () => {
 
   it("requires cron auth", async () => {
     vi.mocked(requireCronAuth).mockReturnValueOnce(
-      new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 }),
+      NextResponse.json({ error: "unauthorized" }, { status: 401 }),
     );
     const { GET } = await import("./route");
     const res = await GET(new Request("http://localhost/api/cron/institution-inbound"));
@@ -43,8 +44,11 @@ describe("/api/cron/institution-inbound", () => {
     vi.mocked(prisma.referenceVerifier.findMany).mockResolvedValue([
       {
         institutionId: "bank-leumi",
+        displayNameHe: "בנק לאומי",
         displayNameEn: "Bank Leumi",
         contactEmail: "risk@example.com",
+        tier: "reference",
+        listedAt: new Date(),
       },
     ]);
     vi.mocked(prisma.case.findMany).mockResolvedValue([
@@ -54,7 +58,7 @@ describe("/api/cron/institution-inbound", () => {
         updatedAt: new Date(),
         authorization: { mandateAudience: "bank-leumi" },
       },
-    ]);
+    ] as never);
     vi.mocked(prisma.outbox.findFirst).mockResolvedValue(null);
 
     const { GET } = await import("./route");
