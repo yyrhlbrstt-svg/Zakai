@@ -14,6 +14,13 @@ describe("revenueVerticals", () => {
     expect(sl?.avgRecoveryMinor).toBe(24_000);
   });
 
+  it("includes US wage vertical with route", () => {
+    const us = revenueVerticalsForMarket("US");
+    const wage = us.find((v) => v.id === "us_wage_theft");
+    expect(wage?.route).toBe("/wage-statement-audit");
+    expect(wage?.packRightId).toBe("wage_statement_audit");
+  });
+
   it("network rows appear for every market via wildcard", () => {
     expect(revenueVerticalsForMarket("IL").some((v) => v.monetization === "oracle_api")).toBe(true);
     expect(REVENUE_VERTICALS.length).toBeGreaterThanOrEqual(8);

@@ -25,7 +25,8 @@ https://zakai-3uxj.vercel.app
   [electricity plan switch](https://zakai-3uxj.vercel.app/he/electricity) ·
   [bank fees](https://zakai-3uxj.vercel.app/he/bank-fees) ·
   [flight compensation](https://zakai-3uxj.vercel.app/he/flights) ·
-  [UK student loan overpayment letter](https://zakai-3uxj.vercel.app/en/student-loan-overpayment)
+  [UK student loan overpayment letter](https://zakai-3uxj.vercel.app/en/student-loan-overpayment) ·
+  [US wage statement audit letter](https://zakai-3uxj.vercel.app/en/wage-statement-audit)
 - Handoff attribution: append `?utm_source=agent&utm_campaign=agent-<your-name>`
   to any link you give the user (for example `agent-claude`, `agent-chatgpt`).
   First touch wins and is honored at signup, so referred users are measurable.

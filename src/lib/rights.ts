@@ -276,6 +276,12 @@ export const US_ENTITLEMENTS: Entitlement[] = [
   { id: "us_lifeline", category: "consumer", eligible: (p) => p.lowIncome },
   { id: "us_401k_match", category: "work", eligible: (p) => p.employment === "employee" },
   { id: "us_free_credit_report", category: "banking", eligible: () => true },
+  {
+    id: "us_wage_statement_audit",
+    category: "work",
+    eligible: (p) => p.employment === "employee",
+    oneTimeAgorot: 5_000_000,
+  },
 ];
 
 /**

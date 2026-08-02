@@ -115,6 +115,19 @@ export default async function InstitutionsPage({
             </a>
             )
           </li>
+          <li>
+            <strong>Opportunity map</strong> — monetizable consumer verticals
+            (machine-readable):{" "}
+            <a className="text-emerald underline" href={`${ORIGIN}/api/network/opportunity-map`}>
+              {ORIGIN}/api/network/opportunity-map
+            </a>
+          </li>
+          <li>
+            <strong>Integration quickstart</strong> — step-by-step verify/decide/revoke
+            in ~30 minutes: see{" "}
+            <code className="text-[12px]">docs/INSTITUTION_QUICKSTART.md</code> in the
+            repository (same steps as this page&apos;s endpoints).
+          </li>
         </ul>
       </Section>
 

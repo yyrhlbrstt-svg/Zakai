@@ -87,6 +87,7 @@ export const REVENUE_VERTICALS: readonly RevenueVertical[] = [
     currency: "USD",
     monetization: "success_fee",
     status: "letter_pack",
+    route: "/wage-statement-audit",
     packRightId: "wage_statement_audit",
   },
   {

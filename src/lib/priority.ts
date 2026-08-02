@@ -127,6 +127,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: false,
   },
   {
+    id: "wage-statement-audit",
+    href: "/wage-statement-audit",
+    titleHe: "ארה״ב — ביקורת תלוש שכר (FLSA)",
+    titleEn: "US — wage statement audit (FLSA)",
+    whyHe: "מכתב למעסיק עם ציטוט חוקי — דלת גלובלית",
+    whyEn: "Employer letter with legal citation — global door",
+    potentialShekels: 180,
+    cadence: "oneTime",
+    effort: "medium",
+    agentic: false,
+  },
+  {
     // A hub whose own linked tool already says its total "mixes one-time,
     // annual and multi-year amounts" — never monthly, so this cannot claim
     // to be either without contradicting the page it points to.

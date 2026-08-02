@@ -22,6 +22,7 @@ describe("actionRouteForEntitlement", () => {
     expect(actionRouteForEntitlement("uk_student_loan_overpayment")).toBe(
       "/student-loan-overpayment",
     );
+    expect(actionRouteForEntitlement("us_wage_statement_audit")).toBe("/wage-statement-audit");
   });
 
   it("flags full-service ids", () => {

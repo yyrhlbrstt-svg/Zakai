@@ -108,6 +108,7 @@ const ROUTES: Record<string, string> = {
 
   // Global verticals (dedicated pages)
   uk_student_loan_overpayment: "/student-loan-overpayment",
+  us_wage_statement_audit: "/wage-statement-audit",
 };
 
 /**

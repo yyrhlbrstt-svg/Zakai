@@ -4989,6 +4989,17 @@
     "ilSub": "We run full agent loops for mobile, electricity, cancellations and more — success fee only on documented savings.",
     "ilCta": "Take the entitlements quiz"
   },
+  "wageStatementAudit": {
+    "metaTitle": "US wage statement audit — Zakai",
+    "metaDesc": "Request itemized pay records under the FLSA — cited letter template, no invented recovery amounts.",
+    "kicker": "United States · global rights engine",
+    "title": "Think you were underpaid or missing overtime?",
+    "sub": "The Fair Labor Standards Act requires itemized wage statements. Zakai generates an employer letter requesting detail and correction — you send it and follow up.",
+    "cite": "Based on the FLSA and applicable state wage laws — not legal advice and not a promise of recovery.",
+    "ilTitle": "Working in Israel?",
+    "ilSub": "Use our overtime calculator and full agent loops for mobile, electricity, and more.",
+    "ilCta": "Israel overtime calculator"
+  },
   "olimPage": {
     "metaTitle": "New to Israel? The money you're owed — Zakai",
     "metaDesc": "New immigrants (olim) are entitled to tax breaks, absorption benefits, arnona discounts and more — most go unclaimed. Zakai checks what you're owed, in English."
