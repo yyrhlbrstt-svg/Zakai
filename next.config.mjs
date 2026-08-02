@@ -8,6 +8,11 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "8mb" },
   },
+  async rewrites() {
+    return [
+      { source: "/widget/v1.js", destination: "/widget/zakai-widget.js" },
+    ];
+  },
   async headers() {
     return [
       {

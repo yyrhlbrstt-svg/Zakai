@@ -170,16 +170,20 @@ export function CancelTool() {
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{t("agentHonestNote")}</p>
 
         <div className="flex flex-col gap-2 mt-1">
-          <Button onClick={sendWithAgent} disabled={!agentReady || busy} className="w-full">
-            {busy ? t("agentOpening") : t("agentOpenCase")}
+          <Button
+            onClick={generate}
+            disabled={!company.trim() || !product.trim() || busy}
+            className="w-full"
+          >
+            {t("t_b4c9b341")}
           </Button>
           <Button
             variant="ghost"
-            onClick={generate}
-            disabled={!company.trim() || !product.trim() || busy}
+            onClick={sendWithAgent}
+            disabled={!agentReady || busy}
             className="w-full text-[13px]"
           >
-            {t("t_b4c9b341")}
+            {busy ? t("agentOpening") : t("agentOpenCase")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
