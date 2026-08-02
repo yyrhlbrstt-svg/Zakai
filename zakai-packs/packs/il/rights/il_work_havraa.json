@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_work_havraa",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "work havraa",
+    "he": "work havraa"
+  },
+  "market": "IL",
+  "category": "employment",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "employee"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/payslip",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "צו הרחבה בדבר השתתפות המעביד בהוצאות הבראה ונופש"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

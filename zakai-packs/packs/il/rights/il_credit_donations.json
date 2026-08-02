@@ -1,0 +1,42 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_credit_donations",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "credit donations",
+    "he": "credit donations"
+  },
+  "market": "IL",
+  "category": "tax",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "employee",
+          "self_employed"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_credit_donations",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "פקודת מס הכנסה, סעיף 46"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

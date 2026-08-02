@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   }
 
   const origin = url.origin;
-  const catalog = buildCatalogResponse(origin, market, { category, cursor });
+  const catalog = await buildCatalogResponse(origin, market, { category, cursor });
   if (!catalog) {
     return NextResponse.json({ error: "unknown_market", market }, { status: 404, headers: CORS });
   }

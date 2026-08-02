@@ -123,10 +123,11 @@ export function buildZakaiProtocolDocument(origin: string) {
       version: ZML_VERSION,
       schema: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.rightsSchema),
       rights_catalog: `${origin}/api/rights/catalog`,
+      rights_openapi: `${origin}/.well-known/zakai-openapi.json`,
       features: {
         mandate_verify: mandateSigningLive(),
         outcome_graph: true,
-        embedded_widget: false,
+        embedded_widget: true,
         collective_auction: false,
       },
       packs_builtin: Object.keys(MARKETS),

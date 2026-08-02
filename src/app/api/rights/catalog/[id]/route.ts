@@ -28,7 +28,7 @@ export async function GET(
   const { id } = await context.params;
   const origin = new URL(request.url).origin;
   const full = new URL(request.url).searchParams.get("full") === "1";
-  const right = findZmlRight(origin, decodeURIComponent(id));
+  const right = await findZmlRight(origin, decodeURIComponent(id));
   if (!right) {
     return NextResponse.json({ error: "not_found", id }, { status: 404, headers: CORS });
   }

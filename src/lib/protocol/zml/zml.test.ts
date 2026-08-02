@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { join } from "node:path";
 import { IL_PACK } from "@/lib/global/packs/il";
 import { GB_PACK } from "@/lib/global/packs/gb";
 import { packToZmlRights } from "@/lib/protocol/zml/legacy-adapter";
@@ -48,9 +49,10 @@ describe("ZML compatibility", () => {
 });
 
 describe("ZML catalog builder", () => {
-  it("builds IL catalog with stable ids", () => {
+  it("builds IL catalog with stable ids", async () => {
     clearZmlCatalogCache();
-    const rights = buildZmlCatalogForMarket(ORIGIN, "IL");
+    process.env.ZML_PACKS_LOCAL = join(process.cwd(), "zakai-packs");
+    const rights = await buildZmlCatalogForMarket(ORIGIN, "IL");
     expect(rights.some((r) => r.id === "il_tax_refund")).toBe(true);
     expect(rights.every((r) => r.zml_version === ZML_VERSION)).toBe(true);
   });

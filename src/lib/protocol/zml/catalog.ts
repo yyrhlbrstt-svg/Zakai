@@ -1,9 +1,9 @@
 import { MARKETS, isSupportedMarket } from "@/lib/global/registry";
 import type { JurisdictionPack } from "@/lib/global/types";
-import { packToZmlRights, predicateSummaryForRight, rightDefToZml } from "./legacy-adapter";
+import { loadZmlRightsForMarket } from "@/lib/protocol/packs/loader";
+import { predicateSummaryForRight } from "./legacy-adapter";
 import type { ZmlCatalogEntry, ZmlCatalogResponse, ZmlRight } from "./types";
 import { ZML_VERSION } from "./constants";
-import { validateZML } from "./validate";
 
 export const RIGHTS_CATALOG_API_VERSION = "2026-08-01";
 
@@ -16,48 +16,32 @@ function getPack(market: string): JurisdictionPack | null {
   return MARKETS[code].pack;
 }
 
-export function buildZmlCatalogForMarket(origin: string, market: string): ZmlRight[] {
+export async function buildZmlCatalogForMarket(
+  origin: string,
+  market: string,
+): Promise<ZmlRight[]> {
   const key = market.toUpperCase();
   const cached = catalogCache.get(key);
   if (cached && Date.now() - cached.builtAt < CACHE_TTL_MS) {
     return cached.rights;
   }
-  const pack = getPack(key);
-  if (!pack) return [];
-  const rights = packToZmlRights(pack, { origin });
-  for (const r of rights) {
-    const v = validateZML(r);
-    if (!v.ok) throw new Error(`ZML validation failed for ${r.id}: ${v.error}`);
-  }
+  const { rights } = await loadZmlRightsForMarket(key, { origin });
   catalogCache.set(key, { rights, builtAt: Date.now() });
   return rights;
 }
 
-export function findZmlRight(origin: string, idOrKey: string): ZmlRight | null {
-  const normalized = idOrKey.includes(":") ? idOrKey.split(":")[1]! : idOrKey;
-  for (const code of Object.keys(MARKETS)) {
-    const rights = buildZmlCatalogForMarket(origin, code);
-    const hit = rights.find((r) => r.id === normalized || r.id === idOrKey);
-    if (hit) return hit;
-    const pack = MARKETS[code]!.pack;
-    const legacy = pack.rights.find(
-      (r) => r.id === normalized || `${code.toLowerCase()}_${r.id}` === normalized,
-    );
-    if (legacy) return rightDefToZml(pack, legacy, { origin });
-  }
-  return null;
+export async function findZmlRight(origin: string, idOrKey: string): Promise<ZmlRight | null> {
+  const { findZmlRightById } = await import("@/lib/protocol/packs/loader");
+  return findZmlRightById(origin, idOrKey);
 }
 
-function toCatalogEntry(origin: string, pack: JurisdictionPack, right: ZmlRight): ZmlCatalogEntry {
-  const def = pack.rights.find(
-    (r) => right.id === `${pack.market.toLowerCase()}_${r.id}` || right.id.endsWith(`_${r.id}`),
-  );
+function toCatalogEntry(right: ZmlRight): ZmlCatalogEntry {
   return {
     id: right.id,
     display_name: right.display_name,
     category: right.category,
     market: right.market,
-    predicate_summary: def ? predicateSummaryForRight(def) : "See predicate",
+    predicate_summary: "See predicate in full document",
     auto_eligible: right.action.auto_eligible ?? false,
     financial: right.financial,
     _links: {
@@ -68,15 +52,16 @@ function toCatalogEntry(origin: string, pack: JurisdictionPack, right: ZmlRight)
   };
 }
 
-export function buildCatalogResponse(
+export async function buildCatalogResponse(
   origin: string,
   market: string,
   opts?: { category?: string; cursor?: string; limit?: number },
-): ZmlCatalogResponse | null {
-  const pack = getPack(market);
-  if (!pack) return null;
+): Promise<ZmlCatalogResponse | null> {
+  const code = market.toUpperCase();
+  const pack = getPack(code);
 
-  let rights = buildZmlCatalogForMarket(origin, market);
+  let rights = await buildZmlCatalogForMarket(origin, code);
+  if (rights.length === 0) return null;
   if (opts?.category) {
     rights = rights.filter((r) => r.category === opts.category);
   }
@@ -97,12 +82,12 @@ export function buildCatalogResponse(
 
   const limit = Math.min(opts?.limit ?? 50, 100);
   const slice = rights.slice(start, start + limit);
-  const entries = slice.map((r) => toCatalogEntry(origin, pack, r));
+  const entries = slice.map((r) => toCatalogEntry(r));
 
   const next =
     start + limit < rights.length
       ? {
-          next: `/api/rights/catalog?market=${pack.market}&cursor=${Buffer.from(
+          next: `/api/rights/catalog?market=${code}&cursor=${Buffer.from(
             JSON.stringify({ id: slice[slice.length - 1]?.id }),
             "utf8",
           ).toString("base64url")}`,
@@ -112,7 +97,7 @@ export function buildCatalogResponse(
   return {
     zml_version: ZML_VERSION,
     api_version: RIGHTS_CATALOG_API_VERSION,
-    market: pack.market,
+    market: pack?.market ?? code,
     total: rights.length,
     rights: entries,
     _links: next,

@@ -1,0 +1,12 @@
+{
+  "pack_version": "2026-08-01",
+  "market": "XX",
+  "language": "en",
+  "maintainer": "you@example.com",
+  "rights_count": 1,
+  "rights": ["xx_example_right"],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  }
+}

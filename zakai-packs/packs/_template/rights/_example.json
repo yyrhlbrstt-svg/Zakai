@@ -1,0 +1,23 @@
+{
+  "zml_version": "1.0.0",
+  "id": "xx_example_right",
+  "display_name": { "en": "Example right" },
+  "market": "XX",
+  "category": "consumer_protection",
+  "predicate": { "operator": "AND", "conditions": [] },
+  "action": {
+    "kind": "letter",
+    "requires_human_gate": true,
+    "auto_eligible": false,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Replace with real citation before merging"
+  },
+  "metadata": {
+    "maintainer": "you@example.com",
+    "last_verified": "2026-08-01",
+    "confidence": "low"
+  }
+}

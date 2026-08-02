@@ -1,10 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { join } from "node:path";
 import { GET as catalogGet } from "@/app/api/rights/catalog/route";
 import { GET as itemGet } from "@/app/api/rights/catalog/[id]/route";
 import { clearZmlCatalogCache } from "@/lib/protocol/zml/catalog";
 
 describe("GET /api/rights/catalog", () => {
-  beforeEach(() => clearZmlCatalogCache());
+  beforeEach(() => {
+    clearZmlCatalogCache();
+    process.env.ZML_PACKS_LOCAL = join(process.cwd(), "zakai-packs");
+  });
 
   it("returns IL rights summary", async () => {
     const res = await catalogGet(new Request("https://zakai.test/api/rights/catalog?market=IL"));

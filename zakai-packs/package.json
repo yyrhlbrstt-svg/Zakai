@@ -1,0 +1,16 @@
+{
+  "name": "@zakai/packs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "validate": "node scripts/validate.js",
+    "sign-check": "node scripts/sign-check.js",
+    "publish": "node scripts/publish.js"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-cloudfront": "^3.600.0",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.0"
+  }
+}

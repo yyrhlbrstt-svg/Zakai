@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "il_vehicle_license_fee_refund",
+  "version": "2026-07-26",
+  "display_name": {
+    "en": "vehicle license fee refund",
+    "he": "vehicle license fee refund"
+  },
+  "market": "IL",
+  "category": "transport",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/il_vehicle_license_fee_refund",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "תקנות התעבורה — החזר יחסי על אגרת רישוי בעת ביטול רישוי או אבדן גמור"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-26",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}
