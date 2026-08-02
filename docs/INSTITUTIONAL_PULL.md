@@ -53,6 +53,8 @@
 4. **Oracle sandbox key** לפיילוט — 30 יום, read-only calibration export.
 5. **מפת הזדמנויות** ממוקדת בנק (`bank-fees`, `dormant`) ב-`opportunity-map` עם citation ל-pack.
 
+**Shipped:** `GET /api/cron/institution-inbound` (weekly, Vercel Cron) emails `ReferenceVerifier.contactEmail` with 7-day + all-time mapped volume.
+
 ## מה לא לעשות
 
 - טענות «כבר עובדים עם X בנקים».

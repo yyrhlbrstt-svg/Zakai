@@ -56,6 +56,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/deposit", key: "deposit", category: "agent", agentic: true },
   { href: "/deals", key: "deals", category: "selfHelp" },
   { href: "/integrations", key: "integrations", category: "developers", featured: true },
+  { href: "/institutions/leader", key: "institutionLeader", category: "developers" },
   { href: "/network-proof", key: "networkProof", category: "developers", featured: true },
   { href: "/student-loan-overpayment", key: "studentLoan", category: "global" },
   { href: "/wage-statement-audit", key: "wageAudit", category: "global" },

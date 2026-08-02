@@ -30,6 +30,14 @@ export const INSTITUTION_PROVIDER_MAP: Readonly<Record<string, readonly string[]
 
 const OUTBOUND_STATUSES = new Set(["SENT", "SAVED", "NO_SAVING"]);
 
+export function isOutboundCaseStatus(status: string): boolean {
+  return OUTBOUND_STATUSES.has(status);
+}
+
+export function providerKeysForInstitution(institutionId: string): readonly string[] {
+  return INSTITUTION_PROVIDER_MAP[institutionId] ?? [];
+}
+
 function providerToInstitution(): Map<string, string> {
   const m = new Map<string, string>();
   for (const [institutionId, keys] of Object.entries(INSTITUTION_PROVIDER_MAP)) {
