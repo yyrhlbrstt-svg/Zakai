@@ -80,6 +80,17 @@ export default async function InstitutionsPage({
         </p>
       </Section>
 
+      <Section heading="Quick integration">
+        <p className="text-[14.5px] leading-relaxed">
+          <Link href="/integrations" className="underline text-emerald">
+            {ORIGIN}/integrations
+          </Link>{" "}
+          — step-by-step verify/decide in ~30 minutes (also in{" "}
+          <code className="text-[12px]">docs/INSTITUTION_QUICKSTART.md</code>
+          ).
+        </p>
+      </Section>
+
       <Section heading="What you cannot replicate without the network">
         <p className="text-[14.5px] leading-relaxed mb-3">
           Signature verification is free to implement from the spec — and should

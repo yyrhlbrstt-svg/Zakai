@@ -98,7 +98,9 @@ export const REVENUE_VERTICALS: readonly RevenueVertical[] = [
     avgRecoveryMinor: 1_000_00,
     currency: "USD",
     monetization: "success_fee",
-    status: "planned",
+    status: "letter_pack",
+    route: "/debt-collector-dispute",
+    packRightId: "fdcpa_debt_validation",
     citation: "15 U.S.C. § 1692k",
   },
   {
@@ -110,7 +112,7 @@ export const REVENUE_VERTICALS: readonly RevenueVertical[] = [
     currency: "EUR",
     monetization: "success_fee",
     status: "rights_only",
-    route: "/flights",
+    route: "/train-delay",
     citation: "EU Regulation 1371/2007 / UK National Rail conditions",
   },
   {

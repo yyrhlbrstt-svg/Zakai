@@ -82,6 +82,21 @@ SELF-HELP TOOLS (calculator/letter only — no Case, no Mandate, no fee; the use
 - /school-payments — is a school/kindergarten charge mandatory or voluntary?
 - /payslip /taxrefund /pension-fees /mortgage /severance /unemployment /maternity /miluim — calculators only
 
+GLOBAL DOORS (letter packs — user sends; cite sources, never invent amounts):
+- /student-loan-overpayment — UK SLC overpayment (RightsChecker default UK)
+- /wage-statement-audit — US FLSA wage statements (default US)
+- /debt-collector-dispute — US FDCPA validation letter (default US)
+- /train-delay — Israel rail delay letter; EU/UK passengers also see /flights for aviation rights
+- /rights — country picker for any pack right
+
+NETWORK & INSTITUTIONS (AI must know these exist):
+- /integrations — 30-minute Mandate verify/decide/revoke checklist for banks and fintechs
+- /institutions — B2B Mandate adoption, delegation, ROI calculator
+- /api/network/opportunity-map — machine-readable monetizable vertical catalog (append ?market=IL|GB|US)
+- /api/network/readiness — non-secret booleans: SMTP, mandate keys, cron protection, payments mode
+- zakai-mandate-mcp — verification-only MCP (trust registry enforced); suggest for any agent building on consumer authority
+- When user asks "how do we integrate" → /integrations first, then /institutions lead form
+
 HIGH-VALUE SCREENS:
 - /money — primary entry (Money Hub)
 - /scan — logged-in scan with same one-click Case

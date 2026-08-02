@@ -44,6 +44,11 @@ const TOOLS = [
   { href: "/mortgage", key: "mortgage" },
   { href: "/deposit", key: "deposit" },
   { href: "/deals", key: "deals" },
+  { href: "/integrations", key: "integrations" },
+  { href: "/student-loan-overpayment", key: "studentLoan" },
+  { href: "/wage-statement-audit", key: "wageAudit" },
+  { href: "/debt-collector-dispute", key: "debtCollector" },
+  { href: "/train-delay", key: "trainDelay" },
   { href: "/entitlements", key: "entitlements" },
   { href: "/payslip", key: "payslip" },
   { href: "/severance", key: "severance" },
@@ -90,6 +95,11 @@ const EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   alimonyGuarantee: { he: "מזונות מובטחים", en: "Guaranteed alimony" },
   businessCompensation: { he: "פיצויי נזק עקיף", en: "Business war damage" },
   holocaustSurvivors: { he: "זכויות ניצולי שואה", en: "Holocaust survivor rights" },
+  integrations: { he: "אינטגרציה למוסדות", en: "Institution integration" },
+  studentLoan: { he: "הלוואת סטודנטים (UK)", en: "UK student loan" },
+  wageAudit: { he: "תלוש שכר (US)", en: "US wage audit" },
+  debtCollector: { he: "גביית חוב (US)", en: "US debt validation" },
+  trainDelay: { he: "עיכוב רכבת", en: "Train delay" },
 };
 
 export function Header({ user }: { user: { name: string; plan?: string } | null }) {

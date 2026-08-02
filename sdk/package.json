@@ -1,8 +1,16 @@
 {
   "name": "@zakai/mandate-sdk",
   "version": "0.1.0",
-  "description": "Reference client for the Zakai Mandate protocol: verify, decide, and build settlement records for scoped, revocable consumer-agent authority. Not published yet — see README.",
+  "description": "Reference client and MCP server for the Zakai Mandate protocol: verify, decide, trust registry, and outcome prediction hooks.",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yyrhlbrstt-svg/Zakai.git",
+    "directory": "sdk"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

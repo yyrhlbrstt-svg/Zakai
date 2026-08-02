@@ -282,6 +282,12 @@ export const US_ENTITLEMENTS: Entitlement[] = [
     eligible: (p) => p.employment === "employee",
     oneTimeAgorot: 5_000_000,
   },
+  {
+    id: "us_fdcpa_debt_validation",
+    category: "consumer",
+    eligible: () => true,
+    oneTimeAgorot: 1_000_00,
+  },
 ];
 
 /**

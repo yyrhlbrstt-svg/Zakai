@@ -5000,6 +5000,61 @@
     "ilSub": "Use our overtime calculator and full agent loops for mobile, electricity, and more.",
     "ilCta": "Israel overtime calculator"
   },
+  "integrations": {
+    "metaTitle": "Mandate integration for institutions — Zakai",
+    "metaDesc": "Verify consumer-agent authority in ~30 minutes: discovery, registry, verify, decide, revocation.",
+    "kicker": "Banks · insurers · fintech",
+    "title": "Wire up Mandate in 30 minutes",
+    "sub": "You do not need to call Zakai on every request. Keys and lists are public; verification runs on your side or via API.",
+    "stepLabel": "Step {n}",
+    "steps": [
+      {
+        "title": "Discovery document",
+        "body": "GET /.well-known/zakai-mandate.json — JWKS URL, verify endpoint, forbidden scopes."
+      },
+      {
+        "title": "Trust registry",
+        "body": "GET /.well-known/zakai-trust-registry.json — who may issue and where keys live. Reject suspended issuers."
+      },
+      {
+        "title": "Verify",
+        "body": "POST /api/mandate/verify with the JWS, or use @zakai/mandate-sdk / zakai-mandate-mcp."
+      },
+      {
+        "title": "Decide",
+        "body": "POST /api/mandate/decide — whether the requested action is in scope for this audience."
+      },
+      {
+        "title": "Live revocation",
+        "body": "Check /api/mandate/revocations or GET /api/mandate/status/{jti} before high-impact actions."
+      }
+    ],
+    "linksTitle": "Direct links",
+    "moreDetail": "ROI calculator, delegation apply, and institutional lead form:",
+    "institutionsCta": "Institutions page"
+  },
+  "debtCollectorDispute": {
+    "metaTitle": "FDCPA debt validation — Zakai",
+    "metaDesc": "Validation request letter under 15 U.S.C. § 1692g — not legal advice.",
+    "kicker": "United States · FDCPA",
+    "title": "Debt collector calling? Request validation in writing",
+    "sub": "The FDCPA gives you the right to dispute and request verification before paying. Zakai generates a cited letter — you send it to the collector.",
+    "cite": "Based on 15 U.S.C. § 1692g — not a promise of outcome or non-payment.",
+    "ilTitle": "Based in Israel?",
+    "ilSub": "For missing refunds or provider disputes — we have a documented chase path.",
+    "ilCta": "Missing refund chase"
+  },
+  "trainDelay": {
+    "metaTitle": "Train delay compensation — Zakai",
+    "metaDesc": "Letter for Israel Rail passenger policy; for EU flights use the flight compensation checker.",
+    "kicker": "Public transport",
+    "title": "Train delayed?",
+    "sub": "For passengers in Israel — a letter citing the operator policy. For EU/UK flights — use the flight compensation tool as well.",
+    "cite": "Compensation depends on operator policy and circumstances — not a guarantee.",
+    "euTitle": "EU or UK flight instead?",
+    "euSub": "EU261 and passenger rights — separate checker.",
+    "euCta": "Flight compensation checker"
+  },
   "olimPage": {
     "metaTitle": "New to Israel? The money you're owed — Zakai",
     "metaDesc": "New immigrants (olim) are entitled to tax breaks, absorption benefits, arnona discounts and more — most go unclaimed. Zakai checks what you're owed, in English."

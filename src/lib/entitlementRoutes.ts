@@ -74,7 +74,7 @@ const ROUTES: Record<string, string> = {
   electricity_switch: "/electricity",
   electricity_social: "/electricity",
   flight_comp: "/flights",
-  train_delay_compensation: "/flights",
+  train_delay_compensation: "/train-delay",
   subscription_audit: "/money",
   insurance_duplicates: "/duplicate-insurance",
   pension_fees: "/pension-fees",
@@ -109,6 +109,7 @@ const ROUTES: Record<string, string> = {
   // Global verticals (dedicated pages)
   uk_student_loan_overpayment: "/student-loan-overpayment",
   us_wage_statement_audit: "/wage-statement-audit",
+  us_fdcpa_debt_validation: "/debt-collector-dispute",
 };
 
 /**

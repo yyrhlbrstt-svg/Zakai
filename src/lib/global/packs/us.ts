@@ -45,6 +45,7 @@ const RECIPIENTS: Record<string, string> = {
   employer: "{counterparty}\nPayroll / Human Resources",
   ssa: "Social Security Administration\nOffice of Public Inquiries",
   studentaid: "U.S. Department of Education\nFederal Student Aid",
+  debt_collector: "{counterparty}\nDisputes / Validation Requests",
 };
 
 const IDENTITY =
@@ -287,6 +288,20 @@ const rights: RightDef[] = [
       body: `${IDENTITY} Please provide itemized wage statements for {period}, including regular rate, overtime, and every deduction.\n\nWhere overtime or minimum wage was underpaid, please pay the shortfall and confirm the corrected method.`,
     },
   ),
+  right(
+    "fdcpa_debt_validation",
+    "consumer",
+    always,
+    "15 U.S.C. § 1692g (Fair Debt Collection Practices Act — validation of debts)",
+    {
+      kind: "letter",
+      recipient: "debt_collector",
+      fields: ["counterparty", "details"],
+      subject: "Debt validation request under 15 U.S.C. § 1692g",
+      body: `${IDENTITY} I dispute the debt and request validation under the Fair Debt Collection Practices Act.\n\nPlease provide the name and address of the original creditor, the amount owed with an itemization showing how it was calculated, and verification that you are licensed to collect in my state.\n\n{details}\n\nUntil validation is provided, please cease telephone contact and communicate in writing only.`,
+    },
+    { oneTimeMinor: 1_000_00 },
+  ),
 
   // ---- Housing -------------------------------------------------------------
   right(
@@ -319,8 +334,8 @@ const rights: RightDef[] = [
 
 export const US_PACK: JurisdictionPack = {
   market: "US",
-  version: "2026.07.4",
-  reviewed: "2026-07-28",
+  version: "2026.08.1",
+  reviewed: "2026-08-02",
   docLocale: "en-US",
   currency: "USD",
   minorUnits: 100,

@@ -23,6 +23,7 @@ describe("actionRouteForEntitlement", () => {
       "/student-loan-overpayment",
     );
     expect(actionRouteForEntitlement("us_wage_statement_audit")).toBe("/wage-statement-audit");
+    expect(actionRouteForEntitlement("train_delay_compensation")).toBe("/train-delay");
   });
 
   it("flags full-service ids", () => {
