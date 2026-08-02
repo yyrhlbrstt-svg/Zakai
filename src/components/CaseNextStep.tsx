@@ -114,6 +114,7 @@ const copy: Record<string, Record<string, string>> = {
     competitorName: "שם המתחרה",
     competitorPrice: "מחיר המתחרה ₪",
     proposedTitle: "הסוכן זיהה מהמייל",
+    proposedTitleLump: "הסוכן זיהה מהמייל — נותר לשלם",
     proposedConf: "ביטחון",
     proposedOneTap: "רשום חיסכון בלחיצה אחת",
     proposedFrom: "מ־",
@@ -165,6 +166,7 @@ const copy: Record<string, Record<string, string>> = {
     competitorName: "Competitor name",
     competitorPrice: "Competitor price ₪",
     proposedTitle: "Agent spotted from email",
+    proposedTitleLump: "From email — remaining owed",
     proposedConf: "Confidence",
     proposedOneTap: "One-tap record saving",
     proposedFrom: "from",
@@ -527,7 +529,8 @@ export function CaseNextStep({
         {proposed && (
           <div className="rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] p-3.5">
             <div className="text-[13.5px] font-extrabold text-emerald">
-              {t(locale, "proposedTitle")}: ₪{proposed.newAmountShekels}
+              {t(locale, feeBasis === "lump" ? "proposedTitleLump" : "proposedTitle")}: ₪
+              {proposed.newAmountShekels}
             </div>
             <p className="text-[12px] text-ink-soft mt-1 mb-2.5">
               {t(locale, "proposedConf")} {(proposed.confidence * 100).toFixed(0)}%

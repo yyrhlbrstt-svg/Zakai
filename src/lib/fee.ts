@@ -98,6 +98,21 @@ export function documentedRecoveryMinor(savingDocumentedAgorot: number, basis: F
   return basis === "lump" ? savingDocumentedAgorot : savingDocumentedAgorot * 12;
 }
 
+/**
+ * Inbound extractors often return a transfer/refund amount on lump cases; recordSaving
+ * expects remaining owed (0 = paid in full). Monthly verticals pass through unchanged.
+ */
+export function inboundProposedRemainingShekels(
+  feeBasis: FeeBasis,
+  amountOriginalShekels: number,
+  extractedShekels: number,
+): number {
+  if (feeBasis === "monthly") return extractedShekels;
+  if (extractedShekels <= 0) return 0;
+  if (extractedShekels >= amountOriginalShekels) return 0;
+  return Math.max(0, amountOriginalShekels - extractedShekels);
+}
+
 export function computeRecoveryFee(
   recoveredAgorot: number,
   rateBps: number = FEE_RATE_BPS,

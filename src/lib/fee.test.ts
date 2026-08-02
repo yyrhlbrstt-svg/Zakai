@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeFee, computeRecoveryFee, computeCaseSuccessFee, documentedRecoveryMinor, monthlySaving, FEE_RATE_BPS } from "./fee";
+import { computeFee, computeRecoveryFee, computeCaseSuccessFee, documentedRecoveryMinor, inboundProposedRemainingShekels, monthlySaving, FEE_RATE_BPS } from "./fee";
 import { shekelsToAgorot } from "./money";
 
 describe("monthlySaving", () => {
@@ -99,6 +99,17 @@ describe("computeCaseSuccessFee", () => {
     const a = shekelsToAgorot(100);
     const b = shekelsToAgorot(70);
     expect(computeCaseSuccessFee(a, b, "monthly")).toEqual(computeFee(a, b));
+  });
+});
+
+describe("inboundProposedRemainingShekels", () => {
+  it("passes monthly extract through", () => {
+    expect(inboundProposedRemainingShekels("monthly", 100, 70)).toBe(70);
+  });
+
+  it("maps lump transfer amount to remaining owed", () => {
+    expect(inboundProposedRemainingShekels("lump", 5000, 5000)).toBe(0);
+    expect(inboundProposedRemainingShekels("lump", 5000, 3000)).toBe(2000);
   });
 });
 

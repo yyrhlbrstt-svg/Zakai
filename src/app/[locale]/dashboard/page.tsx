@@ -29,6 +29,7 @@ import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { feeBasisForVertical } from "@/lib/verticals";
+import { inboundProposedRemainingShekels } from "@/lib/fee";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -156,10 +157,16 @@ export default async function DashboardPage({
                 amount: formatAgorot(c.savingsProof.savingMonthly, loc),
               })
             : undefined;
+        const amountOriginalShekels = Math.round(c.amountOriginal / 100);
+        const basis = feeBasisForVertical(c.vertical);
         const proposed = proposedMap.get(c.id);
         const proposedClient = proposed
           ? {
-              newAmountShekels: proposed.newAmountShekels,
+              newAmountShekels: inboundProposedRemainingShekels(
+                basis,
+                amountOriginalShekels,
+                proposed.newAmountShekels,
+              ),
               confidence: proposed.confidence,
               from: proposed.from,
             }
@@ -232,7 +239,7 @@ export default async function DashboardPage({
                 }
                 ownershipVerified={Boolean(c.ownershipVerifiedAt)}
                 hasAuthorization={Boolean(c.authorization && c.authorization.status === "ACTIVE")}
-                amountOriginalShekels={Math.round(c.amountOriginal / 100)}
+                amountOriginalShekels={amountOriginalShekels}
                 shareMessage={shareMsg}
                 referralCode={referralCode}
                 proposedSaving={proposedClient}
