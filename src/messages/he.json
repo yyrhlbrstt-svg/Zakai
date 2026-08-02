@@ -5017,6 +5017,31 @@
     },
     "footer": "מוסדות וסוכני AI: /.well-known/zakai-mandate.json · /integrations · llms.txt"
   },
+  "networkProof": {
+    "metaTitle": "הוכחת רשת — זכאי",
+    "metaDesc": "מספרים אמיתיים מה-ledger, בלי שיווק מזויף. למוסדות ולסוכני AI שמגיעים inbound.",
+    "kicker": "Inbound · verify before you trust",
+    "title": "הוכחה שאפשר לבדוק בלי שיחת מכירה",
+    "sub": "המספרים למטה מגיעים ממסד הנתונים של זכאי — חיסכון מתועד, תיקים שנסגרו, מנדטים פעילים. אין הבטחת תוצאה עתידית.",
+    "statVerified": "חיסכון חודשי מתועד",
+    "statVerifiedHint": "{count} הוכחות מאומתות",
+    "statSaved": "תיקים שנסגרו בחיסכון",
+    "statSavedHint": "סטטוס SAVED בלדג'ר",
+    "statMandates": "מנדטים פעילים",
+    "statMandatesHint": "הרשאות ACTIVE כרגע",
+    "statDisclaimer": "לא כולל דיווחי זכרון עצמי. לא מציג סכומי עמלה או PII.",
+    "verifyTitle": "מה לבדוק לפני שאתם כותבים לנו",
+    "bullets": [
+      "מסמך גילוי: /.well-known/zakai-mandate.json",
+      "רשימת מנפיקים: /.well-known/zakai-trust-registry.json",
+      "מוכנות פרוד (בוליאנים בלבד): /api/network/readiness",
+      "מפת ורטיקלים: /api/network/opportunity-map"
+    ],
+    "ctaIntegrations": "מדריך אינטגרציה",
+    "ctaProofs": "קיר החיסכונות",
+    "ctaReadiness": "Readiness API",
+    "inboundNote": "אנחנו לא מתקשרים למוסדות. אם הגעתם לכאן — אתם כבר בדרך הנכונה."
+  },
   "integrations": {
     "metaTitle": "אינטגרציית Mandate למוסדות — זכאי",
     "metaDesc": "אימות הרשאת סוכן צרכן בכ~30 דקות: גילוי, registry, verify, decide, ביטול.",

@@ -41,6 +41,7 @@ export async function GET() {
         opportunity_map: "/api/network/opportunity-map",
         mandate_verify: "/api/mandate/verify",
         integrations: "/en/integrations",
+        network_proof: "/en/network-proof",
       },
     },
     { headers: cors },

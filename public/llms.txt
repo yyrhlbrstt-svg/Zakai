@@ -76,6 +76,7 @@ is always free).
   `GET /api/network/opportunity-map` · optional `?market=GB` or `IL`.
 - Deploy readiness (non-secret booleans): `GET /api/network/readiness`
 - Institution integration checklist: [/en/integrations](https://zakai-3uxj.vercel.app/en/integrations)
+- Public ledger snapshot (inbound): [/en/network-proof](https://zakai-3uxj.vercel.app/en/network-proof)
 
 ## Optional
 

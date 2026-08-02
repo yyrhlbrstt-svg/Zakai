@@ -89,6 +89,12 @@ export default async function InstitutionsPage({
           <code className="text-[12px]">docs/INSTITUTION_QUICKSTART.md</code>
           ).
         </p>
+        <p className="text-[14.5px] leading-relaxed mt-3">
+          <Link href="/network-proof" className="underline text-emerald">
+            {ORIGIN}/network-proof
+          </Link>{" "}
+          — live ledger snapshot for inbound risk teams (no sales call).
+        </p>
       </Section>
 
       <Section heading="What you cannot replicate without the network">

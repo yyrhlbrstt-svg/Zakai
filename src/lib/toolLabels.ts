@@ -23,6 +23,7 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   wageAudit: { he: "תלוש שכר (US)", en: "US wage audit" },
   debtCollector: { he: "גביית חוב (US)", en: "US debt validation" },
   trainDelay: { he: "עיכוב רכבת", en: "Train delay" },
+  networkProof: { he: "הוכחת רשת (ציבורי)", en: "Network proof (public)" },
 };
 
 export function toolDisplayLabel(

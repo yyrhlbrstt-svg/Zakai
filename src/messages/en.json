@@ -5017,6 +5017,31 @@
     },
     "footer": "Institutions & AI agents: /.well-known/zakai-mandate.json · /integrations · llms.txt"
   },
+  "networkProof": {
+    "metaTitle": "Network proof — Zakai",
+    "metaDesc": "Real ledger numbers, no fake traction. For inbound institutions and AI platforms.",
+    "kicker": "Inbound · verify before you trust",
+    "title": "Proof you can check without a sales call",
+    "sub": "Figures below come from Zakai's database — documented savings, closed cases, active mandates. Not a promise of future results.",
+    "statVerified": "Documented monthly savings",
+    "statVerifiedHint": "{count} verified proofs",
+    "statSaved": "Cases closed with savings",
+    "statSavedHint": "SAVED status in ledger",
+    "statMandates": "Active mandates",
+    "statMandatesHint": "ACTIVE authorizations now",
+    "statDisclaimer": "Excludes self-reported memory. No fee amounts or PII.",
+    "verifyTitle": "What to verify before you email us",
+    "bullets": [
+      "Discovery: /.well-known/zakai-mandate.json",
+      "Issuer registry: /.well-known/zakai-trust-registry.json",
+      "Deploy readiness (booleans): /api/network/readiness",
+      "Vertical map: /api/network/opportunity-map"
+    ],
+    "ctaIntegrations": "Integration guide",
+    "ctaProofs": "Savings wall",
+    "ctaReadiness": "Readiness API",
+    "inboundNote": "We do not cold-call institutions. If you are here, you are already on the right path."
+  },
   "integrations": {
     "metaTitle": "Mandate integration for institutions — Zakai",
     "metaDesc": "Verify consumer-agent authority in ~30 minutes: discovery, registry, verify, decide, revocation.",
