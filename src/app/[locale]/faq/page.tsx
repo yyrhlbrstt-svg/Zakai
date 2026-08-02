@@ -3,6 +3,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { FAQ, FAQ_CATEGORIES, type FaqCategory } from "@/lib/faq";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { SpotlightCard } from "@/components/SpotlightCard";
 
 export async function generateMetadata({
   params,
