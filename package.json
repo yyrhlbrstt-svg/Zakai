@@ -11,6 +11,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "verify:pack-labels": "tsx scripts/generate-pack-labels.mjs && git diff --exit-code src/lib/global/packLabels.generated.ts",
     "release-gate": "tsx scripts/release-gate.ts",
     "preflight": "node scripts/preflight.mjs",
     "generate:pack-labels": "tsx scripts/generate-pack-labels.mjs",

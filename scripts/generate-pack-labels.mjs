@@ -4,6 +4,7 @@
  */
 import { writeFileSync } from "node:fs";
 import { allMarkets } from "../src/lib/global/registry.ts";
+import { defaultHebrewLabel } from "./pack-label-segments.mjs";
 
 function humanize(id) {
   return id
@@ -68,6 +69,8 @@ const TOOL_HE = {
   "/cancel": "ביטול מנוי",
   "/bank-fees": "עמלות בנק — סוכן",
   "/money": "הסוכן — חיובים",
+  "/refund-chase": "החזר שלא הגיע — סוכן",
+  "/what-am-i-owed": "מה מגיע לי — בדיקת זכויות",
 };
 
 const TOOL_EN = {
@@ -76,6 +79,8 @@ const TOOL_EN = {
   "/cancel": "Cancel subscription",
   "/bank-fees": "Bank fees — agent",
   "/money": "Agent — bill negotiation",
+  "/refund-chase": "Missing refund — agent",
+  "/what-am-i-owed": "What am I owed — rights check",
 };
 
 const rows = {};
@@ -88,13 +93,13 @@ for (const market of allMarkets()) {
       const tool = right.action.tool;
       rows[key] = {
         en: TOOL_EN[tool] ?? humanize(right.id),
-        he: TOOL_HE[tool] ?? humanize(right.id),
+        he: TOOL_HE[tool] ?? defaultHebrewLabel(right.id),
       };
       continue;
     }
     rows[key] = {
       en: humanize(right.id),
-      he: HE_OVERRIDES[right.id] ?? humanize(right.id),
+      he: HE_OVERRIDES[right.id] ?? defaultHebrewLabel(right.id),
     };
   }
 }

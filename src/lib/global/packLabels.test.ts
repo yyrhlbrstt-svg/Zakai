@@ -22,4 +22,13 @@ describe("pack right UI labels", () => {
     expect(packRightUILabel("NL", "nl_zorgtoeslag", "he")).toContain("זורג");
     expect(packRightUILabel("GB", "pension_credit", "en")?.length).toBeGreaterThan(3);
   });
+
+  it("every Hebrew label contains Hebrew script", () => {
+    const hebrew = /[\u0590-\u05FF]/;
+    const bad: string[] = [];
+    for (const [key, row] of Object.entries(PACK_RIGHT_LABELS)) {
+      if (!hebrew.test(row.he)) bad.push(key);
+    }
+    expect(bad).toEqual([]);
+  });
 });

@@ -41,11 +41,15 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 
 Escalation: `/bank-loan-fee` letter pack → `/bank-fees` agent when the bank stalls.
 
-## Next verticals to build (backlog)
+## Shipped (main)
 
-1. **Dedicated loan-fee agent** — optional Case vertical if `/bank-fees` conflates too many bank disputes.
-2. **Inbound E2E test** — fixture emails for lump remaining vs refund semantics.
-3. **Pack i18n** — translated titles for GB/US/DE pack rights in messages (statutory source is fallback today).
+- **13** jurisdiction packs, integrity tests, he/en UI labels (`npm run generate:pack-labels`).
+- IL golden verticals: fee basis, inbound lump, agents, letter doors on leaks/priority.
+
+## Optional backlog
+
+1. **Dedicated loan-fee agent** — only if `/bank-fees` proves too broad in support data.
+2. **Inbound route integration test** — mocked Prisma + fixture emails.
 
 Machine map: `GET /api/network/opportunity-map?market=IL`
 
