@@ -454,7 +454,12 @@
     "closingTitle": "The money you're owed — without doing anything",
     "closingSub": "Every shekel saved is documented, and every request is sent with authority anyone can verify. You just watch the number go up.",
     "closingCta": "Start now",
-    "closingB2b": "Business & institutions"
+    "closingB2b": "Business & institutions",
+    "developersTitle": "Developers, banks, AI agents",
+    "developersSub": "Find us through the public protocol — no sales calls. Verify, then write.",
+    "developersTools": "Tools map",
+    "developersProof": "Network proof",
+    "developersIntegrations": "Mandate integration"
   },
   "flow": {
     "steps": [
@@ -824,6 +829,9 @@
     "leaveFeedback": "Have an idea to improve?"
   },
   "electricity": {
+    "metaTitle": "Electricity savings — Zakai",
+    "metaDesc": "Compare private electricity suppliers for your usage profile — runs in the browser.",
+    "kicker": "Full agent · supplier switch",
     "title": "How much can you save on electricity?",
     "subtitle": "Since July 2024 every Israeli household can switch to a private electricity supplier. Enter your monthly bill and usage profile — Zakai ranks the plans by your estimated saving. The math runs in your browser only.",
     "billLabel": "Monthly electricity bill (₪)",

@@ -1,6 +1,23 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { ElectricityCalculator } from "@/components/ElectricityCalculator";
+import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { bcp47, type Locale } from "@/i18n/config";
+import { alternateLanguages } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "electricity" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDesc"),
+    alternates: { languages: alternateLanguages("/electricity") },
+  };
+}
 
 /** Public page — comparison is value anyone can get; acting comes later. */
 export default async function ElectricityPage({
@@ -13,12 +30,8 @@ export default async function ElectricityPage({
   const t = await getTranslations("electricity");
 
   return (
-    <main className="max-w-[720px] mx-auto px-5 pb-24 pt-2">
-      <h1 className="font-display text-3xl my-3">{t("title")}</h1>
-      <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[560px]">
-        {t("subtitle")}
-      </p>
+    <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("subtitle")}>
       <ElectricityCalculator bcp47={bcp47[locale as Locale]} />
-    </main>
+    </VerticalPageShell>
   );
 }

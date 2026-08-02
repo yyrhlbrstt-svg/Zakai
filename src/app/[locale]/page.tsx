@@ -421,6 +421,34 @@ export default async function HomePage({
       </div>
 
       <Reveal>
+        <div className="mt-16 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] px-6 py-7">
+          <h2 className="font-display text-[clamp(20px,3.5vw,26px)] m-0 text-center">
+            {t("home.developersTitle")}
+          </h2>
+          <p className="text-ink-soft text-[14.5px] mt-3 max-w-[560px] mx-auto text-center leading-relaxed">
+            {t("home.developersSub")}
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center mt-5">
+            <Link href="/tools">
+              <Button variant="ghost" className="!text-[13.5px]">
+                {t("home.developersTools")}
+              </Button>
+            </Link>
+            <Link href="/network-proof">
+              <Button variant="ghost" className="!text-[13.5px]">
+                {t("home.developersProof")}
+              </Button>
+            </Link>
+            <Link href="/integrations">
+              <Button variant="ghost" className="!text-[13.5px]">
+                {t("home.developersIntegrations")}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal>
         <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
             {t("home.closingTitle")}
