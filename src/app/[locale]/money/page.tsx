@@ -3,6 +3,7 @@ import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { MoneyHub } from "@/components/MoneyHub";
 import { MoneyInstallInline } from "@/components/MoneyInstallInline";
+import { MoneyPageContextPanel } from "@/components/MoneyPageContextPanel";
 import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
@@ -39,6 +40,8 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       title={tIapp_locale_money_page("t_2144de53")}
       sub={tIapp_locale_money_page("t_ef77bbd3")}
     >
+      <MoneyPageContextPanel locale={locale as Locale} />
+
       <div className="mt-4 mb-8">
         <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
         <PriorityActionsRanked limit={3} />

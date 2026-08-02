@@ -5,6 +5,7 @@ import { SpotlightCard } from "@/components/SpotlightCard";
 import { Button } from "@/components/ui";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { alternateLanguages } from "@/lib/seo";
+import { rankLeakEntries, topLeakHrefs } from "@/lib/leaksRank";
 
 export async function generateMetadata({
   params,
@@ -253,6 +254,8 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   const he = locale === "he" || locale === "ar";
   const tIapp_locale_leaks_page = await getTranslations({ locale, namespace: "inline_app_locale_leaks_page" });
+  const ranked = await rankLeakEntries(LEAKS);
+  const spotlight = topLeakHrefs(ranked, 4);
 
   return (
     <VerticalPageShell
@@ -274,14 +277,14 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
       </div>
 
       <div className="grid gap-4 mt-10 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-        {LEAKS.map((l) => (
+        {ranked.map((l) => (
           <Link key={l.href + l.he} href={l.href} className="no-underline text-ink">
             <SpotlightCard
               className={`p-5 h-full hover:border-[rgba(63,203,155,0.45)] transition-colors ${
-                l.rank === 1 ? "border-[rgba(63,203,155,0.28)]" : ""
+                spotlight.has(l.href) ? "border-[rgba(63,203,155,0.28)]" : ""
               }`}
             >
-              {l.rank === 1 && (
+              {spotlight.has(l.href) && (
                 <div className="text-[11px] font-extrabold text-emerald uppercase tracking-wide mb-1.5">
                   {tIapp_locale_leaks_page("t_f87fbdb7")}
                 </div>
