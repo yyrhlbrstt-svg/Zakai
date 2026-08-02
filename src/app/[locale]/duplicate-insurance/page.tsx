@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { LeadCta } from "@/components/LeadCta";
-import { Reveal } from "@/components/Reveal";
-import { InsuranceChecker } from "@/components/InsuranceChecker";
+import { DuplicateInsuranceClient } from "@/components/DuplicateInsuranceClient";
+import { bcp47, type Locale } from "@/i18n/config";
 
 export async function generateMetadata({
   params,
@@ -23,14 +23,11 @@ export default async function DuplicateInsurancePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("insurance");
+  const loc = bcp47[locale as Locale];
 
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
-      <Reveal delay={80}>
-        <div className="mt-2">
-          <InsuranceChecker />
-        </div>
-      </Reveal>
+      <DuplicateInsuranceClient bcp47={loc} />
       <LeadCta vertical="duplicate-insurance" />
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">

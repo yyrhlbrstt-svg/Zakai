@@ -184,6 +184,14 @@ export const FAQ: FaqEntry[] = [
     a_en: "By law the landlord must return the deposit within 60 days of vacating. Once that's passed, the agent sends a written demand with a Mandate. At /deposit.",
   },
   {
+    id: "duplicate-insurance",
+    category: "bills",
+    q_he: "אני משלם פעמיים על אותו ביטוח שיפוי?",
+    a_he: "בביטוחי שיפוי אפשר לתבוע רק פעם אחת על העלות בפועל. אם יש כפל מול שב\"ן, הסוכן שולח בקשת ביטול בכתב עם Mandate. ב-/duplicate-insurance.",
+    q_en: "Am I paying twice for the same indemnity health cover?",
+    a_en: "Indemnity cover only pays actual cost once. If you overlap with work/kupah cover, the agent sends a written cancellation request with a Mandate. At /duplicate-insurance.",
+  },
+  {
     id: "data",
     category: "privacy",
     q_he: "מה קורה עם המידע שלי? זה בטוח?",

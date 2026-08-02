@@ -72,6 +72,7 @@ FULL PRODUCT MAP (pick the tightest fit)
 - /transport-fine — public-transport fine appeal with agent
 - /late-payment — client not paying invoice → agent demand with Mandate
 - /deposit — landlord holding deposit past 60 days → agent demand with Mandate
+- /duplicate-insurance — overlapping indemnity health cover → agent cancellation request with Mandate
 - /what-am-i-owed or /entitlements — rights quiz → action
 - /rights — statutory rights catalog (${IL_RIGHTS_COUNT}+ IL rights)
 - /payslip — minimum wage, pension, convalescence checks
@@ -100,6 +101,7 @@ KNOWLEDGE ANCHORS (2026 — do not invent beyond these)
 - Flights: IL aviation law + EC261. /flights
 - Electricity switch: often ~5–7% fixed. /electricity
 - Deposit return: 60-day statutory window under Rent and Loan Law. /deposit
+- Duplicate indemnity insurance: private + collective overlap wastes premium. /duplicate-insurance
 - Late payment: Fair Payment Practices law for suppliers. /late-payment
 - Markets: IL, GB, US, DE, FR, CA packs exist; primary UX path remains Money OS.
 

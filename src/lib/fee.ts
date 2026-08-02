@@ -11,6 +11,8 @@
  *    nearest agora.
  */
 
+import type { FeeBasis } from "@/lib/verticals/types";
+
 export const FEE_RATE_BPS = 1800; // 18.00%
 export const BPS_DENOMINATOR = 10000;
 
@@ -68,6 +70,34 @@ export interface RecoveryFeeResult {
  * payout, etc.) — same rate basis as monthly savings, separate entry point so
  * callers never fake a "monthly" saving from a lump sum.
  */
+/**
+ * Single entry for case settlement: monthly negotiations vs lump recoveries
+ * share one SavingsProof row; lump stores documented recovery in `savingMonthly`.
+ */
+export function computeCaseSuccessFee(
+  originalAgorot: number,
+  newAgorot: number,
+  basis: FeeBasis,
+  rateBps: number = FEE_RATE_BPS,
+): FeeResult {
+  if (basis === "lump") {
+    const recovered = monthlySaving(originalAgorot, newAgorot);
+    const recovery = computeRecoveryFee(recovered, rateBps);
+    return {
+      savingMonthly: recovery.recoveredAgorot,
+      rateBps: recovery.rateBps,
+      amount: recovery.amount,
+      chargeable: recovery.chargeable,
+    };
+  }
+  return computeFee(originalAgorot, newAgorot, rateBps);
+}
+
+/** De-identified outcome graph: yearly equivalent for recurring savings only. */
+export function documentedRecoveryMinor(savingDocumentedAgorot: number, basis: FeeBasis): number {
+  return basis === "lump" ? savingDocumentedAgorot : savingDocumentedAgorot * 12;
+}
+
 export function computeRecoveryFee(
   recoveredAgorot: number,
   rateBps: number = FEE_RATE_BPS,

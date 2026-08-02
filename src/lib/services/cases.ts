@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { shekelsToAgorot, formatAgorot } from "@/lib/money";
-import { computeFee } from "@/lib/fee";
+import { computeCaseSuccessFee, documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
@@ -262,8 +262,10 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     });
 
     const planRateBps = planConfig(owner?.plan).feeRateBps;
-    const rateBps = effectiveFeeRateBps(getRulePack(kase.vertical), planRateBps);
-    const fee = computeFee(kase.amountOriginal, newAmount, rateBps);
+    const pack = getRulePack(kase.vertical);
+    const rateBps = effectiveFeeRateBps(pack, planRateBps);
+    const feeBasis = pack?.feeBasis ?? "monthly";
+    const fee = computeCaseSuccessFee(kase.amountOriginal, newAmount, feeBasis, rateBps);
     const saved = fee.savingMonthly > 0;
 
     const credit = applyCredit(fee.amount, owner?.referralCreditAgorot ?? 0);
@@ -322,6 +324,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   });
 
   const fee = result.fee;
+  const outcomeBasis = getRulePack(kase.vertical)?.feeBasis ?? "monthly";
 
   await recordOutcome({
     context: {
@@ -331,7 +334,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     },
     variantId: kase.strategyVariant,
     paid: fee.savingMonthly > 0,
-    recoveredMinor: fee.savingMonthly * 12,
+    recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
     days: daysBetween(kase.approvedAt ?? kase.createdAt, new Date()),
   });
 

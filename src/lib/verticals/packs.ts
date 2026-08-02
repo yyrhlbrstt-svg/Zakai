@@ -12,6 +12,7 @@ export const telecomIL: VerticalRulePack = {
     method: "before_after_bill",
     proofDescription: "חשבונית חדשה שמראה סכום חודשי נמוך יותר",
   },
+  feeBasis: "monthly",
   regulated: false,
   counterparties: PROVIDER_KEYS,
 };
@@ -28,6 +29,7 @@ export const bankFeesIL: VerticalRulePack = {
     method: "statement_line_gone",
     proofDescription: "העמלה נעלמת מדף החשבון של החודש הבא",
   },
+  feeBasis: "monthly",
   regulated: false,
   counterparties: ["hapoalim", "leumi", "discount", "mizrahi", "fibi", "onezero", "other"],
 };
@@ -44,6 +46,7 @@ export const subscriptionIL: VerticalRulePack = {
     method: "statement_line_gone",
     proofDescription: "אישור ביטול או חשבונית עם מחיר נמוך יותר / אפס",
   },
+  feeBasis: "monthly",
   regulated: false,
   counterparties: ["netflix", "spotify", "other"],
 };
@@ -59,6 +62,7 @@ export const airlineIL: VerticalRulePack = {
     method: "transfer_confirmation",
     proofDescription: "אישור העברה / זיכוי מהחברה המציג את סכום הפיצוי",
   },
+  feeBasis: "lump",
   regulated: false,
   counterparties: ["elal", "israir", "arkia", "ryanair", "easyjet", "lufthansa", "other"],
 };
@@ -74,6 +78,7 @@ export const refundChaseIL: VerticalRulePack = {
     method: "transfer_confirmation",
     proofDescription: "העברה בנקאית / זיכוי כרטיס שמאשר את ההחזר",
   },
+  feeBasis: "lump",
   regulated: false,
   counterparties: ["other"],
 };
@@ -89,6 +94,7 @@ export const parkingIL: VerticalRulePack = {
     method: "decision_letter",
     proofDescription: "הודעת ביטול דוח מהעירייה / רשות החניה",
   },
+  feeBasis: "lump",
   regulated: false,
   counterparties: ["municipality", "other"],
 };
@@ -104,6 +110,7 @@ export const transportFineIL: VerticalRulePack = {
     method: "decision_letter",
     proofDescription: "הודעת ביטול קנס ממפעיל התחבורה",
   },
+  feeBasis: "lump",
   regulated: false,
   counterparties: ["egged", "dan", "metropoline", "other"],
 };
@@ -120,6 +127,7 @@ export const electricityIL: VerticalRulePack = {
     method: "before_after_bill",
     proofDescription: "חשבונית חדשה מהספק החדש / הודעת ניוד שמראה תעריף נמוך יותר",
   },
+  feeBasis: "monthly",
   regulated: false,
   counterparties: ["electra", "cellcomEnergy", "bezeqEnergy", "partnerPower", "other"],
 };
@@ -142,6 +150,7 @@ export const latePaymentIL: VerticalRulePack = {
     method: "transfer_confirmation",
     proofDescription: "אישור העברה מהלקוח על תשלום החשבונית",
   },
+  feeBasis: "lump",
   regulated: false,
   counterparties: ["other"],
 };
@@ -163,6 +172,24 @@ export const depositIL: VerticalRulePack = {
     method: "transfer_confirmation",
     proofDescription: "אישור העברה מהמשכיר על השבת הפיקדון",
   },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
+/** Overlapping private indemnity health cover — cancel redundant premium lines. */
+export const duplicateInsuranceIL: VerticalRulePack = {
+  key: "duplicate-insurance",
+  country: "IL",
+  label: "כפל ביטוחי — ביטול כיסוי מיותר",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "statement_line_gone",
+    proofDescription: "אישור ביטול פוליסה / חשבונית עם פרמיה חודשית נמוכה יותר",
+  },
+  feeBasis: "monthly",
   regulated: false,
   counterparties: ["other"],
 };
@@ -178,4 +205,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   electricityIL,
   latePaymentIL,
   depositIL,
+  duplicateInsuranceIL,
 ];

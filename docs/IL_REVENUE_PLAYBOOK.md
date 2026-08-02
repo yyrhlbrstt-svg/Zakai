@@ -33,7 +33,7 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 
 ## Next verticals to build (backlog)
 
-1. **Private health duplicate billing** — `/duplicate-insurance`; push agent loop.
+1. **Private health duplicate billing** — `/duplicate-insurance` — full agent loop (Mandate + send).
 2. **Loan commission clawback** — illegal bank fees variant.
 3. **Arnona** — `/arnona` agent follow-up tier.
 

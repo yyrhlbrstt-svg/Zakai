@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeFee, computeRecoveryFee, monthlySaving, FEE_RATE_BPS } from "./fee";
+import { computeFee, computeRecoveryFee, computeCaseSuccessFee, documentedRecoveryMinor, monthlySaving, FEE_RATE_BPS } from "./fee";
 import { shekelsToAgorot } from "./money";
 
 describe("monthlySaving", () => {
@@ -84,5 +84,27 @@ describe("computeRecoveryFee — lump-sum documented recovery", () => {
 
   it("is not chargeable on zero recovery", () => {
     expect(computeRecoveryFee(0).chargeable).toBe(false);
+  });
+});
+
+describe("computeCaseSuccessFee", () => {
+  it("lump basis uses recovery fee on full amount when new is zero", () => {
+    const deposit = shekelsToAgorot(5000);
+    const fee = computeCaseSuccessFee(deposit, 0, "lump");
+    expect(fee.savingMonthly).toBe(deposit);
+    expect(fee.amount).toBe(computeRecoveryFee(deposit).amount);
+  });
+
+  it("monthly basis matches computeFee", () => {
+    const a = shekelsToAgorot(100);
+    const b = shekelsToAgorot(70);
+    expect(computeCaseSuccessFee(a, b, "monthly")).toEqual(computeFee(a, b));
+  });
+});
+
+describe("documentedRecoveryMinor", () => {
+  it("annualizes monthly savings only", () => {
+    expect(documentedRecoveryMinor(1000, "monthly")).toBe(12000);
+    expect(documentedRecoveryMinor(1000, "lump")).toBe(1000);
   });
 });

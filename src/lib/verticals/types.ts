@@ -52,6 +52,13 @@ export type VerificationMethod =
  */
 export type ServiceLevel = "full" | "assisted" | "calculator";
 
+/**
+ * How documented savings map to the success fee and outcome graph.
+ * - `monthly`: before/after recurring amounts; yearly outcome = monthly × 12.
+ * - `lump`: one-time recovery (deposit, refund, fine cancelled).
+ */
+export type FeeBasis = "monthly" | "lump";
+
 export interface VerificationSpec {
   method: VerificationMethod;
   /** Plain description of what proves the money came back (shown to the user). */
@@ -77,6 +84,8 @@ export interface VerticalRulePack {
   channel: ServiceChannel;
   /** Stage 6 — how a real saving is proven before any charge. */
   verification: VerificationSpec;
+  /** Fee + StrategyOutcome semantics for this vertical. */
+  feeBasis: FeeBasis;
   /**
    * The legal gate: true if going full-service here is close to regulated
    * representation/advice (e.g. arnona appeals) and needs a lawyer's sign-off

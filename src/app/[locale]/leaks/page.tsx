@@ -122,8 +122,8 @@ const LEAKS = [
     href: "/duplicate-insurance",
     he: "ביטוח כפול",
     en: "Duplicate insurance",
-    subHe: "כיסוי מיותר → ביטול",
-    subEn: "Wasted cover → cancel",
+    subHe: "הסוכן שולח ביטול בכתב + Mandate",
+    subEn: "Agent cancellation + Mandate",
     rank: 2,
   },
   {

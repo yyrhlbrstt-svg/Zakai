@@ -37,6 +37,15 @@ describe("rule pack registry", () => {
     expect(isFullService("electricity")).toBe(true);
     expect(isFullService("late-payment")).toBe(true);
     expect(isFullService("deposit")).toBe(true);
+    expect(isFullService("duplicate-insurance")).toBe(true);
+  });
+});
+
+describe("feeBasis on rule packs", () => {
+  it("lump verticals use transfer or decision proof paths", () => {
+    expect(getRulePack("deposit")?.feeBasis).toBe("lump");
+    expect(getRulePack("telecom")?.feeBasis).toBe("monthly");
+    expect(getRulePack("duplicate-insurance")?.feeBasis).toBe("monthly");
   });
 });
 

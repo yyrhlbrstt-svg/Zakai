@@ -49,7 +49,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/holocaust-survivors", key: "holocaustSurvivors", category: "rights" },
   { href: "/car-value", key: "carvalue", category: "selfHelp" },
   { href: "/mortgage-insurance", key: "mortins", category: "selfHelp" },
-  { href: "/duplicate-insurance", key: "dupinsurance", category: "selfHelp" },
+  { href: "/duplicate-insurance", key: "dupinsurance", category: "agent", agentic: true },
   { href: "/pension-fees", key: "pension", category: "selfHelp" },
   { href: "/mortgage", key: "mortgage", category: "selfHelp" },
   { href: "/deposit", key: "deposit", category: "agent", agentic: true },

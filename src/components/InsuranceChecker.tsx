@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
-import { POLICY_TYPES, computeDuplication } from "@/lib/insurance";
+import { POLICY_TYPES, computeDuplication, type DuplicationResult } from "@/lib/insurance";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -14,7 +14,11 @@ import { bcp47, type Locale } from "@/i18n/config";
  * likely-wasteful indemnity overlaps and estimates the recoverable premium.
  * All logic is client-side + deterministic — nothing is uploaded.
  */
-export function InsuranceChecker() {
+export function InsuranceChecker({
+  onDuplication,
+}: {
+  onDuplication?: (result: DuplicationResult) => void;
+}) {
   const t = useTranslations("insurance");
   const locale = useLocale() as Locale;
   const loc = bcp47[locale];
@@ -76,7 +80,13 @@ export function InsuranceChecker() {
             </div>
           ))}
         </div>
-        <Button onClick={() => setSubmitted(true)} className="w-full mt-5">
+        <Button
+          onClick={() => {
+            setSubmitted(true);
+            onDuplication?.(result);
+          }}
+          className="w-full mt-5"
+        >
           {t("checkBtn")}
         </Button>
       </div>
@@ -99,8 +109,11 @@ export function InsuranceChecker() {
                 </p>
               )}
               <div className="flex flex-wrap gap-3 justify-center mt-6">
-                <Link href="/check">
+                <a href="#dup-insurance-agent">
                   <Button>{t("cta")}</Button>
+                </a>
+                <Link href="/check">
+                  <Button variant="ghost">{t("ctaTelecom")}</Button>
                 </Link>
               </div>
             </div>

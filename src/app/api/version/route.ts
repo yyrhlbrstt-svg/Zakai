@@ -51,6 +51,9 @@ export async function GET() {
       "parking",
       "transport-fine",
       "electricity",
+      "late-payment",
+      "deposit",
+      "duplicate-insurance",
     ],
     see: {
       app: process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app",
