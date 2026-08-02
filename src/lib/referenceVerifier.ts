@@ -12,6 +12,7 @@ export const VERIFIER_READINESS_AUDIENCE = "zakai-verifier-readiness-self-test";
 
 export const VERIFIER_READINESS_ENDPOINTS = [
   { id: "jwks", path: "/.well-known/zakai-jwks.json" },
+  { id: "protocol", path: "/.well-known/zakai-protocol.json" },
   { id: "discovery", path: "/.well-known/zakai-mandate.json" },
   { id: "registry", path: "/.well-known/zakai-trust-registry.json" },
   { id: "scopes", path: "/api/mandate/scopes" },

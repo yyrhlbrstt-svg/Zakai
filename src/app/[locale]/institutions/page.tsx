@@ -462,6 +462,10 @@ Content-Type: application/json
       <Section heading="Integration in six steps">
         <ol className="list-decimal pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
           <li>
+            Protocol manifest (start here):{" "}
+            <code className="text-[13px]">GET {ORIGIN}/.well-known/zakai-protocol.json</code>
+          </li>
+          <li>
             Discover endpoints:{" "}
             <code className="text-[13px]">GET {ORIGIN}/.well-known/zakai-mandate.json</code>
           </li>
@@ -482,6 +486,8 @@ Content-Type: application/json
 
       <Section heading="Endpoints">
         <ul className="flex flex-col gap-2 text-[14px] font-mono break-all">
+          <li>{ORIGIN}/.well-known/zakai-protocol.json</li>
+          <li>{ORIGIN}/api/network</li>
           <li>{ORIGIN}/.well-known/zakai-mandate.json</li>
           <li>{ORIGIN}/.well-known/zakai-jwks.json</li>
           <li>{ORIGIN}/api/mandate/status/&#123;jti&#125;</li>

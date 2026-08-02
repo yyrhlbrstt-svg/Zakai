@@ -59,6 +59,8 @@ export async function GET() {
     see: {
       app: process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app",
       version: "/api/version",
+      protocol: "/.well-known/zakai-protocol.json",
+      network: "/api/network",
       mandate: "/.well-known/zakai-mandate.json",
       jwks: "/.well-known/zakai-jwks.json",
       openapi: "/api/mandate/openapi.json",
