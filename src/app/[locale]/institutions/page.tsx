@@ -7,6 +7,8 @@ import { Card } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator";
+import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
+import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
 import { alternateLanguages } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -32,6 +34,14 @@ export default async function InstitutionsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: "institutions" });
+  const he = locale === "he" || locale === "ar";
+  const fitRows = INSTITUTION_FIT_HYPOTHESES.map((row) => ({
+    id: row.id,
+    name: he ? row.nameHe : row.nameEn,
+    why: he ? row.whyHe : row.whyEn,
+    tier: row.tier,
+  }));
 
   return (
     <VerticalPageShell
@@ -76,6 +86,18 @@ export default async function InstitutionsPage({
           the safer one.
         </p>
       </Section>
+
+      <InstitutionBankFitPanel
+        title={t("fitTitle")}
+        disclaimer={t("fitDisclaimer")}
+        band={t("fitAdoptionBand")}
+        tierLabels={{
+          high: t("fitTierHigh"),
+          medium: t("fitTierMedium"),
+          exploratory: t("fitTierExploratory"),
+        }}
+        rows={fitRows}
+      />
 
       <Section heading="Quick integration">
         <p className="text-[14.5px] leading-relaxed">

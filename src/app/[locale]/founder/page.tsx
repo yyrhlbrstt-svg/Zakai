@@ -197,6 +197,7 @@ export default async function FounderPage({
             <p className="text-[11.5px] text-ink-soft mt-3 mb-0">
               יצירת סודות: <code>node scripts/bootstrap-release-env.mjs</code> · מפתח Mandate:{" "}
               <code>node scripts/generate-mandate-key.mjs</code>
+              · דירוג מוצר/תשתית: <code>docs/PRODUCT_RATING.md</code>
             </p>
           </>
         )}
