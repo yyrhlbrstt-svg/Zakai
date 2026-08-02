@@ -175,6 +175,12 @@ export default async function BusinessPage({
             >
               {tIapp_locale_business_page("t_c745fdea")}
             </Link>
+            <Link
+              href="/integrations"
+              className="inline-block text-ink-soft font-bold text-[14px] no-underline border border-[rgba(255,255,255,0.12)] rounded-xl px-5 py-2.5"
+            >
+              Integration quickstart
+            </Link>
             <a
               href={`${ORIGIN}/api/mandate/openapi.json`}
               target="_blank"
