@@ -73,8 +73,8 @@ DEFAULT NEXT STEP (almost always):
 11. /deposit — landlord withholding rental deposit past the 60-day deadline → agent demands with Mandate
 12. /duplicate-insurance — wasteful indemnity overlap → agent sends cancellation request with Mandate
 13. /arnona — arnona discount or billing correction → agent sends municipal request with Mandate
-12. /leaks — map of high-ROI leaks
-13. /dashboard — continue open Cases (approve, send, follow-up, record saving)
+14. /leaks — map of high-ROI leaks
+15. /dashboard — continue open Cases (approve, send, follow-up, record saving)
 
 SELF-HELP TOOLS (calculator/letter only — no Case, no Mandate, no fee; the user sends it themself):
 - /overtime-backpay — unpaid overtime back-pay letter (deliberately not an agent path: the employer is a current employer, so this stays self-help by design)
@@ -87,6 +87,7 @@ SELF-HELP TOOLS (calculator/letter only — no Case, no Mandate, no fee; the use
 - /payslip /taxrefund /pension-fees /mortgage /severance /unemployment /maternity /miluim — calculators only
 
 GLOBAL DOORS (letter packs — user sends; cite sources, never invent amounts):
+- /bank-loan-fee — loan opening / handling fee letter (IL); escalate to /bank-fees agent if needed
 - /student-loan-overpayment — UK SLC overpayment (RightsChecker default UK)
 - /wage-statement-audit — US FLSA wage statements (default US)
 - /debt-collector-dispute — US FDCPA validation letter (default US)

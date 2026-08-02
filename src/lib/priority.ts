@@ -262,6 +262,17 @@ export const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    id: "bank-loan-fee",
+    href: "/bank-loan-fee",
+    titleHe: "עמלת פתיחת הלוואה",
+    titleEn: "Loan opening fee clawback",
+    whyHe: "מכתב לבנק; אפשר להמשיך עם סוכן ב-/bank-fees",
+    whyEn: "Bank letter; can escalate via /bank-fees agent",
+    potentialShekels: 120,
+    cadence: "oneTime",
+    effort: "medium",
+  },
+  {
     id: "electricity",
     href: "/electricity",
     titleHe: "חשמל — מעבר ספק עם סוכן",

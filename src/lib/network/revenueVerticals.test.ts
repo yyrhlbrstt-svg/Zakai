@@ -7,6 +7,14 @@ describe("revenueVerticals", () => {
     expect(il.some((v) => v.id === "il_telecom_agent" && v.route === "/money")).toBe(true);
   });
 
+  it("includes IL bank loan opening fee letter pack", () => {
+    const il = revenueVerticalsForMarket("IL");
+    const loan = il.find((v) => v.id === "il_bank_loan_opening_fee");
+    expect(loan?.route).toBe("/bank-loan-fee");
+    expect(loan?.packRightId).toBe("bank_loan_opening_commission_il");
+    expect(loan?.status).toBe("letter_pack");
+  });
+
   it("includes GB student loan vertical with pack right", () => {
     const gb = revenueVerticalsForMarket("GB");
     const sl = gb.find((v) => v.id === "gb_student_loan_overpayment");

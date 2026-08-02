@@ -79,6 +79,14 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/bank-loan-fee",
+    he: "עמלת פתיחת הלוואה",
+    en: "Loan opening / handling fee",
+    subHe: "מכתב לבנק + אפשרות לסוכן ב-/bank-fees",
+    subEn: "Bank letter + optional /bank-fees agent",
+    rank: 2,
+  },
+  {
     href: "/collection-complaint",
     he: "גובה חוב מטריד",
     en: "Debt collector harassment",

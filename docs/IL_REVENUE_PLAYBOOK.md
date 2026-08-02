@@ -30,12 +30,22 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 | `/duplicate-charge` | Duplicate/wrong charge | עשיית עושר ולא במשפט |
 | `/telecom-exit` | Disconnect + refunds | חוק התקשורת |
 | `/warranty` | Product warranty letter | חוק הגנת הצרכן |
+| `/bank-loan-fee` | Loan opening / handling fee | כללי הבנקאות (עמלות) |
+
+## Full agent doors (shipped on golden branch)
+
+| Door | Fee basis |
+|------|-----------|
+| `/duplicate-insurance` | monthly (premium drop) |
+| `/arnona` | monthly (bill correction) |
+
+Escalation: `/bank-loan-fee` letter pack → `/bank-fees` agent when the bank stalls.
 
 ## Next verticals to build (backlog)
 
-1. **Private health duplicate billing** — `/duplicate-insurance` — full agent loop (Mandate + send).
-2. **Loan commission clawback** — `/bank-loan-fee` letter pack; agent path `/bank-fees`.
-3. **Arnona** — `/arnona` full agent loop (Mandate + send + monthly fee on documented bill drop).
+1. **Municipal water + HOA** — wire `/water-bill` and `/vaad-bait` into priority + assistant anchors (letters exist).
+2. **Stronger lump inbound extract** — pass vertical hint into `extractSavingsFromEmail` so refunds map to remaining owed without manual edit.
+3. **Dedicated loan-fee agent** — optional Case vertical if `/bank-fees` conflates too many bank disputes.
 
 Machine map: `GET /api/network/opportunity-map?market=IL`
 
