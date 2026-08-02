@@ -23,6 +23,11 @@ describe("free-text intent routing", () => {
     expect(match?.id).toBe("deposit");
   });
 
+  it("routes product warranty complaints to /warranty", () => {
+    const match = matchIntent("המכשיר התקלקל בתוך האחריות והיבואן לא מתקן");
+    expect(match?.id).toBe("warranty");
+  });
+
   it("works in English too", () => {
     const match = matchIntent("my flight was cancelled and nobody compensated me", "en");
     expect(match?.id).toBe("flights");
@@ -47,7 +52,7 @@ describe("free-text intent routing", () => {
     const matches = [
       "money", "cancel", "check", "bank-fees", "electricity", "refund-chase",
       "credit-card", "duplicate-insurance", "pension-fees", "payslip", "severance",
-      "maternity", "unemployment", "miluim", "taxrefund", "flights", "parking",
+      "maternity", "unemployment", "miluim", "taxrefund", "flights", "parking", "warranty",
       "transport-fine", "late-payment", "overtime-backpay", "deposit",
       "contract-check", "scam-check", "complaint-escalation", "deadlines",
       "advance-tax", "school-payments", "dormant", "vehicleCheck", "incident",
