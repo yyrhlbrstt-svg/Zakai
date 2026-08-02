@@ -20,7 +20,9 @@ const homepageSource = readFileSync("src/app/[locale]/page.tsx", "utf8");
 function doorKeysOnHomepage(): string[] {
   const hrefs = [...homepageSource.matchAll(/href:\s*"\/([a-z-]+)"/g)].map((m) => m[1]);
   // Mirrors page.tsx's own doorKey() normalisation.
-  return hrefs.map((h) => (h === "what-am-i-owed" ? "owed" : h));
+  return hrefs.map((h) =>
+    h === "what-am-i-owed" || h === "entitlements" ? "owed" : h,
+  );
 }
 
 describe("home_door_order covers every door actually on the homepage", () => {

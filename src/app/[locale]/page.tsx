@@ -160,7 +160,13 @@ export default async function HomePage({
     },
   ];
 
-  const doorKey = (href: string) => href.replace("/", "").replace("what-am-i-owed", "owed");
+  const doorKey = (href: string) => {
+    const slug = href.replace("/", "");
+    // Same problem door — quiz funnel replaced the static hub; experiment arms
+    // still key it as "owed".
+    if (slug === "what-am-i-owed" || slug === "entitlements") return "owed";
+    return slug;
+  };
   // A door the experiment does not mention sorts last, not first.
   // `indexOf` returns -1 for an unlisted key, so the previous version promoted
   // every newly added door above the one the engine had actually chosen —
