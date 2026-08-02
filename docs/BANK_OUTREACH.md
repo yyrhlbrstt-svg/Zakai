@@ -1,6 +1,7 @@
-# Bank / fintech outreach — copy-paste kit
+# Bank / fintech — inbound reply kit (not cold outreach)
 
-Use after a warm intro or inbound from a risk/compliance contact.
+Use **only when they wrote first** (inbound from `/institutions`, email, or a partner intro).
+Zakai does not cold-call banks. See `docs/INBOUND_INSTITUTIONS.md`.
 All links point at production or your custom domain.
 
 ## Subject (English)

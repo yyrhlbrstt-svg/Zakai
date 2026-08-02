@@ -149,7 +149,8 @@ export default async function FounderPage({
           </a>
         </p>
         <p className="m-0 text-ink-soft">
-          תבנית outreach לבנק: <code>docs/BANK_OUTREACH.md</code> בריפו.
+          תבנית תשובה כש**פונים אלינו** (לא שיחות יזומות): <code>docs/BANK_OUTREACH.md</code> ·{" "}
+          <code>docs/INBOUND_INSTITUTIONS.md</code>
         </p>
       </div>
 

@@ -7,6 +7,8 @@ Read it before every non-trivial change.
 
 Zakai recovers money people are already losing or owed, and finishes the path **in-app** without a human callback team.
 
+**Institutions:** inbound only — public Mandate/registry/MCP/`llms.txt` so banks and fintechs **find and call us**; no outbound sales desk. See `docs/INBOUND_INSTITUTIONS.md`.
+
 Long-term assets (in priority order):
 
 1. **Mandate infrastructure** — scoped, signed, JWKS-verifiable authority (inbound-only).
