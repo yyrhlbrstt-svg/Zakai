@@ -264,7 +264,7 @@
       },
       "rights": {
         "title": "Rights maximization",
-        "sub": "72 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
+        "sub": "75 rights in one place: tax, national insurance, arnona, banking and more — personalized in 30 seconds."
       },
       "miluim": {
         "title": "Reserve-duty pay",
@@ -394,7 +394,7 @@
         "points": [
           "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
           "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
-          "Free no-signup toolset: 72 rights, electricity, flights, subscriptions",
+          "Free no-signup toolset: 75 rights, electricity, flights, subscriptions",
           "Privacy by default: no trackers, in-browser scans, one-click deletion"
         ]
       }
@@ -969,7 +969,7 @@
   },
   "rights": {
     "title": "The Big Rights Check",
-    "subtitle": "72 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
+    "subtitle": "75 rights and benefits in one place — tax, national insurance, arnona, banking, army, family and housing. Answer 8 quick questions and get your list. No signup; computed in your browser.",
     "q": {
       "age": "Age",
       "ages": {
@@ -1150,6 +1150,21 @@
         "title": "Concealed water-leak credit",
         "desc": "An unusually high water bill from a leak you couldn't have known about — a discount on the excess usage, not the whole bill. Requires a plumber's confirmation.",
         "how": "Zakai prepares the request to the water corporation, including where to attach the repair confirmation."
+      },
+      "vaad_bait_accounting_il": {
+        "title": "HOA / building committee transparency",
+        "desc": "Request committee reports and explained charges — not legal advice.",
+        "how": "Zakai drafts the letter to the committee or management company."
+      },
+      "rental_essential_repairs_il": {
+        "title": "Essential repair in a rental",
+        "desc": "A material defect the landlord must fix — documented demand letter.",
+        "how": "Zakai prepares the repair demand to your landlord."
+      },
+      "consumer_warranty_il": {
+        "title": "Product warranty claim",
+        "desc": "Defect in warranty period — repair or replacement under consumer law.",
+        "how": "Zakai prepares the warranty letter to the seller or importer."
       },
       "bank_basic_track": {
         "title": "Bank basic fee track",
@@ -4204,6 +4219,9 @@
       "child_allowance": "Child allowance",
       "child_savings": "Savings for Every Child",
       "consumer_cancel14": "14-day remote-purchase cancellation",
+      "vaad_bait_accounting_il": "HOA charge transparency",
+      "rental_essential_repairs_il": "Rental essential repairs",
+      "consumer_warranty_il": "Product warranty claim",
       "consumer_telecom_exit": "Friction-free telecom disconnection",
       "credit_children": "Tax credit points for children",
       "credit_degree": "Credit point for graduates",
@@ -5173,6 +5191,49 @@
     "sub": "Cancel the policy and demand unused premium back.",
     "cite": "Insurers must return unused premium within statutory timeframes.",
     "dupCta": "Duplicate cover? Check overlaps"
+  },
+  "vaadBait": {
+    "metaTitle": "Building committee fees — transparency letter | Zakai",
+    "metaDesc": "Request committee reports and line-item charges — not legal advice.",
+    "kicker": "Housing · HOA",
+    "title": "HOA charge you cannot explain?",
+    "sub": "A letter demanding financial reports and expense detail before you keep paying.",
+    "cite": "No guaranteed refund — only documented transparency."
+  },
+  "waterBill": {
+    "metaTitle": "High water bill — concealed leak credit | Zakai",
+    "metaDesc": "Request a leak credit with plumber proof.",
+    "kicker": "Water",
+    "title": "Water bill spiked suddenly?",
+    "sub": "Letter to the water utility for a concealed-leak adjustment per their rules.",
+    "cite": "Repair proof required; no guaranteed amount."
+  },
+  "landlordRepairs": {
+    "metaTitle": "Rental repairs — demand letter to landlord | Zakai",
+    "metaDesc": "Request essential repairs in writing — not legal advice.",
+    "kicker": "Renting",
+    "title": "Landlord not fixing a serious defect?",
+    "sub": "A written demand to schedule repairs under tenancy law.",
+    "cite": "Zakai is not a law firm and does not represent you in court."
+  },
+  "duplicateCharge": {
+    "metaTitle": "Duplicate card or bank charge — Zakai",
+    "metaDesc": "Letter to correct a duplicate or wrong charge with your evidence.",
+    "kicker": "Consumer",
+    "title": "Charged twice for the same purchase?",
+    "sub": "Demand a credit based on your receipt or statement — you supply the proof.",
+    "cite": "No outcome guaranteed; merchants must review documented complaints.",
+    "agentCta": "Recurring charges? Scan my money"
+  },
+  "telecomExit": {
+    "metaTitle": "Disconnect mobile or internet — Zakai",
+    "metaDesc": "Disconnect notice under telecom law and refund after disconnect date.",
+    "kicker": "Telecom",
+    "title": "Leaving your provider? Do not pay after disconnect",
+    "sub": "Disconnect letter with written confirmation and charges after the effective date.",
+    "cite": "New plan or subscription cancel — separate product doors.",
+    "cancelCta": "Cancel subscription with agent",
+    "moneyCta": "Check my charges"
   },
   "trainDelay": {
     "metaTitle": "Train delay compensation — Zakai",

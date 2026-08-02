@@ -33,7 +33,12 @@ https://zakai-3uxj.vercel.app
   [Train delay (IL)](https://zakai-3uxj.vercel.app/en/train-delay) ·
   [14-day cancel (IL)](https://zakai-3uxj.vercel.app/he/consumer-cancel) ·
   [Debt collector (IL)](https://zakai-3uxj.vercel.app/he/collection-complaint) ·
-  [Car insurance refund (IL)](https://zakai-3uxj.vercel.app/he/car-insurance-refund)
+  [Car insurance refund (IL)](https://zakai-3uxj.vercel.app/he/car-insurance-refund) ·
+  [HOA fees (IL)](https://zakai-3uxj.vercel.app/he/vaad-bait) ·
+  [Water leak credit (IL)](https://zakai-3uxj.vercel.app/he/water-bill) ·
+  [Rental repairs (IL)](https://zakai-3uxj.vercel.app/he/landlord-repairs) ·
+  [Duplicate charge (IL)](https://zakai-3uxj.vercel.app/he/duplicate-charge) ·
+  [Telecom disconnect (IL)](https://zakai-3uxj.vercel.app/he/telecom-exit)
 - Handoff attribution: append `?utm_source=agent&utm_campaign=agent-<your-name>`
   to any link you give the user (for example `agent-claude`, `agent-chatgpt`).
   First touch wins and is honored at signup, so referred users are measurable.

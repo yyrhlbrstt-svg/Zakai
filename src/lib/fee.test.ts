@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeFee, monthlySaving, FEE_RATE_BPS } from "./fee";
+import { computeFee, computeRecoveryFee, monthlySaving, FEE_RATE_BPS } from "./fee";
 import { shekelsToAgorot } from "./money";
 
 describe("monthlySaving", () => {
@@ -73,5 +73,16 @@ describe("computeFee — the money-critical path", () => {
   it("rejects an invalid rate", () => {
     expect(() => computeFee(1000, 0, -1)).toThrow();
     expect(() => computeFee(1000, 0, 1.5)).toThrow();
+  });
+});
+
+describe("computeRecoveryFee — lump-sum documented recovery", () => {
+  it("charges 18% of recovered agorot", () => {
+    const fee = computeRecoveryFee(shekelsToAgorot(5000));
+    expect(fee.amount).toBe(90000);
+  });
+
+  it("is not chargeable on zero recovery", () => {
+    expect(computeRecoveryFee(0).chargeable).toBe(false);
   });
 });

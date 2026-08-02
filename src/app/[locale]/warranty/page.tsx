@@ -6,6 +6,8 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
+import { RightsChecker } from "@/components/RightsChecker";
+import { bcp47, type Locale } from "@/i18n/config";
 
 export async function generateMetadata({
   params,
@@ -97,6 +99,10 @@ export default async function WarrantyPage({
             </div>
         </GradientCtaCard>
       </Reveal>
+
+      <div className="mt-14">
+        <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
+      </div>
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}

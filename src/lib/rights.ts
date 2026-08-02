@@ -255,6 +255,13 @@ export const ENTITLEMENTS: Entitlement[] = [
   // ---- Housing ----
   { id: "rent_assistance", category: "housing", eligible: (p) => p.renting && p.lowIncome },
   { id: "mortgage_refinance", category: "housing", eligible: (p) => !p.renting },
+  { id: "vaad_bait_accounting_il", category: "housing", eligible: () => true },
+  {
+    id: "rental_essential_repairs_il",
+    category: "housing",
+    eligible: (p) => p.renting,
+  },
+  { id: "consumer_warranty_il", category: "consumer", eligible: () => true },
 ];
 
 /**

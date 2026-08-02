@@ -60,8 +60,8 @@ const ROUTES: Record<string, string> = {
   arnona_soldier: "/arnona",
   arnona_large_family: "/arnona",
   arnona_area_correction: "/arnona",
-  water_leak_credit: "/rights",
-  water_disability: "/rights",
+  water_leak_credit: "/water-bill",
+  water_disability: "/water-bill",
 
   // Banking / consumer money
   bank_basic_track: "/bank-fees",
@@ -78,13 +78,16 @@ const ROUTES: Record<string, string> = {
   subscription_audit: "/money",
   insurance_duplicates: "/duplicate-insurance",
   pension_fees: "/pension-fees",
-  duplicate_charge_dispute: "/refund-chase",
+  duplicate_charge_dispute: "/duplicate-charge",
   consumer_cancel14: "/consumer-cancel",
   collection_agency_complaint_il: "/collection-complaint",
   car_insurance_pro_rata_refund: "/car-insurance-refund",
   route6_dispute: "/toll-dispute",
   vehicle_license_fee_refund: "/vehicle-license-refund",
-  consumer_telecom_exit: "/cancel",
+  consumer_telecom_exit: "/telecom-exit",
+  vaad_bait_accounting_il: "/vaad-bait",
+  rental_essential_repairs_il: "/landlord-repairs",
+  consumer_warranty_il: "/warranty",
 
   // Work
   work_havraa: "/rights",

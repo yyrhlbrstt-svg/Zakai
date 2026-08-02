@@ -239,6 +239,24 @@ const rights: RightDef[] = [
   // ---- Housing -------------------------------------------------------------
   right("rent_assistance", "housing", all(renting, lowIncome), "נהלי הסיוע בשכר דירה, משרד הבינוי והשיכון"),
   right("mortgage_refinance", "housing", owner, "חוק הבנקאות (שירות ללקוח), התשמ״א-1981 — גילוי נאות ופירעון מוקדם"),
+  right(
+    "vaad_bait_accounting_il",
+    "housing",
+    always,
+    "חוק המקרקעין, התשכ״ט-1969 — תקנות ועדי בתים; חובת פירוט חיובים",
+  ),
+  right(
+    "rental_essential_repairs_il",
+    "housing",
+    renting,
+    "חוק השכירות והשאילה, התשל״ג-1973 — תחזוקה בסיסית של המשכיר",
+  ),
+  right(
+    "consumer_warranty_il",
+    "consumer",
+    always,
+    "חוק הגנת הצרכן, התשמ״א-1981 — אחריות לרבות מוצר הניתן לתיקון",
+  ),
 ];
 
 export const IL_PACK: JurisdictionPack = {

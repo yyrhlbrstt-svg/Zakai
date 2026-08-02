@@ -28,6 +28,11 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   vehicleLicenseRefund: { he: "החזר אגרת רישוי", en: "Licence refund" },
   collectionComplaint: { he: "תלונה על גובה חוב", en: "Collector complaint" },
   carInsuranceRefund: { he: "החזר ביטוח רכב", en: "Car insurance refund" },
+  vaadBait: { he: "ועד בית — פירוט", en: "HOA transparency" },
+  waterBill: { he: "חשבון מים — נזילה", en: "Water leak credit" },
+  landlordRepairs: { he: "תיקון בדירה שכורה", en: "Rental repairs" },
+  duplicateCharge: { he: "חיוב כפול", en: "Duplicate charge" },
+  telecomExit: { he: "ניתוק סלולר", en: "Telecom disconnect" },
   networkProof: { he: "הוכחת רשת (ציבורי)", en: "Network proof (public)" },
 };
 

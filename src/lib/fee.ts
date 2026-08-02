@@ -55,6 +55,36 @@ export function computeFee(
   };
 }
 
+export interface RecoveryFeeResult {
+  /** One-time recovered amount in agorot (always >= 0). */
+  recoveredAgorot: number;
+  rateBps: number;
+  amount: number;
+  chargeable: boolean;
+}
+
+/**
+ * Success fee on a documented one-time recovery (deposit returned, insurance
+ * payout, etc.) — same rate basis as monthly savings, separate entry point so
+ * callers never fake a "monthly" saving from a lump sum.
+ */
+export function computeRecoveryFee(
+  recoveredAgorot: number,
+  rateBps: number = FEE_RATE_BPS,
+): RecoveryFeeResult {
+  assertIntAgorot(recoveredAgorot, "recoveredAgorot");
+  if (!Number.isInteger(rateBps) || rateBps < 0) {
+    throw new Error(`rateBps must be a non-negative integer, got ${rateBps}`);
+  }
+  const amount = Math.round((recoveredAgorot * rateBps) / BPS_DENOMINATOR);
+  return {
+    recoveredAgorot,
+    rateBps,
+    amount,
+    chargeable: recoveredAgorot > 0 && amount > 0,
+  };
+}
+
 function assertIntAgorot(value: number, name: string): void {
   if (!Number.isInteger(value)) {
     throw new Error(`${name} must be an integer number of agorot, got ${value}`);

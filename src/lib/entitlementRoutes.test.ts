@@ -9,7 +9,7 @@ describe("actionRouteForEntitlement", () => {
   it("routes monetizable consumer verticals to agent loops", () => {
     expect(actionRouteForEntitlement("electricity_switch")).toBe("/electricity");
     expect(actionRouteForEntitlement("consumer_cancel14")).toBe("/consumer-cancel");
-    expect(actionRouteForEntitlement("duplicate_charge_dispute")).toBe("/refund-chase");
+    expect(actionRouteForEntitlement("duplicate_charge_dispute")).toBe("/duplicate-charge");
   });
 
   it("routes benefits to dedicated pages", () => {

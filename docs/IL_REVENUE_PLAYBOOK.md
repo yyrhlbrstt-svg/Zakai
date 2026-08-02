@@ -24,15 +24,18 @@ Zakai wins when every **pain Israelis already pay lawyers/advisors for** has a *
 | `/toll-dispute` | Highway 6 wrong charge | Cross-Israel Highway appeal |
 | `/vehicle-license-refund` | Deregistered car | תקנות תעבורה |
 | `/train-delay` | Israel Railways policy | Operator policy (honest) |
+| `/vaad-bait` | HOA charge transparency | חוק המקרקעין — ועדי בתים |
+| `/water-bill` | Concealed leak credit | כללי תאגידי מים |
+| `/landlord-repairs` | Rental essential repairs | חוק השכירות והשאילה |
+| `/duplicate-charge` | Duplicate/wrong charge | עשיית עושר ולא במשפט |
+| `/telecom-exit` | Disconnect + refunds | חוק התקשורת |
+| `/warranty` | Product warranty letter | חוק הגנת הצרכן |
 
 ## Next verticals to build (backlog)
 
-1. **Vaad bait** — excess building-committee charges (letter + evidence).
-2. **Water (Mekorot)** — social rate / leak credit (extend `water_*` rights).
-3. **Private health duplicate billing** — already `/duplicate-insurance`; push agent loop.
-4. **Loan commission clawback** — illegal bank fees variant.
-5. **Warranty / retailer refusal** — extend `/warranty` to agent send.
-6. **Arnona** — `/arnona` exists; add agent follow-up tier.
+1. **Private health duplicate billing** — `/duplicate-insurance`; push agent loop.
+2. **Loan commission clawback** — illegal bank fees variant.
+3. **Arnona** — `/arnona` agent follow-up tier.
 
 Machine map: `GET /api/network/opportunity-map?market=IL`
 
