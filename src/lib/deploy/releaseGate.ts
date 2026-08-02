@@ -155,6 +155,13 @@ export function evaluateConsumerReleaseGate(): {
       envKeys: ["SALES_EMAIL"],
     },
     {
+      id: "vapid",
+      level: "consumer",
+      ok: envSet("VAPID_PUBLIC_KEY", ["NEXT_PUBLIC_VAPID_PUBLIC_KEY"]) && envSet("VAPID_PRIVATE_KEY"),
+      cost: "Push notifications off — users miss inbound savings and SAVED moments.",
+      envKeys: ["VAPID_PUBLIC_KEY", "VAPID_PRIVATE_KEY", "NEXT_PUBLIC_VAPID_PUBLIC_KEY"],
+    },
+    {
       id: "oracle_api",
       level: "optional",
       ok: envSet("ORACLE_API_KEY", ["ZAKAI_ORACLE_API_KEY"]),

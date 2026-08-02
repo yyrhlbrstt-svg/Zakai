@@ -149,7 +149,7 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
   await pushToUser(kase.user.id, {
     title: "זכאי — הסוכן פעל",
     body: `סיבוב ${round}: נשלחה תזכורת ל-${provider}. פתחו את הדשבורד אם ענו.`,
-    url: "/he/dashboard",
+    url: "/dashboard",
     tag: `followup-${caseId}-r${round}`,
   }).catch(() => null);
 

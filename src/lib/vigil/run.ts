@@ -114,7 +114,7 @@ export async function runVigil(now: Date = new Date()): Promise<VigilRunResult> 
         await pushToUser(row.userId, {
           title: "לבדוק שוב מה מגיע לך?",
           body: "חיובים משתנים — מחיר שעלה, מנוי חדש שנשכח. סריקה חדשה לוקחת חצי דקה.",
-          url: "/he/money",
+          url: "/money",
           tag: `vigil:${key}`,
         });
         result.sent++;
@@ -135,7 +135,7 @@ export async function runVigil(now: Date = new Date()): Promise<VigilRunResult> 
       await pushToUser(row.userId, {
         title: alertTitle(item),
         body: alertBody(item),
-        url: "/he/score",
+        url: "/score",
         tag: `vigil:${key}`,
       });
       result.sent++;
