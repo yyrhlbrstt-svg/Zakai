@@ -9,27 +9,7 @@ import { scheduleFollowUpReminder, scheduleRecheckReminder } from "@/lib/reminde
 import { rankPriorityActions } from "@/lib/priority";
 import { proBreakevenSavingAgorot } from "@/lib/plans";
 import type { FeeBasis } from "@/lib/verticals/types";
-
-/**
- * Case.vertical values (see prisma/schema.prisma) don't always share a name
- * with the matching priority.ts CATALOG id — this is the seam between the
- * two so the "what's next" doors below don't re-suggest the vertical the
- * user just finished.
- */
-const VERTICAL_TO_CATALOG_ID: Record<string, string> = {
-  telecom: "check",
-  "bank-fees": "bank-fees",
-  electricity: "electricity",
-  subscription: "cancel",
-  "refund-chase": "refund-chase",
-  airline: "flights",
-  parking: "parking",
-  "transport-fine": "transport-fine",
-  "late-payment": "late-payment",
-  deposit: "deposit",
-  "duplicate-insurance": "duplicate-insurance",
-  arnona: "arnona",
-};
+import { VERTICAL_TO_CATALOG_ID } from "@/lib/priorityCatalogMap";
 
 type Status =
   | "ANALYZED"

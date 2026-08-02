@@ -5,11 +5,17 @@ import { Link } from "@/i18n/routing";
 import { rankPriorityActions, formatPotentialHe, formatPotentialEn } from "@/lib/priority";
 import { SpotlightCard } from "@/components/SpotlightCard";
 
-export function PriorityActions({ limit = 5 }: { limit?: number }) {
+export function PriorityActions({
+  limit = 5,
+  catalogBoosts,
+}: {
+  limit?: number;
+  catalogBoosts?: Record<string, number>;
+}) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const t = useTranslations("priority");
-  const items = rankPriorityActions(limit);
+  const items = rankPriorityActions(limit, catalogBoosts);
 
   return (
     <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">

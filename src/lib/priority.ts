@@ -766,11 +766,16 @@ export const CATALOG: PriorityAction[] = [
   },
 ];
 
-/** Rank: agentic boost, then potential / effort. Cadence never affects ranking, only display. */
-export function rankPriorityActions(limit = 5): PriorityAction[] {
+/** Rank: agentic boost, then potential / effort. Optional catalog boosts from StrategyOutcome. */
+export function rankPriorityActions(
+  limit = 5,
+  catalogBoosts: Record<string, number> = {},
+): PriorityAction[] {
   const weight = (a: PriorityAction) => {
     const base = a.potentialShekels / (a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2);
-    return base * (a.agentic ? 1.35 : 1);
+    const agentic = base * (a.agentic ? 1.35 : 1);
+    const boost = catalogBoosts[a.id] ?? 0;
+    return agentic * (1 + boost);
   };
   return [...CATALOG].sort((a, b) => weight(b) - weight(a)).slice(0, limit);
 }

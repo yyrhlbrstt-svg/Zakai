@@ -89,9 +89,13 @@ describe("priority cadence", () => {
     // A sanity check on the ranking function itself, not a cadence test: it
     // must still be sorted by descending weight regardless of what mix of
     // cadences the top results happen to have.
-    const weight = (a: (typeof ranked)[number]) =>
-      (a.potentialShekels / (a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2)) *
-      (a.agentic ? 1.35 : 1);
+    const weight = (a: (typeof ranked)[number], boosts: Record<string, number> = {}) => {
+      const base =
+        a.potentialShekels / (a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2);
+      const agentic = base * (a.agentic ? 1.35 : 1);
+      const boost = boosts[a.id] ?? 0;
+      return agentic * (1 + boost);
+    };
     for (let i = 1; i < ranked.length; i++) {
       expect(weight(ranked[i - 1])).toBeGreaterThanOrEqual(weight(ranked[i]));
     }

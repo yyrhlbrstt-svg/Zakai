@@ -3,7 +3,7 @@ import { setRequestLocale , getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { MoneyHub } from "@/components/MoneyHub";
 import { MoneyInstallInline } from "@/components/MoneyInstallInline";
-import { PriorityActions } from "@/components/PriorityActions";
+import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
 import { aiAvailable } from "@/lib/ai";
@@ -41,7 +41,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
     >
       <div className="mt-4 mb-8">
         <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
-        <PriorityActions limit={3} />
+        <PriorityActionsRanked limit={3} />
       </div>
 
       {proofsEmail ? (
