@@ -14,6 +14,8 @@ import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
 import { pushToUser } from "@/lib/push";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
+import { withFooter } from "@/lib/letterFooter";
+import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
 
 export class CaseError extends Error {}
 
@@ -202,13 +204,21 @@ export async function sendOutreach(caseId: string, userId: string) {
     status: auth.status,
   });
 
+  const loc = localeForCountry(user?.country);
+  const footerLocale = loc === "he" || loc === "ar" ? "he" : "en";
+  const messageBody = withFooter(kase.draftMessage, footerLocale);
+
   const email = await sendEmail({
     to: kase.counterpartyEmail || providerContactEmail(kase.provider, kase.vertical),
     subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
-    body: kase.draftMessage + footer,
+    body: messageBody + footer,
     caseId,
     attachments: [attachment],
   });
+
+  if (email.status === "SENT") {
+    void notifyInstitutionOnOutboundSend(auth.mandateAudience).catch(() => {});
+  }
 
   // Status was already claimed above, before the letter went out.
 

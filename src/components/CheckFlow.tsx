@@ -643,7 +643,7 @@ export function CheckFlow() {
             <Button variant="ghost" onClick={() => location.reload()} className="flex-1">
               {t("newCase")}
             </Button>
-            <Button onClick={() => router.push("/dashboard")} className="flex-1">
+            <Button onClick={() => router.push(rec ? `/dashboard?case=${rec.caseId}` : "/dashboard")} className="flex-1">
               {t("toDash")}
             </Button>
           </div>
