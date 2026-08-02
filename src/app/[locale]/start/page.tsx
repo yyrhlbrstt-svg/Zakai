@@ -34,7 +34,6 @@ export default async function StartPage({
   setRequestLocale(locale);
 
   const vertical = (v || "general").replace(/[^a-z-]/g, "").slice(0, 60) || "general";
-  const he = locale === "he" || locale === "ar";
   const tIapp_locale_start_page = await getTranslations({ locale, namespace: "inline_app_locale_start_page" });
 
   return (
@@ -73,6 +72,11 @@ export default async function StartPage({
         <Link href="/bank-fees">
           <Button variant="ghost" className="w-full">
             {tIapp_locale_start_page("t_a5b579f8")}
+          </Button>
+        </Link>
+        <Link href="/warranty">
+          <Button variant="ghost" className="w-full">
+            {tIapp_locale_start_page("t_warranty_agent")}
           </Button>
         </Link>
         <Link href="/what-am-i-owed">
