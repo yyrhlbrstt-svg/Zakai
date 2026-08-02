@@ -147,6 +147,23 @@ export async function GET(request: Request) {
         "\"Zakai Mandate\" names this specification profile. An independent implementation may call itself whatever it likes — conformance is established at conformance_uri, never by name.",
     },
     openapi_uri: `${origin}/api/mandate/openapi.json`,
+    discoverability: {
+      llms_txt_uri: `${origin}/llms.txt`,
+      mcp_server: {
+        package: "@zakai/mandate-sdk",
+        binary: "zakai-mandate-mcp",
+        env: { base_url: "ZAKAI_BASE_URL", oracle_key: "ZAKAI_ORACLE_API_KEY" },
+        tools: [
+          "verify_mandate",
+          "decide_action",
+          "check_revocation",
+          "get_trust_registry",
+          "list_scopes",
+          "predict_outcome",
+        ],
+      },
+      oracle_predict_uri: `${origin}/api/oracle/predict`,
+    },
     human_verify_uri: `${origin}/verify`,
     integration_doc: `${origin}/en/institutions`,
     security_contact: `${origin}/.well-known/security.txt`,

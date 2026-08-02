@@ -103,6 +103,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    id: "entitlements",
+    href: "/entitlements",
+    titleHe: "שאלון זכאות — מה מגיע לך?",
+    titleEn: "Entitlements quiz — what are you owed?",
+    whyHe: "מנוע הזכויות → דלת ישירה לסוכן מלא על כל התאמה",
+    whyEn: "Rights engine → direct door to full agent per match",
+    potentialShekels: 220,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: false,
+  },
+  {
     // A hub whose own linked tool already says its total "mixes one-time,
     // annual and multi-year amounts" — never monthly, so this cannot claim
     // to be either without contradicting the page it points to.

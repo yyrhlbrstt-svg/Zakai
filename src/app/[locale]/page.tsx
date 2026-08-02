@@ -112,7 +112,7 @@ export default async function HomePage({
       accent: "violet",
     },
     {
-      href: "/what-am-i-owed",
+      href: "/entitlements",
       icon: Scale,
       titleKey: "door.owed.title",
       subKey: "door.owed.sub",

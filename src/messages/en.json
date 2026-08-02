@@ -146,6 +146,7 @@
     "foundCount": "{count, plural, one {1 relevant right to check} other {# relevant rights to check}}",
     "ctaSignup": "Open an account and let's claim it",
     "ctaRights": "The full list with explanations",
+    "badgeAgent": "Full agent",
     "restart": "Start over"
   },
   "settings": {

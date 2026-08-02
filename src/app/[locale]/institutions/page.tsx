@@ -80,6 +80,44 @@ export default async function InstitutionsPage({
         </p>
       </Section>
 
+      <Section heading="What you cannot replicate without the network">
+        <p className="text-[14.5px] leading-relaxed mb-3">
+          Signature verification is free to implement from the spec — and should
+          be. What requires Zakai (or a future admitted issuer you trust through
+          the same registry) is the live network layer:
+        </p>
+        <ul className="list-disc pl-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
+          <li>
+            <strong>Trust registry</strong> — who may issue at all, with which
+            scopes:{" "}
+            <a className="text-emerald underline" href={`${ORIGIN}/.well-known/zakai-trust-registry.json`}>
+              {ORIGIN}/.well-known/zakai-trust-registry.json
+            </a>
+          </li>
+          <li>
+            <strong>Revocation status</strong> — per-mandate live check:{" "}
+            <code className="text-[12px]">GET /api/mandate/status/&#123;jti&#125;</code>{" "}
+            or the signed status list at{" "}
+            <code className="text-[12px]">/api/mandate/revocations</code>
+          </li>
+          <li>
+            <strong>Outcome Oracle</strong> — calibrated pay probability from
+            de-identified case outcomes:{" "}
+            <code className="text-[12px]">POST /api/oracle/predict</code> (API key;
+            institutions channel)
+          </li>
+          <li>
+            <strong>Agent platforms</strong> — verification-only MCP server:{" "}
+            <code className="text-[12px]">zakai-mandate-mcp</code> (see{" "}
+            <code className="text-[12px]">discoverability</code> in{" "}
+            <a className="text-emerald underline" href={`${ORIGIN}/.well-known/zakai-mandate.json`}>
+              zakai-mandate.json
+            </a>
+            )
+          </li>
+        </ul>
+      </Section>
+
       <Section heading="What this is worth to your team, in your own numbers">
         <p className="text-[14.5px] leading-relaxed mb-4">
           Not an industry benchmark — three inputs your own ops team already

@@ -1,0 +1,31 @@
+import { describe, expect, it } from "vitest";
+import {
+  actionRouteForEntitlement,
+  FULL_SERVICE_ENTITLEMENT_IDS,
+  isFullServiceEntitlement,
+} from "./entitlementRoutes";
+
+describe("actionRouteForEntitlement", () => {
+  it("routes monetizable consumer verticals to agent loops", () => {
+    expect(actionRouteForEntitlement("electricity_switch")).toBe("/electricity");
+    expect(actionRouteForEntitlement("consumer_cancel14")).toBe("/cancel");
+    expect(actionRouteForEntitlement("duplicate_charge_dispute")).toBe("/refund-chase");
+  });
+
+  it("routes benefits to dedicated pages", () => {
+    expect(actionRouteForEntitlement("maternity_grant")).toBe("/maternity");
+    expect(actionRouteForEntitlement("miluim_pay")).toBe("/miluim");
+  });
+
+  it("falls international ids to /rights", () => {
+    expect(actionRouteForEntitlement("us_eitc")).toBe("/rights");
+    expect(actionRouteForEntitlement("gb_student_loan_overpayment")).toBe("/rights");
+  });
+
+  it("flags full-service ids", () => {
+    for (const id of FULL_SERVICE_ENTITLEMENT_IDS) {
+      expect(isFullServiceEntitlement(id)).toBe(true);
+    }
+    expect(isFullServiceEntitlement("tax_refund")).toBe(false);
+  });
+});

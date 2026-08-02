@@ -8,6 +8,7 @@ import { FallNumber } from "@/components/FallNumber";
 import { ShareResult } from "@/components/ShareResult";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
 import { formatAgorot } from "@/lib/money";
+import { actionRouteForEntitlement, isFullServiceEntitlement } from "@/lib/entitlementRoutes";
 
 const AGES = ["18_24", "25_44", "45_66", "67_plus"] as const;
 const EMPLOYMENTS = [
@@ -26,12 +27,6 @@ const FLAGS = [
   "dischargedSoldier",
   "disability",
 ] as const;
-
-/** A few matches deep-link to a vertical we already ship; the rest go to /rights. */
-const ITEM_LINKS: Record<string, string> = {
-  miluim_pay: "/miluim",
-  tax_refund: "/rights",
-};
 
 const DEFAULT_PROFILE: RightsProfile = {
   ageGroup: "25_44",
@@ -121,15 +116,22 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
 
         <div className="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
           {top.map((e) => {
-            const href = ITEM_LINKS[e.id];
+            const href = actionRouteForEntitlement(e.id);
+            const agentLoop = isFullServiceEntitlement(e.id);
             const body = (
-              <div className="h-full rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.025)] p-3.5">
+              <div
+                className={`h-full rounded-xl border p-3.5 ${
+                  agentLoop
+                    ? "border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)]"
+                    : "border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.025)]"
+                }`}
+              >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-extrabold text-[14px]">
                     {t(`rights.items.${e.id}.title`)}
                   </span>
                   <span className="text-[10px] text-ink-soft border border-[rgba(255,255,255,0.14)] rounded-full px-2 py-0.5 shrink-0">
-                    {t(`rights.categories.${e.category}`)}
+                    {agentLoop ? t("entitlements.badgeAgent") : t(`rights.categories.${e.category}`)}
                   </span>
                 </div>
                 <p className="text-ink-soft text-[12px] leading-relaxed mt-1.5 mb-0">
@@ -137,12 +139,10 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
                 </p>
               </div>
             );
-            return href ? (
+            return (
               <Link key={e.id} href={href} className="no-underline text-ink block h-full">
                 {body}
               </Link>
-            ) : (
-              <div key={e.id}>{body}</div>
             );
           })}
         </div>

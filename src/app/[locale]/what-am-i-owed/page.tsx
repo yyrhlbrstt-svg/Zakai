@@ -23,6 +23,7 @@ export default async function WhatAmIOwedPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("potential");
+  const tEnt = await getTranslations("entitlements");
   const israeliVisitor = await isIsrael();
   const he = locale === "he" || locale === "ar";
   const tIapp_locale_what_am_i_owed_page = await getTranslations({ locale, namespace: "inline_app_locale_what_am_i_owed_page" });
@@ -38,6 +39,11 @@ export default async function WhatAmIOwedPage({
       <p className="text-ink-soft text-[16px] leading-relaxed mt-3 mb-6 max-w-[600px]">{t("sub")}</p>
 
       <div className="flex flex-wrap gap-2.5 mb-8">
+        <Link href="/entitlements">
+          <Button className="!text-[13.5px] !px-4 !py-2.5">
+            {tEnt("start")}
+          </Button>
+        </Link>
         <Link href="/money">
           <Button className="!text-[13.5px] !px-4 !py-2.5">
             {tIapp_locale_what_am_i_owed_page("t_13fc32c9")}
