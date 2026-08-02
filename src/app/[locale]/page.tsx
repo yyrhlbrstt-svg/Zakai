@@ -15,6 +15,7 @@ import { DoorTracker } from "@/components/DoorTracker";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
 
