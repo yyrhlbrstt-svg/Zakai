@@ -18,6 +18,9 @@ import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
 import { LiveGravityStrip } from "@/components/LiveGravityStrip";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
+import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
+import { rankNextAction } from "@/lib/services/nextAction";
 
 export async function generateMetadata({
   params,
@@ -49,6 +52,33 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       .catch(() => 0),
   ]);
 
+  let openLoop = false;
+  if (user) {
+    const cases = await prisma.case.findMany({
+      where: { userId: user.id },
+      select: {
+        id: true,
+        status: true,
+        fee: { select: { amount: true, status: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 40,
+    });
+    const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
+    const [proposedMap, agentRounds] = await Promise.all([
+      sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),
+      getAgentRoundMap(sentIds),
+    ]);
+    const proposedHints = new Map(
+      [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
+    );
+    const action = rankNextAction(
+      cases.map((c) => ({ ...c, agentRound: agentRounds.get(c.id) ?? 0 })),
+      proposedHints,
+    );
+    openLoop = action.kind !== "start_money";
+  }
+
   return (
     <VerticalPageShell
       heroGlow
@@ -74,7 +104,8 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         />
       </div>
 
-      <MoneyPageContextPanel locale={locale as Locale} />
+      {/* Guests: light login nudge. Logged-in: single next-action panel (no duplicate). */}
+      {!user ? <MoneyPageContextPanel locale={locale as Locale} /> : null}
 
       {user ? (
         <div className="mb-6">
@@ -91,10 +122,13 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         />
       </div>
 
-      <div className="mb-8">
-        <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
-        <PriorityActionsRanked limit={3} />
-      </div>
+      {/* Secondary doors only when no open loop — otherwise they steal Mandates/Proofs. */}
+      {!openLoop ? (
+        <div className="mb-8">
+          <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
+          <PriorityActionsRanked limit={3} />
+        </div>
+      ) : null}
 
       {proofsEmail ? (
         <p className="text-[12px] text-ink-soft leading-relaxed mb-6 border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 bg-[rgba(63,203,155,0.06)]">
@@ -104,32 +138,36 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
 
       <MoneyInstallInline />
 
-      <MoneyGrowthPanel locale={locale as Locale} />
+      {!openLoop ? <MoneyGrowthPanel locale={locale as Locale} /> : null}
 
-      <div className="mt-10 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-5">
-        <div className="font-extrabold text-[14px]">{tIapp_locale_money_page("t_26d7de3c")}</div>
-        <div className="flex flex-wrap gap-3 mt-3">
-          <Link href="/cancel">
-            <Button variant="ghost" className="!text-[13px]">
-              {tIapp_locale_money_page("t_bc18d8da")}
-            </Button>
-          </Link>
-          <Link href="/check">
-            <Button variant="ghost" className="!text-[13px]">
-              {tIapp_locale_money_page("t_a4c2b6a9")}
-            </Button>
-          </Link>
+      {!openLoop ? (
+        <div className="mt-10 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-5">
+          <div className="font-extrabold text-[14px]">{tIapp_locale_money_page("t_26d7de3c")}</div>
+          <div className="flex flex-wrap gap-3 mt-3">
+            <Link href="/cancel">
+              <Button variant="ghost" className="!text-[13px]">
+                {tIapp_locale_money_page("t_bc18d8da")}
+              </Button>
+            </Link>
+            <Link href="/check">
+              <Button variant="ghost" className="!text-[13px]">
+                {tIapp_locale_money_page("t_a4c2b6a9")}
+              </Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button variant="ghost" className="!text-[13px]">
+                {tIapp_locale_money_page("t_38d0577a")}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-8">
           <Link href="/dashboard">
-            <Button variant="ghost" className="!text-[13px]">
-              {tIapp_locale_money_page("t_38d0577a")}
-            </Button>
+            <Button className="!text-[14px]">{tIapp_locale_money_page("t_38d0577a")} →</Button>
           </Link>
         </div>
-      </div>
-
-      <p className="mt-10 text-[12px] text-ink-soft leading-relaxed">
-        {tIapp_locale_money_page("t_3e37c3c8")}
-      </p>
+      )}
     </VerticalPageShell>
   );
 }

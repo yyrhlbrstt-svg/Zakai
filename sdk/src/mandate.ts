@@ -199,10 +199,8 @@ export async function verifyMandate(token: string, options: VerifyOptions): Prom
 }
 
 /**
- * Fetch a JWKS document and return its keys. No caching here on purpose —
- * this SDK does not want to own a cache-invalidation policy for you. For
- * production traffic, wrap this (or use `jose`'s `createRemoteJWKSet`
- * directly) behind whatever TTL cache your runtime already has.
+ * Fetch a JWKS document and return its keys (no cache). Prefer
+ * `fetchJwksCached` / `verifyMandateFromUrl` for production traffic.
  */
 export async function fetchJwks(jwksUri: string): Promise<JWK[]> {
   const res = await fetch(jwksUri);
@@ -211,11 +209,40 @@ export async function fetchJwks(jwksUri: string): Promise<JWK[]> {
   return data.keys ?? [];
 }
 
+type CachedJwks = { keys: JWK[]; expiresAt: number };
+const jwksCache = new Map<string, CachedJwks>();
+
+/** Default TTL — short enough that key rotation lands quickly. */
+export const DEFAULT_JWKS_CACHE_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * JWKS fetch with a process-local TTL cache. Safe default for institutional
+ * verifiers that call `verifyMandateFromUrl` on every inbound Mandate.
+ */
+export async function fetchJwksCached(
+  jwksUri: string,
+  ttlMs: number = DEFAULT_JWKS_CACHE_TTL_MS,
+  nowMs: number = Date.now(),
+): Promise<JWK[]> {
+  const hit = jwksCache.get(jwksUri);
+  if (hit && hit.expiresAt > nowMs) return hit.keys;
+  const keys = await fetchJwks(jwksUri);
+  jwksCache.set(jwksUri, { keys, expiresAt: nowMs + Math.max(0, ttlMs) });
+  return keys;
+}
+
+/** Test helper — clears the process-local JWKS cache. */
+export function clearJwksCache(): void {
+  jwksCache.clear();
+}
+
 export interface VerifyFromUrlOptions {
   audience: string;
   jwksUri: string;
   toleranceSeconds?: number;
   now?: Date;
+  /** JWKS cache TTL in ms (default 5 minutes). Set 0 to bypass cache. */
+  jwksCacheTtlMs?: number;
 }
 
 /**
@@ -227,7 +254,9 @@ export async function verifyMandateFromUrl(
   token: string,
   options: VerifyFromUrlOptions,
 ): Promise<MandateClaims> {
-  const publicJwks = await fetchJwks(options.jwksUri);
+  const ttl = options.jwksCacheTtlMs ?? DEFAULT_JWKS_CACHE_TTL_MS;
+  const publicJwks =
+    ttl <= 0 ? await fetchJwks(options.jwksUri) : await fetchJwksCached(options.jwksUri, ttl);
   return verifyMandate(token, {
     audience: options.audience,
     publicJwks,

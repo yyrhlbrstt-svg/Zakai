@@ -2,6 +2,10 @@
 """
 Zakai Mandate — thin Python verify client (stdlib only).
 
+This is a smoke path, not a full crypto SDK. For production Status List
+signature verification use the Node SDK (`cd sdk && npm run ready`) or your
+own JWT/Ed25519 stack against /.well-known/zakai-jwks.json.
+
 Banks that cannot add npm still need a 15-minute path:
   1) POST /api/mandate/verify  (crypto against published JWKS on our side,
      or swap in your own JWT library later)
@@ -11,7 +15,7 @@ Banks that cannot add npm still need a 15-minute path:
 Usage:
   python3 zakai_verify.py --jws <compact> [--origin https://zakai-3uxj.vercel.app]
   python3 zakai_verify.py --status-only
-  python3 zakai_verify.py --ready   # vectors (via zakai_decide) + status list HTTP check
+  python3 zakai_verify.py --ready   # vectors (via zakai_decide) + status list HTTP smoke
 
 Exit 0 on success. Never invents permit on error.
 """

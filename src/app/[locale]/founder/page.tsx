@@ -84,6 +84,7 @@ export default async function FounderPage({
     partnerSignups,
     outboxQueued,
     outboxFailed,
+    mandatesActive,
   ] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
     // Documented pipeline only — estimate shortcuts must not inflate the founder instrument.
@@ -132,6 +133,7 @@ export default async function FounderPage({
     }),
     prisma.outbox.count({ where: { status: "QUEUED" } }),
     prisma.outbox.count({ where: { status: "FAILED" } }),
+    prisma.authorization.count({ where: { status: "ACTIVE", revokedAt: null } }),
   ]);
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
@@ -140,6 +142,11 @@ export default async function FounderPage({
   // Win rate uses documented SavingsProof only — estimate SAVED must not count as a win.
   const settled = documentedSaved + noSaving;
   const winRate = settled > 0 ? Math.round((documentedSaved / settled) * 100) : null;
+  const analyzed = count("ANALYZED");
+  const approved = count("APPROVED");
+  const verified = count("VERIFIED");
+  const sentOnly = count("SENT");
+  const preSendOpen = analyzed + approved + verified;
 
   const money = (a: number) => formatAgorot(a, "he-IL");
 
@@ -156,6 +163,9 @@ export default async function FounderPage({
     ["משתמשים", String(users)],
     ["— משתמשים חדשים (7 ימים) —", String(newUsers7d)],
     ["בדיקות שנפתחו", String(checks)],
+    ["— Mandates פעילים (ACTIVE) —", String(mandatesActive)],
+    ["— משפך: לפני שליחה (ANALYZED+APPROVED+VERIFIED) —", String(preSendOpen)],
+    ["— משפך: SENT פתוח (ממתין ל־Proof) —", String(sentOnly)],
     ["לידים לעמלה (ביטוח/וורטיקלים)", leadsValue],
     ["משובים שהתקבלו", String(feedbackCount)],
     ["נשלחו לספק (SENT+)", String(sent)],

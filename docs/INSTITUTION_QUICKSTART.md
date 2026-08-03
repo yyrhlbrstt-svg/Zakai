@@ -12,23 +12,27 @@ verify offline against published keys and the trust registry.
 
 ## 0. One command (preferred)
 
-**Node (SDK):**
+**Node (SDK — cryptographic Status List verify):**
 
 ```bash
-cd sdk && npm run ready
-# after publish:
-npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
+# From this monorepo (works today without npm publish):
+cd sdk && npm ci && npm run ready -- --origin https://zakai-3uxj.vercel.app
+
+# After @zakai/mandate-sdk is published:
+# npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
 ```
 
-**Python (stdlib, no npm):**
+**Python (stdlib smoke — vectors via `zakai_decide` + Status List HTTP fetch):**
 
 ```bash
 cd reference/python
 python3 zakai_verify.py --ready --origin https://zakai-3uxj.vercel.app
 ```
 
-Both print `READY_FOR_PIONEER` only when vectors pass and the status list is fetchable
-(Node also cryptographically verifies the statuslist+jwt).
+`READY_FOR_PIONEER` requires vectors + a live Status List. Node cryptographically
+verifies the statuslist+jwt against JWKS; Python's `--ready` confirms the list is
+fetchable and runs the offline decide vectors — use Node (or your own JWT library)
+for the crypto bar before production listing.
 
 Live JSON twin (same gate the Pioneer wizard and listing API use):
 
@@ -69,7 +73,9 @@ Content-Type: application/json
 **Option B — SDK (TypeScript, runs in your VPC):**
 
 ```bash
-npm install @zakai/mandate-sdk
+# Monorepo path (preferred until npm publish is live):
+cd sdk && npm ci && npm run build
+# Or, after publish: npm install @zakai/mandate-sdk
 ```
 
 ```ts
@@ -80,6 +86,7 @@ import { verifyMandateWithRegistry } from "@zakai/mandate-sdk/registry";
 const claims = await verifyMandateFromUrl(jws, {
   audience: "my-institution-id",
   jwksUri: "https://zakai-3uxj.vercel.app/.well-known/zakai-jwks.json",
+  // JWKS is cached 5 minutes by default — set jwksCacheTtlMs: 0 to bypass.
 });
 
 const list = await verifyStatusListFromUrl({
@@ -89,10 +96,11 @@ const list = await verifyStatusListFromUrl({
 });
 ```
 
-**Option C — MCP (for internal AI tooling):**
+**Option C — MCP (for internal AI tooling, after publish):**
 
 ```bash
 npx zakai-mandate-mcp
+# or: cd sdk && npm run mcp
 ```
 
 ## 4. Decide whether to act (3 min)

@@ -6,18 +6,18 @@ adopter actually has is whether somebody who is *not* us can implement this
 correctly from the published material.
 
 Here the authorization layer has been implemented five times, in five
-languages, by five independent programs that agree on all nineteen of its
-vectors — and the settlement layer twice, agreeing on all twenty of its own
-plus every canonical-hash fixture.
+languages, by five independent programs that agree on the published
+authorization vectors — and the settlement layer twice, agreeing on all twenty
+of its own plus every canonical-hash fixture.
 
 ```
 $ ./check-all.sh
 authorization vectors:
-  python   CONFORMANT — 19/19 vectors passed.
-  go       CONFORMANT — 19/19 vectors passed.
-  java     CONFORMANT - 19/19 vectors passed.
-  ruby     CONFORMANT - 19/19 vectors passed.
-  php      CONFORMANT - 19/19 vectors passed.
+  python   CONFORMANT — all published vectors passed.
+  go       CONFORMANT — all published vectors passed.
+  java     CONFORMANT — all published vectors passed.
+  ruby     CONFORMANT — all published vectors passed.
+  php      CONFORMANT — all published vectors passed.
 
 settlement vectors:
   python   CONFORMANT - 20/20 vectors and 5 hash fixtures passed.

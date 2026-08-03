@@ -97,7 +97,8 @@ const copy: Record<string, Record<string, string>> = {
     err: "משהו השתבש. נסה שוב.",
     nextHint: "השלב הבא",
     followTitle: "מה ענו? — הסוכן מכין תשובה",
-    followGen: "הכן הודעת המשך",
+    followGen: "הכן טיוטה בלבד",
+    followSendAndDraft: "הכן ושלח המשך (Mandate)",
     followSend: "שלח דרך זכאי (Mandate)",
     followSent: "נשלח לספק",
     draftTitle: "מכתב לשליחה — בדקו לפני שליחה",
@@ -180,7 +181,8 @@ const copy: Record<string, Record<string, string>> = {
     err: "Something went wrong.",
     nextHint: "Next step",
     followTitle: "What did they say? — agent drafts reply",
-    followGen: "Draft follow-up",
+    followGen: "Draft only",
+    followSendAndDraft: "Draft & send follow-up (Mandate)",
     followSend: "Send via Zakai (Mandate)",
     followSent: "Sent to provider",
     draftTitle: "Letter to send — review before dispatch",
@@ -1015,35 +1017,78 @@ export function CaseNextStep({
             </div>
           )}
           <div className="flex flex-wrap gap-2">
-            <Button
-              disabled={busy}
-              className="text-[13px] py-2 px-3"
-              onClick={() =>
-                run(async () => {
-                  setFollowSentOk(false);
-                  const res = await fetch(`/api/cases/${caseId}/follow-up`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      replyKind,
-                      round: nextFollowRound,
-                      competitorName: competitorName || undefined,
-                      competitorPriceShekels: competitorPrice
-                        ? Number(competitorPrice)
-                        : undefined,
-                    }),
-                  });
-                  if (!res.ok) throw new Error("follow");
-                  const data = await res.json();
-                  setFollowBody(data.body || "");
-                  setFollowTip(data.tip || null);
-                })
-              }
-            >
-              {busy ? t(locale, "working") : t(locale, "followGen")}
-            </Button>
+            {emailConfigured && !followSentOk ? (
+              <Button
+                disabled={busy}
+                className="text-[13px] py-2 px-3"
+                onClick={() =>
+                  run(async () => {
+                    setFollowSentOk(false);
+                    const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        replyKind,
+                        round: nextFollowRound,
+                        send: true,
+                        competitorName: competitorName || undefined,
+                        competitorPriceShekels: competitorPrice
+                          ? Number(competitorPrice)
+                          : undefined,
+                      }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                      if (data.error === "NEEDS_OUTREACH_EMAIL") {
+                        setErr(t(locale, "errNeedsEmail"));
+                        return;
+                      }
+                      if (data.body) setFollowBody(data.body);
+                      throw new Error("follow-send");
+                    }
+                    setFollowBody(data.body || "");
+                    setFollowTip(data.tip || null);
+                    setFollowSentOk(true);
+                    router.refresh();
+                  })
+                }
+              >
+                {busy ? t(locale, "working") : t(locale, "followSendAndDraft")}
+              </Button>
+            ) : null}
+            {!followSentOk ? (
+              <Button
+                variant={emailConfigured ? "ghost" : undefined}
+                disabled={busy}
+                className="text-[13px] py-2 px-3"
+                onClick={() =>
+                  run(async () => {
+                    setFollowSentOk(false);
+                    const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        replyKind,
+                        round: nextFollowRound,
+                        competitorName: competitorName || undefined,
+                        competitorPriceShekels: competitorPrice
+                          ? Number(competitorPrice)
+                          : undefined,
+                      }),
+                    });
+                    if (!res.ok) throw new Error("follow");
+                    const data = await res.json();
+                    setFollowBody(data.body || "");
+                    setFollowTip(data.tip || null);
+                  })
+                }
+              >
+                {busy ? t(locale, "working") : t(locale, "followGen")}
+              </Button>
+            ) : null}
             {followBody && emailConfigured && !followSentOk ? (
               <Button
+                variant="ghost"
                 disabled={busy}
                 className="text-[13px] py-2 px-3"
                 onClick={() =>

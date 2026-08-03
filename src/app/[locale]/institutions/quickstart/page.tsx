@@ -79,8 +79,8 @@ python3 zakai_verify.py --ready --origin ${ORIGIN}
 python3 zakai_verify.py --jws '<compact>' --origin ${ORIGIN}`}</CodeBlock>
         <p className="text-[13px] text-ink-soft mt-3 mb-0 leading-relaxed">
           {he
-            ? "stdlib בלבד. מדיניות אופליין ב־zakai_decide.py; קריפטו דרך HTTP verify או ספריית JWT שלכם."
-            : "Stdlib only. Offline policy in zakai_decide.py; crypto via HTTP verify or your JWT library."}
+            ? "stdlib בלבד — smoke: vectors + Status List נשלף. לאימות חתימה בפרודקשן: Node SDK או ספריית JWT שלכם."
+            : "Stdlib only — smoke: vectors + Status List fetchable. For signature verify in production: Node SDK or your JWT library."}
         </p>
       </Card>
 

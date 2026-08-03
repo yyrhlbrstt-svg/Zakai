@@ -483,29 +483,6 @@ export default async function DashboardPage({
         </div>
       )}
 
-      <MoneyScoreCard result={scoreResult} />
-
-      <VigilWatchCard bcp47={loc} />
-
-      <StrategyInsightsCard locale={locale} bcp47={loc} />
-
-      <ShareResult
-        message={shareMessage}
-        referralCode={referralCode}
-        amountLabel={shareAmountLabel}
-        kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
-      />
-
-      <div className="mt-5">
-        <ReferralCard
-          path={invitePath}
-          fallbackLink={`${appUrl}${invitePath}`}
-          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
-          rewardAgorot={REFERRAL_REWARD_AGOROT}
-          bcp47={loc}
-        />
-      </div>
-
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
           <Inbox size={40} className="mx-auto mb-3.5 text-ink-soft" aria-hidden />
@@ -661,6 +638,29 @@ export default async function DashboardPage({
           </div>
         </>
       )}
+
+      <MoneyScoreCard result={scoreResult} />
+
+      <VigilWatchCard bcp47={loc} />
+
+      <StrategyInsightsCard locale={locale} bcp47={loc} />
+
+      <ShareResult
+        message={shareMessage}
+        referralCode={referralCode}
+        amountLabel={shareAmountLabel}
+        kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
+      />
+
+      <div className="mt-5">
+        <ReferralCard
+          path={invitePath}
+          fallbackLink={`${appUrl}${invitePath}`}
+          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
+          rewardAgorot={REFERRAL_REWARD_AGOROT}
+          bcp47={loc}
+        />
+      </div>
 
       <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.6)]">
         {t("disclosure.agent")}
