@@ -8,6 +8,7 @@ import { Card, Button, Input } from "@/components/ui";
 import type { DuplicationResult } from "@/lib/insurance";
 import { wastefulPolicyKeysFromResult } from "@/lib/duplicateInsuranceClaim";
 import { formatAgorot } from "@/lib/money";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function DuplicateInsuranceAgent({
   bcp47,
@@ -67,7 +68,7 @@ export function DuplicateInsuranceAgent({
       }
       setCaseId(data.caseId);
       router.push(
-        data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`,
+        moneyCaseHref(data.caseId, { delivered: data.delivered }),
       );
     } catch {
       setAgentError(t("genericError"));

@@ -42,7 +42,8 @@ export function expressOpenBody<T extends Record<string, unknown> = Record<strin
 } & T {
   return {
     caseId: input.caseId,
-    message: input.dispatched ? ("mandate_sent" as const) : ("case_opened" as const),
+    // Only claim mandate_sent when SMTP/Outbox actually accepted delivery.
+    message: input.delivered ? ("mandate_sent" as const) : ("case_opened" as const),
     dispatched: input.dispatched,
     delivered: input.delivered,
     needsOutreachEmail: false,

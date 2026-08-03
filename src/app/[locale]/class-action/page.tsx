@@ -96,7 +96,7 @@ export default async function ClassActionPage({
             {/* In-app only: the primary CTA routes into Zakai's own claim
                 flow — the customer never gets sent to a government site. */}
             <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <Link href="/dashboard?intent=class_action">
+              <Link href="/money">
                 <Button>{t("cta.primary")}</Button>
               </Link>
               <Link href="/entitlements">

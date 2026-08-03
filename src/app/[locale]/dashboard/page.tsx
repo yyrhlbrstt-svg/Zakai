@@ -38,6 +38,7 @@ import { PersonalProofStrip } from "@/components/PersonalProofStrip";
 import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
+import { mapOutboxToOutreachDelivery } from "@/lib/services/outreachDelivery";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 
 const STATUS_KEY: Record<string, string> = {
@@ -116,6 +117,26 @@ export default async function DashboardPage({
 
   const agentRoundMap =
     sentIds.length > 0 ? await getAgentRoundMap(sentIds) : new Map<string, number>();
+
+  const outreachDeliveryMap = new Map<
+    string,
+    ReturnType<typeof mapOutboxToOutreachDelivery>
+  >();
+  if (sentIds.length > 0) {
+    const outRows = await prisma.outbox.findMany({
+      where: {
+        caseId: { in: sentIds },
+        channel: "EMAIL",
+        OR: [{ providerMessageId: null }, { providerMessageId: { not: "inbound" } }],
+      },
+      orderBy: { createdAt: "desc" },
+      select: { caseId: true, status: true, providerMessageId: true },
+    });
+    for (const row of outRows) {
+      if (!row.caseId || outreachDeliveryMap.has(row.caseId)) continue;
+      outreachDeliveryMap.set(row.caseId, mapOutboxToOutreachDelivery(row));
+    }
+  }
 
   const outcomeRows = (await prisma.strategyOutcome
     .findMany({
@@ -398,6 +419,7 @@ export default async function DashboardPage({
                   proofsEmail={proofsEmail}
                   agentRound={agentRoundMap.get(c.id) ?? 0}
                   emailConfigured={emailConfigured()}
+                  outreachDelivery={outreachDeliveryMap.get(c.id) ?? "none"}
                   vertical={c.vertical}
                   feeBasis={feeBasisForVertical(c.vertical)}
                   currentPlan={user!.plan}

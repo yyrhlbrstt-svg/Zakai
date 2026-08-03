@@ -9,6 +9,7 @@ import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const REASONS = ["signage", "machine", "loading", "disabled", "details", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -96,7 +97,7 @@ ${name || "____"}
       setLetter(data.body || "");
       setCaseId(data.caseId);
       router.push(
-        data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`,
+        moneyCaseHref(data.caseId, { delivered: data.delivered }),
       );
     } catch {
       setError(tFlow("errorGeneric"));

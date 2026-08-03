@@ -10,6 +10,7 @@ import { formatAgorot } from "@/lib/money";
 import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
 
 import { ShareResult } from "@/components/ShareResult";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 import {
   buildScanShareMessage,
   scanShareKicker,
@@ -137,9 +138,7 @@ export function StatementScan({
         return;
       }
       router.push(
-        data.dispatched
-          ? `/money?case=${data.caseId}&sent=1`
-          : `/money?case=${data.caseId}`,
+        moneyCaseHref(data.caseId, { delivered: data.delivered }),
       );
     } catch {
       setErr(he ? "משהו השתבש." : "Something went wrong.");

@@ -14,6 +14,7 @@ import {
 } from "@/lib/depositReturn";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 /**
  * Live deposit-return calculator + demand letter, alongside the static
@@ -109,7 +110,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         return;
       }
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setAgentError(t("genericError"));
     } finally {

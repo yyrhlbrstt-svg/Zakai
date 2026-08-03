@@ -15,6 +15,7 @@ import {
 } from "@/lib/normalizeBankProvider";
 import { resolveBankContactEmail } from "@/lib/bankContacts";
 import { withFooter } from "@/lib/letterFooter";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function BankFeesTool() {
   const locale = useLocale();
@@ -94,7 +95,7 @@ export function BankFeesTool() {
         body: withFooter(letter.body, footerLocale),
       });
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(t("errorGeneric"));
     } finally {

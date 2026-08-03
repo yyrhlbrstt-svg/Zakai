@@ -14,6 +14,7 @@ import {
 } from "@/lib/normalizeSubscriptionProvider";
 import { withFooter } from "@/lib/letterFooter";
 import { openMailto } from "@/lib/mailto";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const INTENTS: CancelIntent[] = ["cancel", "retention", "downgrade", "pause"];
 
@@ -142,7 +143,7 @@ export function CancelTool() {
         body: withFooter(letter.body, footerLocale),
       });
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(t("errorGeneric"));
     } finally {

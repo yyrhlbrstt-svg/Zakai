@@ -10,6 +10,7 @@ import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 import { resolveTransportContactEmail } from "@/lib/utilityContacts";
 import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -95,7 +96,7 @@ ${name || "____"}
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(tFlow("errorGeneric"));
     } finally {

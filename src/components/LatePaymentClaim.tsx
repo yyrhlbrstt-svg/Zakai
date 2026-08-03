@@ -13,6 +13,7 @@ import {
 } from "@/lib/latePaymentClaim";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 /**
  * Late-invoice demand letter for a freelancer/small supplier — the one tool
@@ -104,7 +105,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         return;
       }
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setAgentError(t("genericError"));
     } finally {

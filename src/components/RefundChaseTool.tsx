@@ -7,6 +7,7 @@ import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { buildRefundLetter } from "@/lib/refundChase";
 import { withFooter } from "@/lib/letterFooter";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function RefundChaseTool() {
   const locale = useLocale();
@@ -77,7 +78,7 @@ export function RefundChaseTool() {
         body: withFooter(letter.body, footerLocale),
       });
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(tFlow("errorGeneric"));
     } finally {

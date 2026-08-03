@@ -15,6 +15,7 @@ import {
   isDeadFinishStatus,
   resolveMoneyFinishCaseId,
 } from "@/lib/services/shareableSavedCase";
+import { mapOutboxToOutreachDelivery } from "@/lib/services/outreachDelivery";
 import { heEn } from "@/lib/heEn";
 
 /**
@@ -111,6 +112,23 @@ export async function MoneyLoopCloser({
         }
       : null;
 
+  const latestOutbox =
+    c.status === "SENT"
+      ? await prisma.outbox.findFirst({
+          where: {
+            caseId: c.id,
+            channel: "EMAIL",
+            OR: [
+              { providerMessageId: null },
+              { providerMessageId: { not: "inbound" } },
+            ],
+          },
+          orderBy: { createdAt: "desc" },
+          select: { status: true, providerMessageId: true },
+        })
+      : null;
+  const outreachDelivery = mapOutboxToOutreachDelivery(latestOutbox);
+
   const proposed = proposedMap.get(c.id);
   const proposedClient = proposed
     ? {
@@ -173,6 +191,7 @@ export async function MoneyLoopCloser({
         proofsEmail={proofsInboundAddress()}
         agentRound={agentRounds.get(c.id) ?? 0}
         emailConfigured={emailConfigured()}
+        outreachDelivery={outreachDelivery}
         vertical={c.vertical}
         feeBasis={feeBasisForVertical(c.vertical)}
         currentPlan={plan}

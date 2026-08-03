@@ -6,6 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { ARNONA_AGENT_RIGHTS } from "@/lib/arnonaAppeal";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function ArnonaAgent() {
   const t = useTranslations("arnonaAgent");
@@ -66,7 +67,7 @@ export function ArnonaAgent() {
       }
       setCaseId(data.caseId);
       router.push(
-        data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`,
+        moneyCaseHref(data.caseId, { delivered: data.delivered }),
       );
     } catch {
       setAgentError(t("genericError"));

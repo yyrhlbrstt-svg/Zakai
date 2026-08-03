@@ -9,6 +9,7 @@ import { estimatePlans, type UsageProfile } from "@/lib/electricity";
 import { formatAgorot, shekelsToAgorot, agorotToShekels } from "@/lib/money";
 import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 import { resolveElectricityContactEmail } from "@/lib/utilityContacts";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const PROFILES: UsageProfile[] = ["spread", "day_home", "evening_family", "ev_night"];
 
@@ -87,7 +88,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
         return;
       }
       setOpened(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
       router.refresh();
     } catch {
       setErr(he ? "שגיאת רשת. נסו שוב." : "Network error. Try again.");

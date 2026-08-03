@@ -17,6 +17,7 @@ import {
 import { buildFlightDemandLetter } from "@/lib/flightLetter";
 import { resolveAirlineContactEmail } from "@/lib/airlineContacts";
 import { formatAgorot } from "@/lib/money";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const IL_TIERS: DistanceTier[] = ["short", "medium", "long"];
 const EU_TIERS: EuDistanceTier[] = ["short", "medium", "long"];
@@ -160,7 +161,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
     } finally {

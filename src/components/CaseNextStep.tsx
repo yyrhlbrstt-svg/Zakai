@@ -19,6 +19,7 @@ import { previewSuccessFeeShekels } from "@/lib/fee";
 import { heEn } from "@/lib/heEn";
 import { FeePayButton } from "@/components/FeePayButton";
 import { classifyFollowUpSendError, followUpDeliveryState } from "@/lib/followUpSendUi";
+import type { OutreachDelivery } from "@/lib/services/outreachDelivery";
 
 type Status =
   | "ANALYZED"
@@ -71,6 +72,8 @@ interface Props {
    * needs to say so instead of implying an active wait for a reply.
    */
   emailConfigured?: boolean;
+  /** Latest outreach Outbox truth — preferred over SMTP-env-only banner. */
+  outreachDelivery?: OutreachDelivery;
   /** Outreach letter the user consents to — editable before dispatch. */
   draftMessage?: string;
   /** De-identified cohort learning for SENT coaching (never invents). */
@@ -139,6 +142,10 @@ const copy: Record<string, Record<string, string>> = {
       "הסוכן שלח. אם ענו — הדביקו את התשובה למטה, העבירו מייל לכתובת ההוכחות, או הזינו סכום. אם לא — אחרי כמה ימים, כל עוד ה-Mandate פעיל, הסוכן עשוי לשלוח סיבוב המשך (עד 4 סיבובים).",
     notDeliveredBanner:
       "שליחת מייל עדיין לא מוגדרת בסביבה הזו — הפנייה מוכנה אבל עוד לא יצאה בפועל לספק.",
+    queuedBanner:
+      "הפנייה בתור לשליחה — הספק עדיין לא קיבל. רעננו בעוד רגע או שלחו ידנית מהטיוטה.",
+    failedBanner:
+      "שליחת המייל נכשלה — נסו שוב מהמעקב למטה, או העתיקו ושלחו ידנית. אל תניחו שהספק ראה משהו.",
     competitorName: "שם המתחרה",
     competitorPrice: "מחיר המתחרה ₪",
     proposedTitle: "הסוכן זיהה מהמייל",
@@ -243,6 +250,10 @@ const copy: Record<string, Record<string, string>> = {
       "Agent sent. If they replied — paste the reply below, forward to the proofs address, or enter an amount. If not — after several days, while your Mandate is active, the agent may send a follow-up round (up to 4 total).",
     notDeliveredBanner:
       "Email delivery isn't configured in this environment yet — the request is ready but hasn't actually reached the provider.",
+    queuedBanner:
+      "Request is queued for delivery — the provider has not received it yet. Refresh shortly or send the draft manually.",
+    failedBanner:
+      "Email delivery failed — retry follow-up below, or copy and send manually. Do not assume the provider saw anything.",
     competitorName: "Competitor name",
     competitorPrice: "Competitor price ₪",
     proposedTitle: "Agent spotted from email",
@@ -316,6 +327,7 @@ export function CaseNextStep({
   proofsEmail,
   agentRound = 0,
   emailConfigured = true,
+  outreachDelivery = "none",
   vertical,
   provider,
   counterpartyEmail: counterpartyEmailProp,
@@ -1105,7 +1117,15 @@ export function CaseNextStep({
     return (
       <div className="w-full mt-2 flex flex-col gap-3">
         <div className="rounded-xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-3 py-2.5 text-[12.5px] font-bold">
-          {emailConfigured ? t(locale, "sentBanner") : t(locale, "notDeliveredBanner")}
+          {outreachDelivery === "delivered"
+            ? t(locale, "sentBanner")
+            : outreachDelivery === "queued"
+              ? t(locale, "queuedBanner")
+              : outreachDelivery === "failed"
+                ? t(locale, "failedBanner")
+                : emailConfigured
+                  ? t(locale, "sentBanner")
+                  : t(locale, "notDeliveredBanner")}
           {roundHint && (
             <span className="block mt-1 text-emerald">
               {t(locale, "agentRoundLabel")}: {agentRound} · {roundHint}

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, Textarea } from "@/components/ui";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function WarrantyAppeal() {
   const t = useTranslations("warranty");
@@ -60,7 +61,7 @@ export function WarrantyAppeal() {
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(t("agentError"));
     } finally {

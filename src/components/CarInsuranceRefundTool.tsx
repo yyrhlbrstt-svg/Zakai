@@ -9,6 +9,7 @@ import { buildCarInsuranceRefundLetter } from "@/lib/carInsuranceRefund";
 import { withFooter } from "@/lib/letterFooter";
 import { resolveInsuranceContactEmail } from "@/lib/utilityContacts";
 import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function CarInsuranceRefundTool() {
   const locale = useLocale();
@@ -79,7 +80,7 @@ export function CarInsuranceRefundTool() {
       const letter = buildCarInsuranceRefundLetter(letterInput());
       setOut({ subject: letter.subject, body: withFooter(letter.body, footerLocale) });
       setCaseId(data.caseId);
-      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(tFlow("errorGeneric"));
     } finally {

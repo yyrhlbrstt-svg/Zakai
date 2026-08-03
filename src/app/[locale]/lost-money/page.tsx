@@ -64,7 +64,7 @@ export default async function LostMoneyPage({
               <div className="font-extrabold text-[16px] mt-3">{s.title}</div>
               <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed flex-1">{s.body}</div>
               <Link
-                href="/dashboard?intent=lost_money"
+                href="/money"
                 className="inline-flex items-center gap-1.5 text-emerald font-bold text-[13.5px] mt-4 no-underline hover:underline"
               >
                 {s.cta}

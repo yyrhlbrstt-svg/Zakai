@@ -3,7 +3,11 @@ import { z } from "zod";
 import { requireUserId } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
-import { findOpenLoopBlock, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
+import {
+  expressOpenBody,
+  findOpenLoopBlock,
+  tryExpressMandateSend,
+} from "@/lib/services/expressCaseOpen";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { runIdempotent, idempotencyKeyFromRequest } from "@/lib/scale/idempotency";
@@ -153,12 +157,11 @@ export async function POST(request: Request) {
       return {
         status: 200,
         body: {
-          caseId: kase.id,
-          message: (express.dispatched ? "mandate_sent" : "case_opened") as
-            | "mandate_sent"
-            | "case_opened",
-          dispatched: express.dispatched,
-          delivered: express.delivered,
+          ...expressOpenBody({
+            caseId: kase.id,
+            dispatched: express.dispatched,
+            delivered: express.delivered,
+          }),
           needsOutreachEmail: !outreachReady,
         },
       };
