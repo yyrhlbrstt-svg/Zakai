@@ -48,9 +48,9 @@ export async function POST(request: Request) {
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
   const resolved = resolveSubscriptionCompany(data.company, data.product);
+  // Do not treat the customer's account/email as the provider inbox.
   const outreachTo = pickOutreachEmail({
     contactEmail: data.contactEmail,
-    accountOrEmail: data.accountOrEmail,
     defaultContactEmail: resolved.defaultContactEmail,
   });
   if (!outreachTo) {

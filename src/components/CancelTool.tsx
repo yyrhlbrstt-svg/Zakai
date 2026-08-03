@@ -6,8 +6,13 @@ import { useRouter, Link } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
-import { subscriptionOutreachReady } from "@/lib/normalizeSubscriptionProvider";
+import {
+  pickOutreachEmail,
+  resolveSubscriptionCompany,
+  subscriptionOutreachReady,
+} from "@/lib/normalizeSubscriptionProvider";
 import { withFooter } from "@/lib/letterFooter";
+import { openMailto } from "@/lib/mailto";
 
 const INTENTS: CancelIntent[] = ["cancel", "retention", "downgrade", "pause"];
 
@@ -33,17 +38,23 @@ export function CancelTool() {
   const [reason, setReason] = useState("");
   const [out, setOut] = useState<{ subject: string; body: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [mailOpened, setMailOpened] = useState(false);
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
 
+  const outreachTo = useMemo(() => {
+    const resolved = resolveSubscriptionCompany(company, product);
+    return pickOutreachEmail({
+      contactEmail: contactEmail.trim() || undefined,
+      defaultContactEmail: resolved.defaultContactEmail,
+    });
+  }, [company, product, contactEmail]);
+
   const agentReady = useMemo(
-    () =>
-      company.trim().length > 0 &&
-      product.trim().length > 0 &&
-      subscriptionOutreachReady(company, product, contactEmail || undefined),
-    [company, product, contactEmail],
+    () => company.trim().length > 0 && product.trim().length > 0 && outreachTo !== null,
+    [company, product, outreachTo],
   );
 
   useEffect(() => {
@@ -52,13 +63,15 @@ export function CancelTool() {
     const m = search.get("monthly") || search.get("amount");
     const i = search.get("intent");
     const n = search.get("name");
+    const ce = search.get("contactEmail") || search.get("email");
     if (c) setCompany(c.slice(0, 120));
     if (p) setProduct(p.slice(0, 120));
     else if (c) setProduct(c.slice(0, 120));
     if (m && !Number.isNaN(Number(m))) setMonthly(String(Math.round(Number(m))));
     if (i) setIntent(parseIntent(i));
     if (n) setName(n.slice(0, 80));
-    if (c || p || m) setPrefilled(true);
+    if (ce && /@/.test(ce)) setContactEmail(ce.slice(0, 120));
+    if (c || p || m || ce) setPrefilled(true);
   }, [search]);
 
   function generate() {
@@ -134,7 +147,20 @@ export function CancelTool() {
     }
   }
 
-  const showContactHint = company.trim().length > 0 && !subscriptionOutreachReady(company, product);
+  const showContactHint =
+    company.trim().length > 0 &&
+    !subscriptionOutreachReady(company, product, contactEmail.trim() || undefined);
+
+  function sendViaMailto() {
+    if (!out || !outreachTo) {
+      setError(t("errorNeedsEmail"));
+      return;
+    }
+    if (openMailto(outreachTo, out.subject, out.body)) {
+      setMailOpened(true);
+      setTimeout(() => setMailOpened(false), 2500);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -206,21 +232,30 @@ export function CancelTool() {
           <pre className="mt-4 whitespace-pre-wrap text-[13px] leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
             {out.body}
           </pre>
-          <Button
-            className="mt-3"
-            variant="ghost"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(`${out.subject}\n\n${out.body}`);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              } catch {
-                /* ignore */
-              }
-            }}
-          >
-            {copied ? t("copied") : t("copyAll")}
-          </Button>
+          <div className="mt-3 flex flex-col gap-2">
+            <Button className="w-full" disabled={!outreachTo} onClick={sendViaMailto}>
+              {mailOpened
+                ? t("mailOpened")
+                : outreachTo
+                  ? t("sendMailto", { email: outreachTo })
+                  : t("sendMailtoNeedsEmail")}
+            </Button>
+            <Button
+              className="w-full"
+              variant="ghost"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(`${out.subject}\n\n${out.body}`);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              {copied ? t("copied") : t("copyAll")}
+            </Button>
+          </div>
           <p className="text-[12px] text-ink-soft mt-3 mb-0">{t("t_d628bea2")}</p>
         </Card>
       )}
