@@ -14,6 +14,7 @@ import { alternateLanguages } from "@/lib/seo";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { getCurrentUser } from "@/lib/auth/user";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
+import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
 
 export async function generateMetadata({
   params,
@@ -48,6 +49,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
 
       {user ? (
         <div className="mb-6">
+          {!user.emailVerifiedAt ? <EmailVerifyNudge /> : null}
           <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
         </div>
       ) : null}

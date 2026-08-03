@@ -33,6 +33,7 @@ import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { feeBasisForVertical } from "@/lib/verticals";
+import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -332,6 +333,8 @@ export default async function DashboardPage({
       </div>
 
       <ReminderBanner />
+
+      {!user!.emailVerifiedAt ? <EmailVerifyNudge /> : null}
 
       <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
       <RetentionActionStrip locale={locale} actions={retentionActions} />

@@ -8,6 +8,8 @@ import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
+import { PipeNetworkLive } from "@/components/PipeNetworkLive";
+import { bcp47, type Locale } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
@@ -231,6 +233,7 @@ export default async function FounderPage({
           השערים למטה הם מדד אימוץ. הם לא שווי. עד ש-G3 (verifier) ו-G5 (מנפיק שני) ירוקים —
           PayPlus/דומיין לא מעלים מונופול. אל תחבר שלב D לפני זה.
         </p>
+        <PipeNetworkLive locale={locale} bcp47={bcp47[locale as Locale] ?? "he-IL"} />
         <ControlGatesStrip locale={locale} />
         <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
           <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו (סדר חובה)</div>

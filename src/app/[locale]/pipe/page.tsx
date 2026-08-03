@@ -8,6 +8,8 @@ import { Link } from "@/i18n/routing";
 import { alternateLanguages, defaultOpenGraph, SITE_URL } from "@/lib/seo";
 import { textDirection } from "@/lib/textDirection";
 import { buildZakaiPipeDocument } from "@/lib/pipe/zakaiPipe";
+import { PipeNetworkLive } from "@/components/PipeNetworkLive";
+import { bcp47, type Locale } from "@/i18n/config";
 
 export async function generateMetadata({
   params,
@@ -49,6 +51,8 @@ export default async function PipePage({
       <EmeraldInfoPanel className="mb-6">
         <strong className="text-emerald">{t("thesisStrong")}</strong> {t("thesisBody")}
       </EmeraldInfoPanel>
+
+      <PipeNetworkLive locale={locale} bcp47={bcp47[locale as Locale] ?? "he-IL"} />
 
       <div className="flex flex-wrap gap-3 mb-8">
         <a href={`${origin}/.well-known/zakai-pipe.json`} className="no-underline">

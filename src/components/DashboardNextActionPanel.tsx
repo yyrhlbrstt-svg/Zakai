@@ -56,8 +56,8 @@ export async function DashboardNextActionPanel({
         href={`/dashboard?case=${preSend.id}`}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
-        <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("agentNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("agentNudgeSub")}</p>
+        <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("preSendNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("preSendNudgeSub")}</p>
       </Link>
     );
   }
@@ -85,8 +85,8 @@ export async function DashboardNextActionPanel({
           href={`/dashboard?case=${sent.id}`}
           className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
         >
-          <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("agentNudgeTitle")}</div>
-          <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("agentNudgeSub")}</p>
+          <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("sentWaitNudgeTitle")}</div>
+          <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("sentWaitNudgeSub")}</p>
         </Link>
       );
     }

@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { buildZakaiPipeDocument } from "@/lib/pipe/zakaiPipe";
-import { scorePipeGravity } from "@/lib/pipe/pipeNetwork";
+import { loadPipeNetworkVolume } from "@/lib/pipe/loadPipeNetwork";
 import { MandateKeyUnavailableError, loadSigningKeyFromEnv } from "@/lib/mandate/mandate";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
-import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -28,30 +27,7 @@ export async function GET(request: Request) {
   const origin = new URL(request.url).origin;
   const pipe = buildZakaiPipeDocument(origin);
   const authorityLive = mandateLive();
-
-  const [mandatesIssued, casesSent, proofAgg] = await Promise.all([
-    prisma.authorization
-      .count({ where: { mandateJti: { not: null }, status: "ACTIVE" } })
-      .catch(() => 0),
-    prisma.case
-      .count({ where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } } })
-      .catch(() => 0),
-    prisma.savingsProof
-      .aggregate({
-        where: { selfReported: false, savingMonthly: { gt: 0 } },
-        _count: true,
-        _sum: { savingMonthly: true },
-      })
-      .catch(() => ({ _count: 0, _sum: { savingMonthly: null as number | null } })),
-  ]);
-
-  const volume = {
-    mandatesIssued,
-    casesSent,
-    savingsProofs: proofAgg._count,
-    verifiedRecoveredMinor: proofAgg._sum.savingMonthly ?? 0,
-  };
-  const gravity = scorePipeGravity(volume);
+  const network = await loadPipeNetworkVolume();
 
   return NextResponse.json(
     {
@@ -67,9 +43,7 @@ export async function GET(request: Request) {
           : "Mandate keys not configured in this environment — human Authorization still works; machine pipe soft-degrades.",
       },
       network: {
-        ...volume,
-        gravity_tier: gravity.tier,
-        gravity_note: gravity.note,
+        ...network,
         disclaimer:
           "Counts are de-identified aggregates. Empty is honest. Visa-scale gravity requires volume, not slides.",
       },
