@@ -12,6 +12,8 @@ import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
+import { LoopVolumePanel } from "@/components/LoopVolumePanel";
+import { loadLoopVolume } from "@/lib/services/loopVolume";
 import { bcp47, type Locale } from "@/i18n/config";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
@@ -65,6 +67,8 @@ export default async function FounderPage({
   if (!(await isEmailVerified(user!.id))) redirect({ href: "/dashboard", locale });
 
   const releaseGate = evaluateConsumerReleaseGate();
+  const smtpOk = emailConfigured();
+  const loopVolume = await loadLoopVolume(smtpOk);
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const [
@@ -228,12 +232,13 @@ export default async function FounderPage({
   ];
 
   return (
-    <main className="max-w-[680px] mx-auto px-5 pb-24 pt-8" dir="rtl">
+    <main className="max-w-[920px] mx-auto px-5 pb-24 pt-8" dir="rtl">
       <h1 className="font-display text-3xl mb-1.5">מדדי מייסד</h1>
-      <p className="text-ink-soft text-[14px] mb-7">
-        המספר שמאמת את המודל: <b className="text-emerald">אחוז ההצלחה</b> — מתוך הפניות שנענו, כמה
-        הניבו חיסכון אמיתי ומתועד. הרץ 20–30 תיקי סלולר אמיתיים וצפה כאן שהלופ באמת סוגר כסף.
+      <p className="text-ink-soft text-[14px] mb-5">
+        המספרים היחידים: Mandates שנשלחו, SavingsProof מתועד, השלמה לפי וורטיקל. בלי vanity.
       </p>
+
+      <LoopVolumePanel snap={loopVolume} locale={locale} />
 
       <div
         className={`rounded-2xl border px-5 py-4 mb-6 ${
@@ -285,7 +290,7 @@ export default async function FounderPage({
         )}
       </div>
 
-      {!emailConfigured() && (
+      {!smtpOk && (
         <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">
           ⚠ SMTP_HOST לא מוגדר בסביבה הזו. "נשלחו לספק (SENT+)" למטה סופר תיקים שסומנו SENT
           באפליקציה — לא מיילים שבאמת יצאו. עד שיוגדר SMTP אמיתי, שום פנייה לא הגיעה בפועל לאף ספק,
