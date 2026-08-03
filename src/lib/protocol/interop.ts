@@ -81,6 +81,7 @@ export const INTEROP_PROBE_CHECKS: readonly InteropProbeCheck[] = [
   { id: "inbound_receive", profile: "zakai-mandate-verifier-1", method: "GET", path: WELL_KNOWN_RELATIVE.inboundReceive, expectStatus: 200 },
   { id: "inbound_receive_ref", profile: "zakai-mandate-verifier-1", method: "GET", path: "/api/institution/inbound-receive", expectStatus: 200 },
   { id: "agent_economy", profile: "zakai-core-1", method: "GET", path: WELL_KNOWN_RELATIVE.agentEconomy, expectStatus: 200 },
+  { id: "agents_index", profile: "zakai-pipe-1", method: "GET", path: WELL_KNOWN_RELATIVE.agents, expectStatus: 200 },
   { id: "pipe_well_known", profile: "zakai-pipe-1", method: "GET", path: WELL_KNOWN_RELATIVE.pipe, expectStatus: 200 },
   { id: "pipe_api", profile: "zakai-pipe-1", method: "GET", path: "/api/pipe", expectStatus: 200 },
   { id: "pipe_mark", profile: "zakai-pipe-1", method: "GET", path: "/api/pipe/mark", expectStatus: 200 },

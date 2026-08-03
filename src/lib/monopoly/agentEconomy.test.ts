@@ -5,8 +5,11 @@ describe("buildAgentEconomyDocument", () => {
   it("publishes handoff + protocol URLs without claiming filings", () => {
     const doc = buildAgentEconomyDocument("https://zakai-3uxj.vercel.app/");
     expect(doc.spec).toBe("zakai-agent-economy");
+    expect(doc.handoff.api).toContain("/api/pipe/handoff");
+    expect(doc.handoff.method).toBe("POST");
     expect(doc.handoff.consumer_must_have).toContain("/he/must-have");
     expect(doc.handoff.attribution_query).toContain("utm_source=agent");
+    expect(doc.handoff.agents_index).toContain("zakai-agents.json");
     expect(doc.protocol.trillion_gates).toContain("/api/network/trillion-gates");
     expect(doc.protocol.savings_ledger).toContain("/api/network/savings-ledger");
     expect(doc.protocol.pipe).toContain("zakai-pipe.json");

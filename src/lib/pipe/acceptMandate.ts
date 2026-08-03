@@ -1,11 +1,8 @@
+import { MandateError, MandateKeyUnavailableError, type MandateClaims } from "@/lib/mandate/mandate";
 import {
-  verifyMandate,
-  publicJwkFor,
-  loadSigningKeyFromEnv,
-  MandateError,
-  MandateKeyUnavailableError,
-  type MandateClaims,
-} from "@/lib/mandate/mandate";
+  verifyMandateWithTrustRegistry,
+  RegistryVerifyError,
+} from "@/lib/mandate/verifyWithRegistry";
 import { decide, permittedActions, type RevocationState } from "@/lib/mandate/decision";
 import { buildMandateRef, draftDecisionRecord } from "@/lib/settlement/records";
 
@@ -65,9 +62,7 @@ export async function acceptMandateOnPipe(input: {
   }
 
   try {
-    const key = loadSigningKeyFromEnv();
-    const jwk = await publicJwkFor(key);
-    const claims = await verifyMandate(token, { audience, publicJwks: [jwk] });
+    const { claims } = await verifyMandateWithTrustRegistry(token, { audience });
     const revocation = await input.lookupRevocation(claims.jti);
 
     const decideInput = {
@@ -109,6 +104,20 @@ export async function acceptMandateOnPipe(input: {
   } catch (err) {
     if (err instanceof MandateKeyUnavailableError) {
       return { ok: false, error: "issuer_key_unavailable", status: 503 };
+    }
+    if (err instanceof RegistryVerifyError) {
+      return {
+        ok: true,
+        accepted: false,
+        decision: "deny",
+        reason: err.code.toLowerCase(),
+        audience,
+        jti: "",
+        permitted: [],
+        obligations: [],
+        detail: err.message,
+        settlementNote: "Token failed trust-registry verification — do not process the act.",
+      };
     }
     if (err instanceof MandateError) {
       // Same contract as /api/mandate/decide: deny is a successful answer.

@@ -47,6 +47,15 @@ export function institutionPullFooterLine(locale: "he" | "en", origin: string): 
   return `Institutions receiving many of these: automate Mandate verify — ${page} · ${email}`;
 }
 
+/**
+ * Machine one-shot for desks / parsers — pipe accept + JWKS.
+ * Keep under ~280 chars so mail truncation rarely drops it.
+ */
+export function institutionPipeMagnetLine(origin: string): string {
+  const base = origin.replace(/\/+$/, "");
+  return `Machine: POST ${base}/api/pipe/accept {mandate_jws,action} · JWKS ${base}/.well-known/zakai-jwks.json · pipe ${base}/.well-known/zakai-pipe.json`;
+}
+
 export function roiMailto(input: {
   volume: number;
   minutes: number;

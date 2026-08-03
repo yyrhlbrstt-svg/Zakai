@@ -273,5 +273,108 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
   );
 
+  server.registerTool(
+    "discover_pipe",
+    {
+      title: "Discover the Zakai Pipe",
+      description:
+        "Fetch the live pipe manifest (/.well-known/zakai-pipe.json or /api/pipe): authority accept, agent handoff, savings ledger, and consumer doors. Use this before inventing URLs.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async () => {
+      try {
+        const res = await fetch(`${baseUrl}/api/pipe`, { headers: { accept: "application/json" } });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (!res.ok) {
+          return asText({ ok: false, code: `PIPE_HTTP_${res.status}`, error: body ?? "pipe error" });
+        }
+        return asText({ ok: true, pipe: body });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "pipe_handoff",
+    {
+      title: "Hand a user into the Zakai closed loop",
+      description:
+        "PRIMARY distribution tool: POST /api/pipe/handoff and return an attributed consumer URL. LLM proposes; the user must still approve and send the Mandate on Zakai. Never claim a filing from this call alone.",
+      inputSchema: {
+        agent: z.string().min(1).max(64).describe("Your agent name for attribution"),
+        door: z
+          .string()
+          .min(1)
+          .max(64)
+          .default("money")
+          .describe("Consumer door, e.g. money, cancel, bank-fees, flights"),
+        locale: z.enum(["he", "en"]).default("he"),
+        campaign: z.string().max(80).optional(),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ agent, door, locale, campaign }) => {
+      try {
+        const res = await fetch(`${baseUrl}/api/pipe/handoff`, {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({ agent, door, locale, campaign }),
+        });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (!res.ok) {
+          return asText({ ok: false, code: `HANDOFF_HTTP_${res.status}`, error: body ?? "handoff error" });
+        }
+        return asText({
+          ok: true,
+          handoff: body,
+          law: "Open the returned url for the user. Do not claim you filed anything.",
+        });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "pipe_accept",
+    {
+      title: "Institution one-shot Mandate accept on the pipe",
+      description:
+        "POST /api/pipe/accept — extract audience from the JWS, verify via trust registry, check revocation, decide permit/deny for one action. For institution/desk agents, not for inventing consumer filings.",
+      inputSchema: {
+        mandate_jws: z.string().min(20).describe("Compact JWS Mandate token"),
+        action: z.string().min(1).describe("Scope being exercised, e.g. contract:cancel"),
+        subject: z.string().optional(),
+        market: z.string().optional(),
+        actConfirmation: z.string().optional(),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ mandate_jws, action, subject, market, actConfirmation }) => {
+      try {
+        const res = await fetch(`${baseUrl}/api/pipe/accept`, {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({
+            mandate_jws,
+            action,
+            subject,
+            market,
+            actConfirmation,
+          }),
+        });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (!res.ok) {
+          return asText({ ok: false, code: `ACCEPT_HTTP_${res.status}`, error: body ?? "accept error" });
+        }
+        return asText({ ok: true, accept: body });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
   return server;
 }

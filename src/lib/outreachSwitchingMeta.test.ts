@@ -16,5 +16,7 @@ describe("outreachSwitchingMeta", () => {
     });
     expect(block).toContain("mandate_jti: abc-123");
     expect(block).toContain("/api/mandate/status/abc-123");
+    expect(block).toContain("pipe_accept:");
+    expect(block).toContain("/api/pipe/accept");
   });
 });

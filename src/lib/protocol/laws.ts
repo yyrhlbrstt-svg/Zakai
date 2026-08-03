@@ -53,6 +53,8 @@ export const WELL_KNOWN_RELATIVE = {
   intelligence: "/.well-known/zakai-intelligence.json",
   /** Single discovery document for the Mandate → SavingsProof rails. */
   pipe: "/.well-known/zakai-pipe.json",
+  /** Foreign-agent index: handoff + accept + MCP + packs. */
+  agents: "/.well-known/zakai-agents.json",
 } as const;
 
 export function absoluteWellKnown(origin: string, path: string): string {

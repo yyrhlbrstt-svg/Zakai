@@ -68,6 +68,8 @@ export function buildInboundReceiveDocument(origin: string) {
       "One JSON shape for Mandate-backed consumer requests — verify cryptographically, process asynchronously, never require a call centre.",
     channels: ["https_webhook", "email_to_desk", "sftp_batch"] as InboundReceiveChannel[],
     verify: {
+      /** Preferred one-shot on the pipe (aud extract → registry verify → decide). */
+      pipe_accept: `${base}/api/pipe/accept`,
       jwks: `${base}/.well-known/zakai-jwks.json`,
       trust_registry: `${base}/.well-known/zakai-trust-registry.json`,
       revocations: `${base}/api/mandate/revocations`,

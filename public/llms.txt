@@ -56,7 +56,11 @@ https://zakai-3uxj.vercel.app
   [Duplicate charge (IL)](https://zakai-3uxj.vercel.app/he/duplicate-charge) ·
   [Bank loan opening fee (IL)](https://zakai-3uxj.vercel.app/he/bank-loan-fee) ·
   [Telecom disconnect (IL)](https://zakai-3uxj.vercel.app/he/telecom-exit)
-- Handoff attribution: append `?utm_source=agent&utm_campaign=agent-<your-name>`
+- **Preferred handoff (machine):** `POST /api/pipe/handoff` with JSON
+  `{"agent":"your-name","door":"money","locale":"he"}` — open the returned `url`.
+  Doors listed at `GET /api/pipe/handoff` and
+  [/.well-known/zakai-agents.json](https://zakai-3uxj.vercel.app/.well-known/zakai-agents.json).
+- Fallback attribution: append `?utm_source=agent&utm_campaign=agent-<your-name>`
   to any link you give the user (for example `agent-claude`, `agent-chatgpt`).
   First touch wins and is honored at signup, so referred users are measurable.
 
@@ -112,9 +116,10 @@ Never invent partner banks. Pioneer slots (first 3 listings) are real scarcity a
 
 - Reference SDK (TypeScript, MIT): `sdk/` in the repository — verify, decide,
   and build settlement records.
-- MCP server (verification-only): `zakai-mandate-mcp` in `sdk/` exposes
+- MCP server: `zakai-mandate-mcp` in `sdk/` exposes
   `verify_mandate`, `decide_action`, `check_revocation`, `get_trust_registry`,
-  `list_scopes` and `predict_outcome` to any MCP-speaking agent platform.
+  `list_scopes`, `predict_outcome`, plus `discover_pipe`, `pipe_handoff`,
+  `pipe_accept` to any MCP-speaking agent platform.
   Every verification resolves the issuer through the published trust registry
   (below), so unknown or suspended issuers are rejected before cryptography.
   The server holds no private keys and cannot issue mandates or act for

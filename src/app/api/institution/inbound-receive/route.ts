@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
+import { MandateError, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import {
-  verifyMandate,
-  publicJwkFor,
-  loadSigningKeyFromEnv,
-  MandateError,
-  MandateKeyUnavailableError,
-} from "@/lib/mandate/mandate";
+  verifyMandateWithTrustRegistry,
+  RegistryVerifyError,
+} from "@/lib/mandate/verifyWithRegistry";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import {
@@ -79,10 +77,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const key = loadSigningKeyFromEnv();
-    const jwk = await publicJwkFor(key);
     // Banks pin their own audience; the reference receiver extracts aud from
-    // the token then verifies signature + scopes against published JWKS.
+    // the token then verifies via trust registry (any admitted issuer).
     let audience = "";
     try {
       const mid = body.mandate_jws.split(".")[1];
@@ -97,10 +93,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "missing_audience" }, { status: 400, headers: CORS });
     }
 
-    const claims = await verifyMandate(body.mandate_jws, {
-      audience,
-      publicJwks: [jwk],
-    });
+    const { claims } = await verifyMandateWithTrustRegistry(body.mandate_jws, { audience });
 
     if (claims.jti !== body.mandate_jti) {
       return NextResponse.json(
@@ -149,6 +142,12 @@ export async function POST(request: Request) {
   } catch (err) {
     if (err instanceof MandateKeyUnavailableError) {
       return NextResponse.json({ error: "signing_unavailable" }, { status: 503, headers: CORS });
+    }
+    if (err instanceof RegistryVerifyError) {
+      return NextResponse.json(
+        { error: "mandate_rejected", reason: err.code, detail: err.message },
+        { status: 401, headers: CORS },
+      );
     }
     if (err instanceof MandateError) {
       return NextResponse.json(

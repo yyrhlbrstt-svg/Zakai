@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
+import { MandateError, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import {
-  verifyMandate,
-  publicJwkFor,
-  loadSigningKeyFromEnv,
-  MandateError,
-  MandateKeyUnavailableError,
-} from "@/lib/mandate/mandate";
+  verifyMandateWithTrustRegistry,
+  RegistryVerifyError,
+} from "@/lib/mandate/verifyWithRegistry";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 
@@ -50,12 +48,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const key = loadSigningKeyFromEnv();
-    const jwk = await publicJwkFor(key);
-    const claims = await verifyMandate(token, {
-      audience,
-      publicJwks: [jwk],
-    });
+    const { claims, issuer } = await verifyMandateWithTrustRegistry(token, { audience });
 
     let status: "active" | "revoked" | "unknown" = "active";
     try {
@@ -79,6 +72,7 @@ export async function POST(req: Request) {
       {
         valid: true,
         status,
+        issuer: { iss: issuer.iss, name: issuer.name, status: issuer.status },
         claims: {
           jti: claims.jti,
           aud: claims.aud,
@@ -97,6 +91,12 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "mandate_keys_not_configured" },
         { status: 503, headers: CORS },
+      );
+    }
+    if (err instanceof RegistryVerifyError) {
+      return NextResponse.json(
+        { valid: false, reason: err.code, message: err.message },
+        { status: 400, headers: CORS },
       );
     }
     if (err instanceof MandateError) {

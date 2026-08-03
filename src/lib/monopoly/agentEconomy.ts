@@ -17,16 +17,22 @@ export function buildAgentEconomyDocument(origin: string) {
     laws: [
       "LLM proposes; Zakai executes only after explicit user action.",
       "No outward money-movement Mandate scopes.",
-      "Handoffs use utm_source=agent&utm_campaign=agent-<name> (first-touch cookie).",
+      "Primary handoff: POST /api/pipe/handoff — then open the returned url (first-touch cookie).",
+      "Fallback UTMs: utm_source=agent&utm_campaign=agent-<name>.",
       "Never invent amounts, eligibility, or claim a filing that was only drafted.",
       "Success is Mandates issued + SavingsProofs recorded — not chat turns.",
     ],
     handoff: {
+      /** Preferred machine door — attributed URL for any pipe door. */
+      api: `${base}/api/pipe/handoff`,
+      method: "POST",
+      body_example: { agent: "your-agent-name", door: "money", locale: "he" },
       consumer_must_have: `${base}/he/must-have`,
       money_scan: `${base}/he/money#zakai-money-scan`,
       what_owed: `${base}/he/what-am-i-owed`,
       cancel_universal: `${base}/he/cancel/universal`,
       attribution_query: "?utm_source=agent&utm_campaign=agent-<your-name>",
+      agents_index: `${base}/.well-known/zakai-agents.json`,
       llms_txt: `${base}/llms.txt`,
     },
     protocol: {
@@ -48,7 +54,7 @@ export function buildAgentEconomyDocument(origin: string) {
       apply: `${base}/api/mandate/delegation/apply`,
       issuers: `${base}/api/mandate/delegation/issuers`,
       evidence: `${base}/api/mandate/delegation/evidence`,
-      mcp: "zakai-mandate-mcp (verify-only)",
+      mcp: "zakai-mandate-mcp (verify + pipe_handoff + pipe_accept + discover_pipe)",
     },
     join_kit: `${base}/api/network/join-kit`,
     human_join: `${base}/he/join-network`,

@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
+import { MandateError, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import {
-  verifyMandate,
-  publicJwkFor,
-  loadSigningKeyFromEnv,
-  MandateError,
-  MandateKeyUnavailableError,
-} from "@/lib/mandate/mandate";
+  verifyMandateWithTrustRegistry,
+  RegistryVerifyError,
+} from "@/lib/mandate/verifyWithRegistry";
 import { decide, permittedActions, type RevocationState } from "@/lib/mandate/decision";
 import { buildMandateRef, draftDecisionRecord } from "@/lib/settlement/records";
 import { prisma } from "@/lib/prisma";
@@ -85,9 +83,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const key = loadSigningKeyFromEnv();
-    const jwk = await publicJwkFor(key);
-    const claims = await verifyMandate(token, { audience, publicJwks: [jwk] });
+    const { claims } = await verifyMandateWithTrustRegistry(token, { audience });
 
     // Unknown is a real state and is carried through honestly. A decision that
     // silently assumed "active" when the ledger was unreachable would keep a
@@ -154,6 +150,17 @@ export async function POST(req: Request) {
   } catch (err) {
     if (err instanceof MandateKeyUnavailableError) {
       return NextResponse.json({ error: "issuer_key_unavailable" }, { status: 503, headers: CORS });
+    }
+    if (err instanceof RegistryVerifyError) {
+      return NextResponse.json(
+        {
+          decision: "deny",
+          reason: err.code.toLowerCase(),
+          detail: err.message,
+          obligations: [],
+        },
+        { status: 200, headers: CORS },
+      );
     }
     if (err instanceof MandateError) {
       return NextResponse.json(

@@ -72,11 +72,14 @@ export function letterFooter(locale: FooterLocale = "he"): string {
       "—",
       "המכתב הוכן באמצעות זכאי. הפנייה היא של השולח/ת בלבד.",
       institutionPullFooterLine("he", origin()),
+      // Short magnet — full pipe lines live in outbound protocol footer.
+      `Machine: POST ${origin()}/api/pipe/accept`,
     ].join("\n"),
     en: [
       "—",
       "Prepared with Zakai. The request is the sender's own.",
       institutionPullFooterLine("en", origin()),
+      `Machine: POST ${origin()}/api/pipe/accept`,
     ].join("\n"),
     ar: [
       "—",

@@ -1,4 +1,8 @@
-import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
+import {
+  institutionPipeMagnetLine,
+  institutionPullFooterLine,
+  institutionSalesEmail,
+} from "@/lib/institutionPull";
 import {
   SWITCHING_SPEC,
   SWITCHING_VERSION,
@@ -52,9 +56,13 @@ export function buildOutreachProtocolFooter(input: {
     lines.push(`mandate_status: ${base}/api/mandate/status/${input.mandateJti}`);
   }
   lines.push(`mandate_jwks: ${base}/.well-known/zakai-jwks.json`);
+  lines.push(`pipe_accept: ${base}/api/pipe/accept`);
+  lines.push(`pipe_manifest: ${base}/.well-known/zakai-pipe.json`);
+  lines.push(`inbound_receive: ${base}/api/institution/inbound-receive`);
   lines.push(`institutions: ${base}/he/institutions`);
   lines.push(`pilot_package: ${base}/api/institution/pilot-package`);
   lines.push(`contact: ${institutionSalesEmail()}`);
+  lines.push(institutionPipeMagnetLine(base));
   lines.push(institutionPullFooterLine("en", base));
   return lines.join("\n");
 }

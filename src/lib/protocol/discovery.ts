@@ -142,6 +142,7 @@ export function buildZakaiProtocolDocument(origin: string) {
       ignore_cost: `${origin}/api/institution/ignore-cost`,
       inbound_receive: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.inboundReceive),
       agent_economy: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.agentEconomy),
+      agents_index: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.agents),
       fairness_certified: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.fairnessCertified),
       pipe: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.pipe),
       pipe_api: `${origin}/api/pipe`,

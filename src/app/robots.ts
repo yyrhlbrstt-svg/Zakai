@@ -37,6 +37,21 @@ const INSTITUTIONAL_API_PATHS = [
   "/api/mandate/revocations",
   "/api/settlement/test-vectors",
   "/api/health",
+  "/api/pipe",
+  "/api/pipe/mark",
+  "/api/pipe/handoff",
+  "/api/interop",
+  "/api/cdn/packs",
+  "/api/network/join-kit",
+  "/api/network/monopoly",
+  "/api/network/indispensability",
+  "/api/network/trillion-gates",
+  "/api/network/gravity",
+  "/api/network/savings-ledger",
+  "/api/institution/pilot-package",
+  "/api/institution/inbound-receive",
+  "/api/institution/ignore-cost",
+  "/api/rights/catalog",
 ];
 
 export default function robots(): MetadataRoute.Robots {

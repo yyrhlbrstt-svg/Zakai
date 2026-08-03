@@ -10,6 +10,9 @@ describe("buildJoinKitDocument", () => {
     expect(doc.audiences.institution.urls.pipe_mark).toContain("/api/pipe/mark");
     expect(doc.audiences.issuer.urls.evidence).toContain("/evidence");
     expect(doc.audiences.agent.urls.must_have).toContain("/must-have");
+    expect(doc.audiences.agent.urls.pipe_handoff).toContain("/api/pipe/handoff");
+    expect(doc.audiences.agent.urls.agents_index).toContain("zakai-agents.json");
+    expect(doc.audiences.agent.steps[0]).toMatch(/PRIMARY/i);
     expect(doc.audiences.developer.urls.packs_mirror).toContain("/api/cdn/packs");
     expect(doc.honesty).toMatch(/never auto-filled/i);
   });

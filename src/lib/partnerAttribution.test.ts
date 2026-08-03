@@ -21,4 +21,11 @@ describe("partnerRefFromSearchParams", () => {
     const p = new URLSearchParams("utm_source=newsletter&utm_campaign=x");
     expect(partnerRefFromSearchParams(p)).toBeNull();
   });
+
+  it("prefers ref_agent for pipe handoff attribution", () => {
+    const p = new URLSearchParams(
+      "utm_source=agent&utm_campaign=agent-generic&ref_agent=claude-code",
+    );
+    expect(partnerRefFromSearchParams(p)).toBe("agent-claude-code");
+  });
 });

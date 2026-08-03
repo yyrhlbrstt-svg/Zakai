@@ -8,6 +8,7 @@ import { PROTOCOL_LAWS, WELL_KNOWN_RELATIVE, absoluteWellKnown } from "@/lib/pro
 export const PIPE_SPEC = "zakai-pipe";
 export const PIPE_VERSION = "2026-08-03";
 
+/** Consumer doors foreign agents may hand into — keep aligned with embed paths. */
 const DOORS = [
   "money",
   "cancel",
@@ -16,6 +17,16 @@ const DOORS = [
   "electricity",
   "leaks",
   "what-am-i-owed",
+  "check",
+  "refund-chase",
+  "flights",
+  "deposit",
+  "duplicate-insurance",
+  "arnona",
+  "warranty",
+  "parking",
+  "must-have",
+  "start",
 ] as const;
 
 export type PipeDoor = (typeof DOORS)[number];
@@ -70,7 +81,8 @@ export function buildZakaiPipeDocument(origin: string) {
         role: "Foreign AIs hand users into the closed loop with attribution",
         economy: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.agentEconomy),
         handoff: `${base}/api/pipe/handoff`,
-        mcp: "zakai-mandate-mcp (verify-only)",
+        agents_index: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.agents),
+        mcp: "zakai-mandate-mcp (verify + pipe_handoff + pipe_accept + discover_pipe)",
         sdk: `${base.replace(/\/$/, "")}/` + "sdk/ (monorepo) → @zakai/mandate-sdk",
         join_kit: `${base}/api/network/join-kit`,
       },

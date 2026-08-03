@@ -19,6 +19,18 @@ export async function GET(request: Request) {
 
   const sample = await issueInstitutionPilotSample(audience);
 
+  const curlAccept = sample
+    ? [
+        `curl -sS -X POST ${origin}/api/pipe/accept \\`,
+        `  -H 'Content-Type: application/json' \\`,
+        `  -d '{"mandate_jws":"${sample.token}","action":"request:records"}'`,
+      ].join("\n")
+    : [
+        `curl -sS -X POST ${origin}/api/pipe/accept \\`,
+        `  -H 'Content-Type: application/json' \\`,
+        `  -d '{"mandate_jws":"<compact-jws>","action":"request:records"}'`,
+      ].join("\n");
+
   const curlInbound = sample
     ? [
         `curl -sS -X POST ${origin}/api/institution/inbound-receive \\`,
@@ -41,33 +53,44 @@ export async function GET(request: Request) {
     steps: [
       {
         id: 1,
-        title: "Hit the hosted reference receiver",
-        action: `GET ${origin}/api/institution/inbound-receive`,
+        title: "One-shot pipe accept (preferred)",
+        action: `POST ${origin}/api/pipe/accept with mandate_jws + action`,
       },
       {
         id: 2,
-        title: "Run readiness wizard",
-        action: `${origin}/he/institutions/leader`,
+        title: "Publish acceptor mark when you process Mandates",
+        action: `GET ${origin}/api/pipe/mark`,
       },
       {
         id: 3,
         title: sample
-          ? "POST the filled sample curl below (live Mandate JWS, expires in 1h)"
-          : "POST inbound body — signing keys unavailable in this environment; use wizard sample after keys are set",
-        action: `POST ${origin}/api/institution/inbound-receive`,
+          ? "POST the filled pipe/accept curl below (live Mandate JWS, expires in 1h)"
+          : "POST pipe/accept — signing keys unavailable here; set Mandate keys then re-fetch",
+        action: `POST ${origin}/api/pipe/accept`,
       },
       {
         id: 4,
+        title: "Optional: hosted reference inbound-receive (multi-field body)",
+        action: `POST ${origin}/api/institution/inbound-receive`,
+      },
+      {
+        id: 5,
+        title: "Run readiness wizard",
+        action: `${origin}/he/institutions/leader`,
+      },
+      {
+        id: 6,
         title: "Clone receiver for your VPC",
         action: `${origin}/reference/inbound-receiver/receive.mjs`,
       },
       {
-        id: 5,
+        id: 7,
         title: "Optional: list on leaders wall",
         action: `${origin}/he/institutions/leaders`,
       },
     ],
-    curl_health: `curl -sS ${origin}/api/institution/inbound-receive | jq .`,
+    curl_health: `curl -sS ${origin}/api/pipe | jq .`,
+    curl_accept: curlAccept,
     curl_inbound: curlInbound,
     curl_inbound_template: curlInbound,
     sample: sample
@@ -79,6 +102,9 @@ export async function GET(request: Request) {
         }
       : null,
     urls: {
+      pipe: `${origin}/.well-known/zakai-pipe.json`,
+      pipe_accept: `${origin}/api/pipe/accept`,
+      pipe_mark: `${origin}/api/pipe/mark`,
       inbound_spec: `${origin}/.well-known/zakai-inbound-receive.json`,
       jwks: `${origin}/.well-known/zakai-jwks.json`,
       trust_registry: `${origin}/.well-known/zakai-trust-registry.json`,

@@ -31,6 +31,10 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 - [x] `POST /api/pipe/accept` + `POST /api/pipe/handoff` + acceptor mark
 - [x] Seven rails score SENT+ volume; `/api/network/monopoly` includes `monopolyLoop` P0
 - [x] Founder + domains + pipe show **MonopolyMissionControl**
+- [x] Hosted verify/decide/accept/inbound-receive resolve issuers via **trust registry** (not single-key)
+- [x] Agents index `/.well-known/zakai-agents.json` + handoff-first join-kit / llms / MCP tools
+- [x] Desk magnets: `pipe_accept` on outreach protocol footer + letter Machine line
+- [x] robots.txt Allow for pipe/interop/CDN/join-kit/network APIs
 - [ ] Prod: SMTP + merge + Redeploy + real cases until `gravity_tier=network` — **founder**
 
 ---

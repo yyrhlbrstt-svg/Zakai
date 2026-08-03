@@ -23,7 +23,7 @@ Other companies become clients of the rails — or look outdated next to whoever
 
 **Monopoly definition:** institutions and foreign agents **must** speak Mandate→SavingsProof because ignoring it is more expensive than verifying. That only happens at `gravity_tier=network` with real SMTP delivery — not slides. Execution board: `GET /api/network/monopoly` → `monopolyLoop.p0` · UI: `MonopolyMissionControl` on `/founder`, `/pipe`, `/domains`.
 
-**Ship surface for the rails:** `docs/PIPE.md` · `/.well-known/zakai-pipe.json` · `/he/pipe` · `POST /api/pipe/accept` · `POST /api/pipe/handoff`.
+**Ship surface for the rails:** `docs/PIPE.md` · `/.well-known/zakai-pipe.json` · `/.well-known/zakai-agents.json` · `/he/pipe` · `POST /api/pipe/accept` (registry-backed) · `POST /api/pipe/handoff` (primary agent door).
 
 ## Core thesis
 

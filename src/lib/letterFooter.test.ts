@@ -22,8 +22,10 @@ describe("the footer says only what is true without any record on our side", () 
 
   it("points at the page an institution needs, in every language", () => {
     for (const locale of ["he", "en", "ar", "ru"] as const) {
-      expect(letterFooter(locale)).toMatch(/\/(he|en)\/institutions$/m);
+      expect(letterFooter(locale)).toMatch(/\/(he|en)\/institutions/);
     }
+    expect(letterFooter("he")).toContain("/api/pipe/accept");
+    expect(letterFooter("en")).toContain("/api/pipe/accept");
   });
 
   it("addresses the institution rather than the reader of the claim", () => {

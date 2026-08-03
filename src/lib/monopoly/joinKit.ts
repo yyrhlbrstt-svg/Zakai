@@ -64,11 +64,16 @@ export function buildJoinKitDocument(origin: string) {
       agent: {
         goal: "Route users with attribution; verify Mandates via MCP — do not fake filings (G8).",
         steps: [
-          "Handoff: /he/must-have?utm_source=agent&utm_campaign=agent-<name>",
-          "Install zakai-mandate-mcp (verify-only)",
+          "PRIMARY: POST /api/pipe/handoff { agent, door, locale } → open returned url",
+          "Discover doors: GET /api/pipe/handoff or /.well-known/zakai-agents.json",
+          "Fallback UTM: /he/must-have?utm_source=agent&utm_campaign=agent-<name>",
+          "Install zakai-mandate-mcp (verify + pipe_handoff + pipe_accept)",
           "Optional: partner embed with durable WidgetKey",
         ],
         urls: {
+          pipe_handoff: `${base}/api/pipe/handoff`,
+          pipe_manifest: `${base}/.well-known/zakai-pipe.json`,
+          agents_index: `${base}/.well-known/zakai-agents.json`,
           economy: `${base}/.well-known/zakai-agent-economy.json`,
           must_have: `${base}/he/must-have`,
           llms: `${base}/llms.txt`,

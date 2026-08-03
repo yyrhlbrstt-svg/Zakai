@@ -1,5 +1,6 @@
 import "server-only";
 import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
+import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { buildFollowUpForVertical } from "@/lib/followUpRouter";
@@ -122,6 +123,13 @@ export async function dispatchCaseFollowUp(
     : follow.subject;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const protocolFooter = buildOutreachProtocolFooter({
+    appUrl,
+    authCode: auth.code,
+    mandateJti: auth.mandateJti,
+    vertical: kase.vertical,
+    market: "IL",
+  });
   const footer = `
 
 ————————————————————————
@@ -133,7 +141,8 @@ export async function dispatchCaseFollowUp(
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
 ${institutionPullFooterLine("he", appUrl)}
 לאוטומציה: ${institutionSalesEmail()}
-זוהי פנייה חוזרת של הסוכן (סיבוב ${round}) — הלקוח/ה אישר/ה את השליחה.`;
+זוהי פנייה חוזרת של הסוכן (סיבוב ${round}) — הלקוח/ה אישר/ה את השליחה.
+${protocolFooter}`;
 
   const attachment = mandateEmailAttachment({
     code: auth.code,

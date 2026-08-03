@@ -19,9 +19,13 @@ describe("zakaiPipe", () => {
     expect(doc.laws.some((l) => l.id === "no_outbound_money_scopes")).toBe(true);
   });
 
-  it("builds attributed handoff URLs", () => {
+  it("builds attributed handoff URLs across expanded doors", () => {
+    const doc = buildZakaiPipeDocument("https://zakai.example");
     expect(isPipeDoor("cancel/universal")).toBe(true);
+    expect(isPipeDoor("flights")).toBe(true);
+    expect(isPipeDoor("must-have")).toBe(true);
     expect(isPipeDoor("not-a-door")).toBe(false);
+    expect(doc.rails.agents.agents_index).toContain("zakai-agents.json");
     const url = buildHandoffUrl({
       origin: "https://zakai.example",
       locale: "he",

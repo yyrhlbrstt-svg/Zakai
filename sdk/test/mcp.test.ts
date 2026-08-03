@@ -104,6 +104,28 @@ function stubPublicEndpoints(publicJwk: JWK, opts: StubOptions = {}) {
           headers: { "content-type": "application/json" },
         });
       }
+      if (url.includes("/api/pipe/handoff") && !url.endsWith("/api/pipe")) {
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            url: `${ISSUER}/he/money?utm_source=agent`,
+            pipe: "zakai-pipe",
+          }),
+          { headers: { "content-type": "application/json" } },
+        );
+      }
+      if (url.includes("/api/pipe/accept")) {
+        return new Response(
+          JSON.stringify({ ok: true, accepted: true, decision: "permit" }),
+          { headers: { "content-type": "application/json" } },
+        );
+      }
+      if (url.endsWith("/api/pipe") || url.includes("/api/pipe?")) {
+        return new Response(
+          JSON.stringify({ ok: true, spec: "zakai-pipe", doors: ["money"] }),
+          { headers: { "content-type": "application/json" } },
+        );
+      }
       throw new Error(`unexpected fetch in test: ${url}`);
     }),
   );
@@ -120,14 +142,17 @@ afterEach(() => {
 });
 
 describe("zakai-mandate MCP server", () => {
-  it("exposes exactly the verification-only tool set", async () => {
+  it("exposes verify + pipe discovery/handoff/accept — never issuance", async () => {
     const client = await connectedClient();
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
       "check_revocation",
       "decide_action",
+      "discover_pipe",
       "get_trust_registry",
       "list_scopes",
+      "pipe_accept",
+      "pipe_handoff",
       "predict_outcome",
       "verify_mandate",
     ]);

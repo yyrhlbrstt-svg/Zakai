@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   institutionPilotMailto,
+  institutionPipeMagnetLine,
   institutionPullFooterLine,
   roiMailto,
 } from "./institutionPull";
@@ -17,6 +18,13 @@ describe("institutionPull", () => {
     const he = institutionPullFooterLine("he", "https://zakai.example");
     expect(he).toContain("/he/institutions");
     expect(he.length).toBeLessThan(220);
+  });
+
+  it("publishes machine pipe accept magnet", () => {
+    const line = institutionPipeMagnetLine("https://zakai.example/");
+    expect(line).toContain("/api/pipe/accept");
+    expect(line).toContain("zakai-jwks.json");
+    expect(line.length).toBeLessThan(280);
   });
 
   it("packs ROI numbers into mailto body", () => {
