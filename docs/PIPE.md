@@ -23,7 +23,7 @@ We are **not** Google/Visa until `gravity_tier` reaches `network` with real SMTP
 
 Not another consumer screen. Four rails every bank, telecom, utility, and foreign AI must eventually speak:
 
-1. **Authority** — Ed25519 Mandate (JWKS, verify, decide, revoke). Institution one-shot: `POST /api/pipe/accept`.
+1. **Authority** — Ed25519 Mandate (JWKS, verify, decide, revoke, `GET /api/mandate/ready`). Institution one-shot: `POST /api/pipe/accept`.
 2. **Intake** — inbound-only receive (`/api/institution/inbound-receive` + `reference/inbound-receiver/`). No callback to Zakai.
 3. **Outcomes** — de-identified `GET /api/network/savings-ledger` + `/he/proofs`. Empty is honest.
 4. **Agents** — `POST /api/pipe/handoff` returns an attributed consumer URL. LLM proposes; user executes.
