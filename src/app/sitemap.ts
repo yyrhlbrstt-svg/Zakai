@@ -123,6 +123,10 @@ const PATHS = [
   "/unemployment",
   "/vat",
   "/warranty",
+  "/about",
+  "/protocol",
+  "/privacy",
+  "/terms",
 ];
 
 // Every known provider gets a real page now (see companies/[provider]/page.tsx —

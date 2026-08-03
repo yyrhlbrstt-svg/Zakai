@@ -21,15 +21,15 @@ Track honest status — no fabricated metrics.
 - [x] OG via `/api/og` (was missing `/og.png`)
 - [x] `/about` comparison uses `about.why` + min-height cards
 - [x] `/agents` Hebrew body + RTL
-- [x] `/institutions` partial Hebrew (hero + key sections)
 - [x] `/institutions` full Hebrew body (long sections via `institutionsLongCopy.ts`)
-- [ ] Home “soon” strip — keep or move to roadmap page
+- [x] Home “soon” strip — none on home today (only `/deals` placeholder); no change needed
 
 ## SEO
 
 - [x] FAQ JSON-LD
 - [x] Rights slug OG images
-- [ ] Optional: per-slug `og:image` with amount for viral SAVED shares
+- [x] SAVED case share → `/share?amount=` (rich OG) via `buildShareLandingUrl`
+- [ ] Optional: per-rights-slug `og:image` with conservative estimate (only when catalogue has a stable amount)
 
 ## Related
 

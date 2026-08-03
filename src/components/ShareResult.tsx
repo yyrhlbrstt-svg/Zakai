@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { buildShareLandingUrl } from "@/lib/shareUrl";
 
 /**
  * The viral loop, embedded in the product. After a result, one tap shares it —
@@ -42,17 +43,14 @@ export function ShareResult({
 
   function url() {
     if (typeof window === "undefined") return "";
-    const origin = window.location.origin;
-    if (amountLabel) {
-      const qs = new URLSearchParams({ amount: amountLabel });
-      if (kicker) qs.set("kicker", kicker);
-      if (referralCode) qs.set("ref", referralCode);
-      return `${origin}/${locale}/share?${qs.toString()}`;
-    }
-    if (referralCode) {
-      return `${origin}/signup?ref=${encodeURIComponent(referralCode)}`;
-    }
-    return `${origin}${path}`;
+    return buildShareLandingUrl({
+      origin: window.location.origin,
+      locale,
+      amountLabel,
+      kicker,
+      referralCode,
+      fallbackPath: path,
+    });
   }
   function fullText() {
     return `${message}\n${url()}`;

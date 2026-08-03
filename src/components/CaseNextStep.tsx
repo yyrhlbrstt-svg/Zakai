@@ -10,7 +10,8 @@ import { rankPriorityActions } from "@/lib/priority";
 import { proBreakevenSavingAgorot } from "@/lib/plans";
 import type { FeeBasis } from "@/lib/verticals/types";
 import { VERTICAL_TO_CATALOG_ID } from "@/lib/priorityCatalogMap";
-import { providerContactEmail } from "@/lib/providers";
+import { providerContactEmail, providerHebrewName } from "@/lib/providers";
+import { buildShareLandingUrl } from "@/lib/shareUrl";
 import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 
 type Status =
@@ -266,10 +267,29 @@ export function CaseNextStep({
       (he
         ? "חסכתי כסף עם זכאי — סוכן דיגיטלי שפעל בשמי מול הספק, בלי מוקד ובלי לחכות לאף אחד."
         : "I saved money with Zakai — a digital agent acted for me, no call center.");
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://zakai.app";
-    const shareUrl = referralCode
-      ? `${origin}/signup?ref=${encodeURIComponent(referralCode)}`
-      : `${origin}/`;
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : "https://zakai-3uxj.vercel.app";
+    const amountLabelForShare =
+      documentedSavingShekels != null && documentedSavingShekels > 0
+        ? feeBasis === "monthly"
+          ? `₪${documentedSavingShekels}${he ? "/ח׳" : "/mo"}`
+          : he
+            ? `₪${documentedSavingShekels} מתועד`
+            : `₪${documentedSavingShekels}`
+        : undefined;
+    const shareKicker =
+      provider && provider.trim()
+        ? he
+          ? providerHebrewName(provider)
+          : provider
+        : "Zakai";
+    const shareUrl = buildShareLandingUrl({
+      origin,
+      locale,
+      amountLabel: amountLabelForShare,
+      kicker: shareKicker,
+      referralCode,
+    });
     const fullText = `${msg}\n${shareUrl}`;
 
     // Ranked, not a static shortlist — the same CATALOG ranking that feeds
