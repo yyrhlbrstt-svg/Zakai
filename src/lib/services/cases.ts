@@ -540,8 +540,8 @@ export async function recordSaving(
       body:
         result.feeNet > 0
           ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת בדשבורד.`
-          : `תועד חיסכון של ₪${savingShekels}. שתף או המשך בדשבורד.`,
-      url: result.feeNet > 0 ? dashPay : `/dashboard?saved=1&case=${caseId}`,
+          : `תועד חיסכון של ₪${savingShekels}. שתף או המשך ב״הכסף שלי״.`,
+      url: result.feeNet > 0 ? dashPay : `/money?case=${caseId}`,
       tag: `saved-${caseId}`,
     }).catch(() => null);
   }

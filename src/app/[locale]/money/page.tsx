@@ -19,6 +19,7 @@ import { LiveGravityStrip } from "@/components/LiveGravityStrip";
 import { PersonalProofStrip } from "@/components/PersonalProofStrip";
 import { OpenLoopFocusBanner } from "@/components/OpenLoopFocusBanner";
 import { MoneyLoopCloser } from "@/components/MoneyLoopCloser";
+import { OvernightAgent } from "@/components/OvernightAgent";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
@@ -67,6 +68,7 @@ export default async function MoneyPage({
   let openLoop = false;
   let openLoopHref = "/money";
   let openLoopLabel = "";
+  let overnightCases: Array<{ id: string; providerLabel: string; agentRound?: number }> = [];
   let personalDocumented = {
     count: 0,
     monthlyAgorot: 0,
@@ -115,6 +117,16 @@ export default async function MoneyPage({
         : provider
           ? `Your case with ${provider} needs the next step`
           : "An open case needs the next step";
+      // HITL follow-up draft lives on the finish surface — not only dashboard.
+      if (action.kind === "sent_wait" && focus) {
+        overnightCases = [
+          {
+            id: focus.id,
+            providerLabel: providerHebrewName(focus.provider),
+            agentRound: agentRounds.get(focus.id) ?? 0,
+          },
+        ];
+      }
     }
     personalDocumented = {
       count: cases.filter(
@@ -181,6 +193,7 @@ export default async function MoneyPage({
               focusCaseId={focusCaseId}
             />
           ) : null}
+          {overnightCases.length > 0 ? <OvernightAgent cases={overnightCases} /> : null}
           <PersonalProofStrip
             locale={locale as Locale}
             documentedCount={personalDocumented.count}

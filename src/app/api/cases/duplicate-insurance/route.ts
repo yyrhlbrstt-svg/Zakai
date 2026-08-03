@@ -16,7 +16,7 @@ import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   insurerName: z.string().min(1).max(120),
-  // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
+  // Destination inbox required — express Mandate cannot dispatch without it.
   insurerEmail: z.string().max(200).optional(),
   wastefulPolicyKeys: z.array(z.string().min(1).max(40)).min(1).max(12),
   monthlyPremiumAgorot: z.number().int().min(100).max(500_000),
