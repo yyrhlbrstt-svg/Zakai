@@ -42,10 +42,26 @@ export interface MonopolyLoopInput {
   emailVerifyGap?: boolean;
 }
 
+/** The only three conditions that turn Zakai from an app into infrastructure. */
+export type IrreversibilityId = "consumers_on_mandate" | "mandate_better" | "proof_volume";
+
+export interface IrreversibilityCondition {
+  id: IrreversibilityId;
+  titleHe: string;
+  titleEn: string;
+  /** Honest meter from real counters — never invented traction. */
+  meterHe: string;
+  meterEn: string;
+  met: boolean;
+}
+
 export interface MonopolyLoopPlan {
   thesisHe: string;
   thesisEn: string;
   gravity_tier: PipeGravityTier;
+  /** App → infrastructure only when all three are true. */
+  irreversibility: IrreversibilityCondition[];
+  irreversibilityReady: boolean;
   moves: MonopolyNextMove[];
   /** Single P0 — founder dashboard headline */
   p0: MonopolyNextMove;
@@ -180,12 +196,47 @@ export function planMonopolyLoop(input: MonopolyLoopInput): MonopolyLoopPlan {
   moves.sort((a, b) => a.priority - b.priority);
   const p0 = moves.find((m) => m.blocksMonopoly) ?? moves[0]!;
 
+  const irreversibility: IrreversibilityCondition[] = [
+    {
+      id: "consumers_on_mandate",
+      titleHe: "צרכנים שולחים עם Mandate",
+      titleEn: "Consumers send with Mandate",
+      meterHe: `SENT+=${input.pipe.casesSent} · Mandates=${input.pipe.mandatesIssued} (סף כבידה ≈20)`,
+      meterEn: `SENT+=${input.pipe.casesSent} · Mandates=${input.pipe.mandatesIssued} (gravity floor ≈20)`,
+      met: input.pipe.casesSent >= 20 || input.pipe.mandatesIssued >= 20,
+    },
+    {
+      id: "mandate_better",
+      titleHe: "Mandate נוח ואמין יותר מהחלופות",
+      titleEn: "Mandate easier/trustworthier than alternatives",
+      meterHe: `מסילות תשתית ${input.infrastructureScore}/100 · בגרות Mandate=${input.mandateMaturity} · SMTP=${input.smtpConfigured ? "on" : "off"}`,
+      meterEn: `Infra rails ${input.infrastructureScore}/100 · Mandate maturity=${input.mandateMaturity} · SMTP=${input.smtpConfigured ? "on" : "off"}`,
+      met:
+        input.smtpConfigured &&
+        input.infrastructureScore >= 40 &&
+        (input.mandateMaturity === "usable" ||
+          input.mandateMaturity === "gravity" ||
+          input.mandateMaturity === "default"),
+    },
+    {
+      id: "proof_volume",
+      titleHe: "מספיק SavingsProof שהשיטה עובדת",
+      titleEn: "Enough SavingsProof that the method works",
+      meterHe: `SavingsProof=${input.pipe.savingsProofs} (סף כבידה ≈10 · רשת ≈50)`,
+      meterEn: `SavingsProof=${input.pipe.savingsProofs} (gravity floor ≈10 · network ≈50)`,
+      met: input.pipe.savingsProofs >= 10,
+    },
+  ];
+  const irreversibilityReady = irreversibility.every((c) => c.met);
+
   return {
     thesisHe:
-      "מונופול = צינור Mandate→SavingsProof שכל מוסד וסוכן חייב לדבר. לא אפליקציה יפה יותר.",
+      "תשתית (לא אפליקציה) רק כששלושה תנאים בלתי־הפיכים: צרכנים על Mandate + Mandate עדיף על חלופות + נפח SavingsProof. בלי שלושתם — אל תרדפו מיליארדים בחודש.",
     thesisEn:
-      "Monopoly = Mandate→SavingsProof pipe every institution and agent must speak. Not a prettier app.",
+      "Infrastructure (not an app) only when three conditions are irreversible: consumers on Mandate + Mandate beats alternatives + SavingsProof volume. Without all three — do not chase billions/month.",
     gravity_tier: tier,
+    irreversibility,
+    irreversibilityReady,
     moves,
     p0,
     disclaimerHe:

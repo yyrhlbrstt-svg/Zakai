@@ -35,6 +35,28 @@ describe("planMonopolyLoop", () => {
     });
     expect(plan.p0.id).toBe("volume_sent");
     expect(plan.thesisHe).toMatch(/Mandate/);
+    expect(plan.irreversibility).toHaveLength(3);
+    expect(plan.irreversibilityReady).toBe(false);
+    expect(plan.irreversibility.every((c) => !c.met)).toBe(true);
+  });
+
+  it("marks irreversibility only when all three conditions clear", () => {
+    const plan = planMonopolyLoop({
+      smtpConfigured: true,
+      pipe: {
+        mandatesIssued: 25,
+        casesSent: 30,
+        savingsProofs: 12,
+        verifiedRecoveredMinor: 100_000,
+        gravity_tier: "gravity",
+      },
+      infrastructureScore: 55,
+      closedLoopMaturity: "usable",
+      mandateMaturity: "usable",
+      delegatedIssuersActive: 1,
+    });
+    expect(plan.irreversibilityReady).toBe(true);
+    expect(plan.irreversibility.every((c) => c.met)).toBe(true);
   });
 
   it("opens institution pull only at gravity tier", () => {

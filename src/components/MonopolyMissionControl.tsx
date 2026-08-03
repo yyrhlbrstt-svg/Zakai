@@ -43,6 +43,31 @@ export async function MonopolyMissionControl({ locale }: { locale: string }) {
         {he ? loop.thesisHe : loop.thesisEn}
       </p>
 
+      <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(0,0,0,0.18)] px-4 py-3 mb-4">
+        <div className="text-[11px] font-bold text-emerald mb-2">
+          {he
+            ? loop.irreversibilityReady
+              ? "שלושת התנאים — מוכנים (תשתית אפשרית)"
+              : "שלושת התנאים — עדיין לא בלתי־הפיכים"
+            : loop.irreversibilityReady
+              ? "Three conditions — met (infrastructure possible)"
+              : "Three conditions — not yet irreversible"}
+        </div>
+        <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
+          {loop.irreversibility.map((c) => (
+            <li key={c.id} className="text-[12.5px] leading-snug">
+              <span className={c.met ? "text-emerald font-extrabold" : "text-[#F08A6B] font-extrabold"}>
+                {c.met ? "✓" : "○"}{" "}
+              </span>
+              <span className="font-bold">{he ? c.titleHe : c.titleEn}</span>
+              <span className="block text-[11.5px] text-ink-soft font-mono mt-0.5" dir="ltr">
+                {he ? c.meterHe : c.meterEn}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <div className="rounded-xl border border-[rgba(240,138,107,0.45)] bg-[rgba(0,0,0,0.22)] px-4 py-3 mb-4">
         <div className="text-[11px] font-bold text-[#F08A6B] mb-1">
           {he ? "P0 עכשיו" : "P0 now"}
