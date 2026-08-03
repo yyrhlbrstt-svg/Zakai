@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { pickShareableSavedCaseId } from "./shareableSavedCase";
+import { isDeadFinishStatus, pickShareableSavedCaseId } from "./shareableSavedCase";
+
+describe("isDeadFinishStatus", () => {
+  it("marks NO_SAVING and REVOKED as dead finish pins", () => {
+    expect(isDeadFinishStatus("NO_SAVING")).toBe(true);
+    expect(isDeadFinishStatus("REVOKED")).toBe(true);
+    expect(isDeadFinishStatus("SENT")).toBe(false);
+    expect(isDeadFinishStatus("SAVED")).toBe(false);
+  });
+});
 
 describe("pickShareableSavedCaseId", () => {
   it("returns newest documented SAVED without pending fee", () => {

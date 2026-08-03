@@ -1,3 +1,8 @@
+/** Closed without a finishable action — must not pin /money?case= forever. */
+export function isDeadFinishStatus(status: string): boolean {
+  return status === "NO_SAVING" || status === "REVOKED";
+}
+
 /**
  * After fee is settled (or waived), rankNextAction returns start_money —
  * but prove → fee → share still needs a finish surface. Pick the newest

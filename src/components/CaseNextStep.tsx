@@ -177,8 +177,14 @@ const copy: Record<string, Record<string, string>> = {
     errNeedsEmail:
       "חסר אימייל לספק — הזינו כתובת ביטולים/שירות לקוחות ונסו שוב.",
     errDelivery: "שליחת המייל נכשלה — נסו שוב בעוד רגע.",
-    errAlreadySent: "כבר נשלח — רעננו את הדשבורד.",
+    errAlreadySent: "כבר נשלח — רעננו את «כסף שלי».",
     outreachEmailPh: "אימייל לשליחה (ספק / עירייה / חנות)",
+    noSavingTitle: "אין חיסכון מתועד בתיק הזה",
+    noSavingSub:
+      "סגרתם בלי SavingsProof — אפשר להתחיל סריקה חדשה או לפתוח תיק אחר. בלי תיעוד אין עמלה ואין שיתוף.",
+    noSavingCta: "חזרה לכסף שלי",
+    revokedTitle: "ההרשאה בוטלה",
+    revokedSub: "התיק לא פעיל. אפשר להתחיל מחדש ב«כסף שלי».",
   },
   en: {
     approve: "Approve & continue",
@@ -272,8 +278,14 @@ const copy: Record<string, Record<string, string>> = {
     errNeedsEmail:
       "Missing provider email — enter billing / support address and try again.",
     errDelivery: "Email delivery failed — try again in a moment.",
-    errAlreadySent: "Already sent — refresh the dashboard.",
+    errAlreadySent: "Already sent — refresh My money.",
     outreachEmailPh: "Send-to email (provider / municipality / merchant)",
+    noSavingTitle: "No documented saving on this case",
+    noSavingSub:
+      "You closed without a SavingsProof — start a new scan or another case. No proof means no fee and no share.",
+    noSavingCta: "Back to My money",
+    revokedTitle: "Mandate revoked",
+    revokedSub: "This case is inactive. Start again in My money.",
   },
 };
 
@@ -494,7 +506,41 @@ export function CaseNextStep({
     }
   }
 
-  if (status === "REVOKED" || status === "NO_SAVING") return null;
+  if (status === "NO_SAVING" || status === "REVOKED") {
+    const closed = status === "NO_SAVING";
+    const doors = nextOpenCase
+      ? [{ href: nextOpenCase.href, he: nextOpenCase.labelHe, en: nextOpenCase.labelEn }]
+      : rankPriorityActions(8)
+          .slice(0, 4)
+          .map((a) => ({ href: a.href, he: a.titleHe, en: a.titleEn }));
+    return (
+      <div className="w-full mt-2 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.03)] p-4">
+        <div className="text-[15px] font-extrabold">
+          {t(locale, closed ? "noSavingTitle" : "revokedTitle")}
+        </div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">
+          {t(locale, closed ? "noSavingSub" : "revokedSub")}
+        </p>
+        <Link href="/money" className="no-underline">
+          <Button className="!text-[13px] w-full sm:w-auto">{t(locale, "noSavingCta")}</Button>
+        </Link>
+        {doors.length > 0 ? (
+          <div className="mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
+            <div className="text-[12px] font-extrabold text-ink-soft mb-2">{t(locale, "nextDoors")}</div>
+            <div className="flex flex-wrap gap-2">
+              {doors.map((d) => (
+                <Link key={d.href} href={d.href}>
+                  <Button variant="ghost" className="!text-[12.5px] !py-1.5 !px-3">
+                    {heEn(he, d.he, d.en)} →
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
 
   if (status === "SAVED") {
     const msg = shareMessage || t(locale, "savedShareDefault");
