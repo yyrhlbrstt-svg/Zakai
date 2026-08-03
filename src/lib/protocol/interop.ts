@@ -12,7 +12,8 @@ export type InteropProfileId =
   | "zakai-core-1"
   | "zakai-rights-catalog-1"
   | "zakai-mandate-verifier-1"
-  | "zakai-outcome-graph-1";
+  | "zakai-outcome-graph-1"
+  | "zakai-pipe-1";
 
 export interface InteropProfileDef {
   id: InteropProfileId;
@@ -47,6 +48,13 @@ export const INTEROP_PROFILES: readonly InteropProfileDef[] = [
     summary: "De-identified strategy outcomes — public learning without user records.",
     implementer: "researcher",
   },
+  {
+    id: "zakai-pipe-1",
+    title: "Zakai Pipe (Mandate → SavingsProof rails)",
+    summary:
+      "Single discovery + accept + handoff + savings ledger — the Visa-style pipe other agents and institutions speak.",
+    implementer: "any_platform",
+  },
 ] as const;
 
 export interface InteropProbeCheck {
@@ -73,6 +81,12 @@ export const INTEROP_PROBE_CHECKS: readonly InteropProbeCheck[] = [
   { id: "inbound_receive", profile: "zakai-mandate-verifier-1", method: "GET", path: WELL_KNOWN_RELATIVE.inboundReceive, expectStatus: 200 },
   { id: "inbound_receive_ref", profile: "zakai-mandate-verifier-1", method: "GET", path: "/api/institution/inbound-receive", expectStatus: 200 },
   { id: "agent_economy", profile: "zakai-core-1", method: "GET", path: WELL_KNOWN_RELATIVE.agentEconomy, expectStatus: 200 },
+  { id: "pipe_well_known", profile: "zakai-pipe-1", method: "GET", path: WELL_KNOWN_RELATIVE.pipe, expectStatus: 200 },
+  { id: "pipe_api", profile: "zakai-pipe-1", method: "GET", path: "/api/pipe", expectStatus: 200 },
+  { id: "pipe_mark", profile: "zakai-pipe-1", method: "GET", path: "/api/pipe/mark", expectStatus: 200 },
+  { id: "pipe_handoff", profile: "zakai-pipe-1", method: "GET", path: "/api/pipe/handoff", expectStatus: 200 },
+  { id: "pipe_accept_cors", profile: "zakai-pipe-1", method: "OPTIONS", path: "/api/pipe/accept", expectStatus: 204 },
+  { id: "savings_ledger", profile: "zakai-pipe-1", method: "GET", path: "/api/network/savings-ledger", expectStatus: 200 },
   { id: "fairness_certified", profile: "zakai-rights-catalog-1", method: "GET", path: WELL_KNOWN_RELATIVE.fairnessCertified, expectStatus: 200 },
   { id: "fairness_scores", profile: "zakai-rights-catalog-1", method: "GET", path: "/api/fairness/scores?market=IL", expectStatus: 200 },
   { id: "mandate_discovery", profile: "zakai-mandate-verifier-1", method: "GET", path: WELL_KNOWN_RELATIVE.mandate, expectStatus: 200 },
@@ -140,6 +154,10 @@ export function buildInteropDocument(origin: string) {
       mandate_verify: `${base}/api/mandate/verify`,
       outcome_report: `${base}/api/outcome`,
       network: `${base}/api/network`,
+      pipe: `${base}/api/pipe`,
+      pipe_accept: `${base}/api/pipe/accept`,
+      pipe_handoff: `${base}/api/pipe/handoff`,
+      savings_ledger: `${base}/api/network/savings-ledger`,
     },
     sdk: {
       reference: "sdk/",

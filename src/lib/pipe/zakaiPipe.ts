@@ -46,6 +46,8 @@ export function buildZakaiPipeDocument(origin: string) {
         decide: `${base}/api/mandate/decide`,
         /** One-shot: extract aud → verify → decide → revocation. */
         accept: `${base}/api/pipe/accept`,
+        /** Public mark institutions can link when they process Mandates. */
+        acceptor_mark: `${base}/api/pipe/mark`,
         status_template: `${base}/api/mandate/status/{jti}`,
         conformance_probe: `${base}/api/mandate/conformance/probe`,
         openapi: `${base}/api/mandate/openapi.json`,

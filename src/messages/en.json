@@ -5492,6 +5492,7 @@
     "thesisBody": "A bank does not need another app — it needs a cheap way to verify an agent is authorised. An AI agent does not need to invent a power of attorney — it needs a format institutions accept. SavingsProof is proof the pipe works in the real world.",
     "ctaManifest": "Machine manifest (JSON)",
     "ctaLive": "Live status /api/pipe",
+    "ctaMark": "Mandate acceptor mark",
     "ctaConsumer": "Start as consumer — /money",
     "railsHeading": "Four rails",
     "railAuthority": "1 · Authority",

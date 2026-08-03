@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
-import { approveCase, CaseError } from "@/lib/services/cases";
-import { primeCaseForFastSend } from "@/lib/services/primeCase";
+import { approveCase, primeCaseForFastSend, CaseError } from "@/lib/services/cases";
 import { clientIp } from "@/lib/ratelimit";
 
 const schema = z.object({

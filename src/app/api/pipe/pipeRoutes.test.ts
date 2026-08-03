@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 describe("/api/pipe", () => {
-  it("returns pipe manifest with health", async () => {
+  it("returns pipe manifest with health + network gravity", async () => {
     const { GET } = await import("./route");
     const res = await GET(new Request("http://localhost/api/pipe"));
     const body = await res.json();
@@ -9,6 +9,18 @@ describe("/api/pipe", () => {
     expect(body.spec).toBe("zakai-pipe");
     expect(body.rails.authority.accept).toContain("/api/pipe/accept");
     expect(typeof body.health.pipe_ready).toBe("boolean");
+    expect(body.network).toBeDefined();
+    expect(["empty", "signal", "gravity", "network"]).toContain(body.network.gravity_tier);
+  });
+});
+
+describe("/api/pipe/mark", () => {
+  it("publishes acceptor mark without naming banks", async () => {
+    const { GET } = await import("./mark/route");
+    const res = await GET(new Request("http://localhost/api/pipe/mark"));
+    const body = await res.json();
+    expect(body.mark).toBe("zakai-pipe-acceptor");
+    expect(body.verify.accept).toContain("/api/pipe/accept");
   });
 });
 

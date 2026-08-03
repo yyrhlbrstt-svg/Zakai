@@ -146,6 +146,8 @@ export function buildZakaiProtocolDocument(origin: string) {
       pipe: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.pipe),
       pipe_api: `${origin}/api/pipe`,
       pipe_accept: `${origin}/api/pipe/accept`,
+      pipe_mark: `${origin}/api/pipe/mark`,
+      pipe_handoff: `${origin}/api/pipe/handoff`,
       savings_ledger: `${origin}/api/network/savings-ledger`,
       features: {
         mandate_verify: mandateSigningLive(),

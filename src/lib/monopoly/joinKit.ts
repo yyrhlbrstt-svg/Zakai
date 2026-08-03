@@ -21,13 +21,20 @@ export function buildJoinKitDocument(origin: string) {
       institution: {
         goal: "Accept structured Mandate inbound so ignore-cost becomes real (G3).",
         steps: [
+          "GET /.well-known/zakai-pipe.json — single rails discovery",
+          "POST /api/pipe/accept with mandate_jws + action (one-shot verify/decide)",
           "Run reference/inbound-receiver or POST /api/institution/inbound-receive",
+          "Publish acceptor mark: GET /api/pipe/mark",
           "Complete /he/institutions/leader readiness self-test",
           "Opt into public listing via POST /api/institution/reference-verifiers",
           "Measure pressure at /api/institution/inbound-pressure and /api/institution/ignore-cost",
         ],
         urls: {
           human: `${base}/he/institutions/leader`,
+          pipe: `${base}/he/pipe`,
+          pipe_manifest: `${base}/.well-known/zakai-pipe.json`,
+          pipe_accept: `${base}/api/pipe/accept`,
+          pipe_mark: `${base}/api/pipe/mark`,
           leaders_wall: `${base}/he/institutions/leaders`,
           inbound_spec: `${base}/.well-known/zakai-inbound-receive.json`,
           inbound_receive: `${base}/api/institution/inbound-receive`,

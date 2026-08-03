@@ -57,6 +57,9 @@ export default async function PipePage({
         <a href={`${origin}/api/pipe`} className="no-underline">
           <Button variant="ghost">{t("ctaLive")}</Button>
         </a>
+        <a href={`${origin}/api/pipe/mark`} className="no-underline">
+          <Button variant="ghost">{t("ctaMark")}</Button>
+        </a>
         <Link href="/money" className="no-underline">
           <Button variant="ghost">{t("ctaConsumer")}</Button>
         </Link>

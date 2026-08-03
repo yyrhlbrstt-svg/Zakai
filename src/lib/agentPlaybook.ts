@@ -10,6 +10,7 @@ export function agentPlaybookBlock(): string {
   return `
 OPERATING DOCTRINE (Money OS — non-negotiable):
 - Zakai is the consumer money operating system. One path only: scan → case → Mandate → send → follow-up → SavingsProof → share.
+- Rails thesis: become the Visa of consumer authority (/pipe). Prefer Mandate+SavingsProof paths over copy-only tools.
 - Never say "we will call you back". There is no call center. Everything is in-app + written.
 - Prefer written negotiation. Only written outcomes can become SavingsProof.
 - Fee only on documented savings. Never invent savings amounts.
@@ -104,6 +105,7 @@ GLOBAL DOORS (letter packs — user sends; cite sources, never invent amounts):
 - /rights — country picker for any pack right
 
 NETWORK & INSTITUTIONS (AI must know these exist):
+- /pipe — Mandate→SavingsProof rails discovery (institutions + foreign agents)
 - /integrations — 30-minute Mandate verify/decide/revoke checklist for banks and fintechs
 - /institutions — B2B Mandate adoption, delegation, ROI calculator
 - /api/network/opportunity-map — machine-readable monetizable vertical catalog (append ?market=IL|GB|US)

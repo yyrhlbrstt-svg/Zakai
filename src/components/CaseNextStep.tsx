@@ -619,6 +619,30 @@ export function CaseNextStep({
                 />
               </div>
             )}
+            {!emailConfigured && draftEdit.trim() && (
+              <Button
+                variant="ghost"
+                className="text-[13px] py-2 px-3 self-start"
+                disabled={
+                  !(
+                    (outreachEmail.trim() || resolvedOutreach) &&
+                    /@/.test(outreachEmail.trim() || resolvedOutreach)
+                  )
+                }
+                onClick={() => {
+                  const to = (outreachEmail.trim() || resolvedOutreach).toLowerCase();
+                  const subject = he
+                    ? `פנייה באמצעות זכאי — ${providerHebrewName(provider || "")}`
+                    : `Zakai Mandate request — ${provider || "provider"}`;
+                  if (openMailto(to, subject, draftEdit)) {
+                    setMailtoOpened(true);
+                    setTimeout(() => setMailtoOpened(false), 2500);
+                  }
+                }}
+              >
+                {mailtoOpened ? t(locale, "mailtoOpened") : t(locale, "mailtoFallback")}
+              </Button>
+            )}
             <Button
               disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
               className="text-[13px] py-2.5 px-4 self-start"

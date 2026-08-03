@@ -102,7 +102,9 @@ Never invent partner banks. Pioneer slots (first 3 listings) are real scarcity a
 - Protocol gravity: `GET /api/network/gravity`
 - **Zakai Pipe** (single rails discovery): [/.well-known/zakai-pipe.json](https://zakai-3uxj.vercel.app/.well-known/zakai-pipe.json) · `GET /api/pipe` · human [/he/pipe](https://zakai-3uxj.vercel.app/he/pipe)
 - Institution one-shot accept: `POST /api/pipe/accept` `{ mandate_jws, action }`
+- Acceptor mark (publish when you process Mandates): `GET /api/pipe/mark`
 - Agent handoff into closed loop: `POST /api/pipe/handoff` `{ agent, door }`
+- Interop profile: `zakai-pipe-1` in `/.well-known/zakai-interop.json`
 - Public savings ledger (de-identified SavingsProof / outcomes — empty is honest): `GET /api/network/savings-ledger`
 - Agent economy (how other AIs hand off + verify Mandate): [/.well-known/zakai-agent-economy.json](https://zakai-3uxj.vercel.app/.well-known/zakai-agent-economy.json)
 

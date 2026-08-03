@@ -1,7 +1,21 @@
 # Zakai Pipe — Mandate → SavingsProof rails
 
 **Machine entry:** `GET /.well-known/zakai-pipe.json` · `GET /api/pipe`  
-**Human entry:** `/he/pipe`
+**Human entry:** `/he/pipe`  
+**Acceptor mark:** `GET /api/pipe/mark`  
+**Interop profile:** `zakai-pipe-1` in `/.well-known/zakai-interop.json`
+
+## Visa / Google bar (what “done” means)
+
+| Analogy | Zakai equivalent | Status |
+|---------|------------------|--------|
+| Visa format every merchant speaks | Mandate JWS + `/api/pipe/accept` | Built — needs volume |
+| Visa settlement / chargeback trail | SavingsProof + settlement drafts | Built — needs proofs |
+| Visa acceptance mark | `/api/pipe/mark` | Built |
+| Google default starting place | `/money` + assistant → one next action | Built — needs habit |
+| Network effect scoreboard | `/api/pipe` → `network.gravity_tier` | Built — empty until SENT |
+
+We are **not** Google/Visa until `gravity_tier` reaches `network` with real SMTP delivery. Until then: ship volume on these rails — do not invent partners.
 
 ## What the pipe is
 

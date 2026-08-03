@@ -9,6 +9,7 @@ import { sendEmail } from "@/lib/messaging";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { createAuthorization, ensureMandateTokenForCase } from "./authorization";
+import { stampOwnershipFromVerifiedEmail } from "./ownership";
 import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import {
   buildInboundReceivePayload,
@@ -63,6 +64,26 @@ interface CreateCaseInput {
   autoApprove?: boolean;
 }
 
+/**
+ * Collapse APPROVED → VERIFIED when the account already proved email control.
+ * Visa rule: every consented case should be one tap from a machine Mandate send.
+ */
+export async function primeCaseForFastSend(
+  userId: string,
+  caseId: string,
+): Promise<{ ownershipViaEmail: boolean }> {
+  const ownershipViaEmail = await stampOwnershipFromVerifiedEmail(userId, caseId);
+  if (ownershipViaEmail) {
+    try {
+      await createAuthorization(caseId);
+    } catch {
+      /* may already exist */
+    }
+  }
+  await refreshVerifiedStatus(caseId);
+  return { ownershipViaEmail };
+}
+
 export async function createCase(input: CreateCaseInput) {
   const user = await prisma.user.findUnique({
     where: { id: input.userId },
@@ -74,7 +95,7 @@ export async function createCase(input: CreateCaseInput) {
   if (!canOpenCase(user?.plan, activeCount)) throw new CaseError("CASE_LIMIT");
 
   const now = new Date();
-  return prisma.case.create({
+  const created = await prisma.case.create({
     data: {
       userId: input.userId,
       vertical: input.vertical ?? "telecom",
@@ -94,6 +115,15 @@ export async function createCase(input: CreateCaseInput) {
       approvedAt: input.autoApprove ? now : null,
     },
   });
+
+  // Every auto-approved vertical (cancel, bank-fees, scan batch, …) enters the
+  // fast Mandate path — one network of rails, not one-off UX per door.
+  if (input.autoApprove) {
+    await primeCaseForFastSend(input.userId, created.id);
+    const refreshed = await prisma.case.findUnique({ where: { id: created.id } });
+    if (refreshed) return refreshed;
+  }
+  return created;
 }
 
 async function ownedCase(caseId: string, userId: string) {
