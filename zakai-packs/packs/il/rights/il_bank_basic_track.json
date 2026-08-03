@@ -3,8 +3,8 @@
   "id": "il_bank_basic_track",
   "version": "2026-07-26",
   "display_name": {
-    "en": "bank basic track",
-    "he": "bank basic track"
+    "en": "Bank basic fee track",
+    "he": "מסלול עמלות בסיסי בבנק"
   },
   "market": "IL",
   "category": "finance",

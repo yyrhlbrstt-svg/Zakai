@@ -19,6 +19,18 @@ describe("GET /api/rights/catalog", () => {
     expect(body.rights[0]._links.self).toMatch(/^\/api\/rights\/catalog\//);
   });
 
+  it("includes Hebrew label when locale=he", async () => {
+    const res = await catalogGet(
+      new Request("https://zakai.test/api/rights/catalog?market=IL&locale=he"),
+    );
+    const body = await res.json();
+    const arnona = body.rights.find(
+      (r: { id: string }) => r.id === "il_arnona_area_correction",
+    );
+    expect(arnona?.label).toBe("תיקון שטח נכס שגוי בארנונה");
+    expect(arnona?.display_name.he).toBe("תיקון שטח נכס שגוי בארנונה");
+  });
+
   it("returns 404 for unknown market", async () => {
     const res = await catalogGet(new Request("https://zakai.test/api/rights/catalog?market=ZZ"));
     expect(res.status).toBe(404);

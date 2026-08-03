@@ -1044,6 +1044,7 @@
       "subs": "Subscriptions"
     },
     "cta": "Check my bills — free",
+    "ctaHint": "Next step: a free profile check — no signup required",
     "ctaScan": "Scan recurring charges (CSV)",
     "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
   },

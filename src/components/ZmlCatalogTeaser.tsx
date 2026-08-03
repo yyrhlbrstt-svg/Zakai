@@ -12,7 +12,7 @@ export async function ZmlCatalogTeaser({
   market: string;
 }) {
   const t = await getTranslations({ locale, namespace: "global" });
-  const catalog = await buildCatalogResponse(SITE_URL, market, { limit: 12 });
+  const catalog = await buildCatalogResponse(SITE_URL, market, { limit: 12, locale });
   if (!catalog?.rights.length) return null;
 
   const label = marketLabel(market);
@@ -27,8 +27,9 @@ export async function ZmlCatalogTeaser({
       </p>
       <ul className="m-0 p-0 list-none flex flex-col gap-2 mb-4">
         {catalog.rights.map((r) => {
-          const name =
+          const name = r.label ??
             r.display_name[locale as keyof typeof r.display_name] ??
+            r.display_name.he ??
             r.display_name.en ??
             r.id;
           return (

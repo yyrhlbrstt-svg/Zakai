@@ -3,8 +3,8 @@
   "id": "il_insurance_duplicates",
   "version": "2026-07-26",
   "display_name": {
-    "en": "insurance duplicates",
-    "he": "insurance duplicates"
+    "en": "Duplicate insurance check (\"Har HaBituach\")",
+    "he": "בדיקת כפל ביטוחים (\"הר הביטוח\")"
   },
   "market": "IL",
   "category": "consumer_protection",

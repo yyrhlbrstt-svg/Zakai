@@ -3,8 +3,8 @@
   "id": "il_mobile_check",
   "version": "2026-07-26",
   "display_name": {
-    "en": "mobile check",
-    "he": "mobile check"
+    "en": "Mobile bill check",
+    "he": "בדיקת חשבון סלולר"
   },
   "market": "IL",
   "category": "consumer_protection",

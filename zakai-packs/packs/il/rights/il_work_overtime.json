@@ -3,8 +3,8 @@
   "id": "il_work_overtime",
   "version": "2026-07-26",
   "display_name": {
-    "en": "work overtime",
-    "he": "work overtime"
+    "en": "Overtime pay",
+    "he": "גמול שעות נוספות"
   },
   "market": "IL",
   "category": "employment",

@@ -3,8 +3,8 @@
   "id": "il_heating_grant",
   "version": "2026-07-26",
   "display_name": {
-    "en": "heating grant",
-    "he": "heating grant"
+    "en": "Heating grant",
+    "he": "מענק חימום"
   },
   "market": "IL",
   "category": "health",

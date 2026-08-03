@@ -3,8 +3,8 @@
   "id": "il_disability_allowance",
   "version": "2026-07-26",
   "display_name": {
-    "en": "disability allowance",
-    "he": "disability allowance"
+    "en": "General disability allowance",
+    "he": "קצבת נכות כללית"
   },
   "market": "IL",
   "category": "health",

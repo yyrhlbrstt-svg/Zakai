@@ -3,8 +3,8 @@
   "id": "il_train_delay_compensation",
   "version": "2026-07-26",
   "display_name": {
-    "en": "train delay compensation",
-    "he": "train delay compensation"
+    "en": "Train delay/cancellation compensation",
+    "he": "פיצוי על איחור/ביטול ברכבת"
   },
   "market": "IL",
   "category": "consumer_protection",

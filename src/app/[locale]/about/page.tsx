@@ -7,7 +7,8 @@ import { Reveal } from "@/components/Reveal";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
-import { ENTITLEMENTS } from "@/lib/rights";
+import { buildZmlCatalogForMarket } from "@/lib/protocol/zml/catalog";
+import { SITE_URL } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -29,7 +30,8 @@ export default async function AboutPage({
   const t = await getTranslations("about");
   const th = await getTranslations("home");
   const proof = await provenSavings();
-  const ilRightsCount = ENTITLEMENTS.filter((e) => !/^(us|uk|de|fr|ca|au|it)_/.test(e.id)).length;
+  const ilRights = await buildZmlCatalogForMarket(SITE_URL, "IL");
+  const ilRightsCount = ilRights.length;
   const cols = ["alone", "services", "zakai"] as const;
 
   return (

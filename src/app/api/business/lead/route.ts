@@ -1,4 +1,4 @@
-import { FOUNDER_EMAIL } from "@/lib/contact";
+import { salesInboundEmail } from "@/lib/contact";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -17,11 +17,7 @@ const schema = z.object({
   interest: z.enum(["employees", "mandate", "both"]).optional().default("employees"),
 });
 
-// `.example` is reserved by RFC 2606 and cannot receive mail. It is the
-// deliberate placeholder, not a working fallback — the preflight fails on it so
-// nobody discovers it by wondering why the enquiries stopped.
-const SALES_EMAIL =
-  process.env.SALES_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || FOUNDER_EMAIL;
+const SALES_EMAIL = salesInboundEmail();
 
 const INTEREST_LABEL: Record<string, string> = {
   employees: "הטבת עובדים (B2B2C)",

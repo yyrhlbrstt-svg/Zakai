@@ -3,8 +3,8 @@
   "id": "il_betterment_tax_refund",
   "version": "2026-07-26",
   "display_name": {
-    "en": "betterment tax refund",
-    "he": "betterment tax refund"
+    "en": "Betterment-tax review",
+    "he": "בדיקת שומת מס שבח"
   },
   "market": "IL",
   "category": "tax",

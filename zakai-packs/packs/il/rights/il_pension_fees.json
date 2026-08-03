@@ -3,8 +3,8 @@
   "id": "il_pension_fees",
   "version": "2026-07-26",
   "display_name": {
-    "en": "pension fees",
-    "he": "pension fees"
+    "en": "Pension management fees",
+    "he": "דמי ניהול פנסיה"
   },
   "market": "IL",
   "category": "consumer_protection",

@@ -3,8 +3,8 @@
   "id": "il_electricity_switch",
   "version": "2026-07-26",
   "display_name": {
-    "en": "electricity switch",
-    "he": "electricity switch"
+    "en": "Electricity supplier switch",
+    "he": "מעבר ספק חשמל"
   },
   "market": "IL",
   "category": "energy",

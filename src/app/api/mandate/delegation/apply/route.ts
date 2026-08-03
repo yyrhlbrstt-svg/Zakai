@@ -7,7 +7,7 @@ import { badRequest } from "@/lib/api";
 import { reportError } from "@/lib/report-error";
 import { FORBIDDEN_SCOPES, isKnownScope, SCOPES } from "@/lib/mandate/scopes";
 import { isForbiddenAnywhere } from "@/lib/mandate/domains";
-import { FOUNDER_EMAIL } from "@/lib/contact";
+import { salesInboundEmail } from "@/lib/contact";
 
 /**
  * The self-serve front door to becoming a delegated issuer.
@@ -26,8 +26,7 @@ import { FOUNDER_EMAIL } from "@/lib/contact";
  * human should still look before that starts happening.
  */
 
-const SALES_EMAIL =
-  process.env.SALES_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || FOUNDER_EMAIL;
+const SALES_EMAIL = salesInboundEmail();
 
 const schema = z.object({
   slug: z

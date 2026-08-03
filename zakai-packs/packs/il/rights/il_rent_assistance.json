@@ -3,8 +3,8 @@
   "id": "il_rent_assistance",
   "version": "2026-07-26",
   "display_name": {
-    "en": "rent assistance",
-    "he": "rent assistance"
+    "en": "Rent assistance",
+    "he": "סיוע בשכר דירה"
   },
   "market": "IL",
   "category": "housing",

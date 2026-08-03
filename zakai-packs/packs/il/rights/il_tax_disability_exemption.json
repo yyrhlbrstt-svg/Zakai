@@ -3,8 +3,8 @@
   "id": "il_tax_disability_exemption",
   "version": "2026-07-26",
   "display_name": {
-    "en": "tax disability exemption",
-    "he": "tax disability exemption"
+    "en": "Tax exemption for qualifying disability",
+    "he": "פטור ממס לנכות מזכה"
   },
   "market": "IL",
   "category": "tax",

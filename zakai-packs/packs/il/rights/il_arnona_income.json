@@ -3,8 +3,8 @@
   "id": "il_arnona_income",
   "version": "2026-07-26",
   "display_name": {
-    "en": "arnona income",
-    "he": "arnona income"
+    "en": "Income-based arnona discount",
+    "he": "הנחת ארנונה לפי הכנסה"
   },
   "market": "IL",
   "category": "housing",

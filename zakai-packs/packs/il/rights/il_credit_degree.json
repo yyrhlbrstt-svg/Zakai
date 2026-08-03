@@ -3,8 +3,8 @@
   "id": "il_credit_degree",
   "version": "2026-07-26",
   "display_name": {
-    "en": "credit degree",
-    "he": "credit degree"
+    "en": "Credit point for graduates",
+    "he": "נקודת זיכוי לבוגרי תואר"
   },
   "market": "IL",
   "category": "tax",

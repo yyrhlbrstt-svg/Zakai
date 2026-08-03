@@ -3,8 +3,8 @@
   "id": "il_subscription_audit",
   "version": "2026-07-26",
   "display_name": {
-    "en": "subscription audit",
-    "he": "subscription audit"
+    "en": "Recurring-subscription audit",
+    "he": "ביקורת מנויים חוזרים"
   },
   "market": "IL",
   "category": "consumer_protection",

@@ -3,8 +3,8 @@
   "id": "il_eligible_settlement_credit",
   "version": "2026-07-26",
   "display_name": {
-    "en": "eligible settlement credit",
-    "he": "eligible settlement credit"
+    "en": "Designated-town residence credit",
+    "he": "זיכוי לתושב יישוב מזכה"
   },
   "market": "IL",
   "category": "tax",

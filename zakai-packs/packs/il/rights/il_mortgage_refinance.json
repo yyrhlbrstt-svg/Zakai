@@ -3,8 +3,8 @@
   "id": "il_mortgage_refinance",
   "version": "2026-07-26",
   "display_name": {
-    "en": "mortgage refinance",
-    "he": "mortgage refinance"
+    "en": "Mortgage refinance check",
+    "he": "בדיקת מיחזור משכנתא"
   },
   "market": "IL",
   "category": "housing",

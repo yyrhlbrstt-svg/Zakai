@@ -113,6 +113,9 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
         <div className="font-display grad-text text-[42px] leading-tight mt-1 transition-all duration-300 ease-out" aria-live="polite">
           {money(r.totalAgorot)}
         </div>
+        {r.totalAgorot > 0 && (
+          <p className="text-[13px] text-ink-soft mt-2 mb-0 font-semibold">{t("ctaHint")}</p>
+        )}
         {lines.length > 0 && (
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
             {lines.map((l) => (

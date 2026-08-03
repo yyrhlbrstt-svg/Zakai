@@ -3,8 +3,8 @@
   "id": "il_health_er_exemption",
   "version": "2026-07-26",
   "display_name": {
-    "en": "health er exemption",
-    "he": "health er exemption"
+    "en": "ER fee exemption",
+    "he": "פטור מאגרת מיון"
   },
   "market": "IL",
   "category": "health",

@@ -142,6 +142,7 @@ export function buildZakaiProtocolDocument(origin: string) {
       },
       domains_manifest: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.domains),
       switching_spec: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.switching),
+      intelligence: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.intelligence),
       packs_builtin: [...Object.keys(MARKETS), "EU"],
       markets_api: `${origin}/api/markets`,
       global_hub: `${origin}/en/global`,

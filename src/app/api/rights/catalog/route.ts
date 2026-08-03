@@ -56,7 +56,14 @@ export async function GET(request: Request) {
     );
   }
 
-  const catalog = await buildCatalogResponse(url.origin, market, { category, cursor });
+  const locale =
+    url.searchParams.get("locale") ??
+    request.headers.get("Accept-Language")?.split(",")[0]?.trim().split(";")[0];
+  const catalog = await buildCatalogResponse(url.origin, market, {
+    category,
+    cursor,
+    locale: locale || undefined,
+  });
   if (!catalog) {
     return NextResponse.json(
       { error: "unknown_market", market },

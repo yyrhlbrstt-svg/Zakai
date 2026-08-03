@@ -45,3 +45,24 @@ export function publicSecurityEmail(): string {
   if (raw && !isPlaceholderMailbox(raw)) return raw;
   return FOUNDER_EMAIL;
 }
+
+function inboundMailbox(...keys: Array<string | undefined>): string {
+  for (const key of keys) {
+    const raw = key?.trim();
+    if (raw && !isPlaceholderMailbox(raw)) return raw;
+  }
+  return publicSupportEmail();
+}
+
+/** Consumer leads — never a dead `.example` inbox when env is half-configured. */
+export function leadsInboundEmail(): string {
+  return inboundMailbox(process.env.LEADS_EMAIL, process.env.NEXT_PUBLIC_SUPPORT_EMAIL);
+}
+
+export function salesInboundEmail(): string {
+  return inboundMailbox(process.env.SALES_EMAIL, process.env.NEXT_PUBLIC_SUPPORT_EMAIL);
+}
+
+export function feedbackInboundEmail(): string {
+  return inboundMailbox(process.env.FEEDBACK_EMAIL, process.env.NEXT_PUBLIC_SUPPORT_EMAIL);
+}

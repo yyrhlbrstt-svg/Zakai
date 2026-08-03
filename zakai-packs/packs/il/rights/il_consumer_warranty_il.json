@@ -3,8 +3,8 @@
   "id": "il_consumer_warranty_il",
   "version": "2026-07-26",
   "display_name": {
-    "en": "consumer warranty il",
-    "he": "consumer warranty il"
+    "en": "Product warranty claim",
+    "he": "מימוש אחריות מוצר"
   },
   "market": "IL",
   "category": "consumer_protection",

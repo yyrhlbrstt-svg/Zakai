@@ -3,8 +3,8 @@
   "id": "il_arnona_area_correction",
   "version": "2026-07-26",
   "display_name": {
-    "en": "arnona area correction",
-    "he": "arnona area correction"
+    "en": "Fix an incorrect property size on arnona",
+    "he": "תיקון שטח נכס שגוי בארנונה"
   },
   "market": "IL",
   "category": "housing",

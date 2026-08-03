@@ -3,8 +3,8 @@
   "id": "il_credit_pension_deposit",
   "version": "2026-07-26",
   "display_name": {
-    "en": "credit pension deposit",
-    "he": "credit pension deposit"
+    "en": "Pension deposit tax benefit",
+    "he": "הטבת מס על הפקדה לפנסיה"
   },
   "market": "IL",
   "category": "tax",
