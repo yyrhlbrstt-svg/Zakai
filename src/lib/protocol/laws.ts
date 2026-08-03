@@ -46,6 +46,7 @@ export const WELL_KNOWN_RELATIVE = {
   domains: "/.well-known/zakai-domains.json",
   switching: "/.well-known/zakai-switching.json",
   autopilot: "/.well-known/zakai-autopilot.json",
+  intelligence: "/.well-known/zakai-intelligence.json",
 } as const;
 
 export function absoluteWellKnown(origin: string, path: string): string {
