@@ -227,6 +227,15 @@ export async function sendOutreach(caseId: string, userId: string) {
     throw new CaseError("NEEDS_OUTREACH_EMAIL");
   }
 
+  // Persist resolved inbox so later follow-ups / cron don't re-hit NEEDS_OUTREACH_EMAIL
+  // after a registry match that was never written to Case.counterpartyEmail.
+  if (to !== (kase.counterpartyEmail ?? "").toLowerCase()) {
+    await prisma.case.update({
+      where: { id: caseId },
+      data: { counterpartyEmail: to },
+    });
+  }
+
   // Claim the send before making it, with a conditional update.
   //
   // The previous version read the status, checked it, then sent, then wrote —

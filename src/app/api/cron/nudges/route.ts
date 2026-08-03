@@ -103,11 +103,17 @@ export async function GET(request: Request) {
         authorization: { status: "ACTIVE" },
         ownershipVerifiedAt: { not: null },
       },
-      select: { id: true, userId: true },
+      select: {
+        id: true,
+        userId: true,
+        user: { select: { email: true, name: true, country: true } },
+      },
       take: 80,
       orderBy: { updatedAt: "asc" },
     });
 
+    const OUTREACH_NEEDED_SUBJECT = "זכאי — חסר אימייל לספק כדי להמשיך";
+    let outreachNudges = 0;
     const seenAgent = new Set<string>();
     for (const c of waiting) {
       if (seenAgent.has(c.userId)) continue;
@@ -133,6 +139,42 @@ export async function GET(request: Request) {
       if (result.sent) {
         seenAgent.add(c.userId);
         agentFollowUps++;
+      } else if (result.reason === "NEEDS_OUTREACH_EMAIL" && c.user.email) {
+        // Silent skip forever froze FREE SENT — nudge once per cooldown window.
+        const recentNudge = await prisma.outbox.findFirst({
+          where: {
+            caseId: c.id,
+            channel: "EMAIL",
+            subject: OUTREACH_NEEDED_SUBJECT,
+            createdAt: { gt: sentCooldown },
+          },
+          select: { id: true },
+        });
+        if (!recentNudge) {
+          const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
+          await sendEmail({
+            to: c.user.email,
+            subject: OUTREACH_NEEDED_SUBJECT,
+            body: `שלום ${c.user.name},
+
+הסוכן מוכן לשלוח המשך בכתב עם Mandate — אבל חסר אימייל של הספק בתיק.
+
+הזינו כתובת שירות/ביטולים בדשבורד ואשרו שליחה:
+${dash}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+            caseId: c.id,
+          });
+          await pushToUser(c.userId, {
+            title: "חסר אימייל לספק",
+            body: "הזינו כתובת בדשבורד כדי שהסוכן יוכל להמשיך.",
+            url: `/dashboard?case=${c.id}`,
+            tag: `outreach-needed-${c.id}`,
+          }).catch(() => null);
+          outreachNudges++;
+          seenAgent.add(c.userId);
+        }
+        agentSkipped++;
       } else {
         agentSkipped++;
       }
@@ -237,6 +279,7 @@ ${payUrl}
         candidates: waiting.length,
         sent: agentFollowUps,
         skipped: agentSkipped,
+        outreachEmailNudges: outreachNudges,
       },
       deadlineReminders: { candidates: pendingDeadlines.length, sent: deadlineNudges },
       pendingFeeNudges: { candidates: pendingFees.length, sent: feeNudges },

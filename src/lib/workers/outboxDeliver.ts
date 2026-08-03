@@ -7,6 +7,12 @@ import {
   rebuildMandateAttachmentsForCase,
   shouldAttachMandateDocs,
 } from "@/lib/services/outreachAttachments";
+import {
+  formatOutboxFailure,
+  isOutboxDeadLetter,
+  MAX_OUTBOX_ATTEMPTS,
+  parseOutboxAttempts,
+} from "@/lib/workers/outboxRetry";
 
 export const OUTBOX_WORKER_BATCH_DEFAULT = 25;
 
@@ -70,9 +76,10 @@ async function deliverEmailRecord(record: Outbox): Promise<"sent" | "failed" | "
     });
     return "sent";
   } catch (err) {
+    const attempts = parseOutboxAttempts(record.error) + 1;
     await prisma.outbox.update({
       where: { id: record.id },
-      data: { status: "FAILED", error: String(err) },
+      data: { status: "FAILED", error: formatOutboxFailure(attempts, String(err)) },
     });
     return "failed";
   }
@@ -99,9 +106,10 @@ async function deliverSmsRecord(record: Outbox): Promise<"sent" | "failed" | "sk
     });
     return "sent";
   } catch (err) {
+    const attempts = parseOutboxAttempts(record.error) + 1;
     await prisma.outbox.update({
       where: { id: record.id },
-      data: { status: "FAILED", error: String(err) },
+      data: { status: "FAILED", error: formatOutboxFailure(attempts, String(err)) },
     });
     return "failed";
   }
@@ -123,12 +131,22 @@ export interface OutboxWorkerResult {
 
 /**
  * Drain QUEUED and retry FAILED rows. Class D worker — /api/cron/outbox.
+ * FAILED rows that hit MAX_OUTBOX_ATTEMPTS stay dead-lettered (no retry storm).
  */
 export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): Promise<OutboxWorkerResult> {
   const result: OutboxWorkerResult = { scanned: 0, sent: 0, failed: 0, skipped: 0 };
+  const smtpUp = emailConfigured();
 
   const rows = await prisma.outbox.findMany({
-    where: { status: { in: ["QUEUED", "FAILED"] } },
+    where: {
+      status: { in: ["QUEUED", "FAILED"] },
+      AND: [
+        { NOT: { error: { startsWith: "[dead-letter]" } } },
+        // Keep no-transport rows parked until SMTP exists; otherwise every tick
+        // would "skip" them forever and crowd out real work.
+        ...(smtpUp ? [] : [{ NOT: { providerMessageId: "no-transport" } }]),
+      ],
+    },
     orderBy: { createdAt: "asc" },
     take: limit,
   });
@@ -136,9 +154,25 @@ export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): P
   for (const row of rows) {
     result.scanned += 1;
     if (row.status === "FAILED") {
+      if (isOutboxDeadLetter(row.error) || parseOutboxAttempts(row.error) >= MAX_OUTBOX_ATTEMPTS) {
+        if (!isOutboxDeadLetter(row.error)) {
+          await prisma.outbox.update({
+            where: { id: row.id },
+            data: {
+              error: formatOutboxFailure(MAX_OUTBOX_ATTEMPTS, row.error || "max attempts"),
+            },
+          });
+        }
+        result.skipped += 1;
+        continue;
+      }
+      // Preserve attempt marker while re-queuing (do not wipe error to null).
       await prisma.outbox.update({
         where: { id: row.id },
-        data: { status: "QUEUED", error: null },
+        data: {
+          status: "QUEUED",
+          error: `[attempts=${parseOutboxAttempts(row.error)}]`,
+        },
       });
     }
     const fresh = await prisma.outbox.findUnique({ where: { id: row.id } });

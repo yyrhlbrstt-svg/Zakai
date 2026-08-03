@@ -98,6 +98,8 @@ export interface DispatchFollowUpOpts {
   notifyUser?: boolean;
   /** Prefix subject with AGENT_SUBJECT_PREFIX for round counting. */
   autoSubjectPrefix?: boolean;
+  /** HITL: persist + use this provider inbox before resolve. */
+  counterpartyEmail?: string;
 }
 
 /**
@@ -121,6 +123,18 @@ export async function dispatchCaseFollowUp(
   if (!kase.ownershipVerifiedAt) return { caseId, sent: false, reason: "NO_OWNERSHIP" };
   if (!kase.authorization || kase.authorization.status !== "ACTIVE") {
     return { caseId, sent: false, reason: "NO_ACTIVE_MANDATE" };
+  }
+
+  const outreach =
+    opts.counterpartyEmail?.trim() && /@/.test(opts.counterpartyEmail)
+      ? opts.counterpartyEmail.trim().toLowerCase()
+      : undefined;
+  if (outreach && outreach !== (kase.counterpartyEmail ?? "").toLowerCase()) {
+    await prisma.case.update({
+      where: { id: caseId },
+      data: { counterpartyEmail: outreach },
+    });
+    kase.counterpartyEmail = outreach;
   }
 
   const prior = await priorAgentRounds(caseId);

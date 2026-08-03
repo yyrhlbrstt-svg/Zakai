@@ -621,12 +621,15 @@ export default async function DashboardPage({
 
       <StrategyInsightsCard locale={locale} bcp47={loc} />
 
-      <ShareResult
-        message={shareMessage}
-        referralCode={referralCode}
-        amountLabel={shareAmountLabel}
-        kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
-      />
+      {/* Prove → fee → share: no virality while a success fee is outstanding. */}
+      {pendingFeeAgorot <= 0 ? (
+        <ShareResult
+          message={shareMessage}
+          referralCode={referralCode}
+          amountLabel={shareAmountLabel}
+          kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
+        />
+      ) : null}
 
       <div className="mt-5">
         <ReferralCard

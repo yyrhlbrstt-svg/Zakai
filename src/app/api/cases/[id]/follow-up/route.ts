@@ -28,6 +28,8 @@ const schema = z.object({
   competitorPriceShekels: z.number().min(0).max(100000).optional(),
   /** When true — dispatch via Zakai Outbox with Mandate (HITL). */
   send: z.boolean().optional(),
+  /** Provider inbox when Case.counterpartyEmail / registry is empty. */
+  counterpartyEmail: z.string().max(120).optional(),
 });
 
 /**
@@ -82,6 +84,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       competitorPriceShekels: parsed.data.competitorPriceShekels,
       notifyUser: true,
       autoSubjectPrefix: true,
+      counterpartyEmail: parsed.data.counterpartyEmail,
     });
     if (!result.sent) {
       const status =

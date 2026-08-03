@@ -14,7 +14,6 @@ import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { buildShareLandingUrl } from "@/lib/shareUrl";
 import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 import { openMailto } from "@/lib/mailto";
-import { ShareResult } from "@/components/ShareResult";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 
 type Status =
@@ -1058,6 +1057,18 @@ export function CaseNextStep({
         {agentRound < MAX_AGENT_ROUNDS ? (
         <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>
+          {needsOutreachInput && (
+            <div className="flex flex-col gap-1.5 w-full max-w-md mb-2">
+              <Input
+                type="email"
+                value={outreachEmail}
+                onChange={(e) => setOutreachEmail(e.target.value)}
+                placeholder={t(locale, "outreachEmailPh")}
+                dir="ltr"
+                className="text-[13px]"
+              />
+            </div>
+          )}
           <select
             value={replyKind}
             onChange={(e) => setReplyKind(e.target.value as ProviderReplyKind)}
@@ -1089,7 +1100,7 @@ export function CaseNextStep({
           <div className="flex flex-wrap gap-2">
             {emailConfigured && !followSentOk ? (
               <Button
-                disabled={busy}
+                disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
                 className="text-[13px] py-2 px-3"
                 onClick={() =>
                   run(async () => {
@@ -1104,6 +1115,9 @@ export function CaseNextStep({
                         competitorName: competitorName || undefined,
                         competitorPriceShekels: competitorPrice
                           ? Number(competitorPrice)
+                          : undefined,
+                        counterpartyEmail: needsOutreachInput
+                          ? outreachEmail.trim()
                           : undefined,
                       }),
                     });
@@ -1165,7 +1179,7 @@ export function CaseNextStep({
             {followBody && emailConfigured && !followSentOk ? (
               <Button
                 variant="ghost"
-                disabled={busy}
+                disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
                 className="text-[13px] py-2 px-3"
                 onClick={() =>
                   run(async () => {
@@ -1179,6 +1193,9 @@ export function CaseNextStep({
                         competitorName: competitorName || undefined,
                         competitorPriceShekels: competitorPrice
                           ? Number(competitorPrice)
+                          : undefined,
+                        counterpartyEmail: needsOutreachInput
+                          ? outreachEmail.trim()
                           : undefined,
                       }),
                     });
@@ -1238,21 +1255,7 @@ export function CaseNextStep({
         </div>
         ) : null}
 
-        <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] p-3">
-          <div className="text-[12.5px] font-bold mb-2">{t(locale, "sentShareTitle")}</div>
-          <ShareResult
-            message={shareMessage || t(locale, "sentShareDefault")}
-            path="/money"
-            referralCode={referralCode}
-            kicker={
-              provider
-                ? he
-                  ? providerHebrewName(provider)
-                  : provider
-                : "Zakai"
-            }
-          />
-        </div>
+        {/* Share only after SAVED + fee settled — virality before proof dilutes gravity. */}
 
         {err && <FieldError>{err}</FieldError>}
       </div>
