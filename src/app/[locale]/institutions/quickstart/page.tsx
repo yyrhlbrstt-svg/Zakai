@@ -55,6 +55,18 @@ export default async function InstitutionQuickstartPage({
           : "Pass test vectors + verified Status List = ready for Pioneer. Without that — do not claim support."}
       </EmeraldInfoPanel>
 
+      <Card className="p-5 mb-6 border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)]">
+        <div className="font-extrabold text-[15px] mb-2">
+          {heEn(he, "חבילת פיילוט (קריאה בלבד)", "Pilot package (read-only verify)")}
+        </div>
+        <p className="text-[13px] text-ink-soft mt-0 mb-3 leading-relaxed">
+          {he
+            ? "דוגמת Mandate + curl ל־pipe/accept — בלי שיחת מכירות. לא מציב אתכם על קיר Pioneer."
+            : "Sample Mandate + pipe/accept curl — no sales call. Does not list you on the Pioneer wall."}
+        </p>
+        <CodeBlock>{`curl -sS "${ORIGIN}/api/institution/pilot-package?audience=your-institution-id" | jq .`}</CodeBlock>
+      </Card>
+
       <Card className="p-5 mb-6">
         <div className="font-extrabold text-[15px] mb-2">
           {heEn(he, "1) Node — שורה אחת", "1) Node — one command")}

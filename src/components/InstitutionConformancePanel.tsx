@@ -25,13 +25,12 @@ export function InstitutionConformancePanel() {
   const runVectors = useCallback(async () => {
     setVectors("running");
     try {
-      const res = await fetch("/api/mandate/test-vectors", { cache: "no-store" });
-      const data = await res.json().catch(() => null);
-      const ok =
-        res.ok &&
-        data &&
-        typeof data === "object" &&
-        Array.isArray((data as { vectors?: unknown }).vectors);
+      // Same machine gate as Pioneer listing — not "JSON shape exists".
+      const res = await fetch("/api/mandate/ready", { cache: "no-store" });
+      const data = (await res.json().catch(() => ({}))) as {
+        vectors?: { passed?: boolean; total?: number };
+      };
+      const ok = res.ok && data.vectors?.passed === true;
       setVectors(ok ? "ok" : "fail");
     } catch {
       setVectors("fail");

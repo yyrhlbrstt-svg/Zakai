@@ -67,8 +67,10 @@ Reject mandates from issuers that are `suspended` or not listed.
 POST https://zakai-3uxj.vercel.app/api/mandate/verify
 Content-Type: application/json
 
-{ "mandate": "<JWS compact>" }
+{ "mandate": "<JWS compact>", "audience": "your-institution-id" }
 ```
+
+(`token` is accepted as an alias for `mandate`.)
 
 **Option B — SDK (TypeScript, runs in your VPC):**
 

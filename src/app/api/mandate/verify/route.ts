@@ -28,18 +28,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: CORS });
   }
 
-  let body: { token?: string; audience?: string };
+  let body: { token?: string; mandate?: string; jws?: string; audience?: string; aud?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400, headers: CORS });
   }
 
-  const token = (body.token || "").trim();
-  const audience = (body.audience || "").trim();
+  // Quickstart / Python historically sent { mandate }; SDK clients send { token }.
+  const token = (body.token || body.mandate || body.jws || "").trim();
+  const audience = (body.audience || body.aud || "").trim();
   if (!token || !audience) {
     return NextResponse.json(
-      { error: "missing_fields", need: ["token", "audience"] },
+      {
+        error: "missing_fields",
+        need: ["token|mandate", "audience"],
+        hint: "POST { \"mandate\": \"<compact-jws>\", \"audience\": \"your-institution-id\" }",
+      },
       { status: 400, headers: CORS },
     );
   }

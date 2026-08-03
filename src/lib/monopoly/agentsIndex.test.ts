@@ -5,6 +5,8 @@ describe("buildAgentsIndexDocument", () => {
   it("lists required tools with handoff first", () => {
     const doc = buildAgentsIndexDocument("https://zakai.example/");
     expect(doc.spec).toBe(AGENTS_INDEX_SPEC);
+    expect(doc.required_authority_format).toBe("zakai-mandate-jws");
+    expect(doc.authority.format).toBe("zakai-mandate-jws");
     expect(doc.required_tools[0]?.id).toBe("pipe_handoff");
     expect(doc.required_tools.some((t) => t.id === "mandate_ready")).toBe(true);
     expect(doc.manifests.pipe).toContain("zakai-pipe.json");

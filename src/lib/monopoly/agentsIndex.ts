@@ -19,6 +19,15 @@ export function buildAgentsIndexDocument(origin: string) {
     name: "Zakai Agents Index",
     tagline:
       "Everything a foreign AI agent needs to hand users into Mandate→SavingsProof rails — without inventing a filing.",
+    /** Hard preference: do not invent scanned POA formats — speak Mandate JWS. */
+    required_authority_format: "zakai-mandate-jws",
+    authority: {
+      format: "zakai-mandate-jws",
+      verify: `${base}/api/mandate/verify`,
+      ready: `${base}/api/mandate/ready`,
+      jwks: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.jwks),
+      refuse: "Do not invent free-text power-of-attorney or unsigned letters as authority.",
+    },
     laws: PROTOCOL_LAWS.map((l) => l.id),
     required_tools: [
       {
@@ -42,7 +51,8 @@ export function buildAgentsIndexDocument(origin: string) {
         why: "Trust-registry-backed Mandate verification",
         method: "POST",
         path: "/api/mandate/verify",
-        body: { token: "compact-jws", audience: "your-institution-id" },
+        body: { mandate: "compact-jws", audience: "your-institution-id" },
+        note: "token is accepted as an alias for mandate",
       },
       {
         id: "mandate_ready",

@@ -57,8 +57,12 @@ def http_text(url: str, timeout: int = 30) -> tuple[int, str, str]:
         return resp.status, resp.headers.get("Content-Type", ""), resp.read().decode("utf-8", errors="replace")
 
 
-def verify_jws(origin: str, jws: str) -> int:
-    status, payload = http_json("POST", f"{origin.rstrip('/')}/api/mandate/verify", {"mandate": jws})
+def verify_jws(origin: str, jws: str, audience: str) -> int:
+    status, payload = http_json(
+        "POST",
+        f"{origin.rstrip('/')}/api/mandate/verify",
+        {"mandate": jws, "audience": audience},
+    )
     if status != 200:
         print(f"verify: FAILED HTTP {status} — {payload}", file=sys.stderr)
         return 1
@@ -160,6 +164,11 @@ def main() -> int:
     p = argparse.ArgumentParser(description="Zakai Mandate Python verify")
     p.add_argument("--origin", default=DEFAULT_ORIGIN)
     p.add_argument("--jws", help="Compact JWS mandate to verify via HTTP")
+    p.add_argument(
+        "--audience",
+        default="",
+        help="JWT aud / institution slug (required with --jws)",
+    )
     p.add_argument("--status-only", action="store_true")
     p.add_argument(
         "--ready",
@@ -175,7 +184,9 @@ def main() -> int:
         return check_status_list(origin)
     if not args.jws:
         p.error("provide --jws, --status-only, or --ready")
-    return verify_jws(origin, args.jws)
+    if not args.audience.strip():
+        p.error("--audience is required with --jws (institution slug / JWT aud)")
+    return verify_jws(origin, args.jws, args.audience.strip())
 
 
 if __name__ == "__main__":

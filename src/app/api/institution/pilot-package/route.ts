@@ -75,17 +75,22 @@ export async function GET(request: Request) {
       },
       {
         id: 5,
-        title: "Run readiness wizard",
-        action: `${origin}/he/institutions/leader`,
+        title: "Machine readiness (vectors + Status List)",
+        action: `${origin}/api/mandate/ready`,
       },
       {
         id: 6,
+        title: "Human quickstart → Pioneer wizard only after READY",
+        action: `${origin}/he/institutions/quickstart`,
+      },
+      {
+        id: 7,
         title: "Clone receiver for your VPC",
         action: `${origin}/reference/inbound-receiver/receive.mjs`,
       },
       {
-        id: 7,
-        title: "Optional: list on leaders wall",
+        id: 8,
+        title: "Optional: list on leaders wall (wizard opt-in only)",
         action: `${origin}/he/institutions/leaders`,
       },
     ],
