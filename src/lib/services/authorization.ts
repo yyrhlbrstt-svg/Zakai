@@ -180,7 +180,7 @@ async function tryIssueCaseMandate(input: {
   country: string;
   authCode: string;
   mandateAudience: string;
-): Promise<{ mandateJti?: string; mandateToken?: string; mandateStatusIndex?: number }> {
+}): Promise<{ mandateJti?: string; mandateToken?: string; mandateStatusIndex?: number }> {
   try {
     const key = loadSigningKeyFromEnv();
     const jti = randomUUID();
