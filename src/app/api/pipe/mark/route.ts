@@ -30,6 +30,9 @@ export async function GET(request: Request) {
         "Inbound-only — institution never callbacks Zakai to verify",
         "Fee only after SavingsProof on the consumer side",
       ],
+      /** Drop-in HTML for institution developer portals — no fake partner claim. */
+      html_snippet: `<a href="${origin}/api/pipe/mark" rel="noopener">Zakai Pipe acceptor</a> · <a href="${origin}/.well-known/zakai-pipe.json">manifest</a>`,
+      svg_badge_hint: `Link ${origin}/api/pipe/mark from your ops docs when Mandate verify is live.`,
     },
     {
       headers: {

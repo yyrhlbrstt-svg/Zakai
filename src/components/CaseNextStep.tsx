@@ -771,49 +771,9 @@ export function CaseNextStep({
           </Button>
         )}
 
-        <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] p-3">
-          <div className="text-[12.5px] font-bold mb-2">{t(locale, "sentShareTitle")}</div>
-          <ShareResult
-            message={shareMessage || t(locale, "sentShareDefault")}
-            path="/money"
-            referralCode={referralCode}
-            kicker={
-              provider
-                ? he
-                  ? providerHebrewName(provider)
-                  : provider
-                : "Zakai"
-            }
-          />
-        </div>
-
-        <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
-          <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
-          <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <code className="text-[13.5px] font-extrabold tracking-wide bg-[#060b12] border border-[rgba(255,255,255,0.12)] rounded-lg px-3 py-2 select-all">
-              {proofsAddr}
-            </code>
-            <Button
-              variant="ghost"
-              className="!text-[13px] !py-2"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(proofsAddr);
-                  setProofsCopied(true);
-                  setTimeout(() => setProofsCopied(false), 2000);
-                } catch {
-                  /* ignore */
-                }
-              }}
-            >
-              {proofsCopied ? t(locale, "proofsCopied") : t(locale, "proofsCopy")}
-            </Button>
-          </div>
-        </div>
-
+        {/* SavingsProof path first — the only institutional marketing that compounds. */}
         {proposed && (
-          <div className="rounded-xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] p-3.5">
+          <div className="rounded-xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.14)] p-3.5">
             <div className="text-[13.5px] font-extrabold text-emerald">
               {t(locale, feeBasis === "lump" ? "proposedTitleLump" : "proposedTitle")}: ₪
               {proposed.newAmountShekels}
@@ -1034,6 +994,48 @@ export function CaseNextStep({
             </Button>
           )}
         </div>
+
+        <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] p-3">
+          <div className="text-[12.5px] font-bold mb-2">{t(locale, "sentShareTitle")}</div>
+          <ShareResult
+            message={shareMessage || t(locale, "sentShareDefault")}
+            path="/money"
+            referralCode={referralCode}
+            kicker={
+              provider
+                ? he
+                  ? providerHebrewName(provider)
+                  : provider
+                : "Zakai"
+            }
+          />
+        </div>
+
+        <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
+          <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
+          <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="text-[13.5px] font-extrabold tracking-wide bg-[#060b12] border border-[rgba(255,255,255,0.12)] rounded-lg px-3 py-2 select-all">
+              {proofsAddr}
+            </code>
+            <Button
+              variant="ghost"
+              className="!text-[13px] !py-2"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(proofsAddr);
+                  setProofsCopied(true);
+                  setTimeout(() => setProofsCopied(false), 2000);
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              {proofsCopied ? t(locale, "proofsCopied") : t(locale, "proofsCopy")}
+            </Button>
+          </div>
+        </div>
+
         {err && <FieldError>{err}</FieldError>}
       </div>
     );
