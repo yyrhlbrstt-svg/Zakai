@@ -29,7 +29,7 @@ export default async function UniversalCancelPage({
   const t = await getTranslations("universalCancel");
 
   return (
-    <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("sub")}>
+    <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("sub")} className="max-w-[760px] mx-auto px-5 pb-32 pt-2 relative">
       <UniversalCancelTool bcp47={bcp47[locale as Locale]} />
     </VerticalPageShell>
   );

@@ -16,6 +16,13 @@ export function InstallPrompt() {
   const t = useTranslations("install");
   const pathname = usePathname();
   const moneyOs = pathname === "/money" || pathname === "/dashboard";
+  /** Flow pages need a visible primary CTA at the bottom — defer install banner. */
+  const deferInstall =
+    pathname === "/cancel/universal" ||
+    pathname === "/cancel" ||
+    pathname === "/check" ||
+    pathname === "/start" ||
+    pathname === "/money";
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
   const [iosHint, setIosHint] = useState(false);
   const [show, setShow] = useState(false);
@@ -34,7 +41,7 @@ export function InstallPrompt() {
     const onBIP = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BIPEvent);
-      setShow(true);
+      if (!deferInstall) setShow(true);
     };
     window.addEventListener("beforeinstallprompt", onBIP);
 
@@ -42,7 +49,7 @@ export function InstallPrompt() {
     const isIOS = /iphone|ipad|ipod/i.test(ua);
     const isSafari = /safari/i.test(ua) && !/crios|fxios|edgios/i.test(ua);
     let timer: ReturnType<typeof setTimeout> | undefined;
-    if (isIOS && isSafari) {
+    if (!deferInstall && isIOS && isSafari) {
       timer = setTimeout(() => {
         setIosHint(true);
         setShow(true);
@@ -53,7 +60,7 @@ export function InstallPrompt() {
       window.removeEventListener("beforeinstallprompt", onBIP);
       if (timer) clearTimeout(timer);
     };
-  }, [moneyOs]);
+  }, [moneyOs, deferInstall]);
 
   function dismiss() {
     setShow(false);
@@ -70,6 +77,8 @@ export function InstallPrompt() {
     await deferred.userChoice;
     dismiss();
   }
+
+  if (pathname === "/cancel/universal") return null;
 
   if (!show) return null;
 

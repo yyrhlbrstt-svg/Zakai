@@ -5,9 +5,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import { scanStatement } from "@/lib/subscriptions";
+import { UNIVERSAL_CANCEL_DEMO_CSV } from "@/lib/subscriptionsDemoSample";
 import { buildCancelLetter } from "@/lib/cancelLetter";
 import { withFooter } from "@/lib/letterFooter";
 import { formatAgorot } from "@/lib/money";
+
+const MIN_CHARS = 12;
 
 /**
  * Universal cancel — client-only. Parses statement export, drafts one letter per
@@ -18,10 +21,13 @@ export function UniversalCancelTool({ bcp47 }: { bcp47: string }) {
   const locale = useLocale();
   const footerLocale = locale === "he" || locale === "ar" ? "he" : "en";
   const [text, setText] = useState("");
+  const [analyzed, setAnalyzed] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const result = text.trim().length > 20 ? scanStatement(text) : null;
+  const trimmed = text.trim();
+  const canAnalyze = trimmed.length >= MIN_CHARS;
+  const result = analyzed && canAnalyze ? scanStatement(trimmed) : null;
 
   const letters =
     result?.recurring.map((r) => {
@@ -42,7 +48,19 @@ export function UniversalCancelTool({ bcp47 }: { bcp47: string }) {
 
   async function onFile(file?: File | null) {
     if (!file) return;
-    setText(await file.text());
+    const body = await file.text();
+    setText(body);
+    setAnalyzed(false);
+  }
+
+  function runAnalyze() {
+    if (!canAnalyze) return;
+    setAnalyzed(true);
+  }
+
+  function loadDemo() {
+    setText(UNIVERSAL_CANCEL_DEMO_CSV);
+    setAnalyzed(true);
   }
 
   async function copyLetter(key: string, subject: string, body: string) {
@@ -56,7 +74,7 @@ export function UniversalCancelTool({ bcp47 }: { bcp47: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-8">
       <p className="text-[13.5px] text-ink-soft leading-relaxed m-0">{t("privacy")}</p>
 
       <Card className="p-5 flex flex-col gap-3">
@@ -72,13 +90,25 @@ export function UniversalCancelTool({ bcp47 }: { bcp47: string }) {
         </Button>
         <Textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            setAnalyzed(false);
+          }}
           rows={5}
           placeholder={t("pastePlaceholder")}
         />
+        <Button className="w-full" disabled={!canAnalyze} onClick={runAnalyze}>
+          {t("analyzeBtn")}
+        </Button>
+        <Button variant="ghost" className="w-full !text-[13px]" type="button" onClick={loadDemo}>
+          {t("loadDemo")}
+        </Button>
+        {!canAnalyze && trimmed.length > 0 && (
+          <p className="text-[12px] text-ink-soft m-0">{t("tooShort")}</p>
+        )}
       </Card>
 
-      {result && (
+      {analyzed && canAnalyze && result && result.recurring.length > 0 && (
         <Card className="p-5">
           <div className="font-extrabold text-[15px]">
             {t("found", { count: result.recurring.length })}
@@ -86,6 +116,17 @@ export function UniversalCancelTool({ bcp47 }: { bcp47: string }) {
           <p className="text-[12px] text-ink-soft mt-1">
             {t("totalMonthly", { amount: formatAgorot(result.totalMonthlyAgorot, bcp47) })}
           </p>
+        </Card>
+      )}
+
+      {analyzed && canAnalyze && result && result.recurring.length === 0 && (
+        <Card className="p-5 border-[rgba(255,180,80,0.35)] bg-[rgba(255,180,80,0.06)]">
+          <p className="text-[13.5px] leading-relaxed m-0 mb-3">{t("noRecurring")}</p>
+          <Link href="/cancel">
+            <Button variant="ghost" className="w-full">
+              {t("agentLink")}
+            </Button>
+          </Link>
         </Card>
       )}
 
