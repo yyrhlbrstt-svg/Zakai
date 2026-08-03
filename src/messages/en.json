@@ -26,6 +26,7 @@
     "title": "Why Zakai",
     "subtitle": "The same story as the homepage — in full, with links to tools and proof. No invented quotes: only what appears in the proof ledger.",
     "proofPitch": "Want to see it's real? The proofs wall and results page show documented savings only — not fabricated success stories.",
+    "proof": "Documented monthly savings Zakai has achieved so far, across {count} completed checks. Straight from the proof ledger — never typed in.",
     "proofsCta": "Proofs wall",
     "resultsCta": "Documented results",
     "catalogTitle": "Rights catalog",
@@ -33,7 +34,35 @@
     "rightsCta": "Open rights check",
     "trustCta": "Trust & privacy",
     "protocolCta": "Protocol & fixed laws",
-    "startCta": "Start with My money"
+    "startCta": "Start with My money",
+    "whyTitle": "Why Zakai and not the other ways?",
+    "why": {
+      "alone": {
+        "title": "Doing it yourself",
+        "points": [
+          "An hour on hold, then a retention rep trained against you",
+          "You must know what to ask, market prices, and your legal rights",
+          "Most people give up after one try — and keep overpaying"
+        ]
+      },
+      "services": {
+        "title": "Traditional bill-cutting services",
+        "points": [
+          "Fees up to 35% of your annual savings",
+          "Human back-office: days-weeks, business hours only",
+          "You hand over everything, with no way to verify what's done in your name"
+        ]
+      },
+      "zakai": {
+        "title": "Zakai",
+        "points": [
+          "Fee only on documented savings — 18% of the monthly saving; no saving, no pay",
+          "Instant 24/7 analysis, power of attorney with a public verification code, 14-day dispute",
+          "Free no-signup toolset: 76 rights, electricity, flights, subscriptions",
+          "Privacy by default: no trackers, in-browser scans, one-click deletion"
+        ]
+      }
+    }
   },
   "nav": {
     "home": "Home",
@@ -5293,7 +5322,17 @@
     "heroTitle": "Zakai Mandate",
     "heroSub": "A signed statement that a named person authorised an agent to do specific things on their behalf — verifiable offline against a public key, without calling Zakai on every request, and without any ability to move money out of the principal's accounts.",
     "whyAdoptStrong": "Why institutions adopt this:",
-    "whyAdoptBody": "The worst case of a compromised Mandate is unwanted correspondence, not an emptied account. Forbidden payment scopes are enforced in code."
+    "whyAdoptBody": "The worst case of a compromised Mandate is unwanted correspondence, not an emptied account. Forbidden payment scopes are enforced in code.",
+    "agentsCrossLink": "Building an AI agent rather than receiving mandates as an institution? See",
+    "agentsCrossLinkSuffix": "— same protocol, issuing-side framing.",
+    "whyExistsHeading": "Why this exists",
+    "whyExists1": "Today, confirming a consumer agent usually means a human reading a scanned power of attorney. That does not scale, and it does not compose with software.",
+    "whyExists2": "The Mandate is the same idea made machine-consumable: scoped, audience-bound, short-lived, revocable, and cryptographically signed. Your risk team evaluates a public key and a closed set of verbs — not a startup's uptime.",
+    "whyExists3": "This is not hypothetical volume:",
+    "whyExists3Link": "publishes documented outcomes per provider as they accumulate. If your organisation appears there, the letters already carry a verifiable Mandate — reading each one by hand is the more expensive path, not the safer one.",
+    "quickIntegrationHeading": "Quick integration",
+    "quickIntegration1": "— step-by-step verify/decide in ~30 minutes (also in",
+    "quickIntegration2": "— live ledger snapshot for inbound risk teams (no sales call)."
   },
   "institutionLeader": {
     "metaTitle": "Mandate verification leaders — Zakai",

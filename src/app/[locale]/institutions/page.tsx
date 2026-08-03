@@ -10,7 +10,7 @@ import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator"
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
 import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
-import { alternateLanguages } from "@/lib/seo";
+import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -19,10 +19,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "institutions" });
+  const title = t("metaTitle");
+  const description = t("metaDesc");
   return {
-    title: t("metaTitle"),
-    description: t("metaDesc"),
+    title,
+    description,
     alternates: { languages: alternateLanguages("/institutions") },
+    openGraph: defaultOpenGraph(locale, { title, description, path: "/institutions" }),
   };
 }
 
@@ -57,32 +60,22 @@ export default async function InstitutionsPage({
       </EmeraldInfoPanel>
 
       <p className="text-[13px] text-ink-soft mb-6">
-        Building an AI agent rather than receiving mandates on behalf of an
-        institution? See{" "}
+        {t("agentsCrossLink")}{" "}
         <Link href="/agents" className="underline text-emerald">
-          {ORIGIN}/agents
+          /agents
         </Link>{" "}
-        instead — same protocol, framed for the issuing side.
+        {t("agentsCrossLinkSuffix")}
       </p>
 
-      <Section heading="Why this exists">
-        <p className="text-[14.5px] leading-relaxed mb-3">
-          Today, confirming a consumer agent usually means a human reading a scanned
-          power of attorney. That does not scale, and it does not compose with software.
-        </p>
-        <p className="text-[14.5px] leading-relaxed mb-3">
-          The Mandate is the same idea made machine-consumable: scoped, audience-bound,
-          short-lived, revocable, and cryptographically signed. Your risk team evaluates
-          a public key and a closed set of verbs — not a startup&apos;s uptime.
-        </p>
+      <Section heading={t("whyExistsHeading")}>
+        <p className="text-[14.5px] leading-relaxed mb-3">{t("whyExists1")}</p>
+        <p className="text-[14.5px] leading-relaxed mb-3">{t("whyExists2")}</p>
         <p className="text-[14.5px] leading-relaxed">
-          This is not a hypothetical volume: <Link href="/companies" className="underline text-emerald">
-            {ORIGIN}/companies
+          {t("whyExists3")}{" "}
+          <Link href="/companies" className="underline text-emerald">
+            /companies
           </Link>{" "}
-          publishes real, documented outcomes per provider as they accumulate. If your
-          organisation appears there, the letters behind that number already carry a
-          verifiable Mandate — reading each one by hand is the more expensive path, not
-          the safer one.
+          {t("whyExists3Link")}
         </p>
       </Section>
 
@@ -113,20 +106,20 @@ export default async function InstitutionsPage({
         </div>
       </Card>
 
-      <Section heading="Quick integration">
+      <Section heading={t("quickIntegrationHeading")}>
         <p className="text-[14.5px] leading-relaxed">
           <Link href="/integrations" className="underline text-emerald">
-            {ORIGIN}/integrations
+            /integrations
           </Link>{" "}
-          — step-by-step verify/decide in ~30 minutes (also in{" "}
+          {t("quickIntegration1")}{" "}
           <code className="text-[12px]">docs/INSTITUTION_QUICKSTART.md</code>
           ).
         </p>
         <p className="text-[14.5px] leading-relaxed mt-3">
           <Link href="/network-proof" className="underline text-emerald">
-            {ORIGIN}/network-proof
+            /network-proof
           </Link>{" "}
-          — live ledger snapshot for inbound risk teams (no sales call).
+          {t("quickIntegration2")}
         </p>
       </Section>
 

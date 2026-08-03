@@ -6,6 +6,7 @@ import { setRequestLocale, getMessages, getTranslations } from "next-intl/server
 import { Heebo, Suez_One, Manrope } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { dir, isLocale, type Locale } from "@/i18n/config";
+import { ogImageUrl } from "@/lib/seo";
 import { Background } from "@/components/Background";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -51,24 +52,24 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "meta" });
   const title = t("title");
   const description = t("desc");
+  const ogImage = ogImageUrl({ locale, sub: description });
   return {
     metadataBase: new URL(SITE_URL),
     title,
     description,
-    // Rich previews when the link is shared (WhatsApp, X, etc.) — the viral
-    // loop lives on these, so every shared link carries the brand image + pitch.
     openGraph: {
       type: "website",
       siteName: "ZAKAI",
       title,
       description,
-      images: [{ url: "/og.png", width: 1200, height: 630, alt: "ZAKAI" }],
+      url: `${SITE_URL}/${locale}`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: "ZAKAI" }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/og.png"],
+      images: [ogImage],
     },
     // PWA: iOS ignores the web manifest for install, so give Safari its own
     // "add to home screen" affordances explicitly.

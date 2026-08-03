@@ -8,7 +8,7 @@ import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { buildZmlCatalogForMarket } from "@/lib/protocol/zml/catalog";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, defaultOpenGraph } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -17,7 +17,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "about" });
-  return { title: t("metaTitle"), description: t("metaDesc") };
+  const title = t("metaTitle");
+  const description = t("metaDesc");
+  return {
+    title,
+    description,
+    openGraph: defaultOpenGraph(locale, { title, description, path: "/about" }),
+  };
 }
 
 export default async function AboutPage({
@@ -28,7 +34,6 @@ export default async function AboutPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("about");
-  const th = await getTranslations("home");
   const proof = await provenSavings();
   const ilRights = await buildZmlCatalogForMarket(SITE_URL, "IL");
   const ilRightsCount = ilRights.length;
@@ -60,25 +65,25 @@ export default async function AboutPage({
                 {formatAgorot(proof.verifiedMinor, bcp47[locale as Locale])}
               </span>
               <span className="text-ink-soft block mt-1">
-                {th("proof", { count: proof.verifiedCount })}
+                {t("proof", { count: proof.verifiedCount })}
               </span>
             </p>
           )}
         </div>
       </Reveal>
 
-      <h2 className="text-[17px] font-extrabold mb-4">{th("whyTitle")}</h2>
+      <h2 className="text-[17px] font-extrabold mb-4">{t("whyTitle")}</h2>
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-10">
         {cols.map((col) => {
           const isZakai = col === "zakai";
-          const points = (th.raw(`why.${col}.points`) as string[]) || [];
+          const points = (t.raw(`why.${col}.points`) as string[]) || [];
           return (
             <SpotlightCard
               key={col}
-              className={`p-6 h-full ${isZakai ? "border-[rgba(63,203,155,0.45)]" : ""}`}
+              className={`p-6 h-full min-h-[200px] ${isZakai ? "border-[rgba(63,203,155,0.45)]" : ""}`}
             >
               <div className={isZakai ? "font-extrabold text-[15px] text-emerald" : "font-extrabold text-[15px]"}>
-                {th(`why.${col}.title`)}
+                {t(`why.${col}.title`)}
               </div>
               <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
                 {points.map((p) => (
