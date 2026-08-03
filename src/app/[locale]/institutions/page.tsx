@@ -116,11 +116,18 @@ cd sdk && npm ci && npm run ready
 
 # Python
 cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
+        <p className="text-[12.5px] text-ink-soft leading-relaxed mb-3">
+          {heEn(
+            he,
+            "אימות בלבד · inbound-only · scopes של כסף יוצא אסורים תמיד. ראו SAFETY.md.",
+            "Verify-only · inbound-only · outbound money scopes always forbidden. See SAFETY.md.",
+          )}
+        </p>
         <ol className="m-0 ps-5 flex flex-col gap-1.5 text-[13.5px] text-ink-soft leading-relaxed mb-4">
           <li>
-            <span className="font-mono">zakai-mandate-ready</span>
-            {heEn(he, " / ", " / ")}
             <span className="font-mono">npm run ready</span>
+            {heEn(he, " / ", " / ")}
+            <span className="font-mono">zakai-mandate-ready</span>
             {heEn(he, " → READY_FOR_PIONEER", " → READY_FOR_PIONEER")}
           </li>
           <li>
@@ -130,7 +137,11 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
             </a>
           </li>
           <li>
-            {heEn(he, "אשף Reference Verifier → מקום Pioneer (עד 3)", "Reference Verifier wizard → Pioneer slot (max 3)")}
+            {heEn(
+              he,
+              "אשף Reference Verifier → מקום Pioneer (עד 3)",
+              "Reference Verifier wizard → Pioneer slot (max 3)",
+            )}
           </li>
         </ol>
         <div className="flex flex-wrap gap-2">
@@ -143,13 +154,13 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
             </Button>
           </Link>
           <a
-            href="https://github.com/yyrhlbrstt-svg/Zakai/tree/main/sdk/python"
+            href="https://github.com/yyrhlbrstt-svg/Zakai/blob/main/sdk/QUICKSTART.md"
             className="no-underline"
             target="_blank"
             rel="noreferrer"
           >
             <Button variant="ghost" className="!text-[13px]">
-              {heEn(he, "Python SDK", "Python SDK")}
+              sdk/QUICKSTART.md
             </Button>
           </a>
         </div>

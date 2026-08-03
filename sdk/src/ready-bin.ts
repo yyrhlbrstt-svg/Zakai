@@ -98,8 +98,11 @@ async function main() {
   console.log("");
   if (failed.length === 0 && statusOk) {
     console.log("READY_FOR_PIONEER");
-    console.log(`Next: open ${origin}/he/institutions/leader — finish the wizard and opt in.`);
+    console.log(`Next: open ${origin}/he/institutions/leader — Run checks → opt into Pioneer.`);
     console.log("Passing vectors ≠ regulatory certification. Empty Pioneer wall until real opt-ins.");
+    console.log(
+      "Safety: verify-only SDK · inbound-only · forbidden money scopes never permit (see sdk/SAFETY.md).",
+    );
     process.exit(0);
   }
 

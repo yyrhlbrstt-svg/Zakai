@@ -9,6 +9,9 @@ import { alternateLanguages } from "@/lib/seo";
 import { heEn } from "@/lib/heEn";
 
 const ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
+const GH_QUICKSTART =
+  "https://github.com/yyrhlbrstt-svg/Zakai/blob/main/sdk/QUICKSTART.md";
+const GH_SAFETY = "https://github.com/yyrhlbrstt-svg/Zakai/blob/main/sdk/SAFETY.md";
 
 export async function generateMetadata({
   params,
@@ -20,8 +23,8 @@ export async function generateMetadata({
   return {
     title: he ? "Quickstart — Mandate ב־20–30 דקות" : "Quickstart — Mandate in 20–30 minutes",
     description: he
-      ? "Node או Python → READY_FOR_PIONEER → תביעת Pioneer. בלי שיחת מכירות."
-      : "Node or Python → READY_FOR_PIONEER → claim Pioneer. No sales call.",
+      ? "Node או Python → READY_FOR_PIONEER → תביעת Pioneer. בלי שיחת מכירות. בלי כסף יוצא."
+      : "Node or Python → READY_FOR_PIONEER → claim Pioneer. No sales call. No outbound money.",
     alternates: { languages: alternateLanguages("/institutions/quickstart") },
   };
 }
@@ -42,12 +45,11 @@ export default async function InstitutionQuickstartPage({
       title={heEn(he, "Mandate ב־20–30 דקות", "Mandate in 20–30 minutes")}
       sub={
         he
-          ? "שלושה שלבים בלבד: הרצה על המכונה → READY_FOR_PIONEER → תביעת Pioneer באשף. בלי שיחת מכירות. בלי לקוחות מומצאים."
-          : "Three steps only: run on your machine → READY_FOR_PIONEER → claim Pioneer in the wizard. No sales call. No invented customers."
+          ? "שלושה שלבים: הרצה על המכונה → READY_FOR_PIONEER → תביעת Pioneer. בלי שיחת מכירות. בלי לקוחות מומצאים. הפרוטוקול inbound-only."
+          : "Three steps: run on your machine → READY_FOR_PIONEER → claim Pioneer. No sales call. No invented customers. Protocol is inbound-only."
       }
     >
-      {/* Linear path strip */}
-      <ol className="mb-8 grid gap-3 sm:grid-cols-3 list-none p-0 m-0">
+      <ol className="mb-6 grid gap-3 sm:grid-cols-3 list-none p-0 m-0">
         {(
           he
             ? [
@@ -65,36 +67,72 @@ export default async function InstitutionQuickstartPage({
             key={step.n}
             className="rounded-xl border border-[rgba(63,203,155,0.28)] bg-[rgba(63,203,155,0.06)] px-4 py-3"
           >
-            <div className="text-[11px] font-extrabold text-emerald tracking-wide">
-              {step.n}
-            </div>
+            <div className="text-[11px] font-extrabold text-emerald tracking-wide">{step.n}</div>
             <div className="font-extrabold text-[14.5px] mt-0.5">{step.t}</div>
             <div className="text-[12.5px] text-ink-soft mt-1 leading-snug">{step.s}</div>
           </li>
         ))}
       </ol>
 
-      <EmeraldInfoPanel className="mb-6">
-        <strong className="text-emerald">
-          {heEn(he, "שער ברור:", "Clear gate:")}
-        </strong>{" "}
+      <EmeraldInfoPanel className="mb-5">
+        <strong className="text-emerald">{heEn(he, "שער ברור:", "Clear gate:")}</strong>{" "}
         {he
           ? "עברת test vectors + Status List מאומת קריפטוגרפית = READY_FOR_PIONEER. בלי זה — אל תטענו תמיכה ואל תתבעו Pioneer."
           : "Pass test vectors + cryptographically verified Status List = READY_FOR_PIONEER. Without that — do not claim support and do not claim Pioneer."}
       </EmeraldInfoPanel>
+
+      <Card className="p-5 mb-5 border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.07)]">
+        <div className="font-extrabold text-[15px] mb-2">
+          {heEn(he, "בטיחות — למה זה לא כסף יוצא", "Safety — why this is not outbound money")}
+        </div>
+        <ul className="m-0 ps-5 flex flex-col gap-1.5 text-[13px] text-ink-soft leading-relaxed">
+          <li>
+            {heEn(
+              he,
+              "SDK לאימות בלבד — בלי מפתחות פרטיים, בלי הנפקת Mandate.",
+              "Verify-only SDKs — no private keys, cannot issue Mandates.",
+            )}
+          </li>
+          <li>
+            {heEn(
+              he,
+              "Scopes אסורים תמיד: payment:initiate / transfer, credit:borrow, account:open/close, investment:trade.",
+              "Always-forbidden scopes: payment:initiate / transfer, credit:borrow, account:open/close, investment:trade.",
+            )}
+          </li>
+          <li>
+            {heEn(
+              he,
+              "כישלון = דחייה (fail closed). לא ממציאים היתר.",
+              "Failure = deny (fail closed). Never invent a permit.",
+            )}
+          </li>
+        </ul>
+        <p className="text-[12.5px] mt-3 mb-0">
+          <a className="text-emerald font-bold" href={GH_SAFETY} target="_blank" rel="noreferrer">
+            SAFETY.md
+          </a>
+          {" · "}
+          <a className="text-emerald font-bold" href={GH_QUICKSTART} target="_blank" rel="noreferrer">
+            sdk/QUICKSTART.md
+          </a>
+        </p>
+      </Card>
 
       <Card className="p-5 mb-5 border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.07)]">
         <div className="font-extrabold text-[15px] mb-1">
           {heEn(he, "שלב 1א — Node (~10 דק׳)", "Step 1a — Node (~10 min)")}
         </div>
         <p className="text-[13px] text-ink-soft mt-0 mb-3 leading-relaxed">
-          {he
-            ? "אותו לוגיקת decide כמו בפרודקשן. עד פרסום npm — מהמונורפו."
-            : "Same decide logic as production. Until npm publish — from the monorepo."}
+          {heEn(
+            he,
+            "חבילה רשמית @zakai/mandate-sdk. עד פרסום npm — מהמונורפו.",
+            "Official @zakai/mandate-sdk. Until npm publish — from the monorepo.",
+          )}
         </p>
-        <CodeBlock>{`cd sdk && npm ci && npm run ready -- --origin ${ORIGIN}
-# after publish:
-# npx zakai-mandate-ready --origin ${ORIGIN}`}</CodeBlock>
+        <CodeBlock>{`git clone https://github.com/yyrhlbrstt-svg/Zakai.git
+cd Zakai/sdk && npm ci && npm run ready -- --origin ${ORIGIN}
+# after publish: npx zakai-mandate-ready --origin ${ORIGIN}`}</CodeBlock>
       </Card>
 
       <Card className="p-5 mb-5">
@@ -102,25 +140,23 @@ export default async function InstitutionQuickstartPage({
           {heEn(he, "שלב 1ב — Python (~10 דק׳)", "Step 1b — Python (~10 min)")}
         </div>
         <p className="text-[13px] text-ink-soft mt-0 mb-3 leading-relaxed">
-          {he
-            ? "חבילה רשמית ב־sdk/python. אותו שער כמו Node. בלי cryptography אין READY."
-            : "Official package in sdk/python. Same gate as Node. Without cryptography there is no READY."}
+          {heEn(
+            he,
+            "חבילה רשמית zakai-mandate ב־sdk/python. אותו שער כמו Node. בלי cryptography אין READY.",
+            "Official zakai-mandate in sdk/python. Same gate as Node. Without cryptography there is no READY.",
+          )}
         </p>
-        <CodeBlock>{`cd sdk/python
+        <CodeBlock>{`cd Zakai/sdk/python
 pip install -e '.[crypto]'
 zakai-mandate-ready --origin ${ORIGIN}`}</CodeBlock>
       </Card>
 
       <Card className="p-5 mb-5">
         <div className="font-extrabold text-[15px] mb-1">
-          {heEn(he, "שלב 2 — בדקו את שער המכונה", "Step 2 — check the machine gate")}
+          {heEn(he, "שלב 2 — שער המכונה הציבורי", "Step 2 — public machine gate")}
         </div>
-        <p className="text-[13px] text-ink-soft mt-0 mb-3 leading-relaxed">
-          {he
-            ? "אם המסוף הדפיס READY_FOR_PIONEER — אותו מצב ב־JSON החי:"
-            : "If the terminal printed READY_FOR_PIONEER — same state in live JSON:"}
-        </p>
-        <CodeBlock>{`curl -sS "${ORIGIN}/api/mandate/ready" | jq .ready_for_pioneer`}</CodeBlock>
+        <CodeBlock>{`curl -sS "${ORIGIN}/api/mandate/ready" | jq .ready_for_pioneer
+# true`}</CodeBlock>
         <ul className="mt-3 mb-0 ps-5 flex flex-col gap-1 text-[12.5px] font-mono text-ink-soft break-all">
           <li>
             <a className="text-emerald" href={`${ORIGIN}/.well-known/zakai-jwks.json`}>
@@ -135,61 +171,55 @@ zakai-mandate-ready --origin ${ORIGIN}`}</CodeBlock>
           <li>
             <a className="text-emerald" href={`${ORIGIN}/api/mandate/revocations`}>
               /api/mandate/revocations
-            </a>{" "}
-            <span className="font-sans">(statuslist+jwt)</span>
+            </a>
+          </li>
+          <li>
+            <a className="text-emerald" href={`${ORIGIN}/.well-known/zakai-mandate.json`}>
+              /.well-known/zakai-mandate.json
+            </a>
           </li>
         </ul>
       </Card>
 
       <Card className="p-5 mb-5">
         <div className="font-extrabold text-[15px] mb-1">
-          {heEn(he, "אופציונלי — 3 שורות בתוך הקוד שלכם", "Optional — 3 lines in your code")}
+          {heEn(he, "אופציונלי — 3 שורות בקוד שלכם", "Optional — 3 lines in your code")}
         </div>
-        <CodeBlock>{`import { verifyMandateFromUrl, verifyStatusListFromUrl } from "@zakai/mandate-sdk";
+        <CodeBlock>{`import { verifyMandateFromUrl, FORBIDDEN_SCOPES } from "@zakai/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(jws, {
   audience: "your-institution-slug",
   jwksUri: "${ORIGIN}/.well-known/zakai-jwks.json",
 });
-
-await verifyStatusListFromUrl({
-  statusListUri: "${ORIGIN}/api/mandate/revocations",
-  issuer: "${ORIGIN}",
-  jwksUri: "${ORIGIN}/.well-known/zakai-jwks.json",
-});`}</CodeBlock>
+// FORBIDDEN_SCOPES — never permit outbound money acts`}</CodeBlock>
         <details className="mt-3">
           <summary className="text-[12.5px] text-ink-soft cursor-pointer font-bold select-none">
-            {heEn(he, "Python · ספרייה", "Python · library")}
+            Python
           </summary>
-          <CodeBlock className="mt-2">{`from zakai_mandate import verify_status_list_from_url
+          <CodeBlock className="mt-2">{`from zakai_mandate import verify_mandate_from_url, FORBIDDEN_SCOPES
 
-verify_status_list_from_url(
-    status_list_uri="${ORIGIN}/api/mandate/revocations",
-    issuer="${ORIGIN}",
+claims = verify_mandate_from_url(
+    jws,
+    audience="your-institution-slug",
     jwks_uri="${ORIGIN}/.well-known/zakai-jwks.json",
 )`}</CodeBlock>
         </details>
         <details className="mt-2">
           <summary className="text-[12.5px] text-ink-soft cursor-pointer font-bold select-none">
-            {heEn(he, "חבילת פיילוט (curl בלבד)", "Pilot package (curl only)")}
+            {heEn(he, "חבילת פיילוט (curl)", "Pilot package (curl)")}
           </summary>
-          <p className="text-[12.5px] text-ink-soft mt-2 mb-2 leading-relaxed">
-            {he
-              ? "דוגמת Mandate — לא מציב אתכם על קיר Pioneer."
-              : "Sample Mandate — does not list you on the Pioneer wall."}
-          </p>
-          <CodeBlock>{`curl -sS "${ORIGIN}/api/institution/pilot-package?audience=your-institution-id" | jq .`}</CodeBlock>
+          <CodeBlock className="mt-2">{`curl -sS "${ORIGIN}/api/institution/pilot-package?audience=your-institution-id" | jq .`}</CodeBlock>
         </details>
       </Card>
 
-      <Card className="p-5 mb-8 border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.08)]">
+      <Card className="p-5 mb-6 border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.08)]">
         <div className="font-extrabold text-[15px] text-emerald mb-2">
-          {heEn(he, "שלב 3 — תביעת Pioneer", "Step 3 — claim Pioneer")}
+          {heEn(he, "שלב 3 — Pioneer / Reference Verifier", "Step 3 — Pioneer / Reference Verifier")}
         </div>
         <p className="text-[13.5px] text-ink-soft leading-relaxed mb-4">
           {he
-            ? "רק אחרי READY_FOR_PIONEER על המכונה שלכם. עד 3 מקומות Pioneer. הקיר ריק עד לאימוץ אמיתי — אין שמות מומצאים. לא אישור רגולטורי."
-            : "Only after READY_FOR_PIONEER on your machine. Max 3 Pioneer slots. Wall stays empty until a real opt-in — no invented names. Not regulatory certification."}
+            ? "רק אחרי READY_FOR_PIONEER. לחצו «הרץ בדיקות» באשף — הרישום נפתח רק כשהשער ירוק. עד 3 מקומות Pioneer. לא אישור רגולטורי."
+            : "Only after READY_FOR_PIONEER. Click “Run checks” in the wizard — listing opens only when the gate is green. Max 3 Pioneer slots. Not regulatory certification."}
         </p>
         <div className="flex flex-wrap gap-3">
           <Link href="/institutions/leader" className="no-underline">
@@ -201,10 +231,22 @@ verify_status_list_from_url(
         </div>
       </Card>
 
+      <details className="mb-8 text-[13px] text-ink-soft">
+        <summary className="cursor-pointer font-bold select-none">
+          {heEn(he, "תירוצים שכבר לא עובדים", "Excuses that no longer work")}
+        </summary>
+        <ul className="mt-3 ps-5 flex flex-col gap-1.5 leading-relaxed">
+          <li>{heEn(he, "«צריך שיחת מכירות» — לא. JWKS + vectors + אשף.", "“Need a sales call” — no. JWKS + vectors + wizard.")}</li>
+          <li>{heEn(he, "«רק Node / רק Python» — יש את שניהם.", "“Node-only / Python-only” — both official.")}</li>
+          <li>{heEn(he, "«זה מזיז כסף» — scopes אסורים + SDK לאימות בלבד.", "“This moves money” — forbidden scopes + verify-only SDK.")}</li>
+          <li>{heEn(he, "«איך מקבלים הכרה?» — READY → אשף → Pioneer.", "“How do we get recognized?” — READY → wizard → Pioneer.")}</li>
+        </ul>
+      </details>
+
       <p className="text-[12.5px] text-ink-soft leading-relaxed mb-0">
         {he
-          ? "תשתית בלי נפח צרכני נשארת יפה ולא הכרחית. הלולאה ב־/money חייבת לייצר Mandates ו־SavingsProof אמיתיים — זה מה שהופך אימות מוסדי לכדאי."
-          : "Infrastructure without consumer volume stays pretty, not necessary. The /money loop must produce real Mandates and SavingsProofs — that is what makes institutional verify worth adopting."}{" "}
+          ? "תשתית בלי נפח צרכני נשארת יפה ולא הכרחית. אחרי Quickstart — הלולאה ב־/money חייבת לייצר Mandates אמיתיים."
+          : "Infrastructure without consumer volume stays pretty, not necessary. After Quickstart — the /money loop must produce real Mandates."}{" "}
         <Link href="/money" className="text-emerald font-extrabold no-underline hover:underline">
           /money
         </Link>

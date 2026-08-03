@@ -1,52 +1,37 @@
 # @zakai/mandate-sdk
 
-The reference client for the **Zakai Mandate** protocol — a signed, scoped,
-audience-bound, revocable statement that a named person authorised an agent
-to act on their behalf, plus the settlement layer that decides who is right
-when the agent and the institution later disagree about what happened.
+Official **Node** Mandate verifier for institutions (Python twin: [`sdk/python`](./python)).
 
-Publishing is automated but gated: `.github/workflows/sdk-publish.yml` builds
-and tests on every `sdk/**` change; npm publish runs only on an `sdk@v*` tag
-or a manual `workflow_dispatch` with `publish=true` (needs repo `NPM_TOKEN`).
-Until the first tag, install from this monorepo path.
+**Start here → [`QUICKSTART.md`](./QUICKSTART.md)** (20–30 minutes to `READY_FOR_PIONEER`).  
+Safety contract → [`SAFETY.md`](./SAFETY.md) (inbound-only, no outbound money, no private keys).
 
-## Why this exists
+```bash
+cd sdk && npm ci && npm run ready
+# → READY_FOR_PIONEER → https://zakai-3uxj.vercel.app/he/institutions/leader
+```
 
-Every agentic product on the market today can *act* for a user — draft a
-letter, negotiate a price, fill a form. None of that is worth building a
-moat on: it commoditises the moment a better model ships. What every one of
-those agents will eventually need, and what almost nobody has built, is a
-cheap way to **prove to a third party that the act was authorised** — and,
-when the third party disputes it, a **neutral record of who is right** that
-doesn't require either side to be trusted.
+Publishing is gated: `.github/workflows/sdk-publish.yml`; npm publish on `sdk@v*` tag
+or `workflow_dispatch` with `publish=true`. Until then, use the monorepo path above.
 
-That is what this package gives you, in the order you'll probably need it:
+## What you get (minimal surface)
 
-1. **Verify** a mandate someone presented to you — three lines, against a
-   published JWKS, no live call to Zakai required.
-2. **Decide** whether a specific act is authorised right now — the ~50 lines
-   of scope-matching, audience-checking, per-act-confirmation logic every
-   integrator writes slightly differently and usually gets one rule wrong.
-   Written once here, pass/fail against
-   [published test vectors](https://zakai-3uxj.vercel.app/api/mandate/test-vectors).
-3. **Settle** — if you want a durable, disputable record of that decision
-   (and later, what actually happened), build one with two helper functions
-   and hand the result to `adjudicate()`.
+1. **Verify** — `verifyMandateFromUrl` against published JWKS (offline after fetch).
+2. **Decide** — `decide()` against [test vectors](https://zakai-3uxj.vercel.app/api/mandate/test-vectors).
+3. **Revocation** — `verifyStatusListFromUrl` (`statuslist+jwt`).
+4. **Ready gate** — `zakai-mandate-ready` → Pioneer wizard.
 
-Every function in this package is ported from the production Zakai app, not
-reimplemented against a spec describing it. The SDK and the servers it talks
-to cannot silently disagree about what a mandate means, because they run
-the same logic.
+Same logic as production Zakai — the SDK cannot silently disagree with the issuer.
 
 ## Install
 
 ```bash
-npm install @zakai/mandate-sdk
-```
+# Monorepo (works today):
+cd sdk && npm ci && npm run build
 
-From this repo before the first publish: `cd sdk && npm run build && npm link`.
-To cut a release: bump `sdk/package.json` version, tag `sdk@v0.1.0`, push the tag
-(or run the **SDK publish** workflow with publish enabled).
+# After publish:
+npm install @zakai/mandate-sdk
+npx zakai-mandate-ready
+```
 
 ## MCP server: give any AI agent a Mandate verifier
 

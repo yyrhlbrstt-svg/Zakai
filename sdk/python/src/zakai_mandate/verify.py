@@ -145,8 +145,12 @@ def run_ready(origin: str) -> int:
         return 1 if smoke != 0 or vec.returncode != 0 else 1
     if vec.returncode == 0 and st == 0:
         print("READY_FOR_PIONEER")
-        print(f"Next: {origin.rstrip('/')}/he/institutions/leader")
+        print(f"Next: {origin.rstrip('/')}/he/institutions/leader — Run checks → opt into Pioneer.")
         print("Claim Pioneer only after this machine gate — not before.")
+        print(
+            "Safety: verify-only · inbound-only · forbidden money scopes never permit "
+            "(see sdk/SAFETY.md).",
+        )
         return 0
     print("NOT_READY", file=sys.stderr)
     return 1
