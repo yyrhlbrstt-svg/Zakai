@@ -28,3 +28,6 @@ zakai-packs/node_modules/
 *.pem
 npm-debug.log*
 *.tsbuildinfo
+
+__pycache__/
+*.py[cod]
