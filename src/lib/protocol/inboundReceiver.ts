@@ -21,7 +21,15 @@ export type InboundReceiveBody = z.infer<typeof inboundReceiveBodySchema>;
 
 const processed = new Map<string, number>();
 
-/** In-process idempotency for the reference receiver (demo / tests). */
+/** True if this jti already completed a successful accept in-process. */
+export function inboundJtiSeen(jti: string): boolean {
+  return processed.has(jti);
+}
+
+/**
+ * Record a successful accept. Call only after accept — never on 503/401 —
+ * or a transient revocation-store failure would poison retries as duplicates.
+ */
 export function rememberInboundJti(jti: string): "new" | "duplicate" {
   if (processed.has(jti)) return "duplicate";
   processed.set(jti, Date.now());

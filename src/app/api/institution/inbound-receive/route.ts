@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import {
   inboundReceiveBodySchema,
+  inboundJtiSeen,
   rememberInboundJti,
 } from "@/lib/protocol/inboundReceiver";
 import { FORBIDDEN_SCOPES } from "@/lib/mandate/scopes";
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (rememberInboundJti(body.mandate_jti) === "duplicate") {
+  if (inboundJtiSeen(body.mandate_jti)) {
     return NextResponse.json(
       { error: "duplicate", mandate_jti: body.mandate_jti },
       { status: 409, headers: CORS },
@@ -111,6 +112,8 @@ export async function POST(request: Request) {
       );
     }
 
+    // Fail closed: store unavailable must not mint accepted:true (same doctrine
+    // as /api/mandate/verify → revocation_unknown). Banks clone this receiver.
     let revoked = false;
     try {
       const row = await prisma.mandateRevocation.findUnique({
@@ -119,7 +122,10 @@ export async function POST(request: Request) {
       });
       revoked = Boolean(row);
     } catch {
-      /* db optional for reference */
+      return NextResponse.json(
+        { error: "revocation_unknown", mandate_jti: body.mandate_jti },
+        { status: 503, headers: CORS },
+      );
     }
     if (revoked) {
       return NextResponse.json(
@@ -127,6 +133,8 @@ export async function POST(request: Request) {
         { status: 401, headers: CORS },
       );
     }
+
+    rememberInboundJti(body.mandate_jti);
 
     return NextResponse.json(
       {

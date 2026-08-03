@@ -71,4 +71,26 @@ describe("revokeAuthority publishes machine jti", () => {
     expect(updateMock).toHaveBeenCalled();
     expect(publishMock).not.toHaveBeenCalled();
   });
+
+  it("heals legacy REVOKED rows by publishing mandateJti on re-tap", async () => {
+    findFirstMock.mockResolvedValue({
+      code: "ZK-OLD",
+      status: "REVOKED",
+      mandateJti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    });
+    publishMock.mockResolvedValue({
+      jti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      statusIndex: 1,
+      revokedAt: new Date(),
+      reason: "user_request",
+    });
+
+    const result = await revokeAuthority("user_1", "ZK-OLD");
+    expect(result).toEqual({ ok: true, code: "ZK-OLD", alreadyRevoked: true });
+    expect(publishMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ jti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }),
+    );
+    expect(updateMock).not.toHaveBeenCalled();
+  });
 });

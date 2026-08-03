@@ -99,7 +99,22 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
     select: { code: true, status: true, mandateJti: true },
   });
   if (!auth) return { ok: false, reason: "not_found" };
-  if (auth.status === "REVOKED") return { ok: true, code: auth.code, alreadyRevoked: true };
+
+  // Already-revoked rows still need a heal path: pre-fix revokes published
+  // under the human ZK code, leaving the JWT jti active. Re-tap / revokeAll
+  // must publish under mandateJti (idempotent if already indexed).
+  if (auth.status === "REVOKED") {
+    if (auth.mandateJti) {
+      try {
+        await prisma.$transaction((tx) =>
+          publishRevocation(tx, { jti: auth.mandateJti!, reason: "user_request" }),
+        );
+      } catch {
+        /* status store down — human revoke already stands */
+      }
+    }
+    return { ok: true, code: auth.code, alreadyRevoked: true };
+  }
 
   await prisma.$transaction(async (tx) => {
     await tx.authorization.update({
