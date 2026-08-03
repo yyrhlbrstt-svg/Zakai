@@ -1,8 +1,8 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { generateKeyPair, exportJWK, type JWK } from "jose";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { issueMandate, publicJwkFor, type SigningKey } from "../src/mandate.js";
+import { clearJwksCache, issueMandate, publicJwkFor, type SigningKey } from "../src/mandate.js";
 import { createMandateMcpServer } from "../src/mcp.js";
 
 /**
@@ -137,8 +137,14 @@ function firstText(result: Awaited<ReturnType<Client["callTool"]>>): unknown {
   return JSON.parse(content[0].text);
 }
 
+beforeEach(() => {
+  // verifyMandateFromUrl caches JWKS — each test issues a fresh keypair.
+  clearJwksCache();
+});
+
 afterEach(() => {
   vi.unstubAllGlobals();
+  clearJwksCache();
 });
 
 describe("zakai-mandate MCP server", () => {
