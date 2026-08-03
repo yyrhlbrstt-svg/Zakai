@@ -66,11 +66,15 @@ export async function institutionalVerify(
  *
  *   jwks = HTTP GET /.well-known/zakai-jwks.json   # cache 1h
  *   claims = jws.verify(token, jwks, alg=EdDSA)
- *   assert claims.typ == "zakai-mandate+jws"      # from header
+ *   assert claims.typ == "JWT" or "zakai-mandate+jws"
  *   assert claims.aud == MY_INSTITUTION_ID
  *   assert now in [claims.nbf, claims.exp)
  *   assert no claim.scope in FORBIDDEN_SCOPES
- *   status = HTTP GET /api/mandate/status/{claims.jti}
- *   assert status.status == "active"
+ *   if claims.zkm.status:
+ *     list = GET+verify claims.zkm.status.uri (statuslist+jwt, same JWKS)
+ *     assert list.bit[claims.zkm.status.idx] == 0   # offline revoke
+ *   else:
+ *     status = HTTP GET /api/mandate/status/{claims.jti}
+ *     assert status.status == "active"
  *   allow only actions ⊆ claims.scopes
  */

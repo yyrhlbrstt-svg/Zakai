@@ -50,6 +50,10 @@ type StatusIndexDb = {
     aggregate: (args: {
       _max: { mandateStatusIndex: true };
     }) => Promise<{ _max: { mandateStatusIndex: number | null } }>;
+    findFirst?: (args: {
+      where: { mandateJti: string };
+      select: { mandateStatusIndex: true };
+    }) => Promise<{ mandateStatusIndex: number | null } | null>;
   };
   mandateStatusAllocation?: {
     aggregate: (args: {
@@ -116,11 +120,21 @@ export async function statusIndexForJti(
   db: StatusIndexDb,
   jti: string,
 ): Promise<number | undefined> {
-  const row = await db.mandateStatusAllocation?.findUnique({
+  const allocated = await db.mandateStatusAllocation?.findUnique({
     where: { jti },
     select: { statusIndex: true },
   });
-  return row?.statusIndex;
+  if (typeof allocated?.statusIndex === "number") return allocated.statusIndex;
+
+  // Case authorizations persist the bit on the human Authorization row even
+  // when the allocation table was unavailable at issue (older deploys).
+  const auth = await db.authorization?.findFirst?.({
+    where: { mandateJti: jti },
+    select: { mandateStatusIndex: true },
+  });
+  if (typeof auth?.mandateStatusIndex === "number") return auth.mandateStatusIndex;
+
+  return undefined;
 }
 
 /**

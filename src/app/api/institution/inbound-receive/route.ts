@@ -12,6 +12,7 @@ import {
   rememberInboundJti,
 } from "@/lib/protocol/inboundReceiver";
 import { FORBIDDEN_SCOPES } from "@/lib/mandate/scopes";
+import { resolveRevocationState } from "@/lib/mandate/revocationCheck";
 import { cacheControlHeader } from "@/lib/scale/publicCache";
 
 export const runtime = "nodejs";
@@ -94,7 +95,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "missing_audience" }, { status: 400, headers: CORS });
     }
 
-    const { claims } = await verifyMandateWithTrustRegistry(body.mandate_jws, { audience });
+    const { claims, issuer } = await verifyMandateWithTrustRegistry(body.mandate_jws, {
+      audience,
+    });
 
     if (claims.jti !== body.mandate_jti) {
       return NextResponse.json(
@@ -112,22 +115,32 @@ export async function POST(request: Request) {
       );
     }
 
-    // Fail closed: store unavailable must not mint accepted:true (same doctrine
-    // as /api/mandate/verify → revocation_unknown). Banks clone this receiver.
-    let revoked = false;
-    try {
-      const row = await prisma.mandateRevocation.findUnique({
-        where: { jti: body.mandate_jti },
-        select: { jti: true },
-      });
-      revoked = Boolean(row);
-    } catch {
+    // Prefer signed status list when zkm.status is present. Fail closed: store
+    // or list unknown must not mint accepted:true (same as /api/mandate/verify).
+    const { state: revocation } = await resolveRevocationState({
+      jti: body.mandate_jti,
+      status: claims.status,
+      issuer: issuer.iss,
+      jwksUri: issuer.jwksUri,
+      liveLookup: async (jti) => {
+        try {
+          const row = await prisma.mandateRevocation.findUnique({
+            where: { jti },
+            select: { jti: true },
+          });
+          return row ? "revoked" : "active";
+        } catch {
+          return "unknown";
+        }
+      },
+    });
+    if (revocation === "unknown") {
       return NextResponse.json(
         { error: "revocation_unknown", mandate_jti: body.mandate_jti },
         { status: 503, headers: CORS },
       );
     }
-    if (revoked) {
+    if (revocation === "revoked") {
       return NextResponse.json(
         { error: "revoked", mandate_jti: body.mandate_jti },
         { status: 401, headers: CORS },

@@ -96,21 +96,49 @@ export async function verifyStatusListFromUrl(options: {
   issuer: string;
   jwksUri: string;
   now?: Date;
+  /** When JWKS is already in hand (e.g. just used to verify the mandate). */
+  publicJwks?: JWK[];
 }): Promise<VerifiedStatusList> {
-  const [listRes, jwksRes] = await Promise.all([
-    fetch(options.statusListUri),
-    fetch(options.jwksUri),
-  ]);
+  const listRes = await fetch(options.statusListUri);
   if (!listRes.ok) throw new StatusListError(`status list HTTP ${listRes.status}`);
-  if (!jwksRes.ok) throw new StatusListError(`jwks HTTP ${jwksRes.status}`);
   const token = await listRes.text();
-  const jwks = (await jwksRes.json()) as { keys?: JWK[] };
-  if (!Array.isArray(jwks.keys) || jwks.keys.length === 0) {
-    throw new StatusListError("jwks has no keys");
+
+  let publicJwks = options.publicJwks;
+  if (!publicJwks) {
+    const jwksRes = await fetch(options.jwksUri);
+    if (!jwksRes.ok) throw new StatusListError(`jwks HTTP ${jwksRes.status}`);
+    const jwks = (await jwksRes.json()) as { keys?: JWK[] };
+    if (!Array.isArray(jwks.keys) || jwks.keys.length === 0) {
+      throw new StatusListError("jwks has no keys");
+    }
+    publicJwks = jwks.keys;
   }
+
   return verifyStatusList(token, {
     issuer: options.issuer,
-    publicJwks: jwks.keys,
+    publicJwks,
     now: options.now,
   });
+}
+
+/**
+ * Offline revocation answer for a mandate that embeds `zkm.status`.
+ * Fail-closed: fetch/verify problems → "unknown" (never pretend active).
+ */
+export async function statusListRevocationState(
+  status: { idx: number; uri: string },
+  options: { issuer: string; jwksUri: string; now?: Date; publicJwks?: JWK[] },
+): Promise<"active" | "revoked" | "unknown"> {
+  try {
+    const list = await verifyStatusListFromUrl({
+      statusListUri: status.uri,
+      issuer: options.issuer,
+      jwksUri: options.jwksUri,
+      now: options.now,
+      publicJwks: options.publicJwks,
+    });
+    return list.isRevoked(status.idx) ? "revoked" : "active";
+  } catch {
+    return "unknown";
+  }
 }

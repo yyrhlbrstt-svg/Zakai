@@ -37,6 +37,7 @@ import {
   verifyMandateWithRegistry,
   type RegistryIssuer,
 } from "./registry.js";
+import { statusListRevocationState } from "./statusList.js";
 
 export const DEFAULT_BASE_URL = "https://zakai-3uxj.vercel.app";
 
@@ -80,6 +81,35 @@ export async function fetchRevocationState(
   }
 }
 
+/**
+ * Prefer the signed status list when the token embeds `zkm.status` (offline
+ * path). Fall back to live `/status/{jti}` for legacy tokens or when the list
+ * is unreachable. List saying revoked always wins.
+ */
+export async function resolveRevocation(
+  claims: MandateClaims,
+  issuer: Pick<RegistryIssuer, "iss" | "jwksUri" | "statusListUri">,
+): Promise<{ state: RevocationState; revokedAt?: string; via: "status_list" | "live_status" }> {
+  if (claims.status) {
+    const listState = await statusListRevocationState(claims.status, {
+      issuer: issuer.iss,
+      jwksUri: issuer.jwksUri,
+    });
+    if (listState === "revoked") return { state: "revoked", via: "status_list" };
+    if (listState === "active") return { state: "active", via: "status_list" };
+  }
+
+  const issuerOrigin = (() => {
+    try {
+      return new URL(issuer.iss).origin;
+    } catch {
+      return issuer.iss.replace(/\/+$/, "");
+    }
+  })();
+  const live = await fetchRevocationState(claims.jti, issuerOrigin);
+  return { ...live, via: "live_status" };
+}
+
 export interface MandateMcpOptions {
   /** Registry operator base URL. Defaults to production Zakai. */
   baseUrl?: string;
@@ -105,7 +135,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "Verify a Zakai-format Mandate",
       description:
-        "Full network verification of a Mandate token (Ed25519 JWS): resolve its issuer through the published trust registry (unknown, suspended or withdrawn issuers are rejected before any cryptography), verify the signature against that issuer's registered JWKS, confirm every granted scope is within the issuer's registry entry, and check live revocation on the issuer's status route. Returns ok:true only when status is active — revoked → REVOKED, unreachable/unknown → STATUS_UNKNOWN (same fail-closed doctrine as POST /api/mandate/verify). For permit/deny on a concrete act, use decide_action.",
+        "Full network verification of a Mandate token (Ed25519 JWS): resolve its issuer through the published trust registry (unknown, suspended or withdrawn issuers are rejected before any cryptography), verify the signature against that issuer's registered JWKS, confirm every granted scope is within the issuer's registry entry, and check revocation — preferring the signed status list at zkm.status.uri when the token embeds zkm.status.idx, else live GET /api/mandate/status/{jti}. Returns ok:true only when status is active — revoked → REVOKED, unreachable/unknown → STATUS_UNKNOWN (same fail-closed doctrine as POST /api/mandate/verify). For permit/deny on a concrete act, use decide_action.",
       inputSchema: {
         token: z.string().min(20).describe("The compact JWS mandate token presented to you"),
         audience: z
@@ -118,8 +148,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     async ({ token, audience }) => {
       try {
         const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
-        const issuerOrigin = new URL(issuer.iss).origin;
-        const revocation = await fetchRevocationState(claims.jti, issuerOrigin);
+        const revocation = await resolveRevocation(claims, issuer);
         if (revocation.state === "revoked") {
           return asText({
             ok: false,
@@ -127,6 +156,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
             error: "mandate_revoked",
             jti: claims.jti,
             revokedAt: revocation.revokedAt,
+            via: revocation.via,
             issuer: issuerSummary(issuer),
           });
         }
@@ -136,6 +166,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
             code: "STATUS_UNKNOWN",
             error: "revocation_unknown",
             jti: claims.jti,
+            via: revocation.via,
             issuer: issuerSummary(issuer),
           });
         }
@@ -143,7 +174,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
           ok: true,
           claims,
           issuer: issuerSummary(issuer),
-          revocation: { state: "active" },
+          revocation: { state: "active", via: revocation.via },
         });
       } catch (err) {
         return asText(errorPayload(err));
@@ -156,7 +187,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "May this agent do this, now?",
       description:
-        "The full authorisation decision for one concrete action under a Mandate: trust-registry resolution of the issuer, signature verification, audience/subject/market checks, scope grant + forbidden-scope registry, validity window, live revocation status from the issuer's status route, and per-act confirmation where the scope requires it. Returns permit with obligations, or deny with a machine-stable reason. Fail-closed: unknown revocation status is a deny, not a warning.",
+        "The full authorisation decision for one concrete action under a Mandate: trust-registry resolution of the issuer, signature verification, audience/subject/market checks, scope grant + forbidden-scope registry, validity window, revocation (signed status list when zkm.status is present, else live status route), and per-act confirmation where the scope requires it. Returns permit with obligations, or deny with a machine-stable reason. Fail-closed: unknown revocation status is a deny, not a warning.",
       inputSchema: {
         token: z.string().min(20).describe("The compact JWS mandate token"),
         audience: z.string().min(1).describe("Your own institution id"),
@@ -178,8 +209,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     async ({ token, audience, action, actConfirmation, subject, market }) => {
       try {
         const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
-        const issuerOrigin = new URL(issuer.iss).origin;
-        const revocation = await fetchRevocationState(claims.jti, issuerOrigin);
+        const revocation = await resolveRevocation(claims, issuer);
         const decision = decide({
           claims,
           action,

@@ -4,6 +4,7 @@ import {
   verifyMandateWithTrustRegistry,
   RegistryVerifyError,
 } from "@/lib/mandate/verifyWithRegistry";
+import { resolveRevocationState } from "@/lib/mandate/revocationCheck";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 
@@ -55,29 +56,39 @@ export async function POST(req: Request) {
   try {
     const { claims, issuer } = await verifyMandateWithTrustRegistry(token, { audience });
 
-    // Fail closed on store failure: an unverifiable revocation check must not
-    // mint valid:true (decide() already denies as revocation_unknown).
-    let status: "active" | "revoked" | "unknown" = "active";
-    try {
-      const row = await prisma.mandateRevocation.findUnique({
-        where: { jti: claims.jti },
-        select: { jti: true },
-      });
-      if (row) status = "revoked";
-    } catch {
-      status = "unknown";
-    }
+    // Prefer signed status list when the token embeds zkm.status (same path
+    // institutions use offline). Live DB lookup covers legacy tokens and
+    // list outages. Fail closed — never mint valid:true on unknown.
+    const liveLookup = async (jti: string) => {
+      try {
+        const row = await prisma.mandateRevocation.findUnique({
+          where: { jti },
+          select: { jti: true },
+        });
+        return row ? ("revoked" as const) : ("active" as const);
+      } catch {
+        return "unknown" as const;
+      }
+    };
+
+    const { state: status, via } = await resolveRevocationState({
+      jti: claims.jti,
+      status: claims.status,
+      issuer: issuer.iss,
+      jwksUri: issuer.jwksUri,
+      liveLookup,
+    });
 
     if (status === "revoked") {
       return NextResponse.json(
-        { valid: false, reason: "revoked", jti: claims.jti },
+        { valid: false, reason: "revoked", jti: claims.jti, via },
         { status: 410, headers: CORS },
       );
     }
 
     if (status === "unknown") {
       return NextResponse.json(
-        { valid: false, reason: "revocation_unknown", jti: claims.jti },
+        { valid: false, reason: "revocation_unknown", jti: claims.jti, via },
         { status: 503, headers: CORS },
       );
     }
@@ -86,6 +97,7 @@ export async function POST(req: Request) {
       {
         valid: true,
         status,
+        via,
         issuer: { iss: issuer.iss, name: issuer.name, status: issuer.status },
         claims: {
           jti: claims.jti,
@@ -96,6 +108,7 @@ export async function POST(req: Request) {
           exp: claims.exp,
           principal: claims.principal,
           statement: claims.statement,
+          status: claims.status,
         },
       },
       { headers: CORS },

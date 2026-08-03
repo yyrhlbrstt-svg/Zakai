@@ -54,7 +54,12 @@ describe("POST /api/mandate/verify", () => {
     findUniqueMock.mockReset();
     verifyMock.mockResolvedValue({
       claims,
-      issuer: { iss: "https://zakai.example", name: "Zakai", status: "active" },
+      issuer: {
+        iss: "https://zakai.example",
+        name: "Zakai",
+        status: "active",
+        jwksUri: "https://zakai.example/.well-known/zakai-jwks.json",
+      },
     });
   });
 
@@ -84,6 +89,7 @@ describe("POST /api/mandate/verify", () => {
     expect(res.status).toBe(200);
     expect(body.valid).toBe(true);
     expect(body.status).toBe("active");
+    expect(body.via).toBe("live_status");
     expect(body.claims.jti).toBe("jti_test_1");
   });
 

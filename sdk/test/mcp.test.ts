@@ -288,6 +288,94 @@ describe("zakai-mandate MCP server", () => {
     expect(payload.error).toBe("revocation_unknown");
   });
 
+  it("verify_mandate prefers the signed status list when zkm.status is embedded", async () => {
+    const { privateKey } = await generateKeyPair("EdDSA", { crv: "Ed25519", extractable: true });
+    const key: SigningKey = { kid: "mcp-test-key", privateJwk: await exportJWK(privateKey) };
+    const publicJwk = (await publicJwkFor(key)) as JWK & { kid?: string };
+    const token = await issueMandate(
+      {
+        jti: "mcp-test-jti-0001",
+        issuer: ISSUER,
+        audience: "acme-bank",
+        subject: "user-42",
+        principal: { name: "Test Principal" },
+        scopes: ["contract:cancel", "dispute:charge"],
+        market: "IL",
+        statement: "Cancel my subscription.",
+        status: { idx: 1, uri: `${ISSUER}/api/mandate/revocations` },
+      },
+      key,
+    );
+
+    const { SignJWT } = await import("jose");
+    const { gzipSync } = await import("node:zlib");
+    const bytes = new Uint8Array(1);
+    bytes[0] = 0b0000_0010; // index 1 revoked
+    const lst = Buffer.from(gzipSync(Buffer.from(bytes))).toString("base64url");
+    const listToken = await new SignJWT({
+      iss: ISSUER,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      status_list: { bits: 1, lst },
+    })
+      .setProtectedHeader({ alg: "EdDSA", typ: "statuslist+jwt", kid: key.kid })
+      .sign(await (await import("jose")).importJWK(key.privateJwk, "EdDSA"));
+
+    // Live status would say active — list must win.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string | URL | Request) => {
+        const url = String(input);
+        if (url.includes("/.well-known/zakai-trust-registry.json")) {
+          return new Response(
+            JSON.stringify({
+              version: 1,
+              updated: "2026-08-02",
+              forbiddenScopes: ["payment:initiate"],
+              issuers: [
+                {
+                  iss: ISSUER,
+                  name: "Test Issuer",
+                  jwks_uri: `${ISSUER}/.well-known/zakai-jwks.json`,
+                  status_list_uri: `${ISSUER}/api/mandate/revocations`,
+                  allowed_scopes: ["contract:cancel", "dispute:charge", "negotiate:tariff"],
+                  status: "active",
+                  admitted_at: "2026-07-01",
+                },
+              ],
+            }),
+            { headers: { "content-type": "application/json" } },
+          );
+        }
+        if (url.includes("/.well-known/zakai-jwks.json")) {
+          return new Response(JSON.stringify({ keys: [publicJwk] }), {
+            headers: { "content-type": "application/json" },
+          });
+        }
+        if (url.includes("/api/mandate/revocations")) {
+          return new Response(listToken, { headers: { "content-type": "application/statuslist+jwt" } });
+        }
+        if (url.includes("/api/mandate/status/")) {
+          return new Response(JSON.stringify({ jti: "mcp-test-jti-0001", status: "active" }), {
+            headers: { "content-type": "application/json" },
+          });
+        }
+        throw new Error(`unexpected fetch in test: ${url}`);
+      }),
+    );
+
+    const client = await connectedClient();
+    const payload = firstText(
+      await client.callTool({
+        name: "verify_mandate",
+        arguments: { token, audience: "acme-bank" },
+      }),
+    ) as { ok: boolean; code: string; via: string };
+    expect(payload.ok).toBe(false);
+    expect(payload.code).toBe("REVOKED");
+    expect(payload.via).toBe("status_list");
+  });
+
   it("check_revocation returns ok only for definite active/revoked answers", async () => {
     const { publicJwk } = await issueTestMandate();
     stubPublicEndpoints(publicJwk, { status: "active" });

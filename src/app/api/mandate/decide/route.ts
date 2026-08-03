@@ -4,7 +4,8 @@ import {
   verifyMandateWithTrustRegistry,
   RegistryVerifyError,
 } from "@/lib/mandate/verifyWithRegistry";
-import { decide, permittedActions, type RevocationState } from "@/lib/mandate/decision";
+import { decide, permittedActions } from "@/lib/mandate/decision";
+import { resolveRevocationState } from "@/lib/mandate/revocationCheck";
 import { buildMandateRef, draftDecisionRecord } from "@/lib/settlement/records";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
@@ -83,21 +84,27 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { claims } = await verifyMandateWithTrustRegistry(token, { audience });
+    const { claims, issuer } = await verifyMandateWithTrustRegistry(token, { audience });
 
-    // Unknown is a real state and is carried through honestly. A decision that
-    // silently assumed "active" when the ledger was unreachable would keep a
-    // revoked mandate working during exactly the incident where that matters.
-    let revocation: RevocationState = "active";
-    try {
-      const row = await prisma.mandateRevocation.findUnique({
-        where: { jti: claims.jti },
-        select: { jti: true },
-      });
-      if (row) revocation = "revoked";
-    } catch {
-      revocation = "unknown";
-    }
+    // Prefer signed status list when zkm.status is present; live DB otherwise.
+    // Unknown is carried through honestly — never assume active on outage.
+    const { state: revocation } = await resolveRevocationState({
+      jti: claims.jti,
+      status: claims.status,
+      issuer: issuer.iss,
+      jwksUri: issuer.jwksUri,
+      liveLookup: async (jti) => {
+        try {
+          const row = await prisma.mandateRevocation.findUnique({
+            where: { jti },
+            select: { jti: true },
+          });
+          return row ? "revoked" : "active";
+        } catch {
+          return "unknown";
+        }
+      },
+    });
 
     const input = {
       claims,

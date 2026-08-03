@@ -124,6 +124,40 @@ describe("publishRevocation", () => {
     expect(update).toHaveBeenCalled();
   });
 
+  it("reuses Authorization.mandateStatusIndex before inventing a new bit", async () => {
+    const create = vi.fn().mockResolvedValue({
+      jti: "jti-auth",
+      statusIndex: 42,
+      revokedAt,
+      reason: "ops",
+    });
+    const db = {
+      mandateRevocation: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        aggregate: vi.fn(),
+        create,
+        update: vi.fn(),
+      },
+      mandateStatusAllocation: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        aggregate: vi.fn(),
+        create: vi.fn(),
+      },
+      authorization: {
+        aggregate: vi.fn(),
+        findFirst: vi.fn().mockResolvedValue({ mandateStatusIndex: 42 }),
+      },
+    };
+
+    const row = await publishRevocation(db as never, { jti: "jti-auth", reason: "ops" });
+    expect(row.statusIndex).toBe(42);
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ statusIndex: 42 }),
+      }),
+    );
+  });
+
   it("is idempotent when the row is already indexed", async () => {
     const db = {
       mandateRevocation: {
