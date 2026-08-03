@@ -20,7 +20,9 @@ export default function OwnershipConfirmPage() {
   );
   const params = useSearchParams();
   const token = params.get("token") || "";
-  const [state, setState] = useState<"loading" | "ok" | "already" | "sent" | "error">("loading");
+  const [state, setState] = useState<
+    "loading" | "ok" | "already" | "sent" | "queued" | "error"
+  >("loading");
   const [caseId, setCaseId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -53,7 +55,11 @@ export default function OwnershipConfirmPage() {
               body: JSON.stringify({}),
             });
             if (dispatch.ok) {
-              if (!cancelled) setState("sent");
+              // Never claim "נשלח" when Outbox is only QUEUED (no SMTP).
+              const body = (await dispatch.json().catch(() => ({}))) as {
+                delivered?: boolean;
+              };
+              if (!cancelled) setState(body.delivered === true ? "sent" : "queued");
               return;
             }
           } catch {
@@ -81,34 +87,42 @@ export default function OwnershipConfirmPage() {
         ? he
           ? "✓ נשלח לספק"
           : "✓ Sent to provider"
-        : state === "ok"
+        : state === "queued"
           ? he
-            ? "✓ הבעלות אומתה"
-            : "✓ Ownership verified"
-          : state === "already"
+            ? "✓ בעלות אומתה — פנייה בתור שליחה"
+            : "✓ Ownership verified — outreach queued"
+          : state === "ok"
             ? he
-              ? "הבעלות כבר אומתה"
-              : "Already verified"
-            : he
-              ? "הקישור לא תקף"
-              : "Link invalid or expired";
+              ? "✓ הבעלות אומתה"
+              : "✓ Ownership verified"
+            : state === "already"
+              ? he
+                ? "הבעלות כבר אומתה"
+                : "Already verified"
+              : he
+                ? "הקישור לא תקף"
+                : "Link invalid or expired";
 
   const sub =
     state === "sent"
       ? he
         ? "ה־Mandate נשלח. בדשבורד אפשר לעקוב ולרשום SavingsProof כשיגיע מענה בכתב."
         : "Mandate sent. On the dashboard, follow up and record SavingsProof when you get a written reply."
-      : state === "ok" || state === "already"
+      : state === "queued"
         ? he
-          ? "המשך בתיק — שליחת Mandate לספק בלחיצה אחת."
-          : "Continue on this case — one-tap Mandate send."
-        : state === "loading"
+          ? "הפנייה נשמרה וממתינה לשליחה (מייל יוצא עדיין לא מוגדר). בדשבורד אפשר לעקוב — היא תצא ברגע שהשליחה תעבוד."
+          : "Outreach is saved and waiting to send (outbound mail isn’t configured yet). Follow on the dashboard — it will leave once delivery works."
+        : state === "ok" || state === "already"
           ? he
-            ? "רגע אחד."
-            : "One moment."
-          : he
-            ? "בקש/י קישור חדש מהדשבורד (שלח קוד לנייד / מייל)."
-            : "Request a new link from the dashboard.";
+            ? "המשך בתיק — שליחת Mandate לספק בלחיצה אחת."
+            : "Continue on this case — one-tap Mandate send."
+          : state === "loading"
+            ? he
+              ? "רגע אחד."
+              : "One moment."
+            : he
+              ? "בקש/י קישור חדש מהדשבורד (שלח קוד לנייד / מייל)."
+              : "Request a new link from the dashboard.";
 
   return (
     <main className="max-w-[480px] mx-auto px-5 pb-20 pt-10">
@@ -118,11 +132,12 @@ export default function OwnershipConfirmPage() {
         {(state === "ok" ||
           state === "already" ||
           state === "sent" ||
+          state === "queued" ||
           state === "error") && (
           <div className="mt-6">
             <Link href={dashHref}>
               <Button className="w-full">
-                {state === "sent"
+                {state === "sent" || state === "queued"
                   ? he
                     ? "לתיק בדשבורד"
                     : "Open case"
