@@ -52,7 +52,11 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         </div>
       ) : null}
 
-      <div className="mt-4 mb-8">
+      <div className="mt-2 mb-6">
+        <MoneyHub bcp47={loc} screenshotEnabled={aiAvailable()} />
+      </div>
+
+      <div className="mb-8">
         <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
         <PriorityActionsRanked limit={3} />
       </div>
@@ -64,10 +68,6 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       ) : null}
 
       <MoneyInstallInline />
-
-      <div className="mt-2">
-        <MoneyHub bcp47={loc} screenshotEnabled={aiAvailable()} />
-      </div>
 
       <MoneyGrowthPanel locale={locale as Locale} />
 

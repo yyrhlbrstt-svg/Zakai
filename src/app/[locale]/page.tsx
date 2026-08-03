@@ -232,7 +232,7 @@ export default async function HomePage({
               {t("home.sub")}
             </p>
             <div className="flex flex-wrap gap-3 mb-2">
-              <Link href="/money">
+              <Link href="/money#zakai-money-scan">
                 <Button className="!text-[15px] !px-6 !py-3">{t("home.cta")}</Button>
               </Link>
               <Link href="/leaks">

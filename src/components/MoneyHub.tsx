@@ -4,8 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
-import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
+import {
+  scanStatement,
+  type ScanResult,
+  type ChargeCategory,
+  type RecurringCharge,
+} from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
+import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -30,6 +36,8 @@ const copy: Record<string, Record<string, string>> = {
     pasteTitle: "או הדבק / העלה קובץ תנועות",
     pastePh: "הדבק כאן ייצוא CSV/טקסט מהבנק…",
     scanBtn: "סרוק חיובים",
+    loadDemo: "נסו דוגמה (סלקום + נטפליקס)",
+    tooShort: "הדביקו לפחות כמה שורות מהדוח — או לחצו «נסו דוגמה».",
     uploadBtn: "העלה קובץ",
     total: "סה״כ חיובים קבועים שזוהו",
     perMonth: "לחודש",
@@ -67,6 +75,8 @@ const copy: Record<string, Record<string, string>> = {
     pasteTitle: "Or paste / upload a statement file",
     pastePh: "Paste CSV/text export from your bank…",
     scanBtn: "Scan charges",
+    loadDemo: "Try demo (Cellcom + Netflix)",
+    tooShort: "Paste at least a few statement lines — or tap Try demo.",
     uploadBtn: "Upload file",
     total: "Recurring charges found",
     perMonth: "per month",
@@ -389,9 +399,15 @@ export function MoneyHub({
   }
 
   const best = result ? topRoi(result.recurring) : null;
+  const canScan = text.trim().length >= STATEMENT_SCAN_MIN_CHARS;
+
+  function loadDemo() {
+    setText(UNIVERSAL_CANCEL_DEMO_CSV);
+    runScan(UNIVERSAL_CANCEL_DEMO_CSV);
+  }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 pb-28">
       <div className="flex items-start gap-2.5 text-[13px] text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3">
         <span aria-hidden>🔒</span>
         <span>{tx(locale, "privacy")}</span>
@@ -448,7 +464,7 @@ export function MoneyHub({
         )}
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-6" id="zakai-money-scan">
         <div className="font-extrabold text-[15px]">{tx(locale, "pasteTitle")}</div>
         <Textarea
           rows={5}
@@ -456,14 +472,20 @@ export function MoneyHub({
           className="mt-2 font-mono text-[12.5px]"
           placeholder={tx(locale, "pastePh")}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            if (result) setResult(null);
+          }}
         />
         <div className="flex gap-3 mt-3 flex-wrap">
-          <Button onClick={() => runScan(text)} disabled={text.trim().length === 0}>
+          <Button className="flex-1 min-w-[140px]" onClick={() => runScan(text)} disabled={!canScan}>
             {tx(locale, "scanBtn")}
           </Button>
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
             {tx(locale, "uploadBtn")}
+          </Button>
+          <Button variant="ghost" className="!text-[13px]" type="button" onClick={loadDemo}>
+            {tx(locale, "loadDemo")}
           </Button>
           <input
             ref={fileRef}
@@ -473,7 +495,18 @@ export function MoneyHub({
             onChange={(e) => onFile(e.target.files?.[0])}
           />
         </div>
+        {!canScan && text.trim().length > 0 && (
+          <p className="text-[12px] text-ink-soft mt-2 mb-0">{tx(locale, "tooShort")}</p>
+        )}
       </Card>
+
+      {!result && canScan && (
+        <div className="fixed inset-x-3 bottom-3 z-[9990] mx-auto max-w-[520px] md:hidden">
+          <Button className="w-full shadow-lg" onClick={() => runScan(text)}>
+            {tx(locale, "scanBtn")}
+          </Button>
+        </div>
+      )}
 
       <p className="text-[12.5px] text-ink-soft leading-relaxed px-1">{tx(locale, "openBankSoon")}</p>
 

@@ -914,6 +914,8 @@
     "pasteLabel": "Paste statement rows",
     "pastePlaceholder": "05/03/2026, Cellcom Ltd, 89.90 ...",
     "scanBtn": "Scan",
+    "loadDemo": "Try demo (Cellcom + Netflix)",
+    "tooShort": "Paste at least a few statement lines — or tap Try demo.",
     "uploadBtn": "Upload CSV file",
     "noneFound": "No recurring charges detected",
     "parsed": "{count} transactions analyzed",

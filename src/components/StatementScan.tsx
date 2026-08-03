@@ -6,6 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
+import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
 
 const CATEGORY_COLOR: Record<ChargeCategory, string> = {
   cellular: "#3FCB9B",
@@ -47,6 +48,13 @@ export function StatementScan({
   function runScan(input: string) {
     setResult(scanStatement(input));
     setErr(null);
+  }
+
+  const canScan = text.trim().length >= STATEMENT_SCAN_MIN_CHARS;
+
+  function loadDemo() {
+    setText(UNIVERSAL_CANCEL_DEMO_CSV);
+    runScan(UNIVERSAL_CANCEL_DEMO_CSV);
   }
 
   async function onFile(file?: File | null) {
@@ -133,7 +141,7 @@ export function StatementScan({
       : null;
 
   return (
-    <div>
+    <div className="pb-28">
       <Card className="p-6">
         <div className="flex items-start gap-2.5 text-[13px] text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 mb-5">
           <span aria-hidden>🔒</span>
@@ -148,16 +156,22 @@ export function StatementScan({
             className="mt-1.5 font-mono text-[12.5px]"
             placeholder={t("pastePlaceholder")}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              if (result) setResult(null);
+            }}
           />
         </label>
 
         <div className="flex gap-3 mt-4 flex-wrap">
-          <Button onClick={() => runScan(text)} disabled={text.trim().length === 0}>
+          <Button className="flex-1 min-w-[140px]" onClick={() => runScan(text)} disabled={!canScan}>
             {t("scanBtn")}
           </Button>
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
             {t("uploadBtn")}
+          </Button>
+          <Button variant="ghost" className="!text-[13px]" type="button" onClick={loadDemo}>
+            {t("loadDemo")}
           </Button>
           {screenshotEnabled && (
             <Button variant="ghost" disabled={shotBusy} onClick={() => shotRef.current?.click()}>
@@ -182,6 +196,9 @@ export function StatementScan({
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotError")}</p>
         )}
+        {!canScan && text.trim().length > 0 && (
+          <p className="text-[12px] text-ink-soft mt-2 mb-0">{t("tooShort")}</p>
+        )}
 
         <details className="mt-5 text-[13px] text-ink-soft">
           <summary className="cursor-pointer font-bold text-emerald">{t("exportGuideTitle")}</summary>
@@ -192,6 +209,14 @@ export function StatementScan({
           </ul>
         </details>
       </Card>
+
+      {!result && canScan && (
+        <div className="fixed inset-x-3 bottom-3 z-[9990] mx-auto max-w-[520px] md:hidden">
+          <Button className="w-full shadow-lg" onClick={() => runScan(text)}>
+            {t("scanBtn")}
+          </Button>
+        </div>
+      )}
 
       {result && (
         <div className="mt-6">
