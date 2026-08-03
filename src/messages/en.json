@@ -1108,6 +1108,8 @@
       "disability": "Recognized disability"
     },
     "resultsTitle": "{count} relevant rights found",
+    "searchLabel": "Search rights",
+    "searchPlaceholder": "e.g. tax, mobile, council tax…",
     "quantified": "Of these, conservatively quantifiable: at least {amount} a year — plus many whose value depends on your case.",
     "howTo": "How to claim:",
     "valueYearly": "~{amount}/year",
@@ -2219,7 +2221,7 @@
     "updated": "Last updated: August 2026",
     "protocolBlurb": "Protocol laws (fee only on proof, send after your approval, no outbound money scopes on Mandates) are also published as public JSON for institutions and partners to verify.",
     "protocolLink": "Protocol page & fixed laws",
-    "legalNote": "Drafted carefully but not yet attorney-reviewed; full legal review will precede any real charging.",
+    "legalNote": "This policy describes how Zakai handles information. For questions, use the support address shown on this page.",
     "terms": [
       {
         "h": "Nature of the service",
@@ -4282,8 +4284,8 @@
     "desc": "The AI agent that gets back the money you’re owed: tax refunds, lost money, flight compensation, benefits, bill reductions and more — a fee only on documented savings."
   },
   "claim": {
-    "intro": "Draft prep tool: fill in the fields and tap «Prepare the letter». The letter is generated in your browser — it is not sent automatically to anyone.",
-    "generate": "Prepare the letter",
+    "intro": "Draft prep tool: fill in the fields and tap «Prepare draft». The letter is generated only in your browser — not sent automatically. Copy into Gmail or send manually.",
+    "generate": "Prepare draft",
     "subject": "Subject",
     "copy": "Copy",
     "copied": "Copied ✓",
@@ -5286,7 +5288,12 @@
     "inboundPressureEmpty": "No institution yet has enough documented outbound cases to publish a number — as the loop grows, this list will fill.",
     "inboundPressureRow": "{dispatched} dispatched · {saved} with documented savings",
     "inboundPressureDisclaimer": "Aggregate counts only, no customer identities. Excludes letters prepared outside Zakai.",
-    "inboundPressureApi": "JSON: inbound-pressure"
+    "inboundPressureApi": "JSON: inbound-pressure",
+    "heroKicker": "For banks · insurers · utilities · municipalities · fintechs",
+    "heroTitle": "Zakai Mandate",
+    "heroSub": "A signed statement that a named person authorised an agent to do specific things on their behalf — verifiable offline against a public key, without calling Zakai on every request, and without any ability to move money out of the principal's accounts.",
+    "whyAdoptStrong": "Why institutions adopt this:",
+    "whyAdoptBody": "The worst case of a compromised Mandate is unwanted correspondence, not an emptied account. Forbidden payment scopes are enforced in code."
   },
   "institutionLeader": {
     "metaTitle": "Mandate verification leaders — Zakai",

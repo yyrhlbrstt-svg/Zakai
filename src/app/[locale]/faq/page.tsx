@@ -30,8 +30,22 @@ export default async function FaqPage({
   const a = (e: (typeof FAQ)[number]) => (he ? e.a_he : e.a_en);
   const catName = (c: (typeof FAQ_CATEGORIES)[number]) => (he ? c.he : c.en);
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map((e) => ({
+      "@type": "Question",
+      name: q(e),
+      acceptedAnswer: { "@type": "Answer", text: a(e) },
+    })),
+  };
+
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* Category jump-links — quick scanning on mobile. */}
       <nav className="flex flex-wrap gap-2 mt-6" aria-label={t("title")}>
         {FAQ_CATEGORIES.map((c) => (

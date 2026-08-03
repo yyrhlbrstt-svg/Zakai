@@ -47,15 +47,13 @@ export default async function InstitutionsPage({
   return (
     <VerticalPageShell
       heroGlow
-      dir="ltr"
-      kicker="For banks · insurers · utilities · municipalities · fintechs"
-      title="Zakai Mandate"
-      sub="A signed statement that a named person authorised an agent to do specific things on their behalf — verifiable offline against a public key, without calling Zakai on every request, and without any ability to move money out of the principal's accounts."
+      dir={he ? "rtl" : "ltr"}
+      kicker={t("heroKicker")}
+      title={t("heroTitle")}
+      sub={t("heroSub")}
     >
       <EmeraldInfoPanel className="mb-6">
-        <strong className="text-emerald">Why institutions adopt this:</strong> the worst case of a
-        compromised Mandate is unwanted correspondence, not an emptied account. Forbidden payment
-        scopes are enforced in code.
+        <strong className="text-emerald">{t("whyAdoptStrong")}</strong> {t("whyAdoptBody")}
       </EmeraldInfoPanel>
 
       <p className="text-[13px] text-ink-soft mb-6">

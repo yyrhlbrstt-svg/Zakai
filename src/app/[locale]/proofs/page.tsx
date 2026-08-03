@@ -97,6 +97,7 @@ export default async function ProofsWallPage({
   const monthYearly = monthAgg._sum.recoveredMinor ?? 0;
   const weekMonthly = Math.round(weekYearly / 12);
   const monthMonthly = Math.round(monthYearly / 12);
+  const showStats = totalPaid > 0 || recent.length > 0;
 
   return (
     <VerticalPageShell
@@ -108,6 +109,8 @@ export default async function ProofsWallPage({
       sub={tIapp_locale_proofs_page("t_3070dd2f")}
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+        {showStats ? (
+          <>
         <Stat
           label={tIapp_locale_proofs_page("t_be944a54")}
           value={formatAgorot(weekMonthly, loc)}
@@ -124,16 +127,31 @@ export default async function ProofsWallPage({
           label={tIapp_locale_proofs_page("t_838cfd06")}
           value={String(totalPaid)}
         />
+          </>
+        ) : (
+          <Card className="col-span-2 md:col-span-4 p-6 text-ink-soft text-[14px] text-center leading-relaxed">
+            {tIapp_locale_proofs_page("t_152309da")}
+            <div className="mt-4">
+              <Link href="/money">
+                <Button>{tIapp_locale_proofs_page("t_bd4c0905")}</Button>
+              </Link>
+            </div>
+          </Card>
+        )}
       </div>
 
+      {showStats || recent.length > 0 ? (
       <h2 className="text-[17px] font-extrabold mt-12 mb-4">
         {tIapp_locale_proofs_page("t_a700ca87")}
       </h2>
+      ) : null}
 
       {recent.length === 0 ? (
+        showStats ? (
         <Card className="p-6 text-ink-soft text-[14px] text-center">
           {tIapp_locale_proofs_page("t_152309da")}
         </Card>
+        ) : null
       ) : (
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
           {recent.map((r, i) => {
