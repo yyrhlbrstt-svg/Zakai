@@ -15,6 +15,7 @@ describe("bootstrap-release-env", () => {
     expect(out.stdout).toMatch(/MANDATE_SIGNING_JWK=/);
     expect(out.stdout).toMatch(/PAYMENT_PROVIDER=payplus/);
     expect(out.stdout).toMatch(/SMTP_HOST=/);
+    expect(out.stdout).toMatch(/VAPID_PUBLIC_KEY=/);
     expect(out.stdout).toMatch(/You must fill/);
   });
 });
