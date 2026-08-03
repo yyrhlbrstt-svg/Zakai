@@ -23,6 +23,10 @@ const REGISTRY_URL =
   process.env.ZAKAI_TRUST_REGISTRY_URL || `${ORIGIN}/.well-known/zakai-trust-registry.json`;
 const ACCEPT_URL = process.env.ZAKAI_PIPE_ACCEPT_URL || `${ORIGIN}/api/pipe/accept`;
 const MARK_URL = `${ORIGIN}/api/pipe/mark`;
+const STATUS_URL = (jti) =>
+  process.env.ZAKAI_STATUS_URL_TEMPLATE
+    ? process.env.ZAKAI_STATUS_URL_TEMPLATE.replace("{jti}", encodeURIComponent(jti))
+    : `${ORIGIN}/api/mandate/status/${encodeURIComponent(jti)}`;
 const FORBIDDEN = new Set([
   "pay:transfer",
   "pay:card",
@@ -130,7 +134,37 @@ createServer(async (req, res) => {
       return;
     }
 
-    seen.add(jti);
+    // Fail closed on revocation: never accepted:true when status is unknown/unreachable.
+    // Remember jti only after accept so transient 503s do not poison retries.
+    let statusDoc;
+    try {
+      const sr = await fetch(STATUS_URL(jti), { headers: { accept: "application/json" } });
+      if (sr.status === 503) {
+        res.writeHead(503, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti }));
+        return;
+      }
+      if (!sr.ok) {
+        res.writeHead(503, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti, detail: `status_${sr.status}` }));
+        return;
+      }
+      statusDoc = await sr.json();
+    } catch {
+      res.writeHead(503, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti }));
+      return;
+    }
+    if (statusDoc.status === "revoked") {
+      res.writeHead(401, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "revoked", mandate_jti: jti }));
+      return;
+    }
+    if (statusDoc.status !== "active") {
+      res.writeHead(503, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti, status: statusDoc.status }));
+      return;
+    }
 
     // Optional one-shot decide against hosted pipe (aud extracted server-side).
     let pipeAccept = null;
@@ -149,6 +183,8 @@ createServer(async (req, res) => {
         pipeAccept = { error: "pipe_accept_unreachable" };
       }
     }
+
+    seen.add(jti);
 
     res.writeHead(202, { "content-type": "application/json" });
     res.end(

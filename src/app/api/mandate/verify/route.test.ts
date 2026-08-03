@@ -1,27 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const verifyMandateMock = vi.fn();
-const loadSigningKeyMock = vi.fn();
-const publicJwkForMock = vi.fn();
+const verifyMock = vi.fn();
 const findUniqueMock = vi.fn();
 
-vi.mock("@/lib/mandate/mandate", () => {
-  class MandateError extends Error {
+vi.mock("@/lib/mandate/verifyWithRegistry", () => ({
+  verifyMandateWithTrustRegistry: (...args: unknown[]) => verifyMock(...args),
+  RegistryVerifyError: class RegistryVerifyError extends Error {
     code: string;
     constructor(code: string, message: string) {
       super(message);
       this.code = code;
     }
-  }
-  class MandateKeyUnavailableError extends Error {}
-  return {
-    verifyMandate: (...args: unknown[]) => verifyMandateMock(...args),
-    loadSigningKeyFromEnv: (...args: unknown[]) => loadSigningKeyMock(...args),
-    publicJwkFor: (...args: unknown[]) => publicJwkForMock(...args),
-    MandateError,
-    MandateKeyUnavailableError,
-  };
-});
+  },
+}));
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -59,13 +50,12 @@ function verifyRequest(body: Record<string, unknown>) {
 
 describe("POST /api/mandate/verify", () => {
   beforeEach(() => {
-    verifyMandateMock.mockReset();
-    loadSigningKeyMock.mockReset();
-    publicJwkForMock.mockReset();
+    verifyMock.mockReset();
     findUniqueMock.mockReset();
-    loadSigningKeyMock.mockReturnValue({ kid: "k1" });
-    publicJwkForMock.mockResolvedValue({ kty: "OKP", crv: "Ed25519", x: "x", kid: "k1" });
-    verifyMandateMock.mockResolvedValue(claims);
+    verifyMock.mockResolvedValue({
+      claims,
+      issuer: { iss: "https://zakai.example", name: "Zakai", status: "active" },
+    });
   });
 
   it("denies when revocation store is unavailable (never valid:true)", async () => {
@@ -80,7 +70,7 @@ describe("POST /api/mandate/verify", () => {
 
   it("returns 410 when jti is revoked", async () => {
     findUniqueMock.mockResolvedValue({ jti: "jti_test_1" });
-    const res = await POST(verifyRequest({ token: "eyJ.fake", audience: "bank-demo" }));
+    const res = await POST(verifyRequest({ mandate: "eyJ.fake", audience: "bank-demo" }));
     const body = await res.json();
     expect(res.status).toBe(410);
     expect(body.valid).toBe(false);

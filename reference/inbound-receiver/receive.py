@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import os
+import urllib.error
+import urllib.parse
 import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -25,9 +27,41 @@ SEEN: set[str] = set()
 FORBIDDEN = {"pay:transfer", "pay:card", "wallet:debit", "funds:move", "payment:initiate"}
 
 
+def status_url(jti: str) -> str:
+    tmpl = os.environ.get("ZAKAI_STATUS_URL_TEMPLATE")
+    if tmpl:
+        return tmpl.replace("{jti}", urllib.parse.quote(jti, safe=""))
+    return f"{ORIGIN}/api/mandate/status/{urllib.parse.quote(jti, safe='')}"
+
+
 def load_registry() -> dict:
     with urllib.request.urlopen(REGISTRY_URL, timeout=10) as r:
         return json.load(r)
+
+
+def check_revocation(jti: str) -> tuple[int, dict]:
+    """Return (http_status, body). Fail closed when status is unknown/unreachable."""
+    try:
+        req = urllib.request.Request(status_url(jti), headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            doc = json.load(r)
+    except urllib.error.HTTPError as err:
+        if err.code == 503:
+            return 503, {"error": "revocation_unknown", "mandate_jti": jti}
+        return 503, {
+            "error": "revocation_unknown",
+            "mandate_jti": jti,
+            "detail": f"status_{err.code}",
+        }
+    except Exception:
+        return 503, {"error": "revocation_unknown", "mandate_jti": jti}
+
+    status = doc.get("status")
+    if status == "revoked":
+        return 401, {"error": "revoked", "mandate_jti": jti}
+    if status != "active":
+        return 503, {"error": "revocation_unknown", "mandate_jti": jti, "status": status}
+    return 200, doc
 
 
 def unverified_iss(token: str) -> str:
@@ -114,6 +148,11 @@ class Handler(BaseHTTPRequestHandler):
             allowed = issuer.get("allowed_scopes") or issuer.get("allowedScopes") or []
             if allowed and any(s not in allowed for s in scopes):
                 self._json(422, {"error": "issuer_scope_exceeded", "scopes": scopes})
+                return
+            # Fail closed on revocation; remember jti only after accept.
+            code, status_body = check_revocation(jti)
+            if code != 200:
+                self._json(code, status_body)
                 return
             SEEN.add(jti)
             self._json(
