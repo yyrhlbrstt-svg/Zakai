@@ -178,16 +178,12 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                   <p className="text-[12.5px] text-amber mb-2">
                     {blockCopy(r.sendBlock ?? "generic")}
                   </p>
-                  {(r.sendBlock === "NEEDS_OUTREACH_EMAIL" ||
-                    r.sendBlock === "NO_ACTIVE_MANDATE" ||
-                    r.sendBlock === "MAX_ROUNDS") && (
-                    <Link
-                      href={`/money?case=${r.id}`}
-                      className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
-                    >
-                      {tIcomponents_OvernightAgent("openCase")} →
-                    </Link>
-                  )}
+                  <Link
+                    href={`/money?case=${r.id}`}
+                    className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
+                  >
+                    {tIcomponents_OvernightAgent("openCase")} →
+                  </Link>
                 </div>
               ) : (
                 <>
@@ -198,16 +194,12 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                   {r.error && r.sendBlock ? (
                     <div className="mt-2">
                       <p className="text-[12.5px] text-amber mb-2">{blockCopy(r.sendBlock)}</p>
-                      {(r.sendBlock === "NEEDS_OUTREACH_EMAIL" ||
-                        r.sendBlock === "NO_ACTIVE_MANDATE" ||
-                        r.sendBlock === "MAX_ROUNDS") && (
-                        <Link
-                          href={`/money?case=${r.id}`}
-                          className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
-                        >
-                          {tIcomponents_OvernightAgent("openCase")} →
-                        </Link>
-                      )}
+                      <Link
+                        href={`/money?case=${r.id}`}
+                        className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
+                      >
+                        {tIcomponents_OvernightAgent("openCase")} →
+                      </Link>
                     </div>
                   ) : null}
                   <div className="flex flex-wrap gap-2 mt-2">
