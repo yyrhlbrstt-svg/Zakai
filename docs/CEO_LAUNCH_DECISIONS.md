@@ -1,39 +1,30 @@
 # CEO launch decisions (Aug 2026)
 
-Single merge path, honest revenue gates, no fake traction.
+**Founder override:** Do **not** treat PayPlus, SMTP, branded domain, and public support inbox as the near-term goal. Wire those only after **institutional gravity** — when ignoring the protocol costs more than adopting it. See `docs/INDISPENSABILITY_STRATEGY.md`.
 
-## Ship order
+## Ship order (code)
 
-1. **Merge only [PR #71](https://github.com/yyrhlbrstt-svg/Zakai/pull/71)** (`cursor/audit-fixes-584b`) into `main`.  
-   It already contains everything in #70 (commercial polish) plus audit/SEO/share fixes. **Close #70** as superseded to avoid double-merge drift.
+1. **Merge [PR #71](https://github.com/yyrhlbrstt-svg/Zakai/pull/71)** into `main` (protocol + product skeleton). Close #70 as superseded.
+2. Keep production deployable; use **mock payments** and **queued outbox** until phase D in indispensability doc.
+3. **`npm run verify:production-urls`** after deploy — JWKS, interop, domains manifest, catalog.
 
-2. **Vercel** — Redeploy latest `main` until production is not **Ready Stale**.
+## Commercial env (phase D — deferred)
 
-3. **Blocking env** (run `node scripts/preflight.mjs` after setting):
+| Variable | When |
+|----------|------|
+| `PAYMENT_PROVIDER=payplus` | After mandate/ZML gravity justifies success fees at scale |
+| `SMTP_*` | When institution inbound volume needs reliable delivery identity |
+| Public domain + support inbox | When «launch» is strategic, not before indispensability |
 
-   | Variable | Why |
-   |----------|-----|
-   | `PAYMENT_PROVIDER=payplus` + PayPlus keys | Real success-fee checkout (today: mock provider) |
-   | `SMTP_*` + real `SMTP_FROM` | Outbox delivers; leads get answered |
-   | `NEXT_PUBLIC_SUPPORT_EMAIL` / leads inboxes | `yyrhlbrstt@gmail.com` (or domain mail) — not `.example` |
-   | `MANDATE_*` signing keys | Mandate loop in prod |
+Until then: no fake «we're live» consumer marketing; build **five monopoly directions** honestly.
 
-4. **Smoke** — `npm run verify:production-urls` against production URL.
+## Product law (unchanged)
 
-## Product law (non-negotiable)
+- No fabricated savings, no demo `StrategyOutcome` rows.
+- Banks calling you is an **outcome** of volume + standard — not a press release.
 
-- No fabricated savings counts, no demo `StrategyOutcome` rows, no Stripe without doctrine change.
-- First real saved case → one honest proof on `/proofs` → then share loop (now uses `/share?amount=` OG).
+## Docs
 
-## What we deliberately did *not* ship yet
-
-- Live collective auction (intent API only).
-- TikTok / auto-post growth bot.
-- Separate `zakai-packs` GitHub org (bundled packs + workflow in-repo is v1).
-- Redis pack cache (admin reload + in-memory is enough for current scale).
-
-## Next code wins (after revenue env)
-
-- One documented IL vertical closed end-to-end with verified fee collection.
-- Institution pilot from `/institutions` form with SMTP live.
-- Optional: `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` for privacy-friendly analytics.
+- `docs/INDISPENSABILITY_STRATEGY.md` — north star
+- `docs/MONOPOLY_FIVE_DOMAINS.md` — five moats map
+- `docs/PROTOCOL_SCALE_ASSESSMENT.md` — gates (re-read with indispensability first)

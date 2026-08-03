@@ -60,6 +60,8 @@ This document aligns the **“natural monopoly” strategy** with what is **ship
 
 ## What founders still must do
 
-- CDN for packs, PayPlus, SMTP, institution pilots, regulator outreach with **real** snapshot PDFs/export.
+- **Indispensability first** — close one moat direction (see `docs/INDISPENSABILITY_STRATEGY.md`).
+- CDN for packs, institution self-serve conformance, third-party interop green.
+- PayPlus / SMTP / branded domain — **phase D**, not prerequisite for protocol work.
 
 Network effects are **earned** by usage flowing through these endpoints — not declared in copy.

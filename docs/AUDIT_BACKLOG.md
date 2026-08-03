@@ -4,9 +4,11 @@ Track honest status — no fabricated metrics.
 
 ## Revenue loop (founder / Vercel env)
 
-- [ ] `PAYMENT_PROVIDER=payplus` + keys → `payments_live: true`
-- [ ] `SMTP_*` + drain outbox → `email_delivery: true`
-- [ ] One **real** documented saving → `StrategyOutcome` + proofs wall (no demo rows)
+**Deferred** until protocol gravity (see `docs/INDISPENSABILITY_STRATEGY.md`) — not the current P0.
+
+- [ ] `PAYMENT_PROVIDER=payplus` + keys — **phase D** (after indispensability)
+- [ ] `SMTP_*` + drain outbox — **phase D** (or institution-volume trigger)
+- [ ] One **real** documented saving → `StrategyOutcome` + proofs wall (no demo rows) — can happen **before** payments; proves loop, not monetization
 
 ## Code (PRs)
 
@@ -34,7 +36,7 @@ Track honest status — no fabricated metrics.
 ## Related
 
 - `docs/MASTER_BRIEF_STATUS.md` — brief → code map
-- `docs/CEO_LAUNCH_DECISIONS.md` — **merge #71 only**, env checklist, smoke
+- `docs/INDISPENSABILITY_STRATEGY.md` — **north star**: monopoly directions before commercial wiring
 - `docs/PROTOCOL_SCALE_ASSESSMENT.md` — gates to protocol-scale (honest)
 
 - Outcome graph population
