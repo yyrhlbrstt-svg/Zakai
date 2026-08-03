@@ -1,18 +1,44 @@
-# Institution quickstart — Mandate verification in ~30 minutes
+# Institution quickstart — Mandate verification in ~15 minutes
 
 This guide is for a bank, insurer, utility, or fintech that must answer: **did this
 customer authorise this agent, for this action, right now?**
 
+**Clear gate:** pass authorization test vectors + verify the signed Status List →
+`READY_FOR_PIONEER` → claim a Pioneer slot at `/institutions/leader`.  
+That is **not** regulatory certification. The leaders wall stays empty until a real opt-in.
+
 Zakai does not need to be in the hot path for every verification. Your service can
 verify offline against published keys and the trust registry.
 
-## 1. Read the discovery document (5 min)
+## 0. One command (preferred)
+
+**Node (SDK):**
+
+```bash
+cd sdk && npm run ready
+# after publish:
+npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
+```
+
+**Python (stdlib, no npm):**
+
+```bash
+cd reference/python
+python3 zakai_verify.py --ready --origin https://zakai-3uxj.vercel.app
+```
+
+Both print `READY_FOR_PIONEER` only when vectors pass and the status list is fetchable
+(Node also cryptographically verifies the statuslist+jwt).
+
+Human UI twin: `/he/institutions/quickstart`
+
+## 1. Read the discovery document (2 min)
 
 ```
 GET https://zakai-3uxj.vercel.app/.well-known/zakai-mandate.json
 ```
 
-Note: JWKS URL, verify endpoint, forbidden scopes, revocation feed.
+Note: JWKS URL, verify endpoint, forbidden scopes, revocation / status list.
 
 ## 2. Fetch the trust registry (2 min)
 
@@ -20,11 +46,9 @@ Note: JWKS URL, verify endpoint, forbidden scopes, revocation feed.
 GET https://zakai-3uxj.vercel.app/.well-known/zakai-trust-registry.json
 ```
 
-Reject mandates from issuers that are `suspended` or not listed. Resolve each
-issuer's JWKS from the registry entry — do not hard-code a single Zakai key for
-delegated issuers.
+Reject mandates from issuers that are `suspended` or not listed.
 
-## 3. Verify a mandate (10 min)
+## 3. Verify a mandate (5 min)
 
 **Option A — HTTP (CORS-enabled):**
 
@@ -42,10 +66,19 @@ npm install @zakai/mandate-sdk
 ```
 
 ```ts
+import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
+import { verifyStatusListFromUrl } from "@zakai/mandate-sdk";
 import { verifyMandateWithRegistry } from "@zakai/mandate-sdk/registry";
 
-const result = await verifyMandateWithRegistry(jws, {
-  trustRegistryUrl: "https://zakai-3uxj.vercel.app/.well-known/zakai-trust-registry.json",
+const claims = await verifyMandateFromUrl(jws, {
+  audience: "my-institution-id",
+  jwksUri: "https://zakai-3uxj.vercel.app/.well-known/zakai-jwks.json",
+});
+
+const list = await verifyStatusListFromUrl({
+  statusListUri: "https://zakai-3uxj.vercel.app/api/mandate/revocations",
+  issuer: "https://zakai-3uxj.vercel.app",
+  jwksUri: "https://zakai-3uxj.vercel.app/.well-known/zakai-jwks.json",
 });
 ```
 
@@ -55,62 +88,36 @@ const result = await verifyMandateWithRegistry(jws, {
 npx zakai-mandate-mcp
 ```
 
-Tools: `verify_mandate`, `decide_action`, `check_revocation`, `get_trust_registry`,
-`list_scopes`, `predict_outcome` (Oracle requires `ZAKAI_ORACLE_API_KEY`).
-
-## 4. Decide whether to act (5 min)
+## 4. Decide whether to act (3 min)
 
 ```
 POST https://zakai-3uxj.vercel.app/api/mandate/decide
 ```
 
-Pass the mandate JWS + the action your system wants to perform (e.g.
-`correspondence.send`). The response is allow/deny with scope and audience checks.
+Or offline: `decide()` in `@zakai/mandate-sdk` / `reference/python/zakai_decide.py`.
 
-## 5. Revocation (ongoing)
-
-Before acting on a high-impact request, check live revocation:
+## 5. Status List (ongoing — cacheable)
 
 ```
 GET https://zakai-3uxj.vercel.app/api/mandate/revocations
+Content-Type: application/statuslist+jwt
+Cache-Control: public, max-age=900
 ```
 
-Fail closed if the mandate `jti` appears in the feed.
+Fetch every ~15 minutes, verify once with JWKS, then answer revocation **offline**.
+Fail closed if the list is expired or unreachable.
 
-## 6. Become a delegated issuer (optional)
+## 6. Pioneer (optional, after READY)
 
-If you build a consumer agent and prefer Zakai to sign on your behalf (no JWKS ops):
+1. Open `/he/institutions/leader`
+2. Finish JWKS + verify self-checks
+3. Opt into the public wall (first three = Pioneer)
 
-```
-POST https://zakai-3uxj.vercel.app/api/mandate/delegation/apply
-```
+Empty wall = honest. Do not invent adopters.
 
-Public roster of admitted pilots (no secrets):
+## Related
 
-```
-GET https://zakai-3uxj.vercel.app/api/mandate/delegation/issuers
-```
-
-Issue with `X-Zakai-Issue-Key` after founder admission — see `docs/ZML_SDK_INTEGRATION.md`.
-
-UI: `/en/institutions` — Delegation apply form.
-
-## Machine-readable vertical map
-
-For product teams mapping consumer-agent use cases:
-
-```
-GET https://zakai-3uxj.vercel.app/api/network/opportunity-map
-GET https://zakai-3uxj.vercel.app/api/network/opportunity-map?market=IL
-```
-
-## What you must not expect
-
-- No outward money-movement scopes (`FORBIDDEN_SCOPES` in registry).
-- Zakai does not file in court or impersonate the customer — correspondence only.
-- Verification answers cryptography + policy; it does not guarantee claim outcomes.
-
-## Contact
-
-Institutional enquiries: `/en/institutions` lead form, or the address configured in
-`SALES_EMAIL` / `ADMIN_EMAIL` in production.
+- Full institutions narrative: `/he/institutions`
+- Pipe (Mandate → SavingsProof): `/he/pipe`
+- Conformance JSON: `/.well-known/zakai-conformance.json`
+- Probe: `POST /api/mandate/conformance/probe`

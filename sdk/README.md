@@ -79,13 +79,34 @@ status route and fails closed: an unreachable status endpoint is a deny,
 never a shrug. `ZAKAI_BASE_URL` points it at a staging or self-hosted
 registry operator.
 
+## Ready for Pioneer (15 minutes)
+
+```bash
+npm run ready
+# or: npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
+```
+
+Runs every published authorization test vector and cryptographically verifies
+the signed `statuslist+jwt`. Exit 0 prints `READY_FOR_PIONEER` — then claim a
+slot at `/institutions/leader`. Not regulatory certification.
+
+Python (stdlib): `python3 reference/python/zakai_verify.py --ready`
+
+Human twin: `/he/institutions/quickstart`
+
 ## Quickstart: verify a mandate someone sent you
 
 ```ts
-import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
+import { verifyMandateFromUrl, verifyStatusListFromUrl } from "@zakai/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(token, {
   audience: "my-institution-id",
+  jwksUri: "https://zakai-3uxj.vercel.app/.well-known/zakai-jwks.json",
+});
+
+const list = await verifyStatusListFromUrl({
+  statusListUri: "https://zakai-3uxj.vercel.app/api/mandate/revocations",
+  issuer: "https://zakai-3uxj.vercel.app",
   jwksUri: "https://zakai-3uxj.vercel.app/.well-known/zakai-jwks.json",
 });
 

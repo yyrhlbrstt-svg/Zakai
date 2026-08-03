@@ -19,13 +19,18 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "import": "./dist/registry.js"
+    },
     "./mcp": {
       "types": "./dist/mcp.d.ts",
       "import": "./dist/mcp.js"
     }
   },
   "bin": {
-    "zakai-mandate-mcp": "./dist/mcp-bin.js"
+    "zakai-mandate-mcp": "./dist/mcp-bin.js",
+    "zakai-mandate-ready": "./dist/ready-bin.js"
   },
   "files": [
     "dist",
@@ -34,7 +39,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "ready": "npm run build && node dist/ready-bin.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
