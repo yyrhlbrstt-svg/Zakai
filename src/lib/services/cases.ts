@@ -368,7 +368,22 @@ ${institutionPullFooterLine("he", appUrl)}
   return email;
 }
 
-export async function recordSaving(caseId: string, userId: string, newAmountShekels: number) {
+export type RecordSavingOptions = {
+  /** How the new amount was obtained — inbound email parse vs typed vs estimate shortcut. */
+  source?: "manual" | "inbound" | "estimate";
+  /**
+   * True for guessed shortcuts (~20%/50%). Counts on the person's record but
+   * must never mint a chargeable success fee (schema doctrine).
+   */
+  selfReported?: boolean;
+};
+
+export async function recordSaving(
+  caseId: string,
+  userId: string,
+  newAmountShekels: number,
+  options: RecordSavingOptions = {},
+) {
   const kase = await ownedCase(caseId, userId);
   if (kase.status !== "SENT") throw new CaseError("NOT_SENT");
 
@@ -376,6 +391,8 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   if (existing) throw new CaseError("ALREADY_SETTLED");
 
   const newAmount = shekelsToAgorot(newAmountShekels);
+  const selfReported = options.selfReported === true;
+  const source = options.source ?? (selfReported ? "estimate" : "manual");
 
   const result = await prisma.$transaction(async (tx) => {
     const owner = await tx.user.findUnique({
@@ -390,7 +407,9 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     const fee = computeCaseSuccessFee(kase.amountOriginal, newAmount, feeBasis, rateBps);
     const saved = fee.savingMonthly > 0;
 
-    const credit = applyCredit(fee.amount, owner?.referralCreditAgorot ?? 0);
+    // Self-reported / estimate shortcuts never produce a defendable success fee.
+    const billableAmount = selfReported ? 0 : fee.amount;
+    const credit = applyCredit(billableAmount, owner?.referralCreditAgorot ?? 0);
 
     await tx.savingsProof.create({
       data: {
@@ -398,7 +417,8 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
         originalAmount: kase.amountOriginal,
         newAmount,
         savingMonthly: fee.savingMonthly,
-        source: "manual",
+        source,
+        selfReported,
       },
     });
     await tx.fee.create({
@@ -458,6 +478,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     paid: fee.savingMonthly > 0,
     recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
     days: daysBetween(kase.approvedAt ?? kase.createdAt, new Date()),
+    selfReported,
   });
 
   if (result.feeNet > 0) {

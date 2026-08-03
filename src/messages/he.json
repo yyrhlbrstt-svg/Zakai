@@ -5660,6 +5660,11 @@
     "linksTitle": "קישורים ישירים",
     "moreDetail": "מחשבון ROI, בקשת delegation וטופס לידים:",
     "institutionsCta": "לעמוד המוסדות",
+    "readyTitle": "שער מכונה — READY_FOR_PIONEER",
+    "readyBody": "לפני שטוענים תמיכה ב-Mandate: עברו test vectors + Status List. אותו שער שחוסם רישום Pioneer מזויף.",
+    "readyQuickstart": "Quickstart מלא (15 דק׳)",
+    "readyPioneer": "תביעת Pioneer אחרי READY_FOR_PIONEER",
+    "readyLinkHint": "ready_for_pioneer (vectors + Status List)",
     "proofTitle": "הוכחה ב־60 שניות (בלי שיחת מכירה)",
     "proofBody": "הריצו verify מול ה-discovery הציבורי. אם עובד — אתם יודעים שהפרוטוקול אמיתי לפני שאתם כותבים לנו.",
     "proofCurl": "curl -s $ORIGIN/.well-known/zakai-mandate.json | head -c 400"

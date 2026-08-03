@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { providerHebrewName } from "@/lib/providers";
+import { nextActionInstruction, rankNextAction } from "@/lib/services/nextAction";
 
 const ACTIVE = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT"]);
 
@@ -35,6 +36,10 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
   const proposedMap = sentIds.length > 0 ? await getProposedSavingsMap(sentIds) : new Map();
+  const proposedHints = new Map(
+    [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
+  );
+  const ranked = rankNextAction(cases, proposedHints);
 
   const lines: string[] = ["CASES (newest first):"];
   for (const c of cases) {
@@ -56,49 +61,35 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
     lines.push(line);
   }
 
-  const pendingFee = cases.find(
-    (c) => c.fee && c.fee.status === "PENDING" && c.fee.amount > 0,
-  );
-  const withProposal = sentIds.filter((id) => proposedMap.has(id));
-  const preSend = cases.find((c) =>
-    c.status === "VERIFIED" || c.status === "APPROVED" || c.status === "ANALYZED",
-  );
-  const sentOpen = cases.find((c) => c.status === "SENT");
-
-  // Highest-ROI unfinished loop wins — never suggest a new door while one is open.
-  let nextAction: string;
-  if (pendingFee) {
-    nextAction = `NEXT_ACTION: Collect success fee — /dashboard?case=${pendingFee.id}&payFee=1 (₪${(pendingFee.fee!.amount / 100).toFixed(2)} pending).`;
-  } else if (withProposal.length > 0) {
-    const id = withProposal[0]!;
-    const p = proposedMap.get(id)!;
-    nextAction = `NEXT_ACTION: One-tap record SavingsProof — /dashboard?case=${id} (proposed ₪${p.newAmountShekels}). Do NOT invent amounts. Do NOT open a new case.`;
+  if (ranked.kind === "proposed_saving") {
     lines.push(
       "",
-      `PROPOSED_SAVING: Provider reply detected for case ${id}. User should open /dashboard?case=${id} and one-tap record ₪${p.newAmountShekels}.`,
+      `PROPOSED_SAVING: Provider reply detected for case ${ranked.caseId}. User should open /dashboard?case=${ranked.caseId} and one-tap record ₪${ranked.newAmountShekels}.`,
     );
-  } else if (preSend) {
-    nextAction = `NEXT_ACTION: Finish Mandate send — /dashboard?case=${preSend.id} (status=${preSend.status}). Approve/verify/send. Do NOT start another vertical.`;
-  } else if (sentOpen) {
-    nextAction = `NEXT_ACTION: Close the loop — /dashboard?case=${sentOpen.id}. If they replied: record new amount (SavingsProof). If silent: draft/send written follow-up.`;
-  } else {
-    nextAction = "NEXT_ACTION: Start in /money (scan → case → Mandate). Only then other agent verticals.";
   }
 
   const open = cases.filter((c) => ACTIVE.has(c.status));
   if (open.length > 0) {
-    const top =
-      (withProposal[0] && open.find((c) => c.id === withProposal[0])) ||
-      preSend ||
-      sentOpen ||
-      open[0]!;
+    const topId =
+      ranked.kind === "pending_fee" ||
+      ranked.kind === "proposed_saving" ||
+      ranked.kind === "pre_send" ||
+      ranked.kind === "sent_wait"
+        ? ranked.caseId
+        : open[0]!.id;
+    const top = open.find((c) => c.id === topId) ?? open[0]!;
     lines.push(
       "",
       `OPEN_LOOP: Case ${top.id} (${top.status}) needs user action on /dashboard?case=${top.id}`,
     );
   }
 
-  lines.push("", nextAction, "", "RULE: NEXT_ACTION wins over every other suggestion. End every reply with that single link.");
+  lines.push(
+    "",
+    nextActionInstruction(ranked),
+    "",
+    "RULE: NEXT_ACTION wins over every other suggestion. End every reply with that single link. Match the on-screen next-action panel.",
+  );
 
   return lines.join("\n");
 }

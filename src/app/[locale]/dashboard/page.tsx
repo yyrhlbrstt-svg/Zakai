@@ -139,8 +139,9 @@ export default async function DashboardPage({
       c.status === "SENT",
   ).length;
 
+  // Follow-up drafts only for silent SENT cases — skip when inbound already proposed a saving.
   const sentCases = cases
-    .filter((c) => c.status === "SENT")
+    .filter((c) => c.status === "SENT" && !proposedMap.has(c.id))
     .map((c) => ({
       id: c.id,
       providerLabel: providerHebrewName(c.provider),
@@ -274,6 +275,11 @@ export default async function DashboardPage({
                 currentPlan={user!.plan}
                 documentedSavingShekels={
                   c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
+                }
+                pendingFeeShekels={
+                  c.fee && c.fee.status === "PENDING" && c.fee.amount > 0
+                    ? Math.round(c.fee.amount / 100)
+                    : undefined
                 }
                 provider={c.provider}
                 counterpartyEmail={c.counterpartyEmail}

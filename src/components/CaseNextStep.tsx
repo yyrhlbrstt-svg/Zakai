@@ -55,6 +55,8 @@ interface Props {
   currentPlan?: string;
   /** SavingsProof.savingMonthly in shekels — drives the Pro-upgrade nudge. */
   documentedSavingShekels?: number;
+  /** Pending success fee in shekels — primary CTA on SAVED before share. */
+  pendingFeeShekels?: number;
   /**
    * Whether this environment can actually deliver email (SMTP_HOST set).
    * A case's status flips to SENT the moment the agent claims the send —
@@ -128,8 +130,11 @@ const copy: Record<string, Record<string, string>> = {
     saveBlockTitle: "קיבלתם תוצאה? רשמו חיסכון עכשיו",
     saveBlockSub: "בלי רישום אין עמלה ואין הוכחה. זה השלב שסוגר את הכסף.",
     quickCancel: "בוטל לגמרי (₪0)",
-    quickOff20: "הנחה ~20%",
-    quickOff50: "הנחה ~50%",
+    quickOff20: "הנחה ~20% (הערכה — בלי עמלה)",
+    quickOff50: "הנחה ~50% (הערכה — בלי עמלה)",
+    estimateHints: "קיצורי הערכה — לא תיעוד מספק. לא נגבית עמלה על הערכה.",
+    payFeeNow: "שלמו את עמלת ההצלחה",
+    savedPayFirst: "קודם העמלה על התוצאה המתועדת — אחר כך שיתוף.",
     proofsLabel: "העבירו תשובת ספק לכאן",
     proofsCopy: "העתק כתובת",
     proofsCopied: "הועתק",
@@ -206,8 +211,11 @@ const copy: Record<string, Record<string, string>> = {
     saveBlockTitle: "Got a result? Record the saving now",
     saveBlockSub: "No record → no fee and no proof. This is the step that closes the money.",
     quickCancel: "Fully cancelled (₪0)",
-    quickOff20: "~20% off",
-    quickOff50: "~50% off",
+    quickOff20: "~20% off (estimate — no fee)",
+    quickOff50: "~50% off (estimate — no fee)",
+    estimateHints: "Estimate shortcuts — not provider documentation. No success fee on estimates.",
+    payFeeNow: "Pay the success fee",
+    savedPayFirst: "Pay the documented-outcome fee first — then share.",
     proofsLabel: "Forward provider reply here",
     proofsCopy: "Copy address",
     proofsCopied: "Copied",
@@ -242,6 +250,7 @@ export function CaseNextStep({
   shareMessage,
   referralCode,
   proposedSaving,
+  pendingFeeShekels,
   proofsEmail,
   agentRound = 0,
   emailConfigured = true,
@@ -294,10 +303,34 @@ export function CaseNextStep({
     (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PROOFS_EMAIL) ||
     "proofs@zakai.app";
 
-  function finishSaving() {
+  function finishSaving(checkoutUrl?: string | null) {
     scheduleRecheckReminder(caseId);
     navigatedAfterSave = true;
+    // Prove → fee in one gesture when checkout is ready (same as CheckFlow).
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+      return;
+    }
     router.push(`/dashboard?saved=1&case=${caseId}`);
+  }
+
+  async function recordAndFinish(
+    newAmountShekels: number,
+    opts?: { source?: "manual" | "inbound" | "estimate"; selfReported?: boolean },
+  ) {
+    const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        newAmountShekels,
+        locale,
+        source: opts?.source,
+        selfReported: opts?.selfReported,
+      }),
+    });
+    if (!res.ok) throw new Error("save");
+    const data = (await res.json().catch(() => ({}))) as { checkoutUrl?: string };
+    finishSaving(data.checkoutUrl);
   }
 
   async function run(fn: () => Promise<void>) {
@@ -368,6 +401,16 @@ export function CaseNextStep({
           </div>
         ) : null}
         <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
+        {pendingFeeShekels != null && pendingFeeShekels > 0 ? (
+          <div className="mb-3 rounded-lg border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-3 py-2.5">
+            <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-snug">{t(locale, "savedPayFirst")}</p>
+            <Link href={`/dashboard?case=${caseId}&payFee=1`} className="no-underline">
+              <Button className="!text-[13px] w-full sm:w-auto">
+                {t(locale, "payFeeNow")} · ₪{pendingFeeShekels}
+              </Button>
+            </Link>
+          </div>
+        ) : null}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -796,15 +839,9 @@ export function CaseNextStep({
               disabled={busy}
               className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
               onClick={() =>
-                run(async () => {
-                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ newAmountShekels: proposed.newAmountShekels }),
-                  });
-                  if (!res.ok) throw new Error("save");
-                  finishSaving();
-                })
+                run(() =>
+                  recordAndFinish(proposed.newAmountShekels, { source: "inbound" }),
+                )
               }
             >
               {busy ? t(locale, "working") : t(locale, "proposedOneTap")}
@@ -826,17 +863,7 @@ export function CaseNextStep({
             <Button
               disabled={busy || newAmt === "" || Number(newAmt) < 0}
               className="text-[13px] py-2 px-3"
-              onClick={() =>
-                run(async () => {
-                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ newAmountShekels: Number(newAmt) }),
-                  });
-                  if (!res.ok) throw new Error("save");
-                  finishSaving();
-                })
-              }
+              onClick={() => run(() => recordAndFinish(Number(newAmt), { source: "manual" }))}
             >
               {busy ? t(locale, "working") : t(locale, feeBasis === "lump" ? "recordLump" : "record")}
             </Button>
@@ -845,17 +872,7 @@ export function CaseNextStep({
                 variant="ghost"
                 disabled={busy}
                 className="text-[13px] py-2 px-3"
-                onClick={() =>
-                  run(async () => {
-                    const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ newAmountShekels: 0 }),
-                    });
-                    if (!res.ok) throw new Error("save");
-                    finishSaving();
-                  })
-                }
+                onClick={() => run(() => recordAndFinish(0, { source: "manual" }))}
               >
                 {t(locale, "fullRecovery")}
               </Button>
@@ -865,72 +882,16 @@ export function CaseNextStep({
                   variant="ghost"
                   disabled={busy}
                   className="text-[13px] py-2 px-3"
-                  onClick={() =>
-                    run(async () => {
-                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ newAmountShekels: 0 }),
-                      });
-                      if (!res.ok) throw new Error("save");
-                      finishSaving();
-                    })
-                  }
+                  onClick={() => run(() => recordAndFinish(0, { source: "manual" }))}
                 >
                   {t(locale, "quickCancel")}
-                </Button>
-                <Button
-                  variant="ghost"
-                  disabled={busy || amountOriginalShekels <= 0}
-                  className="text-[13px] py-2 px-3"
-                  onClick={() =>
-                    run(async () => {
-                      const next = Math.round(amountOriginalShekels * 0.8);
-                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ newAmountShekels: next }),
-                      });
-                      if (!res.ok) throw new Error("save");
-                      finishSaving();
-                    })
-                  }
-                >
-                  {t(locale, "quickOff20")}
-                </Button>
-                <Button
-                  variant="ghost"
-                  disabled={busy || amountOriginalShekels <= 0}
-                  className="text-[13px] py-2 px-3"
-                  onClick={() =>
-                    run(async () => {
-                      const next = Math.round(amountOriginalShekels * 0.5);
-                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ newAmountShekels: next }),
-                      });
-                      if (!res.ok) throw new Error("save");
-                      finishSaving();
-                    })
-                  }
-                >
-                  {t(locale, "quickOff50")}
                 </Button>
                 <Button
                   variant="ghost"
                   disabled={busy}
                   className="text-[13px] py-2 px-3"
                   onClick={() =>
-                    run(async () => {
-                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ newAmountShekels: amountOriginalShekels }),
-                      });
-                      if (!res.ok) throw new Error("save");
-                      finishSaving();
-                    })
+                    run(() => recordAndFinish(amountOriginalShekels, { source: "manual" }))
                   }
                 >
                   {t(locale, "noChange")}
@@ -938,6 +899,45 @@ export function CaseNextStep({
               </>
             )}
           </div>
+          {feeBasis !== "lump" ? (
+            <details className="mt-2">
+              <summary className="text-[12px] text-ink-soft cursor-pointer select-none">
+                {t(locale, "estimateHints")}
+              </summary>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <Button
+                  variant="ghost"
+                  disabled={busy || amountOriginalShekels <= 0}
+                  className="text-[12.5px] py-1.5 px-2.5"
+                  onClick={() =>
+                    run(() =>
+                      recordAndFinish(Math.round(amountOriginalShekels * 0.8), {
+                        source: "estimate",
+                        selfReported: true,
+                      }),
+                    )
+                  }
+                >
+                  {t(locale, "quickOff20")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={busy || amountOriginalShekels <= 0}
+                  className="text-[12.5px] py-1.5 px-2.5"
+                  onClick={() =>
+                    run(() =>
+                      recordAndFinish(Math.round(amountOriginalShekels * 0.5), {
+                        source: "estimate",
+                        selfReported: true,
+                      }),
+                    )
+                  }
+                >
+                  {t(locale, "quickOff50")}
+                </Button>
+              </div>
+            </details>
+          ) : null}
         </div>
 
         <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">

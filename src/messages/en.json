@@ -5660,6 +5660,11 @@
     "linksTitle": "Direct links",
     "moreDetail": "ROI calculator, delegation apply, and institutional lead form:",
     "institutionsCta": "Institutions page",
+    "readyTitle": "Machine gate — READY_FOR_PIONEER",
+    "readyBody": "Before claiming Mandate support: pass test vectors + Status List. Same gate that blocks fake Pioneer listings.",
+    "readyQuickstart": "Full quickstart (15 min)",
+    "readyPioneer": "Claim Pioneer after READY_FOR_PIONEER",
+    "readyLinkHint": "ready_for_pioneer (vectors + Status List)",
     "proofTitle": "60-second proof (no sales call)",
     "proofBody": "Run verify against public discovery. If it works, the protocol is real before you ever email us.",
     "proofCurl": "curl -s $ORIGIN/.well-known/zakai-mandate.json | head -c 400"

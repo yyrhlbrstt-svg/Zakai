@@ -50,10 +50,33 @@ export default async function IntegrationsPage({
         />
       </Reveal>
 
+      <Reveal delay={60}>
+        <SpotlightCard className="p-5 mt-8 border-[rgba(63,203,155,0.4)]">
+          <SectionHeading title={t("readyTitle")} className="mt-0 mb-2" as="h2" />
+          <p className="text-[14px] text-ink-soft leading-relaxed m-0 mb-3">{t("readyBody")}</p>
+          <CodeBlock>{`npx zakai-mandate-ready --origin ${ORIGIN}\n# or\ncurl -s ${ORIGIN}/api/mandate/ready`}</CodeBlock>
+          <div className="flex flex-wrap gap-3 mt-4">
+            <Link href="/institutions/quickstart" className="text-emerald font-bold underline">
+              {t("readyQuickstart")}
+            </Link>
+            <Link href="/institutions/leader" className="text-emerald font-bold underline">
+              {t("readyPioneer")}
+            </Link>
+          </div>
+        </SpotlightCard>
+      </Reveal>
+
       <Reveal delay={80}>
         <EmeraldInfoPanel className="mt-10">
           <strong className="text-emerald">{t("linksTitle")}</strong>
           <ul className="mt-2 mb-0 ps-5 list-disc flex flex-col gap-1.5">
+            <li>
+              <a className="text-emerald underline break-all" href={`${ORIGIN}/api/mandate/ready`}>
+                /api/mandate/ready
+              </a>
+              {" — "}
+              {t("readyLinkHint")}
+            </li>
             <li>
               <a className="text-emerald underline break-all" href={`${ORIGIN}/.well-known/zakai-mandate.json`}>
                 zakai-mandate.json
@@ -62,6 +85,11 @@ export default async function IntegrationsPage({
             <li>
               <a className="text-emerald underline break-all" href={`${ORIGIN}/.well-known/zakai-trust-registry.json`}>
                 zakai-trust-registry.json
+              </a>
+            </li>
+            <li>
+              <a className="text-emerald underline break-all" href={`${ORIGIN}/api/mandate/revocations`}>
+                /api/mandate/revocations
               </a>
             </li>
             <li>

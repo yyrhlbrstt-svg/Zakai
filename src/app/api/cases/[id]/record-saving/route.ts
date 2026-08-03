@@ -8,6 +8,8 @@ import { agorotToShekels } from "@/lib/money";
 const schema = z.object({
   newAmountShekels: z.number().min(0).max(100000),
   locale: z.string().max(8).optional(),
+  source: z.enum(["manual", "inbound", "estimate"]).optional(),
+  selfReported: z.boolean().optional(),
 });
 
 export async function POST(request: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -20,7 +22,10 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   if (!parsed.success) return badRequest("genericError");
 
   try {
-    const result = await recordSaving(id, auth.userId, parsed.data.newAmountShekels);
+    const result = await recordSaving(id, auth.userId, parsed.data.newAmountShekels, {
+      source: parsed.data.source,
+      selfReported: parsed.data.selfReported,
+    });
     const fee = result.fee;
     let checkoutUrl: string | undefined;
     if (result.feeNet > 0) {

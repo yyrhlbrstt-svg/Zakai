@@ -7,9 +7,9 @@ import type { Locale } from "@/i18n/config";
 import { bcp47 } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { formatAgorot } from "@/lib/money";
+import { rankNextAction } from "@/lib/services/nextAction";
 
 const SETTLED = new Set(["SENT", "SAVED", "NO_SAVING", "REVOKED"]);
-const PRE_SEND = new Set(["ANALYZED", "APPROVED", "VERIFIED"]);
 
 export async function DashboardNextActionPanel({
   userId,
@@ -21,39 +21,57 @@ export async function DashboardNextActionPanel({
   const t = await getTranslations({ locale, namespace: "dashboard" });
   const loc = bcp47[locale];
 
-  const [profileRow, cases, pendingFeeCase] = await Promise.all([
+  const [profileRow, cases] = await Promise.all([
     prisma.userProfile.findUnique({ where: { userId }, select: { data: true } }),
     prisma.case.findMany({
       where: { userId },
-      select: { id: true, vertical: true, status: true },
-      orderBy: { updatedAt: "desc" },
-    }),
-    prisma.case.findFirst({
-      where: { userId, fee: { status: "PENDING", amount: { gt: 0 } } },
-      select: { id: true, fee: { select: { amount: true } } },
+      select: {
+        id: true,
+        vertical: true,
+        status: true,
+        fee: { select: { amount: true, status: true } },
+      },
       orderBy: { updatedAt: "desc" },
     }),
   ]);
 
-  if (pendingFeeCase?.fee) {
+  const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
+  const proposedMap = sentIds.length > 0 ? await getProposedSavingsMap(sentIds) : new Map();
+  const proposedHints = new Map(
+    [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
+  );
+  const action = rankNextAction(cases, proposedHints);
+
+  if (action.kind === "pending_fee") {
     return (
       <Link
-        href={`/dashboard?case=${pendingFeeCase.id}&payFee=1`}
+        href={`/dashboard?case=${action.caseId}&payFee=1`}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.16)] px-5 py-4 hover:border-[rgba(63,203,155,0.7)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-emerald">{t("feeNudgeTitle")}</div>
         <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">
-          {t("feeNudgeSub", { amount: formatAgorot(pendingFeeCase.fee.amount, loc) })}
+          {t("feeNudgeSub", { amount: formatAgorot(action.feeAmountAgorot, loc) })}
         </p>
       </Link>
     );
   }
 
-  const preSend = cases.find((c) => PRE_SEND.has(c.status));
-  if (preSend) {
+  if (action.kind === "proposed_saving") {
     return (
       <Link
-        href={`/dashboard?case=${preSend.id}`}
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-5 py-4 hover:border-[rgba(63,203,155,0.55)] transition-colors"
+      >
+        <div className="font-extrabold text-[15px] text-emerald">{t("proposedNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("proposedNudgeSub")}</p>
+      </Link>
+    );
+  }
+
+  if (action.kind === "pre_send") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("preSendNudgeTitle")}</div>
@@ -62,34 +80,16 @@ export async function DashboardNextActionPanel({
     );
   }
 
-  const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
-  if (sentIds.length > 0) {
-    const proposed = await getProposedSavingsMap(sentIds);
-    const proposedCaseId = sentIds.find((id) => proposed.has(id));
-    if (proposedCaseId) {
-      return (
-        <Link
-          href={`/dashboard?case=${proposedCaseId}`}
-          className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-5 py-4 hover:border-[rgba(63,203,155,0.55)] transition-colors"
-        >
-          <div className="font-extrabold text-[15px] text-emerald">{t("proposedNudgeTitle")}</div>
-          <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("proposedNudgeSub")}</p>
-        </Link>
-      );
-    }
-
-    const sent = cases.find((c) => c.status === "SENT");
-    if (sent) {
-      return (
-        <Link
-          href={`/dashboard?case=${sent.id}`}
-          className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
-        >
-          <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("sentWaitNudgeTitle")}</div>
-          <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("sentWaitNudgeSub")}</p>
-        </Link>
-      );
-    }
+  if (action.kind === "sent_wait") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
+      >
+        <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("sentWaitNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("sentWaitNudgeSub")}</p>
+      </Link>
+    );
   }
 
   if (!profileRow?.data) {
