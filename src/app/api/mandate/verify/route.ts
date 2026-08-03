@@ -57,6 +57,8 @@ export async function POST(req: Request) {
       publicJwks: [jwk],
     });
 
+    // Fail closed on store failure: an unverifiable revocation check must not
+    // mint valid:true (decide() already denies as revocation_unknown).
     let status: "active" | "revoked" | "unknown" = "active";
     try {
       const row = await prisma.mandateRevocation.findUnique({
@@ -72,6 +74,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { valid: false, reason: "revoked", jti: claims.jti },
         { status: 410, headers: CORS },
+      );
+    }
+
+    if (status === "unknown") {
+      return NextResponse.json(
+        { valid: false, reason: "revocation_unknown", jti: claims.jti },
+        { status: 503, headers: CORS },
       );
     }
 
