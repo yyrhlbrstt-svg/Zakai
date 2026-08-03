@@ -16,6 +16,7 @@
     "preflight": "node scripts/preflight.mjs",
     "verify:interop": "node scripts/verify-interop.mjs",
     "verify:monopoly": "node scripts/verify-monopoly-surface.mjs",
+    "verify:public-surface": "node scripts/verify-public-surface.mjs",
     "generate:pack-labels": "tsx scripts/generate-pack-labels.mjs",
     "sync:zml-he": "node scripts/sync-zml-hebrew-from-rights.mjs",
     "packs:validate": "cd zakai-packs && npm ci && npm run validate",

@@ -11,6 +11,7 @@ const base = (process.argv[2] || process.env.NEXT_PUBLIC_APP_URL || "https://zak
 const paths = [
   { path: "/api/version", expect: 200 },
   { path: "/api/health", expect: 200 },
+  { path: "/api/release-gate", expect: 200 },
   { path: "/he", expect: 200 },
   { path: "/he/terms", expect: 200 },
   { path: "/he/about", expect: 200 },

@@ -11,6 +11,8 @@ Some endpoints were too chatty for anonymous reconnaissance. Policy:
 | `GET /api/network/readiness` | Booleans only (by design for partners) | — |
 | `POST /api/oracle/predict` | Closed unless `ORACLE_API_KEY` set; Bearer required | — |
 | Cron routes | `CRON_SECRET` / Vercel cron auth | — |
+| `GET /api/release-gate` | Scores + failing check **ids** only | `?internal=1` + admin token — includes `envKeys` per check |
+| `GET /api/network/readiness` | Layer booleans, `paymentsMode: live\|demo` | — |
 
 ## Configure internal probes
 

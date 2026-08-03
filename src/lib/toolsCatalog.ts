@@ -58,6 +58,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/integrations", key: "integrations", category: "developers", featured: true },
   { href: "/domains", key: "domainsHub", category: "developers", featured: true },
   { href: "/standard", key: "standardInterop", category: "developers" },
+  { href: "/protocol", key: "protocolPage", category: "developers" },
   { href: "/global", key: "globalMarkets", category: "global" },
   { href: "/institutions/leader", key: "institutionLeader", category: "developers" },
   { href: "/network-proof", key: "networkProof", category: "developers", featured: true },

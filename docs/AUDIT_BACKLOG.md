@@ -15,6 +15,9 @@ Track honest status — no fabricated metrics.
 - [x] Hebrew ZML + catalog `locale` — PR #70
 - [x] Contact email floor + footer — PR #70
 - [x] Fairness API fail-safe, version API slim, rights search, proofs empty — PR #71
+- [x] `/api/health` public fingerprinting removed — `docs/SECURITY_SURFACE.md` (#71)
+- [x] `/api/release-gate` public — no `envKeys`; readiness uses `paymentsMode` not provider name
+- [x] `npm run verify:public-surface` — post-deploy recon smoke
 - [ ] Merge **#71 only** (includes #70) → redeploy — see `docs/CEO_LAUNCH_DECISIONS.md`
 - [ ] CDN/packs smoke after deploy (`npm run verify:production-urls`)
 

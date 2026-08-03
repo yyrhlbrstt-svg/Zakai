@@ -8,7 +8,7 @@ describe("/api/network/readiness", () => {
     expect(body.ok).toBe(true);
     expect(body.layers).toBeDefined();
     expect(typeof body.layers.mandateSigning).toBe("boolean");
-    expect(body.paymentProvider).toBeDefined();
+    expect(body.paymentsMode).toMatch(/^(live|demo)$/);
     expect(typeof body.operationalScore).toBe("number");
     expect(typeof body.consumerReleaseScore).toBe("number");
     expect(typeof body.canReleaseConsumerApp).toBe("boolean");

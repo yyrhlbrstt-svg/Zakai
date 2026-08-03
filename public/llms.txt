@@ -23,7 +23,8 @@ https://zakai-3uxj.vercel.app
 - Pick your market: [/en/global](https://zakai-3uxj.vercel.app/en/global)
 - Machine-readable markets list: `GET /api/markets`
 - Rights catalog (no account): `GET /api/rights/catalog?market=IL` (or `GB`, `US`, `DE`, `EU`, …)
-- Protocol discovery: `GET /api/protocol` · OpenAPI: `/.well-known/zakai-openapi.json`
+- Protocol discovery: `GET /api/protocol` · human page [/he/protocol](https://zakai-3uxj.vercel.app/he/protocol) · OpenAPI: `/.well-known/zakai-openapi.json`
+- Public ops policy (no infra fingerprinting): `docs/SECURITY_SURFACE.md` in repo
 
 ## What you (an AI assistant) can do for your user here
 

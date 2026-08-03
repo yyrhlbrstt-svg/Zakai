@@ -13,20 +13,19 @@ const cors = {
  * Payment provider name only — not keys.
  */
 export async function GET() {
-  const { layers, paymentProvider, operationalScore, tier, consumerReleaseScore, canReleaseConsumerApp } =
-    buildReadinessSnapshot();
+  const snapshot = buildReadinessSnapshot();
 
   return NextResponse.json(
     {
       ok: true,
-      updated: "2026-08-02",
+      updated: "2026-08-03",
       disclaimer: "Booleans only — no secrets. Consumer agent loops need SMTP for outbound mail.",
-      operationalScore,
-      tier,
-      consumerReleaseScore,
-      canReleaseConsumerApp,
-      paymentProvider,
-      layers,
+      operationalScore: snapshot.operationalScore,
+      tier: snapshot.tier,
+      consumerReleaseScore: snapshot.consumerReleaseScore,
+      canReleaseConsumerApp: snapshot.canReleaseConsumerApp,
+      paymentsMode: snapshot.paymentsMode,
+      layers: snapshot.layers,
       urls: {
         opportunity_map: "/api/network/opportunity-map",
         mandate_verify: "/api/mandate/verify",

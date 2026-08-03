@@ -119,6 +119,8 @@ telecom · bank-fees · subscription · airline · refund-chase · parking · tr
 
 ```bash
 node scripts/verify-production-urls.mjs https://zakai-3uxj.vercel.app
+node scripts/verify-public-surface.mjs https://zakai-3uxj.vercel.app
+npm run verify:monopoly
 ```
 
 (פרוטוקול / ZML / ווידג'ט ייכשלו עד שה-deploy החדש עלה.)

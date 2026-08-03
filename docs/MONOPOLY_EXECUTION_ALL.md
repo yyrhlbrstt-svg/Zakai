@@ -29,7 +29,7 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 ### Track 0 — Mandate (gravity under everything)
 
 - [x] Institution leader page: conformance panel + test vectors in readiness wizard
-- [x] `POST /api/mandate/conformance/probe` in institution onboarding email template (welcome + outbound notices)
+- [x] `POST /api/mandate/conformance/probe` in institution onboarding email template (welcome + outbound notices + weekly inbound cron)
 - [x] Publish `zakai-mandate-mcp` discoverability in integration docs (`WIDGET_EMBED`, `SWITCHING_REFERENCE_FLOWS`, `INSTITUTION_QUICKSTART`)
 - [x] Third-party agent issues via **delegated issuance** — public roster + `scripts/admit-delegated-pilot.mjs` (founder admits one pilot)
 
@@ -76,6 +76,7 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 
 ```bash
 npm run verify:production-urls   # deploy smoke
+npm run verify:public-surface    # no health/version/release-gate fingerprinting
 npm run verify:interop           # protocol probes
 npm run verify:monopoly          # all domain endpoints from zakai-domains.json
 ```

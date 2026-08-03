@@ -39,10 +39,17 @@ npm run publish
 From the monorepo root:
 
 ```bash
-./scripts/export-zakai-packs-repo.sh
+npm run packs:export
+# or: ./scripts/export-zakai-packs-repo.sh
 ```
 
 Follow the printed `git push` instructions. Do not commit `node_modules/`.
+
+See `docs/ZML_SDK_INTEGRATION.md` and `docs/INFRA_ZAKAI_PACKS.md` in the main repo.
+
+## Engine discovery
+
+Live manifest: `/.well-known/zakai-packs.json` on the Zakai deployment (CDN base in `cdn_base`).
 
 ## Engine consumption
 

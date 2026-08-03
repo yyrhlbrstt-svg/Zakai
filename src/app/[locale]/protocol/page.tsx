@@ -6,6 +6,7 @@ import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { alternateLanguages } from "@/lib/seo";
 import { buildZakaiProtocolDocument, getOutcomeGraphPublicStats } from "@/lib/protocol/discovery";
 import { PROTOCOL_LAWS } from "@/lib/protocol/laws";
+import { protocolDomainsSection } from "@/lib/marketing/protocolDomainsSection";
 import type { Locale } from "@/i18n/config";
 
 const copy = {
@@ -102,6 +103,7 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
     markets: [],
     updatedAt: new Date().toISOString(),
   }));
+  const domains = protocolDomainsSection(locale);
 
   return (
     <VerticalPageShell kicker={c.kicker} title={c.title} sub={c.sub}>
@@ -127,6 +129,37 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
             </li>
           ))}
         </ul>
+      </Card>
+
+      <Card className="p-5 mt-6">
+        <div className="font-display text-xl mb-2">{domains.title}</div>
+        <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">{domains.sub}</p>
+        <ul className="m-0 p-0 list-none grid gap-2 sm:grid-cols-2">
+          {domains.items.map((item) => (
+            <li
+              key={item.name}
+              className="rounded-xl border border-[rgba(255,255,255,0.08)] px-4 py-3 text-[13px]"
+            >
+              <span className="font-extrabold text-emerald">{item.name}</span>
+              <span className="text-ink-soft block mt-0.5">{item.note}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-wrap gap-3 mt-4">
+          <Link href="/domains">
+            <Button variant="ghost" className="!text-[12.5px]">
+              {domains.cta} →
+            </Button>
+          </Link>
+          <a
+            href="https://github.com/yyrhlbrstt-svg/Zakai/blob/main/docs/SECURITY_SURFACE.md"
+            className="text-[12.5px] font-bold text-ink-soft hover:text-emerald no-underline self-center"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {domains.securityCta}
+          </a>
+        </div>
       </Card>
 
       <Card className="p-5 mt-4 border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)]">
