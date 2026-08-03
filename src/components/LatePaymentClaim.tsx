@@ -98,7 +98,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         return;
       }
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
     } catch {
       setAgentError(t("genericError"));
     } finally {

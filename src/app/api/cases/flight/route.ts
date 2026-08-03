@@ -16,6 +16,7 @@ import {
 } from "@/lib/flightRights";
 import { resolveAirlineContactEmail, resolveAirlineProviderKey } from "@/lib/airlineContacts";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { rateLimit } from "@/lib/ratelimit";
 
 const schema = z.object({
@@ -107,12 +108,14 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
-  // Soft-open: prefer known / user inbox, never invent, never block case+Mandate.
   const outreachTo =
     firstOutreachEmail(
       data.airlineContactEmail,
       resolveAirlineContactEmail(data.airline),
     ) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   let kase;
   try {
@@ -139,12 +142,16 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    body: letter,
-    status: kase.status,
-    amountShekels,
-    message: "case_opened",
-    needsOutreachEmail: !outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        body: letter,
+        status: express.dispatched ? "SENT" : kase.status,
+        amountShekels,
+      },
+    }),
+  );
 }

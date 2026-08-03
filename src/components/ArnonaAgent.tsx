@@ -22,8 +22,10 @@ export function ArnonaAgent() {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [agentError, setAgentError] = useState<string | null>(null);
 
-  // Soft-open: municipality email optional — dashboard collects before dispatch.
-  const canSend = municipalityName.trim().length > 0 && monthlyArnona > 0;
+  const canSend =
+    municipalityName.trim().length > 0 &&
+    monthlyArnona > 0 &&
+    municipalityEmail.trim().includes("@");
 
   async function sendWithAgent() {
     if (!canSend) return;
@@ -37,7 +39,7 @@ export function ArnonaAgent() {
           customerName: customerName.trim(),
           customerId: customerId.trim(),
           municipalityName: municipalityName.trim(),
-          municipalityEmail: municipalityEmail.trim() || undefined,
+          municipalityEmail: municipalityEmail.trim(),
           rightId,
           propertyAddress: propertyAddress.trim(),
           payerNumber: payerNumber.trim(),
@@ -51,10 +53,19 @@ export function ArnonaAgent() {
         return;
       }
       if (!res.ok) {
-        setAgentError(data.error === "caseLimit" ? t("caseLimitError") : t("genericError"));
+        setAgentError(
+          data.error === "needsOutreachEmail"
+            ? t("emailQ")
+            : data.error === "caseLimit"
+              ? t("caseLimitError")
+              : t("genericError"),
+        );
         return;
       }
       setCaseId(data.caseId);
+      router.push(
+        data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`,
+      );
     } catch {
       setAgentError(t("genericError"));
     } finally {
@@ -67,7 +78,7 @@ export function ArnonaAgent() {
       <Card className="mt-10 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
         <div className="text-emerald font-extrabold text-[15px]">{t("caseOpenedTitle")}</div>
         <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("caseOpenedBody")}</p>
-        <Link href="/dashboard">
+        <Link href="/money">
           <Button className="w-full">{t("dashboard")}</Button>
         </Link>
       </Card>

@@ -76,7 +76,7 @@ export function RefundChaseTool() {
         body: withFooter(letter.body, footerLocale),
       });
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
     } catch {
       setError(tFlow("errorGeneric"));
     } finally {

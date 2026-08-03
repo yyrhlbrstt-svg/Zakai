@@ -9,6 +9,7 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
 
 const schema = z.object({
@@ -32,8 +33,10 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  // Soft-open: never invent an inbox and never block case+Mandate when empty.
   const outreachTo = firstOutreachEmail(data.sellerEmail) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -99,12 +102,16 @@ ${name}
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: staged.subject,
-    body: staged.body,
-    status: kase.status,
-    message: "case_opened",
-    needsOutreachEmail: !outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: staged.subject,
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

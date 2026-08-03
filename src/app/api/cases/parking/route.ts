@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
-import { dispatchAgent } from "@/lib/services/dispatch";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { chooseStance } from "@/lib/strategy/store";
 import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
@@ -118,26 +118,16 @@ ${reasonText}${data.details ? `\n\nפירוט נוסף: ${data.details}` : ""}
     throw err;
   }
 
-  let dispatched = false;
-  let delivered = false;
-  if (user.emailVerifiedAt) {
-    try {
-      const d = await dispatchAgent(kase.id, auth.userId);
-      dispatched = true;
-      delivered = d.delivered;
-    } catch {
-      /* /money finish surface continues */
-    }
-  }
-
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: staged.subject,
-    body: staged.body,
-    status: dispatched ? "SENT" : kase.status,
-    message: dispatched ? "mandate_sent" : "case_opened",
-    dispatched,
-    delivered,
-    needsOutreachEmail: false,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: staged.subject,
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

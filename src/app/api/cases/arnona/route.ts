@@ -10,12 +10,12 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { ARNONA_AGENT_RIGHTS, buildArnonaAgentLetter } from "@/lib/arnonaAppeal";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   customerId: z.string().max(20).default(""),
   municipalityName: z.string().min(1).max(120),
-  // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
   municipalityEmail: z.string().max(200).optional(),
   rightId: z.enum(ARNONA_AGENT_RIGHTS),
   propertyAddress: z.string().max(200).default(""),
@@ -70,6 +70,9 @@ export async function POST(request: Request) {
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
   const outreachTo = firstOutreachEmail(data.municipalityEmail) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   let kase;
   try {
@@ -95,12 +98,16 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: staged.subject,
-    body: staged.body,
-    status: kase.status,
-    message: "case_opened",
-    needsOutreachEmail: !outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: staged.subject,
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

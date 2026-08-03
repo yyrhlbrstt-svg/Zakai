@@ -7,6 +7,7 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildCarInsuranceRefundLetter } from "@/lib/carInsuranceRefund";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { resolveInsuranceContactEmail } from "@/lib/utilityContacts";
 import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
@@ -34,12 +35,14 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  // Soft-open: prefer known / user inbox, never invent, never block case+Mandate.
   const outreachTo =
     firstOutreachEmail(
       data.contactEmail,
       resolveInsuranceContactEmail(data.insurer),
     ) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -96,13 +99,17 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
-    status: kase.status,
-    message: "case_opened",
-    outreachEmail: outreachTo ?? null,
-    needsOutreachEmail: !outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: letter.subject,
+        body: letter.body,
+        status: express.dispatched ? "SENT" : kase.status,
+        outreachEmail: outreachTo,
+      },
+    }),
+  );
 }

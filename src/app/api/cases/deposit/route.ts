@@ -11,11 +11,11 @@ import { assessDepositReturn, buildDepositDemandLetter } from "@/lib/depositRetu
 import { shekelsToAgorot } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 
 const schema = z.object({
   tenantName: z.string().max(80).default(""),
   landlordName: z.string().min(1).max(120),
-  // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
   landlordEmail: z.string().max(200).optional(),
   propertyAddress: z.string().min(1).max(200),
   vacateDate: z.string().min(1).max(40),
@@ -67,6 +67,9 @@ export async function POST(request: Request) {
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
   const outreachTo = firstOutreachEmail(data.landlordEmail) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   let kase;
   try {
@@ -94,12 +97,16 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    body: staged.body,
-    status: kase.status,
-    daysLate: status.daysLate,
-    message: "case_opened",
-    needsOutreachEmail: !outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+        daysLate: status.daysLate,
+      },
+    }),
+  );
 }

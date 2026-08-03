@@ -11,6 +11,7 @@ import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import { resolveBankProvider } from "@/lib/normalizeBankProvider";
 import { resolveBankContactEmail } from "@/lib/bankContacts";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { rateLimit } from "@/lib/ratelimit";
 
@@ -51,15 +52,15 @@ export async function POST(request: Request) {
     bankName: data.bank,
   });
 
-  // Prefer known / user-supplied inbox, but never invent one and never block
-  // case+Mandate open when empty — dashboard CaseNextStep collects outreach
-  // before dispatch (same NEEDS_OUTREACH_EMAIL gate as sendOutreach).
   const outreachTo =
     firstOutreachEmail(
       data.bankEmail,
       resolveBankContactEmail(providerKey),
       resolveBankContactEmail(displayName),
     ) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const letter = buildBankFeeLetter({
     customerName: data.customerName || user.name || "",
@@ -110,13 +111,17 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
-    status: kase.status,
-    message: "case_opened",
-    outreachEmail: outreachTo ?? null,
-    needsOutreachEmail: !outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: letter.subject,
+        body: letter.body,
+        status: express.dispatched ? "SENT" : kase.status,
+        outreachEmail: outreachTo,
+      },
+    }),
+  );
 }

@@ -81,7 +81,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
       }
       const data = await res.json();
       setOpened(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`);
       router.refresh();
     } catch {
       setErr(he ? "שגיאת רשת. נסו שוב." : "Network error. Try again.");

@@ -10,6 +10,7 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildElectricityLetter } from "@/lib/electricityLetter";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { resolveElectricityContactEmail } from "@/lib/utilityContacts";
 import { formatCaseDraft } from "@/lib/caseDraft";
 
@@ -38,12 +39,15 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  // Soft-open: use typed inbox, else known supplier contact — never invent unknown.
+  // Typed inbox or known supplier — never invent; block open without a destination.
   const outreachTo =
     firstOutreachEmail(
       data.supplierEmail,
       resolveElectricityContactEmail(data.targetSupplier),
     ) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -108,12 +112,16 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
-    status: kase.status,
-    message: "case_opened",
-    needsOutreachEmail: !outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: letter.subject,
+        body: letter.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

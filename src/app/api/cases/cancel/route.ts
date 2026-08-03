@@ -15,6 +15,7 @@ import {
 } from "@/lib/normalizeSubscriptionProvider";
 import { withFooter } from "@/lib/letterFooter";
 import { localeForCountry } from "@/lib/localePath";
+import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
@@ -48,14 +49,14 @@ export async function POST(request: Request) {
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
   const resolved = resolveSubscriptionCompany(data.company, data.product);
-  // Prefer known / user-supplied inbox, but never invent one and never block
-  // case+Mandate open when empty — dashboard CaseNextStep collects outreach
-  // before dispatch (same soft-open as bank-fees / from-scan).
   const outreachTo =
     pickOutreachEmail({
       contactEmail: data.contactEmail,
       defaultContactEmail: resolved.defaultContactEmail,
     }) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const letter = buildCancelLetter({
     customerName: data.customerName || user.name || "",
@@ -121,15 +122,18 @@ ${bodyWithFooter}`,
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
-    status: kase.status,
-    message: "case_opened",
-    outreachEmail: outreachTo ?? null,
-    needsOutreachEmail: !outreachTo,
-    // createCase(autoApprove) already primes verified-email → VERIFIED when possible
-    primed: kase.status === "VERIFIED" || Boolean(kase.ownershipVerifiedAt),
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: letter.subject,
+        body: letter.body,
+        status: express.dispatched ? "SENT" : kase.status,
+        outreachEmail: outreachTo,
+        primed: kase.status === "VERIFIED" || Boolean(kase.ownershipVerifiedAt),
+      },
+    }),
+  );
 }

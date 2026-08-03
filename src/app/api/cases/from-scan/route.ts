@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireUserId } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
-import { dispatchAgent } from "@/lib/services/dispatch";
+import { tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { runIdempotent, idempotencyKeyFromRequest } from "@/lib/scale/idempotency";
@@ -171,14 +171,9 @@ export async function POST(request: Request) {
       }
 
       // Same gesture → Mandate SENT when ownership + outreach are ready.
-      let dispatched = false;
-      let delivered = false;
       const refreshed = await prisma.case.findUnique({
         where: { id: kase.id },
         select: {
-          id: true,
-          status: true,
-          ownershipVerifiedAt: true,
           counterpartyEmail: true,
           provider: true,
           vertical: true,
@@ -191,30 +186,19 @@ export async function POST(request: Request) {
             vertical: refreshed.vertical,
           })
         : "";
-      if (
-        user.emailVerifiedAt &&
-        refreshed?.ownershipVerifiedAt &&
-        outreachReady &&
-        refreshed.status !== "SENT"
-      ) {
-        try {
-          const d = await dispatchAgent(kase.id, auth.userId);
-          dispatched = true;
-          delivered = d.delivered;
-        } catch {
-          /* dashboard /money finish surface continues the loop */
-        }
-      }
+      const express = outreachReady
+        ? await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt)
+        : { dispatched: false, delivered: false };
 
       return {
         status: 200,
         body: {
           caseId: kase.id,
-          message: (dispatched ? "mandate_sent" : "case_opened") as
+          message: (express.dispatched ? "mandate_sent" : "case_opened") as
             | "mandate_sent"
             | "case_opened",
-          dispatched,
-          delivered,
+          dispatched: express.dispatched,
+          delivered: express.delivered,
           needsOutreachEmail: !outreachReady,
         },
       };
