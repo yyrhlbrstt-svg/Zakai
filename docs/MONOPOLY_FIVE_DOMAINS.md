@@ -52,6 +52,20 @@ This document aligns the **“natural monopoly” strategy** with what is **ship
 
 ---
 
+## Distance from «banks must call» (honest)
+
+| Domain | Built in repo | Gravity (market must care) |
+|--------|---------------|----------------------------|
+| ZML | Schema + IL depth | Low — no default external repo/CDN habit |
+| Fairness | API + widget | **None** until real outcome mass |
+| Switching | Spec + letters | Low — institutions don't ingest inbound yet |
+| Regulatory | APIs | **None** until case volume |
+| Collective | Intent only | **None** — by design |
+
+**We are not close** to universal indispensability. We are close to **having the blueprints**. Next wins are **external adoptability** (packs, interop, conformance), not consumer launch wiring.
+
+---
+
 ## Machine entrypoints
 
 - **All five:** `/.well-known/zakai-domains.json` · `GET /api/domains`

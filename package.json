@@ -15,6 +15,7 @@
     "release-gate": "tsx scripts/release-gate.ts",
     "preflight": "node scripts/preflight.mjs",
     "verify:interop": "node scripts/verify-interop.mjs",
+    "verify:monopoly": "node scripts/verify-monopoly-surface.mjs",
     "generate:pack-labels": "tsx scripts/generate-pack-labels.mjs",
     "sync:zml-he": "node scripts/sync-zml-hebrew-from-rights.mjs",
     "db:generate": "prisma generate",

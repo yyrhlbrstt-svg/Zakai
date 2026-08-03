@@ -2,6 +2,8 @@
 
 **Founder override:** Do **not** treat PayPlus, SMTP, branded domain, and public support inbox as the near-term goal. Wire those only after **institutional gravity** — when ignoring the protocol costs more than adopting it. See `docs/INDISPENSABILITY_STRATEGY.md`.
 
+**Ambition:** Pursue **all** monopoly directions in parallel (`docs/MONOPOLY_EXECUTION_ALL.md`) — Mandate gravity plus six published domains — without faking traction.
+
 ## Ship order (code)
 
 1. **Merge [PR #71](https://github.com/yyrhlbrstt-svg/Zakai/pull/71)** into `main` (protocol + product skeleton). Close #70 as superseded.

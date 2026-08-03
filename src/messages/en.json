@@ -802,11 +802,23 @@
   "domainsPage": {
     "metaTitle": "Five infrastructure domains — Zakai",
     "metaDesc": "ZML, fairness score, switching, regulatory aggregates, collective intent — what is live vs beta.",
-    "title": "Infrastructure the world can adopt",
-    "sub": "Not monopoly by force — open protocol, anonymous data, live probes. Real numbers in the API, not in a hype video.",
+    "kicker": "Above everyone = every layer, no fake numbers",
+    "title": "Infrastructure the world must adopt",
+    "sub": "Six domains plus Mandate gravity — open protocol, live probes, public APIs. Monopoly by standard and volume, not by hype.",
+    "mandateBlurb": "Under every domain: consumer authority verifiable offline. A bank that does not integrate still receives the same inbound; the question is cost of ignoring it.",
+    "mandateInstitutions": "Institutions",
+    "mandateAgents": "AI agents",
+    "interopProbe": "Live interop probe",
+    "endpointsLabel": "Endpoints",
+    "institutionCta": "Institutions",
+    "developersCta": "Partners",
+    "executionTitle": "Execute in parallel",
+    "executionSub": "We do not pick one lane — we close all of them. Honest task list (no marketing promises): docs/MONOPOLY_EXECUTION_ALL.md",
+    "executionStandard": "Interop standard",
     "tryIt": "Try in product",
-    "collectiveTitle": "Domain 5: collective intent (phase 0)",
-    "collectiveSub": "Anonymous signal, no account. Public counts only; auctions come when critical mass is real."
+    "collectiveTitle": "Collective intent (phase 0)",
+    "collectiveSub": "Anonymous signal, no account. Public counts only; auctions come when critical mass is real.",
+    "footerHonesty": "Above everyone means Mandate + ZML + outcomes + switching + regulatory signal + collective demand — each externally testable."
   },
   "providers": {
     "cellcom": "Cellcom",

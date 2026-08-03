@@ -34,6 +34,7 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   duplicateCharge: { he: "חיוב כפול", en: "Duplicate charge" },
   telecomExit: { he: "ניתוק סלולר", en: "Telecom disconnect" },
   networkProof: { he: "הוכחת רשת (ציבורי)", en: "Network proof (public)" },
+  domainsHub: { he: "חמשת הדומיינים", en: "Five domains hub" },
   institutionLeader: { he: "מובילי אימות Mandate", en: "Mandate verification leaders" },
   globalMarkets: { he: "עולם · שווקים", en: "World · markets" },
   standardInterop: { he: "תקן Interop", en: "Interop standard" },
