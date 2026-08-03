@@ -63,7 +63,7 @@ describe("buildAssistantCasesSnapshot", () => {
     vi.mocked(prisma.case.findMany).mockResolvedValue([] as never);
     const snap = await buildAssistantCasesSnapshot("user_1");
     expect(snap).toContain("/money");
-    expect(snap).toContain("NEXT:");
+    expect(snap).toContain("NEXT_ACTION: Start in /money");
   });
 
   it("prioritizes Mandate send over new doors", async () => {
