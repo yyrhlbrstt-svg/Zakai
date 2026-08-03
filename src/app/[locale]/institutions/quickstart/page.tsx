@@ -6,6 +6,7 @@ import { Button, Card } from "@/components/ui";
 import { CodeBlock } from "@/components/CodeBlock";
 import { EmeraldInfoPanel } from "@/components/EmeraldInfoPanel";
 import { alternateLanguages } from "@/lib/seo";
+import { heEn } from "@/lib/heEn";
 
 const ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
 
@@ -89,7 +90,6 @@ python3 zakai_verify.py --jws '<compact>' --origin ${ORIGIN}`}</CodeBlock>
         </div>
         <CodeBlock>{`import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
 import { verifyStatusListFromUrl } from "@zakai/mandate-sdk";
-import { heEn } from "@/lib/heEn";
 
 const claims = await verifyMandateFromUrl(jws, {
   audience: "your-institution-slug",
