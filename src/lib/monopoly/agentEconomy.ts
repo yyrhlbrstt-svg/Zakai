@@ -31,6 +31,8 @@ export function buildAgentEconomyDocument(origin: string) {
       packs_mirror: `${base}/api/cdn/packs`,
       monopoly_rails: `${base}/api/network/monopoly`,
       trillion_gates: `${base}/api/network/trillion-gates`,
+      indispensability: `${base}/api/network/indispensability`,
+      fairness_certified: `${base}/.well-known/zakai-fairness-certified.json`,
     },
     delegation: {
       apply: `${base}/api/mandate/delegation/apply`,

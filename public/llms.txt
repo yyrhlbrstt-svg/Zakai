@@ -80,7 +80,9 @@ is always free).
 - **Agent economy (how other AIs distribute, not compete):** [/.well-known/zakai-agent-economy.json](https://zakai-3uxj.vercel.app/.well-known/zakai-agent-economy.json)
 - Seven monopoly rails (real counters): `GET /api/network/monopoly`
 - Control gates G1–G9 (adoption readiness — **not** a valuation): `GET /api/network/trillion-gates`
+- Indispensability pane (gravity + rails + gates): `GET /api/network/indispensability`
 - Institution ignore-cost (ops math from disclosed dispatches): `GET /api/institution/ignore-cost`
+- Fairness Certified program (spec only, empty until real scores + legal): [/.well-known/zakai-fairness-certified.json](https://zakai-3uxj.vercel.app/.well-known/zakai-fairness-certified.json)
 - Protocol gravity: `GET /api/network/gravity`
 
 ## For developers

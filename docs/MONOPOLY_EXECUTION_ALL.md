@@ -46,7 +46,7 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 
 - [ ] Widget on **3 partner pages** (register + validate keys) — founder outreach
 - [x] `/companies` shows empty state + «how scores appear» (honest)
-- [x] Fairness Certified program **spec only** (legal review) — `docs/FAIRNESS_CERTIFIED_PROGRAM.md`
+- [x] Fairness Certified program **spec only** (legal review) — `docs/FAIRNESS_CERTIFIED_PROGRAM.md` + `/.well-known/zakai-fairness-certified.json`
 
 ### Track 3 — Switching
 

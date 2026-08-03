@@ -89,10 +89,12 @@ export function buildDomainsDocument(origin: string): {
         network_gravity: `${base}/api/network/gravity`,
         network_monopoly: `${base}/api/network/monopoly`,
         trillion_gates: `${base}/api/network/trillion-gates`,
+        indispensability: `${base}/api/network/indispensability`,
+        fairness_certified: wk(WELL_KNOWN_RELATIVE.fairnessCertified),
         outcome_graph: `${base}/api/network`,
         network_proof: `${base}/he/network-proof`,
       },
-      reference_routes: ["/network-proof", "/institutions", "/regulatory"],
+      reference_routes: ["/network-proof", "/institutions", "/regulatory", "/companies"],
     },
     {
       id: "collective_intent",

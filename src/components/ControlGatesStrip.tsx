@@ -56,11 +56,25 @@ export async function ControlGatesStrip({ locale }: { locale: string }) {
           {copy.gates}
         </a>
         <a
+          href={`${origin}/api/network/indispensability`}
+          className="text-ink-soft no-underline hover:text-emerald"
+          rel="noopener noreferrer"
+        >
+          {copy.indispensability}
+        </a>
+        <a
           href={`${origin}/.well-known/zakai-agent-economy.json`}
           className="text-ink-soft no-underline hover:text-emerald"
           rel="noopener noreferrer"
         >
           {copy.agents}
+        </a>
+        <a
+          href={`${origin}/.well-known/zakai-fairness-certified.json`}
+          className="text-ink-soft no-underline hover:text-emerald"
+          rel="noopener noreferrer"
+        >
+          {copy.fairness}
         </a>
         <a
           href={`${origin}/api/institution/ignore-cost`}

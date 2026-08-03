@@ -14,6 +14,7 @@ Give partners a **honest** embed path: public fairness metrics only when `MIN_SA
 
 ## What we publish
 
+- Machine discovery: `/.well-known/zakai-fairness-certified.json` (`status: spec_only`, empty `certified_providers` until legal + real scores).
 - `GET /api/fairness/scores?market=IL` — aggregate fairness index per provider when n ≥ `MIN_SAMPLE`.
 - `/he/companies` — same gate for human-readable tables.
 

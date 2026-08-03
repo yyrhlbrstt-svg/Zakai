@@ -59,8 +59,10 @@ Honest ladder from protocol skeleton → hard-to-ignore globally. Implemented in
 
 Companion surfaces:
 
+- One pane for institutions: `GET /api/network/indispensability`
 - Institution ops math: `GET /api/institution/ignore-cost`
 - Agent distribution manifesto: `/.well-known/zakai-agent-economy.json`
+- Fairness Certified (spec): `/.well-known/zakai-fairness-certified.json`
 - Consumer must-have kit: `/he/must-have`
 
 **Passing gates in code ≠ controlling the market.** Gates measure readiness;
