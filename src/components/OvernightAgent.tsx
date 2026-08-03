@@ -5,7 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { heEn } from "@/lib/heEn";
-import { classifyFollowUpSendError, type FollowUpSendBlock } from "@/lib/followUpSendUi";
+import {
+  classifyFollowUpSendError,
+  followUpDeliveryState,
+  type FollowUpSendBlock,
+} from "@/lib/followUpSendUi";
 
 interface SentCase {
   id: string;
@@ -36,7 +40,9 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
       tip?: string;
       error?: boolean;
       sendBlock?: SendBlock;
+      /** True only when SMTP accepted delivery — never QUEUED. */
       sent?: boolean;
+      queued?: boolean;
       round?: number;
     }>
   >([]);
@@ -114,12 +120,14 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
         body: JSON.stringify({ replyKind: "delay", round: round ?? 2, send: true }),
       });
       const data = await res.json().catch(() => ({}));
+      const delivery = res.ok ? followUpDeliveryState(data) : null;
       setResults((prev) =>
         prev.map((r) =>
           r.id === id
             ? {
                 ...r,
-                sent: res.ok && data.sent,
+                sent: delivery === "delivered",
+                queued: delivery === "queued",
                 body: data.body || r.body,
                 tip: data.tip || r.tip,
                 error: !res.ok,
@@ -213,7 +221,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                           ? "העתק"
                           : "Copy"}
                     </Button>
-                    {!r.sent && !r.error ? (
+                    {!r.sent && !r.queued && !r.error ? (
                       <Button
                         className="!text-[12.5px] !py-1.5"
                         disabled={sendingId === r.id}
@@ -231,6 +239,15 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                     {r.sent ? (
                       <span className="text-[12.5px] font-bold text-emerald self-center">
                         {heEn(he, "נשלח", "Sent")}
+                      </span>
+                    ) : null}
+                    {r.queued && !r.sent ? (
+                      <span className="text-[12.5px] font-bold text-amber self-center">
+                        {heEn(
+                          he,
+                          "בתור לשליחה — עדיין לא יצא לספק",
+                          "Queued — not yet delivered to provider",
+                        )}
                       </span>
                     ) : null}
                   </div>
