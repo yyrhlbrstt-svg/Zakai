@@ -5482,6 +5482,32 @@
     "step4": "מנפיק רשום — תהליך הקשה יותר",
     "footnote": "POST /api/mandate/conformance/probe מקבל JWKS + טוקן לדוגמה — בלי SSRF לכתובת שלכם."
   },
+  "pipe": {
+    "metaTitle": "צינור זכאי — Mandate → SavingsProof",
+    "metaDesc": "הרלס של כסף הצרכן: Mandate חתום בכניסה, SavingsProof ביציאה. מוסדות מאמתים ב-POST אחד; סוכני AI מעבירים משתמש עם attribution.",
+    "kicker": "הצינור — לא עוד אפליקציה",
+    "title": "צינור זכאי",
+    "sub": "ארבע מסילות: סמכות (Mandate), קליטה (inbound), תוצאות (SavingsProof), סוכנים (handoff). בלי callback. בלי המצאת סכומים.",
+    "thesisStrong": "למה זה הצינור:",
+    "thesisBody": "בנק לא צריך עוד אפליקציה — הוא צריך דרך זולה לאמת שהסוכן מורשה. סוכן AI לא צריך להמציא ייפוי כוח — הוא צריך פורמט שמוסד יקבל. SavingsProof הוא ההוכחה שהצינור עובד בעולם האמיתי.",
+    "ctaManifest": "מניפסט מכונה (JSON)",
+    "ctaLive": "סטטוס חי /api/pipe",
+    "ctaConsumer": "להתחיל כלקוח — /money",
+    "railsHeading": "ארבע המסילות",
+    "railAuthority": "1 · סמכות",
+    "railAuthorityBody": "JWKS + verify + decide. מוסד: POST /api/pipe/accept עם ה-JWS והפעולה — בלי לחלץ aud לבד.",
+    "railIntake": "2 · קליטה (inbound-only)",
+    "railIntakeBody": "המוסד מקבל בקשה חתומה. הוא אף פעם לא מתקשר אלינו חזרה — רק מאמת מול JWKS ורשימת ביטולים.",
+    "railOutcomes": "3 · תוצאות",
+    "railOutcomesBody": "ספר חיסכון מנותק-זיהוי. ריק = כנה. כשהוא מתמלא — זו השיווק היחיד שמוסדות מאמינים לו.",
+    "railAgents": "4 · סוכנים זרים",
+    "railAgentsBody": "POST /api/pipe/handoff מחזיר קישור עם attribution. המשתמש מאשר ושולח Mandate אצלנו — ה-LLM לא מבצע.",
+    "proofsWall": "קיר הוכחות",
+    "agentsPage": "עמוד סוכנים",
+    "minutesHeading": "דקות לאינטגרציה",
+    "minutesBody": "שתי קריאות שמגדירות את הצינור — מוסד וסוכן:",
+    "related": "קשור:"
+  },
   "agents": {
     "metaTitle": "Zakai Mandate לסוכני AI — הוכחה שאדם אישר את הפעולה",
     "metaDesc": "תקן פתוח וניתן לאימות במצב offline לכל סוכן AI שפועל בשם אדם — חתום, מוגבל בהיקף, ניתן לביטול, ולעולם לא יכול להזיז כסף החוצה."

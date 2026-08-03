@@ -37,6 +37,7 @@ const PATHS = [
   "/institutions/leader",
   "/institutions/leaders",
   "/agents",
+  "/pipe",
   "/registry",
   "/faq",
   "/signup",

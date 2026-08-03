@@ -40,6 +40,9 @@ export function buildAgentEconomyDocument(origin: string) {
       indispensability: `${base}/api/network/indispensability`,
       fairness_certified: `${base}/.well-known/zakai-fairness-certified.json`,
       savings_ledger: `${base}/api/network/savings-ledger`,
+      pipe: `${base}/.well-known/zakai-pipe.json`,
+      pipe_accept: `${base}/api/pipe/accept`,
+      pipe_handoff: `${base}/api/pipe/handoff`,
     },
     delegation: {
       apply: `${base}/api/mandate/delegation/apply`,

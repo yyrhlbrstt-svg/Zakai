@@ -16,7 +16,13 @@ export type AgentsPageCopy = {
   inviteRest: string;
   sections: AgentsSection[];
   readMoreHeading: string;
-  readMore: { institutions: string; discovery: string; openapi: string; agentEconomy: string };
+  readMore: {
+    institutions: string;
+    discovery: string;
+    openapi: string;
+    agentEconomy: string;
+    pipe: string;
+  };
 };
 
 const EN: AgentsPageCopy = {
@@ -57,6 +63,8 @@ const EN: AgentsPageCopy = {
         "Consumer entry: {ORIGIN}/he/must-have?utm_source=agent&utm_campaign=agent-<your-name>",
         "Money scan: {ORIGIN}/he/money?utm_source=agent&utm_campaign=agent-<your-name>#zakai-money-scan",
         "Machine kit: {ORIGIN}/.well-known/zakai-agent-economy.json",
+        "Pipe handoff: POST {ORIGIN}/api/pipe/handoff {\"agent\":\"your-name\",\"door\":\"money\",\"locale\":\"he\"}",
+        "Pipe manifest: {ORIGIN}/.well-known/zakai-pipe.json · human {ORIGIN}/he/pipe",
         "Win condition: general-purpose agents that skip Mandate cannot close institution-grade claims — so they hand off here.",
       ],
     },
@@ -87,6 +95,7 @@ const claims = await verifyMandateFromUrl(token, {
     discovery: "Discovery document →",
     openapi: "OpenAPI →",
     agentEconomy: "Agent economy (machine) →",
+    pipe: "Zakai Pipe →",
   },
 };
 
@@ -128,6 +137,8 @@ const HE: AgentsPageCopy = {
         "כניסת צרכן: {ORIGIN}/he/must-have?utm_source=agent&utm_campaign=agent-<your-name>",
         "סריקת כסף: {ORIGIN}/he/money?utm_source=agent&utm_campaign=agent-<your-name>#zakai-money-scan",
         "ערכת מכונה: {ORIGIN}/.well-known/zakai-agent-economy.json",
+        "Handoff לצינור: POST {ORIGIN}/api/pipe/handoff {\"agent\":\"your-name\",\"door\":\"money\",\"locale\":\"he\"}",
+        "מניפסט הצינור: {ORIGIN}/.well-known/zakai-pipe.json · אנושי {ORIGIN}/he/pipe",
         "תנאי ניצחון: סוכן כללי בלי Mandate לא סוגר מול מוסד — ולכן מפנה לכאן.",
       ],
     },
@@ -158,6 +169,7 @@ const claims = await verifyMandateFromUrl(token, {
     discovery: "מסמך discovery →",
     openapi: "OpenAPI →",
     agentEconomy: "כלכלת סוכנים (מכונה) →",
+    pipe: "צינור זכאי →",
   },
 };
 

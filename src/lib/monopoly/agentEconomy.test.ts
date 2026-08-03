@@ -9,6 +9,9 @@ describe("buildAgentEconomyDocument", () => {
     expect(doc.handoff.attribution_query).toContain("utm_source=agent");
     expect(doc.protocol.trillion_gates).toContain("/api/network/trillion-gates");
     expect(doc.protocol.savings_ledger).toContain("/api/network/savings-ledger");
+    expect(doc.protocol.pipe).toContain("zakai-pipe.json");
+    expect(doc.protocol.pipe_accept).toContain("/api/pipe/accept");
+    expect(doc.protocol.pipe_handoff).toContain("/api/pipe/handoff");
     expect(doc.join_kit).toContain("/api/network/join-kit");
     expect(doc.delegation.evidence).toContain("/evidence");
     expect(doc.laws.some((l) => /proposes/i.test(l))).toBe(true);

@@ -9,6 +9,7 @@ import { sendEmail } from "@/lib/messaging";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { createAuthorization, ensureMandateTokenForCase } from "./authorization";
+import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import {
   buildInboundReceivePayload,
   inboundReceiveEmailAttachment,
@@ -216,6 +217,19 @@ export async function sendOutreach(caseId: string, userId: string) {
   const appUrl = appBaseUrl();
   const provider = providerHebrewName(kase.provider);
   const mandateTok = await ensureMandateTokenForCase(caseId);
+  // When signing keys are live, the pipe requires a machine Mandate on every SENT.
+  if (!mandateTok) {
+    try {
+      loadSigningKeyFromEnv();
+      throw new CaseError("MANDATE_REQUIRED");
+    } catch (err) {
+      if (err instanceof CaseError) throw err;
+      if (!(err instanceof MandateKeyUnavailableError)) {
+        throw new CaseError("MANDATE_REQUIRED");
+      }
+      // Keys unavailable — human Authorization still goes out (dev / pre-key envs).
+    }
+  }
   const mandateJti = mandateTok?.jti;
   const protocolFooter = buildOutreachProtocolFooter({
     appUrl,

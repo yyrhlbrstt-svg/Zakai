@@ -5482,6 +5482,32 @@
     "step4": "Registered issuer — harder admission path",
     "footnote": "POST /api/mandate/conformance/probe accepts inline JWKS + sample token — no SSRF to your URL."
   },
+  "pipe": {
+    "metaTitle": "Zakai Pipe — Mandate → SavingsProof",
+    "metaDesc": "Consumer-money rails: signed Mandate in, SavingsProof out. Institutions accept in one POST; AI agents hand off users with attribution.",
+    "kicker": "The pipe — not another app",
+    "title": "Zakai Pipe",
+    "sub": "Four rails: authority (Mandate), intake (inbound), outcomes (SavingsProof), agents (handoff). No callback. No invented amounts.",
+    "thesisStrong": "Why this is the pipe:",
+    "thesisBody": "A bank does not need another app — it needs a cheap way to verify an agent is authorised. An AI agent does not need to invent a power of attorney — it needs a format institutions accept. SavingsProof is proof the pipe works in the real world.",
+    "ctaManifest": "Machine manifest (JSON)",
+    "ctaLive": "Live status /api/pipe",
+    "ctaConsumer": "Start as consumer — /money",
+    "railsHeading": "Four rails",
+    "railAuthority": "1 · Authority",
+    "railAuthorityBody": "JWKS + verify + decide. Institution: POST /api/pipe/accept with the JWS and action — no manual aud extraction.",
+    "railIntake": "2 · Intake (inbound-only)",
+    "railIntakeBody": "The institution receives a signed request. They never call us back — only verify against JWKS and the revocation list.",
+    "railOutcomes": "3 · Outcomes",
+    "railOutcomesBody": "De-identified savings ledger. Empty = honest. When it fills — that is the only marketing institutions trust.",
+    "railAgents": "4 · Foreign agents",
+    "railAgentsBody": "POST /api/pipe/handoff returns an attributed URL. The user approves and sends a Mandate on our rails — the LLM does not execute.",
+    "proofsWall": "Proofs wall",
+    "agentsPage": "Agents page",
+    "minutesHeading": "Minutes to integrate",
+    "minutesBody": "Two calls that define the pipe — institution and agent:",
+    "related": "Related:"
+  },
   "agents": {
     "metaTitle": "Zakai Mandate for AI agents — prove a person authorised the act",
     "metaDesc": "An open, verifiable-offline authorization standard for any AI agent acting on a person's behalf — signed, scoped, revocable, and never able to move money outward."

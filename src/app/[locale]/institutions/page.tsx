@@ -67,8 +67,11 @@ export default async function InstitutionsPage({
       </EmeraldInfoPanel>
 
       <div className="flex flex-wrap gap-3 mb-8">
+        <Link href="/pipe" className="no-underline">
+          <Button>{locale === "he" || locale === "ar" ? "הצינור — Mandate → SavingsProof" : "The Pipe — Mandate → SavingsProof"}</Button>
+        </Link>
         <a href={institutionPilotMailto()} className="no-underline">
-          <Button>{t("heroMailtoCta")}</Button>
+          <Button variant="ghost">{t("heroMailtoCta")}</Button>
         </a>
         <Link href="/institutions/leader" className="no-underline">
           <Button variant="ghost">{t("leaderWizardCta")}</Button>

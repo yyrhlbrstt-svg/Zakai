@@ -143,6 +143,10 @@ export function buildZakaiProtocolDocument(origin: string) {
       inbound_receive: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.inboundReceive),
       agent_economy: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.agentEconomy),
       fairness_certified: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.fairnessCertified),
+      pipe: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.pipe),
+      pipe_api: `${origin}/api/pipe`,
+      pipe_accept: `${origin}/api/pipe/accept`,
+      savings_ledger: `${origin}/api/network/savings-ledger`,
       features: {
         mandate_verify: mandateSigningLive(),
         outcome_graph: true,

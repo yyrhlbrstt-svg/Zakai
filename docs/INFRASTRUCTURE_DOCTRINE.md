@@ -21,6 +21,8 @@ Other companies become clients of the rails — or look outdated next to whoever
 
 **Operating implication:** every sprint either (a) shortens Israel zero→SENT Mandate, (b) raises Mandate/SavingsProof volume, or (c) makes foreign agents/institutions adopt the open format. Anything else is noise.
 
+**Ship surface for the rails:** `docs/PIPE.md` · `/.well-known/zakai-pipe.json` · `/he/pipe` · `POST /api/pipe/accept` · `POST /api/pipe/handoff`.
+
 ## Core thesis
 
 Zakai wins by becoming the **standard protocol** + the **only closed-loop system** that turns consumer intent into documented money outcomes.

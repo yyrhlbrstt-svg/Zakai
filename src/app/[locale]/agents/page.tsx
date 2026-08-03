@@ -75,6 +75,9 @@ export default async function AgentsPage({
 
       <Section heading={copy.readMoreHeading}>
         <div className="flex flex-wrap gap-4">
+          <Link href="/pipe" className="text-emerald font-bold no-underline">
+            {copy.readMore.pipe}
+          </Link>
           <Link href="/institutions" className="text-emerald font-bold no-underline">
             {copy.readMore.institutions}
           </Link>
