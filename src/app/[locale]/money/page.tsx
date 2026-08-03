@@ -65,7 +65,7 @@ export default async function MoneyPage({
   ]);
 
   let openLoop = false;
-  let openLoopHref = "/dashboard";
+  let openLoopHref = "/money";
   let openLoopLabel = "";
   let personalDocumented = {
     count: 0,

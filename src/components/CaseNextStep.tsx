@@ -416,7 +416,7 @@ export function CaseNextStep({
       router.push(`/dashboard?saved=1&case=${caseId}&payFee=1`);
       return;
     }
-    router.push(`/dashboard?saved=1&case=${caseId}`);
+    router.push(`/money?case=${caseId}`);
   }
 
   async function recordAndFinish(

@@ -125,7 +125,7 @@ export function planMonopolyLoop(input: MonopolyLoopInput): MonopolyLoopPlan {
       titleEn: "Push email verify → one-tap approve+send",
       whyHe: "אימייל מאומת מקצר אפס→SENT. כל דקה חיכוך היא Mandate שלא הונפק.",
       whyEn: "Verified email shortens zero→SENT. Every friction minute is a Mandate not issued.",
-      href: "/dashboard",
+      href: "/money",
       blocksMonopoly: false,
     });
   }
@@ -151,7 +151,7 @@ export function planMonopolyLoop(input: MonopolyLoopInput): MonopolyLoopPlan {
       titleEn: "Close the loop to SavingsProof",
       whyHe: `הוכחות מתועדות (${input.pipe.savingsProofs}) הן השיווק היחיד מול מוסדות. אחרי SENT — follow-up → SAVED.`,
       whyEn: `Documented proofs (${input.pipe.savingsProofs}) are the only institutional marketing. After SENT — follow-up → SAVED.`,
-      href: "/dashboard",
+      href: "/money",
       blocksMonopoly: tierRank(tier) < 3,
     });
   }

@@ -6,7 +6,7 @@ import { bcp47 } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { formatAgorot } from "@/lib/money";
-import { rankNextAction } from "@/lib/services/nextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 
 export async function DashboardNextActionPanel({
   userId,
@@ -52,7 +52,7 @@ export async function DashboardNextActionPanel({
   if (action.kind === "pending_fee") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}&payFee=1`}
+        href={nextActionHref(action)}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.16)] px-5 py-4 hover:border-[rgba(63,203,155,0.7)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-emerald">{t("feeNudgeTitle")}</div>
@@ -66,7 +66,7 @@ export async function DashboardNextActionPanel({
   if (action.kind === "proposed_saving") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-5 py-4 hover:border-[rgba(63,203,155,0.55)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-emerald">{t("proposedNudgeTitle")}</div>
@@ -78,7 +78,7 @@ export async function DashboardNextActionPanel({
   if (action.kind === "sent_exhausted") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-5 py-4 hover:border-[rgba(240,138,107,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("exhaustedNudgeTitle")}</div>
@@ -90,7 +90,7 @@ export async function DashboardNextActionPanel({
   if (action.kind === "needs_outreach") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.5)] bg-[rgba(240,180,92,0.12)] px-5 py-4 hover:border-[rgba(240,180,92,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("needsOutreachNudgeTitle")}</div>
@@ -104,7 +104,7 @@ export async function DashboardNextActionPanel({
   if (action.kind === "mandate_inactive") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-5 py-4 hover:border-[rgba(240,138,107,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("mandateInactiveNudgeTitle")}</div>
@@ -118,7 +118,7 @@ export async function DashboardNextActionPanel({
   if (action.kind === "pre_send") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("preSendNudgeTitle")}</div>
@@ -130,7 +130,7 @@ export async function DashboardNextActionPanel({
   if (action.kind === "sent_wait") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("sentWaitNudgeTitle")}</div>

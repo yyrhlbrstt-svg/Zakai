@@ -67,4 +67,21 @@ describe("planRetentionActions", () => {
     expect(actions[0]?.kind).toBe("document_saving");
     expect(actions.some((a) => a.kind === "follow_up")).toBe(false);
   });
+
+  it("points finish-loop retention at /money", () => {
+    const actions = planRetentionActions({
+      daysSinceLastServerCase: 2,
+      openAnalyzedOrApproved: 1,
+      openVerifiedReadyToSend: 0,
+      openSent: 0,
+      openProposedSaving: 0,
+      savedWithoutRecentShare: false,
+      householdBeneficiaryCases: 0,
+      upcomingDeadlines: 0,
+      openVigilAlerts: 0,
+      hasAnySaved: false,
+    });
+    expect(actions[0]?.kind).toBe("complete_send");
+    expect(actions[0]?.href).toBe("/money");
+  });
 });

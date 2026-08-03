@@ -49,7 +49,7 @@ export function computeMoneyScore(input: MoneyScoreInput): MoneyScoreResult {
   const components: ScoreComponent[] = [
     { key: "firstCheck", points: 25, earned: input.casesCount >= 1, href: "/money" },
     { key: "breadth", points: 15, earned: input.casesCount >= 3, href: "/money" },
-    { key: "saving", points: 30, earned: input.hasDocumentedSaving, href: "/dashboard" },
+    { key: "saving", points: 30, earned: input.hasDocumentedSaving, href: "/money" },
     { key: "fresh", points: 10, earned: fresh, href: "/money" },
     { key: "plan", points: 10, earned: plan === "PRO" || plan === "MAX", href: "/pricing" },
     { key: "invite", points: 10, earned: input.hasReferred, href: "/settings" },

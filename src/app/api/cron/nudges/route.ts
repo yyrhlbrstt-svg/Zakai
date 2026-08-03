@@ -194,7 +194,7 @@ export async function GET(request: Request) {
       await pushToUser(opts.userId, {
         title: opts.pushTitle,
         body: opts.pushBody,
-        url: `/dashboard?case=${opts.caseId}`,
+        url: `/money?case=${opts.caseId}`,
         tag: opts.tag,
       }).catch(() => null);
       return true;
@@ -225,7 +225,7 @@ export async function GET(request: Request) {
         seenAgent.add(c.userId);
         agentFollowUps++;
       } else if (result.reason === "NEEDS_OUTREACH_EMAIL" && c.user.email) {
-        const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
+        const money = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
         const sent = await nudgeOnce({
           caseId: c.id,
           userId: c.userId,
@@ -235,12 +235,12 @@ export async function GET(request: Request) {
 
 הסוכן מוכן לשלוח המשך בכתב עם Mandate — אבל חסר אימייל של הספק בתיק.
 
-הזינו כתובת שירות/ביטולים בדשבורד ואשרו שליחה:
-${dash}
+הזינו כתובת שירות/ביטולים ב״הכסף שלי״ ואשרו שליחה:
+${money}
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
           pushTitle: "חסר אימייל לספק",
-          pushBody: "הזינו כתובת בדשבורד כדי שהסוכן יוכל להמשיך.",
+          pushBody: "הזינו כתובת ב״הכסף שלי״ כדי שהסוכן יוכל להמשיך.",
           tag: `outreach-needed-${c.id}`,
         });
         if (sent) {
@@ -250,7 +250,7 @@ ${dash}
         agentSkipped++;
       } else if (result.reason === "MAX_ROUNDS" && c.user.email) {
         // FREE maxActiveCases:1 stays frozen on SENT until user records/closes.
-        const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
+        const money = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
         const sent = await nudgeOnce({
           caseId: c.id,
           userId: c.userId,
@@ -260,12 +260,12 @@ ${dash}
 
 סיבובי המעקב בכתב לתיק הזה מוצו. אל תשלחו עוד תזכורת אוטומטית.
 
-בדשבורד — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר:
-${dash}
+ב״הכסף שלי״ — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר:
+${money}
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
           pushTitle: "סיבובי המעקב מוצו",
-          pushBody: "רשמו תוצאה או סגרו את התיק בדשבורד.",
+          pushBody: "רשמו תוצאה או סגרו את התיק ב״הכסף שלי״.",
           tag: `max-rounds-${c.id}`,
         });
         if (sent) {
@@ -274,7 +274,7 @@ ${dash}
         }
         agentSkipped++;
       } else if (result.reason === "NO_ACTIVE_MANDATE" && c.user.email) {
-        const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
+        const money = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
         const sent = await nudgeOnce({
           caseId: c.id,
           userId: c.userId,
@@ -284,12 +284,12 @@ ${dash}
 
 הסוכן לא יכול להמשיך מול הספק — אין Mandate פעיל על התיק.
 
-פתחו את הדשבורד, אשרו הרשאה מחדש ושלחו:
-${dash}
+פתחו את ״הכסף שלי״, אשרו הרשאה מחדש ושלחו:
+${money}
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
           pushTitle: "Mandate לא פעיל",
-          pushBody: "אשרו הרשאה מחדש בדשבורד כדי להמשיך.",
+          pushBody: "אשרו הרשאה מחדש ב״הכסף שלי״ כדי להמשיך.",
           tag: `mandate-inactive-${c.id}`,
         });
         if (sent) {
@@ -325,7 +325,7 @@ ${dash}
     for (const c of preSendWaiting) {
       if (seenPreSend.has(c.userId) || !c.user.email) continue;
       seenPreSend.add(c.userId);
-      const moneyUrl = `${appUrl}/${localeForCountry(c.user.country)}/money`;
+      const moneyUrl = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
       const recent = await prisma.outbox.findFirst({
         where: {
           caseId: c.id,
@@ -351,7 +351,7 @@ ${moneyUrl}
       await pushToUser(c.userId, {
         title: "תיק ממתין לשליחה",
         body: "המשיכו ב\"הכסף שלי\" — Mandate בכתב, בלי שיחה.",
-        url: "/money",
+        url: `/money?case=${c.id}`,
         tag: `pre-send-${c.id}`,
       }).catch(() => null);
       preSendNudges++;

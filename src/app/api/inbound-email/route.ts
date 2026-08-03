@@ -256,18 +256,18 @@ export async function POST(request: Request) {
         basis === "lump"
           ? recordShekels === 0
             ? `זוהה אישור על החזר/תשלום — ניתן לרשום התקבל במלואו (נותר ₪0).`
-            : `זוהה סכום שקשור להחזר — נותר לשלם בערך ₪${recordShekels} (אשר בדשבורד).`
+            : `זוהה סכום שקשור להחזר — נותר לשלם בערך ₪${recordShekels} (אשר ב״הכסף שלי״).`
           : `סכום חודשי חדש שזוהה: ₪${recordShekels}.`;
       const pushBody =
         basis === "lump"
           ? recordShekels === 0
-            ? "זוהה אישור החזר במלואו. אשר בדשבורד בלחיצה אחת."
-            : `נותר לשלם בערך ₪${recordShekels}. אשר בדשבורד.`
-          : `זוהה סכום חדש ₪${recordShekels}. אשר בדשבורד בלחיצה אחת.`;
-      const dashboardUrl = absoluteLocaleUrl(
+            ? "זוהה אישור החזר במלואו. אשר ב״הכסף שלי״ בלחיצה אחת."
+            : `נותר לשלם בערך ₪${recordShekels}. אשר ב״הכסף שלי״.`
+          : `זוהה סכום חדש ₪${recordShekels}. אשר ב״הכסף שלי״ בלחיצה אחת.`;
+      const moneyUrl = absoluteLocaleUrl(
         appUrl,
         localeForCountry(user.country),
-        `/dashboard?case=${matchedCaseId}`,
+        `/money?case=${matchedCaseId}`,
       );
 
       await sendEmail({
@@ -280,7 +280,7 @@ export async function POST(request: Request) {
           amountLine,
           ``,
           `כדי לסגור את התיק ולתעד את החיסכון (העמלה נגזרת רק אחרי אישור שלך):`,
-          dashboardUrl,
+          moneyUrl,
           ``,
           `זכאי — סוכן כסף לצרכן.`,
         ].join("\n"),
@@ -290,7 +290,7 @@ export async function POST(request: Request) {
       await pushToUser(matchedUserId, {
         title: "זכאי — אישור חיסכון הגיע",
         body: pushBody,
-        url: `/dashboard?case=${matchedCaseId}`,
+        url: `/money?case=${matchedCaseId}`,
         tag: `inbound-${matchedCaseId}`,
       }).catch(() => null);
 

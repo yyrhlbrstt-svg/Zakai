@@ -70,7 +70,7 @@ export default function OwnershipConfirmPage() {
     };
   }, [token]);
 
-  const dashHref = caseId ? `/dashboard?case=${caseId}` : "/dashboard";
+  const dashHref = caseId ? `/money?case=${caseId}` : "/money";
 
   const title =
     state === "loading"

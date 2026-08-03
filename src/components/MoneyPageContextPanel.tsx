@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
-import { rankNextAction } from "@/lib/services/nextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import type { Locale } from "@/i18n/config";
 
 export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
@@ -53,7 +53,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   if (action.kind === "pending_fee") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}&payFee=1`}
+        href={nextActionHref(action)}
         className="block no-underline mb-6 rounded-2xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.14)] px-4 py-3.5 hover:border-[rgba(63,203,155,0.7)] transition-colors"
       >
         <div className="font-extrabold text-[14px] text-emerald">{t("pendingCaseTitle")}</div>
@@ -65,7 +65,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   if (action.kind === "proposed_saving") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline mb-6 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 hover:border-[rgba(63,203,155,0.55)] transition-colors"
       >
         <div className="font-extrabold text-[14px] text-emerald">{t("proposedTitle")}</div>
@@ -77,7 +77,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   if (action.kind === "sent_exhausted") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline mb-6 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-4 py-3.5 hover:border-[rgba(240,138,107,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[14px] text-[#f08a6b]">{t("exhaustedTitle")}</div>
@@ -89,7 +89,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   if (action.kind === "needs_outreach") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline mb-6 rounded-2xl border border-[rgba(240,180,92,0.5)] bg-[rgba(240,180,92,0.12)] px-4 py-3.5 hover:border-[rgba(240,180,92,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[14px] text-[#f0b45c]">{t("needsOutreachTitle")}</div>
@@ -101,7 +101,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   if (action.kind === "mandate_inactive") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline mb-6 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-4 py-3.5 hover:border-[rgba(240,138,107,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[14px] text-[#f08a6b]">{t("mandateInactiveTitle")}</div>
@@ -113,7 +113,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   if (action.kind === "pre_send" || action.kind === "sent_wait") {
     return (
       <Link
-        href={`/dashboard?case=${action.caseId}`}
+        href={nextActionHref(action)}
         className="block no-underline mb-6 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-4 py-3.5 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
         <div className="font-extrabold text-[14px] text-[#f0b45c]">{t("pendingCaseTitle")}</div>

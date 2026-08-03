@@ -349,10 +349,10 @@ ${institutionPipeMagnetLine(appUrl)}
   // Closed-loop: tell the user where to forward the provider reply.
   const proofsAddr = proofsInboundAddress();
   if (user?.email) {
-    const dashUrl = absoluteLocaleUrl(
+    const moneyUrl = absoluteLocaleUrl(
       appUrl,
       localeForCountry(user.country),
-      "/dashboard",
+      `/money?case=${caseId}`,
     );
     await sendEmail({
       to: user.email,
@@ -363,11 +363,11 @@ ${institutionPipeMagnetLine(appUrl)}
 
 מה אפשר לעשות עכשיו:
 • אם ענו — העבירו את המייל שלהם אל ${proofsAddr}
-  (הסוכן יזהה סכום ויציע רישום חיסכון בלחיצה אחת בדשבורד).
+  (הסוכן יזהה סכום ויציע רישום חיסכון בלחיצה אחת ב״הכסף שלי״).
 • אם לא ענו תוך כמה ימים — הסוכן ישלח סיבוב 2 אוטומטית.
 • לעצירה — בטלו את ההרשאה במסמך האימות.
 
-דשבורד: ${dashUrl}
+הכסף שלי: ${moneyUrl}
 
 הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
 
@@ -378,7 +378,7 @@ ${institutionPipeMagnetLine(appUrl)}
     await pushToUser(userId, {
       title: "זכאי — נשלח לספק",
       body: `פנייה ל-${provider} יצאה. העבירו תשובה ל-${proofsAddr}`,
-      url: "/dashboard",
+      url: `/money?case=${caseId}`,
       tag: `sent-${caseId}`,
     }).catch(() => null);
   }

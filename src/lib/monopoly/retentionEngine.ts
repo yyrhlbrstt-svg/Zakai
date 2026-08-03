@@ -47,7 +47,7 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
     out.push({
       kind: "vigil",
       priority: 100,
-      href: "/dashboard",
+      href: "/money",
       reasonKey: "retention.vigil",
     });
   }
@@ -63,7 +63,7 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
     out.push({
       kind: "document_saving",
       priority: 98,
-      href: "/dashboard",
+      href: "/money",
       reasonKey: "retention.document",
     });
   }
@@ -71,7 +71,7 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
     out.push({
       kind: "complete_send",
       priority: 90,
-      href: "/dashboard",
+      href: "/money",
       reasonKey: "retention.send",
     });
   }
@@ -79,7 +79,7 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
     out.push({
       kind: "complete_send",
       priority: 85,
-      href: "/dashboard",
+      href: "/money",
       reasonKey: "retention.approve_verify",
     });
   }
@@ -87,7 +87,7 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
     out.push({
       kind: "follow_up",
       priority: 80,
-      href: "/dashboard",
+      href: "/money",
       reasonKey: "retention.follow_up",
     });
   }
@@ -95,7 +95,7 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
     out.push({
       kind: "share_proof",
       priority: 70,
-      href: "/dashboard",
+      href: "/money",
       reasonKey: "retention.share",
     });
   }
