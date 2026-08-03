@@ -15,6 +15,8 @@
     "release-gate": "tsx scripts/release-gate.ts",
     "preflight": "node scripts/preflight.mjs",
     "verify:interop": "node scripts/verify-interop.mjs",
+    "verify:interop-external": "node scripts/verify-interop-external.mjs",
+    "verify:packs-cdn": "node scripts/verify-packs-cdn.mjs",
     "verify:monopoly": "node scripts/verify-monopoly-surface.mjs",
     "verify:public-surface": "node scripts/verify-public-surface.mjs",
     "generate:pack-labels": "tsx scripts/generate-pack-labels.mjs",

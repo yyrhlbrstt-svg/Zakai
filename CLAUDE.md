@@ -139,6 +139,12 @@ FEEDBACK_EMAIL=     # falls back to the founder address
 # controls that address (see email verification below), so an attacker who
 # registered it first still gets nothing.
 ADMIN_EMAIL=
+
+# Optional read replica for fairness / gravity / oracle aggregates (Neon read-only URL).
+# NEON_DATABASE_URL_READ_REPLICA=
+
+# When true, email/SMS stay QUEUED until GET /api/cron/outbox drains them.
+# OUTBOX_ASYNC=true
 ```
 
 Email verification gates **privilege, never basic use**. A person can sign up,

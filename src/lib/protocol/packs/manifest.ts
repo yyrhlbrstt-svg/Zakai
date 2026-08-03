@@ -15,6 +15,7 @@ export function buildPacksManifest(origin: string) {
       export_script: "scripts/export-zakai-packs-repo.sh",
       validate: "npm run packs:validate",
       publish_dry_run: "npm run packs:publish:dry",
+      verify_cdn: "npm run verify:packs-cdn",
       upstream_readme: "zakai-packs/README.md",
     },
     schema: `${base}/.well-known/zakai-rights-schema.json`,

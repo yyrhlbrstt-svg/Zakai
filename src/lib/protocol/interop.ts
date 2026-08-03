@@ -78,6 +78,8 @@ export const INTEROP_PROBE_CHECKS: readonly InteropProbeCheck[] = [
   { id: "mandate_scopes", profile: "zakai-mandate-verifier-1", method: "GET", path: "/api/mandate/scopes", expectStatus: 200 },
   { id: "mandate_verify_cors", profile: "zakai-mandate-verifier-1", method: "OPTIONS", path: "/api/mandate/verify", expectStatus: 204 },
   { id: "network_feed", profile: "zakai-outcome-graph-1", method: "GET", path: "/api/network", expectStatus: 200 },
+  { id: "network_gravity", profile: "zakai-outcome-graph-1", method: "GET", path: "/api/network/gravity", expectStatus: 200 },
+  { id: "packs_manifest", profile: "zakai-rights-catalog-1", method: "GET", path: WELL_KNOWN_RELATIVE.packs, expectStatus: 200 },
   { id: "regulatory_snapshot", profile: "zakai-outcome-graph-1", method: "GET", path: "/api/regulatory/snapshot?market=IL", expectStatus: 200 },
   { id: "collective_summary", profile: "zakai-outcome-graph-1", method: "GET", path: "/api/collective/summary?market=IL", expectStatus: 200 },
 ] as const;

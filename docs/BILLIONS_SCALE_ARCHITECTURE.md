@@ -52,6 +52,8 @@ Implementation map:
 - Idempotency: `src/lib/scale/idempotency.ts` + `IdempotencyRecord`.
 - Cache policy helpers: `src/lib/scale/publicCache.ts`.
 - Throughput budgets: `src/lib/scale/throughputBudgets.ts`.
+- Outbox worker: `OUTBOX_ASYNC` + `GET /api/cron/outbox` (`src/lib/workers/outboxDeliver.ts`).
+- Read replica: `NEON_DATABASE_URL_READ_REPLICA` → `prismaRead` for fairness/gravity/oracle.
 
 ---
 

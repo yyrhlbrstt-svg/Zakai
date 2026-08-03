@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { getCurrentUser } from "@/lib/auth/user";
 import { UniversalCancelTool } from "@/components/UniversalCancelTool";
 import { alternateLanguages } from "@/lib/seo";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -27,10 +28,12 @@ export default async function UniversalCancelPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("universalCancel");
+  const user = await getCurrentUser();
+  const referralCode = user?.referralCode ?? undefined;
 
   return (
     <VerticalPageShell kicker={t("kicker")} title={t("title")} sub={t("sub")} className="max-w-[760px] mx-auto px-5 pb-32 pt-2 relative">
-      <UniversalCancelTool bcp47={bcp47[locale as Locale]} />
+      <UniversalCancelTool bcp47={bcp47[locale as Locale]} referralCode={referralCode} />
     </VerticalPageShell>
   );
 }

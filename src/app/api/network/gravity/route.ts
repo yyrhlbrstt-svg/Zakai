@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { clientIp, rateLimit } from "@/lib/ratelimit";
 import { loadNetworkGravitySnapshot } from "@/lib/services/networkGravity";
 import { cacheControlHeader } from "@/lib/scale/publicCache";
+import { readReplicaConfigured } from "@/lib/prismaRead";
 
 export const runtime = "nodejs";
 export const revalidate = 300;
@@ -31,7 +32,10 @@ export async function GET(request: Request) {
 
   try {
     const snapshot = await loadNetworkGravitySnapshot();
-    return NextResponse.json(snapshot, { headers: CORS });
+    return NextResponse.json(
+      { ...snapshot, read_replica: readReplicaConfigured() },
+      { headers: CORS },
+    );
   } catch {
     return NextResponse.json(
       {

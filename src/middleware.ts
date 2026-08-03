@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
 import { partnerRefFromSearchParams } from "./lib/partnerAttribution";
 import {
+  CONSUMER_REF_COOKIE,
+  CONSUMER_REF_MAX_AGE_SECONDS,
+  consumerReferralFromSearchParams,
+} from "./lib/consumerReferralAttribution";
+import {
   MARKET_COOKIE,
   MARKET_COOKIE_MAX_AGE_SEC,
   marketFromGeoCountry,
@@ -53,8 +58,18 @@ function cspHeader(nonce: string): string {
 const PARTNER_REF_COOKIE = "zakai_partner_ref";
 const PARTNER_REF_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
-/**
- * Every embed.js click (public/embed.js) lands on a page like
+function captureConsumerRef(request: NextRequest, res: NextResponse): void {
+  if (request.cookies.get(CONSUMER_REF_COOKIE)) return;
+  const ref = consumerReferralFromSearchParams(request.nextUrl.searchParams);
+  if (!ref) return;
+  res.cookies.set(CONSUMER_REF_COOKIE, ref, {
+    maxAge: CONSUMER_REF_MAX_AGE_SECONDS,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
+/** (public/embed.js) lands on a page like
  * /he/money?utm_source=embed&utm_campaign=<partner-ref> — but a visitor
  * rarely signs up on that exact page, and nothing was ever carrying the ref
  * forward to the eventual /signup. The result: the entire "Partners · Embed"
@@ -124,6 +139,7 @@ export default function middleware(request: NextRequest) {
     const res = NextResponse.redirect(new URL(target, request.url));
     res.headers.set("Content-Security-Policy", policy);
     capturePartnerRef(request, res);
+    captureConsumerRef(request, res);
     ensureMarketCookie(request, res);
     return res;
   }
@@ -132,6 +148,7 @@ export default function middleware(request: NextRequest) {
   res.headers.set("Content-Security-Policy", policy);
   res.headers.set("x-nonce", nonce);
   capturePartnerRef(request, res);
+  captureConsumerRef(request, res);
   ensureMarketCookie(request, res);
   return res;
 }

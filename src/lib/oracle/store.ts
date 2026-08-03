@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@/lib/prisma";
+import { prismaRead } from "@/lib/prismaRead";
 import { predictOutcome, rankByExpectedValue, type ClaimObservation, type OutcomeQuery, type Prediction } from "./predict";
 import { assessCalibration, type CalibrationReport, type Forecast } from "./calibration";
 
@@ -28,7 +28,7 @@ async function loadObservations(market?: string): Promise<ClaimObservation[]> {
   // success rate of everything and does it invisibly. The calibration report
   // would still look excellent, because it would be well calibrated against a
   // biased sample.
-  const rows = await prisma.strategyOutcome.findMany({
+  const rows = await prismaRead.strategyOutcome.findMany({
     where: { createdAt: { gte: since }, selfReported: false, ...(market ? { market } : {}) },
     select: {
       market: true,
@@ -87,7 +87,7 @@ export async function rank(queries: readonly OutcomeQuery[]) {
 export async function assessOracleCalibration(holdoutDays = 90): Promise<CalibrationReport> {
   try {
     const cutoff = new Date(Date.now() - holdoutDays * 86_400_000);
-    const all = await prisma.strategyOutcome.findMany({
+    const all = await prismaRead.strategyOutcome.findMany({
       select: {
         market: true,
         vertical: true,

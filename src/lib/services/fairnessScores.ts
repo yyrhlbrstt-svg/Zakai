@@ -1,11 +1,11 @@
 import "server-only";
 
-import { prisma } from "@/lib/prisma";
+import { prismaRead } from "@/lib/prismaRead";
 import { aggregateFairnessScores, type FairnessProviderScore } from "@/lib/fairnessScore";
 
 /** De-identified outcome graph only — never Case/User rows. */
 export async function loadFairnessScores(market: string): Promise<FairnessProviderScore[]> {
-  const rows = await prisma.strategyOutcome.findMany({
+  const rows = await prismaRead.strategyOutcome.findMany({
     where: { market: market.toUpperCase(), selfReported: false },
     select: { counterparty: true, paid: true, recoveredMinor: true },
   });

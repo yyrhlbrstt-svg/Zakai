@@ -12,11 +12,24 @@ import { formatAgorot } from "@/lib/money";
 
 const MIN_CHARS = 12;
 
+import { ShareResult } from "@/components/ShareResult";
+import {
+  buildUniversalCancelShareMessage,
+  universalCancelShareKicker,
+  universalCancelSharePath,
+} from "@/lib/monopoly/universalCancelShare";
+
 /**
  * Universal cancel — client-only. Parses statement export, drafts one letter per
  * recurring charge. User copies and sends from their own email (Word doctrine).
  */
-export function UniversalCancelTool({ bcp47 }: { bcp47: string }) {
+export function UniversalCancelTool({
+  bcp47,
+  referralCode,
+}: {
+  bcp47: string;
+  referralCode?: string;
+}) {
   const t = useTranslations("universalCancel");
   const locale = useLocale();
   const footerLocale = locale === "he" || locale === "ar" ? "he" : "en";
@@ -116,6 +129,17 @@ export function UniversalCancelTool({ bcp47 }: { bcp47: string }) {
           <p className="text-[12px] text-ink-soft mt-1">
             {t("totalMonthly", { amount: formatAgorot(result.totalMonthlyAgorot, bcp47) })}
           </p>
+          <div className="mt-4">
+            <ShareResult
+              message={buildUniversalCancelShareMessage(locale, {
+                letterCount: result.recurring.length,
+                amountLabel: formatAgorot(result.totalMonthlyAgorot, bcp47),
+              })}
+              path={universalCancelSharePath()}
+              referralCode={referralCode}
+              kicker={universalCancelShareKicker(locale)}
+            />
+          </div>
         </Card>
       )}
 

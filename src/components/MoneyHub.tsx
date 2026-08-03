@@ -203,9 +203,11 @@ function topN(recurring: RecurringCharge[], n: number): RecurringCharge[] {
 export function MoneyHub({
   bcp47,
   screenshotEnabled,
+  referralCode,
 }: {
   bcp47: string;
   screenshotEnabled: boolean;
+  referralCode?: string;
 }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -546,6 +548,7 @@ export function MoneyHub({
                     path={scanShareLandingPath()}
                     amountLabel={formatAgorot(result.totalMonthlyAgorot, bcp47)}
                     kicker={scanShareKicker(locale)}
+                    referralCode={referralCode}
                   />
                 </div>
               </Card>

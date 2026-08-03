@@ -53,7 +53,11 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       ) : null}
 
       <div className="mt-2 mb-6">
-        <MoneyHub bcp47={loc} screenshotEnabled={aiAvailable()} />
+        <MoneyHub
+          bcp47={loc}
+          screenshotEnabled={aiAvailable()}
+          referralCode={user?.referralCode}
+        />
       </div>
 
       <div className="mb-8">
