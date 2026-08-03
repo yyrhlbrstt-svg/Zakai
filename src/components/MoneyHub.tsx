@@ -228,6 +228,12 @@ export function MoneyHub({
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#zakai-money-scan") return;
+    document.getElementById("zakai-money-scan")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   function persist(scan: ScanResult) {
     const summary: SavedSummary = {
       totalMonthlyAgorot: scan.totalMonthlyAgorot,
