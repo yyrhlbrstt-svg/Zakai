@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { RightsChecker } from "@/components/RightsChecker";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { CarInsuranceRefundTool } from "@/components/CarInsuranceRefundTool";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 import { Link } from "@/i18n/routing";
@@ -32,7 +33,10 @@ export default async function CarInsuranceRefundPage({
 
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")} cite={t("cite")}>
-      <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
+      <CarInsuranceRefundTool />
+      <div className="mt-10">
+        <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
+      </div>
       <div className="mt-8 text-center">
         <Link href="/duplicate-insurance">
           <Button variant="ghost">{t("dupCta")}</Button>

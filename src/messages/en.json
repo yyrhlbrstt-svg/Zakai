@@ -5624,11 +5624,11 @@
   },
   "carInsuranceRefund": {
     "metaTitle": "Car insurance refund — Zakai",
-    "metaDesc": "Mid-term cancellation — pro-rata premium refund demand.",
-    "kicker": "Car insurance",
+    "metaDesc": "Mid-term cancellation — agent sends pro-rata premium demand with Mandate.",
+    "kicker": "Car insurance · agent",
     "title": "Sold the car or switched insurer?",
-    "sub": "Cancel the policy and demand unused premium back.",
-    "cite": "Insurers must return unused premium within statutory timeframes.",
+    "sub": "Agent opens a case, sends a pro-rata premium demand with Mandate, and follows up until documented.",
+    "cite": "Insurers must return unused premium within statutory timeframes — no promised amount.",
     "dupCta": "Duplicate cover? Check overlaps"
   },
   "vaadBait": {

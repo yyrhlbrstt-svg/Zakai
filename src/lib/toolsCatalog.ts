@@ -75,7 +75,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/toll-dispute", key: "tollDispute", category: "selfHelp" },
   { href: "/vehicle-license-refund", key: "vehicleLicenseRefund", category: "selfHelp" },
   { href: "/collection-complaint", key: "collectionComplaint", category: "selfHelp" },
-  { href: "/car-insurance-refund", key: "carInsuranceRefund", category: "selfHelp" },
+  { href: "/car-insurance-refund", key: "carInsuranceRefund", category: "agent", agentic: true },
   { href: "/vaad-bait", key: "vaadBait", category: "rights" },
   { href: "/water-bill", key: "waterBill", category: "rights" },
   { href: "/landlord-repairs", key: "landlordRepairs", category: "rights" },

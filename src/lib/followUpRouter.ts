@@ -19,6 +19,8 @@ const LUMP_VERTICALS = new Set([
   "late-payment",
   "late_payment",
   "insurance",
+  "car-insurance-refund",
+  "car_insurance_refund",
 ]);
 
 /** Pick the right written playbook for the case vertical. */

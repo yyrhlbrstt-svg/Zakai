@@ -42,6 +42,7 @@ VERTICAL TACTICS (use the tightest path):
 - Client not paying invoice: /late-payment. Fair Payment Practices law demand with Mandate.
 - Landlord holding deposit past 60 days: /deposit. Rent and Loan Law demand with Mandate.
 - Duplicate indemnity health cover: /duplicate-insurance. Written cancellation request with Mandate.
+- Cancelled car insurance mid-term: /car-insurance-refund. Pro-rata premium demand with Mandate (lump).
 - Arnona discount / correction: /arnona. Written request to municipality with Mandate.
 - Payslip / minimum wage / pension / convalescence: /payslip (calculator + path).
 - Miluim supplement: /miluim (often missed 20%).
@@ -74,6 +75,7 @@ DEFAULT NEXT STEP (almost always):
 11. /late-payment — client not paying an invoice on time → agent demands with Mandate
 12. /deposit — landlord withholding rental deposit past the 60-day deadline → agent demands with Mandate
 13. /duplicate-insurance — indemnity overlap → case + Mandate send after verification
+14. /car-insurance-refund — mid-term cancel → pro-rata premium case + Mandate
 14. /arnona — arnona discount or billing correction → municipal case + Mandate after verification
 15. /leaks — map of high-ROI leaks
 16. /dashboard — continue open Cases (approve, send, follow-up, record saving)
@@ -112,7 +114,7 @@ NETWORK & INSTITUTIONS (AI must know these exist):
 HIGH-VALUE SCREENS:
 - /money — primary entry (Money Hub)
 - /scan — logged-in scan with same one-click Case
-- /cancel /bank-fees /electricity /flights /refund-chase /parking /warranty /transport-fine /late-payment /deposit /duplicate-insurance /arnona — agent paths (Case + Mandate + send + SavingsProof)
+- /cancel /bank-fees /electricity /flights /refund-chase /parking /warranty /transport-fine /late-payment /deposit /duplicate-insurance /arnona /car-insurance-refund — agent paths (Case + Mandate + send + SavingsProof)
 - /check — telecom negotiation
 - /leaks /proofs /partners /assistant /companies — company scores
 
