@@ -49,7 +49,7 @@ export default async function JoinNetworkPage({
       body: c.agentBody,
       href: null,
       cta: c.agentCta,
-      external: `${SITE_URL}/.well-known/zakai-agent-economy.json`,
+      external: `${SITE_URL}/.well-known/zakai-agents.json`,
     },
     {
       title: c.packsTitle,
@@ -96,6 +96,12 @@ export default async function JoinNetworkPage({
       <div className="flex flex-wrap gap-3">
         <a href={`${SITE_URL}/api/network/join-kit`} className="no-underline">
           <Button>{c.kitJson}</Button>
+        </a>
+        <Link href="/pipe" className="no-underline">
+          <Button variant="ghost">{c.pipeCta}</Button>
+        </Link>
+        <a href={`${SITE_URL}/api/network/monopoly`} className="no-underline">
+          <Button variant="ghost">{c.monopolyCta}</Button>
         </a>
         <a href={`${SITE_URL}/api/network/trillion-gates`} className="no-underline">
           <Button variant="ghost">{c.gates}</Button>

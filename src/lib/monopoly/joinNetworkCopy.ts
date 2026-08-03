@@ -17,13 +17,16 @@ export function joinNetworkCopy(locale: string) {
       issuerBody: "Dry-run מול validateIssuer, ואז הגשת delegated או JWKS — בלי שינוי אוטומטי ב-registry.",
       issuerCta: "חבילת evidence",
       agentTitle: "סוכן AI / שותף",
-      agentBody: "הפניה עם utm, MCP לאימות בלבד, widget עם מפתח עמיד.",
-      agentCta: "ערכת סוכנים",
+      agentBody:
+        "PRIMARY: POST /api/pipe/handoff → url עם attribution. MCP לאימות + handoff. UTM רק כגיבוי.",
+      agentCta: "אינדקס סוכנים",
       packsTitle: "מפתח ZML",
       packsBody: "לטעון packs מ-CDN/mirror — לא מה-UI של זכאי.",
       packsCta: "מראת packs",
       kitJson: "JSON לערכה המלאה",
       gates: "שערי שליטה (לא שווי)",
+      pipeCta: "הצינור",
+      monopolyCta: "מכונת מונופול (JSON)",
     };
   }
   return {
@@ -42,13 +45,16 @@ export function joinNetworkCopy(locale: string) {
       "Dry-run against validateIssuer, then delegated apply or JWKS — registry never mutates itself.",
     issuerCta: "Evidence package",
     agentTitle: "AI agent / partner",
-    agentBody: "Handoff with utm, verify-only MCP, durable widget key.",
-    agentCta: "Agent economy",
+    agentBody:
+      "PRIMARY: POST /api/pipe/handoff → attributed url. MCP verify + handoff. UTM only as fallback.",
+    agentCta: "Agents index",
     packsTitle: "ZML developer",
     packsBody: "Load packs from CDN/mirror — not Zakai UI.",
     packsCta: "Packs mirror",
     kitJson: "Full kit JSON",
     gates: "Control gates (not a valuation)",
+    pipeCta: "The Pipe",
+    monopolyCta: "Monopoly machine (JSON)",
   };
 }
 
