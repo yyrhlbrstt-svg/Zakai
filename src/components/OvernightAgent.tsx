@@ -182,7 +182,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                     r.sendBlock === "NO_ACTIVE_MANDATE" ||
                     r.sendBlock === "MAX_ROUNDS") && (
                     <Link
-                      href={`/dashboard?case=${r.id}`}
+                      href={`/money?case=${r.id}`}
                       className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
                     >
                       {tIcomponents_OvernightAgent("openCase")} →
@@ -202,7 +202,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                         r.sendBlock === "NO_ACTIVE_MANDATE" ||
                         r.sendBlock === "MAX_ROUNDS") && (
                         <Link
-                          href={`/dashboard?case=${r.id}`}
+                          href={`/money?case=${r.id}`}
                           className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
                         >
                           {tIcomponents_OvernightAgent("openCase")} →

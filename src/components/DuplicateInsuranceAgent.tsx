@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import type { DuplicationResult } from "@/lib/insurance";
 import { wastefulPolicyKeysFromResult } from "@/lib/duplicateInsuranceClaim";
@@ -26,9 +27,11 @@ export function DuplicateInsuranceAgent({
 
   const wastefulKeys = duplication ? wastefulPolicyKeysFromResult(duplication) : [];
   const monthlyAgorot = duplication?.wastefulMonthlyAgorot ?? 0;
-  // Soft-open: insurer email optional — dashboard collects before dispatch.
   const canSend =
-    wastefulKeys.length > 0 && monthlyAgorot >= 100 && insurerName.trim().length > 0;
+    wastefulKeys.length > 0 &&
+    monthlyAgorot >= 100 &&
+    insurerName.trim().length > 0 &&
+    hasOutreachEmail(insurerEmail);
 
   async function sendWithAgent() {
     if (!canSend) return;
@@ -52,10 +55,20 @@ export function DuplicateInsuranceAgent({
         return;
       }
       if (!res.ok) {
-        setAgentError(data.error === "caseLimit" ? t("caseLimitError") : t("genericError"));
+        if (redirectIfOpenLoop(data, router.push)) return;
+        setAgentError(
+          data.error === "needsOutreachEmail"
+            ? t("emailQ")
+            : data.error === "caseLimit"
+              ? t("caseLimitError")
+              : t("genericError"),
+        );
         return;
       }
       setCaseId(data.caseId);
+      router.push(
+        data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`,
+      );
     } catch {
       setAgentError(t("genericError"));
     } finally {
@@ -73,7 +86,7 @@ export function DuplicateInsuranceAgent({
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">{t("caseOpenedTitle")}</div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("caseOpenedBody")}</p>
-          <Link href="/dashboard">
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{t("dashboard")}</Button>
           </Link>
         </Card>

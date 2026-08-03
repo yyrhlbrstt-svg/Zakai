@@ -229,7 +229,7 @@ export function CancelTool() {
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">{t("t_360e126e")}</div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("t_11cf65f5")}</p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{t("t_9fc8b2a9")}</Button>
           </Link>
         </Card>

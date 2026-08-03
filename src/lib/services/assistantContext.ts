@@ -267,8 +267,8 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
     const top = open.find((c) => c.id === topId) ?? open[0]!;
     lines.push(
       "",
-      `OPEN_LOOP: Case ${top.id} (${top.status}) needs user action on /dashboard?case=${top.id}`,
-      "OPEN_LOOP_RULE: Do NOT suggest /money, /cancel, or any new vertical while OPEN_LOOP exists. Stay on this Case.",
+      `OPEN_LOOP: Case ${top.id} (${top.status}) needs user action on ${href}`,
+      "OPEN_LOOP_RULE: Finish on /money (or fee checkout on /dashboard?payFee=1). Do NOT suggest /cancel or any new vertical while OPEN_LOOP exists. Stay on this Case.",
     );
   }
 

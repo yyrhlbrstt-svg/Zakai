@@ -182,7 +182,7 @@ ${name || "____"}
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {tIcomponents_TransportFineAppeal("t_013fe61d")}
           </p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{tIcomponents_TransportFineAppeal("t_8ae29d51")}</Button>
           </Link>
         </Card>

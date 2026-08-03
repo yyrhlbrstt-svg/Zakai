@@ -172,7 +172,7 @@ export function CarInsuranceRefundTool() {
           <div className="text-emerald font-extrabold text-[15px]">
             {heEn(he, "תיק נפתח", "Case opened")}
           </div>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full mt-3">{heEn(he, "לדשבורד", "Dashboard")}</Button>
           </Link>
         </Card>

@@ -430,7 +430,7 @@ export function MoneyHub({
         const needEmail = opened.find((o) => o.needsOutreachEmail && o.caseId);
         const firstId = (needEmail?.caseId || opened[0]?.caseId) as string | undefined;
         setTimeout(
-          () => router.push(firstId ? `/dashboard?case=${firstId}` : "/dashboard"),
+          () => router.push(firstId ? `/money?case=${firstId}` : "/money"),
           600,
         );
       } else if (data.skippedCount > 0) {

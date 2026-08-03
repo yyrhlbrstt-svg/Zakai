@@ -14,7 +14,10 @@ import {
 } from "@/lib/fromScanOutreach";
 import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
 import { formatCaseDraft } from "@/lib/caseDraft";
-import { findOpenLoopBlock } from "@/lib/services/expressCaseOpen";
+import {
+  findOpenLoopBlock,
+  tryExpressMandateSend,
+} from "@/lib/services/expressCaseOpen";
 
 const itemSchema = z.object({
   merchant: z.string().min(1).max(120),
@@ -32,9 +35,9 @@ const schema = z.object({
 });
 
 /**
- * Batch one-click Cases from Money Hub scan.
- * Opens up to 5 agent cases in one request, respecting plan case limits.
- * Each item follows the same autoApprove + letter path as /from-scan.
+ * Scan multi-select → open the first Case only.
+ * Doctrine: finish one open loop before forking another. Remaining items
+ * are skipped with reason finishFirst so the client can land on /money.
  */
 export async function POST(request: Request) {
   const auth = await requireUserId();
@@ -73,10 +76,18 @@ export async function POST(request: Request) {
         intent: string;
         targetShekels: number;
         needsOutreachEmail?: boolean;
+        dispatched?: boolean;
+        delivered?: boolean;
       }> = [];
       const skipped: Array<{ merchant: string; reason: string }> = [];
 
       for (const data of parsed.data.items) {
+        // One Case per gesture — remaining selections wait until this loop finishes.
+        if (opened.length > 0) {
+          skipped.push({ merchant: data.merchant, reason: "finishFirst" });
+          continue;
+        }
+
         if (!canOpenCase(user.plan, activeCount)) {
           skipped.push({ merchant: data.merchant, reason: "caseLimit" });
           continue;
@@ -92,7 +103,7 @@ export async function POST(request: Request) {
           contactEmail: data.contactEmail,
         });
 
-        // Soft-open: missing inbox is collected on the dashboard before send.
+        // Soft-open: missing inbox is collected on /money before send.
         const counterpartyEmail = outreachTo || undefined;
 
         const amount = Math.round(data.monthlyShekels);
@@ -141,13 +152,26 @@ export async function POST(request: Request) {
             strategySeed: staged.strategySeed,
             autoApprove: true,
           });
+          let dispatched = false;
+          let delivered = false;
+          if (counterpartyEmail) {
+            const express = await tryExpressMandateSend(
+              kase.id,
+              auth.userId,
+              user.emailVerifiedAt,
+            );
+            dispatched = express.dispatched;
+            delivered = express.delivered;
+          }
           opened.push({
             caseId: kase.id,
             merchant: data.merchant,
-            status: kase.status,
+            status: dispatched ? "SENT" : kase.status,
             intent,
             targetShekels: target,
             needsOutreachEmail: !counterpartyEmail,
+            dispatched,
+            delivered,
           });
           activeCount += 1;
         } catch (err) {

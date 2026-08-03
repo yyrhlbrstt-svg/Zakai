@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
@@ -140,6 +141,7 @@ export function CheckFlow() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setError(data.error || "genericError");
         setStage("input");
         if (data.error === "aiUnavailable") setManualOpen(true);
@@ -918,7 +920,7 @@ export function CheckFlow() {
               </p>
               <Button
                 className="w-full"
-                onClick={() => router.push(`/dashboard?saved=1&case=${rec.caseId}`)}
+                onClick={() => router.push(`/money?case=${rec.caseId}`)}
               >
                 {t("toDash")}
               </Button>
@@ -937,8 +939,8 @@ export function CheckFlow() {
                   rec
                     ? outcome.chargeable
                       ? `/dashboard?saved=1&case=${rec.caseId}&payFee=1`
-                      : `/dashboard?saved=1&case=${rec.caseId}`
-                    : "/dashboard",
+                      : `/money?case=${rec.caseId}`
+                    : "/money",
                 )
               }
               className="flex-1"

@@ -181,11 +181,13 @@ describe("ensureReplyEndsWithNextAction", () => {
 });
 
 describe("nextActionHref", () => {
-  it("maps start_money and open-loop actions to /money", () => {
+  it("maps start_money and open-loop actions to /money (with case deep-link)", () => {
     expect(nextActionHref({ kind: "start_money" })).toBe("/money");
-    expect(nextActionHref({ kind: "pre_send", caseId: "c1", status: "VERIFIED" })).toBe("/money");
+    expect(nextActionHref({ kind: "pre_send", caseId: "c1", status: "VERIFIED" })).toBe(
+      "/money?case=c1",
+    );
     expect(nextActionHref({ kind: "proposed_saving", caseId: "c1", newAmountShekels: 80 })).toBe(
-      "/money",
+      "/money?case=c1",
     );
   });
 

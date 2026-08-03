@@ -159,7 +159,7 @@ describe("buildAssistantCasesSnapshot", () => {
     ] as never);
     const snap = await buildAssistantCasesSnapshot("user_1");
     expect(snap).toContain("MULTI_CASE_RANK");
-    expect(snap).toContain("NEXT_ACTION_HREF: /dashboard?case=big");
+    expect(snap).toContain("NEXT_ACTION_HREF: /money?case=big");
     expect(snap).toContain("OPEN_LOOP_RULE");
     expect(snap).toContain("NEGOTIATION_BRIEF");
   });

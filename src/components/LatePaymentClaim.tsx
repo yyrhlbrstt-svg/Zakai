@@ -224,7 +224,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {t("caseOpenedBody")}
           </p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{t("goToDashboard")}</Button>
           </Link>
         </Card>

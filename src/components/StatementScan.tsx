@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Textarea } from "@/components/ui";
 import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
@@ -123,6 +124,7 @@ export function StatementScan({
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setErr(
           data.error === "caseLimit"
             ? he
@@ -134,7 +136,11 @@ export function StatementScan({
         );
         return;
       }
-      router.push("/dashboard");
+      router.push(
+        data.dispatched
+          ? `/money?case=${data.caseId}&sent=1`
+          : `/money?case=${data.caseId}`,
+      );
     } catch {
       setErr(he ? "משהו השתבש." : "Something went wrong.");
     } finally {
