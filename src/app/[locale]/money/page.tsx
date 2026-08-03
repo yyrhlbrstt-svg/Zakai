@@ -206,7 +206,7 @@ export default async function MoneyPage({
           {openLoop ? (
             <OpenLoopFocusBanner locale={locale} href={openLoopHref} label={openLoopLabel} />
           ) : null}
-          {!openLoop ? (
+          {!openLoop && !shareCaseId && !focusCaseId ? (
             <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
           ) : null}
           {openLoop || focusCaseId || shareCaseId ? (
