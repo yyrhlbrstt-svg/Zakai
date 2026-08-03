@@ -14,10 +14,11 @@ describe("institutionPull", () => {
     expect(m).toContain("Mandate");
   });
 
-  it("keeps footer lines short and honest", () => {
+  it("keeps footer lines short and points at Quickstart + decide", () => {
     const he = institutionPullFooterLine("he", "https://zakai.example");
-    expect(he).toContain("/he/institutions");
-    expect(he.length).toBeLessThan(220);
+    expect(he).toContain("/he/institutions/quickstart");
+    expect(he).toContain("/api/mandate/decide");
+    expect(he.length).toBeLessThan(280);
   });
 
   it("publishes machine pipe accept magnet", () => {

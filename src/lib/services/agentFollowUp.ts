@@ -1,5 +1,9 @@
 import "server-only";
-import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
+import {
+  institutionPipeMagnetLine,
+  institutionPullFooterLine,
+  institutionSalesEmail,
+} from "@/lib/institutionPull";
 import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
@@ -202,6 +206,7 @@ export async function dispatchCaseFollowUp(
 מצורף: מסמך הרשאה מלא (HTML) + JSON inbound.
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
 ${institutionPullFooterLine("he", appUrl)}
+${institutionPipeMagnetLine(appUrl)}
 לאוטומציה: ${institutionSalesEmail()}
 זוהי פנייה חוזרת של הסוכן (סיבוב ${round}) — הלקוח/ה אישר/ה את השליחה.
 ${protocolFooter}`;

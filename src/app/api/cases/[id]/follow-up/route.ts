@@ -129,5 +129,26 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     competitorPriceShekels: parsed.data.competitorPriceShekels,
   });
 
-  return NextResponse.json({ ...result, round: nextRound, sent: false });
+  // Learning → action: draft gets the same measured stance as auto-send.
+  let draftSubject = result.subject;
+  let draftBody = result.body;
+  if (kase.strategyVariant) {
+    const { variantById } = await import("@/lib/strategy/variants");
+    const { applyStance } = await import("@/lib/strategy/applyStance");
+    const variant = variantById(kase.strategyVariant);
+    if (variant) {
+      const staged = applyStance({ subject: draftSubject, body: draftBody }, variant);
+      draftSubject = staged.subject;
+      draftBody = staged.body;
+    }
+  }
+
+  return NextResponse.json({
+    ...result,
+    subject: draftSubject,
+    body: draftBody,
+    round: nextRound,
+    sent: false,
+    strategyVariant: kase.strategyVariant,
+  });
 }

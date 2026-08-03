@@ -40,11 +40,13 @@ export function institutionPilotMailto(opts?: {
 export function institutionPullFooterLine(locale: "he" | "en", origin: string): string {
   const base = origin.replace(/\/+$/, "");
   const email = salesInboundEmail();
-  const page = `${base}/${locale === "he" ? "he" : "en"}/institutions`;
+  // Quickstart is the machine gate — not a marketing brochure.
+  const page = `${base}/${locale === "he" ? "he" : "en"}/institutions/quickstart`;
+  const decide = `${base}/api/mandate/decide`;
   if (locale === "he") {
-    return `לגוף שמקבל פניות רבות: אימות Mandate אוטומטי — ${page} · ${email}`;
+    return `לגוף שמקבל פניות: Quickstart + POST ${decide} · ${page} · ${email}`;
   }
-  return `Institutions receiving many of these: automate Mandate verify — ${page} · ${email}`;
+  return `Institutions: Quickstart + POST ${decide} · ${page} · ${email}`;
 }
 
 /**

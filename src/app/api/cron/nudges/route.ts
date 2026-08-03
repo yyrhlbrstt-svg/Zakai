@@ -302,6 +302,61 @@ ${dash}
       }
     }
 
+    // —— 2b. Pre-send rot — APPROVED/VERIFIED waiting without Mandate leave ——
+    const PRE_SEND_SUBJECT = "זכאי — תיק ממתין לשליחת Mandate";
+    const PRE_SEND_AFTER_DAYS = 1;
+    const preSendCutoff = new Date(Date.now() - PRE_SEND_AFTER_DAYS * 86_400_000);
+    let preSendNudges = 0;
+    const preSendWaiting = await prisma.case.findMany({
+      where: {
+        status: { in: ["APPROVED", "VERIFIED", "ANALYZED"] },
+        updatedAt: { lt: preSendCutoff },
+      },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        user: { select: { email: true, name: true, country: true } },
+      },
+      take: 60,
+      orderBy: { updatedAt: "asc" },
+    });
+    const seenPreSend = new Set<string>();
+    for (const c of preSendWaiting) {
+      if (seenPreSend.has(c.userId) || !c.user.email) continue;
+      seenPreSend.add(c.userId);
+      const moneyUrl = `${appUrl}/${localeForCountry(c.user.country)}/money`;
+      const recent = await prisma.outbox.findFirst({
+        where: {
+          caseId: c.id,
+          channel: "EMAIL",
+          subject: PRE_SEND_SUBJECT,
+          createdAt: { gt: sentCooldown },
+        },
+        select: { id: true },
+      });
+      if (recent) continue;
+      await sendEmail({
+        to: c.user.email,
+        subject: PRE_SEND_SUBJECT,
+        body: `שלום ${c.user.name},
+
+יש תיק פתוח שעדיין לא נשלח לספק עם Mandate. דקה אחת ב"הכסף שלי" סוגרת את השלב הזה.
+
+${moneyUrl}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+        caseId: c.id,
+      });
+      await pushToUser(c.userId, {
+        title: "תיק ממתין לשליחה",
+        body: "המשיכו ב\"הכסף שלי\" — Mandate בכתב, בלי שיחה.",
+        url: "/money",
+        tag: `pre-send-${c.id}`,
+      }).catch(() => null);
+      preSendNudges++;
+    }
+
     // —— 3. Personal deadline reminders ——
     // No Case, no Mandate — a plain calendar nudge, reusing this daily cron
     // rather than registering a whole new Vercel cron entry for it.
@@ -404,6 +459,7 @@ ${payUrl}
         outreachEmailNudges: outreachNudges,
         stuckLoopNudges: stuckNudges,
       },
+      preSendNudges: { candidates: preSendWaiting.length, sent: preSendNudges },
       deadlineReminders: { candidates: pendingDeadlines.length, sent: deadlineNudges },
       pendingFeeNudges: { candidates: pendingFees.length, sent: feeNudges },
     });

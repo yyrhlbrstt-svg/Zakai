@@ -14,6 +14,10 @@ import {
 } from "@/lib/fromScanOutreach";
 import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
 import { formatCaseDraft } from "@/lib/caseDraft";
+import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
+import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 
 const itemSchema = z.object({
   merchant: z.string().min(1).max(120),
@@ -55,6 +59,47 @@ export async function POST(request: Request) {
 
       const user = await prisma.user.findUnique({ where: { id: auth.userId } });
       if (!user) return { status: 401, body: { error: "mustLogin" } as const };
+
+      {
+        const openCases = await prisma.case.findMany({
+          where: { userId: auth.userId },
+          select: {
+            id: true,
+            status: true,
+            provider: true,
+            vertical: true,
+            amountOriginal: true,
+            targetAmount: true,
+            counterpartyEmail: true,
+            fee: { select: { amount: true, status: true } },
+            authorization: { select: { status: true } },
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 40,
+        });
+        const sentIds = openCases.filter((c) => c.status === "SENT").map((c) => c.id);
+        const [proposedMap, agentRounds] = await Promise.all([
+          sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),
+          getAgentRoundMap(sentIds),
+        ]);
+        const proposedHints = new Map(
+          [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
+        );
+        const ranked = rankNextAction(
+          await buildRankedCaseInputs(openCases, agentRounds),
+          proposedHints,
+        );
+        if (ranked.kind !== "start_money") {
+          return {
+            status: 409,
+            body: {
+              error: "OPEN_LOOP",
+              nextHref: nextActionHref(ranked),
+              caseId: "caseId" in ranked ? ranked.caseId : undefined,
+            } as const,
+          };
+        }
+      }
 
       let activeCount = await prisma.case.count({
         where: { userId: auth.userId, status: { in: [...ACTIVE_CASE_STATUSES] } },

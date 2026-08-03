@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUserId } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { dispatchAgent } from "@/lib/services/dispatch";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { runIdempotent, idempotencyKeyFromRequest } from "@/lib/scale/idempotency";
@@ -14,6 +15,11 @@ import {
 } from "@/lib/fromScanOutreach";
 import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
 import { formatCaseDraft } from "@/lib/caseDraft";
+import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
+import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
+import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 
 const schema = z.object({
   merchant: z.string().min(1).max(120),
@@ -53,6 +59,48 @@ export async function POST(request: Request) {
       });
       if (!canOpenCase(user.plan, activeCount)) {
         return { status: 403, body: { error: "caseLimit" } as const };
+      }
+
+      // Finish the open loop before forking another Case — OS, not toolbox.
+      {
+        const openCases = await prisma.case.findMany({
+          where: { userId: auth.userId },
+          select: {
+            id: true,
+            status: true,
+            provider: true,
+            vertical: true,
+            amountOriginal: true,
+            targetAmount: true,
+            counterpartyEmail: true,
+            fee: { select: { amount: true, status: true } },
+            authorization: { select: { status: true } },
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 40,
+        });
+        const sentIds = openCases.filter((c) => c.status === "SENT").map((c) => c.id);
+        const [proposedMap, agentRounds] = await Promise.all([
+          sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),
+          getAgentRoundMap(sentIds),
+        ]);
+        const proposedHints = new Map(
+          [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
+        );
+        const ranked = rankNextAction(
+          await buildRankedCaseInputs(openCases, agentRounds),
+          proposedHints,
+        );
+        if (ranked.kind !== "start_money") {
+          return {
+            status: 409,
+            body: {
+              error: "OPEN_LOOP",
+              nextHref: nextActionHref(ranked),
+              caseId: "caseId" in ranked ? ranked.caseId : undefined,
+            } as const,
+          };
+        }
       }
 
       const intent: CancelIntent = data.intent ?? defaultScanIntent(data.category);
@@ -122,12 +170,52 @@ export async function POST(request: Request) {
         throw err;
       }
 
+      // Same gesture → Mandate SENT when ownership + outreach are ready.
+      let dispatched = false;
+      let delivered = false;
+      const refreshed = await prisma.case.findUnique({
+        where: { id: kase.id },
+        select: {
+          id: true,
+          status: true,
+          ownershipVerifiedAt: true,
+          counterpartyEmail: true,
+          provider: true,
+          vertical: true,
+        },
+      });
+      const outreachReady = refreshed
+        ? resolveCaseOutreachTo({
+            counterpartyEmail: refreshed.counterpartyEmail,
+            provider: refreshed.provider,
+            vertical: refreshed.vertical,
+          })
+        : "";
+      if (
+        user.emailVerifiedAt &&
+        refreshed?.ownershipVerifiedAt &&
+        outreachReady &&
+        refreshed.status !== "SENT"
+      ) {
+        try {
+          const d = await dispatchAgent(kase.id, auth.userId);
+          dispatched = true;
+          delivered = d.delivered;
+        } catch {
+          /* dashboard /money finish surface continues the loop */
+        }
+      }
+
       return {
         status: 200,
         body: {
           caseId: kase.id,
-          message: "case_opened" as const,
-          needsOutreachEmail: !counterpartyEmail,
+          message: (dispatched ? "mandate_sent" : "case_opened") as
+            | "mandate_sent"
+            | "case_opened",
+          dispatched,
+          delivered,
+          needsOutreachEmail: !outreachReady,
         },
       };
     },

@@ -18,6 +18,7 @@ import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
 import { LiveGravityStrip } from "@/components/LiveGravityStrip";
 import { PersonalProofStrip } from "@/components/PersonalProofStrip";
 import { OpenLoopFocusBanner } from "@/components/OpenLoopFocusBanner";
+import { MoneyLoopCloser } from "@/components/MoneyLoopCloser";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
@@ -159,7 +160,18 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
           {openLoop ? (
             <OpenLoopFocusBanner locale={locale} href={openLoopHref} label={openLoopLabel} />
           ) : null}
-          <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
+          {!openLoop ? (
+            <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
+          ) : null}
+          {openLoop ? (
+            <MoneyLoopCloser
+              userId={user.id}
+              locale={locale as Locale}
+              plan={user.plan}
+              emailVerified={Boolean(user.emailVerifiedAt)}
+              referralCode={user.referralCode}
+            />
+          ) : null}
           <PersonalProofStrip
             locale={locale as Locale}
             documentedCount={personalDocumented.count}
@@ -169,13 +181,22 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         </div>
       ) : null}
 
-      <div className="mt-2 mb-6">
-        <MoneyHub
-          bcp47={loc}
-          screenshotEnabled={aiAvailable()}
-          referralCode={user?.referralCode}
-        />
-      </div>
+      {/* Scan only when no open loop — finish Mandates/Proofs first. */}
+      {!openLoop ? (
+        <div className="mt-2 mb-6">
+          <MoneyHub
+            bcp47={loc}
+            screenshotEnabled={aiAvailable()}
+            referralCode={user?.referralCode}
+          />
+        </div>
+      ) : (
+        <p className="text-[12.5px] text-ink-soft mb-8 leading-relaxed">
+          {locale === "he" || locale === "ar"
+            ? "סריקה חדשה תיפתח אחרי שתסגרו את התיק הפתוח — כך הלולאה נסגרת עם Mandate ו־SavingsProof."
+            : "A new scan opens after you finish the open case — that is how Mandates and SavingsProofs compound."}
+        </p>
+      )}
 
       {/* Secondary doors only when no open loop — otherwise they steal Mandates/Proofs. */}
       {!openLoop ? (

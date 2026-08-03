@@ -355,6 +355,10 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
+        if (data.error === "OPEN_LOOP" && typeof data.nextHref === "string") {
+          router.push(data.nextHref);
+          return;
+        }
         // Legacy hard-gate — soft-open usually opens and collects inbox on dashboard.
         if (data.error === "needsOutreachEmail") {
           setPendingOutreach(r);
@@ -367,7 +371,12 @@ export function MoneyHub({
       }
       setPendingOutreach(null);
       setOpenedId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      // Prefer /money finish surface; deep-link case on dashboard as fallback.
+      router.push(
+        data.dispatched
+          ? `/money?case=${data.caseId}&sent=1`
+          : `/money?case=${data.caseId}`,
+      );
     } catch {
       setError(tx(locale, "errGeneric"));
     } finally {
@@ -402,6 +411,10 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
+        if (data.error === "OPEN_LOOP" && typeof data.nextHref === "string") {
+          router.push(data.nextHref);
+          return;
+        }
         setError(tx(locale, "errGeneric"));
         return;
       }
