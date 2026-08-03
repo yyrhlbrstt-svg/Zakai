@@ -265,6 +265,13 @@ export default async function DashboardPage({
   const invitePath = `/${locale}/signup?ref=${referralCode}`;
   const retentionActions = await loadRetentionPlan(user!.id);
 
+  // One operating system: expand only the ranked next action (or deep-linked case).
+  const nbaCaseId =
+    rankedForHabit.kind !== "start_money" && "caseId" in rankedForHabit
+      ? rankedForHabit.caseId
+      : null;
+  const expandedCaseId = highlightCase || nbaCaseId;
+
   const renderCaseCard = (list: typeof cases) => (
     <Card className="py-1.5">
       {list.map((c, i) => {
@@ -287,6 +294,10 @@ export default async function DashboardPage({
             }
           : null;
         const label = providerHebrewName(c.provider);
+        const isExpanded =
+          !expandedCaseId ||
+          c.id === expandedCaseId ||
+          (savedCelebrate === "1" && celebrateCase?.id === c.id);
         return (
           <div
             key={c.id}
@@ -294,6 +305,11 @@ export default async function DashboardPage({
             className="flex items-center gap-3.5 px-5 py-4 flex-wrap"
             style={{
               borderBottom: i < list.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+              outline:
+                isExpanded && expandedCaseId === c.id
+                  ? "1px solid rgba(63,203,155,0.45)"
+                  : undefined,
+              borderRadius: isExpanded && expandedCaseId === c.id ? 12 : undefined,
             }}
           >
             <div className="flex-1 basis-[140px]">
@@ -340,45 +356,54 @@ export default async function DashboardPage({
               {t(`dashboard.status.${STATUS_KEY[c.status]}`)}
             </div>
             <div className="basis-full">
-              <CaseNextStep
-                caseId={c.id}
-                status={
-                  c.status as
-                    | "ANALYZED"
-                    | "APPROVED"
-                    | "VERIFIED"
-                    | "SENT"
-                    | "SAVED"
-                    | "NO_SAVING"
-                    | "REVOKED"
-                }
-                ownershipVerified={Boolean(c.ownershipVerifiedAt)}
-                hasAuthorization={Boolean(c.authorization && c.authorization.status === "ACTIVE")}
-                amountOriginalShekels={amountOriginalShekels}
-                shareMessage={shareMsg}
-                referralCode={referralCode}
-                proposedSaving={proposedClient}
-                proofsEmail={proofsEmail}
-                agentRound={agentRoundMap.get(c.id) ?? 0}
-                emailConfigured={emailConfigured()}
-                vertical={c.vertical}
-                feeBasis={feeBasisForVertical(c.vertical)}
-                currentPlan={user!.plan}
-                documentedSavingShekels={
-                  c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
-                }
-                pendingFeeShekels={
-                  c.fee && c.fee.status === "PENDING" && c.fee.amount > 0
-                    ? Math.round(c.fee.amount / 100)
-                    : undefined
-                }
-                provider={c.provider}
-                counterpartyEmail={c.counterpartyEmail}
-                draftMessage={c.draftMessage}
-                emailVerified={Boolean(user!.emailVerifiedAt)}
-                learningTip={learningTips.get(`${c.vertical}::${c.provider}`) ?? null}
-                nextOpenCase={c.status === "SAVED" ? nextOpenCase : null}
-              />
+              {isExpanded ? (
+                <CaseNextStep
+                  caseId={c.id}
+                  status={
+                    c.status as
+                      | "ANALYZED"
+                      | "APPROVED"
+                      | "VERIFIED"
+                      | "SENT"
+                      | "SAVED"
+                      | "NO_SAVING"
+                      | "REVOKED"
+                  }
+                  ownershipVerified={Boolean(c.ownershipVerifiedAt)}
+                  hasAuthorization={Boolean(c.authorization && c.authorization.status === "ACTIVE")}
+                  amountOriginalShekels={amountOriginalShekels}
+                  shareMessage={shareMsg}
+                  referralCode={referralCode}
+                  proposedSaving={proposedClient}
+                  proofsEmail={proofsEmail}
+                  agentRound={agentRoundMap.get(c.id) ?? 0}
+                  emailConfigured={emailConfigured()}
+                  vertical={c.vertical}
+                  feeBasis={feeBasisForVertical(c.vertical)}
+                  currentPlan={user!.plan}
+                  documentedSavingShekels={
+                    c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
+                  }
+                  pendingFeeShekels={
+                    c.fee && c.fee.status === "PENDING" && c.fee.amount > 0
+                      ? Math.round(c.fee.amount / 100)
+                      : undefined
+                  }
+                  provider={c.provider}
+                  counterpartyEmail={c.counterpartyEmail}
+                  draftMessage={c.draftMessage}
+                  emailVerified={Boolean(user!.emailVerifiedAt)}
+                  learningTip={learningTips.get(`${c.vertical}::${c.provider}`) ?? null}
+                  nextOpenCase={c.status === "SAVED" ? nextOpenCase : null}
+                />
+              ) : !settled ? (
+                <Link
+                  href={`/dashboard?case=${c.id}`}
+                  className="inline-block text-[13px] font-extrabold text-emerald no-underline mt-1"
+                >
+                  {locale === "he" || locale === "ar" ? "המשיכו תיק זה →" : "Continue this case →"}
+                </Link>
+              ) : null}
             </div>
           </div>
         );
@@ -497,7 +522,13 @@ export default async function DashboardPage({
         </div>
       )}
 
-      <OvernightAgent cases={sentCases} />
+      <OvernightAgent
+        cases={
+          rankedForHabit.kind === "sent_wait"
+            ? sentCases.filter((c) => c.id === rankedForHabit.caseId)
+            : []
+        }
+      />
 
       {intent && (
         <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)] px-5 py-4 mb-5 flex items-center gap-3">

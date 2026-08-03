@@ -2,6 +2,7 @@ import "server-only";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
 import { deliverOutboxRecord, outboxAsyncMode } from "@/lib/workers/outboxDeliver";
+import { proofsInboundAddress } from "@/lib/mandate/document";
 
 /**
  * Outbound messaging. Every message — email or SMS — is recorded in the Outbox
@@ -33,11 +34,18 @@ interface EmailArgs {
   body: string;
   caseId?: string;
   attachments?: EmailAttachment[];
+  /** Defaults to proofs inbound so provider Reply lands in the SavingsProof pipe. */
+  replyTo?: string | null;
+}
+
+function defaultProofsReplyTo(): string | undefined {
+  const addr = proofsInboundAddress().trim();
+  return addr.includes("@") ? addr : undefined;
 }
 
 async function sendEmailWithAttachments(
   recordId: string,
-  { to, subject, body, attachments }: EmailArgs,
+  { to, subject, body, attachments, replyTo }: EmailArgs,
 ) {
   const transport = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -52,6 +60,7 @@ async function sendEmailWithAttachments(
     to,
     subject,
     text: body,
+    replyTo: replyTo === null ? undefined : replyTo || defaultProofsReplyTo(),
     attachments: attachments?.map((a) => ({
       filename: a.filename,
       content: a.content,
@@ -64,7 +73,7 @@ async function sendEmailWithAttachments(
   });
 }
 
-export async function sendEmail({ to, subject, body, caseId, attachments }: EmailArgs) {
+export async function sendEmail({ to, subject, body, caseId, attachments, replyTo }: EmailArgs) {
   const record = await prisma.outbox.create({
     data: { channel: "EMAIL", toAddress: to, subject, body, caseId, status: "QUEUED" },
   });

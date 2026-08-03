@@ -13,6 +13,7 @@ import {
   MAX_OUTBOX_ATTEMPTS,
   parseOutboxAttempts,
 } from "@/lib/workers/outboxRetry";
+import { proofsInboundAddress } from "@/lib/mandate/document";
 
 export const OUTBOX_WORKER_BATCH_DEFAULT = 25;
 
@@ -69,11 +70,13 @@ async function deliverEmailRecord(record: Outbox): Promise<"sent" | "failed" | "
       }));
     }
 
+    const proofsReply = proofsInboundAddress().trim();
     const info = await transport.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@localhost",
       to: record.toAddress,
       subject: record.subject,
       text: record.body,
+      replyTo: proofsReply.includes("@") ? proofsReply : undefined,
       attachments,
     });
     await prisma.outbox.update({

@@ -104,7 +104,7 @@ export async function POST(request: Request) {
   // 2. Match a Case.
   let matchedCaseId: string | null = null;
   let matchedUserId: string | null = null;
-  let matchMethod: "code" | "email" | null = null;
+  let matchMethod: "code" | "email" | "counterparty" | null = null;
 
   // ZK-code match: SENT is enough. Do not require ACTIVE — a revoked Mandate
   // after send must not drop forward→propose SavingsProof (paste path already
@@ -118,6 +118,24 @@ export async function POST(request: Request) {
       matchedCaseId = auth.caseId;
       matchedUserId = auth.case.userId;
       matchMethod = "code";
+    }
+  }
+
+  // Counterparty inbox: provider replies from the address we mailed (common
+  // when Reply-To / thread omit ZK-…). Stronger than principal-email fuzzy.
+  if (!matchedCaseId && from.includes("@")) {
+    const byCounterparty = await prisma.case.findFirst({
+      where: {
+        status: "SENT",
+        counterpartyEmail: { equals: from, mode: "insensitive" },
+      },
+      select: { id: true, userId: true },
+      orderBy: { updatedAt: "desc" },
+    });
+    if (byCounterparty) {
+      matchedCaseId = byCounterparty.id;
+      matchedUserId = byCounterparty.userId;
+      matchMethod = "counterparty";
     }
   }
 

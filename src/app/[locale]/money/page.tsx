@@ -17,11 +17,13 @@ import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel"
 import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
 import { LiveGravityStrip } from "@/components/LiveGravityStrip";
 import { PersonalProofStrip } from "@/components/PersonalProofStrip";
+import { OpenLoopFocusBanner } from "@/components/OpenLoopFocusBanner";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
-import { rankNextAction } from "@/lib/services/nextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
+import { providerHebrewName } from "@/lib/providers";
 
 export async function generateMetadata({
   params,
@@ -54,6 +56,8 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
   ]);
 
   let openLoop = false;
+  let openLoopHref = "/dashboard";
+  let openLoopLabel = "";
   let personalDocumented = {
     count: 0,
     monthlyAgorot: 0,
@@ -89,6 +93,20 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
     const rankedCases = await buildRankedCaseInputs(cases, agentRounds);
     const action = rankNextAction(rankedCases, proposedHints);
     openLoop = action.kind !== "start_money";
+    if (openLoop) {
+      openLoopHref = nextActionHref(action);
+      const focus =
+        "caseId" in action ? cases.find((c) => c.id === action.caseId) : null;
+      const provider = focus ? providerHebrewName(focus.provider) : "";
+      const he = locale === "he" || locale === "ar";
+      openLoopLabel = he
+        ? provider
+          ? `התיק מול ${provider} ממתין לפעולה הבאה`
+          : "יש תיק פתוח שממתין לפעולה הבאה"
+        : provider
+          ? `Your case with ${provider} needs the next step`
+          : "An open case needs the next step";
+    }
     personalDocumented = {
       count: cases.filter(
         (c) =>
@@ -138,6 +156,9 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       {user ? (
         <div className="mb-6">
           {!user.emailVerifiedAt ? <EmailVerifyNudge /> : null}
+          {openLoop ? (
+            <OpenLoopFocusBanner locale={locale} href={openLoopHref} label={openLoopLabel} />
+          ) : null}
           <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
           <PersonalProofStrip
             locale={locale as Locale}

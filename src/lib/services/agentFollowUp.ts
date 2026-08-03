@@ -177,9 +177,13 @@ export async function dispatchCaseFollowUp(
   }
 
   const usePrefix = opts.autoSubjectPrefix !== false;
+  // Keep ZK- code in every follow-up subject — primary inbound latch when Reply omits body.
+  const withCode = followSubject.includes(auth.code)
+    ? followSubject
+    : `${followSubject} — ${auth.code}`;
   const subject = usePrefix
-    ? `${AGENT_SUBJECT_PREFIX} ${round} — ${followSubject}`
-    : followSubject;
+    ? `${AGENT_SUBJECT_PREFIX} ${round} — ${withCode}`
+    : withCode;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const protocolFooter = buildOutreachProtocolFooter({
     appUrl,

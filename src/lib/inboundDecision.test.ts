@@ -80,6 +80,17 @@ describe("shouldNotifyInbound", () => {
     ).toBe(true);
   });
 
+  it("notifies on counterparty inbox match even at deterministic confidence", () => {
+    expect(
+      shouldNotifyInbound({
+        matchMethod: "counterparty",
+        found: true,
+        newAmountShekels: 89,
+        confidence: 0.55,
+      }),
+    ).toBe(true);
+  });
+
   it("never notifies without any case match", () => {
     expect(
       shouldNotifyInbound({

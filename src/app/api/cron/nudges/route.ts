@@ -110,7 +110,7 @@ export async function GET(request: Request) {
 
 בדיקה חוזרת לוקחת דקה: מעלים צילום מסך עדכני ב"הכסף שלי", וזכאי בודק אם המחיר זחל למעלה ופועל אם צריך. כרגיל — עמלה רק אם יש חיסכון מתועד.
 
-לבדיקה: היכנסו ל"הכסף שלי" או לדשבורד.
+לבדיקה: היכנסו ל"הכסף שלי" — ${appUrl}/he/money#zakai-money-scan
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
       });
@@ -125,7 +125,7 @@ export async function GET(request: Request) {
       await pushToUser(c.userId, {
         title: "המבצע שלך כנראה נגמר",
         body: "שווה לבדוק שוב אם המחיר עלה — לוקח דקה.",
-        url: "/dashboard",
+        url: "/money#zakai-money-scan",
         tag: "recheck-nudge",
       });
       savedSent++;
