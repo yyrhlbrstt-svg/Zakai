@@ -27,6 +27,10 @@
     {
       "path": "/api/cron/autopilot/law-watcher",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/outbox",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
