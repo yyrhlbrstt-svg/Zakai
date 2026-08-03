@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
-import { buildFollowUp, type ProviderReplyKind } from "@/lib/negotiation";
+import { type ProviderReplyKind } from "@/lib/negotiation";
+import { buildFollowUpForVertical } from "@/lib/followUpRouter";
 import { providerHebrewName } from "@/lib/providers";
 import { agorotToShekels } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
+import {
+  dispatchCaseFollowUp,
+  MAX_AGENT_ROUNDS,
+  AGENT_SUBJECT_PREFIX,
+} from "@/lib/services/agentFollowUp";
 
 const schema = z.object({
   replyKind: z.enum([
@@ -20,10 +26,12 @@ const schema = z.object({
   round: z.number().int().min(2).max(8).optional(),
   competitorName: z.string().max(80).optional(),
   competitorPriceShekels: z.number().min(0).max(100000).optional(),
+  /** When true — dispatch via Zakai Outbox with Mandate (HITL). */
+  send: z.boolean().optional(),
 });
 
 /**
- * Generate the next negotiation message for a SENT case.
+ * Generate (and optionally send) the next negotiation message for a SENT case.
  * Deterministic playbooks — works without AI keys; no human agent required.
  */
 export async function POST(request: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -47,17 +55,68 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     return badRequest("genericError", 409);
   }
 
-  const result = buildFollowUp({
+  const priorRounds = await prisma.outbox.count({
+    where: {
+      caseId: id,
+      channel: "EMAIL",
+      providerMessageId: { not: "inbound" },
+      subject: { startsWith: AGENT_SUBJECT_PREFIX },
+    },
+  });
+  const nextRound = Math.min(
+    MAX_AGENT_ROUNDS,
+    parsed.data.round ?? priorRounds + 2,
+  );
+
+  if (parsed.data.send) {
+    if (kase.status !== "SENT") {
+      return NextResponse.json({ error: "NOT_SENT" }, { status: 409 });
+    }
+    const result = await dispatchCaseFollowUp(id, {
+      replyKind: parsed.data.replyKind as ProviderReplyKind,
+      round: nextRound,
+      competitorName: parsed.data.competitorName,
+      competitorPriceShekels: parsed.data.competitorPriceShekels,
+      notifyUser: true,
+      autoSubjectPrefix: true,
+    });
+    if (!result.sent) {
+      const status =
+        result.reason === "NEEDS_OUTREACH_EMAIL"
+          ? 400
+          : result.reason === "MAX_ROUNDS"
+            ? 409
+            : 409;
+      return NextResponse.json(
+        {
+          error: result.reason ?? "send_failed",
+          body: result.body,
+          tip: result.tip,
+          round: result.round,
+        },
+        { status },
+      );
+    }
+    return NextResponse.json({
+      sent: true,
+      round: result.round,
+      subject: result.subject,
+      body: result.body,
+      tip: result.tip,
+    });
+  }
+
+  const result = buildFollowUpForVertical(kase.vertical, {
     customerName: kase.user.name,
     providerLabel: providerHebrewName(kase.provider),
     amountOriginalShekels: agorotToShekels(kase.amountOriginal),
     targetShekels: agorotToShekels(kase.targetAmount),
     plan: kase.planDescription || undefined,
     replyKind: parsed.data.replyKind as ProviderReplyKind,
-    round: parsed.data.round,
+    round: nextRound,
     competitorName: parsed.data.competitorName,
     competitorPriceShekels: parsed.data.competitorPriceShekels,
   });
 
-  return NextResponse.json(result);
+  return NextResponse.json({ ...result, round: nextRound, sent: false });
 }

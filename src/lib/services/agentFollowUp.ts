@@ -1,8 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
-import { buildFollowUp } from "@/lib/negotiation";
-import { buildAirlineFollowUp } from "@/lib/flightNegotiation";
+import { buildFollowUpForVertical } from "@/lib/followUpRouter";
+import type { ProviderReplyKind } from "@/lib/negotiation";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { agorotToShekels } from "@/lib/money";
@@ -48,6 +48,33 @@ async function priorAgentRounds(caseId: string): Promise<number> {
 }
 
 export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResult> {
+  return dispatchCaseFollowUp(caseId, {
+    replyKind: "delay",
+    notifyUser: true,
+    autoSubjectPrefix: true,
+  });
+}
+
+export interface DispatchFollowUpOpts {
+  replyKind: ProviderReplyKind;
+  /** If omitted, computed from prior agent rounds (+2). */
+  round?: number;
+  competitorName?: string;
+  competitorPriceShekels?: number;
+  /** Notify the consumer by email + push (default true for auto). */
+  notifyUser?: boolean;
+  /** Prefix subject with AGENT_SUBJECT_PREFIX for round counting. */
+  autoSubjectPrefix?: boolean;
+}
+
+/**
+ * Build + send a written follow-up with Mandate attached.
+ * Used by the delay cron and by HITL "Send via Zakai" from the dashboard.
+ */
+export async function dispatchCaseFollowUp(
+  caseId: string,
+  opts: DispatchFollowUpOpts,
+): Promise<AutoFollowUpResult & { body?: string; tip?: string; subject?: string }> {
   const kase = await prisma.case.findUnique({
     where: { id: caseId },
     include: {
@@ -64,35 +91,29 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
   }
 
   const prior = await priorAgentRounds(caseId);
-  const round = prior + 2; // first outreach = round 1 (manual/send); auto starts at 2
+  const round = opts.round ?? prior + 2;
   if (round > MAX_AGENT_ROUNDS) {
     return { caseId, sent: false, reason: "MAX_ROUNDS", round };
   }
 
   const auth = kase.authorization;
   const provider = providerHebrewName(kase.provider);
-  const follow =
-    kase.vertical === "airline"
-      ? buildAirlineFollowUp({
-          customerName: kase.user.name,
-          providerLabel: provider,
-          amountOriginalShekels: agorotToShekels(kase.amountOriginal),
-          targetShekels: agorotToShekels(kase.targetAmount),
-          plan: kase.planDescription || undefined,
-          replyKind: "delay",
-          round,
-        })
-      : buildFollowUp({
-          customerName: kase.user.name,
-          providerLabel: provider,
-          amountOriginalShekels: agorotToShekels(kase.amountOriginal),
-          targetShekels: agorotToShekels(kase.targetAmount),
-          plan: kase.planDescription || undefined,
-          replyKind: "delay",
-          round,
-        });
+  const follow = buildFollowUpForVertical(kase.vertical, {
+    customerName: kase.user.name,
+    providerLabel: provider,
+    amountOriginalShekels: agorotToShekels(kase.amountOriginal),
+    targetShekels: agorotToShekels(kase.targetAmount),
+    plan: kase.planDescription || undefined,
+    replyKind: opts.replyKind,
+    round,
+    competitorName: opts.competitorName,
+    competitorPriceShekels: opts.competitorPriceShekels,
+  });
 
-  const subject = `${AGENT_SUBJECT_PREFIX} ${round} — תזכורת ל-${provider} | ${kase.user.name}`;
+  const usePrefix = opts.autoSubjectPrefix !== false;
+  const subject = usePrefix
+    ? `${AGENT_SUBJECT_PREFIX} ${round} — ${follow.subject}`
+    : follow.subject;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const footer = `
@@ -104,7 +125,7 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
 מצורף: מסמך הרשאה מלא (HTML).
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
-זוהי פנייה חוזרת אוטומטית של הסוכן (סיבוב ${round}) — הלקוח/ה לא נדרש/ת לפעולה נוספת.`;
+זוהי פנייה חוזרת של הסוכן (סיבוב ${round}) — הלקוח/ה אישר/ה את השליחה.`;
 
   const attachment = mandateEmailAttachment({
     code: auth.code,
@@ -118,7 +139,7 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
 
   const to = resolveCaseOutreachTo(kase);
   if (!to) {
-    return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL" };
+    return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL", body: follow.body, tip: follow.tip, subject };
   }
 
   await sendEmail({
@@ -134,13 +155,14 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
     data: { updatedAt: new Date() },
   });
 
-  const proofsAddr = proofsInboundAddress();
-  await sendEmail({
-    to: kase.user.email,
-    subject: `זכאי — הסוכן שלח תזכורת ל-${provider} (סיבוב ${round})`,
-    body: `שלום ${kase.user.name},
+  if (opts.notifyUser !== false && kase.user.email) {
+    const proofsAddr = proofsInboundAddress();
+    await sendEmail({
+      to: kase.user.email,
+      subject: `זכאי — הסוכן שלח פנייה חוזרת ל-${provider} (סיבוב ${round})`,
+      body: `שלום ${kase.user.name},
 
-עברו כמה ימים בלי תשובה מ-${provider}. הסוכן שלח בשמך פנייה חוזרת בכתב (סיבוב ${round}), עם מסמך ההרשאה הפעיל מצורף.
+הסוכן שלח בשמך פנייה חוזרת בכתב ל-${provider} (סיבוב ${round}), עם מסמך ההרשאה הפעיל מצורף.
 
 מה אפשר לעשות עכשיו:
 • אם ענו — העבירו את המייל שלהם אל ${proofsAddr} (או הזינו סכום חדש בדשבורד).
@@ -149,15 +171,23 @@ export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResu
 הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
 
 זכאי — הסוכן שלך.`,
+      caseId,
+    });
+
+    await pushToUser(kase.user.id, {
+      title: "זכאי — הסוכן פעל",
+      body: `סיבוב ${round}: נשלחה פנייה ל-${provider}. פתחו את הדשבורד אם ענו.`,
+      url: "/dashboard",
+      tag: `followup-${caseId}-r${round}`,
+    }).catch(() => null);
+  }
+
+  return {
     caseId,
-  });
-
-  await pushToUser(kase.user.id, {
-    title: "זכאי — הסוכן פעל",
-    body: `סיבוב ${round}: נשלחה תזכורת ל-${provider}. פתחו את הדשבורד אם ענו.`,
-    url: "/dashboard",
-    tag: `followup-${caseId}-r${round}`,
-  }).catch(() => null);
-
-  return { caseId, sent: true, round };
+    sent: true,
+    round,
+    body: follow.body,
+    tip: follow.tip,
+    subject,
+  };
 }

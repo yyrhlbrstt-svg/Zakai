@@ -61,6 +61,8 @@ interface Props {
    * needs to say so instead of implying an active wait for a reply.
    */
   emailConfigured?: boolean;
+  /** Outreach letter the user consents to — editable before dispatch. */
+  draftMessage?: string;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -83,6 +85,10 @@ const copy: Record<string, Record<string, string>> = {
     nextHint: "השלב הבא",
     followTitle: "מה ענו? — הסוכן מכין תשובה",
     followGen: "הכן הודעת המשך",
+    followSend: "שלח דרך זכאי (Mandate)",
+    followSent: "נשלח לספק",
+    draftTitle: "מכתב לשליחה — בדקו לפני שליחה",
+    draftSave: "שמור טיוטה",
     copyMsg: "העתק הודעה",
     copied: "הועתק",
     whatsapp: "וואטסאפ",
@@ -144,6 +150,10 @@ const copy: Record<string, Record<string, string>> = {
     nextHint: "Next step",
     followTitle: "What did they say? — agent drafts reply",
     followGen: "Draft follow-up",
+    followSend: "Send via Zakai (Mandate)",
+    followSent: "Sent to provider",
+    draftTitle: "Letter to send — review before dispatch",
+    draftSave: "Save draft",
     copyMsg: "Copy message",
     copied: "Copied",
     whatsapp: "WhatsApp",
@@ -211,12 +221,16 @@ export function CaseNextStep({
   feeBasis = "monthly",
   currentPlan,
   documentedSavingShekels,
+  draftMessage: draftMessageProp = "",
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [draftEdit, setDraftEdit] = useState(draftMessageProp);
+  const [followSentOk, setFollowSentOk] = useState(false);
+  const nextFollowRound = Math.min(4, Math.max(2, agentRound + 2));
   const resolvedOutreach =
     counterpartyEmailProp?.trim() ||
     (provider ? providerContactEmail(provider, vertical).trim() : "");
@@ -394,17 +408,31 @@ export function CaseNextStep({
 
   if (status === "ANALYZED") {
     return (
-      <div className="w-full mt-2">
-        <div className="text-[11px] text-ink-soft mb-1.5">{t(locale, "nextHint")}</div>
+      <div className="w-full mt-2 flex flex-col gap-2">
+        <div className="text-[11px] text-ink-soft">{t(locale, "nextHint")}</div>
+        {draftEdit ? (
+          <>
+            <div className="text-[12px] font-bold">{t(locale, "draftTitle")}</div>
+            <textarea
+              value={draftEdit}
+              onChange={(e) => setDraftEdit(e.target.value)}
+              rows={8}
+              className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
+              dir="auto"
+            />
+          </>
+        ) : null}
         <Button
           disabled={busy}
-          className="text-[13px] py-2 px-3"
+          className="text-[13px] py-2 px-3 self-start"
           onClick={() =>
             run(async () => {
               const res = await fetch(`/api/cases/${caseId}/approve`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: "{}",
+                body: JSON.stringify({
+                  editedMessage: draftEdit.trim() || undefined,
+                }),
               });
               if (!res.ok) throw new Error("approve");
             })
@@ -478,6 +506,18 @@ export function CaseNextStep({
         {localOwn && (
           <>
             <p className="text-[12.5px] text-emerald font-bold m-0">{t(locale, "ownDone")}</p>
+            {draftEdit ? (
+              <div className="flex flex-col gap-1.5 w-full">
+                <div className="text-[12px] font-bold">{t(locale, "draftTitle")}</div>
+                <textarea
+                  value={draftEdit}
+                  onChange={(e) => setDraftEdit(e.target.value)}
+                  rows={8}
+                  className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
+                  dir="auto"
+                />
+              </div>
+            ) : null}
             {needsOutreachInput && (
               <div className="flex flex-col gap-1.5 w-full max-w-md">
                 <Input
@@ -495,6 +535,22 @@ export function CaseNextStep({
               className="text-[13px] py-2.5 px-4 self-start"
               onClick={() =>
                 run(async () => {
+                  if (draftEdit.trim()) {
+                    const save = await fetch(`/api/cases/${caseId}/approve`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        editedMessage: draftEdit.trim(),
+                        counterpartyEmail: needsOutreachInput
+                          ? outreachEmail.trim()
+                          : undefined,
+                      }),
+                    });
+                    if (!save.ok) {
+                      const saveData = await save.json().catch(() => ({}));
+                      if (saveData.error !== "ALREADY_SENT") throw new Error("approve");
+                    }
+                  }
                   const res = await fetch(`/api/cases/${caseId}/dispatch`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -663,30 +719,78 @@ export function CaseNextStep({
               />
             </div>
           )}
-          <Button
-            disabled={busy}
-            className="text-[13px] py-2 px-3"
-            onClick={() =>
-              run(async () => {
-                const res = await fetch(`/api/cases/${caseId}/follow-up`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    replyKind,
-                    round: 2,
-                    competitorName: competitorName || undefined,
-                    competitorPriceShekels: competitorPrice ? Number(competitorPrice) : undefined,
-                  }),
-                });
-                if (!res.ok) throw new Error("follow");
-                const data = await res.json();
-                setFollowBody(data.body || "");
-                setFollowTip(data.tip || null);
-              })
-            }
-          >
-            {busy ? t(locale, "working") : t(locale, "followGen")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              disabled={busy}
+              className="text-[13px] py-2 px-3"
+              onClick={() =>
+                run(async () => {
+                  setFollowSentOk(false);
+                  const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      replyKind,
+                      round: nextFollowRound,
+                      competitorName: competitorName || undefined,
+                      competitorPriceShekels: competitorPrice
+                        ? Number(competitorPrice)
+                        : undefined,
+                    }),
+                  });
+                  if (!res.ok) throw new Error("follow");
+                  const data = await res.json();
+                  setFollowBody(data.body || "");
+                  setFollowTip(data.tip || null);
+                })
+              }
+            >
+              {busy ? t(locale, "working") : t(locale, "followGen")}
+            </Button>
+            {followBody && emailConfigured && !followSentOk ? (
+              <Button
+                disabled={busy}
+                className="text-[13px] py-2 px-3"
+                onClick={() =>
+                  run(async () => {
+                    const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        replyKind,
+                        round: nextFollowRound,
+                        send: true,
+                        competitorName: competitorName || undefined,
+                        competitorPriceShekels: competitorPrice
+                          ? Number(competitorPrice)
+                          : undefined,
+                      }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                      if (data.error === "NEEDS_OUTREACH_EMAIL") {
+                        setErr(t(locale, "errNeedsEmail"));
+                        return;
+                      }
+                      if (data.body) setFollowBody(data.body);
+                      throw new Error("follow-send");
+                    }
+                    setFollowBody(data.body || followBody);
+                    setFollowTip(data.tip || followTip);
+                    setFollowSentOk(true);
+                    router.refresh();
+                  })
+                }
+              >
+                {busy ? t(locale, "working") : t(locale, "followSend")}
+              </Button>
+            ) : null}
+            {followSentOk ? (
+              <span className="text-[13px] font-bold text-emerald self-center">
+                {t(locale, "followSent")}
+              </span>
+            ) : null}
+          </div>
           {followTip && <p className="text-[12px] text-ink-soft mt-2 mb-0">{followTip}</p>}
           {followBody && (
             <div className="mt-2">

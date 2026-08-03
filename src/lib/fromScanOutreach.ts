@@ -4,6 +4,10 @@ import { firstOutreachEmail } from "@/lib/outreachEmail";
 import { resolveSubscriptionCompany, pickOutreachEmail } from "@/lib/normalizeSubscriptionProvider";
 import { resolveProviderKey } from "@/lib/providers";
 import { resolveTelecomContactEmail } from "@/lib/telecomContacts";
+import {
+  resolveElectricityContactEmail,
+  resolveInsuranceContactEmail,
+} from "@/lib/utilityContacts";
 
 export type ScanCategory =
   | "cellular"
@@ -50,6 +54,22 @@ export function resolveFromScanOutreach(input: {
       defaultContactEmail: resolved.defaultContactEmail,
     });
     return { vertical, providerKey: resolved.providerKey, outreachTo };
+  }
+
+  if (vertical === "electricity") {
+    outreachTo =
+      firstOutreachEmail(input.contactEmail) ??
+      resolveElectricityContactEmail(input.merchant) ??
+      resolveElectricityContactEmail(resolved.providerKey);
+    return { vertical, providerKey: resolved.providerKey.slice(0, 80), outreachTo };
+  }
+
+  if (vertical === "insurance") {
+    outreachTo =
+      firstOutreachEmail(input.contactEmail) ??
+      resolveInsuranceContactEmail(input.merchant) ??
+      resolveInsuranceContactEmail(resolved.providerKey);
+    return { vertical, providerKey: resolved.providerKey.slice(0, 80), outreachTo };
   }
 
   outreachTo = firstOutreachEmail(input.contactEmail);

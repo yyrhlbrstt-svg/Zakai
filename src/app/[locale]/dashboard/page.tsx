@@ -143,6 +143,7 @@ export default async function DashboardPage({
     .map((c) => ({
       id: c.id,
       providerLabel: providerHebrewName(c.provider),
+      agentRound: agentRoundMap.get(c.id) ?? 0,
     }));
 
   const ownCases = cases.filter((c) => !c.beneficiaryLabel);
@@ -275,6 +276,7 @@ export default async function DashboardPage({
                 }
                 provider={c.provider}
                 counterpartyEmail={c.counterpartyEmail}
+                draftMessage={c.draftMessage}
               />
             </div>
           </div>

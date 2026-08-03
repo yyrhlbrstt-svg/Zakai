@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { Card, Button, Textarea } from "@/components/ui";
+import { Card, Button, Textarea, Input } from "@/components/ui";
 import {
   scanStatement,
   type ScanResult,
@@ -64,7 +64,10 @@ const copy: Record<string, Record<string, string>> = {
     universalCancelCta: "רק מכתבי ביטול להעתקה (בלי שליחה מזכאי)",
     errGeneric: "משהו השתבש. נסה שוב.",
     errLimit: "הגעת למגבלת התיקים. שדרג או סגור תיק קיים.",
-    errNeedsEmail: "חסר אימייל לספק — פתח כל חיוב בנפרד או השתמש בביטול מנוי עם כתובת.",
+    errNeedsEmail: "חסר אימייל לספק — הזינו כתובת שירות למטה והמשיכו.",
+    outreachPh: "אימייל שירות / ביטולים של הספק",
+    outreachContinue: "המשך עם האימייל",
+    outreachCancel: "ביטול",
     batchOpen: "הסוכן פותח את כל התיקים המומלצים",
     batchOpening: "פותח תיקים…",
     batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
@@ -102,7 +105,10 @@ const copy: Record<string, Record<string, string>> = {
     universalCancelCta: "Copy-only cancel letters (you send)",
     errGeneric: "Something went wrong. Try again.",
     errLimit: "Case limit reached. Upgrade or close an open case.",
-    errNeedsEmail: "Missing provider email — open charges one by one or use cancel with an address.",
+    errNeedsEmail: "Missing provider email — enter their support address below to continue.",
+    outreachPh: "Provider support / cancel email",
+    outreachContinue: "Continue with email",
+    outreachCancel: "Cancel",
     batchOpen: "Agent opens all recommended cases",
     batchOpening: "Opening cases…",
     batchDone: "✓ Opened {n} cases — dashboard",
@@ -224,6 +230,8 @@ export function MoneyHub({
   const [batchCount, setBatchCount] = useState<number | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [pendingOutreach, setPendingOutreach] = useState<RecurringCharge | null>(null);
+  const [outreachEmail, setOutreachEmail] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const shotRef = useRef<HTMLInputElement>(null);
 
@@ -315,7 +323,7 @@ export function MoneyHub({
     });
   }
 
-  async function openCase(r: RecurringCharge) {
+  async function openCase(r: RecurringCharge, contactEmail?: string) {
     setError(null);
     setBusyMerchant(r.merchant);
     try {
@@ -328,6 +336,7 @@ export function MoneyHub({
           product: r.merchant,
           monthlyShekels,
           category: r.category,
+          contactEmail: contactEmail?.trim() || undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -337,15 +346,15 @@ export function MoneyHub({
       }
       if (!res.ok) {
         if (data.error === "needsOutreachEmail") {
-          const monthlyShekels = Math.max(1, Math.round(r.monthlyAgorot / 100));
-          router.push(
-            `/cancel?company=${encodeURIComponent(r.merchant)}&monthly=${monthlyShekels}`,
-          );
+          setPendingOutreach(r);
+          setOutreachEmail("");
+          setError(tx(locale, "errNeedsEmail"));
           return;
         }
         setError(data.error === "caseLimit" ? tx(locale, "errLimit") : tx(locale, "errGeneric"));
         return;
       }
+      setPendingOutreach(null);
       setOpenedId(data.caseId);
       router.push(`/dashboard?case=${data.caseId}`);
     } catch {
@@ -607,6 +616,42 @@ export function MoneyHub({
               </Link>
 
               {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
+
+              {pendingOutreach && (
+                <Card className="p-4 border border-[rgba(240,180,92,0.4)] bg-[rgba(240,180,92,0.08)]">
+                  <div className="font-extrabold text-[14px] mb-2">{pendingOutreach.merchant}</div>
+                  <Input
+                    type="email"
+                    value={outreachEmail}
+                    onChange={(e) => setOutreachEmail(e.target.value)}
+                    placeholder={tx(locale, "outreachPh")}
+                    dir="ltr"
+                    className="text-[13px] mb-2"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      disabled={
+                        busyMerchant === pendingOutreach.merchant || !/@/.test(outreachEmail.trim())
+                      }
+                      onClick={() => openCase(pendingOutreach, outreachEmail.trim())}
+                    >
+                      {busyMerchant === pendingOutreach.merchant
+                        ? tx(locale, "opening")
+                        : tx(locale, "outreachContinue")}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setPendingOutreach(null);
+                        setOutreachEmail("");
+                        setError(null);
+                      }}
+                    >
+                      {tx(locale, "outreachCancel")}
+                    </Button>
+                  </div>
+                </Card>
+              )}
 
               <div className="text-[13px] font-extrabold text-emerald">{tx(locale, "act")}</div>
 

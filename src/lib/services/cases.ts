@@ -120,14 +120,26 @@ export async function approveCase(
 ) {
   const kase = await ownedCase(caseId, userId);
 
-  if (kase.status !== "ANALYZED" && kase.status !== "APPROVED") {
-    throw new CaseError("ALREADY_SENT");
-  }
-
   const outreach =
     counterpartyEmail?.trim() && /@/.test(counterpartyEmail)
       ? counterpartyEmail.trim().toLowerCase()
       : undefined;
+
+  // VERIFIED: allow draft / outreach email tweaks before dispatch — not after SENT.
+  if (kase.status === "VERIFIED") {
+    if (!editedMessage && !outreach) throw new CaseError("ALREADY_SENT");
+    return prisma.case.update({
+      where: { id: kase.id },
+      data: {
+        ...(editedMessage ? { draftMessage: editedMessage } : {}),
+        ...(outreach ? { counterpartyEmail: outreach } : {}),
+      },
+    });
+  }
+
+  if (kase.status !== "ANALYZED" && kase.status !== "APPROVED") {
+    throw new CaseError("ALREADY_SENT");
+  }
 
   return prisma.case.update({
     where: { id: kase.id },
