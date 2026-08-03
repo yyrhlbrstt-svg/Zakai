@@ -64,6 +64,7 @@ export async function POST(request: Request) {
         status: string;
         intent: string;
         targetShekels: number;
+        needsOutreachEmail?: boolean;
       }> = [];
       const skipped: Array<{ merchant: string; reason: string }> = [];
 
@@ -83,10 +84,8 @@ export async function POST(request: Request) {
           contactEmail: data.contactEmail,
         });
 
-        if (!outreachTo) {
-          skipped.push({ merchant: data.merchant, reason: "needsOutreachEmail" });
-          continue;
-        }
+        // Soft-open: missing inbox is collected on the dashboard before send.
+        const counterpartyEmail = outreachTo || undefined;
 
         const amount = Math.round(data.monthlyShekels);
         const target =
@@ -120,7 +119,7 @@ export async function POST(request: Request) {
             targetShekels: target,
             draftMessage,
             vertical,
-            counterpartyEmail: outreachTo,
+            counterpartyEmail,
             autoApprove: true,
           });
           opened.push({
@@ -129,6 +128,7 @@ export async function POST(request: Request) {
             status: kase.status,
             intent,
             targetShekels: target,
+            needsOutreachEmail: !counterpartyEmail,
           });
           activeCount += 1;
         } catch (err) {

@@ -338,7 +338,9 @@ export default async function DashboardPage({
       {!user!.emailVerifiedAt ? <EmailVerifyNudge /> : null}
 
       <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
-      <RetentionActionStrip locale={locale} actions={retentionActions} />
+      {pendingFeeAgorot <= 0 ? (
+        <RetentionActionStrip locale={locale} actions={retentionActions} />
+      ) : null}
 
       {pendingFeeAgorot > 0 && feeStatus !== "paid" ? (
         <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] px-5 py-4 mb-5 flex flex-wrap items-center gap-3 justify-between">
@@ -566,6 +568,8 @@ export default async function DashboardPage({
             </Card>
           )}
 
+          {/* Prove → fee first: no household / volume sprawl while a fee is outstanding. */}
+          {pendingFeeAgorot <= 0 ? (
           <div className="mt-7 rounded-2xl border border-[rgba(139,92,246,0.28)] bg-[rgba(139,92,246,0.06)] px-5 py-4 flex items-center gap-3.5 flex-wrap">
             <Users size={22} className="text-[#8B5CF6] shrink-0" aria-hidden />
             <div className="flex-1 min-w-[180px]">
@@ -590,6 +594,7 @@ export default async function DashboardPage({
               </Button>
             </Link>
           </div>
+          ) : null}
 
           {/* Prove → fee first: no volume-door sprawl while a success fee is outstanding. */}
           {pendingFeeAgorot <= 0 ? (
@@ -626,30 +631,29 @@ export default async function DashboardPage({
         </>
       )}
 
-      <MoneyScoreCard result={scoreResult} />
-
-      <VigilWatchCard bcp47={loc} />
-
-      <StrategyInsightsCard locale={locale} bcp47={loc} />
-
-      {/* Prove → fee → share: no virality / referral while a success fee is outstanding. */}
+      {/* Secondary chrome waits until the success fee is cleared. */}
       {pendingFeeAgorot <= 0 ? (
         <>
-        <ShareResult
-          message={shareMessage}
-          referralCode={referralCode}
-          amountLabel={shareAmountLabel}
-          kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
-        />
-      <div className="mt-5">
-        <ReferralCard
-          path={invitePath}
-          fallbackLink={`${appUrl}${invitePath}`}
-          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
-          rewardAgorot={REFERRAL_REWARD_AGOROT}
-          bcp47={loc}
-        />
-      </div>
+          <MoneyScoreCard result={scoreResult} />
+          <VigilWatchCard bcp47={loc} />
+          <StrategyInsightsCard locale={locale} bcp47={loc} />
+          <ShareResult
+            message={shareMessage}
+            referralCode={referralCode}
+            amountLabel={shareAmountLabel}
+            kicker={
+              justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined
+            }
+          />
+          <div className="mt-5">
+            <ReferralCard
+              path={invitePath}
+              fallbackLink={`${appUrl}${invitePath}`}
+              creditAgorot={referralRow?.referralCreditAgorot ?? 0}
+              rewardAgorot={REFERRAL_REWARD_AGOROT}
+              bcp47={loc}
+            />
+          </div>
         </>
       ) : null}
 

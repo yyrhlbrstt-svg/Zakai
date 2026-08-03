@@ -62,9 +62,9 @@ export async function POST(request: Request) {
         contactEmail: data.contactEmail,
       });
 
-      if (!outreachTo) {
-        return { status: 400, body: { error: "needsOutreachEmail" } as const };
-      }
+      // Soft-open like bank-fees: never invent an inbox and never block case+Mandate
+      // open when empty — dashboard CaseNextStep collects outreach before dispatch.
+      const counterpartyEmail = outreachTo || undefined;
 
       const amount = Math.round(data.monthlyShekels);
       const target =
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
           targetShekels: target,
           draftMessage,
           vertical,
-          counterpartyEmail: outreachTo,
+          counterpartyEmail,
           autoApprove: true,
         });
       } catch (err) {
@@ -111,7 +111,11 @@ export async function POST(request: Request) {
 
       return {
         status: 200,
-        body: { caseId: kase.id, message: "case_opened" as const },
+        body: {
+          caseId: kase.id,
+          message: "case_opened" as const,
+          needsOutreachEmail: !counterpartyEmail,
+        },
       };
     },
   });

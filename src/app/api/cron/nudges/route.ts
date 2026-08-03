@@ -114,8 +114,47 @@ export async function GET(request: Request) {
     });
 
     const OUTREACH_NEEDED_SUBJECT = "זכאי — חסר אימייל לספק כדי להמשיך";
+    const MAX_ROUNDS_SUBJECT = "זכאי — סיבובי המעקב מוצו, רשמו תוצאה";
+    const MANDATE_INACTIVE_SUBJECT = "זכאי — ה-Mandate לא פעיל, צריך לאשר מחדש";
     let outreachNudges = 0;
+    let stuckNudges = 0;
     const seenAgent = new Set<string>();
+
+    async function nudgeOnce(opts: {
+      caseId: string;
+      userId: string;
+      email: string;
+      subject: string;
+      body: string;
+      pushTitle: string;
+      pushBody: string;
+      tag: string;
+    }): Promise<boolean> {
+      const recentNudge = await prisma.outbox.findFirst({
+        where: {
+          caseId: opts.caseId,
+          channel: "EMAIL",
+          subject: opts.subject,
+          createdAt: { gt: sentCooldown },
+        },
+        select: { id: true },
+      });
+      if (recentNudge) return false;
+      await sendEmail({
+        to: opts.email,
+        subject: opts.subject,
+        body: opts.body,
+        caseId: opts.caseId,
+      });
+      await pushToUser(opts.userId, {
+        title: opts.pushTitle,
+        body: opts.pushBody,
+        url: `/dashboard?case=${opts.caseId}`,
+        tag: opts.tag,
+      }).catch(() => null);
+      return true;
+    }
+
     for (const c of waiting) {
       if (seenAgent.has(c.userId)) continue;
 
@@ -141,22 +180,13 @@ export async function GET(request: Request) {
         seenAgent.add(c.userId);
         agentFollowUps++;
       } else if (result.reason === "NEEDS_OUTREACH_EMAIL" && c.user.email) {
-        // Silent skip forever froze FREE SENT — nudge once per cooldown window.
-        const recentNudge = await prisma.outbox.findFirst({
-          where: {
-            caseId: c.id,
-            channel: "EMAIL",
-            subject: OUTREACH_NEEDED_SUBJECT,
-            createdAt: { gt: sentCooldown },
-          },
-          select: { id: true },
-        });
-        if (!recentNudge) {
-          const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
-          await sendEmail({
-            to: c.user.email,
-            subject: OUTREACH_NEEDED_SUBJECT,
-            body: `שלום ${c.user.name},
+        const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
+        const sent = await nudgeOnce({
+          caseId: c.id,
+          userId: c.userId,
+          email: c.user.email,
+          subject: OUTREACH_NEEDED_SUBJECT,
+          body: `שלום ${c.user.name},
 
 הסוכן מוכן לשלוח המשך בכתב עם Mandate — אבל חסר אימייל של הספק בתיק.
 
@@ -164,15 +194,61 @@ export async function GET(request: Request) {
 ${dash}
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
-            caseId: c.id,
-          });
-          await pushToUser(c.userId, {
-            title: "חסר אימייל לספק",
-            body: "הזינו כתובת בדשבורד כדי שהסוכן יוכל להמשיך.",
-            url: `/dashboard?case=${c.id}`,
-            tag: `outreach-needed-${c.id}`,
-          }).catch(() => null);
+          pushTitle: "חסר אימייל לספק",
+          pushBody: "הזינו כתובת בדשבורד כדי שהסוכן יוכל להמשיך.",
+          tag: `outreach-needed-${c.id}`,
+        });
+        if (sent) {
           outreachNudges++;
+          seenAgent.add(c.userId);
+        }
+        agentSkipped++;
+      } else if (result.reason === "MAX_ROUNDS" && c.user.email) {
+        // FREE maxActiveCases:1 stays frozen on SENT until user records/closes.
+        const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
+        const sent = await nudgeOnce({
+          caseId: c.id,
+          userId: c.userId,
+          email: c.user.email,
+          subject: MAX_ROUNDS_SUBJECT,
+          body: `שלום ${c.user.name},
+
+סיבובי המעקב בכתב לתיק הזה מוצו. אל תשלחו עוד תזכורת אוטומטית.
+
+בדשבורד — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר:
+${dash}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+          pushTitle: "סיבובי המעקב מוצו",
+          pushBody: "רשמו תוצאה או סגרו את התיק בדשבורד.",
+          tag: `max-rounds-${c.id}`,
+        });
+        if (sent) {
+          stuckNudges++;
+          seenAgent.add(c.userId);
+        }
+        agentSkipped++;
+      } else if (result.reason === "NO_ACTIVE_MANDATE" && c.user.email) {
+        const dash = `${appUrl}/${localeForCountry(c.user.country)}/dashboard?case=${c.id}`;
+        const sent = await nudgeOnce({
+          caseId: c.id,
+          userId: c.userId,
+          email: c.user.email,
+          subject: MANDATE_INACTIVE_SUBJECT,
+          body: `שלום ${c.user.name},
+
+הסוכן לא יכול להמשיך מול הספק — אין Mandate פעיל על התיק.
+
+פתחו את הדשבורד, אשרו הרשאה מחדש ושלחו:
+${dash}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+          pushTitle: "Mandate לא פעיל",
+          pushBody: "אשרו הרשאה מחדש בדשבורד כדי להמשיך.",
+          tag: `mandate-inactive-${c.id}`,
+        });
+        if (sent) {
+          stuckNudges++;
           seenAgent.add(c.userId);
         }
         agentSkipped++;
@@ -281,6 +357,7 @@ ${payUrl}
         sent: agentFollowUps,
         skipped: agentSkipped,
         outreachEmailNudges: outreachNudges,
+        stuckLoopNudges: stuckNudges,
       },
       deadlineReminders: { candidates: pendingDeadlines.length, sent: deadlineNudges },
       pendingFeeNudges: { candidates: pendingFees.length, sent: feeNudges },

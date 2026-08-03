@@ -72,7 +72,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "פותח תיקים…",
     batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
     batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
-    batchNeedsEmail: "נפתחו {n} תיקים — חסר אימייל לספק עבור חלק. הזינו למטה להמשך.",
+    batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו בדשבורד לפני שליחה.",
     selectHint: "סמן חיובים ואז פתח בבת אחת (עד 5 לפי המסלול)",
   },
   en: {
@@ -114,7 +114,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "Opening cases…",
     batchDone: "✓ Opened {n} cases — dashboard",
     batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
-    batchNeedsEmail: "Opened {n} cases — missing provider email for some. Enter below to continue.",
+    batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it on the dashboard before send.",
     selectHint: "Select charges, then open in one go (up to 5 by plan)",
   },
   ar: {
@@ -149,7 +149,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "جارٍ الفتح…",
     batchDone: "✓ فُتح {n} ملفات",
     batchPartial: "فُتح {n} ملفات",
-    batchNeedsEmail: "فُتح {n} — يلزم بريد للمزود. أدخله أدناه.",
+    batchNeedsEmail: "فُتح {n} — بعضها بلا بريد؛ أكمل في لوحة التحكم قبل الإرسال.",
     selectHint: "اختر ثم افتح دفعة واحدة",
   },
   ru: {
@@ -185,7 +185,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "Открываем…",
     batchDone: "✓ Открыто {n} дел",
     batchPartial: "Открыто {n} дел",
-    batchNeedsEmail: "Открыто {n} — нужен email поставщика. Введите ниже.",
+    batchNeedsEmail: "Открыто {n} — для части нужен email; укажите в дашборде перед отправкой.",
     selectHint: "Выберите и откройте пакетом",
   },
 };
@@ -349,6 +349,7 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
+        // Legacy hard-gate — soft-open usually opens and collects inbox on dashboard.
         if (data.error === "needsOutreachEmail") {
           setPendingOutreach(r);
           setOutreachEmail("");
@@ -401,36 +402,20 @@ export function MoneyHub({
       const n = data.openedCount ?? 0;
       const skipped =
         (data.skipped as Array<{ merchant?: string; reason?: string }> | undefined) ?? [];
-      const emailSkips = skipped.filter((s) => s.reason === "needsOutreachEmail" && s.merchant);
+      const opened =
+        (data.opened as Array<{ caseId?: string; needsOutreachEmail?: boolean }> | undefined) ??
+        [];
       setBatchCount(n);
-
-      if (emailSkips.length > 0 && result) {
-        const merchant = emailSkips[0].merchant as string;
-        const fromScan =
-          result.recurring.find((r) => r.merchant === merchant) ??
-          ({
-            merchant,
-            monthlyAgorot: 100,
-            category: "other" as ChargeCategory,
-            occurrences: 1,
-            providerKey: null,
-          } satisfies RecurringCharge);
-        setPendingOutreach(fromScan);
-        setOutreachEmail("");
-        setError(
-          n > 0
-            ? tx(locale, "batchNeedsEmail").replace("{n}", String(n))
-            : tx(locale, "errNeedsEmail"),
-        );
-        // Stay on /money so the person can supply the inbox — do not redirect away.
-        return;
-      }
 
       if (n > 0) {
         if (data.skippedCount > 0) {
           setError(tx(locale, "batchPartial").replace("{n}", String(n)));
+        } else if (opened.some((o) => o.needsOutreachEmail)) {
+          setError(tx(locale, "batchNeedsEmail").replace("{n}", String(n)));
         }
-        const firstId = data.opened?.[0]?.caseId as string | undefined;
+        // Prefer a case that still needs outreach email so CaseNextStep can collect it.
+        const needEmail = opened.find((o) => o.needsOutreachEmail && o.caseId);
+        const firstId = (needEmail?.caseId || opened[0]?.caseId) as string | undefined;
         setTimeout(
           () => router.push(firstId ? `/dashboard?case=${firstId}` : "/dashboard"),
           600,
