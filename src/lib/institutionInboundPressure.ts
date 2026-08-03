@@ -21,12 +21,23 @@ export interface InboundPressureStat {
 
 /** institution aud slug → case.provider keys (normalized lowercase). */
 export const INSTITUTION_PROVIDER_MAP: Readonly<Record<string, readonly string[]>> = {
+  // Banks
   "bank-hapoalim": ["hapoalim"],
   "bank-leumi": ["leumi"],
   "bank-discount": ["discount"],
   "bank-mizrahi": ["mizrahi"],
   "bank-fibi": ["fibi"],
   "one-zero": ["onezero"],
+  // Telecom — phase 2 after banks (NORTH_STAR_100)
+  cellcom: ["cellcom"],
+  partner: ["partner"],
+  pelephone: ["pelephone"],
+  hotspot: ["hot", "hotspot", "hot-mobile"],
+  "012mobile": ["012", "012mobile"],
+  // Electricity
+  iec: ["iec", "חברת החשמל", "electricity"],
+  pazgas: ["pazgas"],
+  amisor: ["amisor"],
 };
 
 const OUTBOUND_STATUSES = new Set(["SENT", "SAVED", "NO_SAVING"]);
