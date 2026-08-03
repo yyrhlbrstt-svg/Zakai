@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "fr_frais_bancaires",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Frais Bancaires",
+    "he": "עמלות · בנק"
+  },
+  "market": "FR",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/fr_frais_bancaires",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Code monétaire et financier — contestation de frais"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_fdcpa_debt_validation",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Fdcpa Debt Validation",
+    "he": "חוב (ארה״ב) · חוב · אימות"
+  },
+  "market": "US",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_fdcpa_debt_validation",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "15 U.S.C. § 1692g (Fair Debt Collection Practices Act — validation of debts)"
+  },
+  "financial": {
+    "unit": "USD",
+    "estimate": {
+      "typical_minor": 100000,
+      "basis": "Conservative one-time estimate (minor units)"
+    },
+    "success_fee_basis": "saving_amount"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

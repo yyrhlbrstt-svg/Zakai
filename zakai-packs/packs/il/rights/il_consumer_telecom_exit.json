@@ -3,8 +3,8 @@
   "id": "il_consumer_telecom_exit",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Friction-free telecom disconnection",
-    "he": "ניתוק מספק תקשורת בלי מחסומים"
+    "en": "consumer telecom exit",
+    "he": "consumer telecom exit"
   },
   "market": "IL",
   "category": "consumer_protection",

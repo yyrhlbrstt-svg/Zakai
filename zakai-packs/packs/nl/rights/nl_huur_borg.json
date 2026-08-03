@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "nl_huur_borg",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Huur Borg",
+    "he": "החזר פיקדון שכירות"
+  },
+  "market": "NL",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "housing",
+        "operator": "in",
+        "value": [
+          "renting"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/nl_huur_borg",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Burgerlijk Wetboek Boek 7 — huur en waarborgsom"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

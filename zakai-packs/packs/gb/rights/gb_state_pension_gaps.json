@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_state_pension_gaps",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "State Pension Gaps",
+    "he": "מדינה · פנסיה · פערים בפנסיה"
+  },
+  "market": "GB",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "ageYears",
+        "operator": "gte",
+        "value": 45,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_state_pension_gaps",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Pensions Act 2014, Part 1 and Social Security (Contributions) Regulations 2001"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

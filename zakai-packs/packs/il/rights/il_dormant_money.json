@@ -3,8 +3,8 @@
   "id": "il_dormant_money",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Dormant money (\"Har HaKesef\")",
-    "he": "איתור כספים רדומים (\"הר הכסף\")"
+    "en": "dormant money",
+    "he": "dormant money"
   },
   "market": "IL",
   "category": "finance",

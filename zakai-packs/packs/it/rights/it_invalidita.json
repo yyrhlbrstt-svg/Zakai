@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "it_invalidita",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Invalidita",
+    "he": "קצבת נכות"
+  },
+  "market": "IT",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "hasDisability",
+        "operator": "eq",
+        "value": true,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/it_invalidita",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Legge 12 giugno 1984, n. 222 — invalidità civile"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

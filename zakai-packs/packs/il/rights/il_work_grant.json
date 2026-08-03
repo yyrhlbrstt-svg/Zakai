@@ -3,8 +3,8 @@
   "id": "il_work_grant",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Work grant (negative income tax)",
-    "he": "מענק עבודה (מס הכנסה שלילי)"
+    "en": "work grant",
+    "he": "work grant"
   },
   "market": "IL",
   "category": "tax",

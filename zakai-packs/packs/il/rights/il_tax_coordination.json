@@ -3,8 +3,8 @@
   "id": "il_tax_coordination",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Tax coordination across employers",
-    "he": "תיאום מס בין מעסיקים"
+    "en": "tax coordination",
+    "he": "tax coordination"
   },
   "market": "IL",
   "category": "tax",

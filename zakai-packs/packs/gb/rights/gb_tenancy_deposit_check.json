@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_tenancy_deposit_check",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Tenancy Deposit Check",
+    "he": "שכירות · פיקדון · בדיקה"
+  },
+  "market": "GB",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "housing",
+        "operator": "in",
+        "value": [
+          "renting"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_tenancy_deposit_check",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Housing Act 2004, ss. 213–215 (tenancy deposit protection)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

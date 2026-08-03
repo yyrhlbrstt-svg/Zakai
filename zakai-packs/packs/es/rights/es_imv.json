@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "es_imv",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Imv",
+    "he": "הכנסה מינימלית (ספרד)"
+  },
+  "market": "ES",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "incomeBand",
+        "operator": "in",
+        "value": [
+          "low"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/es_imv",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Real Decreto 20/2020 — Ingreso Mínimo Vital"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

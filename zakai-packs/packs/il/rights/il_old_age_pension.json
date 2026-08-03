@@ -3,8 +3,8 @@
   "id": "il_old_age_pension",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Old-age (senior) pension",
-    "he": "קצבת אזרח ותיק"
+    "en": "old age pension",
+    "he": "old age pension"
   },
   "market": "IL",
   "category": "health",

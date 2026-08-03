@@ -3,8 +3,8 @@
   "id": "il_hishtalmut_withdrawal",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Hishtalmut fund withdrawal",
-    "he": "משיכת קרן השתלמות"
+    "en": "hishtalmut withdrawal",
+    "he": "hishtalmut withdrawal"
   },
   "market": "IL",
   "category": "finance",

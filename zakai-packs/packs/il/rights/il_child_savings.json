@@ -3,8 +3,8 @@
   "id": "il_child_savings",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Savings for Every Child",
-    "he": "חיסכון לכל ילד"
+    "en": "child savings",
+    "he": "child savings"
   },
   "market": "IL",
   "category": "consumer_protection",

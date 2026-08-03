@@ -24,8 +24,19 @@ Read `sdk/README.md` for verify, decide, settlement, and `probeIssuer()`.
 | Evaluate | `POST /api/rights/evaluate/{id}` |
 | Interop profile | `zakai-rights-catalog-1` |
 | Validate packs | `npm run packs:validate` |
+| Sync registry → `zakai-packs/` | `npm run packs:sync` (all markets) or `npm run packs:sync -- US GB` |
 | Export standalone repo | `npm run packs:export` → `docs/INFRA_ZAKAI_PACKS.md` |
 | CDN env | `ZML_PACKS_CDN` (default `https://packs.zakai.io`) |
+| Origin mirror | `GET /api/cdn/packs/<market>/index.json` |
+| Verify surface | `npm run verify:packs-cdn` |
+
+### 30-minute foreign engine path
+
+1. Clone / copy `zakai-packs/` (or hit origin CDN mirror).
+2. `cd zakai-packs && npm ci && npm run validate`.
+3. Load `packs/us/index.json` + rights JSON (or IL) into your evaluator — schema in `schema/zakai-rights-schema.json`.
+4. Cross-check live catalog: `GET /api/rights/catalog?market=US`.
+5. Mandate verify stays separate: `sdk/` + `POST /api/mandate/verify`.
 
 ## Delegated issuance (one pilot at a time)
 

@@ -3,8 +3,8 @@
   "id": "il_vehicle_license_fee_refund",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Prorated vehicle license fee refund",
-    "he": "החזר יחסי על אגרת רישוי רכב"
+    "en": "vehicle license fee refund",
+    "he": "vehicle license fee refund"
   },
   "market": "IL",
   "category": "transport",

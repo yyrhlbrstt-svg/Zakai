@@ -3,8 +3,8 @@
   "id": "il_car_insurance_pro_rata_refund",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Cancelled car insurance? Pro-rata refund",
-    "he": "ביטלת ביטוח רכב? החזר פרמיה יחסי"
+    "en": "car insurance pro rata refund",
+    "he": "car insurance pro rata refund"
   },
   "market": "IL",
   "category": "consumer_protection",

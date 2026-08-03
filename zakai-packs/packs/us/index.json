@@ -1,0 +1,45 @@
+{
+  "pack_version": "2026.08.4",
+  "market": "US",
+  "language": "en-US",
+  "maintainer": "us-maintainer@zakai.io",
+  "rights_count": 27,
+  "rights": [
+    "us_state_unclaimed_property",
+    "us_bank_abandoned_funds",
+    "us_federal_tax_refund_status",
+    "us_earned_income_tax_credit",
+    "us_child_tax_credit",
+    "us_state_tax_refund",
+    "us_overdraft_fee_review",
+    "us_subscription_audit",
+    "us_credit_card_billing_error",
+    "us_credit_report_dispute",
+    "us_utility_billing_review",
+    "us_liheap_energy_assistance",
+    "us_ssa_benefit_verification",
+    "us_ssa_underpayment",
+    "us_student_loan_forgiveness_inquiry",
+    "us_student_loan_overpayment",
+    "us_wage_statement_audit",
+    "us_fdcpa_debt_validation",
+    "us_credit_freeze_request",
+    "us_tcpa_stop_calls",
+    "us_security_deposit_return",
+    "us_mortgage_escrow_surplus",
+    "us_efta_error_resolution",
+    "us_facta_free_annual_credit_report",
+    "us_no_surprises_medical_billing",
+    "us_overdraft_opt_in_status",
+    "us_cra_adverse_action_reasons"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:02:55.651Z",
+    "source": "src/lib/global/registry"
+  }
+}

@@ -356,11 +356,78 @@ const rights: RightDef[] = [
       body: `${IDENTITY} Please provide the current escrow analysis for mortgage account {accountNumber} and refund any surplus above the permitted cushion.\n\nPlease also confirm the projected disbursements for the next computation year.`,
     },
   ),
+
+  // ---- Banking / cards / medical billing (deepen for ZML CDN default) ----
+  right(
+    "efta_error_resolution",
+    "banking",
+    always,
+    "Electronic Fund Transfer Act; 15 U.S.C. § 1693f; Regulation E error resolution",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber", "details"],
+      subject: "Electronic fund transfer error notice — Regulation E",
+      body: `${IDENTITY} Under 15 U.S.C. § 1693f and Regulation E I am providing written notice of an error in an electronic fund transfer on account {accountNumber}.\n\n{details}\n\nPlease investigate, provisionally credit any amount to which I am entitled within the statutory period, and provide a written explanation of your findings.`,
+    },
+  ),
+  right(
+    "facta_free_annual_credit_report",
+    "consumer",
+    always,
+    "Fair and Accurate Credit Transactions Act; 15 U.S.C. § 1681j; Free annual disclosures",
+    {
+      kind: "letter",
+      recipient: "provider",
+      fields: ["counterparty"],
+      subject: "Request for free annual consumer file disclosure",
+      body: `${IDENTITY} Under 15 U.S.C. § 1681j I request my free annual consumer file disclosure.\n\nPlease confirm how to obtain the report through AnnualCreditReport.com or your statutory channel, and that no fee will be charged for this annual disclosure.`,
+    },
+  ),
+  right(
+    "no_surprises_medical_billing",
+    "health",
+    always,
+    "No Surprises Act (Consolidated Appropriations Act, 2021); 45 C.F.R. Part 149",
+    {
+      kind: "letter",
+      recipient: "provider",
+      fields: ["counterparty", "details"],
+      subject: "Dispute of surprise medical bill — No Surprises Act",
+      body: `${IDENTITY} I dispute a balance-billed charge that I believe is covered by the No Surprises Act protections for out-of-network emergency or certain non-emergency services.\n\n{details}\n\nPlease confirm whether the charge is subject to the Act, provide the required notice and consent documentation if any, and adjust the bill to the qualifying payment amount process where applicable.`,
+    },
+  ),
+  right(
+    "overdraft_opt_in_status",
+    "banking",
+    always,
+    "Regulation E; 12 C.F.R. § 1005.17 (overdraft services for ATM and one-time debit card transactions)",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber"],
+      subject: "Overdraft opt-in status and fee refund request — {accountNumber}",
+      body: `${IDENTITY} Please confirm whether I have opted in to overdraft services for ATM and one-time debit card transactions on account {accountNumber} under 12 C.F.R. § 1005.17.\n\nIf I have not opted in, or if fees were assessed without a valid opt-in, please refund those fees and confirm the current opt-in status in writing.`,
+    },
+  ),
+  right(
+    "cra_adverse_action_reasons",
+    "consumer",
+    always,
+    "Equal Credit Opportunity Act; 15 U.S.C. § 1691(d); Regulation B adverse action",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "details"],
+      subject: "Request for specific reasons for adverse credit action",
+      body: `${IDENTITY} I received an adverse action regarding credit. Under 15 U.S.C. § 1691(d) please provide the specific principal reasons for the action and the required ECOA notices.\n\n{details}`,
+    },
+  ),
 ];
 
 export const US_PACK: JurisdictionPack = {
   market: "US",
-  version: "2026.08.3",
+  version: "2026.08.4",
   reviewed: "2026-08-03",
   docLocale: "en-US",
   currency: "USD",

@@ -3,8 +3,8 @@
   "id": "il_credit_donations",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Donation tax credit",
-    "he": "זיכוי מס על תרומות"
+    "en": "credit donations",
+    "he": "credit donations"
   },
   "market": "IL",
   "category": "tax",

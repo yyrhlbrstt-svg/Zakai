@@ -3,8 +3,8 @@
   "id": "il_route6_dispute",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Route 6 toll charge dispute",
-    "he": "ערעור על חיוב כביש 6"
+    "en": "route6 dispute",
+    "he": "route6 dispute"
   },
   "market": "IL",
   "category": "transport",

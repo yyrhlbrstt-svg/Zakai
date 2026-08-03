@@ -3,8 +3,8 @@
   "id": "il_tax_refund",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Income-tax refund",
-    "he": "החזר מס לשכירים"
+    "en": "tax refund",
+    "he": "tax refund"
   },
   "market": "IL",
   "category": "tax",

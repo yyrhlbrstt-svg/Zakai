@@ -1,0 +1,101 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_warm_home_discount",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Warm Home Discount",
+    "he": "חימום · בית · הנחה"
+  },
+  "market": "GB",
+  "category": "energy",
+  "predicate": {
+    "operator": "OR",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "incomeBand",
+            "operator": "in",
+            "value": [
+              "low"
+            ],
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "operator": "OR",
+            "conditions": [
+              {
+                "operator": "AND",
+                "conditions": [
+                  {
+                    "field": "ageYears",
+                    "operator": "gte",
+                    "value": 66,
+                    "source": "user_input"
+                  }
+                ]
+              },
+              {
+                "operator": "AND",
+                "conditions": [
+                  {
+                    "field": "employment",
+                    "operator": "in",
+                    "value": [
+                      "retired"
+                    ],
+                    "source": "user_input"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "operator": "AND",
+            "conditions": [
+              {
+                "field": "incomeBand",
+                "operator": "in",
+                "value": [
+                  "low"
+                ],
+                "source": "user_input"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_warm_home_discount",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Warm Home Discount Regulations 2022"
+  },
+  "financial": {
+    "unit": "GBP",
+    "estimate": {
+      "typical_minor": 15000,
+      "basis": "Conservative yearly estimate (minor units)"
+    },
+    "success_fee_basis": "saving_amount"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

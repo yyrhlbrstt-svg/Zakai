@@ -3,8 +3,8 @@
   "id": "il_work_sick",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Sick pay",
-    "he": "דמי מחלה"
+    "en": "work sick",
+    "he": "work sick"
   },
   "market": "IL",
   "category": "employment",

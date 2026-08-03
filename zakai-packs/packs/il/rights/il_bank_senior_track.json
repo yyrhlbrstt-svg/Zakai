@@ -3,8 +3,8 @@
   "id": "il_bank_senior_track",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Senior bank-fee discount",
-    "he": "הנחת עמלות לאזרח ותיק"
+    "en": "bank senior track",
+    "he": "bank senior track"
   },
   "market": "IL",
   "category": "finance",

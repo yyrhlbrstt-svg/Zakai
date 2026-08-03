@@ -3,8 +3,8 @@
   "id": "il_provident_withdrawal_refund",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Refund on a provident-fund withdrawal",
-    "he": "החזר על משיכת קופת גמל"
+    "en": "provident withdrawal refund",
+    "he": "provident withdrawal refund"
   },
   "market": "IL",
   "category": "tax",

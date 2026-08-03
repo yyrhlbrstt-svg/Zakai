@@ -14,9 +14,18 @@ npm run validate
 | Path | Role |
 |------|------|
 | `schema/zakai-rights-schema.json` | JSON Schema for each right document |
-| `packs/il/rights/*.json` | Israel catalog (76 rights) |
-| `packs/eu/` | EU samples (e.g. flight delay 261) |
+| `packs/il/rights/*.json` | Israel catalog (synced from registry) |
+| `packs/us/`, `packs/gb/`, … | Other markets synced via `npm run packs:sync` |
+| `packs/eu/` | EU samples (e.g. flight delay 261) — curated stub |
 | `maintainers/_registry.json` | Maintainer registry for sign-check |
+
+Regenerate market folders from the monorepo registry:
+
+```bash
+# from Zakai monorepo root
+npm run packs:sync          # all registered markets
+npm run packs:sync -- US GB # subset
+```
 
 ## Publish (CI)
 

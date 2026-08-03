@@ -1,0 +1,42 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ca_tax_review",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Tax Review",
+    "he": "מס · בדיקה"
+  },
+  "market": "CA",
+  "category": "tax",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "employee",
+          "self_employed"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/ca_tax_review",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Income Tax Act — CRA"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

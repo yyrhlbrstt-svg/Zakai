@@ -3,8 +3,8 @@
   "id": "il_duplicate_charge_dispute",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Duplicate or incorrect charge",
-    "he": "חיוב כפול או שגוי"
+    "en": "duplicate charge dispute",
+    "he": "duplicate charge dispute"
   },
   "market": "IL",
   "category": "consumer_protection",

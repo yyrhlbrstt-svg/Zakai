@@ -3,8 +3,8 @@
   "id": "il_water_disability",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Extra discounted water quota",
-    "he": "הקצאת מים מוזלת מוגדלת"
+    "en": "water disability",
+    "he": "water disability"
   },
   "market": "IL",
   "category": "housing",

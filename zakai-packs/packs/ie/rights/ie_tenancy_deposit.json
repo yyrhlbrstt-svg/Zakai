@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ie_tenancy_deposit",
+  "version": "2026-07-31",
+  "display_name": {
+    "en": "Tenancy Deposit",
+    "he": "שכירות · פיקדון"
+  },
+  "market": "IE",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "housing",
+        "operator": "in",
+        "value": [
+          "renting"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/ie_tenancy_deposit",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Residential Tenancies Act 2004, s. 12(1)(d) (as amended by the Residential Tenancies (Amendment) Act 2015)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-31",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

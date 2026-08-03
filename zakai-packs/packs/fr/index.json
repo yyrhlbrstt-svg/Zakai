@@ -1,0 +1,32 @@
+{
+  "pack_version": "2026.07.3",
+  "market": "FR",
+  "language": "fr-FR",
+  "maintainer": "fr-maintainer@zakai.io",
+  "rights_count": 14,
+  "rights": [
+    "fr_ir_regularisation",
+    "fr_caf_droits",
+    "fr_prime_activite",
+    "fr_frais_bancaires",
+    "fr_energie_regularisation",
+    "fr_depot_garantie",
+    "fr_sante_remboursement",
+    "fr_heures_sup",
+    "fr_retraite_releve",
+    "fr_taxe_fonciere",
+    "fr_bourse_etudiant",
+    "fr_vol_eu261",
+    "fr_abonnements",
+    "fr_frais_bancaires_outil"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:02:55.653Z",
+    "source": "src/lib/global/registry"
+  }
+}

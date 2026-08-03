@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ie_cooling_off_cancellation",
+  "version": "2026-07-31",
+  "display_name": {
+    "en": "Cooling Off Cancellation",
+    "he": "קירור · ביטול"
+  },
+  "market": "IE",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/ie_cooling_off_cancellation",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "European Union (Consumer Information, Cancellation and Other Rights) Regulations 2013 (S.I. No. 484 of 2013), regs. 15–16"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-31",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

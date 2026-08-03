@@ -3,8 +3,8 @@
   "id": "il_flight_comp",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Flight disruption compensation",
-    "he": "פיצוי על טיסה שבוטלה/התעכבה"
+    "en": "flight comp",
+    "he": "flight comp"
   },
   "market": "IL",
   "category": "consumer_protection",

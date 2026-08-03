@@ -3,8 +3,8 @@
   "id": "il_consumer_cancel14",
   "version": "2026-07-26",
   "display_name": {
-    "en": "14-day remote-purchase cancellation",
-    "he": "ביטול עסקה מרחוק תוך 14 יום"
+    "en": "consumer cancel14",
+    "he": "consumer cancel14"
   },
   "market": "IL",
   "category": "consumer_protection",

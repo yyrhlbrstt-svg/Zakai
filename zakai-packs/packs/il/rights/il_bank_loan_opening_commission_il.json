@@ -3,8 +3,8 @@
   "id": "il_bank_loan_opening_commission_il",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Loan opening / handling fee",
-    "he": "עמלת פתיחת הלוואה / טיפול"
+    "en": "bank loan opening commission il",
+    "he": "bank loan opening commission il"
   },
   "market": "IL",
   "category": "finance",

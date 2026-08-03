@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "it_bonus_sociale",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Bonus Sociale",
+    "he": "בונוס חשמל/גז"
+  },
+  "market": "IT",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "incomeBand",
+        "operator": "in",
+        "value": [
+          "low"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/it_bonus_sociale",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Delibera ARERA — bonus sociale luce/gas"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

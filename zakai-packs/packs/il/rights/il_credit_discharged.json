@@ -3,8 +3,8 @@
   "id": "il_credit_discharged",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Discharged-soldier credit points",
-    "he": "נקודות זיכוי לחייל משוחרר"
+    "en": "credit discharged",
+    "he": "credit discharged"
   },
   "market": "IL",
   "category": "tax",

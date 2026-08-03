@@ -3,8 +3,8 @@
   "id": "il_unemployment_benefit",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Unemployment benefits",
-    "he": "דמי אבטלה"
+    "en": "unemployment benefit",
+    "he": "unemployment benefit"
   },
   "market": "IL",
   "category": "health",

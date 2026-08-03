@@ -3,8 +3,8 @@
   "id": "il_credit_life_insurance",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Tax credit on life and disability premiums",
-    "he": "זיכוי מס על ביטוח חיים ואכ\"ע"
+    "en": "credit life insurance",
+    "he": "credit life insurance"
   },
   "market": "IL",
   "category": "tax",

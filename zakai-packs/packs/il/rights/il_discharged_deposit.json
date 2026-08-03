@@ -3,8 +3,8 @@
   "id": "il_discharged_deposit",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Discharged-soldier deposit",
-    "he": "פיקדון חייל משוחרר"
+    "en": "discharged deposit",
+    "he": "discharged deposit"
   },
   "market": "IL",
   "category": "employment",

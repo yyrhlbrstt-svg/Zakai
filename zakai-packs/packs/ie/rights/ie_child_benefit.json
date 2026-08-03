@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ie_child_benefit",
+  "version": "2026-07-31",
+  "display_name": {
+    "en": "Child Benefit",
+    "he": "ילדים · קצבה"
+  },
+  "market": "IE",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "dependents",
+        "operator": "gte",
+        "value": 1,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/ie_child_benefit",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Social Welfare Consolidation Act 2005 (No. 26 of 2005), Part 4 (Child Benefit)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-31",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

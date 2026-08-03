@@ -1,0 +1,49 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_student_loan_overpayment",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Student Loan Overpayment",
+    "he": "סטודנט · הלוואה · תשלום יתר"
+  },
+  "market": "GB",
+  "category": "education",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "student"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_student_loan_overpayment",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Education (Student Loans) Regulations 1998 (repayment account); Student Loans Company published repayment guidance"
+  },
+  "financial": {
+    "unit": "GBP",
+    "estimate": {
+      "typical_minor": 24000,
+      "basis": "Conservative one-time estimate (minor units)"
+    },
+    "success_fee_basis": "saving_amount"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

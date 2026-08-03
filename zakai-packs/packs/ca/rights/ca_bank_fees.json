@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ca_bank_fees",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Bank Fees",
+    "he": "בנק · עמלות"
+  },
+  "market": "CA",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/ca_bank_fees",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "FCAC — bank fee complaints"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

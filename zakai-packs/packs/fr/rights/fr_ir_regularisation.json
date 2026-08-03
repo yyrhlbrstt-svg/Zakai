@@ -1,0 +1,42 @@
+{
+  "zml_version": "1.0.0",
+  "id": "fr_ir_regularisation",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Regularisation",
+    "he": "מס · הסדר"
+  },
+  "market": "FR",
+  "category": "tax",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "employee",
+          "self_employed"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/fr_ir_regularisation",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "CGI — impôt sur le revenu"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

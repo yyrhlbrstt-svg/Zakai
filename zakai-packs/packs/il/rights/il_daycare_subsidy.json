@@ -3,8 +3,8 @@
   "id": "il_daycare_subsidy",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Daycare subsidy",
-    "he": "סבסוד מעון/משפחתון"
+    "en": "daycare subsidy",
+    "he": "daycare subsidy"
   },
   "market": "IL",
   "category": "consumer_protection",

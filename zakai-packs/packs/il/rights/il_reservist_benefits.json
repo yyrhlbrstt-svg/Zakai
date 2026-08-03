@@ -3,8 +3,8 @@
   "id": "il_reservist_benefits",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Active reservist benefits",
-    "he": "הטבות משרת מילואים פעיל"
+    "en": "reservist benefits",
+    "he": "reservist benefits"
   },
   "market": "IL",
   "category": "employment",

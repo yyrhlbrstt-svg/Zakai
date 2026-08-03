@@ -3,8 +3,8 @@
   "id": "il_electricity_social",
   "version": "2026-07-26",
   "display_name": {
-    "en": "Statutory electricity discount",
-    "he": "הנחת חשמל סטטוטורית"
+    "en": "electricity social",
+    "he": "electricity social"
   },
   "market": "IL",
   "category": "energy",
