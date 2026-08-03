@@ -31,7 +31,9 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
   if (cases.length === 0) {
     return [
       "CASES: none yet.",
-      "NEXT: suggest /money (scan) or the tightest vertical for their question.",
+      nextActionInstruction({ kind: "start_money" }),
+      "",
+      "RULE: NEXT_ACTION wins over every other suggestion. End every reply with /money. Do not open score or secondary verticals first.",
     ].join("\n");
   }
 

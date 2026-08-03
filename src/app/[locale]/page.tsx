@@ -6,7 +6,7 @@ import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
+import { Globe, ScanLine } from "lucide-react";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 import { currentArm } from "@/lib/evolve/store";
@@ -107,54 +107,12 @@ export default async function HomePage({
   const doorOrder = doorArm?.payload ?? ["cancel", "owed", "electricity"];
 
   const secondaryDoorsByKey = [
-    {
-      href: "/cancel",
-      icon: Ban,
-      titleKey: "door.cancel.title",
-      subKey: "door.cancel.sub",
-      ctaKey: "door.cancel.cta",
-      accent: "violet",
-    },
-    {
-      href: "/entitlements",
-      icon: Scale,
-      titleKey: "door.owed.title",
-      subKey: "door.owed.sub",
-      ctaKey: "door.owed.cta",
-      accent: "sky",
-    },
-    {
-      href: "/electricity",
-      icon: Zap,
-      titleKey: "door.electricity.title",
-      subKey: "door.electricity.sub",
-      ctaKey: "door.electricity.cta",
-      accent: "amber",
-    },
-    {
-      href: "/incident",
-      icon: HeartPulse,
-      titleKey: "door.incident.title",
-      subKey: "door.incident.sub",
-      ctaKey: "door.incident.cta",
-      accent: "violet",
-    },
-    {
-      href: "/dormant",
-      icon: Archive,
-      titleKey: "door.dormant.title",
-      subKey: "door.dormant.sub",
-      ctaKey: "door.dormant.cta",
-      accent: "sky",
-    },
-    {
-      href: "/vehicle-check",
-      icon: Car,
-      titleKey: "door.vehicleCheck.title",
-      subKey: "door.vehicleCheck.sub",
-      ctaKey: "door.vehicleCheck.cta",
-      accent: "amber",
-    },
+    { href: "/cancel", titleKey: "door.cancel.title" },
+    { href: "/entitlements", titleKey: "door.owed.title" },
+    { href: "/electricity", titleKey: "door.electricity.title" },
+    { href: "/incident", titleKey: "door.incident.title" },
+    { href: "/dormant", titleKey: "door.dormant.title" },
+    { href: "/vehicle-check", titleKey: "door.vehicleCheck.title" },
   ];
 
   const doorKey = (href: string) => {
@@ -169,31 +127,6 @@ export default async function HomePage({
   const secondaryDoors = [...secondaryDoorsByKey].sort(
     (a, b) => rank(a.href) - rank(b.href),
   );
-
-  const accentBorder: Record<string, string> = {
-    emerald: "border-[rgba(63,203,155,0.4)]",
-    violet: "border-[rgba(139,92,246,0.4)]",
-    sky: "border-[rgba(62,198,255,0.4)]",
-    amber: "border-[rgba(240,180,92,0.4)]",
-  };
-  const accentBg: Record<string, string> = {
-    emerald: "bg-[rgba(63,203,155,0.08)]",
-    violet: "bg-[rgba(139,92,246,0.08)]",
-    sky: "bg-[rgba(62,198,255,0.08)]",
-    amber: "bg-[rgba(240,180,92,0.08)]",
-  };
-  const accentText: Record<string, string> = {
-    emerald: "text-emerald",
-    violet: "text-[#c4b5fd]",
-    sky: "text-[#3ec6ff]",
-    amber: "text-[#f0b45c]",
-  };
-  const accentIconBg: Record<string, string> = {
-    emerald: "bg-[rgba(63,203,155,0.2)]",
-    violet: "bg-[rgba(139,92,246,0.2)]",
-    sky: "bg-[rgba(62,198,255,0.2)]",
-    amber: "bg-[rgba(240,180,92,0.2)]",
-  };
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
@@ -282,93 +215,8 @@ export default async function HomePage({
         </div>
       </Reveal>
 
-      <Reveal>
-        <h2 className="text-[15px] font-extrabold mb-1 text-ink-soft">
-          {t("home.secondaryDoors")}
-        </h2>
-        <p className="text-[13px] text-ink-soft mb-4 max-w-[560px] leading-relaxed">
-          {t("home.secondaryDoorsSub")}
-        </p>
-      </Reveal>
-
-      <DoorTracker experimentId="home_door_order" armId={doorArm?.id ?? "money_first"} />
-
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
-        {secondaryDoors.map((d, i) => {
-          const Icon = d.icon;
-          const cardClass =
-            "p-6 h-full " +
-            accentBorder[d.accent] +
-            " " +
-            accentBg[d.accent] +
-            " hover:scale-[1.02] transition-transform";
-          const iconClass =
-            "w-11 h-11 rounded-xl " +
-            accentIconBg[d.accent] +
-            " flex items-center justify-center mb-4";
-          return (
-            <Reveal key={d.href} delay={i * 70}>
-              <Link href={d.href} className="no-underline block h-full">
-                <SpotlightCard className={cardClass}>
-                  <div className={iconClass}>
-                    <Icon
-                      size={22}
-                      className={accentText[d.accent]}
-                      aria-hidden
-                    />
-                  </div>
-                  <div
-                    className={
-                      "font-extrabold text-[17px] " + accentText[d.accent]
-                    }
-                  >
-                    {t(d.titleKey)}
-                  </div>
-                  <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed">
-                    {t(d.subKey)}
-                  </div>
-                  <div
-                    className={
-                      "mt-4 text-[14px] font-extrabold " + accentText[d.accent]
-                    }
-                  >
-                    {t(d.ctaKey)}
-                  </div>
-                </SpotlightCard>
-              </Link>
-            </Reveal>
-          );
-        })}
-      </div>
-
-      <Reveal delay={60}>
-        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
-          {t("home.estimateTitle")}
-        </h2>
-        <div className="mb-14 max-w-[480px]">
-          <Zakameter bcp47={bcp47[locale as Locale]} />
-        </div>
-      </Reveal>
-
-      <Reveal delay={80}>
-        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
-          {(
-            (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
-          ).map((s, i) => (
-            <div key={s.label} className="text-center">
-              <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
-                {i === 1 ? ilRightsCount : s.n}
-              </div>
-              <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
-                {s.label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Reveal>
-
       <Reveal delay={100}>
-        <ul className="flex flex-col gap-2 mt-10 list-none p-0 m-0 max-w-[560px]">
+        <ul className="flex flex-col gap-2 mb-10 list-none p-0 m-0 max-w-[560px]">
           {trust.map((line) => (
             <li
               key={line}
@@ -383,30 +231,13 @@ export default async function HomePage({
         </ul>
       </Reveal>
 
-      <Reveal delay={60}>
-        <h2 className="text-[17px] font-extrabold mt-12 mb-3">{t("home.systemsTitle")}</h2>
-        <ul className="flex flex-col gap-2 list-none p-0 m-0 max-w-[560px]">
-          {((t.raw("home.systemsBullets") as string[]) || []).map((line) => (
-            <li
-              key={line}
-              className="flex items-start gap-2.5 text-[13.5px] text-ink-soft leading-relaxed"
-            >
-              <span className="text-emerald font-black shrink-0" aria-hidden>
-                →
-              </span>
-              {line}
-            </li>
-          ))}
-        </ul>
-      </Reveal>
-
       <div id="how-zakai-works">
         <Reveal>
-          <h2 className="text-[17px] font-extrabold mt-16 mb-4">
+          <h2 className="text-[17px] font-extrabold mb-4">
             {t("home.howTitle")}
           </h2>
         </Reveal>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
           {steps.map((key, i) => (
             <Reveal key={key} delay={i * 90}>
               <SpotlightCard className="p-6 h-full">
@@ -426,6 +257,71 @@ export default async function HomePage({
           ))}
         </div>
       </div>
+
+      <Reveal delay={60}>
+        <h2 className="text-[17px] font-extrabold mb-3">{t("home.systemsTitle")}</h2>
+        <ul className="flex flex-col gap-2 list-none p-0 m-0 max-w-[560px] mb-14">
+          {((t.raw("home.systemsBullets") as string[]) || []).map((line) => (
+            <li
+              key={line}
+              className="flex items-start gap-2.5 text-[13.5px] text-ink-soft leading-relaxed"
+            >
+              <span className="text-emerald font-black shrink-0" aria-hidden>
+                →
+              </span>
+              {line}
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+
+      {/* Shortcuts sit below the loop explanation so they cannot compete with Money Hub. */}
+      <DoorTracker experimentId="home_door_order" armId={doorArm?.id ?? "money_first"} />
+      <Reveal>
+        <h2 className="text-[15px] font-extrabold mb-1 text-ink-soft">
+          {t("home.secondaryDoors")}
+        </h2>
+        <p className="text-[13px] text-ink-soft mb-4 max-w-[560px] leading-relaxed">
+          {t("home.secondaryDoorsSub")}
+        </p>
+      </Reveal>
+      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-14 max-w-[720px]">
+        {secondaryDoors.map((d) => (
+          <Link
+            key={d.href}
+            href={d.href}
+            className="text-[13.5px] font-bold text-ink-soft no-underline hover:text-emerald transition-colors"
+          >
+            {t(d.titleKey)} →
+          </Link>
+        ))}
+      </div>
+
+      <Reveal delay={60}>
+        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
+          {t("home.estimateTitle")}
+        </h2>
+        <div className="mb-10 max-w-[480px]">
+          <Zakameter bcp47={bcp47[locale as Locale]} />
+        </div>
+      </Reveal>
+
+      <Reveal delay={80}>
+        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5 mb-4">
+          {(
+            (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
+          ).map((s, i) => (
+            <div key={s.label} className="text-center">
+              <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
+                {i === 1 ? ilRightsCount : s.n}
+              </div>
+              <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Reveal>
 
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">

@@ -1,16 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { prisma } from "@/lib/prisma";
-import type { RightsProfile } from "@/lib/rights";
-import { DashboardNextActionClient } from "@/components/DashboardNextActionClient";
 import type { Locale } from "@/i18n/config";
 import { bcp47 } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { formatAgorot } from "@/lib/money";
 import { rankNextAction } from "@/lib/services/nextAction";
-
-const SETTLED = new Set(["SENT", "SAVED", "NO_SAVING", "REVOKED"]);
 
 export async function DashboardNextActionPanel({
   userId,
@@ -28,7 +24,6 @@ export async function DashboardNextActionPanel({
       where: { userId },
       select: {
         id: true,
-        vertical: true,
         status: true,
         fee: { select: { amount: true, status: true } },
       },
@@ -112,22 +107,26 @@ export async function DashboardNextActionPanel({
     );
   }
 
-  if (!profileRow?.data) {
-    return (
+  // start_money — the ranker already chose the single front door. Do not demote
+  // it to score quiz or PriorityActions sprawl (that was the width trap).
+  return (
+    <div className="mb-5 flex flex-col gap-3">
       <Link
-        href="/score"
-        className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)] px-5 py-4 hover:border-[rgba(62,198,255,0.5)] transition-colors"
+        href="/money#zakai-money-scan"
+        className="block no-underline text-ink rounded-2xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.14)] px-5 py-4 hover:border-[rgba(63,203,155,0.7)] transition-colors"
       >
-        <div className="font-extrabold text-[15px] text-[#3ec6ff]">{t("scoreNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("scoreNudgeSub")}</p>
+        <div className="font-extrabold text-[15px] text-emerald">{t("startMoneyNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("startMoneyNudgeSub")}</p>
       </Link>
-    );
-  }
-
-  const profile = profileRow.data as unknown as RightsProfile;
-  const actedOn = cases
-    .filter((c) => SETTLED.has(c.status) && c.vertical)
-    .map((c) => c.vertical as string);
-
-  return <DashboardNextActionClient profile={profile} actedOn={actedOn} bcp47={loc} />;
+      {!profileRow?.data ? (
+        <Link
+          href="/score"
+          className="block no-underline text-ink rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-3 hover:border-[rgba(62,198,255,0.35)] transition-colors"
+        >
+          <div className="font-extrabold text-[13.5px] text-ink-soft">{t("scoreNudgeTitle")}</div>
+          <p className="text-[12.5px] text-ink-soft mt-1 mb-0 leading-relaxed">{t("scoreNudgeSub")}</p>
+        </Link>
+      ) : null}
+    </div>
+  );
 }
