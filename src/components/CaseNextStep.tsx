@@ -458,15 +458,16 @@ export function CaseNextStep({
         {pendingFeeShekels != null && pendingFeeShekels > 0 ? (
           <div className="mb-3 rounded-lg border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-3 py-2.5">
             <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-snug">{t(locale, "savedPayFirst")}</p>
-            <Link href={`/dashboard?case=${caseId}&payFee=1`} className="no-underline">
+            <Link href={`/dashboard?saved=1&case=${caseId}&payFee=1`} className="no-underline">
               <Button className="!text-[13px] w-full sm:w-auto">
                 {t(locale, "payFeeNow")} · ₪{pendingFeeShekels}
               </Button>
             </Link>
           </div>
         ) : null}
-        {/* Prove → fee → share: do not offer virality while success fee is unpaid. */}
+        {/* Prove → fee → share: no virality / next doors while success fee is unpaid. */}
         {!(pendingFeeShekels != null && pendingFeeShekels > 0) ? (
+          <>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -512,7 +513,6 @@ export function CaseNextStep({
             {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
           </Button>
         </div>
-        ) : null}
         {showUpgradeNudge && (
           <div className="mt-3.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] px-3.5 py-2.5 flex items-center justify-between gap-3 flex-wrap">
             <p className="text-[12.5px] text-ink-soft m-0 leading-snug">{t(locale, "upgradeNudge")}</p>
@@ -535,6 +535,8 @@ export function CaseNextStep({
             ))}
           </div>
         </div>
+          </>
+        ) : null}
       </div>
     );
   }

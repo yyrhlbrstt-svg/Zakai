@@ -336,13 +336,7 @@ export default async function DashboardPage({
       <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
       <RetentionActionStrip locale={locale} actions={retentionActions} />
 
-      {payFeeCaseId ? (
-        <div className="sr-only" aria-hidden>
-          <FeePayButton caseId={payFeeCaseId} autoStart />
-        </div>
-      ) : null}
-
-      {pendingFeeAgorot > 0 && feeStatus !== "paid" && !payFeeCaseId && (
+      {pendingFeeAgorot > 0 && feeStatus !== "paid" ? (
         <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] px-5 py-4 mb-5 flex flex-wrap items-center gap-3 justify-between">
           <div>
             <div className="font-extrabold text-[14.5px] text-emerald">{t("dashboard.feeOutstandingTitle")}</div>
@@ -352,11 +346,14 @@ export default async function DashboardPage({
               })}
             </p>
           </div>
-          {pendingFeeCases[0] ? (
-            <FeePayButton caseId={pendingFeeCases[0].id} />
+          {(payFeeCaseId || pendingFeeCases[0]?.id) ? (
+            <FeePayButton
+              caseId={payFeeCaseId ?? pendingFeeCases[0]!.id}
+              autoStart={Boolean(payFeeCaseId)}
+            />
           ) : null}
         </div>
-      )}
+      ) : null}
 
       {!emailConfigured() && (
         <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed font-bold">
@@ -433,12 +430,13 @@ export default async function DashboardPage({
           <p className="text-[13.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{t("dashboard.savedCelebrateSub")}</p>
           {celebrateCase?.fee &&
             celebrateCase.fee.status === "PENDING" &&
-            celebrateCase.fee.amount > 0 && (
+            celebrateCase.fee.amount > 0 &&
+            payFeeCaseId !== celebrateCase.id && (
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <span className="text-[13px] font-bold text-ink-soft">
                   {t("dashboard.feeTag")}: {formatAgorot(celebrateCase.fee.amount, loc)}
                 </span>
-                <FeePayButton caseId={celebrateCase.id} autoStart={payFeeCaseId === celebrateCase.id} />
+                <FeePayButton caseId={celebrateCase.id} />
               </div>
             )}
         </div>

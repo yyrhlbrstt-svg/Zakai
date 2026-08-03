@@ -49,13 +49,24 @@ async function deliverEmailRecord(record: Outbox): Promise<"sent" | "failed" | "
       | undefined;
     if (record.caseId && shouldAttachMandateDocs(record.subject)) {
       const rebuilt = await rebuildMandateAttachmentsForCase(record.caseId);
-      if (rebuilt.length > 0) {
-        attachments = rebuilt.map((a) => ({
-          filename: a.filename,
-          content: a.content,
-          contentType: a.contentType || "text/html; charset=utf-8",
-        }));
+      if (rebuilt.length === 0) {
+        // Fail closed: never send provider outreach as body-only pretending
+        // Mandate docs were attached (async path used to do exactly that).
+        const attempts = parseOutboxAttempts(record.error) + 1;
+        await prisma.outbox.update({
+          where: { id: record.id },
+          data: {
+            status: "FAILED",
+            error: formatOutboxFailure(attempts, "mandate_attachments_unavailable"),
+          },
+        });
+        return "failed";
       }
+      attachments = rebuilt.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+        contentType: a.contentType || "text/html; charset=utf-8",
+      }));
     }
 
     const info = await transport.sendMail({

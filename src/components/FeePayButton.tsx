@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 
+/** Prevent double /fee/checkout when two FeePayButton mounts both get autoStart. */
+const autoStartedCases = new Set<string>();
+
 /**
  * "Pay your success fee" — kicks off the PSP checkout for a case's pending fee
  * and redirects the payer to the hosted payment page. Until a real PSP is
@@ -46,6 +49,8 @@ export function FeePayButton({
 
   useEffect(() => {
     if (!autoStart || started.current) return;
+    if (autoStartedCases.has(caseId)) return;
+    autoStartedCases.add(caseId);
     started.current = true;
     void pay();
   }, [autoStart, caseId]);

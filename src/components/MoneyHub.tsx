@@ -71,7 +71,8 @@ const copy: Record<string, Record<string, string>> = {
     batchOpen: "הסוכן פותח את כל התיקים המומלצים",
     batchOpening: "פותח תיקים…",
     batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
-    batchPartial: "נפתחו {n} תיקים (חלק דולגו בגלל מגבלת מסלול)",
+    batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
+    batchNeedsEmail: "נפתחו {n} תיקים — חסר אימייל לספק עבור חלק. הזינו למטה להמשך.",
     selectHint: "סמן חיובים ואז פתח בבת אחת (עד 5 לפי המסלול)",
   },
   en: {
@@ -112,7 +113,8 @@ const copy: Record<string, Record<string, string>> = {
     batchOpen: "Agent opens all recommended cases",
     batchOpening: "Opening cases…",
     batchDone: "✓ Opened {n} cases — dashboard",
-    batchPartial: "Opened {n} cases (some skipped by plan limit)",
+    batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
+    batchNeedsEmail: "Opened {n} cases — missing provider email for some. Enter below to continue.",
     selectHint: "Select charges, then open in one go (up to 5 by plan)",
   },
   ar: {
@@ -147,6 +149,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "جارٍ الفتح…",
     batchDone: "✓ فُتح {n} ملفات",
     batchPartial: "فُتح {n} ملفات",
+    batchNeedsEmail: "فُتح {n} — يلزم بريد للمزود. أدخله أدناه.",
     selectHint: "اختر ثم افتح دفعة واحدة",
   },
   ru: {
@@ -182,6 +185,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "Открываем…",
     batchDone: "✓ Открыто {n} дел",
     batchPartial: "Открыто {n} дел",
+    batchNeedsEmail: "Открыто {n} — нужен email поставщика. Введите ниже.",
     selectHint: "Выберите и откройте пакетом",
   },
 };
@@ -395,8 +399,33 @@ export function MoneyHub({
         return;
       }
       const n = data.openedCount ?? 0;
-      const skipped = (data.skipped as Array<{ reason?: string }> | undefined) ?? [];
+      const skipped =
+        (data.skipped as Array<{ merchant?: string; reason?: string }> | undefined) ?? [];
+      const emailSkips = skipped.filter((s) => s.reason === "needsOutreachEmail" && s.merchant);
       setBatchCount(n);
+
+      if (emailSkips.length > 0 && result) {
+        const merchant = emailSkips[0].merchant as string;
+        const fromScan =
+          result.recurring.find((r) => r.merchant === merchant) ??
+          ({
+            merchant,
+            monthlyAgorot: 100,
+            category: "other" as ChargeCategory,
+            occurrences: 1,
+            providerKey: null,
+          } satisfies RecurringCharge);
+        setPendingOutreach(fromScan);
+        setOutreachEmail("");
+        setError(
+          n > 0
+            ? tx(locale, "batchNeedsEmail").replace("{n}", String(n))
+            : tx(locale, "errNeedsEmail"),
+        );
+        // Stay on /money so the person can supply the inbox — do not redirect away.
+        return;
+      }
+
       if (n > 0) {
         if (data.skippedCount > 0) {
           setError(tx(locale, "batchPartial").replace("{n}", String(n)));
@@ -407,11 +436,8 @@ export function MoneyHub({
           600,
         );
       } else if (data.skippedCount > 0) {
-        const allNeedEmail =
-          skipped.length > 0 && skipped.every((s) => s.reason === "needsOutreachEmail");
         const allLimit = skipped.length > 0 && skipped.every((s) => s.reason === "caseLimit");
-        if (allNeedEmail) setError(tx(locale, "errNeedsEmail"));
-        else if (allLimit) setError(tx(locale, "errLimit"));
+        if (allLimit) setError(tx(locale, "errLimit"));
         else setError(tx(locale, "errGeneric"));
       }
     } catch {
