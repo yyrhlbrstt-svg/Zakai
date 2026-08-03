@@ -297,6 +297,10 @@ export async function GET(request: Request) {
             "200": { description: "valid — claims returned" },
             "400": { description: "invalid signature or claims" },
             "410": { description: "revoked" },
+            "503": {
+              description:
+                "revocation_unknown or mandate_keys_not_configured — never valid:true when the revocation store is unreachable",
+            },
           },
         },
       },
