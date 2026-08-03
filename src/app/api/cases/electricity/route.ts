@@ -10,6 +10,7 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildElectricityLetter } from "@/lib/electricityLetter";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { resolveElectricityContactEmail } from "@/lib/utilityContacts";
 import { formatCaseDraft } from "@/lib/caseDraft";
 
 const schema = z.object({
@@ -37,8 +38,12 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  // Soft-open: never invent an inbox and never block case+Mandate when empty.
-  const outreachTo = firstOutreachEmail(data.supplierEmail) || undefined;
+  // Soft-open: use typed inbox, else known supplier contact — never invent unknown.
+  const outreachTo =
+    firstOutreachEmail(
+      data.supplierEmail,
+      resolveElectricityContactEmail(data.targetSupplier),
+    ) || undefined;
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);

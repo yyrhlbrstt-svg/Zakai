@@ -67,7 +67,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
         }),
       });
       if (res.status === 401) {
-        router.push("/login");
+        router.replace("/login?return=/electricity");
         return;
       }
       if (!res.ok) {

@@ -150,13 +150,19 @@ ${name || "____"}
           <Button onClick={sendWithAgent} disabled={!agentReady || busy}>
             {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>
-          <Button
-            variant="ghost"
-            onClick={generate}
-            disabled={!report.trim() || !operator.trim() || busy}
-          >
-            {tIcomponents_TransportFineAppeal("t_b4c9b341")}
-          </Button>
+          <details className="text-[13px] text-ink-soft">
+            <summary className="cursor-pointer font-bold select-none">
+              {he ? "חלופה — מכתב להעתקה בלבד" : "Alternative — copy-only letter"}
+            </summary>
+            <Button
+              variant="ghost"
+              className="mt-2 w-full"
+              onClick={generate}
+              disabled={!report.trim() || !operator.trim() || busy}
+            >
+              {tIcomponents_TransportFineAppeal("t_b4c9b341")}
+            </Button>
+          </details>
         </div>
         {error && <p className="text-[13px] text-amber m-0">{error}</p>}
       </Card>

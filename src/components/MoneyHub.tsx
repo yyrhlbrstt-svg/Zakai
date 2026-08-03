@@ -73,7 +73,8 @@ const copy: Record<string, Record<string, string>> = {
     batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
     batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
     batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו בדשבורד לפני שליחה.",
-    selectHint: "סמן חיובים ואז פתח בבת אחת (עד 5 לפי המסלול)",
+    selectHint: "סמן חיובים ואז פתח בבת אחת (Free = תיק פעיל אחד; Pro פותח יותר)",
+    altLetter: "חלופות (לא מסלול הסוכן)",
   },
   en: {
     privacy:
@@ -115,7 +116,8 @@ const copy: Record<string, Record<string, string>> = {
     batchDone: "✓ Opened {n} cases — dashboard",
     batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
     batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it on the dashboard before send.",
-    selectHint: "Select charges, then open in one go (up to 5 by plan)",
+    selectHint: "Select charges, then open together (Free = 1 active case; Pro opens more)",
+    altLetter: "Alternatives (not the agent path)",
   },
   ar: {
     privacy: "لا نطلب كلمة مرور البنك.",
@@ -275,9 +277,13 @@ export function MoneyHub({
     setOpenedId(null);
     setBatchCount(null);
     setError(null);
-    // Pre-select top 3 by monthly amount for one-tap batch.
-    const tops = topN(scan.recurring, 3).map((r) => r.merchant);
-    setSelected(new Set(tops));
+    // Pre-select top 3 by monthly amount — keys must match checkbox indices.
+    const tops = topN(scan.recurring, 3);
+    const keys = tops
+      .map((r) => scan.recurring.findIndex((x) => x === r))
+      .filter((i) => i >= 0)
+      .map((i) => String(i));
+    setSelected(new Set(keys));
     if (scan.recurring.length > 0) persist(scan);
   }
 
@@ -620,11 +626,16 @@ export function MoneyHub({
               <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13.5px] font-bold">
                 {tx(locale, "nextStep")}
               </div>
-              <Link href="/cancel/universal" className="no-underline block">
-                <Button variant="ghost" className="w-full !text-[13px]">
-                  {tx(locale, "universalCancelCta")}
-                </Button>
-              </Link>
+              <details className="text-[13px] text-ink-soft">
+                <summary className="cursor-pointer font-bold select-none">
+                  {tx(locale, "altLetter")}
+                </summary>
+                <Link href="/cancel/universal" className="no-underline block mt-2">
+                  <Button variant="ghost" className="w-full !text-[13px]">
+                    {tx(locale, "universalCancelCta")}
+                  </Button>
+                </Link>
+              </details>
 
               {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
 

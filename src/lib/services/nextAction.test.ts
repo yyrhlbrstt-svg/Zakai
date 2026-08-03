@@ -75,6 +75,24 @@ describe("rankNextAction", () => {
     expect(action).toEqual({ kind: "needs_outreach", caseId: "no-mail" });
   });
 
+  it("surfaces needs_outreach for pre-send soft-open without inbox", () => {
+    const action = rankNextAction([
+      {
+        id: "pre-no-mail",
+        status: "APPROVED",
+        hasOutreachEmail: false,
+      },
+      {
+        id: "sent-ok",
+        status: "SENT",
+        agentRound: 0,
+        mandateActive: true,
+        hasOutreachEmail: true,
+      },
+    ]);
+    expect(action).toEqual({ kind: "needs_outreach", caseId: "pre-no-mail" });
+  });
+
   it("surfaces mandate_inactive above pre-send and sent_wait", () => {
     const action = rankNextAction([
       { id: "pre", status: "VERIFIED" },

@@ -30,7 +30,8 @@ export type NextActionCaseInput = {
    */
   mandateActive?: boolean;
   /**
-   * Whether Case.counterpartyEmail looks usable. Only meaningful for SENT.
+   * Whether Case.counterpartyEmail looks usable.
+   * Meaningful for SENT and pre-send (dispatch needs a destination).
    * Omit/undefined = unknown (do not surface needs_outreach).
    */
   hasOutreachEmail?: boolean;
@@ -98,10 +99,10 @@ export function rankNextAction(
     };
   }
 
-  // Soft-open left SENT/follow-up without a provider inbox — collect before send.
+  // Soft-open left a case without a provider inbox — collect before send/follow-up.
   const needsOutreach = cases.find(
     (c) =>
-      c.status === "SENT" &&
+      (c.status === "SENT" || PRE_SEND.has(c.status)) &&
       !proposedByCaseId.has(c.id) &&
       c.hasOutreachEmail === false,
   );
@@ -143,11 +144,11 @@ export function nextActionInstruction(action: RankedNextAction): string {
     case "sent_exhausted":
       return `NEXT_ACTION: Written rounds exhausted (${action.agentRound}/${MAX_AGENT_ROUNDS}) — /dashboard?case=${action.caseId}. Record the real new amount from a written reply, mark no change, or pivot (cancel/competitor). Do NOT draft another delay follow-up. Do NOT open a new case.`;
     case "needs_outreach":
-      return `NEXT_ACTION: Enter provider outreach email — /dashboard?case=${action.caseId}. Follow-ups cannot send without a destination. Do NOT invent an inbox. Do NOT open a new case.`;
+      return `NEXT_ACTION: Enter provider outreach email — /dashboard?case=${action.caseId}. Mandate send / follow-ups cannot leave without a destination. Do NOT invent an inbox. Do NOT open a new case.`;
     case "mandate_inactive":
       return `NEXT_ACTION: Re-issue ACTIVE Mandate — /dashboard?case=${action.caseId}. Follow-ups are blocked until Mandate is ACTIVE again. Do NOT open a new case.`;
     case "pre_send":
-      return `NEXT_ACTION: Finish Mandate send — /dashboard?case=${action.caseId} (status=${action.status}). Approve/verify/send. Do NOT start another vertical.`;
+      return `NEXT_ACTION: Finish Mandate send — /dashboard?case=${action.caseId} (status=${action.status}). Verify ownership if needed, then one-tap send. Do NOT start another vertical.`;
     case "sent_wait":
       return `NEXT_ACTION: Close the loop — /dashboard?case=${action.caseId}. If they replied: record new amount (SavingsProof). If silent: draft/send written follow-up.`;
     case "start_money":

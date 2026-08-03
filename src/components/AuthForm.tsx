@@ -1,9 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select, FieldError } from "@/components/ui";
+
+/** Only same-origin relative paths — blocks open redirects. */
+function safeReturnPath(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  if (raw.includes("://")) return null;
+  return raw;
+}
 
 const COUNTRIES: { code: string; he: string; en: string }[] = [
   { code: "IL", he: "🇮🇱 ישראל", en: "🇮🇱 Israel" },
@@ -39,6 +48,8 @@ export function AuthForm({
   const tc = useTranslations("common");
   const tl = useTranslations("legal");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = safeReturnPath(searchParams.get("return"));
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [termsOk, setTermsOk] = useState(false);
@@ -67,8 +78,9 @@ export function AuthForm({
         setError(data.error || "genericError");
         return;
       }
-      // Signup → money hub (see charges first). Login → dashboard (resume work).
-      router.replace(mode === "signup" ? "/money" : "/dashboard");
+      // Honor ?return= from verticals (cancel/parking/…) so the loop continues.
+      // Defaults: signup → money hub; login → dashboard.
+      router.replace(returnTo || (mode === "signup" ? "/money" : "/dashboard"));
       router.refresh();
     } catch {
       setError("genericError");

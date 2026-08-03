@@ -4915,7 +4915,7 @@
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
     "t_d489aedc": "Appeal ready. On the dashboard: verify ownership → Mandate → send. When the ticket is cancelled — record the saving.",
-    "authorityEmail": "Municipality billing / appeals email"
+    "authorityEmail": "Municipality email for Mandate send (fill now from the ticket if you have it)"
   },
   "inline_components_CreditCardTool": {
     "t_540e7429": "Card balance ₪",
@@ -4956,7 +4956,7 @@
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
     "t_013fe61d": "Appeal ready. On the dashboard: verify ownership → Mandate → send. When the fine is cancelled — record the saving.",
-    "operatorEmail": "Operator appeals / fines email"
+    "operatorEmail": "Operator email for Mandate send (fill now from the notice if you have it)"
   },
   "inline_components_FlightRightsChecker": {
     "t_360e126e": "✓ Agent opened a case — pre-approved",

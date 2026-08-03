@@ -205,14 +205,21 @@ export function CancelTool() {
           >
             {busy ? t("agentOpening") : t("agentOpenCase")}
           </Button>
-          <Button
-            variant="ghost"
-            onClick={generate}
-            disabled={!company.trim() || !product.trim() || busy}
-            className="w-full text-[13px]"
-          >
-            {t("t_b4c9b341")}
-          </Button>
+          <details className="text-[13px] text-ink-soft">
+            <summary className="cursor-pointer font-bold select-none">
+              {locale === "he" || locale === "ar"
+                ? "חלופה — מכתב להעתקה בלבד"
+                : "Alternative — copy-only letter"}
+            </summary>
+            <Button
+              variant="ghost"
+              onClick={generate}
+              disabled={!company.trim() || !product.trim() || busy}
+              className="w-full text-[13px] mt-2"
+            >
+              {t("t_b4c9b341")}
+            </Button>
+          </details>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
       </Card>

@@ -80,10 +80,11 @@ const copy: Record<string, Record<string, string>> = {
       "שלחתי לספק בקשה עם Mandate של זכאי — הרשאה חתומה בכתב, בלי מוקד. בדקו מה מגיע לכם:",
     mailtoFallback: "SMTP לא פעיל כאן — פתח במייל שלך ושלח את המכתב",
     mailtoOpened: "נפתח המייל — שלחו משם",
-    sendCode: "שלח קוד / קישור למייל",
-    codePh: "קוד מ-6 ספרות",
-    verifyCode: "אמת",
-    magicHint: "נשלח גם קישור למייל — לחיצה אחת בלי SMS.",
+    sendCode: "שלח קישור למייל / קוד לאימות בעלות",
+    codePh: "קוד מ-6 ספרות (אם אין קישור)",
+    verifyCode: "אמת קוד",
+    magicHint: "בדקו את המייל — קישור קסם מאמת בעלות בלחיצה. הקוד למטה רק אם הקישור לא הגיע.",
+    ownStartHint: "לפני שליחת Mandate — אימות בעלות בקישור מייל (מועדף) או בקוד.",
     dispatch: "שלח לספק (Mandate)",
     openDoc: "פתח מסמך הרשאה (הדפסה / PDF)",
     newAmt: "סכום חדש אחרי התשובה (₪)",
@@ -174,10 +175,11 @@ const copy: Record<string, Record<string, string>> = {
       "I sent my provider a Zakai Mandate request — signed written authority, no call center. See what you're owed:",
     mailtoFallback: "SMTP off here — open your mail and send the letter",
     mailtoOpened: "Mail opened — send from there",
-    sendCode: "Send code / email link",
-    codePh: "6-digit code",
-    verifyCode: "Verify",
-    magicHint: "Also sent an email magic link — one tap, no SMS needed.",
+    sendCode: "Send email magic link / ownership code",
+    codePh: "6-digit code (if no link)",
+    verifyCode: "Verify code",
+    magicHint: "Check email — magic link verifies ownership in one tap. Code below only if the link did not arrive.",
+    ownStartHint: "Before Mandate send — verify ownership via email link (preferred) or code.",
     dispatch: "Send to provider (Mandate)",
     openDoc: "Open authorization (print / PDF)",
     newAmt: "New amount after reply (₪)",
@@ -336,6 +338,26 @@ export function CaseNextStep({
     setLocalOwn(ownershipVerified);
     setLocalAuth(hasAuthorization);
   }, [ownershipVerified, hasAuthorization]);
+
+  // Unverified: auto-send ownership magic link once so users are not stuck
+  // behind a "send code" click before Mandate dispatch.
+  useEffect(() => {
+    if (emailVerified) return;
+    if (localOwn) return;
+    if (status !== "APPROVED" && status !== "VERIFIED") return;
+    if (codeSent) return;
+    let cancelled = false;
+    (async () => {
+      const res = await fetch(`/api/cases/${caseId}/ownership/send`, { method: "POST" });
+      if (cancelled || !res.ok) return;
+      const data = await res.json().catch(() => ({}));
+      setCodeSent(true);
+      setMagicSent(Boolean(data.magicSent));
+    })().catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [emailVerified, localOwn, status, caseId, codeSent]);
 
   // Verified-email users should not redo SMS ownership — prime on mount.
   useEffect(() => {
@@ -699,10 +721,11 @@ export function CaseNextStep({
         <div className="text-[11px] text-ink-soft">{t(locale, "nextHint")}</div>
         {!localOwn && (
           <div className="flex flex-col gap-2">
+            <p className="text-[12.5px] text-ink-soft m-0 font-bold">{t(locale, "ownStartHint")}</p>
             {!codeSent ? (
               <Button
                 disabled={busy}
-                className="text-[13px] py-2 px-3 self-start"
+                className="text-[14px] py-3 px-5 self-start font-extrabold"
                 onClick={() =>
                   run(async () => {
                     const res = await fetch(`/api/cases/${caseId}/ownership/send`, { method: "POST" });
@@ -717,9 +740,9 @@ export function CaseNextStep({
               </Button>
             ) : (
               <>
-                {magicSent && (
-                  <p className="text-[12px] text-emerald font-bold m-0">{t(locale, "magicHint")}</p>
-                )}
+                <p className="text-[12.5px] text-emerald font-bold m-0">
+                  {magicSent ? t(locale, "magicHint") : t(locale, "ownStartHint")}
+                </p>
                 <div className="flex flex-wrap gap-2 items-center">
                   <Input
                     value={code}
@@ -740,6 +763,7 @@ export function CaseNextStep({
                         });
                         if (!res.ok) throw new Error("verify");
                         setLocalOwn(true);
+                        router.refresh();
                       })
                     }
                   >
@@ -1155,8 +1179,11 @@ export function CaseNextStep({
         </div>
 
         {agentRound < MAX_AGENT_ROUNDS && localAuth ? (
-        <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
-          <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>
+        <details className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
+          <summary className="text-[12.5px] font-bold cursor-pointer select-none">
+            {t(locale, "followTitle")}
+          </summary>
+          <div className="mt-2">
           {needsOutreachInput && (
             <div className="flex flex-col gap-1.5 w-full max-w-md mb-2">
               <Input
@@ -1362,7 +1389,8 @@ export function CaseNextStep({
               </Button>
             </div>
           )}
-        </div>
+          </div>
+        </details>
         ) : null}
 
         {/* Share only after SAVED + fee settled — virality before proof dilutes gravity. */}

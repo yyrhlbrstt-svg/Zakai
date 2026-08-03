@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
@@ -22,6 +22,8 @@ import { formatAgorot, shekelsToAgorot } from "@/lib/money";
  */
 export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("depositClaim");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
   const router = useRouter();
   const [vacateDate, setVacateDate] = useState("");
   const [depositAmount, setDepositAmount] = useState(5000);
@@ -195,12 +197,29 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
           <Button onClick={sendWithAgent} disabled={!canSendWithAgent || busy}>
             {busy ? t("agentBusy") : t("agentSendCta")}
           </Button>
-          <Button variant="ghost" onClick={generateLetter} disabled={!status}>
-            {t("generateCta")}
-          </Button>
+          <details className="text-[13px] text-ink-soft">
+            <summary className="cursor-pointer font-bold select-none">
+              {he ? "חלופה — מכתב להעתקה בלבד" : "Alternative — copy-only letter"}
+            </summary>
+            <Button
+              variant="ghost"
+              className="mt-2 w-full"
+              onClick={generateLetter}
+              disabled={!status}
+            >
+              {t("generateCta")}
+            </Button>
+          </details>
         </div>
-        {!status?.isLate && landlordName.trim() && landlordEmail.trim() && (
+        {!status?.isLate && (
           <p className="text-[12px] text-ink-soft">{t("agentNeedsLate")}</p>
+        )}
+        {status?.isLate && !landlordEmail.trim() && (
+          <p className="text-[12px] text-amber mb-0">
+            {he
+              ? "מומלץ למלא אימייל משכיר עכשיו — בלי יעד אי אפשר לשלוח Mandate מהדשבורד."
+              : "Add landlord email now if you have it — Mandate send needs a destination on the dashboard."}
+          </p>
         )}
         {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
       </Card>
