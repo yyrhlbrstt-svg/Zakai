@@ -56,6 +56,10 @@ ${name || "____"}
 
   async function sendWithAgent() {
     setError(null);
+    if (!authorityEmail.trim() || !/@/.test(authorityEmail)) {
+      setError(tFlow("errorNeedsEmail"));
+      return;
+    }
     setBusy(true);
     try {
       const res = await fetch("/api/cases/parking", {
@@ -88,7 +92,9 @@ ${name || "____"}
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(
+        data.dispatched ? `/money?case=${data.caseId}&sent=1` : `/money?case=${data.caseId}`,
+      );
     } catch {
       setError(tFlow("errorGeneric"));
     } finally {

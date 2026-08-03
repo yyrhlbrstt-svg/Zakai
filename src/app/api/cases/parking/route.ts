@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { dispatchAgent } from "@/lib/services/dispatch";
 import { chooseStance } from "@/lib/strategy/store";
 import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
@@ -42,8 +43,11 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  // Soft-open: never invent an inbox and never block case+Mandate when empty.
+  // Parking without an authority inbox never reaches SENT — collect before open.
   const outreachTo = firstOutreachEmail(data.authorityEmail) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -114,12 +118,26 @@ ${reasonText}${data.details ? `\n\nפירוט נוסף: ${data.details}` : ""}
     throw err;
   }
 
+  let dispatched = false;
+  let delivered = false;
+  if (user.emailVerifiedAt) {
+    try {
+      const d = await dispatchAgent(kase.id, auth.userId);
+      dispatched = true;
+      delivered = d.delivered;
+    } catch {
+      /* /money finish surface continues */
+    }
+  }
+
   return NextResponse.json({
     caseId: kase.id,
     subject: staged.subject,
     body: staged.body,
-    status: kase.status,
-    message: "case_opened",
-    needsOutreachEmail: !outreachTo,
+    status: dispatched ? "SENT" : kase.status,
+    message: dispatched ? "mandate_sent" : "case_opened",
+    dispatched,
+    delivered,
+    needsOutreachEmail: false,
   });
 }
