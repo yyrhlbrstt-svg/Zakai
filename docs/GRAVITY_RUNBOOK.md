@@ -21,11 +21,16 @@ npm run packs:export
 
 Origin mirror `/api/cdn/packs` already serves the monorepo artifact for evaluation.
 
+## 1b) Founder cockpit
+
+- `/he/founder` shows live ControlGatesStrip + CEO action list (after ADMIN_EMAIL login).
+- Outreach one-pager: `/api/institution/outreach-kit` (mailto template, no fake logos).
+
 ## 2) First Reference Verifier (G3) — human
 
-1. Send a bank/insurer/telco to `/he/join-network` → Reference Verifier wizard.
-2. One sitting: wizard now checks inbound receive + lists next steps; download  
-   `/api/institution/pilot-package` and `/reference/inbound-receiver/receive.mjs`.
+1. Use `/api/institution/outreach-kit` mailto → send to risk/ops.
+2. They open `/he/join-network` → wizard; download `/api/institution/pilot-package?audience=<their-aud>` (filled sample curl when keys live).
+3. Clone `/reference/inbound-receiver/receive.mjs` into their VPC.
 3. They opt into `/he/institutions/leaders` via the public register API.
 4. Leaders wall stays empty until that row exists — no fake logos.
 5. After merge: confirm `/api/cdn/packs/il/index.json` is 200 (NFT include in next.config).

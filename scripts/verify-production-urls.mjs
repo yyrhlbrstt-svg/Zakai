@@ -48,6 +48,7 @@ const paths = [
   { path: "/api/cdn/packs/manifest.json", expect: 200 },
   { path: "/api/cdn/packs/il/index.json", expect: 200 },
   { path: "/api/institution/pilot-package", expect: 200 },
+  { path: "/api/institution/outreach-kit", expect: 200 },
   { path: "/api/mandate/sandbox-issuer", expect: 200 },
   { path: "/reference/inbound-receiver/receive.mjs", expect: 200 },
   { path: "/he/join-network", expect: 200 },

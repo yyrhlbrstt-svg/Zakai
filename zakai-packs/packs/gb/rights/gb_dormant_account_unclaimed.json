@@ -1,36 +1,27 @@
 {
   "zml_version": "1.0.0",
-  "id": "gb_universal_credit",
+  "id": "gb_dormant_account_unclaimed",
   "version": "2026-08-03",
   "display_name": {
-    "en": "Universal Credit",
-    "he": "אוניברסלי · זיכוי"
+    "en": "dormant account unclaimed",
+    "he": "dormant account unclaimed"
   },
   "market": "GB",
-  "category": "health",
+  "category": "finance",
   "predicate": {
     "operator": "AND",
-    "conditions": [
-      {
-        "field": "incomeBand",
-        "operator": "in",
-        "value": [
-          "low"
-        ],
-        "source": "user_input"
-      }
-    ]
+    "conditions": []
   },
   "action": {
     "kind": "letter",
-    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_universal_credit",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_dormant_account_unclaimed",
     "auto_eligible": false,
     "requires_human_gate": true,
     "output_format": "email"
   },
   "source": {
     "type": "statute",
-    "reference": "Welfare Reform Act 2012, Part 1"
+    "reference": "Dormant Bank and Building Society Accounts Act 2008; reclaim process administered via reclaim funds / participating institutions"
   },
   "metadata": {
     "maintainer": "yyrhlbrstt@gmail.com",

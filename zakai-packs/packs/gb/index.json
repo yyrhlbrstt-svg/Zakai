@@ -1,9 +1,9 @@
 {
-  "pack_version": "2026.08.1",
+  "pack_version": "2026.08.2",
   "market": "GB",
   "language": "en-GB",
   "maintainer": "gb-maintainer@zakai.io",
-  "rights_count": 30,
+  "rights_count": 34,
   "rights": [
     "gb_marriage_allowance",
     "gb_employment_expenses_relief",
@@ -34,7 +34,11 @@
     "gb_workplace_pension_check",
     "gb_holiday_pay_review",
     "gb_student_loan_overpayment",
-    "gb_tenancy_deposit_check"
+    "gb_tenancy_deposit_check",
+    "gb_app_fraud_refund_claim",
+    "gb_basic_bank_account_access",
+    "gb_dormant_account_unclaimed",
+    "gb_persistent_overdraft_review"
   ],
   "engine_requirements": {
     "zml_version": ">=1.0.0 <2.0.0",
@@ -42,7 +46,7 @@
   },
   "_meta": {
     "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
-    "last_updated": "2026-08-03T15:17:41.518Z",
+    "last_updated": "2026-08-03T15:32:07.528Z",
     "source": "src/lib/global/registry"
   }
 }

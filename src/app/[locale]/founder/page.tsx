@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { redirect } from "@/i18n/routing";
+import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { isEmailVerified } from "@/lib/services/emailVerification";
@@ -7,6 +7,7 @@ import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
+import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import type { Locale } from "@/i18n/config";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
@@ -223,18 +224,51 @@ export default async function FounderPage({
         </div>
       )}
 
-      <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
-        <div className="font-extrabold text-[#3EC6FF] mb-2">שכבות רשת (בלי סודות)</div>
-        <p className="m-0 mb-2 text-ink-soft">
-          <code>/api/network/readiness</code> · <code>/api/network/opportunity-map</code> ·{" "}
-          <a className="text-emerald underline" href="/he/integrations">
-            /integrations
-          </a>
+      <div className="mb-2">
+        <h2 className="font-display text-xl m-0 mb-1">P0 מנכ״ל — כבידה, לא סליקה</h2>
+        <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">
+          השערים למטה הם מדד אימוץ. הם לא שווי. עד ש-G3 (verifier) ו-G5 (מנפיק שני) ירוקים —
+          PayPlus/דומיין לא מעלים מונופול. אל תחבר שלב D לפני זה.
         </p>
-        <p className="m-0 text-ink-soft">
-          תבנית תשובה כש**פונים אלינו** (לא שיחות יזומות): <code>docs/BANK_OUTREACH.md</code> ·{" "}
-          <code>docs/INBOUND_INSTITUTIONS.md</code>
-        </p>
+        <ControlGatesStrip locale={locale} />
+        <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
+          <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו</div>
+          <ul className="m-0 ps-5 flex flex-col gap-1.5 text-ink-soft">
+            <li>
+              לשלוח לבנק:{" "}
+              <a className="text-emerald underline" href="/he/join-network">
+                /he/join-network
+              </a>{" "}
+              +{" "}
+              <a className="text-emerald underline" href="/api/institution/pilot-package">
+                pilot-package
+              </a>{" "}
+              ·{" "}
+              <a className="text-emerald underline" href="/api/institution/outreach-kit">
+                outreach-kit
+              </a>
+            </li>
+            <li>
+              מנפיק שני:{" "}
+              <a className="text-emerald underline" href="/api/mandate/delegation/evidence">
+                evidence dry-run
+              </a>{" "}
+              → <code>npm run delegation:admit-pilot</code>
+            </li>
+            <li>
+              בדיקת מכונה: <code>npm run gravity:checklist</code> ·{" "}
+              <a className="text-emerald underline" href="/api/network/trillion-gates">
+                trillion-gates
+              </a>
+            </li>
+            <li>
+              תבנית תשובה למי שפונה: <code>docs/BANK_OUTREACH.md</code> ·{" "}
+              <Link className="text-emerald underline" href="/institutions">
+                /institutions
+              </Link>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">

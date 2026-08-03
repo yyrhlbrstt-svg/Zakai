@@ -1,36 +1,27 @@
 {
   "zml_version": "1.0.0",
-  "id": "gb_mortgage_refinance",
+  "id": "gb_persistent_overdraft_review",
   "version": "2026-08-03",
   "display_name": {
-    "en": "Mortgage Refinance",
-    "he": "משכנתא · מיחזור"
+    "en": "persistent overdraft review",
+    "he": "persistent overdraft review"
   },
   "market": "GB",
-  "category": "housing",
+  "category": "finance",
   "predicate": {
     "operator": "AND",
-    "conditions": [
-      {
-        "field": "housing",
-        "operator": "in",
-        "value": [
-          "owner"
-        ],
-        "source": "user_input"
-      }
-    ]
+    "conditions": []
   },
   "action": {
     "kind": "letter",
-    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_mortgage_refinance",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_persistent_overdraft_review",
     "auto_eligible": false,
     "requires_human_gate": true,
     "output_format": "email"
   },
   "source": {
     "type": "guideline",
-    "reference": "FCA Handbook, MCOB 7 and MCOB 11"
+    "reference": "FCA Handbook, CONC 5D (persistent debt) and BCOBS (overdraft charges and communications)"
   },
   "metadata": {
     "maintainer": "yyrhlbrstt@gmail.com",

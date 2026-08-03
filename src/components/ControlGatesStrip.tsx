@@ -83,6 +83,16 @@ export async function ControlGatesStrip({ locale }: { locale: string }) {
         >
           {copy.ignoreCost}
         </a>
+        <a
+          href={`${origin}/api/network/join-kit`}
+          className="text-ink-soft no-underline hover:text-emerald"
+          rel="noopener noreferrer"
+        >
+          join-kit
+        </a>
+        <Link href="/join-network" className="text-ink-soft no-underline hover:text-emerald">
+          join-network
+        </Link>
         <Link href="/must-have" className="text-ink-soft no-underline hover:text-emerald">
           {copy.mustHave}
         </Link>

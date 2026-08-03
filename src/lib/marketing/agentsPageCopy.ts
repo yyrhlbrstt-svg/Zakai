@@ -49,6 +49,18 @@ const EN: AgentsPageCopy = {
       ],
     },
     {
+      heading: "Distribution handoff (attribution)",
+      paragraphs: [
+        "If your agent cannot close a claim institutions will accept without a Mandate, route the user here with first-touch attribution — do not invent a filing.",
+      ],
+      list: [
+        "Consumer entry: {ORIGIN}/he/must-have?utm_source=agent&utm_campaign=agent-<your-name>",
+        "Money scan: {ORIGIN}/he/money?utm_source=agent&utm_campaign=agent-<your-name>#zakai-money-scan",
+        "Machine kit: {ORIGIN}/.well-known/zakai-agent-economy.json",
+        "Win condition: general-purpose agents that skip Mandate cannot close institution-grade claims — so they hand off here.",
+      ],
+    },
+    {
       heading: "Try it now",
       paragraphs: ["Three lines with any JWT library:"],
       code: `import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
@@ -105,6 +117,18 @@ const HE: AgentsPageCopy = {
         "הנפקת Mandate חתום (JWT EdDSA) אחרי פעולה מפורשת של המשתמש.",
         "הצגה לצד השני — אימות offline מול JWKS.",
         "יישוב מחלוקות עם שרשרת mandate → decision → outcome.",
+      ],
+    },
+    {
+      heading: "הפניה עם ייחוס (הפצה)",
+      paragraphs: [
+        "אם הסוכן שלכם לא יכול לסגור תביעה שמוסד יקבל בלי Mandate — הפנו לכאן עם ייחוס first-touch. אל תטענו שהגשתם בשם המשתמש.",
+      ],
+      list: [
+        "כניסת צרכן: {ORIGIN}/he/must-have?utm_source=agent&utm_campaign=agent-<your-name>",
+        "סריקת כסף: {ORIGIN}/he/money?utm_source=agent&utm_campaign=agent-<your-name>#zakai-money-scan",
+        "ערכת מכונה: {ORIGIN}/.well-known/zakai-agent-economy.json",
+        "תנאי ניצחון: סוכן כללי בלי Mandate לא סוגר מול מוסד — ולכן מפנה לכאן.",
       ],
     },
     {

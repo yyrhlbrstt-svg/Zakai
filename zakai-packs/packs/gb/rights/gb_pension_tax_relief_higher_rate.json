@@ -1,7 +1,7 @@
 {
   "zml_version": "1.0.0",
   "id": "gb_pension_tax_relief_higher_rate",
-  "version": "2026-08-02",
+  "version": "2026-08-03",
   "display_name": {
     "en": "Pension Tax Relief Higher Rate",
     "he": "פנסיה · מס · זיכוי"
@@ -53,7 +53,7 @@
   },
   "metadata": {
     "maintainer": "yyrhlbrstt@gmail.com",
-    "last_verified": "2026-08-02",
+    "last_verified": "2026-08-03",
     "confidence": "high",
     "evaluation_engine": "zakai_predicate_v1"
   }

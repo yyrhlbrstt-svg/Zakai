@@ -31,7 +31,7 @@ export async function notifyInstitutionOnOutboundSend(mandateAudience: string | 
 
   const origin = appOriginForInstitutionEmails();
 
-  const probeSection = conformanceProbeEmailSection(origin);
+  const probeSection = conformanceProbeEmailSection(origin, aud);
 
   await sendEmail({
     to: verifier.contactEmail,

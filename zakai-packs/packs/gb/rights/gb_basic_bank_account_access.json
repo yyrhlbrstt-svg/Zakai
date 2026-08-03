@@ -1,27 +1,27 @@
 {
   "zml_version": "1.0.0",
-  "id": "gb_subscription_audit",
+  "id": "gb_basic_bank_account_access",
   "version": "2026-08-03",
   "display_name": {
-    "en": "Cancel subscription",
-    "he": "ביטול מנוי"
+    "en": "basic bank account access",
+    "he": "basic bank account access"
   },
   "market": "GB",
-  "category": "consumer_protection",
+  "category": "finance",
   "predicate": {
     "operator": "AND",
     "conditions": []
   },
   "action": {
-    "kind": "calculation",
-    "internal_tool": "/cancel",
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_basic_bank_account_access",
     "auto_eligible": false,
     "requires_human_gate": true,
-    "output_format": "json"
+    "output_format": "email"
   },
   "source": {
     "type": "regulation",
-    "reference": "Consumer Rights Act 2015; Payment Services Regulations 2017, reg. 79 (cancelling a continuous payment authority)"
+    "reference": "Payment Accounts Regulations 2015, Part 4 (access to a payment account with basic features)"
   },
   "metadata": {
     "maintainer": "yyrhlbrstt@gmail.com",

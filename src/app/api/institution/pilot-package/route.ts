@@ -1,21 +1,37 @@
 import { NextResponse } from "next/server";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { cacheControlHeader } from "@/lib/scale/publicCache";
+import { issueInstitutionPilotSample } from "@/lib/mandate/demoVerifierReadiness";
 
 export const runtime = "nodejs";
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 /**
- * One-sitting institution pilot kit: URLs + curl + cloneable receiver source.
+ * One-sitting institution pilot kit: URLs + curl + optional live sample JWS.
  * Does not list anyone as a Reference Verifier.
  */
 export async function GET(request: Request) {
-  const origin = new URL(request.url).origin.replace(/\/+$/, "");
+  const url = new URL(request.url);
+  const origin = url.origin.replace(/\/+$/, "");
+  const audience = (url.searchParams.get("audience") || "bank-pilot-demo").trim().toLowerCase();
   const receiverPath = join(process.cwd(), "public/reference/inbound-receiver/receive.mjs");
-  const receiveMjs = existsSync(receiverPath)
-    ? readFileSync(receiverPath, "utf8")
-    : null;
+  const receiveMjs = existsSync(receiverPath) ? readFileSync(receiverPath, "utf8") : null;
+
+  const sample = await issueInstitutionPilotSample(audience);
+
+  const curlInbound = sample
+    ? [
+        `curl -sS -X POST ${origin}/api/institution/inbound-receive \\`,
+        `  -H 'Content-Type: application/json' \\`,
+        `  -H 'Idempotency-Key: ${sample.jti}' \\`,
+        `  -d '{"mandate_jws":"${sample.token}","mandate_jti":"${sample.jti}","intent":"information_request","vertical":"banking","locale":"he-IL"}'`,
+      ].join("\n")
+    : [
+        `curl -sS -X POST ${origin}/api/institution/inbound-receive \\`,
+        `  -H 'Content-Type: application/json' \\`,
+        `  -H 'Idempotency-Key: <mandate_jti>' \\`,
+        `  -d '{"mandate_jws":"<compact-jws>","mandate_jti":"<jti>","intent":"information_request","vertical":"banking","locale":"he-IL"}'`,
+      ].join("\n");
 
   const body = {
     spec: "zakai-institution-pilot-package",
@@ -35,7 +51,9 @@ export async function GET(request: Request) {
       },
       {
         id: 3,
-        title: "POST a sample inbound body (after you have a Mandate JWS)",
+        title: sample
+          ? "POST the filled sample curl below (live Mandate JWS, expires in 1h)"
+          : "POST inbound body — signing keys unavailable in this environment; use wizard sample after keys are set",
         action: `POST ${origin}/api/institution/inbound-receive`,
       },
       {
@@ -50,12 +68,16 @@ export async function GET(request: Request) {
       },
     ],
     curl_health: `curl -sS ${origin}/api/institution/inbound-receive | jq .`,
-    curl_inbound_template: [
-      `curl -sS -X POST ${origin}/api/institution/inbound-receive \\`,
-      `  -H 'Content-Type: application/json' \\`,
-      `  -H 'Idempotency-Key: <mandate_jti>' \\`,
-      `  -d '{"mandate_jws":"<compact-jws>","mandate_jti":"<jti>","intent":"information_request","vertical":"banking","locale":"he-IL"}'`,
-    ].join("\n"),
+    curl_inbound: curlInbound,
+    curl_inbound_template: curlInbound,
+    sample: sample
+      ? {
+          audience: sample.audience,
+          mandate_jti: sample.jti,
+          mandate_jws: sample.token,
+          note: "Demo only — not a live consumer claim. Re-fetch this package for a fresh token.",
+        }
+      : null,
     urls: {
       inbound_spec: `${origin}/.well-known/zakai-inbound-receive.json`,
       jwks: `${origin}/.well-known/zakai-jwks.json`,
@@ -64,6 +86,8 @@ export async function GET(request: Request) {
       wizard: `${origin}/he/institutions/leader`,
       clone_dir: `${origin}/reference/inbound-receiver/`,
       ignore_cost: `${origin}/api/institution/ignore-cost`,
+      outreach_kit: `${origin}/api/institution/outreach-kit`,
+      sample_for_audience: `${origin}/api/institution/pilot-package?audience=YOUR_AUD`,
     },
     receive_mjs: receiveMjs,
   };
@@ -71,7 +95,7 @@ export async function GET(request: Request) {
   return NextResponse.json(body, {
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Cache-Control": cacheControlHeader("catalog"),
+      "Cache-Control": "no-store",
     },
   });
 }

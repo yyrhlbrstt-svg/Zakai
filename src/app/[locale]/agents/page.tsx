@@ -58,7 +58,7 @@ export default async function AgentsPage({
           {section.list && (
             <ul className="list-disc ps-5 flex flex-col gap-2 text-[14.5px] leading-relaxed">
               {section.list.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item}>{item.split("{ORIGIN}").join(ORIGIN)}</li>
               ))}
             </ul>
           )}

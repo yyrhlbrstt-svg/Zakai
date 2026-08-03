@@ -1,7 +1,7 @@
 {
   "zml_version": "1.0.0",
   "id": "gb_employment_expenses_relief",
-  "version": "2026-08-02",
+  "version": "2026-08-03",
   "display_name": {
     "en": "Employment Expenses Relief",
     "he": "עבודה · הוצאות · זיכוי"
@@ -34,7 +34,7 @@
   },
   "metadata": {
     "maintainer": "yyrhlbrstt@gmail.com",
-    "last_verified": "2026-08-02",
+    "last_verified": "2026-08-03",
     "confidence": "high",
     "evaluation_engine": "zakai_predicate_v1"
   }

@@ -36,3 +36,35 @@ export async function issueVerifierReadinessDemoToken(): Promise<string | null> 
     return null;
   }
 }
+
+/** Short-lived Mandate for a bank to POST into the reference inbound receiver. */
+export async function issueInstitutionPilotSample(audience: string): Promise<{
+  token: string;
+  jti: string;
+  audience: string;
+} | null> {
+  const aud = audience.trim().toLowerCase();
+  if (!aud || aud.length < 3 || aud.length > 64) return null;
+  try {
+    const key = loadSigningKeyFromEnv();
+    const jti = `pilot_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+    const token = await issueMandate(
+      {
+        jti,
+        issuer: mandateIssuer(),
+        audience: aud,
+        subject: "institution-pilot-sample",
+        principal: { name: "Institution pilot sample", reference: "pilot" },
+        scopes: ["request:records", "claim:submit"],
+        market: "IL",
+        statement: "Demo mandate for institution inbound pilot only — not a live consumer claim.",
+        ttlSeconds: 3600,
+      },
+      key,
+    );
+    return { token, jti, audience: aud };
+  } catch {
+    return null;
+  }
+}
+

@@ -2,19 +2,7 @@
   "spec": "zakai-packs-cdn-manifest",
   "version": "2026-08-03",
   "markets": [
-    "au",
-    "ca",
-    "de",
-    "es",
-    "fr",
-    "gb",
-    "ie",
-    "il",
-    "it",
-    "nl",
-    "pl",
-    "se",
-    "us"
+    "gb"
   ],
   "layout": {
     "market_index": "{market}/index.json",
