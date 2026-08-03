@@ -2,15 +2,12 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
-import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine } from "lucide-react";
+import { Globe, ScanLine, Bot } from "lucide-react";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
-import { currentArm } from "@/lib/evolve/store";
-import { ENTITLEMENTS } from "@/lib/rights";
 import { DoorTracker } from "@/components/DoorTracker";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { LiveGravityStrip } from "@/components/LiveGravityStrip";
@@ -47,14 +44,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * The homepage's own copy ("home.proof") promises this figure comes "straight
- * from the proof ledger — never typed in." That promise was false: this used
- * to sum every SavingsProof row, verified and self-reported alike, into one
- * number — exactly the "wall that silently mixes documented outcomes with
- * remembered ones" that selfReportedSaving.ts's own docstring warns is a
- * fabricated traction metric wearing a receipt. provenSavings() keeps the two
- * apart; the flagship homepage number now only ever counts the verified side,
- * which is the only side the copy is actually allowed to describe that way.
+ * Honest loop gravity only — never invent traction. provenSavings() keeps
+ * verified vs self-reported apart so the homepage cannot wear a fake receipt.
  */
 async function loadLoopGravity() {
   const [proof, sentCount, mandateCount] = await Promise.all([
@@ -81,8 +72,6 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations();
   const gravity = await loadLoopGravity();
-  // Counted from the catalogue so the front page cannot disagree with it.
-  const ilRightsCount = ENTITLEMENTS.filter((e) => !/^(us|uk|de|fr|ca|au|it)_/.test(e.id)).length;
 
   const steps = ["upload", "act", "pay"] as const;
   const trust = (t.raw("home.trust") as string[]) || [];
@@ -92,41 +81,19 @@ export default async function HomePage({
   let countryTag = "";
   if (visitorCountry) {
     try {
-      const name = new Intl.DisplayNames([locale], { type: "region" }).of(
-        visitorCountry
-      );
+      const name = new Intl.DisplayNames([locale], { type: "region" }).of(visitorCountry);
       if (name) countryTag = " · " + name;
     } catch {
       // ignore
     }
   }
 
-  // Secondary-door order still learns from convert experiments — but Money Hub
-  // is no longer one of several equal front doors; it is the only start.
-  const doorArm = await currentArm<string[]>("home_door_order");
-  const doorOrder = doorArm?.payload ?? ["cancel", "owed", "electricity"];
-
-  const secondaryDoorsByKey = [
-    { href: "/cancel", titleKey: "door.cancel.title" },
-    { href: "/entitlements", titleKey: "door.owed.title" },
-    { href: "/electricity", titleKey: "door.electricity.title" },
-    { href: "/incident", titleKey: "door.incident.title" },
-    { href: "/dormant", titleKey: "door.dormant.title" },
-    { href: "/vehicle-check", titleKey: "door.vehicleCheck.title" },
+  // Loop-only shortcuts — never competing front doors (incident/dormant/vehicle…).
+  const loopShortcuts = [
+    { href: "/cancel", titleKey: "door.cancel.title" as const },
+    { href: "/check", titleKey: "door.check.title" as const },
+    { href: "/bank-fees", titleKey: "door.bankfees.title" as const },
   ];
-
-  const doorKey = (href: string) => {
-    const slug = href.replace("/", "");
-    if (slug === "what-am-i-owed" || slug === "entitlements") return "owed";
-    return slug;
-  };
-  const rank = (href: string) => {
-    const i = doorOrder.indexOf(doorKey(href));
-    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
-  };
-  const secondaryDoors = [...secondaryDoorsByKey].sort(
-    (a, b) => rank(a.href) - rank(b.href),
-  );
 
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
@@ -138,7 +105,7 @@ export default async function HomePage({
       )}
 
       {/* One composition: brand + one headline + one sub + one CTA group. */}
-      <div className="mb-10 max-w-[640px]">
+      <div className="mb-8 max-w-[640px]">
         <Reveal>
           <PageKicker className="mb-6">
             {t("home.kicker")}
@@ -169,8 +136,29 @@ export default async function HomePage({
         </Reveal>
       </div>
 
-      <Reveal delay={120}>
-        <Link href="/money#zakai-money-scan" className="no-underline block mb-10">
+      {/* Gravity before any secondary path — prove the loop is real (zeros stay zeros). */}
+      <Reveal delay={80}>
+        <div className="mb-8">
+          <LiveGravityStrip
+            localeBcp47={bcp47[locale as Locale]}
+            verifiedMinor={gravity.monthlyAgorot}
+            verifiedCount={gravity.count}
+            sentCount={gravity.sentCount}
+            mandateCount={gravity.mandateCount}
+            labels={{
+              title: t("home.gravityTitle"),
+              sent: t("home.gravitySent"),
+              mandates: t("home.gravityMandates"),
+              proofs: t("home.gravityProofs"),
+              empty: t("home.gravityEmpty"),
+              ledger: t("home.gravityLedger"),
+            }}
+          />
+        </div>
+      </Reveal>
+
+      <Reveal delay={100}>
+        <Link href="/money#zakai-money-scan" className="no-underline block mb-8">
           <SpotlightCard className="p-7 sm:p-8 border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.08)] hover:scale-[1.01] transition-transform">
             <div className="flex flex-wrap items-start gap-5">
               <div className="w-12 h-12 rounded-xl bg-[rgba(63,203,155,0.22)] flex items-center justify-center shrink-0">
@@ -196,32 +184,9 @@ export default async function HomePage({
       </Reveal>
 
       <Reveal delay={80}>
-        <div className="mb-12">
-          <LiveGravityStrip
-            localeBcp47={bcp47[locale as Locale]}
-            verifiedMinor={gravity.monthlyAgorot}
-            verifiedCount={gravity.count}
-            sentCount={gravity.sentCount}
-            mandateCount={gravity.mandateCount}
-            labels={{
-              title: t("home.gravityTitle"),
-              sent: t("home.gravitySent"),
-              mandates: t("home.gravityMandates"),
-              proofs: t("home.gravityProofs"),
-              empty: t("home.gravityEmpty"),
-              ledger: t("home.gravityLedger"),
-            }}
-          />
-        </div>
-      </Reveal>
-
-      <Reveal delay={100}>
         <ul className="flex flex-col gap-2 mb-10 list-none p-0 m-0 max-w-[560px]">
           {trust.map((line) => (
-            <li
-              key={line}
-              className="flex items-center gap-2.5 text-[13.5px] text-ink-soft"
-            >
+            <li key={line} className="flex items-center gap-2.5 text-[13.5px] text-ink-soft">
               <span className="text-emerald font-black" aria-hidden>
                 ✓
               </span>
@@ -233,11 +198,9 @@ export default async function HomePage({
 
       <div id="how-zakai-works">
         <Reveal>
-          <h2 className="text-[17px] font-extrabold mb-4">
-            {t("home.howTitle")}
-          </h2>
+          <h2 className="text-[17px] font-extrabold mb-4">{t("home.howTitle")}</h2>
         </Reveal>
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-10">
           {steps.map((key, i) => (
             <Reveal key={key} delay={i * 90}>
               <SpotlightCard className="p-6 h-full">
@@ -258,9 +221,35 @@ export default async function HomePage({
         </div>
       </div>
 
+      {/* Agent as the brain — not a sidebar afterthought. */}
       <Reveal delay={60}>
-        <h2 className="text-[17px] font-extrabold mb-3">{t("home.systemsTitle")}</h2>
-        <ul className="flex flex-col gap-2 list-none p-0 m-0 max-w-[560px] mb-14">
+        <Link href="/assistant" className="no-underline block mb-12">
+          <SpotlightCard className="p-6 border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] hover:scale-[1.01] transition-transform">
+            <div className="flex flex-wrap items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-[rgba(62,198,255,0.18)] flex items-center justify-center shrink-0">
+                <Bot size={22} className="text-[#3ec6ff]" aria-hidden />
+              </div>
+              <div className="flex-1 min-w-[220px]">
+                <div className="text-[12px] font-extrabold text-[#3ec6ff] tracking-wide mb-1">
+                  {t("home.agentBrainKicker")}
+                </div>
+                <div className="font-extrabold text-[18px] leading-tight">
+                  {t("home.agentBrainTitle")}
+                </div>
+                <p className="text-ink-soft text-[14px] mt-2 mb-0 leading-relaxed max-w-[520px]">
+                  {t("home.agentBrainSub")}
+                </p>
+                <div className="mt-3 text-[14px] font-extrabold text-[#3ec6ff]">
+                  {t("home.agentBrainCta")} →
+                </div>
+              </div>
+            </div>
+          </SpotlightCard>
+        </Link>
+      </Reveal>
+
+      <Reveal delay={40}>
+        <ul className="flex flex-col gap-2 list-none p-0 m-0 max-w-[560px] mb-12">
           {((t.raw("home.systemsBullets") as string[]) || []).map((line) => (
             <li
               key={line}
@@ -275,8 +264,7 @@ export default async function HomePage({
         </ul>
       </Reveal>
 
-      {/* Shortcuts sit below the loop explanation so they cannot compete with Money Hub. */}
-      <DoorTracker experimentId="home_door_order" armId={doorArm?.id ?? "money_first"} />
+      <DoorTracker experimentId="home_door_order" armId="money_first" />
       <Reveal>
         <h2 className="text-[15px] font-extrabold mb-1 text-ink-soft">
           {t("home.secondaryDoors")}
@@ -285,8 +273,8 @@ export default async function HomePage({
           {t("home.secondaryDoorsSub")}
         </p>
       </Reveal>
-      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-14 max-w-[720px]">
-        {secondaryDoors.map((d) => (
+      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-14 max-w-[720px]">
+        {loopShortcuts.map((d) => (
           <Link
             key={d.href}
             href={d.href}
@@ -298,35 +286,22 @@ export default async function HomePage({
       </div>
 
       <Reveal delay={60}>
-        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
-          {t("home.estimateTitle")}
-        </h2>
-        <div className="mb-10 max-w-[480px]">
-          <Zakameter bcp47={bcp47[locale as Locale]} />
-        </div>
-      </Reveal>
-
-      <Reveal delay={80}>
         <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5 mb-4">
           {(
             (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
-          ).map((s, i) => (
+          ).map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
-                {i === 1 ? ilRightsCount : s.n}
+              <div className="font-display grad-text text-[clamp(22px,5vw,30px)] leading-none tabular-nums">
+                {s.n}
               </div>
-              <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
-                {s.label}
-              </div>
+              <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">{s.label}</div>
             </div>
           ))}
         </div>
       </Reveal>
 
       <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-4">
-          {t("home.whyTitle")}
-        </h2>
+        <h2 className="text-[17px] font-extrabold mt-14 mb-4">{t("home.whyTitle")}</h2>
       </Reveal>
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
         {(["alone", "services", "zakai"] as const).map((col, i) => {
@@ -337,14 +312,11 @@ export default async function HomePage({
           const titleCls = isZakai
             ? "font-extrabold text-[15px] text-emerald"
             : "font-extrabold text-[15px]";
-          const points =
-            (t.raw("home.why." + col + ".points") as string[]) || [];
+          const points = (t.raw("home.why." + col + ".points") as string[]) || [];
           return (
             <Reveal key={col} delay={i * 90}>
               <SpotlightCard className={cardCls}>
-                <div className={titleCls}>
-                  {t("home.why." + col + ".title")}
-                </div>
+                <div className={titleCls}>{t("home.why." + col + ".title")}</div>
                 <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
                   {points.map((p) => (
                     <li
@@ -371,18 +343,22 @@ export default async function HomePage({
         })}
       </div>
 
+      {/* Institutions / Mandate adoption — not a tools bazaar. */}
       <Reveal>
-        <div className="mt-16 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] px-6 py-7">
+        <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-7">
           <h2 className="font-display text-[clamp(20px,3.5vw,26px)] m-0 text-center">
-            {t("home.developersTitle")}
+            {t("home.institutionsTitle")}
           </h2>
           <p className="text-ink-soft text-[14.5px] mt-3 max-w-[560px] mx-auto text-center leading-relaxed">
-            {t("home.developersSub")}
+            {t("home.institutionsSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-5">
-            <Link href="/tools">
+            <Link href="/institutions/quickstart">
+              <Button className="!text-[13.5px]">{t("home.institutionsQuickstart")}</Button>
+            </Link>
+            <Link href="/institutions">
               <Button variant="ghost" className="!text-[13.5px]">
-                {t("home.developersTools")}
+                {t("home.institutionsCta")}
               </Button>
             </Link>
             <Link href="/network-proof">
@@ -390,17 +366,15 @@ export default async function HomePage({
                 {t("home.developersProof")}
               </Button>
             </Link>
-            <Link href="/integrations">
-              <Button variant="ghost" className="!text-[13.5px]">
-                {t("home.developersIntegrations")}
-              </Button>
-            </Link>
           </div>
+          <p className="text-[12.5px] text-ink-soft text-center mt-4 mb-0 font-mono" dir="ltr">
+            {t("home.institutionsSdk")}
+          </p>
         </div>
       </Reveal>
 
       <Reveal>
-        <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
+        <div className="mt-12 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
             {t("home.closingTitle")}
           </div>
@@ -411,8 +385,8 @@ export default async function HomePage({
             <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-6 !py-3">{t("home.closingCta")}</Button>
             </Link>
-            <Link href="/institutions">
-              <Button variant="ghost">{t("home.closingB2b")}</Button>
+            <Link href="/assistant">
+              <Button variant="ghost">{t("home.closingAgent")}</Button>
             </Link>
           </div>
         </div>

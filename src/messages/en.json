@@ -271,34 +271,34 @@
         "sub": "One photo — Zakai detects provider, amount and plan"
       },
       "act": {
-        "title": "Zakai acts for you",
-        "sub": "Written correspondence only — never a phone call. Zakai doesn't call you and doesn't call the company on your behalf; you approve the exact wording before it sends"
+        "title": "The agent sends with a Mandate",
+        "sub": "Written outreach only — after you approve and verify. No call to you, no call to the provider; they can verify the signature via JWKS"
       },
       "pay": {
-        "title": "Pay only on success",
-        "sub": "18% fee from actual savings. No documented saving — no charge"
+        "title": "Fee only after SavingsProof",
+        "sub": "18% of the documented saving. No proof — no charge. The agent never promises a callback"
       }
     },
     "start": "Let's start"
   },
   "home": {
-    "kicker": "The agent that gives you back your money — and your time",
+    "kicker": "Digital agent with Mandate — no call centre",
     "title1": "You're overpaying.",
     "title2": "Zakai gets it back.",
-    "sub": "Zakai scans charges, drafts outreach, and after you approve and verify — sends in your name with a Mandate and tracks documented savings. No call centre, no forms. Fee only on money that actually returns.",
+    "sub": "The agent closes one loop: scan → case → Mandate → send → documented saving. Start in My money. Fee only on money that actually returns.",
     "cta": "Start in My money",
     "heroLeaks": "Money leak map",
     "howTitle": "How it works",
     "trust": [
-      "Zero phone calls — everything in-app, under your mandate",
-      "Success fee only — 18% of the saving",
-      "Full disclosure — a digital agent under your mandate, publicly verifiable"
+      "One agent closes the loop — in-app, under your Mandate",
+      "Success fee only — 18% of documented savings",
+      "Mandate verifiable via JWKS — not a verbal promise"
     ],
     "systemsTitle": "A system in the background — not another tip list",
     "systemsBullets": [
-      "Order from chaos — one case thread per money door",
-      "Less friction — no call centre, no \"we'll call you back\"",
-      "Machine-readable authority — Mandate you can verify and revoke",
+      "One loop — scan → Mandate → send → SavingsProof → fee",
+      "No call centre, no \"we'll call you back\"",
+      "Mandate you can verify, revoke, and re-issue",
       "Fee only after proof — on money that actually returned"
     ],
     "scopeNote": "Zakai acts on your behalf with providers and authorities under a digital power of attorney you approve for each request, verifiable publicly. It is not a law firm, gives no legal or tax advice, and final eligibility is determined by the body the request is filed with.",
@@ -489,16 +489,16 @@
     },
     "stats": [
       {
-        "n": "12+",
-        "label": "money checks"
-      },
-      {
-        "n": "55",
-        "label": "statutory rights"
+        "n": "Mandate",
+        "label": "signed authority anyone can verify"
       },
       {
         "n": "₪0",
-        "label": "until savings are proven"
+        "label": "until savings are documented"
+      },
+      {
+        "n": "In-app",
+        "label": "no call centre, no callback promise"
       }
     ],
     "verticalsSub": "By what matters to you — each one tap away, most free and no signup.",
@@ -509,18 +509,28 @@
       "business": "Business & self-employed"
     },
     "geoNote": "Looks like you are browsing from outside Israel. Some tools (lost money, cancelling subscriptions, price protection) work anywhere; rights and refunds are tuned for Israel today, and we are expanding to more regions.",
-    "closingTitle": "The money you're owed — without doing anything",
-    "closingSub": "Every shekel saved is documented, and every request is sent with authority anyone can verify. You just watch the number go up.",
-    "closingCta": "Start now",
-    "closingB2b": "Business & institutions",
+    "closingTitle": "The loop closes money — not a tool list",
+    "closingSub": "Every request carries a verifiable Mandate. Every saving is documented. Start in My money — the agent continues from there.",
+    "closingCta": "Go to My money",
+    "closingB2b": "Institutions — verify Mandate",
+    "closingAgent": "Ask the agent",
     "developersTitle": "Developers, banks, AI agents",
     "developersSub": "Find us through the public protocol — no sales calls. Verify, then write.",
     "developersTools": "Tools map",
     "developersProof": "Network proof",
     "developersIntegrations": "Mandate integration",
-    "ctaSecondary": "How it works",
-    "secondaryDoors": "Shortcuts — only after My money",
-    "secondaryDoorsSub": "Not front doors. Shortcuts if you already know exactly what’s missing.",
+    "institutionsTitle": "Institutions — verify a Mandate in 15 minutes",
+    "institutionsSub": "Live JWKS, test vectors, Status List. No sales call. Pass the gate, then claim Pioneer.",
+    "institutionsQuickstart": "Quickstart — 15 minutes",
+    "institutionsCta": "Institutions page",
+    "institutionsSdk": "npm i @zakai/mandate-sdk · npx zakai-mandate-ready",
+    "agentBrainKicker": "The system brain",
+    "agentBrainTitle": "The agent steers you to the open loop",
+    "agentBrainSub": "Not a menu of 60 tools — one next step: My money, Mandate send, or record a saving. The agent never promises a callback.",
+    "agentBrainCta": "Open the agent",
+    "ctaSecondary": "How the loop works",
+    "secondaryDoors": "Loop shortcuts — after My money",
+    "secondaryDoorsSub": "Only paths that close Mandate + documented saving. Not side calculators.",
     "estimateTitle": "Quick estimate (not a substitute for My money)",
     "gravityTitle": "What has actually happened",
     "gravitySent": "Outreach sent",
@@ -528,8 +538,8 @@
     "gravityProofs": "Documented savings · {count} proofs",
     "gravityEmpty": "No documented savings yet — this number stays zero until it is real",
     "gravityLedger": "Open the public ledger",
-    "moneyFeatureTitle": "Start here",
-    "moneyFeatureSub": "Photo a bill → case → Mandate → send → documented saving.",
+    "moneyFeatureTitle": "The only start door",
+    "moneyFeatureSub": "Photo a bill → case → Mandate → send → documented saving. That is the whole product.",
     "moneyFeatureCta": "Open My money"
   },
   "flow": {
@@ -4743,6 +4753,16 @@
       "sub": "Case + verified Mandate send to the provider — not an instant send from this page.",
       "cta": "Cancel it for me"
     },
+    "check": {
+      "title": "Mobile — Mandate case",
+      "sub": "The most mature path: analyze → verify → send → SavingsProof.",
+      "cta": "Check mobile"
+    },
+    "bankfees": {
+      "title": "Bank fees",
+      "sub": "Dispute a fee — case, Mandate, send, and track.",
+      "cta": "Dispute a fee"
+    },
     "owed": {
       "title": "What am I owed?",
       "sub": "Rights, benefits and refunds you never claimed — eight questions, no documents.",
@@ -4974,9 +4994,9 @@
     "errorCaseLimit": "Case limit reached. Upgrade or close an existing case."
   },
   "inline_app_locale_money_page": {
-    "t_98667843": "Money OS · My money",
-    "t_2144de53": "Where money goes — and the agent acts",
-    "t_26d7de3c": "Or act directly",
+    "t_98667843": "The only door · My money",
+    "t_2144de53": "Scan → Mandate → documented saving",
+    "t_26d7de3c": "Loop shortcuts",
     "t_bc18d8da": "Cancel sub with agent",
     "t_a4c2b6a9": "Cellular bill check",
     "t_38d0577a": "My dashboard",

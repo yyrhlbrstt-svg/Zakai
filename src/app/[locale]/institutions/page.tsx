@@ -79,7 +79,7 @@ export default async function InstitutionsPage({
         <strong className="text-emerald">{t("whyAdoptStrong")}</strong> {t("whyAdoptBody")}
       </EmeraldInfoPanel>
 
-      <div className="mb-8">
+      <div className="mb-6">
         <LiveGravityStrip
           localeBcp47={bcp47[locale as Locale]}
           verifiedMinor={proof.verifiedMinor}
@@ -98,6 +98,39 @@ export default async function InstitutionsPage({
           }}
         />
       </div>
+
+      <Card className="mb-6 p-5 border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)]">
+        <div className="font-extrabold text-[15px] text-[#3ec6ff] mb-2">
+          {heEn(he, "SDK רשמי קטן — שלוש שורות לאימות", "Small official SDK — three lines to verify")}
+        </div>
+        <p className="text-[13.5px] text-ink-soft leading-relaxed mb-3">
+          {he
+            ? "אותו לוגיקת אימות כמו בפרודקשן. עד הפרסום הראשון ב־npm — מהמונורפו (sdk/). אחרי תג sdk@v* — npm install."
+            : "Same verification logic as production. Until first npm publish — install from the monorepo (sdk/). After an sdk@v* tag — npm install."}
+        </p>
+        <pre
+          className="rounded-xl bg-[#060b12] border border-[rgba(255,255,255,0.1)] px-4 py-3 text-[12.5px] font-mono text-ink overflow-x-auto mb-3"
+          dir="ltr"
+        >{`npm i @zakai/mandate-sdk
+npx zakai-mandate-ready`}</pre>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href="https://github.com/yyrhlbrstt-svg/Zakai/tree/main/sdk"
+            className="no-underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button variant="ghost" className="!text-[13px]">
+              {heEn(he, "קוד SDK ב־GitHub", "SDK source on GitHub")}
+            </Button>
+          </a>
+          <a href={`${ORIGIN}/api/mandate/ready`} className="no-underline" target="_blank" rel="noreferrer">
+            <Button variant="ghost" className="!text-[13px] font-mono">
+              GET /api/mandate/ready
+            </Button>
+          </a>
+        </div>
+      </Card>
 
       <Card className="mb-8 p-5 border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)]">
         <div className="font-extrabold text-[15px] text-emerald mb-2">

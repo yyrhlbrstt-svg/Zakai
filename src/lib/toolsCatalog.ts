@@ -15,15 +15,16 @@ export interface ToolEntry {
 }
 
 export const TOOL_CATALOG: readonly ToolEntry[] = [
-  // Featured = header dropdown only. Keep loop-adjacent agent doors — developer
-  // / network surfaces live on /tools so they cannot dilute Mandate volume.
+  // Featured = header dropdown only. Hard cap: Money + agent brain + mature
+  // Mandate loops. Everything else lives on /tools so nav cannot dilute volume.
   { href: "/money", key: "money", category: "agent", featured: true, agentic: true },
+  { href: "/assistant", key: "assistant", category: "agent", featured: true },
   { href: "/cancel", key: "cancel", category: "agent", featured: true, agentic: true },
   { href: "/cancel/universal", key: "universalCancel", category: "agent" },
   { href: "/check", key: "newCheck", category: "agent", featured: true, agentic: true },
   { href: "/bank-fees", key: "bankfees", category: "agent", featured: true, agentic: true },
   { href: "/bank-loan-fee", key: "bankloanfee", category: "rights" },
-  { href: "/electricity", key: "electricity", category: "agent", featured: true, agentic: true },
+  { href: "/electricity", key: "electricity", category: "agent", agentic: true },
   { href: "/flights", key: "flights", category: "agent", agentic: true },
   { href: "/refund-chase", key: "refundchase", category: "agent", agentic: true },
   { href: "/what-am-i-owed", key: "whatAmIOwed", category: "rights" },
@@ -31,7 +32,6 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/rights", key: "rights", category: "rights" },
   { href: "/leaks", key: "leaks", category: "agent" },
   { href: "/proofs", key: "proofs", category: "agent" },
-  { href: "/assistant", key: "assistant", category: "agent", featured: true },
   { href: "/must-have", key: "mustHave", category: "agent" },
   { href: "/companies", key: "companiesFairness", category: "rights" },
   { href: "/regulatory", key: "regulatoryKit", category: "developers" },
@@ -60,7 +60,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/duplicate-insurance", key: "dupinsurance", category: "agent", agentic: true },
   { href: "/pension-fees", key: "pension", category: "selfHelp" },
   { href: "/mortgage", key: "mortgage", category: "selfHelp" },
-  { href: "/deposit", key: "deposit", category: "agent", featured: true, agentic: true },
+  { href: "/deposit", key: "deposit", category: "agent", agentic: true },
   { href: "/deals", key: "deals", category: "selfHelp" },
   { href: "/join-network", key: "joinNetwork", category: "developers" },
   { href: "/fairness-certified", key: "fairnessCertified", category: "developers" },
@@ -91,15 +91,15 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/taxrefund", key: "taxrefund", category: "rights" },
   { href: "/unemployment", key: "unemployment", category: "rights" },
   { href: "/olim", key: "olim", category: "rights" },
-  { href: "/parking", key: "parking", category: "agent", featured: true, agentic: true },
-  { href: "/transport-fine", key: "transportFine", category: "agent", featured: true, agentic: true },
+  { href: "/parking", key: "parking", category: "agent", agentic: true },
+  { href: "/transport-fine", key: "transportFine", category: "agent", agentic: true },
   { href: "/baggage", key: "baggage", category: "selfHelp" },
   { href: "/price-protection", key: "priceprotection", category: "selfHelp" },
   { href: "/warranty", key: "warranty", category: "agent", agentic: true },
   { href: "/miluim", key: "miluim", category: "rights" },
   { href: "/contract-check", key: "contractCheck", category: "selfHelp" },
   { href: "/overtime-backpay", key: "overtimeBackPay", category: "selfHelp" },
-  { href: "/late-payment", key: "latePayment", category: "agent", featured: true, agentic: true },
+  { href: "/late-payment", key: "latePayment", category: "agent", agentic: true },
   { href: "/scam-check", key: "scamCheck", category: "selfHelp" },
   { href: "/complaint-escalation", key: "complaintEscalation", category: "selfHelp" },
   { href: "/deadlines", key: "deadlines", category: "selfHelp" },
