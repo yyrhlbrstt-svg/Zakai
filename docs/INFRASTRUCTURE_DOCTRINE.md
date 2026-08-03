@@ -87,7 +87,19 @@ Priority order (**do not invert**):
 - Never invent savings amounts. Only real, user-recorded, documented outcomes become SavingsProof.
 - Never drift into “advice” or “call center.” Everything stays self-serve + written + Mandate-backed.
 - Prefer depth in the core loop over new verticals or shiny features.
-- Every new screen or API must answer: **“Does this create more Mandates or more SavingsProofs?”** If no — deprioritize.
+- Do **not** try to look impressive in many small ways. Be **decisive** in a few critical ways.
+- Every new screen or API must pass the **decisive filter** below. If it fails — deprioritize.
+
+### Decisive filter
+
+At every product decision, ask:
+
+1. Does this help more users **finish the loop**?
+2. Does this create more **documented SavingsProofs**?
+3. Does this make Zakai **harder to replace**?
+4. Does this increase **real pressure on institutions** over time?
+
+If the answer is no — do not ship it to look busy. Zakai wins as the **default system for getting money back**, not as a large collection of tools.
 
 ## What “strongest in the market” looks like
 
@@ -114,6 +126,8 @@ Every feature must either:
 - or **Spread** (share / referral that drives more Mandates).
 
 If it does none of these, it does not ship.
+
+And even among Find/Act/Prove/Spread: ship only what is **decisive** for loop completion, documented proofs, switching cost, or institutional pressure — not incremental tool-shelf polish.
 
 ## Solo ops checklist
 
