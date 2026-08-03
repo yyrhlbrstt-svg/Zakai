@@ -19,6 +19,14 @@
     {
       "path": "/api/cron/institution-inbound",
       "schedule": "0 10 * * 1"
+    },
+    {
+      "path": "/api/cron/autopilot",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/autopilot/law-watcher",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

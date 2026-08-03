@@ -102,6 +102,20 @@ export function buildDomainsDocument(origin: string): {
       },
       reference_routes: ["/money", "/what-am-i-owed"],
     },
+    {
+      id: "autopilot",
+      name: "Self-updating autopilot",
+      tagline: "Law watcher, price sentinel, outcome stats, market expander — human gates on law.",
+      status: "beta",
+      honesty:
+        "Does not auto-merge ZML or post to TikTok; opens maintainer tasks and logs findings.",
+      endpoints: {
+        manifest: `${base}/.well-known/zakai-autopilot.json`,
+        status: `${base}/api/autopilot/status`,
+        cron: `${base}/api/cron/autopilot`,
+      },
+      reference_routes: ["/domains", "/standard"],
+    },
   ];
 
   return {

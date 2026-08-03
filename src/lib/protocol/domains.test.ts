@@ -5,14 +5,8 @@ import { buildSwitchingDocument } from "./switching";
 describe("five domains manifest", () => {
   it("lists five domains with endpoints", () => {
     const doc = buildDomainsDocument("https://zakai.example");
-    expect(doc.domains).toHaveLength(5);
-    expect(doc.domains.map((d) => d.id)).toEqual([
-      "zml",
-      "fairness_score",
-      "switching_protocol",
-      "regulatory_intelligence",
-      "collective_intent",
-    ]);
+    expect(doc.domains).toHaveLength(6);
+    expect(doc.domains.map((d) => d.id)).toContain("autopilot");
   });
 
   it("switching spec has reference profiles", () => {

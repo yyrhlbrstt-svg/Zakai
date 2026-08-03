@@ -66,6 +66,8 @@ const CHECKS = [
     cost: "Web Push disabled — inbound/saved nudges reach users by email only; PWA re-engagement drops." },
   { key: "VAPID_PRIVATE_KEY", level: "degrading",
     cost: "Web Push disabled — same as missing public VAPID key." },
+  { key: "AUTOPILOT_GITHUB_REPO", level: "optional", alt: ["GITHUB_TOKEN"],
+    cost: "Law Watcher and Market Expander will not open maintainer GitHub issues." },
 ];
 
 // A configured address on a reserved domain is worse than an absent one: the
