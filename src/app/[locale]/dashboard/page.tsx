@@ -128,6 +128,8 @@ export default async function DashboardPage({
 
   // Follow-up drafts only after the same wait as cron auto-follow-up —
   // day-0 "overnight delay" contradicts SENT wait honesty.
+  // Also require ACTIVE Mandate + stored outreach inbox — otherwise send fails
+  // and OvernightAgent becomes theater (ranker already surfaces those stuck cases).
   const followUpCutoff = Date.now() - SENT_FOLLOWUP_AFTER_DAYS * 86_400_000;
   const sentCases = cases
     .filter(
@@ -135,7 +137,9 @@ export default async function DashboardPage({
         c.status === "SENT" &&
         !proposedMap.has(c.id) &&
         (agentRoundMap.get(c.id) ?? 0) < MAX_AGENT_ROUNDS &&
-        c.updatedAt.getTime() <= followUpCutoff,
+        c.updatedAt.getTime() <= followUpCutoff &&
+        c.authorization?.status === "ACTIVE" &&
+        Boolean(c.counterpartyEmail && /@/.test(c.counterpartyEmail)),
     )
     .map((c) => ({
       id: c.id,

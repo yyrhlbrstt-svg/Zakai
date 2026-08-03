@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { heEn } from "@/lib/heEn";
 
@@ -12,9 +12,18 @@ interface SentCase {
   agentRound?: number;
 }
 
+type SendBlock =
+  | "NEEDS_OUTREACH_EMAIL"
+  | "NO_ACTIVE_MANDATE"
+  | "NO_TRANSPORT"
+  | "MAX_ROUNDS"
+  | "generic";
+
 /**
  * Batch-draft follow-ups for every SENT case — overnight-agent feel.
  * Draft first (HITL), then optional Send via Zakai with Mandate.
+ * Dashboard should only pass cases that already have ACTIVE Mandate + inbox;
+ * send errors still surface specific unblock CTAs.
  */
 export function OvernightAgent({ cases }: { cases: SentCase[] }) {
   const locale = useLocale();
@@ -30,6 +39,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
       body: string;
       tip?: string;
       error?: boolean;
+      sendBlock?: SendBlock;
       sent?: boolean;
       round?: number;
     }>
@@ -37,6 +47,29 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   if (cases.length === 0) return null;
+
+  function classifySendError(error: unknown): SendBlock {
+    if (error === "NEEDS_OUTREACH_EMAIL") return "NEEDS_OUTREACH_EMAIL";
+    if (error === "NO_ACTIVE_MANDATE") return "NO_ACTIVE_MANDATE";
+    if (error === "NO_TRANSPORT") return "NO_TRANSPORT";
+    if (error === "MAX_ROUNDS") return "MAX_ROUNDS";
+    return "generic";
+  }
+
+  function blockCopy(block: SendBlock): string {
+    switch (block) {
+      case "NEEDS_OUTREACH_EMAIL":
+        return tIcomponents_OvernightAgent("errNeedsOutreach");
+      case "NO_ACTIVE_MANDATE":
+        return tIcomponents_OvernightAgent("errMandateInactive");
+      case "NO_TRANSPORT":
+        return tIcomponents_OvernightAgent("errNoTransport");
+      case "MAX_ROUNDS":
+        return tIcomponents_OvernightAgent("errMaxRounds");
+      default:
+        return tIcomponents_OvernightAgent("t_1768c8d7");
+    }
+  }
 
   async function runBatch() {
     setBusy(true);
@@ -51,7 +84,14 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
           body: JSON.stringify({ replyKind: "delay", round }),
         });
         if (!res.ok) {
-          out.push({ id: c.id, providerLabel: c.providerLabel, body: "", error: true });
+          const data = await res.json().catch(() => ({}));
+          out.push({
+            id: c.id,
+            providerLabel: c.providerLabel,
+            body: "",
+            error: true,
+            sendBlock: classifySendError(data.error),
+          });
           continue;
         }
         const data = await res.json();
@@ -63,7 +103,13 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
           round: data.round ?? round,
         });
       } catch {
-        out.push({ id: c.id, providerLabel: c.providerLabel, body: "", error: true });
+        out.push({
+          id: c.id,
+          providerLabel: c.providerLabel,
+          body: "",
+          error: true,
+          sendBlock: "generic",
+        });
       }
     }
     setResults(out);
@@ -88,6 +134,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                 body: data.body || r.body,
                 tip: data.tip || r.tip,
                 error: !res.ok,
+                sendBlock: res.ok ? undefined : classifySendError(data.error),
               }
             : r,
         ),
@@ -105,8 +152,8 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
       </div>
       <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">
         {he
-          ? `יש ${cases.length} תיקים שחיכו כמה ימים בלי תשובה. הסוכן מכין טיוטת המשך — אתם מאשרים ושולחים דרך זכאי עם Mandate. אם כבר ענו — הדביקו את התשובה בתיק.`
-          : `${cases.length} SENT case(s) waited several days with no reply. Agent drafts a follow-up — you review, then send via Zakai with Mandate. If they already replied — paste it on the case.`}
+          ? `יש ${cases.length} תיקים שחיכו כמה ימים בלי תשובה (Mandate פעיל + אימייל יעד). הסוכן מכין טיוטת המשך — אתם מאשרים ושולחים דרך זכאי. אם כבר ענו — הדביקו את התשובה בתיק.`
+          : `${cases.length} SENT case(s) waited several days with no reply (ACTIVE Mandate + outreach inbox). Agent drafts a follow-up — you review, then send via Zakai. If they already replied — paste it on the case.`}
       </p>
       <Button className="mt-3" disabled={busy} onClick={runBatch}>
         {busy
@@ -127,15 +174,42 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
             >
               <div className="font-bold text-[13.5px]">{r.providerLabel}</div>
               {r.error && !r.body ? (
-                <p className="text-[12.5px] text-amber mt-1 mb-0">
-                  {tIcomponents_OvernightAgent("t_1768c8d7")}
-                </p>
+                <div className="mt-1">
+                  <p className="text-[12.5px] text-amber mb-2">
+                    {blockCopy(r.sendBlock ?? "generic")}
+                  </p>
+                  {(r.sendBlock === "NEEDS_OUTREACH_EMAIL" ||
+                    r.sendBlock === "NO_ACTIVE_MANDATE" ||
+                    r.sendBlock === "MAX_ROUNDS") && (
+                    <Link
+                      href={`/dashboard?case=${r.id}`}
+                      className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
+                    >
+                      {tIcomponents_OvernightAgent("openCase")} →
+                    </Link>
+                  )}
+                </div>
               ) : (
                 <>
                   {r.tip && <p className="text-[12px] text-ink-soft mt-1 mb-2">{r.tip}</p>}
                   <pre className="whitespace-pre-wrap text-[12px] leading-relaxed max-h-40 overflow-y-auto bg-[#060b12] rounded-lg p-3 border border-[rgba(255,255,255,0.08)]">
                     {r.body}
                   </pre>
+                  {r.error && r.sendBlock ? (
+                    <div className="mt-2">
+                      <p className="text-[12.5px] text-amber mb-2">{blockCopy(r.sendBlock)}</p>
+                      {(r.sendBlock === "NEEDS_OUTREACH_EMAIL" ||
+                        r.sendBlock === "NO_ACTIVE_MANDATE" ||
+                        r.sendBlock === "MAX_ROUNDS") && (
+                        <Link
+                          href={`/dashboard?case=${r.id}`}
+                          className="text-[12.5px] text-[#3EC6FF] font-bold no-underline"
+                        >
+                          {tIcomponents_OvernightAgent("openCase")} →
+                        </Link>
+                      )}
+                    </div>
+                  ) : null}
                   <div className="flex flex-wrap gap-2 mt-2">
                     <Button
                       variant="ghost"
@@ -158,7 +232,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                           ? "העתק"
                           : "Copy"}
                     </Button>
-                    {!r.sent ? (
+                    {!r.sent && !r.error ? (
                       <Button
                         className="!text-[12.5px] !py-1.5"
                         disabled={sendingId === r.id}
@@ -172,11 +246,12 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                             ? "שלח דרך זכאי"
                             : "Send via Zakai"}
                       </Button>
-                    ) : (
+                    ) : null}
+                    {r.sent ? (
                       <span className="text-[12.5px] font-bold text-emerald self-center">
                         {heEn(he, "נשלח", "Sent")}
                       </span>
-                    )}
+                    ) : null}
                   </div>
                 </>
               )}

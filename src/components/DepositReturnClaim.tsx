@@ -62,8 +62,9 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
     );
   }
 
+  // Soft-open: landlord email optional — dashboard collects before dispatch.
   const canSendWithAgent =
-    !!status?.isLate && landlordName.trim().length > 0 && landlordEmail.trim().length > 0 && propertyAddress.trim().length > 0;
+    !!status?.isLate && landlordName.trim().length > 0 && propertyAddress.trim().length > 0;
 
   async function sendWithAgent() {
     if (!canSendWithAgent) return;
@@ -76,7 +77,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         body: JSON.stringify({
           tenantName: tenantName.trim(),
           landlordName: landlordName.trim(),
-          landlordEmail: landlordEmail.trim(),
+          landlordEmail: landlordEmail.trim() || undefined,
           propertyAddress: propertyAddress.trim(),
           vacateDate,
           depositAmountShekels: depositAmount,

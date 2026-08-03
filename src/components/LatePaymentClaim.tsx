@@ -59,7 +59,8 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
     );
   }
 
-  const canSendWithAgent = !!status?.isLate && clientName.trim().length > 0 && clientEmail.trim().length > 0;
+  // Soft-open: client email optional — dashboard collects before dispatch.
+  const canSendWithAgent = !!status?.isLate && clientName.trim().length > 0;
 
   async function sendWithAgent() {
     if (!canSendWithAgent) return;
@@ -72,7 +73,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         body: JSON.stringify({
           supplierName: supplierName.trim(),
           clientName: clientName.trim(),
-          clientEmail: clientEmail.trim(),
+          clientEmail: clientEmail.trim() || undefined,
           invoiceNumber: invoiceNumber.trim(),
           invoiceDate,
           agreedTermDays: agreedTermDays.trim() ? Number(agreedTermDays) : undefined,

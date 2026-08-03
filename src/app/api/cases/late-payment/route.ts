@@ -10,11 +10,13 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { assessLatePayment, buildLatePaymentDemandLetter } from "@/lib/latePaymentClaim";
 import { shekelsToAgorot } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
 
 const schema = z.object({
   supplierName: z.string().max(80).default(""),
   clientName: z.string().min(1).max(120),
-  clientEmail: z.string().email().max(200),
+  // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
+  clientEmail: z.string().max(200).optional(),
   invoiceNumber: z.string().max(80).default(""),
   invoiceDate: z.string().min(1).max(40),
   agreedTermDays: z.number().min(1).max(365).optional(),
@@ -68,12 +70,14 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
+  const outreachTo = firstOutreachEmail(data.clientEmail) || undefined;
+
   let kase;
   try {
     kase = await createCase({
       userId: auth.userId,
       provider: data.clientName.slice(0, 80),
-      counterpartyEmail: data.clientEmail,
+      counterpartyEmail: outreachTo,
       amountShekels: data.invoiceAmountShekels,
       plan: data.invoiceNumber || "חוב לקוח",
       strategy: "דרישת תשלום חשבונית באיחור עם Mandate",
@@ -100,5 +104,6 @@ export async function POST(request: Request) {
     status: kase.status,
     daysLate: status.daysLate,
     message: "case_opened",
+    needsOutreachEmail: !outreachTo,
   });
 }

@@ -26,11 +26,9 @@ export function DuplicateInsuranceAgent({
 
   const wastefulKeys = duplication ? wastefulPolicyKeysFromResult(duplication) : [];
   const monthlyAgorot = duplication?.wastefulMonthlyAgorot ?? 0;
+  // Soft-open: insurer email optional — dashboard collects before dispatch.
   const canSend =
-    wastefulKeys.length > 0 &&
-    monthlyAgorot >= 100 &&
-    insurerName.trim().length > 0 &&
-    insurerEmail.trim().length > 0;
+    wastefulKeys.length > 0 && monthlyAgorot >= 100 && insurerName.trim().length > 0;
 
   async function sendWithAgent() {
     if (!canSend) return;
@@ -43,7 +41,7 @@ export function DuplicateInsuranceAgent({
         body: JSON.stringify({
           customerName: customerName.trim(),
           insurerName: insurerName.trim(),
-          insurerEmail: insurerEmail.trim(),
+          insurerEmail: insurerEmail.trim() || undefined,
           wastefulPolicyKeys: wastefulKeys,
           monthlyPremiumAgorot: monthlyAgorot,
         }),

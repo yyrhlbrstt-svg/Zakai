@@ -22,10 +22,8 @@ export function ArnonaAgent() {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [agentError, setAgentError] = useState<string | null>(null);
 
-  const canSend =
-    municipalityName.trim().length > 0 &&
-    municipalityEmail.trim().length > 0 &&
-    monthlyArnona > 0;
+  // Soft-open: municipality email optional — dashboard collects before dispatch.
+  const canSend = municipalityName.trim().length > 0 && monthlyArnona > 0;
 
   async function sendWithAgent() {
     if (!canSend) return;
@@ -39,7 +37,7 @@ export function ArnonaAgent() {
           customerName: customerName.trim(),
           customerId: customerId.trim(),
           municipalityName: municipalityName.trim(),
-          municipalityEmail: municipalityEmail.trim(),
+          municipalityEmail: municipalityEmail.trim() || undefined,
           rightId,
           propertyAddress: propertyAddress.trim(),
           payerNumber: payerNumber.trim(),

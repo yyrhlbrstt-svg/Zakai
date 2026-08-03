@@ -10,11 +10,13 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { assessDepositReturn, buildDepositDemandLetter } from "@/lib/depositReturn";
 import { shekelsToAgorot } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
 
 const schema = z.object({
   tenantName: z.string().max(80).default(""),
   landlordName: z.string().min(1).max(120),
-  landlordEmail: z.string().email().max(200),
+  // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
+  landlordEmail: z.string().max(200).optional(),
   propertyAddress: z.string().min(1).max(200),
   vacateDate: z.string().min(1).max(40),
   depositAmountShekels: z.number().min(1).max(500000),
@@ -64,12 +66,14 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
+  const outreachTo = firstOutreachEmail(data.landlordEmail) || undefined;
+
   let kase;
   try {
     kase = await createCase({
       userId: auth.userId,
       provider: data.landlordName.slice(0, 80),
-      counterpartyEmail: data.landlordEmail,
+      counterpartyEmail: outreachTo,
       amountShekels: data.depositAmountShekels,
       plan: data.propertyAddress || "פיקדון שכירות",
       strategy: "דרישת השבת פיקדון שכירות עם Mandate",
@@ -96,5 +100,6 @@ export async function POST(request: Request) {
     status: kase.status,
     daysLate: status.daysLate,
     message: "case_opened",
+    needsOutreachEmail: !outreachTo,
   });
 }

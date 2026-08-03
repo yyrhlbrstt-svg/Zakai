@@ -10,11 +10,13 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildDuplicateInsuranceLetter } from "@/lib/duplicateInsuranceClaim";
 import { agorotToShekels, shekelsToAgorot } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   insurerName: z.string().min(1).max(120),
-  insurerEmail: z.string().email().max(200),
+  // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
+  insurerEmail: z.string().max(200).optional(),
   wastefulPolicyKeys: z.array(z.string().min(1).max(40)).min(1).max(12),
   monthlyPremiumAgorot: z.number().int().min(100).max(500_000),
 });
@@ -60,12 +62,14 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
+  const outreachTo = firstOutreachEmail(data.insurerEmail) || undefined;
+
   let kase;
   try {
     kase = await createCase({
       userId: auth.userId,
       provider: data.insurerName.slice(0, 80),
-      counterpartyEmail: data.insurerEmail,
+      counterpartyEmail: outreachTo,
       amountShekels: monthlyShekels,
       plan: planLabel,
       strategy: "בקשה לביטול כיסוי שיפוי כפול עם Mandate",
@@ -90,5 +94,6 @@ export async function POST(request: Request) {
     status: kase.status,
     amountOriginalAgorot: shekelsToAgorot(monthlyShekels),
     message: "case_opened",
+    needsOutreachEmail: !outreachTo,
   });
 }

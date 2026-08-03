@@ -4838,7 +4838,12 @@
   },
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "Overnight agent — follow-up for all",
-    "t_1768c8d7": "Could not draft this case."
+    "t_1768c8d7": "Could not draft this case.",
+    "errNeedsOutreach": "Missing provider email — complete it on the dashboard before send.",
+    "errMandateInactive": "Mandate inactive — re-issue authorization on the dashboard.",
+    "errNoTransport": "Email delivery unavailable right now — retry or copy and send manually.",
+    "errMaxRounds": "Follow-up rounds exhausted — record a result or close the case on the dashboard.",
+    "openCase": "Open the case on the dashboard"
   },
   "inline_components_ReminderBanner": {
     "t_1a1a5c0a": "Open dashboard and draft follow-up",

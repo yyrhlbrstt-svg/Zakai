@@ -9,12 +9,14 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { ARNONA_AGENT_RIGHTS, buildArnonaAgentLetter } from "@/lib/arnonaAppeal";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   customerId: z.string().max(20).default(""),
   municipalityName: z.string().min(1).max(120),
-  municipalityEmail: z.string().email().max(200),
+  // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
+  municipalityEmail: z.string().max(200).optional(),
   rightId: z.enum(ARNONA_AGENT_RIGHTS),
   propertyAddress: z.string().max(200).default(""),
   payerNumber: z.string().max(80).default(""),
@@ -67,12 +69,14 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
+  const outreachTo = firstOutreachEmail(data.municipalityEmail) || undefined;
+
   let kase;
   try {
     kase = await createCase({
       userId: auth.userId,
       provider: data.municipalityName.slice(0, 80),
-      counterpartyEmail: data.municipalityEmail,
+      counterpartyEmail: outreachTo,
       amountShekels: data.monthlyArnonaShekels,
       plan: data.payerNumber || data.propertyAddress || "ארנונה",
       strategy: "בקשת הנחה / תיקון חיוב ארנונה עם Mandate",
@@ -97,5 +101,6 @@ export async function POST(request: Request) {
     body: staged.body,
     status: kase.status,
     message: "case_opened",
+    needsOutreachEmail: !outreachTo,
   });
 }
