@@ -198,7 +198,7 @@ export function nextActionInstruction(action: RankedNextAction): string {
     case "proposed_saving":
       return `NEXT_ACTION: One-tap record SavingsProof — /money (case ${action.caseId}, proposed ₪${action.newAmountShekels}). Do NOT invent amounts. Do NOT open a new case.`;
     case "sent_exhausted":
-      return `NEXT_ACTION: Written rounds exhausted (${action.agentRound}/${MAX_AGENT_ROUNDS}) — /money. Record the real new amount from a written reply, mark no change, or pivot (cancel/competitor). Do NOT draft another delay follow-up. Do NOT open a new case.`;
+      return `NEXT_ACTION: Written rounds exhausted (${action.agentRound}/${MAX_AGENT_ROUNDS}) — /money (case ${action.caseId}). Record the real new amount from a written reply, mark no change, or pivot (cancel/competitor). Do NOT draft another delay follow-up. Do NOT open a new case.`;
     case "needs_outreach":
       return `NEXT_ACTION: Enter provider outreach email — /money (case ${action.caseId}). Mandate send / follow-ups cannot leave without a destination. Do NOT invent an inbox. Do NOT open a new case.`;
     case "mandate_inactive":
@@ -206,7 +206,7 @@ export function nextActionInstruction(action: RankedNextAction): string {
     case "pre_send":
       return `NEXT_ACTION: Finish Mandate send — /money (case ${action.caseId}, status=${action.status}). Verify ownership if needed, then one-tap send. Do NOT start another vertical.`;
     case "sent_wait":
-      return `NEXT_ACTION: Close the loop — /money (case ${action.caseId}). If they replied: record new amount (SavingsProof). If silent: draft/send written follow-up.`;
+      return `NEXT_ACTION: Close the loop — /money (case ${action.caseId}). If they replied: record new amount (SavingsProof). If silent: draft/send written follow-up. Do NOT open a new case.`;
     case "start_money":
       return "NEXT_ACTION: Start in /money (scan → case → Mandate). Only then other agent verticals.";
   }
