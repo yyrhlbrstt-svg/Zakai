@@ -15,6 +15,7 @@ import { buildShareLandingUrl } from "@/lib/shareUrl";
 import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 import { openMailto } from "@/lib/mailto";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
+import { previewSuccessFeeShekels } from "@/lib/fee";
 
 type Status =
   | "ANALYZED"
@@ -946,6 +947,26 @@ export function CaseNextStep({
   if (status === "SENT") {
     const proposed = proposedSaving ?? pasteProposed;
     const proposedSource: "inbound" | "manual" = proposedSaving ? "inbound" : "manual";
+    const previewAmt =
+      proposed?.newAmountShekels != null
+        ? proposed.newAmountShekels
+        : newAmt !== "" && Number(newAmt) >= 0
+          ? Number(newAmt)
+          : null;
+    const feePreview =
+      previewAmt != null && amountOriginalShekels != null
+        ? previewSuccessFeeShekels(amountOriginalShekels, previewAmt, feeBasis)
+        : null;
+    const feePreviewLine =
+      feePreview && feePreview.chargeable
+        ? he
+          ? `חיסכון מתועד ≈ ₪${feePreview.savingShekels} · עמלת הצלחה ${feePreview.ratePct}% ≈ ₪${feePreview.feeShekels} (רק אחרי תיעוד)`
+          : `Documented saving ≈ ₪${feePreview.savingShekels} · success fee ${feePreview.ratePct}% ≈ ₪${feePreview.feeShekels} (only after proof)`
+        : feePreview && feePreview.savingShekels <= 0
+          ? he
+            ? "אין חיסכון מתועד בסכום זה — אין עמלה"
+            : "No documented saving at this amount — no fee"
+          : null;
     const roundHint =
       emailConfigured && agentRound > 0
         ? he
@@ -1077,6 +1098,11 @@ export function CaseNextStep({
                 ? ` · ${t(locale, "proposedFrom")} ${proposed.from}`
                 : ""}
             </p>
+            {feePreviewLine ? (
+              <p className="text-[12px] font-bold text-emerald mb-2.5 leading-relaxed">
+                {feePreviewLine}
+              </p>
+            ) : null}
             <Button
               disabled={busy}
               className="text-[14px] py-3 px-5 w-full sm:w-auto font-extrabold"
@@ -1120,6 +1146,11 @@ export function CaseNextStep({
         <div className="rounded-xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] p-3.5">
           <div className="text-[13.5px] font-extrabold text-emerald">{t(locale, "saveBlockTitle")}</div>
           <p className="text-[12px] text-ink-soft mt-1 mb-3 leading-relaxed">{t(locale, "saveBlockSub")}</p>
+          {feePreviewLine && !proposed ? (
+            <p className="text-[12px] font-bold text-emerald mb-2.5 leading-relaxed">
+              {feePreviewLine}
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-2 items-center mb-2">
             <Input
               type="number"

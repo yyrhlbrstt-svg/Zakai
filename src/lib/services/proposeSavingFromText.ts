@@ -5,6 +5,7 @@ import { resolveInboundRecordAmountShekels } from "@/lib/fee";
 import { feeBasisForVertical } from "@/lib/verticals";
 import { CaseError } from "@/lib/services/cases";
 import { getProposedSaving, type ProposedSaving } from "@/lib/services/proposedSaving";
+import { extractShekelAmountFromText } from "@/lib/services/extractShekelAmount";
 
 export type ProposeSavingExtract = {
   found: boolean;
@@ -62,6 +63,21 @@ export async function proposeSavingFromText(
       confidence: 0,
       reason: "extract_failed",
     };
+  }
+
+  // Deterministic fallback — loop must finish without AI.
+  if (!extract.found || extract.newAmountShekels == null) {
+    const det = extractShekelAmountFromText(bodyText, { originalShekels: originalShekels });
+    if (det) {
+      extract = {
+        found: true,
+        newAmountShekels: det.shekels,
+        authorizationCode: extract.authorizationCode,
+        confidence: Math.max(extract.confidence, det.confidence),
+        reason: extract.reason === "extract_failed" ? "deterministic_fallback" : "deterministic_assist",
+        amountKind: extract.amountKind ?? (basis === "lump" ? "remaining" : "monthly"),
+      };
+    }
   }
 
   if (!extract.authorizationCode) {

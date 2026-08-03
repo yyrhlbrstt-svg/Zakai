@@ -42,8 +42,30 @@ export type CohortLearning = {
   bestStance: StanceLearning | null;
 };
 
-const MIN_TRIALS = 5;
+export const MIN_COHORT_TRIALS = 5;
+const MIN_TRIALS = MIN_COHORT_TRIALS;
 const MIN_STANCE_TRIALS = 3;
+
+/** Cold default when no cohort timing exists (matches historical cron gate). */
+export const DEFAULT_FOLLOWUP_AFTER_DAYS = 5;
+/** Clamp so learning never fires day-0 theater or waits forever. */
+export const FOLLOWUP_AFTER_DAYS_MIN = 3;
+export const FOLLOWUP_AFTER_DAYS_MAX = 21;
+
+/**
+ * Days to wait after send before written follow-up — from real median win
+ * timing when available. Pure; never invents a cohort.
+ */
+export function followUpAfterDays(medianDaysToWin: number | null | undefined): number {
+  if (medianDaysToWin == null || !Number.isFinite(medianDaysToWin)) {
+    return DEFAULT_FOLLOWUP_AFTER_DAYS;
+  }
+  const rounded = Math.round(medianDaysToWin);
+  return Math.min(
+    FOLLOWUP_AFTER_DAYS_MAX,
+    Math.max(FOLLOWUP_AFTER_DAYS_MIN, rounded),
+  );
+}
 
 function median(nums: number[]): number | null {
   if (nums.length === 0) return null;
@@ -165,10 +187,11 @@ export function formatLearningBrief(
     );
   }
   if (cohort.medianDaysToWin != null) {
+    const chase = followUpAfterDays(cohort.medianDaysToWin);
     lines.push(
       he
-        ? `TIMING: חציון ימים עד חיסכון מתועד = ${cohort.medianDaysToWin}. עקוב בכתב; אל תסלים בטלפון.`
-        : `TIMING: median days to documented win = ${cohort.medianDaysToWin}. Follow up in writing; never escalate by phone.`,
+        ? `TIMING: חציון ימים עד חיסכון מתועד = ${cohort.medianDaysToWin}. מעקב כתוב אחרי ~${chase} ימים; אל תסלים בטלפון.`
+        : `TIMING: median days to documented win = ${cohort.medianDaysToWin}. Written follow-up after ~${chase} days; never escalate by phone.`,
     );
   }
   return lines;

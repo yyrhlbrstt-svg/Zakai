@@ -6,6 +6,31 @@ import { documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack } from "@/lib/verticals";
 
 /**
+ * First outbound letter clock — send→settle, not approve→settle.
+ * Excludes inbound paste / webhook logs that never left the system.
+ */
+export async function firstOutboundAt(caseId: string): Promise<Date | null> {
+  const row = await prisma.outbox.findFirst({
+    where: {
+      caseId,
+      channel: "EMAIL",
+      // Inbound paste/webhook rows are not Mandates leaving the system.
+      NOT: { providerMessageId: "inbound" },
+    },
+    orderBy: { createdAt: "asc" },
+    select: { sentAt: true, createdAt: true },
+  });
+  if (!row) return null;
+  return row.sentAt ?? row.createdAt;
+}
+
+/** Whole days from first outbound (fallback: approve/create) to settle. */
+export async function daysToSettle(caseId: string, fallbackStart: Date): Promise<number> {
+  const start = (await firstOutboundAt(caseId)) ?? fallbackStart;
+  return daysBetween(start, new Date());
+}
+
+/**
  * Commit a de-identified learning signal for a closed case, exactly once.
  * StrategyOutcome never gets a Case FK — Case.outcomeRecordedAt is the latch.
  *
@@ -98,7 +123,7 @@ export async function backfillSettledLearningSignals(opts?: {
       variantId: c.strategyVariant,
       paid: saving > 0,
       recoveredMinor: documentedRecoveryMinor(saving, basis),
-      days: daysBetween(c.approvedAt ?? c.createdAt, new Date()),
+      days: await daysToSettle(c.id, c.approvedAt ?? c.createdAt),
       selfReported: c.savingsProof?.selfReported === true,
     });
     if (result.recorded) recorded += 1;

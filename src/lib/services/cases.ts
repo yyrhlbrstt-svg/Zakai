@@ -15,8 +15,7 @@ import {
   buildInboundReceivePayload,
   inboundReceiveEmailAttachment,
 } from "@/lib/protocol/inboundPayload";
-import { daysBetween } from "@/lib/strategy/store";
-import { commitCaseLearningSignal } from "@/lib/strategy/learningSignal";
+import { commitCaseLearningSignal, daysToSettle } from "@/lib/strategy/learningSignal";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
@@ -493,7 +492,7 @@ export async function recordSaving(
     variantId: kase.strategyVariant,
     paid: fee.savingMonthly > 0,
     recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
-    days: daysBetween(kase.approvedAt ?? kase.createdAt, new Date()),
+    days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),
     selfReported,
   });
 

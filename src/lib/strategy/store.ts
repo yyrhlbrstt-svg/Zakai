@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { selectVariant, seededRng } from "./selector";
 import { VARIANTS, describeVariant, variantById } from "./variants";
 import { isCatalogVariantId } from "./normalizeKeys";
+import { MIN_COHORT_TRIALS } from "./learningInsights";
 import type { Observation, Selection, StrategyContext } from "./types";
 
 /**
@@ -77,19 +78,22 @@ export async function chooseStance(context: StrategyContext): Promise<Stance> {
         paid: true,
         recoveredMinor: true,
         days: true,
+        selfReported: true,
       },
     });
 
-    // Drop non-catalog variantIds (self-report aliases) so Thompson buckets stay clean.
-    const observations: Observation[] = rows
-      .filter((r) => isCatalogVariantId(r.variantId))
-      .map((r) => ({
-        context: { market: r.market, vertical: r.vertical, counterparty: r.counterparty },
-        variantId: r.variantId,
-        paid: r.paid,
-        recoveredMinor: r.recoveredMinor,
-        days: r.days,
-      }));
+    // Verified-first: self-reports fill only when the verified pool is thin
+    // (same rule as cohortLearning). Drop non-catalog variantIds.
+    const catalog = rows.filter((r) => isCatalogVariantId(r.variantId));
+    const verified = catalog.filter((r) => !r.selfReported);
+    const pool = verified.length >= MIN_COHORT_TRIALS ? verified : catalog;
+    const observations: Observation[] = pool.map((r) => ({
+      context: { market: r.market, vertical: r.vertical, counterparty: r.counterparty },
+      variantId: r.variantId,
+      paid: r.paid,
+      recoveredMinor: r.recoveredMinor,
+      days: r.days,
+    }));
 
     const picked = selectVariant(VARIANTS, observations, context, { rng: seededRng(seed) });
     return stanceFrom(picked.variant.id, seed, picked.evidenceLevel, picked.trials);

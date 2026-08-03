@@ -26,6 +26,8 @@ export interface RetentionUserSnapshot {
   openAnalyzedOrApproved: number;
   openVerifiedReadyToSend: number;
   openSent: number;
+  /** SENT cases with a proposed amount ready for one-tap SavingsProof. */
+  openProposedSaving: number;
   savedWithoutRecentShare: boolean;
   householdBeneficiaryCases: number;
   upcomingDeadlines: number;
@@ -57,6 +59,14 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
       reasonKey: "retention.deadline",
     });
   }
+  if (snap.openProposedSaving > 0) {
+    out.push({
+      kind: "document_saving",
+      priority: 98,
+      href: "/dashboard",
+      reasonKey: "retention.document",
+    });
+  }
   if (snap.openVerifiedReadyToSend > 0) {
     out.push({
       kind: "complete_send",
@@ -73,16 +83,13 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
       reasonKey: "retention.approve_verify",
     });
   }
-  if (snap.openSent > 0) {
+  if (snap.openSent > 0 && snap.openProposedSaving === 0) {
     out.push({
       kind: "follow_up",
       priority: 80,
       href: "/dashboard",
       reasonKey: "retention.follow_up",
     });
-  }
-  if (snap.openSent > 0 || snap.hasAnySaved === false) {
-    /* document_saving surfaces when user likely has a reply */
   }
   if (snap.hasAnySaved && snap.savedWithoutRecentShare) {
     out.push({
@@ -142,6 +149,10 @@ export function retentionCopy(locale: string, reasonKey: string): string {
     "retention.follow_up": {
       he: "נשלח — הכינו מעקב כתוב אם אין תשובה",
       en: "Sent — prepare a written follow-up if no reply",
+    },
+    "retention.document": {
+      he: "תשובת ספק ממתינה — רשמו SavingsProof בלחיצה",
+      en: "Provider reply ready — one-tap SavingsProof",
     },
     "retention.share": {
       he: "תועד חיסכון — שתפו וסגרו לולאת צמיחה",

@@ -14,6 +14,7 @@ export async function loadRetentionSnapshot(userId: string): Promise<RetentionUs
     openAnalyzedOrApproved,
     openVerifiedReadyToSend,
     openSent,
+    sentIds,
     savedCount,
     householdBeneficiaryCases,
     upcomingDeadlines,
@@ -32,6 +33,11 @@ export async function loadRetentionSnapshot(userId: string): Promise<RetentionUs
     }),
     prisma.case.count({
       where: { userId, status: "SENT" },
+    }),
+    prisma.case.findMany({
+      where: { userId, status: "SENT" },
+      select: { id: true },
+      take: 40,
     }),
     prisma.case.count({
       where: { userId, status: "SAVED" },
@@ -56,6 +62,14 @@ export async function loadRetentionSnapshot(userId: string): Promise<RetentionUs
       .catch(() => 0),
   ]);
 
+  const proposedMap =
+    sentIds.length > 0
+      ? await getProposedSavingsMap(sentIds.map((c) => c.id))
+      : new Map();
+  const openProposedSaving = [...proposedMap.values()].filter(
+    (p) => p.newAmountShekels != null,
+  ).length;
+
   const daysSinceLastServerCase = lastCase
     ? Math.floor((now - lastCase.createdAt.getTime()) / 86_400_000)
     : null;
@@ -65,6 +79,7 @@ export async function loadRetentionSnapshot(userId: string): Promise<RetentionUs
     openAnalyzedOrApproved,
     openVerifiedReadyToSend,
     openSent,
+    openProposedSaving,
     savedWithoutRecentShare: savedCount > 0,
     householdBeneficiaryCases,
     upcomingDeadlines,

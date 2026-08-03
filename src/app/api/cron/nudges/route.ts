@@ -6,11 +6,16 @@ import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
 import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
-import { currentPayload } from "@/lib/evolve/store";
 import { requireCronAuth } from "@/lib/security/cronAuth";
 import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { localeForCountry } from "@/lib/localePath";
+import {
+  cohortLearning,
+  followUpAfterDays,
+  FOLLOWUP_AFTER_DAYS_MIN,
+  type LearningOutcomeRow,
+} from "@/lib/strategy/learningInsights";
 
 export const dynamic = "force-dynamic";
 
@@ -32,20 +37,41 @@ export async function GET(request: Request) {
   const unauthorized = requireCronAuth(request);
   if (unauthorized) return unauthorized;
 
-  // Timing experiment: learn optimal chase delay from evolve when volume exists.
-  const followupDelayDays = await currentPayload<number>(
-    "followup_delay_days",
-    SENT_FOLLOWUP_AFTER_DAYS,
-  );
-  const sentAfterDays =
-    typeof followupDelayDays === "number" && followupDelayDays > 0
-      ? followupDelayDays
-      : SENT_FOLLOWUP_AFTER_DAYS;
-
+  // Cohort timing from StrategyOutcome (send→settle medians). Query at the
+  // minimum wait; per-case filter applies followUpAfterDays(median).
   const cutoff = new Date(Date.now() - RECHECK_AFTER_DAYS * 86_400_000);
   const cooldown = new Date(Date.now() - NUDGE_COOLDOWN_DAYS * 86_400_000);
-  const sentCutoff = new Date(Date.now() - sentAfterDays * 86_400_000);
+  const sentCutoff = new Date(Date.now() - FOLLOWUP_AFTER_DAYS_MIN * 86_400_000);
   const sentCooldown = new Date(Date.now() - SENT_COOLDOWN_DAYS * 86_400_000);
+
+  const outcomeRows = (await prisma.strategyOutcome
+    .findMany({
+      where: { market: "IL" },
+      orderBy: { createdAt: "desc" },
+      take: 5000,
+      select: {
+        market: true,
+        vertical: true,
+        counterparty: true,
+        variantId: true,
+        paid: true,
+        recoveredMinor: true,
+        days: true,
+        selfReported: true,
+      },
+    })
+    .catch(() => [])) as LearningOutcomeRow[];
+  const cohortCache = new Map<string, ReturnType<typeof cohortLearning>>();
+  function waitDaysFor(vertical: string, provider: string): number {
+    const key = `${vertical}::${provider}`;
+    if (!cohortCache.has(key)) {
+      cohortCache.set(key, cohortLearning(outcomeRows, "IL", vertical, provider));
+    }
+    const cohort = cohortCache.get(key);
+    return cohort?.medianDaysToWin != null
+      ? followUpAfterDays(cohort.medianDaysToWin)
+      : SENT_FOLLOWUP_AFTER_DAYS;
+  }
 
   try {
     let savedSent = 0;
@@ -109,7 +135,7 @@ export async function GET(request: Request) {
     // Do NOT require ACTIVE Mandate here: autoFollowUpCase returns
     // NO_ACTIVE_MANDATE and the branch below nudges the user to re-issue.
     // Filtering ACTIVE made that branch unreachable.
-    const waiting = await prisma.case.findMany({
+    const waitingRaw = await prisma.case.findMany({
       where: {
         status: "SENT",
         updatedAt: { lt: sentCutoff },
@@ -118,11 +144,19 @@ export async function GET(request: Request) {
       select: {
         id: true,
         userId: true,
+        vertical: true,
+        provider: true,
+        updatedAt: true,
         user: { select: { email: true, name: true, country: true } },
       },
-      take: 80,
+      take: 120,
       orderBy: { updatedAt: "asc" },
     });
+    const nowMs = Date.now();
+    const waiting = waitingRaw.filter((c) => {
+      const wait = waitDaysFor(c.vertical, c.provider);
+      return c.updatedAt.getTime() <= nowMs - wait * 86_400_000;
+    }).slice(0, 80);
 
     const OUTREACH_NEEDED_SUBJECT = "זכאי — חסר אימייל לספק כדי להמשיך";
     const MAX_ROUNDS_SUBJECT = "זכאי — סיבובי המעקב מוצו, רשמו תוצאה";

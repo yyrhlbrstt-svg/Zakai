@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   cohortLearning,
   expectedRecoveryAgorot,
+  followUpAfterDays,
+  DEFAULT_FOLLOWUP_AFTER_DAYS,
+  FOLLOWUP_AFTER_DAYS_MAX,
+  FOLLOWUP_AFTER_DAYS_MIN,
   formatLearningBrief,
   type LearningOutcomeRow,
 } from "./learningInsights";
@@ -86,5 +90,19 @@ describe("formatLearningBrief", () => {
     });
     expect(brief.some((l) => l.startsWith("BEST_STANCE:"))).toBe(true);
     expect(brief.some((l) => l.startsWith("TIMING:"))).toBe(true);
+    expect(brief.some((l) => l.includes("~11") || l.includes("11"))).toBe(true);
+  });
+});
+
+describe("followUpAfterDays", () => {
+  it("defaults when no median", () => {
+    expect(followUpAfterDays(null)).toBe(DEFAULT_FOLLOWUP_AFTER_DAYS);
+    expect(followUpAfterDays(undefined)).toBe(DEFAULT_FOLLOWUP_AFTER_DAYS);
+  });
+
+  it("clamps to safe bounds", () => {
+    expect(followUpAfterDays(1)).toBe(FOLLOWUP_AFTER_DAYS_MIN);
+    expect(followUpAfterDays(40)).toBe(FOLLOWUP_AFTER_DAYS_MAX);
+    expect(followUpAfterDays(10)).toBe(10);
   });
 });

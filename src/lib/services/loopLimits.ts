@@ -5,7 +5,7 @@ export const MAX_AGENT_ROUNDS = 4;
 export const AGENT_SUBJECT_PREFIX = "זכאי סיבוב";
 
 /**
- * Days a SENT case should wait before HITL / overnight follow-up drafts
- * (matches cron auto-follow-up gate — do not offer day-0 "delay" theater).
+ * Cold default days a SENT case should wait before HITL / overnight follow-up.
+ * Prefer `followUpAfterDays(cohort.medianDaysToWin)` when outcome volume exists.
  */
 export const SENT_FOLLOWUP_AFTER_DAYS = 5;

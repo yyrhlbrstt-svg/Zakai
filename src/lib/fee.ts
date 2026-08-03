@@ -93,6 +93,27 @@ export function computeCaseSuccessFee(
   return computeFee(originalAgorot, newAgorot, rateBps);
 }
 
+/**
+ * Trust surface before SavingsProof confirm — shekel preview only.
+ * Never charges; user still one-taps record.
+ */
+export function previewSuccessFeeShekels(
+  originalShekels: number,
+  newShekels: number,
+  basis: FeeBasis,
+  rateBps: number = FEE_RATE_BPS,
+): { savingShekels: number; feeShekels: number; ratePct: number; chargeable: boolean } {
+  const originalAgorot = Math.round(originalShekels * 100);
+  const newAgorot = Math.round(newShekels * 100);
+  const fee = computeCaseSuccessFee(originalAgorot, newAgorot, basis, rateBps);
+  return {
+    savingShekels: Math.round(fee.savingMonthly / 100),
+    feeShekels: Math.round(fee.amount / 100),
+    ratePct: rateBps / 100,
+    chargeable: fee.chargeable,
+  };
+}
+
 /** De-identified outcome graph: yearly equivalent for recurring savings only. */
 export function documentedRecoveryMinor(savingDocumentedAgorot: number, basis: FeeBasis): number {
   return basis === "lump" ? savingDocumentedAgorot : savingDocumentedAgorot * 12;

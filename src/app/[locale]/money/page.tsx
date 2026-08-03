@@ -16,6 +16,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
 import { LiveGravityStrip } from "@/components/LiveGravityStrip";
+import { PersonalProofStrip } from "@/components/PersonalProofStrip";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
@@ -53,6 +54,11 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
   ]);
 
   let openLoop = false;
+  let personalDocumented = {
+    count: 0,
+    monthlyAgorot: 0,
+    pendingFeeAgorot: 0,
+  };
   if (user) {
     const cases = await prisma.case.findMany({
       where: { userId: user.id },
@@ -66,6 +72,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         counterpartyEmail: true,
         fee: { select: { amount: true, status: true } },
         authorization: { select: { status: true } },
+        savingsProof: { select: { savingMonthly: true, selfReported: true } },
       },
       orderBy: { updatedAt: "desc" },
       take: 40,
@@ -82,6 +89,22 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
     const rankedCases = await buildRankedCaseInputs(cases, agentRounds);
     const action = rankNextAction(rankedCases, proposedHints);
     openLoop = action.kind !== "start_money";
+    personalDocumented = {
+      count: cases.filter(
+        (c) =>
+          c.savingsProof &&
+          !c.savingsProof.selfReported &&
+          c.savingsProof.savingMonthly > 0,
+      ).length,
+      monthlyAgorot: cases.reduce((sum, c) => {
+        if (!c.savingsProof || c.savingsProof.selfReported) return sum;
+        return sum + c.savingsProof.savingMonthly;
+      }, 0),
+      pendingFeeAgorot: cases.reduce((sum, c) => {
+        if (c.fee?.status === "PENDING") return sum + c.fee.amount;
+        return sum;
+      }, 0),
+    };
   }
 
   return (
@@ -116,6 +139,12 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         <div className="mb-6">
           {!user.emailVerifiedAt ? <EmailVerifyNudge /> : null}
           <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
+          <PersonalProofStrip
+            locale={locale as Locale}
+            documentedCount={personalDocumented.count}
+            documentedMonthlyAgorot={personalDocumented.monthlyAgorot}
+            pendingFeeAgorot={personalDocumented.pendingFeeAgorot}
+          />
         </div>
       ) : null}
 

@@ -8,6 +8,7 @@ describe("planRetentionActions", () => {
       openAnalyzedOrApproved: 0,
       openVerifiedReadyToSend: 1,
       openSent: 0,
+      openProposedSaving: 0,
       savedWithoutRecentShare: false,
       householdBeneficiaryCases: 0,
       upcomingDeadlines: 0,
@@ -23,6 +24,7 @@ describe("planRetentionActions", () => {
       openAnalyzedOrApproved: 0,
       openVerifiedReadyToSend: 0,
       openSent: 0,
+      openProposedSaving: 0,
       savedWithoutRecentShare: false,
       householdBeneficiaryCases: 0,
       upcomingDeadlines: 0,
@@ -38,6 +40,7 @@ describe("planRetentionActions", () => {
       openAnalyzedOrApproved: 0,
       openVerifiedReadyToSend: 0,
       openSent: 0,
+      openProposedSaving: 0,
       savedWithoutRecentShare: false,
       householdBeneficiaryCases: 0,
       upcomingDeadlines: 0,
@@ -46,5 +49,22 @@ describe("planRetentionActions", () => {
     });
     const household = actions.find((a) => a.kind === "household");
     expect(household?.href).toContain("/money");
+  });
+
+  it("prioritizes document_saving over follow_up when proposal exists", () => {
+    const actions = planRetentionActions({
+      daysSinceLastServerCase: 2,
+      openAnalyzedOrApproved: 0,
+      openVerifiedReadyToSend: 0,
+      openSent: 1,
+      openProposedSaving: 1,
+      savedWithoutRecentShare: false,
+      householdBeneficiaryCases: 0,
+      upcomingDeadlines: 0,
+      openVigilAlerts: 0,
+      hasAnySaved: false,
+    });
+    expect(actions[0]?.kind).toBe("document_saving");
+    expect(actions.some((a) => a.kind === "follow_up")).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeFee, computeRecoveryFee, computeCaseSuccessFee, documentedRecoveryMinor, inboundProposedRemainingShekels, resolveInboundRecordAmountShekels, monthlySaving, FEE_RATE_BPS } from "./fee";
+import { computeFee, computeRecoveryFee, computeCaseSuccessFee, documentedRecoveryMinor, inboundProposedRemainingShekels, resolveInboundRecordAmountShekels, monthlySaving, FEE_RATE_BPS, previewSuccessFeeShekels } from "./fee";
 import { shekelsToAgorot } from "./money";
 
 describe("monthlySaving", () => {
@@ -99,6 +99,19 @@ describe("computeCaseSuccessFee", () => {
     const a = shekelsToAgorot(100);
     const b = shekelsToAgorot(70);
     expect(computeCaseSuccessFee(a, b, "monthly")).toEqual(computeFee(a, b));
+  });
+});
+
+describe("previewSuccessFeeShekels", () => {
+  it("shows 18% fee on documented monthly saving before confirm", () => {
+    const preview = previewSuccessFeeShekels(100, 70, "monthly");
+    expect(preview.savingShekels).toBe(30);
+    expect(preview.feeShekels).toBe(Math.round((30 * FEE_RATE_BPS) / 10_000));
+    expect(preview.chargeable).toBe(true);
+  });
+
+  it("is not chargeable when new >= original", () => {
+    expect(previewSuccessFeeShekels(100, 100, "monthly").chargeable).toBe(false);
   });
 });
 
