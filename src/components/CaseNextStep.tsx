@@ -69,7 +69,7 @@ interface Props {
   /** Estimate / self-reported SavingsProof — no virality (prove → fee → share). */
   proofSelfReported?: boolean;
   /**
-   * Whether this environment can actually deliver email (SMTP_HOST set).
+   * Whether SMTP can actually authenticate (HOST+USER+PASS).
    * A case's status flips to SENT the moment the agent claims the send —
    * that's app-internal bookkeeping, not proof the provider ever saw
    * anything. Without a transport, "SENT" just means queued: the banner

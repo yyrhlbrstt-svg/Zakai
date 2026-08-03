@@ -3,19 +3,21 @@ import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
 import { deliverOutboxRecord, outboxAsyncMode } from "@/lib/workers/outboxDeliver";
 import { proofsInboundAddress } from "@/lib/mandate/document";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 
 /**
  * Outbound messaging. Every message — email or SMS — is recorded in the Outbox
  * table. Real delivery is attempted only when a transport is configured
- * (SMTP_HOST for email, SMS_PROVIDER=http for SMS). Otherwise the message stays
- * in the Outbox and nothing leaves the system: the entire flow is testable in
- * dev without any external provider.
+ * (SMTP_HOST + USER + PASS for email, SMS_PROVIDER=http for SMS). Otherwise the
+ * message stays in the Outbox and nothing leaves the system: the entire flow is
+ * testable in dev without any external provider.
  *
  * Set OUTBOX_ASYNC=true to queue only; drain via GET /api/cron/outbox.
  */
 
+/** True only when SMTP can actually authenticate — same bar as preflight MAIL. */
 export function emailConfigured(): boolean {
-  return Boolean(process.env.SMTP_HOST);
+  return smtpFullyConfigured();
 }
 
 export function smsConfigured(): boolean {

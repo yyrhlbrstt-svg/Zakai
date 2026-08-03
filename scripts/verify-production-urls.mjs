@@ -19,6 +19,7 @@ const paths = [
   { path: "/he/partners", expect: 200 },
   { path: "/he/leaks", expect: 200 },
   { path: "/he/cancel", expect: 200 },
+  { path: "/he/money", expect: 200 },
   { path: "/he/start", expect: 200 },
   { path: "/.well-known/zakai-jwks.json", expect: 200 },
   { path: "/.well-known/zakai-protocol.json", expect: 200 },

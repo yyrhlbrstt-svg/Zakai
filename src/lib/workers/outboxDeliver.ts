@@ -14,6 +14,7 @@ import {
   parseOutboxAttempts,
 } from "@/lib/workers/outboxRetry";
 import { proofsInboundAddress } from "@/lib/mandate/document";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 
 export const OUTBOX_WORKER_BATCH_DEFAULT = 25;
 
@@ -22,7 +23,7 @@ export function outboxAsyncMode(): boolean {
 }
 
 function emailConfigured(): boolean {
-  return Boolean(process.env.SMTP_HOST);
+  return smtpFullyConfigured();
 }
 
 function smsConfigured(): boolean {

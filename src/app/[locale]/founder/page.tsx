@@ -296,10 +296,10 @@ export default async function FounderPage({
 
       {!smtpOk && (
         <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">
-          ⚠ SMTP_HOST לא מוגדר בסביבה הזו. "נשלחו לספק (SENT+)" למטה סופר תיקים שסומנו SENT
-          באפליקציה — לא מיילים שבאמת יצאו. עד שיוגדר SMTP אמיתי, שום פנייה לא הגיעה בפועל לאף ספק,
-          ואחוז ההצלחה למטה לא אומר כלום על העולם האמיתי. הרץ <code>node scripts/preflight.mjs</code>{" "}
-          לפני שמריצים תיק אמיתי.
+          ⚠ SMTP לא מלא (צריך HOST + USER + PASS). "נשלחו לספק (SENT+)" למטה סופר תיקים שסומנו SENT
+          באפליקציה — לא מיילים שבאמת יצאו. HOST לבד לא מספיק. עד שיוגדר SMTP מלא, שום פנייה לא
+          הגיעה בפועל לאף ספק, ואחוז ההצלחה למטה לא אומר כלום על העולם האמיתי. הרץ{" "}
+          <code>node scripts/preflight.mjs</code> — חייב בלי <code>MAIL: OFF</code> — לפני תיק אמיתי.
         </div>
       )}
 

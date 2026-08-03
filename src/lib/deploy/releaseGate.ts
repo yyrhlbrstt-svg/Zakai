@@ -1,3 +1,5 @@
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
+
 export type ReleaseCheckLevel = "blocking" | "consumer" | "optional";
 
 export type ReleaseCheck = {
@@ -27,14 +29,6 @@ export function paymentsFullyLive(): boolean {
     );
   }
   return false;
-}
-
-function smtpConfigured(): boolean {
-  return Boolean(
-    process.env.SMTP_HOST?.trim() &&
-      process.env.SMTP_USER?.trim() &&
-      process.env.SMTP_PASS?.trim(),
-  );
 }
 
 function aiConfigured(): boolean {
@@ -108,7 +102,7 @@ export function evaluateConsumerReleaseGate(): {
     {
       id: "smtp",
       level: "consumer",
-      ok: smtpConfigured(),
+      ok: smtpFullyConfigured(),
       cost: "Outbox stays QUEUED — providers never receive mail.",
       envKeys: ["SMTP_HOST", "SMTP_USER", "SMTP_PASS"],
     },
