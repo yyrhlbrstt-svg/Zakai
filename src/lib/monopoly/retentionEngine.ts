@@ -96,7 +96,7 @@ export function planRetentionActions(snap: RetentionUserSnapshot): RetentionSign
     out.push({
       kind: "household",
       priority: 40,
-      href: "/check",
+      href: "/money#zakai-money-scan",
       reasonKey: "retention.household",
     });
   }

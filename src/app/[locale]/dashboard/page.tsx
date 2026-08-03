@@ -33,6 +33,10 @@ import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { feeBasisForVertical } from "@/lib/verticals";
 import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
+import { PersonalProofStrip } from "@/components/PersonalProofStrip";
+import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
+import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -96,10 +100,86 @@ export default async function DashboardPage({
   const agentRoundMap =
     sentIds.length > 0 ? await getAgentRoundMap(sentIds) : new Map<string, number>();
 
-  const totalDocumentedMonthly = cases.reduce(
-    (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
-    0,
+  const outcomeRows = (await prisma.strategyOutcome
+    .findMany({
+      where: { market: "IL", createdAt: { gte: new Date(Date.now() - 540 * 86_400_000) } },
+      select: {
+        market: true,
+        vertical: true,
+        counterparty: true,
+        variantId: true,
+        paid: true,
+        recoveredMinor: true,
+        days: true,
+        selfReported: true,
+      },
+      take: 8_000,
+      orderBy: { createdAt: "desc" },
+    })
+    .catch(() => [])) as LearningOutcomeRow[];
+
+  const learningTips = new Map<
+    string,
+    {
+      winRatePct: number;
+      trials: number;
+      bestStanceHe?: string;
+      bestStanceEn?: string;
+      medianDays?: number | null;
+    }
+  >();
+  for (const c of cases) {
+    const key = `${c.vertical}::${c.provider}`;
+    if (learningTips.has(key)) continue;
+    const cohort = cohortLearning(outcomeRows, "IL", c.vertical, c.provider);
+    if (!cohort) continue;
+    learningTips.set(key, {
+      winRatePct: cohort.winRate * 100,
+      trials: cohort.trials,
+      bestStanceHe: cohort.bestStance?.labelHe,
+      bestStanceEn: cohort.bestStance?.labelEn,
+      medianDays: cohort.medianDaysToWin,
+    });
+  }
+
+  const rankedForHabit = rankNextAction(
+    await buildRankedCaseInputs(
+      cases.map((c) => ({
+        id: c.id,
+        status: c.status,
+        provider: c.provider,
+        vertical: c.vertical,
+        amountOriginal: c.amountOriginal,
+        targetAmount: c.targetAmount,
+        counterpartyEmail: c.counterpartyEmail,
+        fee: c.fee,
+        authorization: c.authorization,
+      })),
+      agentRoundMap,
+    ),
+    new Map(
+      [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
+    ),
   );
+  const habitCase =
+    rankedForHabit.kind !== "start_money" && "caseId" in rankedForHabit
+      ? cases.find((c) => c.id === rankedForHabit.caseId)
+      : null;
+  const nextOpenCase = habitCase
+    ? {
+        href: nextActionHref(rankedForHabit),
+        labelHe: `המשיכו את התיק מול ${providerHebrewName(habitCase.provider)}`,
+        labelEn: `Continue the case with ${providerHebrewName(habitCase.provider)}`,
+      }
+    : null;
+
+  const totalDocumentedMonthly = cases.reduce((sum, c) => {
+    if (!c.savingsProof || c.savingsProof.selfReported) return sum;
+    return sum + c.savingsProof.savingMonthly;
+  }, 0);
+  const documentedProofCount = cases.filter(
+    (c) => c.savingsProof && !c.savingsProof.selfReported && c.savingsProof.savingMonthly > 0,
+  ).length;
 
   // Open-loop potential only — settled cases must not inflate the hero forever.
   const OPEN_FOR_POTENTIAL = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT"]);
@@ -290,6 +370,8 @@ export default async function DashboardPage({
                 counterpartyEmail={c.counterpartyEmail}
                 draftMessage={c.draftMessage}
                 emailVerified={Boolean(user!.emailVerifiedAt)}
+                learningTip={learningTips.get(`${c.vertical}::${c.provider}`) ?? null}
+                nextOpenCase={c.status === "SAVED" ? nextOpenCase : null}
               />
             </div>
           </div>
@@ -348,6 +430,12 @@ export default async function DashboardPage({
       {!user!.emailVerifiedAt ? <EmailVerifyNudge /> : null}
 
       <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
+      <PersonalProofStrip
+        locale={locale as Locale}
+        documentedCount={documentedProofCount}
+        documentedMonthlyAgorot={totalDocumentedMonthly}
+        pendingFeeAgorot={pendingFeeAgorot}
+      />
       {pendingFeeAgorot <= 0 ? (
         <RetentionActionStrip locale={locale} actions={retentionActions} />
       ) : null}

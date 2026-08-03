@@ -16,6 +16,7 @@ import { EnablePush } from "@/components/EnablePush";
 import { PlausibleScript } from "@/components/PlausibleScript";
 import { LangSuggest } from "@/components/LangSuggest";
 import { getCurrentUser } from "@/lib/auth/user";
+import { OpenLoopResumeBar } from "@/components/OpenLoopResumeBar";
 import "../globals.css";
 
 const body = Heebo({
@@ -193,6 +194,7 @@ export default async function LocaleLayout({
           <ConsumerHonestyBanner />
           <LangSuggest />
           {children}
+          {user ? <OpenLoopResumeBar locale={locale} /> : null}
           <Footer />
           <InstallPrompt />
           <EnablePush loggedIn={Boolean(user)} />

@@ -67,6 +67,16 @@ interface Props {
   emailConfigured?: boolean;
   /** Outreach letter the user consents to — editable before dispatch. */
   draftMessage?: string;
+  /** De-identified cohort learning for SENT coaching (never invents). */
+  learningTip?: {
+    winRatePct: number;
+    trials: number;
+    bestStanceHe?: string;
+    bestStanceEn?: string;
+    medianDays?: number | null;
+  } | null;
+  /** After SAVED — continue the highest-EV open case (habit compound). */
+  nextOpenCase?: { href: string; labelHe: string; labelEn: string } | null;
   /** Account already proved email control — enables approve→send express path. */
   emailVerified?: boolean;
 }
@@ -290,6 +300,8 @@ export function CaseNextStep({
   documentedSavingShekels,
   draftMessage: draftMessageProp = "",
   emailVerified = false,
+  learningTip = null,
+  nextOpenCase = null,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -508,15 +520,14 @@ export function CaseNextStep({
     });
     const fullText = `${msg}\n${shareUrl}`;
 
-    // Ranked, not a static shortlist — the same CATALOG ranking that feeds
-    // /leaks and the assistant's own prompt, so this list grows automatically
-    // as new verticals land in priority.ts. Excludes the vertical this case
-    // itself just closed.
+    // Prefer finishing another open Case (habit) over opening new verticals.
     const excludeId = vertical ? VERTICAL_TO_CATALOG_ID[vertical] : undefined;
-    const doors = rankPriorityActions(8)
-      .filter((a) => a.id !== excludeId)
-      .slice(0, 5)
-      .map((a) => ({ href: a.href, he: a.titleHe, en: a.titleEn }));
+    const doors = nextOpenCase
+      ? [{ href: nextOpenCase.href, he: nextOpenCase.labelHe, en: nextOpenCase.labelEn }]
+      : rankPriorityActions(8)
+          .filter((a) => a.id !== excludeId)
+          .slice(0, 5)
+          .map((a) => ({ href: a.href, he: a.titleHe, en: a.titleEn }));
 
     const showUpgradeNudge =
       currentPlan === "FREE" &&
@@ -1026,6 +1037,32 @@ export function CaseNextStep({
             {mailtoOpened ? t(locale, "mailtoOpened") : t(locale, "mailtoFallback")}
           </Button>
         )}
+
+        {learningTip && learningTip.trials >= 5 ? (
+          <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] px-3 py-2.5 text-[12.5px] leading-relaxed">
+            <span className="font-extrabold text-[#3EC6FF]">
+              {he ? "ממה שלמדנו על ספק זה" : "What worked on this provider"}
+            </span>
+            <span className="text-ink-soft">
+              {he
+                ? ` — ${(learningTip.winRatePct).toFixed(0)}% הצלחה מתועדת ב־${learningTip.trials} תיקים`
+                : ` — ${learningTip.winRatePct.toFixed(0)}% documented wins over ${learningTip.trials} cases`}
+              {learningTip.bestStanceHe || learningTip.bestStanceEn
+                ? he
+                  ? ` · סגנון מוביל: ${learningTip.bestStanceHe}`
+                  : ` · leading stance: ${learningTip.bestStanceEn}`
+                : ""}
+              {learningTip.medianDays != null
+                ? he
+                  ? ` · חציון ימים עד תוצאה: ${learningTip.medianDays}`
+                  : ` · median days to outcome: ${learningTip.medianDays}`
+                : ""}
+              {he
+                ? ". רק מענה בכתב נספר ל־SavingsProof."
+                : ". Only written replies become SavingsProof."}
+            </span>
+          </div>
+        ) : null}
 
         {/* SavingsProof first — fee and gravity only compound after this. */}
         {proposed && (
