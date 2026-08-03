@@ -11,6 +11,12 @@ import {
 
 type StepState = "idle" | "running" | "ok" | "fail";
 
+type ReadyPayload = {
+  ready_for_pioneer?: boolean;
+  vectors?: { passed?: boolean; total?: number; failed?: string[] };
+  status_list?: { ok?: boolean; detail?: string };
+};
+
 export function ReferenceVerifierWizard() {
   const t = useTranslations("institutionLeader");
   const [steps, setSteps] = useState<Record<string, StepState>>(
@@ -18,6 +24,9 @@ export function ReferenceVerifierWizard() {
   );
   const [verifyStep, setVerifyStep] = useState<StepState>("idle");
   const [inboundStep, setInboundStep] = useState<StepState>("idle");
+  const [readyStep, setReadyStep] = useState<StepState>("idle");
+  const [readyDetail, setReadyDetail] = useState<string | null>(null);
+  const [pioneerReady, setPioneerReady] = useState(false);
   const [allOk, setAllOk] = useState(false);
   const [institutionId, setInstitutionId] = useState("");
   const [nameHe, setNameHe] = useState("");
@@ -30,6 +39,8 @@ export function ReferenceVerifierWizard() {
 
   const runChecks = useCallback(async () => {
     setAllOk(false);
+    setPioneerReady(false);
+    setReadyDetail(null);
     setRegisterMsg(null);
     setPublicUrl(null);
     setListedId(null);
@@ -75,9 +86,34 @@ export function ReferenceVerifierWizard() {
     }
     setInboundStep(inboundOk ? "ok" : "fail");
 
+    // Hard Pioneer gate — same server check that blocks false wall listings.
+    setReadyStep("running");
+    let readyOk = false;
+    try {
+      const readyRes = await fetch("/api/mandate/ready", { cache: "no-store" });
+      const readyBody = (await readyRes.json().catch(() => ({}))) as ReadyPayload;
+      readyOk = readyRes.ok && readyBody.ready_for_pioneer === true;
+      if (readyOk) {
+        setReadyDetail(t("readyForPioneer"));
+      } else {
+        const fails = readyBody.vectors?.failed?.slice(0, 2)?.join("; ");
+        const status = readyBody.status_list?.detail;
+        setReadyDetail(
+          [t("notReadyForPioneer"), fails, status].filter(Boolean).join(" — ") ||
+            t("notReadyForPioneer"),
+        );
+      }
+    } catch {
+      readyOk = false;
+      setReadyDetail(t("notReadyForPioneer"));
+    }
+    setReadyStep(readyOk ? "ok" : "fail");
+    setPioneerReady(readyOk);
+
     const endpointsOk = Object.values(next).every((s) => s === "ok");
-    setAllOk(endpointsOk && verifyOk && inboundOk);
-  }, []);
+    // Registration form only opens when machine gate passes — UX matches server gate.
+    setAllOk(endpointsOk && verifyOk && inboundOk && readyOk);
+  }, [t]);
 
   async function register() {
     setRegisterMsg(null);
@@ -96,12 +132,21 @@ export function ReferenceVerifierWizard() {
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
         tier?: string;
         institutionId?: string;
         publicUrl?: string;
+        hint?: string;
+        failed?: string[];
       };
       if (res.status === 409) setRegisterMsg(t("registerConflict"));
-      else if (!res.ok) setRegisterMsg(t("registerError"));
+      else if (data.error === "vectors_not_conformant") {
+        setRegisterMsg(
+          [t("registerVectorsBlocked"), data.hint, ...(data.failed ?? []).slice(0, 2)]
+            .filter(Boolean)
+            .join(" "),
+        );
+      } else if (!res.ok) setRegisterMsg(t("registerError"));
       else {
         setRegisterMsg(
           data.tier === "pioneer"
@@ -132,6 +177,9 @@ export function ReferenceVerifierWizard() {
       <p className="text-[12px] text-ink-soft mb-4">
         {t("verifyAudienceHint", { aud: VERIFIER_READINESS_AUDIENCE })}
       </p>
+      <p className="text-[12.5px] text-ink-soft mb-4 leading-relaxed border border-[rgba(63,203,155,0.25)] rounded-xl px-3 py-2 bg-[rgba(63,203,155,0.05)]">
+        {t("pioneerGateHint")}
+      </p>
 
       <Button onClick={runChecks} className="mb-4">
         {t("runChecks")}
@@ -152,9 +200,34 @@ export function ReferenceVerifierWizard() {
           <span>{t("check_inbound")}</span>
           <span aria-hidden>{stepLabel(inboundStep)}</span>
         </li>
+        <li className="flex justify-between gap-3 font-bold text-emerald">
+          <span>{t("check_ready")}</span>
+          <span aria-hidden>{stepLabel(readyStep)}</span>
+        </li>
       </ul>
 
-      {allOk && (
+      {readyDetail ? (
+        <p
+          className={`text-[13px] mt-3 mb-0 font-extrabold ${
+            pioneerReady ? "text-emerald" : "text-ink-soft"
+          }`}
+        >
+          {readyDetail}
+        </p>
+      ) : null}
+
+      {!pioneerReady && readyStep === "fail" ? (
+        <p className="text-[12.5px] text-ink-soft mt-2 mb-0 leading-relaxed">
+          {t("readyCliHint")}{" "}
+          <code className="text-[11px]">npx zakai-mandate-ready</code>
+          {" · "}
+          <a className="text-emerald underline" href="/api/mandate/ready" target="_blank" rel="noreferrer">
+            /api/mandate/ready
+          </a>
+        </p>
+      ) : null}
+
+      {allOk && pioneerReady && (
         <div className="mt-6 pt-5 border-t border-[rgba(255,255,255,0.08)]">
           <p className="text-emerald font-extrabold text-[14px] mb-3">{t("checksPassed")}</p>
           <div className="grid gap-3">

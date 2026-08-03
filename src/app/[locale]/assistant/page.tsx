@@ -5,6 +5,7 @@ import { buildInsights } from "@/lib/services/insights";
 import { aiAvailable } from "@/lib/ai";
 import { planConfig } from "@/lib/plans";
 import { AssistantScreen } from "@/components/AssistantScreen";
+import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { bcp47, type Locale } from "@/i18n/config";
 
 export default async function AssistantPage({
@@ -29,9 +30,13 @@ export default async function AssistantPage({
   return (
     <main className="max-w-[720px] mx-auto px-5 pb-24 pt-2">
       <h1 className="font-display text-3xl my-3">{t("title")}</h1>
-      <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[540px]">
+      <p className="text-ink-soft text-[14.5px] leading-relaxed mb-4 max-w-[540px]">
         {t("subtitle")}
       </p>
+      {/* Closure first: next action above chat so the agent never becomes a dead-end. */}
+      <div className="mb-6">
+        <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
+      </div>
       <AssistantScreen
         insights={insights}
         chatEnabled={aiAvailable()}

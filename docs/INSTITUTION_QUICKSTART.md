@@ -30,6 +30,13 @@ python3 zakai_verify.py --ready --origin https://zakai-3uxj.vercel.app
 Both print `READY_FOR_PIONEER` only when vectors pass and the status list is fetchable
 (Node also cryptographically verifies the statuslist+jwt).
 
+Live JSON twin (same gate the Pioneer wizard and listing API use):
+
+```
+GET https://zakai-3uxj.vercel.app/api/mandate/ready
+→ { ready_for_pioneer, vectors, status_list }
+```
+
 Human UI twin: `/he/institutions/quickstart`
 
 ## 1. Read the discovery document (2 min)

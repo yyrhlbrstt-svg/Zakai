@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Card, Button } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 
@@ -13,13 +13,14 @@ const ORIGIN =
 type Step = "idle" | "running" | "ok" | "fail";
 
 /**
- * Self-serve institutional path: test vectors + conformance spec + registered issuer steps.
+ * Self-serve institutional path: test vectors + READY_FOR_PIONEER + conformance.
  * No sales call — complements ReferenceVerifierWizard.
  */
 export function InstitutionConformancePanel() {
   const t = useTranslations("institutionConformance");
-  const locale = useLocale();
   const [vectors, setVectors] = useState<Step>("idle");
+  const [ready, setReady] = useState<Step>("idle");
+  const [readyLabel, setReadyLabel] = useState<string | null>(null);
 
   const runVectors = useCallback(async () => {
     setVectors("running");
@@ -36,6 +37,23 @@ export function InstitutionConformancePanel() {
       setVectors("fail");
     }
   }, []);
+
+  const runReady = useCallback(async () => {
+    setReady("running");
+    setReadyLabel(null);
+    try {
+      const res = await fetch("/api/mandate/ready", { cache: "no-store" });
+      const data = (await res.json().catch(() => ({}))) as {
+        ready_for_pioneer?: boolean;
+      };
+      const ok = res.ok && data.ready_for_pioneer === true;
+      setReady(ok ? "ok" : "fail");
+      setReadyLabel(ok ? t("readyOk") : t("readyFail"));
+    } catch {
+      setReady("fail");
+      setReadyLabel(t("readyFail"));
+    }
+  }, [t]);
 
   const mark = (s: Step) => (s === "ok" ? "✓" : s === "fail" ? "✗" : s === "running" ? "…" : "—");
 
@@ -70,6 +88,24 @@ export function InstitutionConformancePanel() {
               rel="noopener noreferrer"
             >
               JSON
+            </a>
+          </div>
+        </li>
+        <li>
+          <span className="font-bold">{t("stepReadyLabel")}</span>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <Button type="button" variant="ghost" className="!text-[12px] !py-1.5" onClick={runReady}>
+              {t("runReady")}
+            </Button>
+            <span aria-hidden>{mark(ready)}</span>
+            {readyLabel ? <span className="text-[12px] font-extrabold text-emerald">{readyLabel}</span> : null}
+            <a
+              className="text-[12px] text-emerald underline"
+              href={`${ORIGIN}/api/mandate/ready`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              /api/mandate/ready
             </a>
           </div>
         </li>

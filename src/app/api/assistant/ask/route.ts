@@ -25,7 +25,9 @@ CLOSURE COACH (revenue = completed loops):
 - PROPOSED_SAVING → /dashboard?case=<id> one-tap record. Never open a duplicate case.
 - Pre-send Case → finish Mandate send before any new vertical.
 - No open Case → /money only (not a menu of tools).
-- Never promise a specific outcome. Never invent savings numbers.
+- Match the on-screen next-action panel when present — never invent a second plan.
+- After SavingsProof only: suggest share. Never celebrate unverified amounts.
+- Never promise a specific outcome. Never invent savings numbers. Never "we'll call you".
 `.trim();
 
 export async function POST(request: Request) {

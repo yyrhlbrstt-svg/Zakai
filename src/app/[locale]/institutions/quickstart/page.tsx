@@ -119,6 +119,14 @@ const list = await verifyStatusListFromUrl({
             </a>
           </li>
           <li>
+            <a className="text-emerald" href={`${ORIGIN}/api/mandate/ready`}>
+              /api/mandate/ready
+            </a>{" "}
+            <span className="font-sans text-[12px]">
+              {he ? "(שער מכונה → ready_for_pioneer)" : "(machine gate → ready_for_pioneer)"}
+            </span>
+          </li>
+          <li>
             <a className="text-emerald" href={`${ORIGIN}/api/mandate/revocations`}>
               /api/mandate/revocations
             </a>{" "}

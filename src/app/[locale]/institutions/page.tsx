@@ -10,12 +10,16 @@ import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator"
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
+import { LiveGravityStrip } from "@/components/LiveGravityStrip";
 import { institutionPilotMailto, institutionSalesEmail } from "@/lib/institutionPull";
 import { RegulatoryIntelStrip } from "@/components/RegulatoryIntelStrip";
 import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
 import { institutionsLongCopy } from "@/lib/marketing/institutionsLongCopy";
 import { textDirection } from "@/lib/textDirection";
 import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
+import { provenSavings } from "@/lib/services/selfReportedSaving";
+import { prisma } from "@/lib/prisma";
+import { bcp47, type Locale } from "@/i18n/config";
 
 export async function generateMetadata({
   params,
@@ -53,6 +57,14 @@ export default async function InstitutionsPage({
     tier: row.tier,
   }));
   const longCopy = institutionsLongCopy(locale, ORIGIN);
+  const tHome = await getTranslations({ locale });
+  const [proof, sentCount, mandateCount] = await Promise.all([
+    provenSavings(),
+    prisma.case.count({ where: { status: { in: ["SENT", "SAVED"] } } }).catch(() => 0),
+    prisma.authorization
+      .count({ where: { status: "ACTIVE", revokedAt: null } })
+      .catch(() => 0),
+  ]);
 
   return (
     <VerticalPageShell
@@ -65,6 +77,26 @@ export default async function InstitutionsPage({
       <EmeraldInfoPanel className="mb-6">
         <strong className="text-emerald">{t("whyAdoptStrong")}</strong> {t("whyAdoptBody")}
       </EmeraldInfoPanel>
+
+      <div className="mb-8">
+        <LiveGravityStrip
+          localeBcp47={bcp47[locale as Locale]}
+          verifiedMinor={proof.verifiedMinor}
+          verifiedCount={proof.verifiedCount}
+          sentCount={sentCount}
+          mandateCount={mandateCount}
+          labels={{
+            title: he
+              ? "כבידה אמיתית — מה שמוסד רואה לפני אימוץ"
+              : "Real gravity — what an institution sees before adopting",
+            sent: tHome("home.gravitySent"),
+            mandates: tHome("home.gravityMandates"),
+            proofs: tHome("home.gravityProofs"),
+            empty: tHome("home.gravityEmpty"),
+            ledger: tHome("home.gravityLedger"),
+          }}
+        />
+      </div>
 
       <Card className="mb-8 p-5 border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)]">
         <div className="font-extrabold text-[15px] text-emerald mb-2">
@@ -84,12 +116,26 @@ export default async function InstitutionsPage({
               {he ? "תביעת Pioneer" : "Claim Pioneer"}
             </Button>
           </Link>
+          <a href={`${ORIGIN}/api/mandate/ready`} className="no-underline" target="_blank" rel="noreferrer">
+            <Button variant="ghost" className="!text-[13px] font-mono">
+              GET /api/mandate/ready
+            </Button>
+          </a>
         </div>
         <ol className="m-0 ps-5 flex flex-col gap-1.5 text-[13.5px] text-ink-soft leading-relaxed">
           <li>
             <span className="font-mono">npx zakai-mandate-ready</span>
             {he ? " או " : " or "}
             <span className="font-mono">python3 reference/python/zakai_verify.py --ready</span>
+          </li>
+          <li>
+            GET{" "}
+            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/api/mandate/ready`}>
+              /api/mandate/ready
+            </a>
+            {he
+              ? " — שער מכונה: vectors + Status List → ready_for_pioneer"
+              : " — machine gate: vectors + Status List → ready_for_pioneer"}
           </li>
           <li>
             GET{" "}
