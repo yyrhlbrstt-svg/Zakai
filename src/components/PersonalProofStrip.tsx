@@ -14,6 +14,7 @@ export function PersonalProofStrip({
   documentedMonthlyAgorot,
   pendingFeeAgorot,
   pendingFeeHref,
+  shareCaseHref,
 }: {
   locale: Locale;
   documentedCount: number;
@@ -21,6 +22,8 @@ export function PersonalProofStrip({
   pendingFeeAgorot: number;
   /** Checkout deep-link when a success fee is due. */
   pendingFeeHref?: string | null;
+  /** Settled SAVED finish surface — WhatsApp/share CTAs live there. */
+  shareCaseHref?: string | null;
 }) {
   if (documentedCount <= 0 && pendingFeeAgorot <= 0) return null;
   const he = locale === "he" || locale === "ar";
@@ -56,6 +59,14 @@ export function PersonalProofStrip({
               {he
                 ? `שלמו עמלה · ${formatAgorot(pendingFeeAgorot, loc)} →`
                 : `Pay fee · ${formatAgorot(pendingFeeAgorot, loc)} →`}
+            </Link>
+          ) : null}
+          {pendingFeeAgorot <= 0 && shareCaseHref ? (
+            <Link
+              href={shareCaseHref}
+              className="text-[12.5px] font-extrabold text-emerald no-underline hover:underline"
+            >
+              {heEn(he, "שתפו חיסכון מתועד →", "Share documented saving →")}
             </Link>
           ) : null}
           <Link href="/proofs" className="text-[12.5px] font-bold text-[#3EC6FF] no-underline">

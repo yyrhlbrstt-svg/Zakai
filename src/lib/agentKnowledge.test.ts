@@ -45,6 +45,14 @@ describe("assistant + playbook knowledge stays in sync with real verticals", () 
     }
   });
 
+  it("playbook finishes Cases on /money — not the dashboard portfolio", () => {
+    // The assistant used to contradict NEXT_ACTION_HREF by calling dashboard
+    // the "command center" after send. Finish surface is /money?case=.
+    expect(playbookSource).not.toMatch(/dashboard is the command center/i);
+    expect(playbookSource).toContain("/money?case=");
+    expect(playbookSource).toMatch(/Never prefer \/dashboard for finish work/);
+  });
+
   it("every full-service vertical's screen is a door on the leaks map — same gap as priority.ts/ai.ts had", () => {
     // parking, transport-fine and late-payment were absent from /leaks despite
     // its own header comment promising "every leak points at an agent path" —

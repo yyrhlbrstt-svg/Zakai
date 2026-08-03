@@ -37,7 +37,7 @@ function hrefFromSnapshot(snapshot: string): string | null {
   const marked = snapshot.match(/NEXT_ACTION_HREF:\s*(\S+)/);
   if (marked?.[1]) return marked[1];
   const fromLine = snapshot.match(
-    /NEXT_ACTION:[^\n]*?(\/(?:money(?:\?[^.\s]*)?|dashboard\?case=[a-zA-Z0-9_-]+(?:&payFee=1)?))\b/,
+    /NEXT_ACTION:[^\n]*?(\/money(?:\?[^.\s]*)?)\b/,
   );
   return fromLine?.[1] ?? null;
 }

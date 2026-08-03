@@ -160,9 +160,8 @@ export default async function MoneyPage({
     } else if (action.kind === "pending_fee") {
       pendingFeeHref = nextActionHref(action);
     }
-    if (!openLoop) {
-      shareCaseId = pickShareableSavedCaseId(cases);
-    }
+    // Always — even with OPEN_LOOP, a settled win stays shareable via the strip.
+    shareCaseId = pickShareableSavedCaseId(cases);
   }
 
   const payFeeCaseId =
@@ -216,7 +215,8 @@ export default async function MoneyPage({
               plan={user.plan}
               emailVerified={Boolean(user.emailVerifiedAt)}
               referralCode={user.referralCode}
-              focusCaseId={focusCaseId ?? shareCaseId}
+              // Never let a settled shareable win steal focus from an open loop.
+              focusCaseId={focusCaseId ?? (openLoop ? null : shareCaseId)}
             />
           ) : null}
           {overnightCases.length > 0 ? <OvernightAgent cases={overnightCases} /> : null}
@@ -253,6 +253,7 @@ export default async function MoneyPage({
             documentedMonthlyAgorot={personalDocumented.monthlyAgorot}
             pendingFeeAgorot={personalDocumented.pendingFeeAgorot}
             pendingFeeHref={pendingFeeHref}
+            shareCaseHref={shareCaseId ? `/money?case=${shareCaseId}` : null}
           />
         </div>
       ) : null}

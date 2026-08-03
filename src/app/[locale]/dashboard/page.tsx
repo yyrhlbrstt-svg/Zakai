@@ -37,6 +37,7 @@ import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
 import { PersonalProofStrip } from "@/components/PersonalProofStrip";
 import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
+import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 
 const STATUS_KEY: Record<string, string> = {
@@ -488,6 +489,10 @@ export default async function DashboardPage({
               ? `/money?case=${pendingFeeCases[0].id}&payFee=1`
               : "/money?payFee=1"
         }
+        shareCaseHref={(() => {
+          const id = pickShareableSavedCaseId(cases);
+          return id ? `/money?case=${id}` : null;
+        })()}
       />
       {pendingFeeAgorot <= 0 ? (
         <RetentionActionStrip locale={locale} actions={retentionActions} />
