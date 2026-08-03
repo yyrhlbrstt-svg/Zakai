@@ -10,6 +10,7 @@ export function buildPacksManifest(origin: string) {
     version: "2026-08-03",
     zml_version: ZML_VERSION,
     cdn_base: PACKS_CDN,
+    origin_mirror: `${base}/api/cdn/packs`,
     bundled_path: "zakai-packs/",
     repository: {
       export_script: "scripts/export-zakai-packs-repo.sh",

@@ -37,8 +37,9 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 
 - [x] `/.well-known/zakai-packs.json` + `npm run packs:validate|publish:dry|export`
 - [x] ZML footer on `/rights` + stats/catalog links
+- [x] Origin CDN mirror `/api/cdn/packs/*` + `npm run verify:packs-cdn` (external or origin)
 - [ ] `zakai-packs` pushed to standalone GitHub + CDN `ZML_PACKS_CDN` — founder push after `packs:export`
-- [ ] Next market pack with **full legal citations** (not stubs)
+- [x] US pack deepened with FCRA freeze + TCPA citations (`us.ts` 2026.08.3)
 - [x] npm/SDK path documented — `docs/ZML_SDK_INTEGRATION.md` + manifest `sdk` block
 
 ### Track 2 — Fairness
@@ -58,6 +59,7 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 - [x] `GET /api/regulatory/snapshot` stable schema + changelog
 - [x] Inbound-pressure API linked from `/institutions` hero (`RegulatoryIntelStrip`)
 - [x] One-pager export (`?format=brief`) when snapshot non-empty or empty counts
+- [x] Journalist kit page `/regulatory` + strip link
 
 ### Track 5 — Collective
 

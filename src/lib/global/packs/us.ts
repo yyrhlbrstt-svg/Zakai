@@ -302,6 +302,32 @@ const rights: RightDef[] = [
     },
     { oneTimeMinor: 1_000_00 },
   ),
+  right(
+    "credit_freeze_request",
+    "consumer",
+    always,
+    "Fair Credit Reporting Act; 15 U.S.C. § 1681c-1 (security freezes)",
+    {
+      kind: "letter",
+      recipient: "provider",
+      fields: ["counterparty"],
+      subject: "Request to place a security freeze on my consumer report",
+      body: `${IDENTITY} Under 15 U.S.C. § 1681c-1 I request that you place a security freeze on my consumer file.\n\nPlease confirm the freeze in writing, provide any PIN or password required to lift it, and confirm that the freeze is free of charge as required by federal law.`,
+    },
+  ),
+  right(
+    "tcpa_stop_calls",
+    "consumer",
+    always,
+    "Telephone Consumer Protection Act; 47 U.S.C. § 227; FCC implementing rules",
+    {
+      kind: "letter",
+      recipient: "provider",
+      fields: ["counterparty", "details"],
+      subject: "Revocation of consent — cease autodialed and prerecorded calls",
+      body: `${IDENTITY} I revoke any consent to receive autodialed, prerecorded, or artificial-voice calls or texts from you or your agents.\n\n{details}\n\nPlease confirm in writing that my number has been removed from all calling and texting campaigns within the period required by the TCPA and FCC rules.`,
+    },
+  ),
 
   // ---- Housing -------------------------------------------------------------
   right(
@@ -334,8 +360,8 @@ const rights: RightDef[] = [
 
 export const US_PACK: JurisdictionPack = {
   market: "US",
-  version: "2026.08.1",
-  reviewed: "2026-08-02",
+  version: "2026.08.3",
+  reviewed: "2026-08-03",
   docLocale: "en-US",
   currency: "USD",
   minorUnits: 100,

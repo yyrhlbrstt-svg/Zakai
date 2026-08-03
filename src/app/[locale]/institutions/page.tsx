@@ -70,6 +70,7 @@ export default async function InstitutionsPage({
         snapshotCta={t("regulatoryStripSnapshot")}
         pressureCta={t("regulatoryStripPressure")}
         networkCta={t("regulatoryStripNetwork")}
+        kitCta={t("regulatoryStripKit")}
       />
 
       <p className="text-[13px] text-ink-soft mb-6">

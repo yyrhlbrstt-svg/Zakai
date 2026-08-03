@@ -8,6 +8,13 @@ import { scanStatement, type ScanResult, type ChargeCategory, type RecurringChar
 import { formatAgorot } from "@/lib/money";
 import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
 
+import { ShareResult } from "@/components/ShareResult";
+import {
+  buildScanShareMessage,
+  scanShareKicker,
+  scanShareLandingPath,
+} from "@/lib/monopoly/scanShare";
+
 const CATEGORY_COLOR: Record<ChargeCategory, string> = {
   cellular: "#3FCB9B",
   tv_internet: "#3EC6FF",
@@ -26,10 +33,12 @@ export function StatementScan({
   fullScan,
   bcp47,
   screenshotEnabled = false,
+  referralCode,
 }: {
   fullScan: boolean;
   bcp47: string;
   screenshotEnabled?: boolean;
+  referralCode?: string;
 }) {
   const t = useTranslations("scan");
   const locale = useLocale();
@@ -236,6 +245,18 @@ export function StatementScan({
                 </div>
                 <div className="text-[12px] text-ink-soft mt-1.5">
                   {t("totalSub", { count: result.recurring.length })}
+                </div>
+                <div className="mt-4 text-start">
+                  <ShareResult
+                    message={buildScanShareMessage(locale, {
+                      amountLabel: formatAgorot(result.totalMonthlyAgorot, bcp47),
+                      recurringCount: result.recurring.length,
+                    })}
+                    path={scanShareLandingPath()}
+                    amountLabel={formatAgorot(result.totalMonthlyAgorot, bcp47)}
+                    kicker={scanShareKicker(locale)}
+                    referralCode={referralCode}
+                  />
                 </div>
               </Card>
 

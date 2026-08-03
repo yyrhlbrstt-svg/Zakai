@@ -158,6 +158,7 @@ export const PACK_RIGHT_LABELS: Record<string, PackLabelRow> = {
   "US:bank_abandoned_funds": { en: "Bank Abandoned Funds", he: "בנק · נטוש · כספים" },
   "US:child_tax_credit": { en: "Child Tax Credit", he: "ילדים · מס · זיכוי" },
   "US:credit_card_billing_error": { en: "Credit Card Billing Error", he: "זיכוי · כרטיס · חיוב · שגיאה" },
+  "US:credit_freeze_request": { en: "Credit Freeze Request", he: "זיכוי" },
   "US:credit_report_dispute": { en: "Credit Report Dispute", he: "זיכוי · דוח · ערעור" },
   "US:earned_income_tax_credit": { en: "Earned Income Tax Credit", he: "השתכרות · הכנסה · מס · זיכוי" },
   "US:fdcpa_debt_validation": { en: "Fdcpa Debt Validation", he: "חוב (ארה״ב) · חוב · אימות" },
@@ -173,6 +174,7 @@ export const PACK_RIGHT_LABELS: Record<string, PackLabelRow> = {
   "US:student_loan_forgiveness_inquiry": { en: "Student Loan Forgiveness Inquiry", he: "סטודנט · הלוואה · מחילה · בירור" },
   "US:student_loan_overpayment": { en: "Student Loan Overpayment", he: "סטודנט · הלוואה · תשלום יתר" },
   "US:subscription_audit": { en: "Recurring charge scan", he: "סריקת חיובים" },
+  "US:tcpa_stop_calls": { en: "Tcpa Stop Calls", he: "זכות בינלאומית" },
   "US:utility_billing_review": { en: "Utility Billing Review", he: "שירותים · חיוב · בדיקה" },
   "US:wage_statement_audit": { en: "Wage Statement Audit", he: "שכר · תלוש · ביקורת" },
 };

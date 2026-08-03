@@ -7,12 +7,14 @@ export function RegulatoryIntelStrip({
   snapshotCta,
   pressureCta,
   networkCta,
+  kitCta,
 }: {
   title: string;
   body: string;
   snapshotCta: string;
   pressureCta: string;
   networkCta: string;
+  kitCta: string;
 }) {
   const base = SITE_URL.replace(/\/+$/, "");
   return (
@@ -36,6 +38,9 @@ export function RegulatoryIntelStrip({
         </a>
         <Link href="/network-proof" className="text-ink-soft no-underline hover:text-emerald">
           {networkCta}
+        </Link>
+        <Link href="/regulatory" className="text-ink-soft no-underline hover:text-emerald">
+          {kitCta}
         </Link>
       </div>
     </div>

@@ -66,9 +66,26 @@ function cdnFolder(market: string): string {
   return market.toUpperCase() === "EU" ? "eu" : market.toLowerCase();
 }
 
-async function fetchZmlFromCdn(market: string): Promise<ZmlRight[]> {
+async function fetchZmlFromCdn(market: string, origin?: string): Promise<ZmlRight[]> {
   const folder = cdnFolder(market);
-  const manifestUrl = `${PACKS_CDN}/${folder}/index.json`;
+  const bases = [
+    PACKS_CDN,
+    ...(origin ? [`${origin.replace(/\/+$/, "")}/api/cdn/packs`] : []),
+  ].filter(Boolean);
+
+  let lastErr: unknown;
+  for (const base of bases) {
+    try {
+      return await fetchZmlFromBase(base, folder, market);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+}
+
+async function fetchZmlFromBase(base: string, folder: string, market: string): Promise<ZmlRight[]> {
+  const manifestUrl = `${base.replace(/\/+$/, "")}/${folder}/index.json`;
   const manifestRes = await fetch(manifestUrl, { headers: { Accept: "application/json" } });
   if (!manifestRes.ok) {
     throw new Error(`CDN ${manifestRes.status} for ${manifestUrl}`);
@@ -81,7 +98,7 @@ async function fetchZmlFromCdn(market: string): Promise<ZmlRight[]> {
 
   const rights = await Promise.all(
     manifest.rights.map(async (id) => {
-      const url = `${PACKS_CDN}/${folder}/rights/${id}.json`;
+      const url = `${base.replace(/\/+$/, "")}/${folder}/rights/${id}.json`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Failed right ${id}: ${res.status}`);
       return res.json() as Promise<ZmlRight>;
@@ -172,7 +189,7 @@ export async function loadZmlRightsForMarket(
     }
   } else {
     try {
-      rights = await fetchZmlFromCdn(code);
+      rights = await fetchZmlFromCdn(code, origin);
     } catch (err) {
       if (!FALLBACK_TO_BUILTIN) throw err;
       rights = loadBuiltinZml(code, origin);

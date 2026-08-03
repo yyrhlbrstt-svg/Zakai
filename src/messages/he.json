@@ -5371,6 +5371,7 @@
     "regulatoryStripSnapshot": "snapshot JSON",
     "regulatoryStripPressure": "inbound-pressure",
     "regulatoryStripNetwork": "network proof",
+    "regulatoryStripKit": "ערכה לעיתונות",
     "heroKicker": "לבנקים · ביטוח · ספקים · עיריות · פינטק",
     "heroTitle": "Mandate של זכאי",
     "heroSub": "הצהרה חתומה שאדם ספציפי הרשה לסוכן לבצע פעולות מוגבלות בשמו — ניתנת לאימות offline מול מפתח ציבורי, בלי לחייג לזכאי בכל בקשה, ובלי יכולת להוציא כסף מחשבונות הלקוח.",

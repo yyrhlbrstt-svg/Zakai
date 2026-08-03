@@ -5370,6 +5370,7 @@
     "regulatoryStripSnapshot": "snapshot JSON",
     "regulatoryStripPressure": "inbound-pressure",
     "regulatoryStripNetwork": "network proof",
+    "regulatoryStripKit": "Journalist kit",
     "heroKicker": "For banks · insurers · utilities · municipalities · fintechs",
     "heroTitle": "Zakai Mandate",
     "heroSub": "A signed statement that a named person authorised an agent to do specific things on their behalf — verifiable offline against a public key, without calling Zakai on every request, and without any ability to move money out of the principal's accounts.",
