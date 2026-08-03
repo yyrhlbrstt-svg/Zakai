@@ -201,7 +201,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "Check mandate revocation status",
       description:
-        "Live revocation status for a mandate id (jti) from an issuer's public status route: active, revoked (with timestamp), or unknown. Treat unknown as not-authorised. issuerOrigin defaults to the registry operator.",
+        "Live revocation status for a mandate id (jti) from an issuer's public status route. Returns ok:true only for a definite answer (active or revoked). Unreachable or ambiguous status → ok:false code STATUS_UNKNOWN — treat as not-authorised (never ok:true with state unknown). issuerOrigin defaults to the registry operator.",
       inputSchema: {
         jti: z.string().min(8).max(128).describe("The mandate's jti claim"),
         issuerOrigin: z
@@ -214,6 +214,15 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ jti, issuerOrigin }) => {
       const revocation = await fetchRevocationState(jti, issuerOrigin ?? baseUrl);
+      if (revocation.state !== "active" && revocation.state !== "revoked") {
+        return asText({
+          ok: false,
+          code: "STATUS_UNKNOWN",
+          error: "revocation_unknown",
+          jti,
+          state: "unknown",
+        });
+      }
       return asText({ ok: true, jti, ...revocation });
     },
   );

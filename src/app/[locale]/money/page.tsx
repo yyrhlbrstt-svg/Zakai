@@ -57,7 +57,8 @@ export default async function MoneyPage({
   const focusCaseId = typeof sp.case === "string" ? sp.case : null;
   const feeStatus = typeof sp.fee === "string" ? sp.fee : null;
   const payFee = sp.payFee === "1";
-  const justSent = sp.sent === "1";
+  // URL ?sent=1 is a hint only — never show “delivered” without a SENT Outbox row.
+  let justSent = false;
   setRequestLocale(locale);
   const tIapp_locale_money_page = await getTranslations({ locale, namespace: "inline_app_locale_money_page" });
   const loc = bcp47[locale as Locale];
@@ -86,6 +87,19 @@ export default async function MoneyPage({
     pendingFeeAgorot: 0,
   };
   if (user) {
+    if (sp.sent === "1" && focusCaseId) {
+      const deliveredRow = await prisma.outbox
+        .findFirst({
+          where: {
+            caseId: focusCaseId,
+            status: "SENT",
+            case: { userId: user.id },
+          },
+          select: { id: true },
+        })
+        .catch(() => null);
+      justSent = Boolean(deliveredRow);
+    }
     const cases = await prisma.case.findMany({
       where: { userId: user.id },
       select: {

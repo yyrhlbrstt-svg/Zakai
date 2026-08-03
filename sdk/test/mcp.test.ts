@@ -288,6 +288,42 @@ describe("zakai-mandate MCP server", () => {
     expect(payload.error).toBe("revocation_unknown");
   });
 
+  it("check_revocation returns ok only for definite active/revoked answers", async () => {
+    const { publicJwk } = await issueTestMandate();
+    stubPublicEndpoints(publicJwk, { status: "active" });
+    const client = await connectedClient();
+
+    const active = firstText(
+      await client.callTool({
+        name: "check_revocation",
+        arguments: { jti: "mcp-test-jti-0001" },
+      }),
+    ) as { ok: boolean; state: string };
+    expect(active.ok).toBe(true);
+    expect(active.state).toBe("active");
+
+    stubPublicEndpoints(publicJwk, { status: "revoked" });
+    const revoked = firstText(
+      await client.callTool({
+        name: "check_revocation",
+        arguments: { jti: "mcp-test-jti-0001" },
+      }),
+    ) as { ok: boolean; state: string };
+    expect(revoked.ok).toBe(true);
+    expect(revoked.state).toBe("revoked");
+
+    stubPublicEndpoints(publicJwk, { status: "down" });
+    const unknown = firstText(
+      await client.callTool({
+        name: "check_revocation",
+        arguments: { jti: "mcp-test-jti-0001" },
+      }),
+    ) as { ok: boolean; code: string; state: string };
+    expect(unknown.ok).toBe(false);
+    expect(unknown.code).toBe("STATUS_UNKNOWN");
+    expect(unknown.state).toBe("unknown");
+  });
+
   it("decide_action permits a confirmed act on an active mandate", async () => {
     const { token, publicJwk } = await issueTestMandate();
     stubPublicEndpoints(publicJwk);
