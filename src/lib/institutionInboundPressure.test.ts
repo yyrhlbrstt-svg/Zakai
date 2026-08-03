@@ -13,6 +13,20 @@ describe("aggregateInboundPressure", () => {
     expect(leumi?.dispatchedCases).toBe(2);
     expect(leumi?.savedCases).toBe(1);
     expect(leumi?.disclosed).toBe(false);
+
+    const cellcom = stats.find((s) => s.institutionId === "cellcom");
+    expect(cellcom?.dispatchedCases).toBe(1);
+    expect(cellcom?.savedCases).toBe(0);
+  });
+
+  it("maps electricity providers to iec pressure", () => {
+    const stats = aggregateInboundPressure([
+      { provider: "iec", status: "SENT" },
+      { provider: "חברת החשמל", status: "SAVED" },
+    ]);
+    const iec = stats.find((s) => s.institutionId === "iec");
+    expect(iec?.dispatchedCases).toBe(2);
+    expect(iec?.savedCases).toBe(1);
   });
 
   it("marks disclosed at MIN_SAMPLE dispatched", () => {
