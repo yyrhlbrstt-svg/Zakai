@@ -88,6 +88,17 @@ export default async function TrustPage({
         </a>
       </Section>
 
+      <Section heading={t("supportHeading")}>
+        <p className="text-[14.5px] leading-relaxed">{t("supportContact", { email: SUPPORT_EMAIL })}</p>
+        <a
+          href={`mailto:${SUPPORT_EMAIL}`}
+          className="inline-block mt-2 text-emerald font-bold no-underline"
+          dir="ltr"
+        >
+          {SUPPORT_EMAIL}
+        </a>
+      </Section>
+
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed border-t border-[rgba(255,255,255,0.09)] pt-4">
         {t("disclaimer")}
       </p>

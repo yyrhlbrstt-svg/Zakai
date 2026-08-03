@@ -702,6 +702,8 @@
     "dispute": "When a fee is charged, we email you an automatic confirmation with a full breakdown (original amount, new amount, saving and fee). If you believe the saving did not actually materialize, you have {days} days from receiving the email to contact us for review — and if the saving turns out not to have taken effect, the fee is cancelled or refunded. Contact: {email}",
     "contactHeading": "Security contact",
     "contact": "Found a security issue or have a question? We'd like to hear from you: {email}",
+    "supportHeading": "General support",
+    "supportContact": "Product questions, your account, or anything else — email us: {email}",
     "disclaimer": "This document describes the prototype's security and trust policy. A commercial version will be accompanied by full legal documents (Terms of Use and Privacy Policy) drafted by a lawyer. Nothing here is legal advice.",
     "metaTitle": "Security & trust — Zakai",
     "metaDesc": "Zakai's security and trust policy, and how the success fee and appeals mechanism works."

@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/Logo";
 import { FooterAppVersion } from "@/components/FooterAppVersion";
+import { FooterSupportLink } from "@/components/FooterSupportLink";
 
 export function Footer() {
   const t = useTranslations();
@@ -85,7 +86,8 @@ export function Footer() {
           <span>© {new Date().getFullYear()}</span>
           <FooterAppVersion />
         </span>
-        <span className="flex flex-wrap gap-4">
+        <span className="flex flex-wrap gap-4 items-center">
+          <FooterSupportLink />
           {(
             [
               { href: "/about", key: "footer.about" as const },

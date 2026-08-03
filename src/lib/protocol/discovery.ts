@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { emailConfigured } from "@/lib/messaging";
+import { publicSecurityEmail, publicSupportEmail } from "@/lib/contact";
 import { MandateKeyUnavailableError, loadSigningKeyFromEnv } from "@/lib/mandate/mandate";
 import { PROTOCOL_LAWS, WELL_KNOWN_RELATIVE, absoluteWellKnown } from "@/lib/protocol/laws";
 import { MARKETS } from "@/lib/global/registry";
@@ -117,6 +118,8 @@ export function buildZakaiProtocolDocument(origin: string) {
     operations: {
       payments_live: paymentsFullyLive(),
       email_delivery: emailConfigured(),
+      support_email: publicSupportEmail(),
+      security_email: publicSecurityEmail(),
     },
     links: {
       version: `${origin}/api/version`,
