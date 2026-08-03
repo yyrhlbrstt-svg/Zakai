@@ -10,7 +10,11 @@ import {
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
 import { resolveMandateAudience } from "@/lib/institutionAudience";
-import { publishRevocation } from "@/lib/mandate/statusIndex";
+import {
+  allocateStatusIndex,
+  publishRevocation,
+  statusListUriForIssuer,
+} from "@/lib/mandate/statusIndex";
 
 /** Scope text stored on the authorization (the mandate the provider can read). */
 const SCOPE =
@@ -93,6 +97,9 @@ export async function createAuthorization(caseId: string): Promise<Authorization
       data: {
         mandateJti: mandate.mandateJti,
         ...(mandate.mandateToken ? { mandateJws: mandate.mandateToken } : {}),
+        ...(typeof mandate.mandateStatusIndex === "number"
+          ? { mandateStatusIndex: mandate.mandateStatusIndex }
+          : {}),
       },
     });
   }
@@ -153,6 +160,9 @@ async function reissueAuthorization(
       data: {
         mandateJti: mandate.mandateJti,
         ...(mandate.mandateToken ? { mandateJws: mandate.mandateToken } : {}),
+        ...(typeof mandate.mandateStatusIndex === "number"
+          ? { mandateStatusIndex: mandate.mandateStatusIndex }
+          : {}),
       },
     });
   }
@@ -170,7 +180,7 @@ async function tryIssueCaseMandate(input: {
   country: string;
   authCode: string;
   mandateAudience: string;
-}): Promise<{ mandateJti?: string; mandateToken?: string }> {
+): Promise<{ mandateJti?: string; mandateToken?: string; mandateStatusIndex?: number }> {
   try {
     const key = loadSigningKeyFromEnv();
     const jti = randomUUID();
@@ -178,6 +188,10 @@ async function tryIssueCaseMandate(input: {
       process.env.MANDATE_ISSUER ||
       process.env.NEXT_PUBLIC_APP_URL ||
       "https://zakai-3uxj.vercel.app";
+
+    // Allocate the status-list bit before signing so zkm.status.idx is stable
+    // for the life of the token — revoke flips this bit, never invents another.
+    const statusIndex = await allocateStatusIndex(prisma, jti);
 
     const token = await issueMandate(
       {
@@ -196,11 +210,15 @@ async function tryIssueCaseMandate(input: {
           `The principal authorises Zakai to correspond with ${input.provider} ` +
           `regarding billing review, tariff negotiation, dispute of charges, ` +
           `and receipt of refunds owed — and not to move funds outward.`,
+        status: {
+          idx: statusIndex,
+          uri: statusListUriForIssuer(issuer),
+        },
       },
       key,
     );
 
-    return { mandateJti: jti, mandateToken: token };
+    return { mandateJti: jti, mandateToken: token, mandateStatusIndex: statusIndex };
   } catch (err) {
     if (err instanceof MandateKeyUnavailableError) return {};
     console.error("mandate_issue_failed", err);
@@ -245,12 +263,22 @@ export async function ensureMandateTokenForCase(
 
   await prisma.authorization.update({
     where: { caseId },
-    data: { mandateJti: mandate.mandateJti, mandateJws: mandate.mandateToken },
+    data: {
+      mandateJti: mandate.mandateJti,
+      mandateJws: mandate.mandateToken,
+      ...(typeof mandate.mandateStatusIndex === "number"
+        ? { mandateStatusIndex: mandate.mandateStatusIndex }
+        : {}),
+    },
   });
   return { jti: mandate.mandateJti, jws: mandate.mandateToken };
 }
 
 export async function revokeAuthorization(caseId: string, mandateJti?: string) {
+  const existing = await prisma.authorization.findUnique({
+    where: { caseId },
+    select: { mandateStatusIndex: true },
+  });
   const updated = await prisma.authorization.update({
     where: { caseId },
     data: { status: "REVOKED", revokedAt: new Date() },
@@ -263,6 +291,7 @@ export async function revokeAuthorization(caseId: string, mandateJti?: string) {
           jti: mandateJti,
           reason: "authorization_revoked",
           internalNote: caseId,
+          statusIndex: existing?.mandateStatusIndex ?? undefined,
         }),
       );
     } catch {

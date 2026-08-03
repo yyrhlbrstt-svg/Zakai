@@ -60,6 +60,29 @@ describe("issuing and verifying", () => {
     expect(mandateAllows(claims, "contract:cancel")).toBe(false);
   });
 
+  it("embeds zkm.status.idx for offline status-list revocation", async () => {
+    const token = await issueMandate(
+      {
+        ...base,
+        status: { idx: 42, uri: "https://zakai.app/api/mandate/revocations" },
+      },
+      key,
+    );
+    const claims = await verifyMandate(token, {
+      audience: "bank:il:leumi",
+      publicJwks: await publicKeys(key),
+    });
+    expect(claims.status).toEqual({
+      idx: 42,
+      uri: "https://zakai.app/api/mandate/revocations",
+    });
+
+    const payload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64url").toString("utf8"),
+    ) as { zkm: { status: { idx: number; uri: string } } };
+    expect(payload.zkm.status.idx).toBe(42);
+  });
+
   it("publishes a public key with no private component", async () => {
     const jwk = await publicJwkFor(key);
     expect(jwk.d).toBeUndefined();

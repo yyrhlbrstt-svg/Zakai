@@ -9,6 +9,7 @@ import {
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { prisma } from "@/lib/prisma";
 import { checkDelegation, delegationClaim, hashIssuerKey, issuerKeyMatches } from "@/lib/mandate/delegation";
+import { allocateStatusIndex, statusListUriForIssuer } from "@/lib/mandate/statusIndex";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -129,6 +130,7 @@ export async function POST(req: Request) {
 
   try {
     const key = loadSigningKeyFromEnv();
+    const statusIndex = await allocateStatusIndex(prisma, jti);
     const token = await issueMandate(
       {
         jti,
@@ -151,6 +153,10 @@ export async function POST(req: Request) {
         onBehalfOf:
           caller.kind === "delegated" ? delegationClaim(caller.slug, caller.name) : undefined,
         ttlSeconds: body.ttlSeconds,
+        status: {
+          idx: statusIndex,
+          uri: statusListUriForIssuer(issuer),
+        },
       },
       key,
     );
@@ -163,6 +169,8 @@ export async function POST(req: Request) {
       jti,
       token,
       exp: claims.exp,
+      statusIndex,
+      statusListUri: statusListUriForIssuer(issuer),
       // Echoed so a delegated caller can see, in its own logs, that the token
       // it received discloses the delegation rather than passing as ours.
       onBehalfOf: caller.kind === "delegated" ? caller.slug : undefined,

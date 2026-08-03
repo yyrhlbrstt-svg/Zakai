@@ -48,6 +48,8 @@ async function makeActiveAuthority(userId: string, tag: string) {
     .toUpperCase()}-TEST`;
   // Machine jti institutions verify — distinct from the human ZK code.
   const mandateJti = crypto.randomUUID();
+  // Unique status bit — parallel suite runs must not collide on the unique index.
+  const mandateStatusIndex = Date.now() % 1_000_000_000 + Math.floor(Math.random() * 1000);
   createdCodes.push(code);
   createdMandateJtis.push(mandateJti);
   await prisma.authorization.create({
@@ -60,9 +62,10 @@ async function makeActiveAuthority(userId: string, tag: string) {
       provider: `provider-${tag}`,
       scope: "test scope",
       mandateJti,
+      mandateStatusIndex,
     },
   });
-  return { code, mandateJti };
+  return { code, mandateJti, mandateStatusIndex };
 }
 
 suite("revokeAllAuthorities", () => {

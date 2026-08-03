@@ -39,6 +39,7 @@ describe("revokeAuthority publishes machine jti", () => {
       code: "ZK-ABC-TEST",
       status: "ACTIVE",
       mandateJti: "11111111-2222-3333-4444-555555555555",
+      mandateStatusIndex: 3,
     });
     publishMock.mockResolvedValue({
       jti: "11111111-2222-3333-4444-555555555555",
@@ -54,6 +55,7 @@ describe("revokeAuthority publishes machine jti", () => {
       expect.objectContaining({
         jti: "11111111-2222-3333-4444-555555555555",
         reason: "user_request",
+        statusIndex: 3,
       }),
     );
     expect(publishMock.mock.calls[0][1].jti).not.toMatch(/^ZK-/);
@@ -64,6 +66,7 @@ describe("revokeAuthority publishes machine jti", () => {
       code: "ZK-NO-MND",
       status: "ACTIVE",
       mandateJti: null,
+      mandateStatusIndex: null,
     });
 
     const result = await revokeAuthority("user_1", "ZK-NO-MND");
@@ -77,6 +80,7 @@ describe("revokeAuthority publishes machine jti", () => {
       code: "ZK-OLD",
       status: "REVOKED",
       mandateJti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      mandateStatusIndex: 1,
     });
     publishMock.mockResolvedValue({
       jti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",

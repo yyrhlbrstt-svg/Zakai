@@ -1,23 +1,59 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { nextStatusIndex, publishRevocation } from "./statusIndex";
+import {
+  allocateStatusIndex,
+  nextStatusIndex,
+  publishRevocation,
+  statusListUriForIssuer,
+} from "./statusIndex";
 
 describe("nextStatusIndex", () => {
-  it("starts at 0 when the table is empty", async () => {
+  it("starts at 0 when empty", async () => {
     const db = {
       mandateRevocation: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: null } }),
+      },
+      authorization: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { mandateStatusIndex: null } }),
+      },
+      mandateStatusAllocation: {
         aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: null } }),
       },
     };
     await expect(nextStatusIndex(db as never)).resolves.toBe(0);
   });
 
-  it("returns max + 1", async () => {
+  it("takes the max across revocation, authorization, and allocation", async () => {
     const db = {
       mandateRevocation: {
-        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: 41 } }),
+        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: 3 } }),
+      },
+      authorization: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { mandateStatusIndex: 10 } }),
+      },
+      mandateStatusAllocation: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: 7 } }),
       },
     };
-    await expect(nextStatusIndex(db as never)).resolves.toBe(42);
+    await expect(nextStatusIndex(db as never)).resolves.toBe(11);
+  });
+});
+
+describe("allocateStatusIndex", () => {
+  it("reserves a row for the jti", async () => {
+    const create = vi.fn().mockResolvedValue({ statusIndex: 0, jti: "jti-1" });
+    const db = {
+      mandateRevocation: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: null } }),
+      },
+      mandateStatusAllocation: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: null } }),
+        create,
+        findUnique: vi.fn(),
+      },
+    };
+    const idx = await allocateStatusIndex(db as never, "jti-1");
+    expect(idx).toBe(0);
+    expect(create).toHaveBeenCalledWith({ data: { statusIndex: 0, jti: "jti-1" } });
   });
 });
 
@@ -28,27 +64,36 @@ describe("publishRevocation", () => {
     vi.restoreAllMocks();
   });
 
-  it("creates a row with a fresh statusIndex", async () => {
+  it("uses the issue-time statusIndex when publishing", async () => {
     const create = vi.fn().mockResolvedValue({
       jti: "jti-1",
-      statusIndex: 0,
+      statusIndex: 5,
       revokedAt,
-      reason: "ops",
+      reason: "user_request",
     });
     const db = {
       mandateRevocation: {
         findUnique: vi.fn().mockResolvedValue(null),
-        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: null } }),
+        aggregate: vi.fn(),
         create,
         update: vi.fn(),
       },
+      mandateStatusAllocation: {
+        findUnique: vi.fn().mockResolvedValue({ statusIndex: 5 }),
+        aggregate: vi.fn(),
+        create: vi.fn(),
+      },
     };
 
-    const row = await publishRevocation(db as never, { jti: "jti-1", reason: "ops" });
-    expect(row.statusIndex).toBe(0);
+    const row = await publishRevocation(db as never, {
+      jti: "jti-1",
+      reason: "user_request",
+      statusIndex: 5,
+    });
+    expect(row.statusIndex).toBe(5);
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ jti: "jti-1", statusIndex: 0, reason: "ops" }),
+        data: expect.objectContaining({ jti: "jti-1", statusIndex: 5 }),
       }),
     );
   });
@@ -77,7 +122,6 @@ describe("publishRevocation", () => {
     const row = await publishRevocation(db as never, { jti: "jti-legacy" });
     expect(row.statusIndex).toBe(7);
     expect(update).toHaveBeenCalled();
-    expect(db.mandateRevocation.create).not.toHaveBeenCalled();
   });
 
   it("is idempotent when the row is already indexed", async () => {
@@ -95,10 +139,16 @@ describe("publishRevocation", () => {
       },
     };
 
-    const row = await publishRevocation(db as never, { jti: "jti-ok" });
+    const row = await publishRevocation(db as never, { jti: "jti-ok", statusIndex: 99 });
     expect(row.statusIndex).toBe(3);
-    expect(db.mandateRevocation.aggregate).not.toHaveBeenCalled();
     expect(db.mandateRevocation.create).not.toHaveBeenCalled();
-    expect(db.mandateRevocation.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("statusListUriForIssuer", () => {
+  it("strips trailing slash", () => {
+    expect(statusListUriForIssuer("https://zakai.example/")).toBe(
+      "https://zakai.example/api/mandate/revocations",
+    );
   });
 });

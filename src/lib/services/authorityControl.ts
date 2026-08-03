@@ -96,7 +96,7 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
   const normalised = code.trim().toUpperCase();
   const auth = await prisma.authorization.findFirst({
     where: { code: normalised, case: { userId } },
-    select: { code: true, status: true, mandateJti: true },
+    select: { code: true, status: true, mandateJti: true, mandateStatusIndex: true },
   });
   if (!auth) return { ok: false, reason: "not_found" };
 
@@ -107,7 +107,11 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
     if (auth.mandateJti) {
       try {
         await prisma.$transaction((tx) =>
-          publishRevocation(tx, { jti: auth.mandateJti!, reason: "user_request" }),
+          publishRevocation(tx, {
+            jti: auth.mandateJti!,
+            reason: "user_request",
+            statusIndex: auth.mandateStatusIndex ?? undefined,
+          }),
         );
       } catch {
         /* status store down — human revoke already stands */
@@ -122,12 +126,14 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
       data: { status: "REVOKED", revokedAt: new Date() },
     });
 
-    // Publish under the machine Mandate jti — the UUID institutions look up on
-    // /status and embed in status-list bits. Publishing under the human ZK-…
-    // code left every JWT still valid:true after a consumer revoke.
-    // No mandateJti means keys were off at issue time: nothing machine-side to revoke.
+    // Publish under the machine Mandate jti using the issue-time statusIndex
+    // so zkm.status.idx on the token flips on the signed list.
     if (auth.mandateJti) {
-      await publishRevocation(tx, { jti: auth.mandateJti, reason: "user_request" });
+      await publishRevocation(tx, {
+        jti: auth.mandateJti,
+        reason: "user_request",
+        statusIndex: auth.mandateStatusIndex ?? undefined,
+      });
     }
   });
 

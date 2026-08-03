@@ -247,6 +247,8 @@ model Authorization {
   mandateJti      String? @unique
   /// Compact JWS for institution inbound JSON attachment (same token as jti).
   mandateJws      String? @db.Text
+  /// Bit position in the signed status list — allocated at issue, flipped on revoke.
+  mandateStatusIndex Int? @unique
 
   status    AuthorizationStatus @default(ACTIVE)
   issuedAt  DateTime            @default(now())
@@ -596,6 +598,13 @@ model MandateRevocation {
   internalNote String   @default("")
 
   @@index([revokedAt])
+}
+
+/// Reserves a status-list bit at Mandate issue (before any revocation row exists).
+model MandateStatusAllocation {
+  statusIndex Int      @id
+  jti         String   @unique
+  issuedAt    DateTime @default(now())
 }
 
 /**
