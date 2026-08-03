@@ -33,6 +33,28 @@ export function buildDomainsDocument(origin: string): {
 
   const domains: ZakaiDomainDef[] = [
     {
+      id: "pipe",
+      name: "Zakai Pipe (Mandate → SavingsProof)",
+      tagline:
+        "The rails every bank, telecom, utility, and foreign AI must eventually speak — signed authority in, documented outcomes out.",
+      status: "live",
+      honesty:
+        "Architecture is live; gravity_tier stays empty until real SENT/SavingsProof volume with SMTP. No invented partners.",
+      endpoints: {
+        manifest: wk(WELL_KNOWN_RELATIVE.pipe),
+        live: `${base}/api/pipe`,
+        accept: `${base}/api/pipe/accept`,
+        handoff: `${base}/api/pipe/handoff`,
+        mark: `${base}/api/pipe/mark`,
+        agents_index: wk(WELL_KNOWN_RELATIVE.agents),
+        agent_economy: wk(WELL_KNOWN_RELATIVE.agentEconomy),
+        join_kit: `${base}/api/network/join-kit`,
+        monopoly: `${base}/api/network/monopoly`,
+        savings_ledger: `${base}/api/network/savings-ledger`,
+      },
+      reference_routes: ["/pipe", "/agents", "/join-network", "/institutions"],
+    },
+    {
       id: "zml",
       name: "Consumer rights language (ZML)",
       tagline: "Interchange format for rights — cite law, evaluate predicates, act in-app.",
