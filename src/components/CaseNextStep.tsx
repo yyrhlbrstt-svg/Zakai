@@ -92,6 +92,10 @@ const copy: Record<string, Record<string, string>> = {
     savedTitle: "✓ חיסכון מתועד",
     savedSub:
       "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
+    savedShareDefault:
+      "חסכתי כסף עם זכאי — סוכן דיגיטלי שפעל בשמי מול הספק, בלי מוקד ובלי לחכות לאף אחד.",
+    perMonthSuffix: "/ח׳",
+    documentedSuffix: " מתועד",
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
     sentBanner:
@@ -149,6 +153,10 @@ const copy: Record<string, Record<string, string>> = {
     savedTitle: "✓ Saving documented",
     savedSub:
       "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we'll remind you to re-check if the price crept back.",
+    savedShareDefault:
+      "I saved money with Zakai — a digital agent acted for me, no call center.",
+    perMonthSuffix: "/mo",
+    documentedSuffix: " documented",
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
     sentBanner:
@@ -262,20 +270,16 @@ export function CaseNextStep({
   if (status === "REVOKED" || status === "NO_SAVING") return null;
 
   if (status === "SAVED") {
-    const msg =
-      shareMessage ||
-      (he
-        ? "חסכתי כסף עם זכאי — סוכן דיגיטלי שפעל בשמי מול הספק, בלי מוקד ובלי לחכות לאף אחד."
-        : "I saved money with Zakai — a digital agent acted for me, no call center.");
+    const msg = shareMessage || t(locale, "savedShareDefault");
     const origin =
       typeof window !== "undefined" ? window.location.origin : "https://zakai-3uxj.vercel.app";
+    const perMonthSuffix = t(locale, "perMonthSuffix");
+    const documentedSuffix = t(locale, "documentedSuffix");
     const amountLabelForShare =
       documentedSavingShekels != null && documentedSavingShekels > 0
         ? feeBasis === "monthly"
-          ? `₪${documentedSavingShekels}${he ? "/ח׳" : "/mo"}`
-          : he
-            ? `₪${documentedSavingShekels} מתועד`
-            : `₪${documentedSavingShekels}`
+          ? `₪${documentedSavingShekels}${perMonthSuffix}`
+          : `₪${documentedSavingShekels}${documentedSuffix}`
         : undefined;
     const shareKicker =
       provider && provider.trim()
@@ -313,7 +317,7 @@ export function CaseNextStep({
         {documentedSavingShekels != null && documentedSavingShekels > 0 ? (
           <div className="text-[26px] font-display font-black grad-text mt-2 mb-1">
             ₪{documentedSavingShekels}
-            {feeBasis === "monthly" ? (he ? "/ח׳" : "/mo") : he ? " מתועד" : " documented"}
+            {feeBasis === "monthly" ? perMonthSuffix : documentedSuffix}
           </div>
         ) : null}
         <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>

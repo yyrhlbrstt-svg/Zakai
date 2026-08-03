@@ -13,7 +13,7 @@ Track honest status — no fabricated metrics.
 - [x] Hebrew ZML + catalog `locale` — PR #70
 - [x] Contact email floor + footer — PR #70
 - [x] Fairness API fail-safe, version API slim, rights search, proofs empty — PR #71
-- [ ] Merge #70 → #71 → redeploy
+- [ ] Merge **#71 only** (includes #70) → redeploy — see `docs/CEO_LAUNCH_DECISIONS.md`
 - [ ] CDN/packs smoke after deploy (`npm run verify:production-urls`)
 
 ## UX / i18n (in progress on `cursor/audit-fixes-584b`)
@@ -33,6 +33,7 @@ Track honest status — no fabricated metrics.
 
 ## Related
 
+- `docs/CEO_LAUNCH_DECISIONS.md` — **merge #71 only**, env checklist, smoke
 - `docs/MASTER_BRIEF_STATUS.md` — full “trillion-dollar protocol” brief mapped to code (honest)
 
 - Outcome graph population

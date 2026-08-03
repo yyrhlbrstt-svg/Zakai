@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 import { agentsPageCopy } from "@/lib/marketing/agentsPageCopy";
+import { textDirection } from "@/lib/textDirection";
 import { Link } from "@/i18n/routing";
 
 export async function generateMetadata({
@@ -33,12 +34,12 @@ export default async function AgentsPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const copy = agentsPageCopy(locale);
-  const he = locale === "he" || locale === "ar";
+  const dir = textDirection(locale);
 
   return (
     <VerticalPageShell
       heroGlow
-      dir={he ? "rtl" : "ltr"}
+      dir={dir}
       kicker={copy.kicker}
       title={copy.title}
       sub={copy.sub}
@@ -72,7 +73,7 @@ export default async function AgentsPage({
         </Section>
       ))}
 
-      <Section heading={he ? "קראו עוד" : "Read more"}>
+      <Section heading={copy.readMoreHeading}>
         <div className="flex flex-wrap gap-4">
           <Link href="/institutions" className="text-emerald font-bold no-underline">
             {copy.readMore.institutions}

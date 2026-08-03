@@ -5334,7 +5334,8 @@
     "whyExists3Link": "מפרסם תוצאות מתועדות לפי ספק ככל שהן מצטברות. אם הארגון שלכם מופיע שם, המכתבים כבר נושאים Mandate שניתן לאמת — קריאה ידנית לכל אחד יקרה יותר, לא בטוחה יותר.",
     "quickIntegrationHeading": "שילוב מהיר",
     "quickIntegration1": "— verify/decide בכ~30 דקות (גם ב",
-    "quickIntegration2": "— תמונת מצב חיה לצוותי סיכון נכנס (בלי שיחת מכירות)."
+    "quickIntegration2": "— תמונת מצב חיה לצוותי סיכון נכנס (בלי שיחת מכירות).",
+    "registryHumanReadable": "קריא לאדם"
   },
   "institutionLeader": {
     "metaTitle": "מובילי אימות Mandate — זכאי",

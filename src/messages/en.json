@@ -5333,7 +5333,8 @@
     "whyExists3Link": "publishes documented outcomes per provider as they accumulate. If your organisation appears there, the letters already carry a verifiable Mandate — reading each one by hand is the more expensive path, not the safer one.",
     "quickIntegrationHeading": "Quick integration",
     "quickIntegration1": "— step-by-step verify/decide in ~30 minutes (also in",
-    "quickIntegration2": "— live ledger snapshot for inbound risk teams (no sales call)."
+    "quickIntegration2": "— live ledger snapshot for inbound risk teams (no sales call).",
+    "registryHumanReadable": "human-readable"
   },
   "institutionLeader": {
     "metaTitle": "Mandate verification leaders — Zakai",

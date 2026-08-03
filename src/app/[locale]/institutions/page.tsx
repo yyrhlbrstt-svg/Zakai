@@ -11,6 +11,7 @@ import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
 import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
 import { institutionsLongCopy } from "@/lib/marketing/institutionsLongCopy";
+import { textDirection } from "@/lib/textDirection";
 import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -41,6 +42,7 @@ export default async function InstitutionsPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "institutions" });
   const he = locale === "he" || locale === "ar";
+  const dir = textDirection(locale);
   const fitRows = INSTITUTION_FIT_HYPOTHESES.map((row) => ({
     id: row.id,
     name: he ? row.nameHe : row.nameEn,
@@ -52,7 +54,7 @@ export default async function InstitutionsPage({
   return (
     <VerticalPageShell
       heroGlow
-      dir={he ? "rtl" : "ltr"}
+      dir={dir}
       kicker={t("heroKicker")}
       title={t("heroTitle")}
       sub={t("heroSub")}
@@ -194,7 +196,7 @@ export default async function InstitutionsPage({
           <li>{ORIGIN}/api/mandate/test-vectors</li>
           <li>{ORIGIN}/.well-known/zakai-trust-registry.json</li>
           <li>
-            {ORIGIN}/{locale}/registry ({he ? "קריא לאדם" : "human-readable"})
+            {ORIGIN}/{locale}/registry ({t("registryHumanReadable")})
           </li>
           <li>{ORIGIN}/.well-known/zakai-conformance.json</li>
           <li>POST {ORIGIN}/api/mandate/conformance/probe</li>
@@ -206,7 +208,7 @@ export default async function InstitutionsPage({
 
       <Section heading={longCopy.tail.pilotHeading}>
         <p className="text-[14.5px] leading-relaxed mb-5">{longCopy.tail.pilotBody}</p>
-        <div dir={he ? "rtl" : "ltr"}>
+        <div dir={dir}>
           <BusinessLeadForm />
         </div>
         <div className="flex flex-wrap gap-4 mt-6">

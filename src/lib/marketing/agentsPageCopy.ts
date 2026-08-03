@@ -15,6 +15,7 @@ export type AgentsPageCopy = {
   inviteStrong: string;
   inviteRest: string;
   sections: AgentsSection[];
+  readMoreHeading: string;
   readMore: { institutions: string; discovery: string; openapi: string };
 };
 
@@ -68,6 +69,7 @@ const claims = await verifyMandateFromUrl(token, {
       ],
     },
   ],
+  readMoreHeading: "Read more",
   readMore: {
     institutions: "Institutional integration guide →",
     discovery: "Discovery document →",
@@ -125,6 +127,7 @@ const claims = await verifyMandateFromUrl(token, {
       ],
     },
   ],
+  readMoreHeading: "קראו עוד",
   readMore: {
     institutions: "מדריך שילוב מוסדי →",
     discovery: "מסמך discovery →",
