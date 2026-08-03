@@ -93,6 +93,7 @@ describe("proposeSavingFromText", () => {
     expect(note.matchMethod).toBe("paste");
     expect(note.extract.found).toBe(true);
     expect(result.proposed?.newAmountShekels).toBe(80);
+    expect(result.recordAmountShekels).toBe(80);
     expect(result.extract.confidence).toBe(0.9);
   });
 });

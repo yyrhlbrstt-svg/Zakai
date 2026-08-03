@@ -16,6 +16,7 @@ import {
   resolveMoneyFinishCaseId,
 } from "@/lib/services/shareableSavedCase";
 import { mapOutboxToOutreachDelivery } from "@/lib/services/outreachDelivery";
+import { isPendingSuccessFee } from "@/lib/pendingSuccessFee";
 import { heEn } from "@/lib/heEn";
 
 /**
@@ -200,10 +201,9 @@ export async function MoneyLoopCloser({
         }
         proofSelfReported={proofSelfReported}
         pendingFeeShekels={
-          c.fee && c.fee.status === "PENDING" && c.fee.amount > 0
-            ? Math.round(c.fee.amount / 100)
-            : undefined
+          isPendingSuccessFee(c.fee) ? Math.round(c.fee!.amount / 100) : undefined
         }
+        pendingFeeAgorot={isPendingSuccessFee(c.fee) ? c.fee!.amount : undefined}
         provider={c.provider}
         counterpartyEmail={c.counterpartyEmail}
         draftMessage={c.draftMessage}

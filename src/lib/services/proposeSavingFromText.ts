@@ -25,7 +25,11 @@ export async function proposeSavingFromText(
   caseId: string,
   userId: string,
   rawText: string,
-): Promise<{ proposed: ProposedSaving | null; extract: ProposeSavingExtract }> {
+): Promise<{
+  proposed: ProposedSaving | null;
+  extract: ProposeSavingExtract;
+  recordAmountShekels: number | null;
+}> {
   const kase = await prisma.case.findFirst({
     where: { id: caseId, userId },
     select: { id: true, status: true, vertical: true, amountOriginal: true },
@@ -124,5 +128,5 @@ export async function proposeSavingFromText(
   });
 
   const proposed = await getProposedSaving(caseId);
-  return { proposed, extract };
+  return { proposed, extract, recordAmountShekels };
 }

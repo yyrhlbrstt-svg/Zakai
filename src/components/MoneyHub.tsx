@@ -239,6 +239,8 @@ export function MoneyHub({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [pendingOutreach, setPendingOutreach] = useState<RecurringCharge | null>(null);
+  /** Soft-open already created this case — Continue must not POST from-scan again. */
+  const [pendingCaseId, setPendingCaseId] = useState<string | null>(null);
   const [outreachEmail, setOutreachEmail] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const shotRef = useRef<HTMLInputElement>(null);
@@ -335,8 +337,50 @@ export function MoneyHub({
     });
   }
 
+  /** Attach outreach email to an already-opened soft-open case, then finish on /money. */
+  async function finishPendingOutreach(caseId: string, email: string) {
+    setBusyMerchant(pendingOutreach?.merchant ?? "…");
+    try {
+      const approveRes = await fetch(`/api/cases/${caseId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ counterpartyEmail: email }),
+      });
+      if (!approveRes.ok) {
+        const data = await approveRes.json().catch(() => ({}));
+        if (data.error !== "ALREADY_SENT") {
+          setError(tx(locale, "errNeedsEmail"));
+          return;
+        }
+      }
+      const dispatchRes = await fetch(`/api/cases/${caseId}/dispatch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ counterpartyEmail: email }),
+      });
+      const data = await dispatchRes.json().catch(() => ({}));
+      setPendingOutreach(null);
+      setPendingCaseId(null);
+      setOpenedId(caseId);
+      router.push(
+        moneyCaseHref(caseId, {
+          delivered: dispatchRes.ok && data.delivered === true,
+        }),
+      );
+    } catch {
+      setError(tx(locale, "errGeneric"));
+    } finally {
+      setBusyMerchant(null);
+    }
+  }
+
   async function openCase(r: RecurringCharge, contactEmail?: string) {
     setError(null);
+    // Soft-open already created the case — never double from-scan.
+    if (pendingCaseId && pendingOutreach?.merchant === r.merchant && contactEmail?.trim()) {
+      await finishPendingOutreach(pendingCaseId, contactEmail.trim());
+      return;
+    }
     setBusyMerchant(r.merchant);
     try {
       const monthlyShekels = Math.max(1, Math.round(r.monthlyAgorot / 100));
@@ -360,6 +404,7 @@ export function MoneyHub({
         if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setPendingOutreach(r);
+          setPendingCaseId(null);
           setOutreachEmail("");
           setError(tx(locale, "errNeedsEmail"));
           return;
@@ -367,7 +412,17 @@ export function MoneyHub({
         setError(data.error === "caseLimit" ? tx(locale, "errLimit") : tx(locale, "errGeneric"));
         return;
       }
+      // Soft-open: case exists, Mandate not sent — collect inbox here (no second create).
+      if (data.needsOutreachEmail && data.caseId) {
+        setPendingOutreach(r);
+        setPendingCaseId(data.caseId);
+        setOpenedId(data.caseId);
+        setOutreachEmail(contactEmail?.trim() || "");
+        setError(tx(locale, "errNeedsEmail"));
+        return;
+      }
       setPendingOutreach(null);
+      setPendingCaseId(null);
       setOpenedId(data.caseId);
       // Finish on /money — never send the user to the dashboard portfolio.
       router.push(
@@ -671,6 +726,7 @@ export function MoneyHub({
                       variant="ghost"
                       onClick={() => {
                         setPendingOutreach(null);
+                        setPendingCaseId(null);
                         setOutreachEmail("");
                         setError(null);
                       }}

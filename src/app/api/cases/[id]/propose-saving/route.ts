@@ -26,7 +26,11 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   if (!parsed.success) return badRequest("genericError");
 
   try {
-    const { proposed, extract } = await proposeSavingFromText(id, auth.userId, parsed.data.text);
+    const { proposed, extract, recordAmountShekels } = await proposeSavingFromText(
+      id,
+      auth.userId,
+      parsed.data.text,
+    );
     return NextResponse.json({
       ok: true,
       proposed: proposed
@@ -36,11 +40,14 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
             from: proposed.from,
           }
         : null,
+      /** Mapped remaining/monthly for recordSaving — never one-tap raw extract. */
+      recordAmountShekels,
       extract: {
         found: extract.found,
         newAmountShekels: extract.newAmountShekels,
         confidence: extract.confidence,
         reason: extract.reason ?? null,
+        amountKind: extract.amountKind ?? null,
       },
     });
   } catch (err) {

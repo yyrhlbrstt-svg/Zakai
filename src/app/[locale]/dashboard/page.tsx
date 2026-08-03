@@ -39,6 +39,7 @@ import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
 import { mapOutboxToOutreachDelivery } from "@/lib/services/outreachDelivery";
+import { isPendingSuccessFee } from "@/lib/pendingSuccessFee";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 
 const STATUS_KEY: Record<string, string> = {
@@ -95,13 +96,12 @@ export default async function DashboardPage({
   if (highlightCase) {
     const deep = cases.find((c) => c.id === highlightCase);
     if (deep && OPEN_FINISH.has(deep.status)) {
-      redirect({
-        href:
-          payFee === "1"
-            ? `/money?case=${deep.id}&payFee=1`
-            : `/money?case=${deep.id}`,
-        locale,
-      });
+      const q = new URLSearchParams({ case: deep.id });
+      if (payFee === "1") q.set("payFee", "1");
+      if (feeStatus === "paid" || feeStatus === "error" || feeStatus === "confirming") {
+        q.set("fee", feeStatus);
+      }
+      redirect({ href: `/money?${q.toString()}`, locale });
     }
   }
 
@@ -428,10 +428,9 @@ export default async function DashboardPage({
                   }
                   proofSelfReported={proofSelfReported}
                   pendingFeeShekels={
-                    c.fee && c.fee.status === "PENDING" && c.fee.amount > 0
-                      ? Math.round(c.fee.amount / 100)
-                      : undefined
+                    isPendingSuccessFee(c.fee) ? Math.round(c.fee!.amount / 100) : undefined
                   }
+                  pendingFeeAgorot={isPendingSuccessFee(c.fee) ? c.fee!.amount : undefined}
                   provider={c.provider}
                   counterpartyEmail={c.counterpartyEmail}
                   draftMessage={c.draftMessage}
@@ -542,7 +541,11 @@ export default async function DashboardPage({
           {(payFeeCaseId || pendingFeeCases[0]?.id) ? (
             <FeePayButton
               caseId={payFeeCaseId ?? pendingFeeCases[0]!.id}
-              autoStart={Boolean(payFeeCaseId)}
+              autoStart={
+                Boolean(payFeeCaseId) &&
+                feeStatus !== "error" &&
+                feeStatus !== "confirming"
+              }
             />
           ) : null}
         </div>

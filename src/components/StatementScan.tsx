@@ -137,8 +137,11 @@ export function StatementScan({
         );
         return;
       }
+      // Soft-open without inbox → finish surface collects email (no second create).
       router.push(
-        moneyCaseHref(data.caseId, { delivered: data.delivered }),
+        data.needsOutreachEmail
+          ? `/money?case=${data.caseId}`
+          : moneyCaseHref(data.caseId, { delivered: data.delivered }),
       );
     } catch {
       setErr(he ? "משהו השתבש." : "Something went wrong.");

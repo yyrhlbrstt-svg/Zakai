@@ -20,6 +20,7 @@ import { heEn } from "@/lib/heEn";
 import { FeePayButton } from "@/components/FeePayButton";
 import { classifyFollowUpSendError, followUpDeliveryState } from "@/lib/followUpSendUi";
 import type { OutreachDelivery } from "@/lib/services/outreachDelivery";
+import { pendingFeeDisplayShekels } from "@/lib/pendingSuccessFee";
 
 type Status =
   | "ANALYZED"
@@ -60,8 +61,10 @@ interface Props {
   currentPlan?: string;
   /** SavingsProof.savingMonthly in shekels — drives the Pro-upgrade nudge. */
   documentedSavingShekels?: number;
-  /** Pending success fee in shekels — primary CTA on SAVED before share. */
+  /** Pending success fee in shekels — display only (may round away sub-₪1). */
   pendingFeeShekels?: number;
+  /** Pending success fee in agorot — share gate (honest; sub-₪1 still blocks virality). */
+  pendingFeeAgorot?: number;
   /** Estimate / self-reported SavingsProof — no virality (prove → fee → share). */
   proofSelfReported?: boolean;
   /**
@@ -324,6 +327,7 @@ export function CaseNextStep({
   referralCode,
   proposedSaving,
   pendingFeeShekels,
+  pendingFeeAgorot,
   proofsEmail,
   agentRound = 0,
   emailConfigured = true,
@@ -541,10 +545,12 @@ export function CaseNextStep({
     });
     const data = (await res.json().catch(() => ({}))) as {
       proposed?: { newAmountShekels: number; confidence: number } | null;
+      recordAmountShekels?: number | null;
       extract?: { found?: boolean; newAmountShekels?: number | null };
       error?: string;
     };
     if (!res.ok) throw new Error(data.error || "paste");
+    // One-tap only from a real Outbox proposal (confidence gate + mapped amount).
     if (data.proposed?.newAmountShekels != null) {
       setNewAmt(String(data.proposed.newAmountShekels));
       setPasteProposed({
@@ -555,13 +561,18 @@ export function CaseNextStep({
       setPasteTip(null);
       return;
     }
+    // Extract-only: fill the manual field with the mapped record amount — never one-tap raw refund.
+    const mapped =
+      data.recordAmountShekels != null && data.recordAmountShekels >= 0
+        ? data.recordAmountShekels
+        : null;
+    if (mapped != null) {
+      setNewAmt(String(mapped));
+      setPasteTip(t(locale, "pastePartial"));
+      return;
+    }
     if (data.extract?.newAmountShekels != null) {
       setNewAmt(String(data.extract.newAmountShekels));
-      // Same one-tap SavingsProof card — no second "Record" hunt after extract.
-      setPasteProposed({
-        newAmountShekels: data.extract.newAmountShekels,
-        confidence: 0.7,
-      });
       setPasteTip(t(locale, "pastePartial"));
       return;
     }
@@ -669,19 +680,35 @@ export function CaseNextStep({
           </div>
         ) : null}
         <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
-        {pendingFeeShekels != null && pendingFeeShekels > 0 ? (
+        {(() => {
+          const feePending =
+            (pendingFeeAgorot != null && pendingFeeAgorot > 0) ||
+            (pendingFeeAgorot == null &&
+              pendingFeeShekels != null &&
+              pendingFeeShekels > 0);
+          const feeLabel =
+            pendingFeeAgorot != null && pendingFeeAgorot > 0
+              ? pendingFeeDisplayShekels(pendingFeeAgorot)
+              : pendingFeeShekels != null && pendingFeeShekels > 0
+                ? String(pendingFeeShekels)
+                : null;
+          return feePending ? (
           <div className="mb-3 rounded-lg border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-3 py-2.5">
             <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-snug">{t(locale, "savedPayFirst")}</p>
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[13px] font-extrabold text-emerald">
-                {t(locale, "payFeeNow")} · ₪{pendingFeeShekels}
+                {t(locale, "payFeeNow")} · ₪{feeLabel}
               </span>
               <FeePayButton caseId={caseId} />
             </div>
           </div>
-        ) : null}
-        {/* Prove → fee → share: unpaid fee and self-reported estimates never unlock virality. */}
-        {!(pendingFeeShekels != null && pendingFeeShekels > 0) ? (
+          ) : null;
+        })()}
+        {/* Prove → fee → share: unpaid fee (agorot) and self-reported estimates never unlock virality. */}
+        {!((pendingFeeAgorot != null && pendingFeeAgorot > 0) ||
+          (pendingFeeAgorot == null &&
+            pendingFeeShekels != null &&
+            pendingFeeShekels > 0)) ? (
           <>
         {proofSelfReported ? (
           <p className="text-[13px] text-ink-soft mb-3 leading-relaxed m-0">
