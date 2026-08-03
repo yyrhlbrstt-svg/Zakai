@@ -180,6 +180,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             <>
               <MobileLink href="/business">{tIcomponents_Header("t_b4265709")}</MobileLink>
               <MobileLink href="/institutions">{tIcomponents_Header("t_8886b51f")}</MobileLink>
+              <MobileLink href="/pipe">{tIcomponents_Header("t_pipe")}</MobileLink>
               <MobileLink href="/join-network">Join network</MobileLink>
               <MobileLink href="/institutions/leader">Reference verifier</MobileLink>
               <MobileLink href="/pricing">{t("nav.pricing")}</MobileLink>

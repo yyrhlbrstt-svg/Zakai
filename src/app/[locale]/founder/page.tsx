@@ -10,7 +10,6 @@ import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
 import { bcp47, type Locale } from "@/i18n/config";
-import type { Locale } from "@/i18n/config";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
   database: "מסד נתונים",
