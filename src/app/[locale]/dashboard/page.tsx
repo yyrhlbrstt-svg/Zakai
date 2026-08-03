@@ -358,6 +358,14 @@ export default async function DashboardPage({
         </div>
       )}
 
+      {!emailConfigured() && (
+        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed font-bold">
+          {locale === "he"
+            ? "שליחת מייל מהשרת לא מוגדרת (SMTP) — אפשר עדיין לפתוח תיק + Mandate ולשלוח מהמייל שלכם. ברגע שיוגדר SMTP, הסוכן ישלח ישירות לספק."
+            : "Server email (SMTP) is not configured — you can still open a case + Mandate and send from your own mail. Once SMTP is set, the agent sends to the provider directly."}
+        </div>
+      )}
+
       {!paymentsFullyLive() && (
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed">
           {locale === "he"
