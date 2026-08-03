@@ -33,6 +33,7 @@ Track honest status — no fabricated metrics.
 
 ## Related
 
+- `docs/MASTER_BRIEF_STATUS.md` — brief → code map
 - `docs/CEO_LAUNCH_DECISIONS.md` — **merge #71 only**, env checklist, smoke
 - `docs/PROTOCOL_SCALE_ASSESSMENT.md` — gates to protocol-scale (honest)
 
