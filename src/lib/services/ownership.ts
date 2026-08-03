@@ -229,3 +229,38 @@ export async function verifyOwnershipCode(
 
   return { ok: true };
 }
+
+/**
+ * Fast path to SENT Mandate: if the account already proved email control
+ * (`emailVerifiedAt`), stamp case ownership without a second OTP round-trip.
+ *
+ * This is not a privilege escalation to admin — it is proof that the same
+ * person who signed up controls the inbox that will receive provider replies
+ * and proofs@. Phone OTP / magic-link remain for unverified accounts.
+ *
+ * Returns true when this call newly stamped ownership.
+ */
+export async function stampOwnershipFromVerifiedEmail(
+  userId: string,
+  caseId: string,
+): Promise<boolean> {
+  const [user, kase] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { emailVerifiedAt: true },
+    }),
+    prisma.case.findUnique({
+      where: { id: caseId },
+      select: { userId: true, ownershipVerifiedAt: true },
+    }),
+  ]);
+  if (!user?.emailVerifiedAt) return false;
+  if (!kase || kase.userId !== userId) return false;
+  if (kase.ownershipVerifiedAt) return false;
+
+  await prisma.case.update({
+    where: { id: caseId },
+    data: { ownershipVerifiedAt: new Date() },
+  });
+  return true;
+}

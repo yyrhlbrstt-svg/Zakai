@@ -120,6 +120,8 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopied: "הועתק",
     proofsHint: "Forward Email / העברת מייל — הסוכן מזהה סכום ומציע רישום בלחיצה אחת.",
     ownDone: "בעלות אומתה — לחיצה אחת לשליחה לספק עם Mandate.",
+    ownDoneEmail:
+      "המייל בחשבון כבר מאומת — הבעלות נרשמה. לחיצה אחת שולחת עם Mandate.",
     agentRoundLabel: "סיבוב סוכן",
     nextDoors: "מה עוד?",
     recheckCta: "בדוק שוב אם המבצע נגמר",
@@ -185,6 +187,8 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopied: "Copied",
     proofsHint: "Forward Email — agent extracts the amount and offers one-tap record.",
     ownDone: "Ownership verified — one tap to send to the provider with Mandate.",
+    ownDoneEmail:
+      "Email already verified on your account — ownership stamped. One tap sends with Mandate.",
     agentRoundLabel: "Agent round",
     nextDoors: "What's next?",
     recheckCta: "Re-check if the promo ended",
@@ -254,6 +258,7 @@ export function CaseNextStep({
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [proofsCopied, setProofsCopied] = useState(false);
+  const [ownViaEmail, setOwnViaEmail] = useState(false);
   let navigatedAfterSave = false;
 
   const proofsAddr =
@@ -435,6 +440,11 @@ export function CaseNextStep({
                 }),
               });
               if (!res.ok) throw new Error("approve");
+              const data = await res.json().catch(() => ({}));
+              if (data.ownershipViaEmail) {
+                setLocalOwn(true);
+                setOwnViaEmail(true);
+              }
             })
           }
         >
@@ -505,7 +515,9 @@ export function CaseNextStep({
 
         {localOwn && (
           <>
-            <p className="text-[12.5px] text-emerald font-bold m-0">{t(locale, "ownDone")}</p>
+            <p className="text-[12.5px] text-emerald font-bold m-0">
+              {t(locale, ownViaEmail ? "ownDoneEmail" : "ownDone")}
+            </p>
             {draftEdit ? (
               <div className="flex flex-col gap-1.5 w-full">
                 <div className="text-[12px] font-bold">{t(locale, "draftTitle")}</div>

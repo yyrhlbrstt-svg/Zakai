@@ -28,3 +28,16 @@ describe("/api/network/opportunity-map", () => {
     expect(body.verticals.some((v: { id: string }) => v.id === "us_fdcpa")).toBe(true);
   });
 });
+
+describe("/api/network/savings-ledger", () => {
+  it("returns de-identified ledger shape without inventing traction", async () => {
+    const { GET } = await import("@/app/api/network/savings-ledger/route");
+    const res = await GET();
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.spec).toBe("zakai-savings-ledger");
+    expect(typeof body.totals.verifiedProofCount).toBe("number");
+    expect(Array.isArray(body.recent)).toBe(true);
+    expect(body.disclaimer).toMatch(/Empty totals|de-identified/i);
+  });
+});

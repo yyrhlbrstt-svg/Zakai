@@ -4,6 +4,23 @@ You are working on Zakai, the consumer money operating system.
 
 **Highest goal:** not “another consumer app” — become the unavoidable infrastructure layer that every bank, telecom, utility, insurer, municipality, and competing AI agent must eventually speak to.
 
+## Asymmetric win (why we can beat “all companies combined”)
+
+We do **not** win by outspending banks on ads or out-building Cellcom’s app.
+
+We win the way Visa won: become the **pipe** every other actor must speak.
+
+| Player | What they have | What they lack |
+|--------|----------------|----------------|
+| Banks / telecoms | Customers, balance sheets | Machine-verifiable consumer-agent authority; hate phone POA chaos |
+| Consumer apps / “AI advisors” | Chat UI, letter drafts | Signed Mandate + append-only SavingsProof + fee-on-proof |
+| General AI agents | Intelligence | A format institutions will accept at scale without callbacks |
+
+Zakai’s stack is the missing pipe: **Mandate (inbound-only) → written act → SavingsProof**.  
+Other companies become clients of the rails — or look outdated next to whoever already verifies.
+
+**Operating implication:** every sprint either (a) shortens Israel zero→SENT Mandate, (b) raises Mandate/SavingsProof volume, or (c) makes foreign agents/institutions adopt the open format. Anything else is noise.
+
 ## Core thesis
 
 Zakai wins by becoming the **standard protocol** + the **only closed-loop system** that turns consumer intent into documented money outcomes.

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { approveCase, refreshVerifiedStatus, CaseError } from "@/lib/services/cases";
+import { stampOwnershipFromVerifiedEmail } from "@/lib/services/ownership";
+import { createAuthorization } from "@/lib/services/authorization";
 import { clientIp } from "@/lib/ratelimit";
 
 const schema = z.object({
@@ -25,8 +27,17 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       clientIp(request),
       parsed.success ? parsed.data.counterpartyEmail : undefined,
     );
+    // Verified-email accounts skip a second ownership OTP → faster SENT Mandate.
+    const ownershipViaEmail = await stampOwnershipFromVerifiedEmail(auth.userId, id);
+    if (ownershipViaEmail) {
+      try {
+        await createAuthorization(id);
+      } catch {
+        /* authorization may already exist; dispatch will re-issue if needed */
+      }
+    }
     await refreshVerifiedStatus(id);
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, ownershipViaEmail });
   } catch (err) {
     if (err instanceof CaseError) {
       const status =
