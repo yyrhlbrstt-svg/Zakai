@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 import { loadMonopolyReport } from "@/lib/services/monopolyReport";
+import { heEn } from "@/lib/heEn";
 
 /**
  * Monopoly execution board — P0 + rails + pipe tier from real counters.
@@ -32,7 +33,7 @@ export async function MonopolyMissionControl({ locale }: { locale: string }) {
     <Card className="p-5 mb-6 border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.05)]">
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-2">
         <h2 className="font-extrabold text-[15px] m-0">
-          {he ? "מכונת מונופול" : "Monopoly machine"}
+          {heEn(he, "מכונת מונופול", "Monopoly machine")}
         </h2>
         <span className="font-mono text-[12px] text-ink-soft" dir="ltr">
           rails={infrastructureScore}/100 · pipe={tierLabel}
@@ -70,7 +71,7 @@ export async function MonopolyMissionControl({ locale }: { locale: string }) {
 
       <div className="rounded-xl border border-[rgba(240,138,107,0.45)] bg-[rgba(0,0,0,0.22)] px-4 py-3 mb-4">
         <div className="text-[11px] font-bold text-[#F08A6B] mb-1">
-          {he ? "P0 עכשיו" : "P0 now"}
+          {heEn(he, "P0 עכשיו", "P0 now")}
         </div>
         <div className="font-extrabold text-[15px] mb-1">
           {he ? p0.titleHe : p0.titleEn}
@@ -105,7 +106,7 @@ export async function MonopolyMissionControl({ locale }: { locale: string }) {
               <span className="font-bold">{he ? m.titleHe : m.titleEn}</span>
               {m.blocksMonopoly ? (
                 <span className="text-[#F08A6B] font-bold ms-2 text-[11px]">
-                  {he ? "חוסם" : "blocks"}
+                  {heEn(he, "חוסם", "blocks")}
                 </span>
               ) : null}
             </li>

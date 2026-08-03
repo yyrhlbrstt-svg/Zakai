@@ -8,6 +8,7 @@ import { buildCarInsuranceRefundLetter } from "@/lib/carInsuranceRefund";
 import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 import { withFooter } from "@/lib/letterFooter";
 import { resolveInsuranceContactEmail } from "@/lib/utilityContacts";
+import { heEn } from "@/lib/heEn";
 
 export function CarInsuranceRefundTool() {
   const locale = useLocale();
@@ -92,12 +93,12 @@ export function CarInsuranceRefundTool() {
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder={he ? "שם מלא" : "Full name"}
+          placeholder={heEn(he, "שם מלא", "Full name")}
         />
         <Input
           value={insurer}
           onChange={(e) => setInsurer(e.target.value)}
-          placeholder={he ? "שם המבטח (הפניקס / הראל / …)" : "Insurer name"}
+          placeholder={heEn(he, "שם המבטח (הפניקס / הראל / …)", "Insurer name")}
         />
         <Input
           type="email"
@@ -117,29 +118,29 @@ export function CarInsuranceRefundTool() {
         <Input
           value={policyNumber}
           onChange={(e) => setPolicyNumber(e.target.value)}
-          placeholder={he ? "מספר פוליסה" : "Policy number"}
+          placeholder={heEn(he, "מספר פוליסה", "Policy number")}
         />
         <Input
           value={vehicle}
           onChange={(e) => setVehicle(e.target.value)}
-          placeholder={he ? "רכב (מספר / דגם)" : "Vehicle (plate / model)"}
+          placeholder={heEn(he, "רכב (מספר / דגם)", "Vehicle (plate / model)")}
         />
         <Input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder={he ? "סיבת ביטול (מכירה / מעבר מבטח…)" : "Cancel reason"}
+          placeholder={heEn(he, "סיבת ביטול (מכירה / מעבר מבטח…)", "Cancel reason")}
         />
         <Input
           type="number"
           value={premium}
           onChange={(e) => setPremium(e.target.value)}
-          placeholder={he ? "פרמיה ששולמה ₪ (אופציונלי)" : "Premium paid ₪ (optional)"}
+          placeholder={heEn(he, "פרמיה ששולמה ₪ (אופציונלי)", "Premium paid ₪ (optional)")}
         />
         <Input
           type="number"
           value={unusedMonths}
           onChange={(e) => setUnusedMonths(e.target.value)}
-          placeholder={he ? "חודשים שלא נוצלו (אופציונלי)" : "Unused months (optional)"}
+          placeholder={heEn(he, "חודשים שלא נוצלו (אופציונלי)", "Unused months (optional)")}
         />
 
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
@@ -160,7 +161,7 @@ export function CarInsuranceRefundTool() {
               });
             }}
           >
-            {he ? "רק טיוטה להעתקה" : "Draft only (copy)"}
+            {heEn(he, "רק טיוטה להעתקה", "Draft only (copy)")}
           </Button>
         </div>
         {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
@@ -169,10 +170,10 @@ export function CarInsuranceRefundTool() {
       {caseId && (
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">
-            {he ? "תיק נפתח" : "Case opened"}
+            {heEn(he, "תיק נפתח", "Case opened")}
           </div>
           <Link href={`/dashboard?case=${caseId}`}>
-            <Button className="w-full mt-3">{he ? "לדשבורד" : "Dashboard"}</Button>
+            <Button className="w-full mt-3">{heEn(he, "לדשבורד", "Dashboard")}</Button>
           </Link>
         </Card>
       )}

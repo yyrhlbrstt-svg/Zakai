@@ -4,6 +4,7 @@ import { LatePaymentClaim } from "@/components/LatePaymentClaim";
 import { Link } from "@/i18n/routing";
 import { alternateLanguages } from "@/lib/seo";
 import { bcp47, type Locale } from "@/i18n/config";
+import { heEn } from "@/lib/heEn";
 
 export async function generateMetadata({
   params,
@@ -39,7 +40,7 @@ export default async function LatePaymentPage({
           ? "דרישת תשלום → תיק → Mandate → שליחה → מעקב עד חיסכון מתועד."
           : "Payment demand → case → Mandate → send → track until documented recovery."}{" "}
         <Link href="/money" className="text-emerald font-extrabold no-underline hover:underline">
-          {he ? "לכסף שלי" : "My money"}
+          {heEn(he, "לכסף שלי", "My money")}
         </Link>
       </p>
       <LatePaymentClaim bcp47={bcp47[locale as Locale]} />

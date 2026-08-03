@@ -79,6 +79,7 @@ FULL PRODUCT MAP (pick the tightest fit)
 - /late-payment — client not paying invoice → agent demand with Mandate
 - /deposit — landlord holding deposit past 60 days → agent demand with Mandate
 - /duplicate-insurance — overlapping indemnity health cover → agent cancellation request with Mandate
+- /car-insurance-refund — cancelled car insurance mid-term → pro-rata premium demand with Mandate (lump)
 - /arnona — municipal arnona discount / billing correction → agent letter with Mandate
 - /what-am-i-owed or /entitlements — rights quiz → action
 - /rights — statutory rights catalog (${IL_RIGHTS_COUNT}+ IL rights)

@@ -15,7 +15,10 @@
     "perMonth": "לחודש",
     "perMonthShort": "₪ לחודש",
     "perMonthTag": "/ח׳",
-    "currency": "₪"
+    "currency": "₪",
+    "toMoneyHub": "לכסף שלי",
+    "sent": "נשלח",
+    "dashboard": "לדשבורד"
   },
   "opsBanner": {
     "preBilling": "שקיפות: מנוי בתשלום (Pro/Max) עדיין לא נגבה — הסליקה לא מחוברת. עמלות הצלחה מתועדות לפי המסלול; אין חיוב אוטומטי בלי פעולה מפורשת מצדכם."
@@ -5429,7 +5432,30 @@
     "quickIntegration2": "— תמונת מצב חיה לצוותי סיכון נכנס (בלי שיחת מכירות).",
     "registryHumanReadable": "קריא לאדם",
     "heroMailtoCta": "כתבו אלינו — אתם יוזמים את הפיילוט",
-    "leaderWizardCta": "אשף Reference Verifier (בלי מייל)"
+    "leaderWizardCta": "אשף Reference Verifier (בלי מייל)",
+    "readyCardTitle": "אימות Mandate ב־15 דקות — בלי שיחת מכירות",
+    "readyCardBody": "עברת test vectors + Status List = READY_FOR_PIONEER. אחרת אל תטענו תמיכה.",
+    "readyQuickstartBtn": "Quickstart מלא",
+    "readyPioneerBtn": "תביעת Pioneer",
+    "readyOr": " או ",
+    "readyGateHint": " — שער מכונה: vectors + Status List → ready_for_pioneer",
+    "readyRevocationsHint": " — statuslist+jwt חתום, ניתן לקאש",
+    "readyQuickstartCta": "Quickstart — 15 דקות",
+    "pipeCta": "הצינור — Mandate → SavingsProof",
+    "gravityTitle": "כבידה אמיתית — מה שמוסד רואה לפני אימוץ"
+  },
+  "institutionQuickstart": {
+    "kicker": "מוסדות · בלי שיחת מכירות",
+    "title": "אימות Mandate ב־15 דקות",
+    "clearRule": "כלל ברור:",
+    "step1": "1) Node — שורה אחת",
+    "step2": "2) Python — בלי npm",
+    "step3": "3) SDK בשורות בודדות",
+    "step4": "4) נקודות חובה",
+    "readyHint": "(שער מכונה → ready_for_pioneer)",
+    "step5": "5) אחרי READY_FOR_PIONEER",
+    "wizardCta": "אשף Reference Verifier",
+    "wallCta": "קיר Pioneer"
   },
   "institutionLeader": {
     "metaTitle": "מובילי אימות Mandate — זכאי",

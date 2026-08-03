@@ -37,8 +37,8 @@ export default async function InstitutionQuickstartPage({
   return (
     <VerticalPageShell
       heroGlow
-      kicker={he ? "מוסדות · בלי שיחת מכירות" : "Institutions · no sales call"}
-      title={he ? "אימות Mandate ב־15 דקות" : "Verify a Mandate in 15 minutes"}
+      kicker={heEn(he, "מוסדות · בלי שיחת מכירות", "Institutions · no sales call")}
+      title={heEn(he, "אימות Mandate ב־15 דקות", "Verify a Mandate in 15 minutes")}
       sub={
         he
           ? "המטרה: להגיע ל־READY_FOR_PIONEER על המכונה שלכם — ואז לתבוע מקום Pioneer באשף. לא אישור רגולטורי. לא לקוחות מומצאים."
@@ -47,7 +47,7 @@ export default async function InstitutionQuickstartPage({
     >
       <EmeraldInfoPanel className="mb-6">
         <strong className="text-emerald">
-          {he ? "כלל ברור:" : "Clear rule:"}
+          {heEn(he, "כלל ברור:", "Clear rule:")}
         </strong>{" "}
         {he
           ? "עברת את ה־test vectors + Status List מאומת = אתה מוכן ל־Pioneer. בלי זה — אל תטענו תמיכה."
@@ -56,7 +56,7 @@ export default async function InstitutionQuickstartPage({
 
       <Card className="p-5 mb-6">
         <div className="font-extrabold text-[15px] mb-2">
-          {he ? "1) Node — שורה אחת" : "1) Node — one command"}
+          {heEn(he, "1) Node — שורה אחת", "1) Node — one command")}
         </div>
         <CodeBlock>{`cd sdk && npm run ready
 # or, after publish:
@@ -70,7 +70,7 @@ npx zakai-mandate-ready --origin ${ORIGIN}`}</CodeBlock>
 
       <Card className="p-5 mb-6">
         <div className="font-extrabold text-[15px] mb-2">
-          {he ? "2) Python — בלי npm" : "2) Python — no npm"}
+          {heEn(he, "2) Python — בלי npm", "2) Python — no npm")}
         </div>
         <CodeBlock>{`cd reference/python
 python3 zakai_verify.py --ready --origin ${ORIGIN}
@@ -85,10 +85,11 @@ python3 zakai_verify.py --jws '<compact>' --origin ${ORIGIN}`}</CodeBlock>
 
       <Card className="p-5 mb-6">
         <div className="font-extrabold text-[15px] mb-2">
-          {he ? "3) SDK בשורות בודדות" : "3) SDK in a few lines"}
+          {heEn(he, "3) SDK בשורות בודדות", "3) SDK in a few lines")}
         </div>
         <CodeBlock>{`import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
 import { verifyStatusListFromUrl } from "@zakai/mandate-sdk";
+import { heEn } from "@/lib/heEn";
 
 const claims = await verifyMandateFromUrl(jws, {
   audience: "your-institution-slug",
@@ -105,7 +106,7 @@ const list = await verifyStatusListFromUrl({
 
       <Card className="p-5 mb-6">
         <div className="font-extrabold text-[15px] mb-2">
-          {he ? "4) נקודות חובה" : "4) Must-hit endpoints"}
+          {heEn(he, "4) נקודות חובה", "4) Must-hit endpoints")}
         </div>
         <ul className="m-0 ps-5 flex flex-col gap-1.5 text-[13.5px] font-mono break-all text-ink-soft">
           <li>
@@ -123,7 +124,7 @@ const list = await verifyStatusListFromUrl({
               /api/mandate/ready
             </a>{" "}
             <span className="font-sans text-[12px]">
-              {he ? "(שער מכונה → ready_for_pioneer)" : "(machine gate → ready_for_pioneer)"}
+              {heEn(he, "(שער מכונה → ready_for_pioneer)", "(machine gate → ready_for_pioneer)")}
             </span>
           </li>
           <li>
@@ -143,7 +144,7 @@ const list = await verifyStatusListFromUrl({
 
       <Card className="p-5 mb-8 border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.06)]">
         <div className="font-extrabold text-[15px] text-emerald mb-2">
-          {he ? "5) אחרי READY_FOR_PIONEER" : "5) After READY_FOR_PIONEER"}
+          {heEn(he, "5) אחרי READY_FOR_PIONEER", "5) After READY_FOR_PIONEER")}
         </div>
         <p className="text-[13.5px] text-ink-soft leading-relaxed mb-4">
           {he
@@ -152,10 +153,10 @@ const list = await verifyStatusListFromUrl({
         </p>
         <div className="flex flex-wrap gap-3">
           <Link href="/institutions/leader" className="no-underline">
-            <Button>{he ? "אשף Reference Verifier" : "Reference Verifier wizard"}</Button>
+            <Button>{heEn(he, "אשף Reference Verifier", "Reference Verifier wizard")}</Button>
           </Link>
           <Link href="/institutions/leaders" className="no-underline">
-            <Button variant="ghost">{he ? "קיר Pioneer" : "Pioneer wall"}</Button>
+            <Button variant="ghost">{heEn(he, "קיר Pioneer", "Pioneer wall")}</Button>
           </Link>
           <Link href="/pipe" className="no-underline">
             <Button variant="ghost">Pipe</Button>

@@ -15,7 +15,10 @@
     "perMonth": "per month",
     "perMonthShort": "₪/month",
     "perMonthTag": "/mo",
-    "currency": "₪"
+    "currency": "₪",
+    "toMoneyHub": "My money",
+    "sent": "Sent",
+    "dashboard": "Dashboard"
   },
   "opsBanner": {
     "preBilling": "Transparency: paid subscriptions (Pro/Max) are not charged yet — billing is not connected. Success fees are recorded per plan; nothing is charged automatically without an explicit action from you."
@@ -5429,7 +5432,30 @@
     "quickIntegration2": "— live ledger snapshot for inbound risk teams (no sales call).",
     "registryHumanReadable": "human-readable",
     "heroMailtoCta": "Email us — you start the pilot",
-    "leaderWizardCta": "Reference Verifier wizard (no email needed)"
+    "leaderWizardCta": "Reference Verifier wizard (no email needed)",
+    "readyCardTitle": "Verify a Mandate in 15 minutes — no sales call",
+    "readyCardBody": "Pass test vectors + Status List = READY_FOR_PIONEER. Otherwise do not claim support.",
+    "readyQuickstartBtn": "Full quickstart",
+    "readyPioneerBtn": "Claim Pioneer",
+    "readyOr": " or ",
+    "readyGateHint": " — machine gate: vectors + Status List → ready_for_pioneer",
+    "readyRevocationsHint": " — signed statuslist+jwt, cacheable",
+    "readyQuickstartCta": "Quickstart — 15 minutes",
+    "pipeCta": "The Pipe — Mandate → SavingsProof",
+    "gravityTitle": "Real gravity — what an institution sees before adopting"
+  },
+  "institutionQuickstart": {
+    "kicker": "Institutions · no sales call",
+    "title": "Verify a Mandate in 15 minutes",
+    "clearRule": "Clear rule:",
+    "step1": "1) Node — one command",
+    "step2": "2) Python — no npm",
+    "step3": "3) SDK in a few lines",
+    "step4": "4) Must-hit endpoints",
+    "readyHint": "(machine gate → ready_for_pioneer)",
+    "step5": "5) After READY_FOR_PIONEER",
+    "wizardCta": "Reference Verifier wizard",
+    "wallCta": "Pioneer wall"
   },
   "institutionLeader": {
     "metaTitle": "Mandate verification leaders — Zakai",

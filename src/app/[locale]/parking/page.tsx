@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import { alternateLanguages } from "@/lib/seo";
 import { getVerticalOutcomeStat } from "@/lib/strategy/insights";
 import { bcp47, type Locale } from "@/i18n/config";
+import { heEn } from "@/lib/heEn";
 
 export async function generateMetadata({
   params,
@@ -41,7 +42,7 @@ export default async function ParkingPage({
           ? "ערעור → תיק → Mandate → שליחה בשמכם → מעקב. לא רק מכתב להעתקה."
           : "Appeal → case → Mandate → we send → track. Not just a letter to copy."}{" "}
         <Link href="/money" className="text-emerald font-extrabold no-underline hover:underline">
-          {he ? "לכסף שלי" : "My money"}
+          {heEn(he, "לכסף שלי", "My money")}
         </Link>
       </p>
       <ParkingAppeal stat={stat} bcp47={bcp47[locale as Locale]} />

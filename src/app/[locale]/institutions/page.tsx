@@ -20,6 +20,7 @@ import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
 import { bcp47, type Locale } from "@/i18n/config";
+import { heEn } from "@/lib/heEn";
 
 export async function generateMetadata({
   params,
@@ -100,7 +101,7 @@ export default async function InstitutionsPage({
 
       <Card className="mb-8 p-5 border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)]">
         <div className="font-extrabold text-[15px] text-emerald mb-2">
-          {he ? "אימות Mandate ב־15 דקות — בלי שיחת מכירות" : "Verify a Mandate in 15 minutes — no sales call"}
+          {heEn(he, "אימות Mandate ב־15 דקות — בלי שיחת מכירות", "Verify a Mandate in 15 minutes — no sales call")}
         </div>
         <p className="text-[13.5px] text-ink-soft leading-relaxed mb-3">
           {he
@@ -109,11 +110,11 @@ export default async function InstitutionsPage({
         </p>
         <div className="flex flex-wrap gap-2 mb-3">
           <Link href="/institutions/quickstart" className="no-underline">
-            <Button className="!text-[13px]">{he ? "Quickstart מלא" : "Full quickstart"}</Button>
+            <Button className="!text-[13px]">{heEn(he, "Quickstart מלא", "Full quickstart")}</Button>
           </Link>
           <Link href="/institutions/leader" className="no-underline">
             <Button variant="ghost" className="!text-[13px]">
-              {he ? "תביעת Pioneer" : "Claim Pioneer"}
+              {heEn(he, "תביעת Pioneer", "Claim Pioneer")}
             </Button>
           </Link>
           <a href={`${ORIGIN}/api/mandate/ready`} className="no-underline" target="_blank" rel="noreferrer">
@@ -125,7 +126,7 @@ export default async function InstitutionsPage({
         <ol className="m-0 ps-5 flex flex-col gap-1.5 text-[13.5px] text-ink-soft leading-relaxed">
           <li>
             <span className="font-mono">npx zakai-mandate-ready</span>
-            {he ? " או " : " or "}
+            {heEn(he, " או ", " or ")}
             <span className="font-mono">python3 reference/python/zakai_verify.py --ready</span>
           </li>
           <li>
@@ -142,7 +143,7 @@ export default async function InstitutionsPage({
             <a className="text-emerald font-mono break-all" href={`${ORIGIN}/api/mandate/revocations`}>
               /api/mandate/revocations
             </a>
-            {he ? " — statuslist+jwt חתום, ניתן לקאש" : " — signed statuslist+jwt, cacheable"}
+            {heEn(he, " — statuslist+jwt חתום, ניתן לקאש", " — signed statuslist+jwt, cacheable")}
           </li>
           <li>
             GET{" "}
@@ -155,7 +156,7 @@ export default async function InstitutionsPage({
 
       <div className="flex flex-wrap gap-3 mb-8">
         <Link href="/institutions/quickstart" className="no-underline">
-          <Button>{he ? "Quickstart — 15 דקות" : "Quickstart — 15 minutes"}</Button>
+          <Button>{heEn(he, "Quickstart — 15 דקות", "Quickstart — 15 minutes")}</Button>
         </Link>
         <Link href="/pipe" className="no-underline">
           <Button variant="ghost">{locale === "he" || locale === "ar" ? "הצינור — Mandate → SavingsProof" : "The Pipe — Mandate → SavingsProof"}</Button>

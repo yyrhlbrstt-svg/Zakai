@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui";
+import { heEn } from "@/lib/heEn";
 
 interface SentCase {
   id: string;
@@ -173,7 +174,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                       </Button>
                     ) : (
                       <span className="text-[12.5px] font-bold text-emerald self-center">
-                        {he ? "נשלח" : "Sent"}
+                        {heEn(he, "נשלח", "Sent")}
                       </span>
                     )}
                   </div>

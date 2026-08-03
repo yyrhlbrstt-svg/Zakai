@@ -5,6 +5,7 @@ import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Link } from "@/i18n/routing";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
+import { heEn } from "@/lib/heEn";
 
 export async function generateMetadata({
   params,
@@ -39,7 +40,7 @@ export default async function ElectricityPage({
           ? "השוואה חופשית כאן — ואז תיק עם Mandate: אישור → שליחה → מעקב → חיסכון מתועד. אותו מסלול כמו בכסף שלי."
           : "Compare freely here — then open a Mandate case: approve → send → track → documented saving. Same loop as My money."}{" "}
         <Link href="/money" className="text-emerald font-extrabold no-underline hover:underline">
-          {he ? "לכסף שלי" : "My money"}
+          {heEn(he, "לכסף שלי", "My money")}
         </Link>
       </p>
       <ElectricityCalculator bcp47={bcp47[locale as Locale]} />
