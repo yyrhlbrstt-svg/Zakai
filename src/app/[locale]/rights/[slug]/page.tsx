@@ -6,6 +6,7 @@ import { Button, Card } from "@/components/ui";
 import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 import { entitlementIdFromSlug, IL_RIGHT_SLUGS } from "@/lib/rightsSeo";
 import { actionFor } from "@/lib/rightsActions";
+import { ZmlOpenStandardFooter } from "@/components/ZmlOpenStandardFooter";
 import { activeLocales, type Locale } from "@/i18n/config";
 
 type ItemCopy = { title: string; desc: string; how: string };
@@ -97,6 +98,7 @@ export default async function RightLandingPage({
           {zmlId}
         </a>
       </p>
+      <ZmlOpenStandardFooter locale={locale} />
     </main>
   );
 }

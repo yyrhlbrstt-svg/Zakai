@@ -44,6 +44,7 @@ export function buildDomainsDocument(origin: string): {
         catalog: `${base}/api/rights/catalog`,
         markets: `${base}/api/markets`,
         stats: `${base}/api/zml/stats`,
+        packs_manifest: wk(WELL_KNOWN_RELATIVE.packs),
         openapi: `${base}/.well-known/zakai-openapi.json`,
       },
       reference_routes: ["/rights", "/global"],

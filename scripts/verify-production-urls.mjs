@@ -24,6 +24,7 @@ const paths = [
   { path: "/.well-known/zakai-interop.json", expect: 200 },
   { path: "/api/interop", expect: 200 },
   { path: "/.well-known/zakai-domains.json", expect: 200 },
+  { path: "/.well-known/zakai-packs.json", expect: 200 },
   { path: "/api/zml/stats", expect: 200 },
   { path: "/api/collective/summary?market=IL", expect: 200 },
   { path: "/api/rights/catalog?market=IL", expect: 200 },

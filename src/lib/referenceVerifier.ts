@@ -17,6 +17,7 @@ export const VERIFIER_READINESS_ENDPOINTS = [
   { id: "discovery", path: "/.well-known/zakai-mandate.json" },
   { id: "registry", path: "/.well-known/zakai-trust-registry.json" },
   { id: "scopes", path: "/api/mandate/scopes" },
+  { id: "test_vectors", path: "/api/mandate/test-vectors" },
 ] as const;
 
 export async function serverSideReadinessOk(origin: string): Promise<boolean> {

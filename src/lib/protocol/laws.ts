@@ -44,6 +44,7 @@ export const WELL_KNOWN_RELATIVE = {
   conformance: "/.well-known/zakai-conformance.json",
   interop: "/.well-known/zakai-interop.json",
   domains: "/.well-known/zakai-domains.json",
+  packs: "/.well-known/zakai-packs.json",
   switching: "/.well-known/zakai-switching.json",
   autopilot: "/.well-known/zakai-autopilot.json",
   intelligence: "/.well-known/zakai-intelligence.json",

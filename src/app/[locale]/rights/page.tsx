@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { RightsChecker } from "@/components/RightsChecker";
 import { RightsCatalogIndex } from "@/components/RightsCatalogIndex";
+import { ZmlOpenStandardFooter } from "@/components/ZmlOpenStandardFooter";
 import { bcp47, type Locale } from "@/i18n/config";
 import { getVisitorMarket } from "@/lib/global/visitorMarket";
 import { rightsDefaultCountry } from "@/lib/global/marketGeo";
@@ -27,6 +28,7 @@ export default async function RightsPage({
       <VisitorMarketNotice locale={locale} market={market} />
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry={defaultCountry} />
       <RightsCatalogIndex locale={locale} market={market} />
+      <ZmlOpenStandardFooter locale={locale} />
     </main>
   );
 }

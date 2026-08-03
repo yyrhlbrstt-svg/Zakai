@@ -5376,6 +5376,7 @@
     "check_discovery": "Discovery (zakai-mandate.json)",
     "check_registry": "Trust registry",
     "check_scopes": "Scope list",
+    "check_test_vectors": "GET /api/mandate/test-vectors",
     "check_verify": "POST /api/mandate/verify (demo token)",
     "checksPassed": "All checks passed — you can request a wall listing",
     "fieldInstitutionId": "Institution id (aud) — lowercase, e.g. bank-leumi",
@@ -5403,6 +5404,16 @@
     "tierReference": "Reference verifier",
     "consumerStripHint": "Banks that opted into the public leaders wall after self-serve verify checks — not supervisory approval, but a signal they can verify Mandates instead of manual PDFs.",
     "consumerStripDisclaimer": "The list stays empty until an institution registers. No fabricated partnerships."
+  },
+  "institutionConformance": {
+    "title": "Prove your implementation — ~30 minutes, no sales call",
+    "sub": "Before the leaders wall: pass the same test vectors every peer bank will run.",
+    "step1": "implement against the public admission test",
+    "step2Label": "Run vectors against your own code:",
+    "runVectors": "Check vectors are reachable",
+    "step3": "Self-check before a human review:",
+    "step4": "Registered issuer — harder admission path",
+    "footnote": "POST /api/mandate/conformance/probe accepts inline JWKS + sample token — no SSRF to your URL."
   },
   "agents": {
     "metaTitle": "Zakai Mandate for AI agents — prove a person authorised the act",

@@ -4,6 +4,7 @@ import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { EmeraldInfoPanel } from "@/components/EmeraldInfoPanel";
 import { Link } from "@/i18n/routing";
 import { ReferenceVerifierWizard } from "@/components/ReferenceVerifierWizard";
+import { InstitutionConformancePanel } from "@/components/InstitutionConformancePanel";
 import { alternateLanguages } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -51,6 +52,8 @@ export default async function InstitutionLeaderPage({
           {t("integrationsLink")}
         </Link>
       </p>
+
+      <InstitutionConformancePanel />
 
       <ReferenceVerifierWizard />
     </VerticalPageShell>

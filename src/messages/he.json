@@ -5377,6 +5377,7 @@
     "check_discovery": "Discovery (zakai-mandate.json)",
     "check_registry": "Trust registry",
     "check_scopes": "רשימת scopes",
+    "check_test_vectors": "GET /api/mandate/test-vectors",
     "check_verify": "POST /api/mandate/verify (טוקן דמו)",
     "checksPassed": "כל הבדיקות עברו — אפשר לבקש רישום בקיר",
     "fieldInstitutionId": "מזהה מוסד (aud) — אנגלית קטנה, למשל bank-leumi",
@@ -5404,6 +5405,16 @@
     "tierReference": "Reference verifier",
     "consumerStripHint": "בנקים שבחרו להופיע בקיר המובילים אחרי בדיקות אימות self-serve — לא אישור פיקוח, אבל סימן שהם מוכנים לאמת Mandate במקום לקרוא PDF ידני.",
     "consumerStripDisclaimer": "הרשימה ריקה עד שמוסד נרשם. אין כאן «שותפות» מומצאת."
+  },
+  "institutionConformance": {
+    "title": "אימות מימוש — ~30 דקות, בלי שיחת מכירות",
+    "sub": "לפני קיר המובילים: הוכיחו שהמימוש שלכם עובר את אותם test vectors שכל בנק אחר יריץ.",
+    "step1": "מימוש מול המבחן הציבורי",
+    "step2Label": "הריצו את ה-vectors מול הקוד שלכם:",
+    "runVectors": "בדוק שה-vectors זמינים",
+    "step3": "בדיקה עצמית לפני ביקורת אנושית:",
+    "step4": "מנפיק רשום — תהליך הקשה יותר",
+    "footnote": "POST /api/mandate/conformance/probe מקבל JWKS + טוקן לדוגמה — בלי SSRF לכתובת שלכם."
   },
   "agents": {
     "metaTitle": "Zakai Mandate לסוכני AI — הוכחה שאדם אישר את הפעולה",

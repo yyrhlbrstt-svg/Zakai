@@ -28,15 +28,16 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 
 ### Track 0 — Mandate (gravity under everything)
 
-- [ ] Institution leader wizard → **first real name** on wall (opt-in)
+- [x] Institution leader page: conformance panel + test vectors in readiness wizard
 - [ ] `POST /api/mandate/conformance/probe` in institution onboarding email template
 - [ ] Publish `zakai-mandate-mcp` discoverability in every integration doc
 - [ ] Third-party agent issues via **delegated issuance** (one admitted pilot)
 
 ### Track 1 — ZML
 
-- [ ] `zakai-packs` as **standalone publish** (`zakai-packs/scripts/publish.js` + CI)
-- [ ] `GET /api/zml/stats` linked from every rights page footer
+- [x] `/.well-known/zakai-packs.json` + `npm run packs:validate|publish:dry|export`
+- [x] ZML footer on `/rights` + stats/catalog links
+- [ ] `zakai-packs` pushed to standalone GitHub + CDN `ZML_PACKS_CDN`
 - [ ] Next market pack with **full legal citations** (not stubs)
 - [ ] npm/SDK path documented (`sdk/`, interop profile `rights_catalog`)
 
