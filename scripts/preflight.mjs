@@ -38,6 +38,16 @@ const CHECKS = [
   // very nearly an enquiry that never came.
   { key: "SMTP_HOST", level: "degrading",
     cost: "No mail transport. Lead notifications and case correspondence are held in the Outbox and delivered nowhere." },
+  { key: "SMTP_USER", level: "degrading",
+    cost: "SMTP host without credentials — Outbox stays QUEUED the same as a missing host." },
+  { key: "SMTP_PASS", level: "degrading",
+    cost: "SMTP host without credentials — Outbox stays QUEUED the same as a missing host." },
+  { key: "INBOUND_EMAIL_SECRET", level: "degrading",
+    cost: "Inbound provider replies are ungated — proposed→SAVED path is ops-blind." },
+  { key: "MANDATE_ISSUE_KEY", level: "degrading",
+    cost: "Institutional Mandate issue API stays closed." },
+  { key: "MANDATE_REVOKE_KEY", level: "degrading",
+    cost: "Mandate revoke/status ops API stays closed." },
   { key: "SALES_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
     cost: "Institutional enquiries fall back to the founder address. Fine to launch on; set it once there is a shared inbox." },
   { key: "LEADS_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
@@ -50,8 +60,12 @@ const CHECKS = [
     cost: "The founder dashboard at /he/founder is closed to everyone, including you. Nothing else is affected." },
   { key: "PAYMENT_PROVIDER", level: "degrading",
     cost: "Success-fee checkout runs on the mock provider — no real card charges until PayPlus (or another PSP) is configured." },
-  { key: "PAYPLUS_API_KEY", level: "degrading", alt: ["PAYPLUS_SECRET_KEY"],
-    cost: "PayPlus is selected but credentials are missing — fee collection stays mock." },
+  { key: "PAYPLUS_API_KEY", level: "degrading",
+    cost: "PayPlus API key missing — fee collection stays mock when PAYMENT_PROVIDER=payplus." },
+  { key: "PAYPLUS_SECRET_KEY", level: "degrading",
+    cost: "PayPlus secret missing — fee collection stays mock when PAYMENT_PROVIDER=payplus." },
+  { key: "PAYPLUS_PAYMENT_PAGE_UID", level: "degrading",
+    cost: "PayPlus payment page UID missing — hosted checkout cannot open." },
   // A From address on a domain the sending server has no authority over fails
   // SPF and DKIM, and Gmail responds by warning the recipient that the message
   // may not be genuine — which reads to them as "this account is not secure".
@@ -97,6 +111,20 @@ const results = CHECKS.map((c) => {
   const viaAlt = !has && (c.alt ?? []).some((k) => process.env[k]?.trim());
   return { ...c, ok: has || viaAlt, viaAlt };
 });
+
+// Don't fail PayPlus credentials when still on mock — they are not in use.
+const paymentProvider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
+if (paymentProvider !== "payplus") {
+  for (const r of results) {
+    if (r.key.startsWith("PAYPLUS_")) r.ok = true;
+  }
+}
+// SMTP_USER/PASS only matter once a host is configured.
+if (!process.env.SMTP_HOST?.trim()) {
+  for (const r of results) {
+    if (r.key === "SMTP_USER" || r.key === "SMTP_PASS") r.ok = true;
+  }
+}
 
 const blocking = results.filter((r) => !r.ok && r.level === "blocking");
 const degrading = results.filter((r) => !r.ok && r.level === "degrading");

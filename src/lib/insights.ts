@@ -85,7 +85,7 @@ export function computeInsights(input: InsightInput): Insight[] {
   // 5. Documented monthly savings so far — reinforce the outcome (trust loop).
   const savedMonthly = input.cases.reduce((s, c) => s + c.savedMonthlyAgorot, 0);
   if (savedMonthly > 0) {
-    out.push({ key: "savedSoFar", params: { monthly: savedMonthly, yearly: savedMonthly * 12 }, href: "/dashboard", weight: 60 });
+    out.push({ key: "savedSoFar", params: { monthly: savedMonthly, yearly: savedMonthly * 12 }, href: "/money", weight: 60 });
   }
 
   // 6. Nothing active and no referral credit — suggest inviting a friend.

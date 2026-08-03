@@ -120,6 +120,27 @@ export function evaluateConsumerReleaseGate(): {
       envKeys: ["SMTP_FROM"],
     },
     {
+      id: "inbound_email_secret",
+      level: "consumer",
+      ok: envSet("INBOUND_EMAIL_SECRET"),
+      cost: "Inbound provider replies are ungated — proposed→SAVED path is ops-blind.",
+      envKeys: ["INBOUND_EMAIL_SECRET"],
+    },
+    {
+      id: "mandate_issue_key",
+      level: "consumer",
+      ok: envSet("MANDATE_ISSUE_KEY"),
+      cost: "Institutional Mandate issue API stays closed.",
+      envKeys: ["MANDATE_ISSUE_KEY"],
+    },
+    {
+      id: "mandate_revoke_key",
+      level: "consumer",
+      ok: envSet("MANDATE_REVOKE_KEY"),
+      cost: "Mandate revoke/status ops API stays closed.",
+      envKeys: ["MANDATE_REVOKE_KEY"],
+    },
+    {
       id: "payments_live",
       level: "consumer",
       ok: paymentsFullyLive(),

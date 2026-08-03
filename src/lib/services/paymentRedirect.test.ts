@@ -16,16 +16,24 @@ describe("dashboardFeeRedirectPath", () => {
     vi.mocked(prisma.fee.findUnique).mockReset();
   });
 
-  it("uses locale hint when fee is unknown", async () => {
+  it("lands paid fees on /money finish surface", async () => {
     const path = await dashboardFeeRedirectPath("paid", null, "en");
-    expect(path).toBe("/en/dashboard?fee=paid");
+    expect(path).toBe("/en/money?fee=paid");
   });
 
-  it("uses user country when fee resolves", async () => {
+  it("deep-links paid fee to /money?case=", async () => {
     vi.mocked(prisma.fee.findUnique).mockResolvedValue({
       case: { id: "case_1", user: { country: "GB" } },
     } as never);
     const path = await dashboardFeeRedirectPath("paid", "fee_1", "he");
-    expect(path).toBe("/en/dashboard?fee=paid&case=case_1");
+    expect(path).toBe("/en/money?case=case_1&fee=paid");
+  });
+
+  it("sends fee errors back to dashboard checkout", async () => {
+    vi.mocked(prisma.fee.findUnique).mockResolvedValue({
+      case: { id: "case_1", user: { country: "IL" } },
+    } as never);
+    const path = await dashboardFeeRedirectPath("error", "fee_1", "he");
+    expect(path).toBe("/he/dashboard?case=case_1&payFee=1&fee=error");
   });
 });

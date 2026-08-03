@@ -46,11 +46,12 @@ export default async function MoneyPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ case?: string; sent?: string }>;
+  searchParams?: Promise<{ case?: string; sent?: string; fee?: string }>;
 }) {
   const { locale } = await params;
   const sp = searchParams ? await searchParams : {};
   const focusCaseId = typeof sp.case === "string" ? sp.case : null;
+  const feeStatus = typeof sp.fee === "string" ? sp.fee : null;
   setRequestLocale(locale);
   const tIapp_locale_money_page = await getTranslations({ locale, namespace: "inline_app_locale_money_page" });
   const loc = bcp47[locale as Locale];
@@ -69,6 +70,7 @@ export default async function MoneyPage({
   let openLoopHref = "/money";
   let openLoopLabel = "";
   let overnightCases: Array<{ id: string; providerLabel: string; agentRound?: number }> = [];
+  let pendingFeeHref: string | null = null;
   let personalDocumented = {
     count: 0,
     monthlyAgorot: 0,
@@ -128,6 +130,9 @@ export default async function MoneyPage({
         ];
       }
     }
+    const pendingFeeCase = cases.find(
+      (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
+    );
     personalDocumented = {
       count: cases.filter(
         (c) =>
@@ -144,6 +149,11 @@ export default async function MoneyPage({
         return sum;
       }, 0),
     };
+    if (pendingFeeCase) {
+      pendingFeeHref = `/dashboard?case=${pendingFeeCase.id}&payFee=1`;
+    } else if (action.kind === "pending_fee") {
+      pendingFeeHref = nextActionHref(action);
+    }
   }
 
   return (
@@ -194,11 +204,19 @@ export default async function MoneyPage({
             />
           ) : null}
           {overnightCases.length > 0 ? <OvernightAgent cases={overnightCases} /> : null}
+          {feeStatus === "paid" ? (
+            <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold text-emerald">
+              {locale === "he" || locale === "ar"
+                ? "✓ עמלת ההצלחה שולמה — אפשר לשתף את החיסכון המתועד."
+                : "✓ Success fee paid — share your documented saving."}
+            </div>
+          ) : null}
           <PersonalProofStrip
             locale={locale as Locale}
             documentedCount={personalDocumented.count}
             documentedMonthlyAgorot={personalDocumented.monthlyAgorot}
             pendingFeeAgorot={personalDocumented.pendingFeeAgorot}
+            pendingFeeHref={pendingFeeHref}
           />
         </div>
       ) : null}

@@ -407,7 +407,7 @@ export default async function DashboardPage({
                 />
               ) : !settled ? (
                 <Link
-                  href={`/dashboard?case=${c.id}`}
+                  href={`/money?case=${c.id}`}
                   className="inline-block text-[13px] font-extrabold text-emerald no-underline mt-1"
                 >
                   {locale === "he" || locale === "ar" ? "המשיכו תיק זה →" : "Continue this case →"}
@@ -475,6 +475,9 @@ export default async function DashboardPage({
         documentedCount={documentedProofCount}
         documentedMonthlyAgorot={totalDocumentedMonthly}
         pendingFeeAgorot={pendingFeeAgorot}
+        pendingFeeHref={
+          payFeeCaseId ? `/dashboard?case=${payFeeCaseId}&payFee=1` : "/dashboard?payFee=1"
+        }
       />
       {pendingFeeAgorot <= 0 ? (
         <RetentionActionStrip locale={locale} actions={retentionActions} />

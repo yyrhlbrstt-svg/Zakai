@@ -12,15 +12,19 @@ export function PersonalProofStrip({
   documentedCount,
   documentedMonthlyAgorot,
   pendingFeeAgorot,
+  pendingFeeHref,
 }: {
   locale: Locale;
   documentedCount: number;
   documentedMonthlyAgorot: number;
   pendingFeeAgorot: number;
+  /** Checkout deep-link when a success fee is due. */
+  pendingFeeHref?: string | null;
 }) {
   if (documentedCount <= 0 && pendingFeeAgorot <= 0) return null;
   const he = locale === "he" || locale === "ar";
   const loc = bcp47[locale];
+  const feeHref = pendingFeeHref || "/dashboard?payFee=1";
 
   return (
     <div className="mb-6 rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] px-4 py-3.5">
@@ -44,11 +48,14 @@ export function PersonalProofStrip({
         </div>
         <div className="flex flex-col gap-1.5 items-stretch sm:items-end">
           {pendingFeeAgorot > 0 ? (
-            <span className="text-[12.5px] font-extrabold text-emerald">
+            <Link
+              href={feeHref}
+              className="text-[12.5px] font-extrabold text-emerald no-underline hover:underline"
+            >
               {he
-                ? `עמלה ממתינה · ${formatAgorot(pendingFeeAgorot, loc)}`
-                : `Fee due · ${formatAgorot(pendingFeeAgorot, loc)}`}
-            </span>
+                ? `שלמו עמלה · ${formatAgorot(pendingFeeAgorot, loc)} →`
+                : `Pay fee · ${formatAgorot(pendingFeeAgorot, loc)} →`}
+            </Link>
           ) : null}
           <Link href="/proofs" className="text-[12.5px] font-bold text-[#3EC6FF] no-underline">
             {he ? "קיר הוכחות ציבורי →" : "Public proofs wall →"}

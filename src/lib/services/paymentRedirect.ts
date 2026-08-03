@@ -2,13 +2,18 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { localeForCountry, localePath, parseLocaleParam } from "@/lib/localePath";
 
-/** Redirect target after PSP return — locale from payer's account when fee id known. */
+/**
+ * Redirect after PSP return.
+ * Paid → /money finish surface (share unlocks there).
+ * Error → dashboard checkout retry.
+ */
 export async function dashboardFeeRedirectPath(
   feeParam: "paid" | "error",
   feeId?: string | null,
   localeHint?: string | null,
 ): Promise<string> {
   let locale = parseLocaleParam(localeHint);
+  let caseId: string | undefined;
   if (feeId) {
     const fee = await prisma.fee.findUnique({
       where: { id: feeId },
@@ -17,8 +22,24 @@ export async function dashboardFeeRedirectPath(
     if (fee?.case?.user) {
       locale = localeForCountry(fee.case.user.country);
     }
-    const caseQ = fee?.case?.id ? `&case=${encodeURIComponent(fee.case.id)}` : "";
-    return localePath(locale, `/dashboard?fee=${feeParam}${caseQ}`);
+    caseId = fee?.case?.id;
   }
-  return localePath(locale, `/dashboard?fee=${feeParam}`);
+
+  if (feeParam === "paid") {
+    if (caseId) {
+      return localePath(
+        locale,
+        `/money?case=${encodeURIComponent(caseId)}&fee=paid`,
+      );
+    }
+    return localePath(locale, "/money?fee=paid");
+  }
+
+  if (caseId) {
+    return localePath(
+      locale,
+      `/dashboard?case=${encodeURIComponent(caseId)}&payFee=1&fee=error`,
+    );
+  }
+  return localePath(locale, "/dashboard?fee=error");
 }
