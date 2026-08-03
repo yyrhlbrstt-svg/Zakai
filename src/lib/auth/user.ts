@@ -9,6 +9,8 @@ export type CurrentUser = {
   phone: string;
   plan: string;
   referralCode: string;
+  /** Null until the person proved they control the address. */
+  emailVerifiedAt: Date | null;
 };
 
 /** The logged-in user, or null. Safe fields only. */
@@ -17,7 +19,15 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!userId) return null;
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, phone: true, plan: true, referralCode: true },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      phone: true,
+      plan: true,
+      referralCode: true,
+      emailVerifiedAt: true,
+    },
   });
   return user;
 }

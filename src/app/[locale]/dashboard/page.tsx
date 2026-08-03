@@ -277,6 +277,7 @@ export default async function DashboardPage({
                 provider={c.provider}
                 counterpartyEmail={c.counterpartyEmail}
                 draftMessage={c.draftMessage}
+                emailVerified={Boolean(user!.emailVerifiedAt)}
               />
             </div>
           </div>

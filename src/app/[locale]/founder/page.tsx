@@ -186,8 +186,9 @@ export default async function FounderPage({
         {!releaseGate.canReleaseConsumerApp && (
           <>
             <p className="text-[13px] text-ink-soft mt-2 mb-3 leading-relaxed m-0">
-              לא משחררים את האפליקציה עד שהציון 100. תקן ב־Vercel, Redeploy, ובדוק שוב:{" "}
-              <code className="text-[12px]">/api/release-gate</code> · מדריך:{" "}
+              ציון תצורה — לא ציון ערך ולא סיבה להתבייש. חסרים למטה חוסמים מייל/סליקה אמיתיים;
+              עדיין רצים על נפח Mandate ברגע שיש SMTP. תקן ב־Vercel, Redeploy:{" "}
+              <code className="text-[12px]">/api/release-gate</code> ·{" "}
               <code className="text-[12px]">docs/RELEASE_100_HE.md</code>
             </p>
             <ul className="list-none p-0 m-0 flex flex-col gap-1.5">
@@ -232,22 +233,32 @@ export default async function FounderPage({
         </p>
         <ControlGatesStrip locale={locale} />
         <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
-          <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו</div>
+          <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו (סדר חובה)</div>
           <ul className="m-0 ps-5 flex flex-col gap-1.5 text-ink-soft">
             <li>
-              מגנט משיכה (הם כותבים אלינו):{" "}
+              <b className="text-ink">1. SMTP_HOST</b> בפרוד — בלי זה אין מכתב אמיתי לספק. אחרי
+              הגדרה: Redeploy + תיק ניסיון אחד עד SENT.
+            </li>
+            <li>
+              <b className="text-ink">2. Merge</b> לסניף עם הצינור (`/he/pipe`) + Redeploy — אחרת
+              הפרוד נשאר מאחור.
+            </li>
+            <li>
+              <b className="text-ink">3. נפח</b> — תיקי סלולר/ביטול/עמלות אמיתיים. לא מייל קר לבנקים.
+            </li>
+            <li>
+              מגנט משיכה (הם כותבים אלינו אחרי נפח):{" "}
+              <a className="text-emerald underline" href="/he/pipe">
+                /he/pipe
+              </a>{" "}
+              ·{" "}
               <a className="text-emerald underline" href="/he/join-network">
                 /he/join-network
               </a>{" "}
-              +{" "}
+              ·{" "}
               <a className="text-emerald underline" href="/api/institution/pilot-package">
                 pilot-package
-              </a>{" "}
-              ·{" "}
-              <a className="text-emerald underline" href="/api/institution/outreach-kit">
-                pull-kit
-              </a>{" "}
-              · inbox: production footers + /institutions mailto
+              </a>
             </li>
             <li>
               מנפיק שני:{" "}

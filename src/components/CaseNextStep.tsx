@@ -13,6 +13,8 @@ import { VERTICAL_TO_CATALOG_ID } from "@/lib/priorityCatalogMap";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
 import { buildShareLandingUrl } from "@/lib/shareUrl";
 import { isOutreachEmailApiError } from "@/lib/outreachEmail";
+import { openMailto } from "@/lib/mailto";
+import { ShareResult } from "@/components/ShareResult";
 
 type Status =
   | "ANALYZED"
@@ -63,11 +65,19 @@ interface Props {
   emailConfigured?: boolean;
   /** Outreach letter the user consents to — editable before dispatch. */
   draftMessage?: string;
+  /** Account already proved email control — enables approve→send express path. */
+  emailVerified?: boolean;
 }
 
 const copy: Record<string, Record<string, string>> = {
   he: {
     approve: "אשר והמשך",
+    approveSend: "אשר ושלח עם Mandate עכשיו",
+    sentShareTitle: "שתפו — כל Mandate שמגיע דרככם מגדיל את הצינור",
+    sentShareDefault:
+      "שלחתי לספק בקשה עם Mandate של זכאי — הרשאה חתומה בכתב, בלי מוקד. בדקו מה מגיע לכם:",
+    mailtoFallback: "SMTP לא פעיל כאן — פתח במייל שלך ושלח את המכתב",
+    mailtoOpened: "נפתח המייל — שלחו משם",
     sendCode: "שלח קוד / קישור למייל",
     codePh: "קוד מ-6 ספרות",
     verifyCode: "אמת",
@@ -135,6 +145,12 @@ const copy: Record<string, Record<string, string>> = {
   },
   en: {
     approve: "Approve & continue",
+    approveSend: "Approve & send with Mandate now",
+    sentShareTitle: "Share — every Mandate through you grows the pipe",
+    sentShareDefault:
+      "I sent my provider a Zakai Mandate request — signed written authority, no call center. See what you're owed:",
+    mailtoFallback: "SMTP off here — open your mail and send the letter",
+    mailtoOpened: "Mail opened — send from there",
     sendCode: "Send code / email link",
     codePh: "6-digit code",
     verifyCode: "Verify",
@@ -226,12 +242,14 @@ export function CaseNextStep({
   currentPlan,
   documentedSavingShekels,
   draftMessage: draftMessageProp = "",
+  emailVerified = false,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [mailtoOpened, setMailtoOpened] = useState(false);
   const [draftEdit, setDraftEdit] = useState(draftMessageProp);
   const [followSentOk, setFollowSentOk] = useState(false);
   const nextFollowRound = Math.min(4, Math.max(2, agentRound + 2));
@@ -450,6 +468,65 @@ export function CaseNextStep({
         >
           {busy ? t(locale, "working") : t(locale, "approve")}
         </Button>
+        {emailVerified && (
+          <Button
+            disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
+            className="text-[13px] py-2.5 px-4 self-start"
+            onClick={() =>
+              run(async () => {
+                const approveRes = await fetch(`/api/cases/${caseId}/approve`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    editedMessage: draftEdit.trim() || undefined,
+                    counterpartyEmail: needsOutreachInput
+                      ? outreachEmail.trim()
+                      : undefined,
+                  }),
+                });
+                if (!approveRes.ok) throw new Error("approve");
+                const approveData = await approveRes.json().catch(() => ({}));
+                if (approveData.ownershipViaEmail) {
+                  setLocalOwn(true);
+                  setOwnViaEmail(true);
+                }
+                const res = await fetch(`/api/cases/${caseId}/dispatch`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    counterpartyEmail: needsOutreachInput
+                      ? outreachEmail.trim()
+                      : undefined,
+                  }),
+                });
+                if (!res.ok) {
+                  const data = await res.json().catch(() => ({}));
+                  if (isOutreachEmailApiError(data.error)) {
+                    setErr(t(locale, "errNeedsEmail"));
+                    return;
+                  }
+                  throw new Error("dispatch");
+                }
+                const data = await res.json().catch(() => ({}));
+                if (data.authCode) setAuthCode(data.authCode);
+                if (data.mandateJti) setMandateInfo(t(locale, "mandateOk"));
+                setLocalAuth(true);
+              })
+            }
+          >
+            {busy ? t(locale, "working") : t(locale, "approveSend")}
+          </Button>
+        )}
+        {emailVerified && needsOutreachInput && (
+          <Input
+            type="email"
+            value={outreachEmail}
+            onChange={(e) => setOutreachEmail(e.target.value)}
+            placeholder={t(locale, "outreachEmailPh")}
+            dir="ltr"
+            className="text-[13px] max-w-md"
+          />
+        )}
         {err && <FieldError>{err}</FieldError>}
       </div>
     );
@@ -644,6 +721,46 @@ export function CaseNextStep({
               {t(locale, "agentRoundLabel")}: {agentRound} · {roundHint}
             </span>
           )}
+        </div>
+
+        {!emailConfigured && draftEdit.trim() && (
+          <Button
+            className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+            disabled={
+              !(
+                (outreachEmail.trim() || resolvedOutreach) &&
+                /@/.test(outreachEmail.trim() || resolvedOutreach)
+              )
+            }
+            onClick={() => {
+              const to = (outreachEmail.trim() || resolvedOutreach).toLowerCase();
+              const subject = he
+                ? `פנייה באמצעות זכאי — ${providerHebrewName(provider || "")}`
+                : `Zakai Mandate request — ${provider || "provider"}`;
+              if (openMailto(to, subject, draftEdit)) {
+                setMailtoOpened(true);
+                setTimeout(() => setMailtoOpened(false), 2500);
+              }
+            }}
+          >
+            {mailtoOpened ? t(locale, "mailtoOpened") : t(locale, "mailtoFallback")}
+          </Button>
+        )}
+
+        <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] p-3">
+          <div className="text-[12.5px] font-bold mb-2">{t(locale, "sentShareTitle")}</div>
+          <ShareResult
+            message={shareMessage || t(locale, "sentShareDefault")}
+            path="/money"
+            referralCode={referralCode}
+            kicker={
+              provider
+                ? he
+                  ? providerHebrewName(provider)
+                  : provider
+                : "Zakai"
+            }
+          />
         </div>
 
         <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { primeCaseForFastSend } from "@/lib/services/primeCase";
 import { chooseStance } from "@/lib/strategy/store";
 import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
@@ -121,6 +122,8 @@ ${bodyWithFooter}`,
     throw err;
   }
 
+  const { ownershipViaEmail } = await primeCaseForFastSend(auth.userId, kase.id);
+
   return NextResponse.json({
     caseId: kase.id,
     subject: letter.subject,
@@ -128,5 +131,6 @@ ${bodyWithFooter}`,
     status: kase.status,
     message: "case_opened",
     outreachEmail: outreachTo,
+    ownershipViaEmail,
   });
 }
