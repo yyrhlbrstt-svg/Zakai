@@ -2,6 +2,7 @@ import { Link } from "@/i18n/routing";
 import { formatAgorot } from "@/lib/money";
 import type { Locale } from "@/i18n/config";
 import { bcp47 } from "@/i18n/config";
+import { heEn } from "@/lib/heEn";
 
 /**
  * Personal documented-savings portfolio — trust + switching cost.
@@ -31,7 +32,7 @@ export function PersonalProofStrip({
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <div className="text-[11px] font-extrabold uppercase tracking-wide text-emerald">
-            {he ? "התיק המתועד שלכם" : "Your documented ledger"}
+            {heEn(he, "התיק המתועד שלכם", "Your documented ledger")}
           </div>
           <div className="font-display text-[clamp(22px,4vw,28px)] grad-text leading-none mt-1">
             {documentedMonthlyAgorot > 0
@@ -58,7 +59,7 @@ export function PersonalProofStrip({
             </Link>
           ) : null}
           <Link href="/proofs" className="text-[12.5px] font-bold text-[#3EC6FF] no-underline">
-            {he ? "קיר הוכחות ציבורי →" : "Public proofs wall →"}
+            {heEn(he, "קיר הוכחות ציבורי →", "Public proofs wall →")}
           </Link>
         </div>
       </div>

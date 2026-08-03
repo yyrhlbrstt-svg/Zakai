@@ -13,6 +13,7 @@ import {
   DEPOSIT_RETURN_DEADLINE_DAYS,
 } from "@/lib/depositReturn";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { heEn } from "@/lib/heEn";
 
 /**
  * Live deposit-return calculator + demand letter, alongside the static
@@ -206,7 +207,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
           </Button>
           <details className="text-[13px] text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
-              {he ? "חלופה — מכתב להעתקה בלבד" : "Alternative — copy-only letter"}
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
             <Button
               variant="ghost"

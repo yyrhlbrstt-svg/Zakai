@@ -9,6 +9,7 @@ import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 import { resolveTransportContactEmail } from "@/lib/utilityContacts";
+import { heEn } from "@/lib/heEn";
 
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -159,7 +160,7 @@ ${name || "____"}
           </Button>
           <details className="text-[13px] text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
-              {he ? "חלופה — מכתב להעתקה בלבד" : "Alternative — copy-only letter"}
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
             <Button
               variant="ghost"

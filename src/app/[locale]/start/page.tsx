@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { IntentTriage } from "@/components/IntentTriage";
 import { alternateLanguages } from "@/lib/seo";
+import { heEn } from "@/lib/heEn";
 
 export async function generateMetadata({
   params,
@@ -40,16 +41,18 @@ export default async function StartPage({
       <div className="flex items-center gap-3 mb-5">
         <LogoMark size={44} />
         <PageKicker className="mb-0">
-          {he ? "התחלה אחת" : "One start"}
+          {heEn(he, "התחלה אחת", "One start")}
         </PageKicker>
       </div>
       <h1 className="font-display text-[clamp(26px,5vw,38px)] leading-[1.14] m-0 text-balance mb-3">
-        {he ? "מתחילים ב«כסף שלי»" : "Start in My money"}
+        {heEn(he, "מתחילים ב«כסף שלי»", "Start in My money")}
       </h1>
       <p className="text-ink-soft text-[15.5px] leading-relaxed mb-6">
-        {he
-          ? "צילום חשבונית → תיק → Mandate → שליחה → חיסכון מתועד. זה הדלת. לא בוחרים מבין עשרות כלים."
-          : "Screenshot a bill → case → Mandate → send → documented saving. That is the door. Not a toolbox."}
+        {heEn(
+          he,
+          "צילום חשבונית → תיק → Mandate → שליחה → חיסכון מתועד. זה הדלת. לא בוחרים מבין עשרות כלים.",
+          "Screenshot a bill → case → Mandate → send → documented saving. That is the door. Not a toolbox.",
+        )}
       </p>
 
       <Link href="/money#zakai-money-scan" className="no-underline block mb-6">
@@ -62,7 +65,7 @@ export default async function StartPage({
 
       <details className="mt-2 text-[13px] text-ink-soft">
         <summary className="cursor-pointer font-bold select-none">
-          {he ? "כבר יודעים את הבעיה? (אחרי כסף שלי)" : "Already know the problem? (after My money)"}
+          {heEn(he, "כבר יודעים את הבעיה? (אחרי כסף שלי)", "Already know the problem? (after My money)")}
         </summary>
         <div className="flex flex-col gap-2.5 mt-3">
           <Link href="/cancel">

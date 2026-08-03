@@ -12,6 +12,7 @@ import {
   DEFAULT_PAYMENT_TERM_DAYS,
 } from "@/lib/latePaymentClaim";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { heEn } from "@/lib/heEn";
 
 /**
  * Late-invoice demand letter for a freelancer/small supplier — the one tool
@@ -193,7 +194,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
           </Button>
           <details className="text-[13px] text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
-              {he ? "חלופה — מכתב להעתקה בלבד" : "Alternative — copy-only letter"}
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
             <Button
               variant="ghost"

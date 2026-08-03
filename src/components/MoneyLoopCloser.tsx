@@ -11,6 +11,7 @@ import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
+import { heEn } from "@/lib/heEn";
 
 /**
  * Finish surface on /money — the ranked CaseNextStep in place, not a link away.
@@ -123,7 +124,7 @@ export async function MoneyLoopCloser({
   return (
     <div className="mb-6 rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(6,12,18,0.55)] px-4 py-4">
       <div className="text-[11px] font-extrabold uppercase tracking-wide text-emerald mb-1">
-        {he ? "פעולה אחת עכשיו" : "One action now"}
+        {heEn(he, "פעולה אחת עכשיו", "One action now")}
       </div>
       <div className="font-extrabold text-[16px] mb-2">
         {providerHebrewName(c.provider)}

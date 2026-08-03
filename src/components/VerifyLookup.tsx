@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, FieldError } from "@/components/ui";
 import { Link } from "@/i18n/routing";
+import { heEn } from "@/lib/heEn";
 
 interface PublicAuth {
   code: string;
@@ -130,7 +131,7 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
           {gravity?.found && gravity.dispatchedCases != null && gravity.dispatchedCases > 0 ? (
             <div className="mt-4 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-3.5 py-3">
               <div className="text-[11px] font-extrabold uppercase tracking-wide text-emerald">
-                {he ? "נפח Mandate מתועד" : "Documented Mandate volume"}
+                {heEn(he, "נפח Mandate מתועד", "Documented Mandate volume")}
               </div>
               <p className="text-[13px] font-bold m-0 mt-1 leading-relaxed">
                 {he
@@ -146,13 +147,13 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
               ) : null}
               <div className="flex flex-wrap gap-3 mt-2.5">
                 <Link href="/pipe" className="text-[12.5px] font-bold text-[#3EC6FF] no-underline">
-                  {he ? "אימוץ Pipe / אימות →" : "Adopt Pipe / verify →"}
+                  {heEn(he, "אימוץ Pipe / אימות →", "Adopt Pipe / verify →")}
                 </Link>
                 <a
                   href="/api/pipe/accept"
                   className="text-[12.5px] font-bold text-[#3EC6FF] no-underline"
                 >
-                  {he ? "Accept registry" : "Accept registry"}
+                  {heEn(he, "Accept registry", "Accept registry")}
                 </a>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Input, Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { matchIntent } from "@/lib/intentRouter";
+import { heEn } from "@/lib/heEn";
 
 /**
  * "Tell me what happened" — one free-text box instead of a wall of buttons.
@@ -52,7 +53,7 @@ export function IntentTriage() {
         <p className="text-ink-soft text-[12.5px] mt-3 mb-0 leading-relaxed">
           {t("noMatch")}{" "}
           <Link href="/money#zakai-money-scan" className="text-emerald font-bold no-underline">
-            {he ? "לכסף שלי" : "My money"}
+            {heEn(he, "לכסף שלי", "My money")}
           </Link>
         </p>
       )}

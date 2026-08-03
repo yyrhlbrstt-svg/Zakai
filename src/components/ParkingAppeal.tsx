@@ -8,6 +8,7 @@ import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
+import { heEn } from "@/lib/heEn";
 
 const REASONS = ["signage", "machine", "loading", "disabled", "details", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -161,7 +162,7 @@ ${name || "____"}
           </Button>
           <details className="text-[13px] text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
-              {he ? "חלופה — מכתב להעתקה בלבד" : "Alternative — copy-only letter"}
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
             <Button
               variant="ghost"

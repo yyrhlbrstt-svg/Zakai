@@ -52,7 +52,8 @@ const CEILING = 0;
 // the same accepted pattern, one more call site, not a new kind of debt.
 // 15 -> 22: MonopolyMissionControl + PipeNetworkLive gravity fields (titleHe/En
 // pairs on irreversibility / rail meters) — same data-driven pattern, founder board.
-const DATA_DRIVEN_TERNARIES_CEILING = 22;
+// 22 -> 23: LoopVolumePanel vertical row labels (labelHe/labelEn) — same pattern.
+const DATA_DRIVEN_TERNARIES_CEILING = 23;
 
 // Literal text: `{he ? "..."` or the backtick-string equivalent — user-facing
 // copy typed directly into JSX instead of pulled from a message catalogue.

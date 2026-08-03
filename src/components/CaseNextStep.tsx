@@ -16,6 +16,7 @@ import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 import { openMailto } from "@/lib/mailto";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { previewSuccessFeeShekels } from "@/lib/fee";
+import { heEn } from "@/lib/heEn";
 
 type Status =
   | "ANALYZED"
@@ -1062,7 +1063,7 @@ export function CaseNextStep({
         {learningTip && learningTip.trials >= 5 ? (
           <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] px-3 py-2.5 text-[12.5px] leading-relaxed">
             <span className="font-extrabold text-[#3EC6FF]">
-              {he ? "ממה שלמדנו על ספק זה" : "What worked on this provider"}
+              {heEn(he, "ממה שלמדנו על ספק זה", "What worked on this provider")}
             </span>
             <span className="text-ink-soft">
               {he

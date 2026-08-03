@@ -30,9 +30,12 @@ describe("the footer says only what is true without any record on our side", () 
 
   it("addresses the institution rather than the reader of the claim", () => {
     // The footer's audience is a service desk drowning in manual work, not the
-    // person who just wrote the letter.
-    expect(letterFooter("he")).toMatch(/פניות רבות/);
-    expect(letterFooter("en")).toMatch(/many of these/);
+    // person who just wrote the letter. Copy points at Quickstart + decide —
+    // the machine gate — not a brochure.
+    expect(letterFooter("he")).toMatch(/לגוף שמקבל פניות/);
+    expect(letterFooter("he")).toMatch(/Quickstart/);
+    expect(letterFooter("en")).toMatch(/Institutions:/);
+    expect(letterFooter("en")).toMatch(/Quickstart/);
   });
 
   it("stays short enough to survive being sent", () => {

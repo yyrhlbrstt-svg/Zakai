@@ -6,6 +6,7 @@ import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { Link } from "@/i18n/routing";
 import { providerHebrewName } from "@/lib/providers";
+import { heEn } from "@/lib/heEn";
 
 /**
  * Sticky resume for unfinished loops — habit + switching cost.
@@ -81,7 +82,7 @@ export async function OpenLoopResumeBar({ locale }: { locale: string }) {
         <div className="max-w-[1080px] mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[10.5px] font-extrabold uppercase tracking-wide text-emerald">
-              {he ? "לולאה פתוחה" : "Open loop"}
+              {heEn(he, "לולאה פתוחה", "Open loop")}
             </div>
             <div className="text-[13.5px] font-bold truncate">{label}</div>
           </div>
@@ -89,7 +90,7 @@ export async function OpenLoopResumeBar({ locale }: { locale: string }) {
             href={href}
             className="shrink-0 no-underline rounded-full px-4 py-2 text-[13px] font-extrabold text-[#06121A] bg-emerald hover:opacity-90"
           >
-            {he ? "המשך" : "Continue"}
+            {heEn(he, "המשך", "Continue")}
           </Link>
         </div>
       </div>
