@@ -13,6 +13,15 @@ import { ES_PACK } from "./packs/es";
 import { IT_PACK } from "./packs/it";
 import { SE_PACK } from "./packs/se";
 import { PL_PACK } from "./packs/pl";
+import { EU_PACK } from "./packs/eu";
+import { XX_PACK } from "./packs/xx";
+import { NZ_PACK } from "./packs/nz";
+import { ZA_PACK } from "./packs/za";
+import { BR_PACK } from "./packs/br";
+import { MX_PACK } from "./packs/mx";
+import { IN_PACK } from "./packs/in";
+import { JP_PACK } from "./packs/jp";
+import { SG_PACK } from "./packs/sg";
 import type { RightsProfile } from "../rights";
 
 export interface Market {
@@ -36,9 +45,18 @@ export const MARKETS: Record<string, Market> = {
   IT: { code: "IT", pack: IT_PACK, uiLocales: ["en"], label: "Italia" },
   SE: { code: "SE", pack: SE_PACK, uiLocales: ["en"], label: "Sverige" },
   PL: { code: "PL", pack: PL_PACK, uiLocales: ["en"], label: "Polska" },
+  EU: { code: "EU", pack: EU_PACK, uiLocales: ["en", "de", "fr"], label: "European Union" },
+  XX: { code: "XX", pack: XX_PACK, uiLocales: ["en"], label: "International / Worldwide" },
+  NZ: { code: "NZ", pack: NZ_PACK, uiLocales: ["en"], label: "New Zealand" },
+  ZA: { code: "ZA", pack: ZA_PACK, uiLocales: ["en"], label: "South Africa" },
+  BR: { code: "BR", pack: BR_PACK, uiLocales: ["en"], label: "Brasil" },
+  MX: { code: "MX", pack: MX_PACK, uiLocales: ["en"], label: "México" },
+  IN: { code: "IN", pack: IN_PACK, uiLocales: ["en"], label: "India" },
+  JP: { code: "JP", pack: JP_PACK, uiLocales: ["en"], label: "日本" },
+  SG: { code: "SG", pack: SG_PACK, uiLocales: ["en"], label: "Singapore" },
 };
 
-export const DEFAULT_MARKET = "IL";
+export const DEFAULT_MARKET = "XX";
 
 export function getMarket(code: string | undefined | null): Market {
   if (!code) return MARKETS[DEFAULT_MARKET];
@@ -76,10 +94,6 @@ export function fromLegacyIsraeliProfile(p: RightsProfile): UniversalProfile {
     migrantYears: p.newImmigrant ? 3 : undefined,
     militaryReserve: p.reservist,
     recentMilitaryDischarge: p.dischargedSoldier,
-    // The optional tax facts. Normalised to a definite false rather than left
-    // absent, because "not asked" and "answered no" must land on the same
-    // eligibility result — a right that appears only for people who happened
-    // to see a newer version of the form is a bug the parity test would miss.
     extra: {
       hasMortgage: p.hasMortgage === true,
       specialNeedsChild: p.specialNeedsChild === true,

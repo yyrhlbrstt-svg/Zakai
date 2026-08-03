@@ -8,13 +8,30 @@ import { RIGHT_ACTIONS } from "../rightsActions";
 import { actionRouteForEntitlement } from "../entitlementRoutes";
 import type { UniversalProfile } from "./types";
 
-/** In-app paths that have a `src/app/[locale]/<segment>/page.tsx` route. */
+/** In-app paths that have a `src/app/[locale]/…/page.tsx` route (incl. nested). */
 function localeAppRoutes(): Set<string> {
   const localeDir = join(process.cwd(), "src/app/[locale]");
-  const entries = readdirSync(localeDir, { withFileTypes: true });
-  return new Set(
-    entries.filter((d) => d.isDirectory() && !d.name.startsWith("(")).map((d) => `/${d.name}`),
-  );
+  const routes = new Set<string>();
+
+  function walk(dir: string, prefix: string) {
+    for (const d of readdirSync(dir, { withFileTypes: true })) {
+      if (!d.isDirectory() || d.name.startsWith("(") || d.name.startsWith("[")) continue;
+      const path = `${prefix}/${d.name}`;
+      const page = join(dir, d.name, "page.tsx");
+      try {
+        readdirSync(join(dir, d.name));
+        const hasPage = readdirSync(join(dir, d.name)).includes("page.tsx");
+        if (hasPage) routes.add(path);
+        walk(join(dir, d.name), path);
+      } catch {
+        /* ignore */
+      }
+      void page;
+    }
+  }
+
+  walk(localeDir, "");
+  return routes;
 }
 
 const BASE_PROFILE: RightsProfile = {

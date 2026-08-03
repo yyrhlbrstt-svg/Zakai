@@ -26,7 +26,11 @@ export default async function RightsPage({
         {t("subtitle")}
       </p>
       <VisitorMarketNotice locale={locale} market={market} />
-      <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry={defaultCountry} />
+      <RightsChecker
+        bcp47={bcp47[locale as Locale]}
+        defaultCountry={defaultCountry}
+        packMarket={market}
+      />
       <RightsCatalogIndex locale={locale} market={market} />
       <ZmlOpenStandardFooter locale={locale} />
     </main>

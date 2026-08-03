@@ -27,6 +27,8 @@ const DOORS = [
   "parking",
   "must-have",
   "start",
+  "global",
+  "rights",
 ] as const;
 
 export type PipeDoor = (typeof DOORS)[number];

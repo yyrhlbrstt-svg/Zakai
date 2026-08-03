@@ -4,7 +4,7 @@ import { MARKETS, isSupportedMarket } from "./registry";
 export const MARKET_COOKIE = "zakai_market";
 export const MARKET_COOKIE_MAX_AGE_SEC = 365 * 24 * 60 * 60;
 
-/** EU / EEA members without a dedicated national pack in MARKETS. */
+/** EU / EEA members without a dedicated national pack in MARKETS → EU pack. */
 const EU_MEMBER = new Set([
   "AT",
   "BE",
@@ -31,10 +31,11 @@ const EU_MEMBER = new Set([
   "CH",
 ]);
 
-/** ZML / engine markets that ship rights via CDN or built-in packs but not in MARKETS. */
-export const CATALOG_ONLY_MARKETS: Record<string, { label: string; uiLocales: readonly string[] }> = {
-  EU: { label: "European Union", uiLocales: ["en", "de", "fr"] },
-};
+/**
+ * Formerly CDN-only markets. EU is now a full JurisdictionPack in MARKETS.
+ * Kept empty so /api/markets + /global stay consistent.
+ */
+export const CATALOG_ONLY_MARKETS: Record<string, { label: string; uiLocales: readonly string[] }> = {};
 
 export function isCatalogMarket(code: string): boolean {
   const c = code.toUpperCase();
@@ -49,15 +50,14 @@ export function marketLabel(code: string): string {
 
 /**
  * Map Vercel / Cloudflare geo (ISO 3166-1 alpha-2) to a Zakai market code.
+ * Unknown countries get XX (international pack) — everyone can use the rails.
  */
 export function marketFromGeoCountry(iso: string | null | undefined): string {
   const c = (iso ?? "").toUpperCase();
-  if (!c || c === "XX") return "US";
+  if (!c || c === "XX" || c === "ZZ") return "XX";
   if (isCatalogMarket(c)) return c;
   if (EU_MEMBER.has(c)) return "EU";
-  if (["NZ", "SG", "IN", "ZA", "PH", "MY"].includes(c)) return "GB";
-  if (["MX", "BR", "AR", "CL", "CO"].includes(c)) return "US";
-  return "US";
+  return "XX";
 }
 
 export function resolveVisitorMarket(
@@ -85,6 +85,14 @@ const MARKET_TO_RIGHTS_COUNTRY: Record<string, CountryCode> = {
   SE: "SE",
   PL: "PL",
   EU: "DE",
+  XX: "US",
+  NZ: "AU",
+  ZA: "US",
+  BR: "US",
+  MX: "US",
+  IN: "US",
+  JP: "US",
+  SG: "US",
 };
 
 export function rightsDefaultCountry(market: string): CountryCode {

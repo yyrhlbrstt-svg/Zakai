@@ -50,7 +50,16 @@ const CATEGORY_ORDER: RightCategory[] = [
  * The Big Rights Check — 8 quick questions, 42-entitlement personalized list.
  * Pure client-side (lib/rights); nothing is sent or stored anywhere.
  */
-export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string; defaultCountry?: CountryCode }) {
+export function RightsChecker({
+  bcp47,
+  defaultCountry = "IL",
+  packMarket,
+}: {
+  bcp47: string;
+  defaultCountry?: CountryCode;
+  /** Jurisdiction pack from visitor geo/cookie — letters for every country. */
+  packMarket?: string;
+}) {
   const t = useTranslations("rights");
   const [country, setCountry] = useState<CountryCode>(defaultCountry);
   const [query, setQuery] = useState("");
@@ -88,10 +97,12 @@ export function RightsChecker({ bcp47, defaultCountry = "IL" }: { bcp47: string;
   );
   const money = (a: number) => formatAgorot(a, bcp47);
 
-  // Markets with a real JurisdictionPack (letter templates). IL uses legacy
-  // ClaimDocument above; pack parity is proven in engine.test.ts.
+  // Prefer visitor pack (any world market). Else map legacy country chips.
+  // IL keeps ClaimDocument above; pack letters still render when packMarket=IL.
   const globalMarketCode = GLOBAL_MARKET_CODE[country];
-  const globalMarket = globalMarketCode ? MARKETS[globalMarketCode] : undefined;
+  const globalMarket =
+    (packMarket && MARKETS[packMarket.toUpperCase()]) ||
+    (globalMarketCode ? MARKETS[globalMarketCode] : undefined);
   const universalProfile = useMemo(() => fromLegacyIsraeliProfile(profile), [profile]);
 
   const chip = (active: boolean) =>

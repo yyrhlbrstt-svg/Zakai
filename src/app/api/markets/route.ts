@@ -33,7 +33,8 @@ export async function GET(request: Request) {
     {
       ok: true,
       api_version: "2026-08-02",
-      default_market: "IL",
+      default_market: "XX",
+      note: "Unknown visitor geos resolve to XX (international). Set cookie zakai_market or ?market= to override.",
       markets,
       contribute: "https://github.com/zakai/zakai/blob/main/docs/COUNTRY_PACKS.md",
       _links: {

@@ -78,8 +78,8 @@ Priority order (**do not invert**):
 4. **Turn the Mandate into an open standard others adopt.**  
    JWKS + status list + conformance suite rock solid. Document clearly. Never add a callback requirement. Inbound-only is a feature.
 
-5. **Expand country packs only after the Israeli loop is unbeatable.**  
-   GB, US, DE, FR, CA skeletons exist. Fill them only when the Israeli engine can be dropped into a new market with minimal rewrite.
+5. **Expand country packs as data — never `if (country)` soup.**  
+   Shipped packs include IL + major markets + **EU** + **XX (international fallback)** so every geo can cancel, dispute fees, and generate letters. Deepen national packs with citations; unknown geos must never dead-end.
 
 ## Hard rules for every change
 
