@@ -15,6 +15,7 @@ import {
   type EuDistanceTier,
 } from "@/lib/flightRights";
 import { resolveAirlineContactEmail, resolveAirlineProviderKey } from "@/lib/airlineContacts";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
 import { rateLimit } from "@/lib/ratelimit";
 
 const schema = z.object({
@@ -106,6 +107,14 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
+  const outreachTo = firstOutreachEmail(
+    data.airlineContactEmail,
+    resolveAirlineContactEmail(data.airline),
+  );
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
+
   let kase;
   try {
     kase = await createCase({
@@ -120,8 +129,7 @@ export async function POST(request: Request) {
       strategySeed: stanceApplied ? stance.seed : undefined,
       vertical: "airline",
       beneficiaryLabel: data.passengerName || undefined,
-      counterpartyEmail:
-        data.airlineContactEmail || resolveAirlineContactEmail(data.airline),
+      counterpartyEmail: outreachTo,
       // Explicit agent click = consent to the draft → start APPROVED.
       autoApprove: true,
     });

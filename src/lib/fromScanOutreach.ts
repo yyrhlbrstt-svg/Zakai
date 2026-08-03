@@ -43,32 +43,40 @@ export function resolveFromScanOutreach(input: {
 
   if (vertical === "telecom") {
     const telecomKey = resolveProviderKey(input.merchant);
-    outreachTo =
-      firstOutreachEmail(input.contactEmail) ?? resolveTelecomContactEmail(telecomKey);
+    outreachTo = firstOutreachEmail(
+      input.contactEmail,
+      resolveTelecomContactEmail(telecomKey),
+    );
     return { vertical, providerKey: telecomKey, outreachTo };
   }
 
   if (vertical === "subscription") {
-    outreachTo = pickOutreachEmail({
-      contactEmail: input.contactEmail,
-      defaultContactEmail: resolved.defaultContactEmail,
-    });
+    outreachTo = firstOutreachEmail(
+      input.contactEmail,
+      pickOutreachEmail({
+        contactEmail: input.contactEmail,
+        defaultContactEmail: resolved.defaultContactEmail,
+      }),
+      resolved.defaultContactEmail,
+    );
     return { vertical, providerKey: resolved.providerKey, outreachTo };
   }
 
   if (vertical === "electricity") {
-    outreachTo =
-      firstOutreachEmail(input.contactEmail) ??
-      resolveElectricityContactEmail(input.merchant) ??
-      resolveElectricityContactEmail(resolved.providerKey);
+    outreachTo = firstOutreachEmail(
+      input.contactEmail,
+      resolveElectricityContactEmail(input.merchant),
+      resolveElectricityContactEmail(resolved.providerKey),
+    );
     return { vertical, providerKey: resolved.providerKey.slice(0, 80), outreachTo };
   }
 
   if (vertical === "insurance") {
-    outreachTo =
-      firstOutreachEmail(input.contactEmail) ??
-      resolveInsuranceContactEmail(input.merchant) ??
-      resolveInsuranceContactEmail(resolved.providerKey);
+    outreachTo = firstOutreachEmail(
+      input.contactEmail,
+      resolveInsuranceContactEmail(input.merchant),
+      resolveInsuranceContactEmail(resolved.providerKey),
+    );
     return { vertical, providerKey: resolved.providerKey.slice(0, 80), outreachTo };
   }
 

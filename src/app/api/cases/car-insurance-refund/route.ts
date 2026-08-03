@@ -33,8 +33,10 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  const outreachTo =
-    firstOutreachEmail(data.contactEmail) ?? resolveInsuranceContactEmail(data.insurer);
+  const outreachTo = firstOutreachEmail(
+    data.contactEmail,
+    resolveInsuranceContactEmail(data.insurer),
+  );
   if (!outreachTo) {
     return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
   }

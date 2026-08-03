@@ -9,6 +9,8 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import { resolveBankProvider } from "@/lib/normalizeBankProvider";
+import { resolveBankContactEmail } from "@/lib/bankContacts";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { rateLimit } from "@/lib/ratelimit";
 
@@ -16,6 +18,7 @@ const schema = z.object({
   customerName: z.string().max(80).default(""),
   bankKey: z.string().max(32).optional(),
   bank: z.string().min(1).max(120),
+  bankEmail: z.string().max(120).optional(),
   accountLast4: z.string().max(8).optional(),
   feeKind: z.enum(["account_mgmt", "atm", "foreign_fx", "check", "rejected", "other"]),
   feeDescription: z.string().max(160).optional(),
@@ -48,6 +51,15 @@ export async function POST(request: Request) {
     bankName: data.bank,
   });
 
+  const outreachTo = firstOutreachEmail(
+    data.bankEmail,
+    resolveBankContactEmail(providerKey),
+    resolveBankContactEmail(displayName),
+  );
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
+
   const letter = buildBankFeeLetter({
     customerName: data.customerName || user.name || "",
     bank: displayName,
@@ -78,6 +90,7 @@ export async function POST(request: Request) {
     kase = await createCase({
       userId: auth.userId,
       provider: providerKey,
+      counterpartyEmail: outreachTo,
       amountShekels: amount,
       plan: data.feeDescription || data.feeKind,
       strategy: "ערעור על עמלת בנק עם Mandate",

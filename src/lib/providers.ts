@@ -4,6 +4,7 @@
  * (banks, electricity, airlines) — providerHebrewName resolves those too.
  */
 import { resolveAirlineContactEmail } from "@/lib/airlineContacts";
+import { resolveBankContactEmail } from "@/lib/bankContacts";
 import { resolveTelecomContactEmail } from "@/lib/telecomContacts";
 
 export type ProviderKey =
@@ -88,6 +89,7 @@ const SUBSCRIPTION_CONTACT: Record<string, string> = {
 
 export function providerContactEmail(key: string, vertical?: string): string {
   if (vertical === "airline") return resolveAirlineContactEmail(key);
+  if (vertical === "bank-fees") return resolveBankContactEmail(key);
   if (vertical === "subscription") {
     if (SUBSCRIPTION_CONTACT[key]) return SUBSCRIPTION_CONTACT[key];
     if (isProviderKey(key)) {

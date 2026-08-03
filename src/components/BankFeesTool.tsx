@@ -12,17 +12,20 @@ import {
   feeKindLabel,
   BANK_FEE_KINDS,
 } from "@/lib/normalizeBankProvider";
+import { resolveBankContactEmail } from "@/lib/bankContacts";
 import { withFooter } from "@/lib/letterFooter";
 
 export function BankFeesTool() {
   const locale = useLocale();
   const footerLocale = locale === "he" || locale === "ar" ? "he" : "en";
   const t = useTranslations("inline_components_BankFeesTool");
+  const tFlow = useTranslations("agentFlow");
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [bankKey, setBankKey] = useState<BankProviderKey>("leumi");
   const [bankCustom, setBankCustom] = useState("");
+  const [bankEmail, setBankEmail] = useState(() => resolveBankContactEmail("leumi"));
   const [accountLast4, setAccountLast4] = useState("");
   const [feeKind, setFeeKind] = useState<BankFeeKind>("account_mgmt");
   const [feeDescription, setFeeDescription] = useState("");
@@ -61,6 +64,7 @@ export function BankFeesTool() {
           customerName: name,
           bankKey,
           bank: bankLabel,
+          bankEmail: bankEmail.trim() || undefined,
           accountLast4: accountLast4 || undefined,
           feeKind,
           feeDescription: feeDescription || undefined,
@@ -74,6 +78,10 @@ export function BankFeesTool() {
         return;
       }
       if (!res.ok) {
+        if (data.error === "needsOutreachEmail") {
+          setError(tFlow("errorNeedsEmail"));
+          return;
+        }
         setError(res.status === 403 && data.error === "caseLimit" ? t("errorCaseLimit") : t("errorGeneric"));
         return;
       }
@@ -96,7 +104,15 @@ export function BankFeesTool() {
       <Card className="p-5 flex flex-col gap-3">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("t_ebd6b437")} />
         <label className="text-[12px] text-ink-soft font-bold">{t("bankLabel")}</label>
-        <Select value={bankKey} onChange={(e) => setBankKey(e.target.value as BankProviderKey)}>
+        <Select
+          value={bankKey}
+          onChange={(e) => {
+            const next = e.target.value as BankProviderKey;
+            setBankKey(next);
+            const known = resolveBankContactEmail(next);
+            if (known) setBankEmail(known);
+          }}
+        >
           {IL_BANK_OPTIONS.map((b) => (
             <option key={b.key} value={b.key}>
               {bankOptionLabel(b.key, locale)}
@@ -110,6 +126,15 @@ export function BankFeesTool() {
             placeholder={t("t_e5cbb043")}
           />
         )}
+        <label className="text-[12px] text-ink-soft font-bold">{tFlow("contactEmail")}</label>
+        <Input
+          type="email"
+          dir="ltr"
+          value={bankEmail}
+          onChange={(e) => setBankEmail(e.target.value)}
+          placeholder={tFlow("contactEmailHint")}
+        />
+        <p className="text-[12px] text-ink-soft m-0 leading-snug">{tFlow("honestNote")}</p>
         <Input
           value={accountLast4}
           onChange={(e) => setAccountLast4(e.target.value.replace(/\D/g, "").slice(0, 4))}
