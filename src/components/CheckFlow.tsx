@@ -395,9 +395,9 @@ export function CheckFlow() {
     setBusy(false);
     if (res.ok) {
       setOutcome({
-        saving: data.savingMonthlyShekels,
-        fee: data.feeShekels,
-        chargeable: data.chargeable,
+        saving: Number(data.savingMonthlyShekels) || 0,
+        fee: Number(data.feeShekels) || 0,
+        chargeable: data.chargeable === true,
         checkoutUrl: data.checkoutUrl as string | undefined,
       });
       setStage("result");
@@ -835,7 +835,8 @@ export function CheckFlow() {
               <div className="text-[13px] text-ink-soft font-extrabold">
                 {t("resultTitle")}
               </div>
-              {outcome.chargeable ? (
+              {/* chargeable ≠ documented saving (Max / credit / self-report can waive fee). */}
+              {outcome.saving > 0 ? (
                 <>
                   {/* The old amount, settling down to the new one — weight lifted. */}
                   <div className="text-ink-soft text-[15px] mt-4 line-through decoration-[rgba(147,166,165,0.5)]">
@@ -889,7 +890,9 @@ export function CheckFlow() {
               ) : rec ? (
                 <Button
                   className="w-full mt-4"
-                  onClick={() => router.push(`/dashboard?case=${rec.caseId}&payFee=1`)}
+                  onClick={() =>
+                    router.push(`/dashboard?saved=1&case=${rec.caseId}&payFee=1`)
+                  }
                 >
                   {t("payFeeNow")}
                 </Button>
@@ -897,11 +900,38 @@ export function CheckFlow() {
             </Card>
           )}
 
+          {outcome.saving > 0 && !outcome.chargeable ? (
+            <Card className="p-5 mt-3.5 border border-[rgba(63,203,155,0.35)]">
+              <p className="text-[13.5px] text-ink-soft m-0 mb-3 leading-relaxed">
+                {t("waivedShareHint")}
+              </p>
+              <Button
+                className="w-full"
+                onClick={() => router.push(`/dashboard?saved=1&case=${rec.caseId}`)}
+              >
+                {t("toDash")}
+              </Button>
+            </Card>
+          ) : null}
+
           <div className="flex gap-2.5 mt-4">
-            <Button variant="ghost" onClick={() => location.reload()} className="flex-1">
-              {t("newCase")}
-            </Button>
-            <Button onClick={() => router.push(rec ? `/dashboard?case=${rec.caseId}` : "/dashboard")} className="flex-1">
+            {!outcome.chargeable ? (
+              <Button variant="ghost" onClick={() => location.reload()} className="flex-1">
+                {t("newCase")}
+              </Button>
+            ) : null}
+            <Button
+              onClick={() =>
+                router.push(
+                  rec
+                    ? outcome.chargeable
+                      ? `/dashboard?saved=1&case=${rec.caseId}&payFee=1`
+                      : `/dashboard?saved=1&case=${rec.caseId}`
+                    : "/dashboard",
+                )
+              }
+              className="flex-1"
+            >
               {t("toDash")}
             </Button>
           </div>

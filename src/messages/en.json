@@ -597,6 +597,7 @@
     "feeExplain": "You pay only because it worked. No saving, no fee.",
     "payFeeNow": "Pay success fee now",
     "noSaving": "No saving was documented for this request — so there is no fee. You can try another provider or plan.",
+    "waivedShareHint": "Saving documented — no success fee to collect here. On the dashboard you can share and continue.",
     "newCase": "Check another bill",
     "toDash": "To dashboard",
     "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan.",

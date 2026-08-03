@@ -105,8 +105,8 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
       </div>
       <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">
         {he
-          ? `יש ${cases.length} תיקים בסטטוס "נשלח". הסוכן מכין טיוטות — אתם מאשרים ושולחים דרך זכאי עם Mandate.`
-          : `${cases.length} SENT case(s). Agent drafts reminders — you review, then send via Zakai with Mandate.`}
+          ? `יש ${cases.length} תיקים שחיכו כמה ימים בלי תשובה. הסוכן מכין טיוטת המשך — אתם מאשרים ושולחים דרך זכאי עם Mandate. אם כבר ענו — הדביקו את התשובה בתיק.`
+          : `${cases.length} SENT case(s) waited several days with no reply. Agent drafts a follow-up — you review, then send via Zakai with Mandate. If they already replied — paste it on the case.`}
       </p>
       <Button className="mt-3" disabled={busy} onClick={runBatch}>
         {busy

@@ -5,6 +5,7 @@ import { pushToUser } from "@/lib/push";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
+import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
 import { requireCronAuth } from "@/lib/security/cronAuth";
 import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
@@ -16,7 +17,7 @@ const NUDGE_SUBJECT = "זכאי — המבצע שלך כנראה נגמר, שו�
 /** Don't nudge the same user more often than this for SAVED recheck. */
 const NUDGE_COOLDOWN_DAYS = 60;
 /** SENT cases older than this get an agent auto-follow-up (round 2+ to provider). */
-const SENT_AFTER_DAYS = 5;
+const SENT_AFTER_DAYS = SENT_FOLLOWUP_AFTER_DAYS;
 const SENT_COOLDOWN_DAYS = 12;
 const FEE_NUDGE_SUBJECT = "זכאי — עמלת הצלחה ממתינה לתשלום";
 const FEE_NUDGE_AFTER_DAYS = 3;

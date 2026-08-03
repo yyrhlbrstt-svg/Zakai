@@ -24,6 +24,7 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { getAgentRoundMap, MAX_AGENT_ROUNDS } from "@/lib/services/agentFollowUp";
+import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { RetentionActionStrip } from "@/components/RetentionActionStrip";
@@ -125,13 +126,16 @@ export default async function DashboardPage({
       c.status === "SENT",
   ).length;
 
-  // Follow-up drafts only for silent SENT that still have rounds left.
+  // Follow-up drafts only after the same wait as cron auto-follow-up —
+  // day-0 "overnight delay" contradicts SENT wait honesty.
+  const followUpCutoff = Date.now() - SENT_FOLLOWUP_AFTER_DAYS * 86_400_000;
   const sentCases = cases
     .filter(
       (c) =>
         c.status === "SENT" &&
         !proposedMap.has(c.id) &&
-        (agentRoundMap.get(c.id) ?? 0) < MAX_AGENT_ROUNDS,
+        (agentRoundMap.get(c.id) ?? 0) < MAX_AGENT_ROUNDS &&
+        c.updatedAt.getTime() <= followUpCutoff,
     )
     .map((c) => ({
       id: c.id,
@@ -587,6 +591,8 @@ export default async function DashboardPage({
             </Link>
           </div>
 
+          {/* Prove → fee first: no volume-door sprawl while a success fee is outstanding. */}
+          {pendingFeeAgorot <= 0 ? (
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/money">
               <Button>{moneyLabel}</Button>
@@ -610,6 +616,13 @@ export default async function DashboardPage({
               <Button variant="ghost">{locale === "he" ? "מסמכים" : "Documents"}</Button>
             </Link>
           </div>
+          ) : (
+            <div className="mt-6">
+              <Link href="/money">
+                <Button>{moneyLabel}</Button>
+              </Link>
+            </div>
+          )}
         </>
       )}
 
@@ -619,16 +632,15 @@ export default async function DashboardPage({
 
       <StrategyInsightsCard locale={locale} bcp47={loc} />
 
-      {/* Prove → fee → share: no virality while a success fee is outstanding. */}
+      {/* Prove → fee → share: no virality / referral while a success fee is outstanding. */}
       {pendingFeeAgorot <= 0 ? (
+        <>
         <ShareResult
           message={shareMessage}
           referralCode={referralCode}
           amountLabel={shareAmountLabel}
           kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
         />
-      ) : null}
-
       <div className="mt-5">
         <ReferralCard
           path={invitePath}
@@ -638,6 +650,8 @@ export default async function DashboardPage({
           bcp47={loc}
         />
       </div>
+        </>
+      ) : null}
 
       <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.6)]">
         {t("disclosure.agent")}
