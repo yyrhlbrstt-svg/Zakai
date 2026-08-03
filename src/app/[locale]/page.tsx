@@ -46,14 +46,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * The homepage's own copy ("home.proof") promises this figure comes "straight
- * from the proof ledger — never typed in." That promise was false: this used
- * to sum every SavingsProof row, verified and self-reported alike, into one
- * number — exactly the "wall that silently mixes documented outcomes with
- * remembered ones" that selfReportedSaving.ts's own docstring warns is a
- * fabricated traction metric wearing a receipt. provenSavings() keeps the two
- * apart; the flagship homepage number now only ever counts the verified side,
- * which is the only side the copy is actually allowed to describe that way.
+ * Without this, a search engine sees four unrelated pages at the same content
+ * — one per locale — rather than four language variants of one page.
+ * The flagship homepage number only ever counts verified SavingsProofs.
  */
 async function loadProof() {
   const proof = await provenSavings();
@@ -69,7 +64,6 @@ export default async function HomePage({
   setRequestLocale(locale);
   const t = await getTranslations();
   const proof = await loadProof();
-  // Counted from the catalogue so the front page cannot disagree with it.
   const ilRightsCount = ENTITLEMENTS.filter((e) => !/^(us|uk|de|fr|ca|au|it)_/.test(e.id)).length;
 
   const steps = ["upload", "act", "pay"] as const;
@@ -89,9 +83,6 @@ export default async function HomePage({
     }
   }
 
-  // Which problem to lead with is decided by the self-improvement engine from
-  // what has actually been converting, not by the order the doors happened to
-  // be built in. Falls back to the baseline order if the engine is unreachable.
   const doorArm = await currentArm<string[]>("home_door_order");
   const doorOrder = doorArm?.payload ?? ["money", "cancel", "owed", "electricity"];
 
@@ -128,11 +119,6 @@ export default async function HomePage({
       ctaKey: "door.electricity.cta",
       accent: "amber",
     },
-    // The two categories nobody else covers, and they were not on this page at
-    // all. An injury reaches four to seven payers at once and one of those
-    // windows is twelve months; forgotten money is the only thing here somebody
-    // checks for a parent rather than for themselves. Leaving them off the front
-    // door meant the two strongest reasons to open the app were invisible.
     {
       href: "/incident",
       icon: HeartPulse,
@@ -149,8 +135,6 @@ export default async function HomePage({
       ctaKey: "door.dormant.cta",
       accent: "sky",
     },
-    // The only door that prevents a loss instead of recovering one, and the
-    // largest single sum on the page.
     {
       href: "/vehicle-check",
       icon: Car,
@@ -163,15 +147,9 @@ export default async function HomePage({
 
   const doorKey = (href: string) => {
     const slug = href.replace("/", "");
-    // Same problem door — quiz funnel replaced the static hub; experiment arms
-    // still key it as "owed".
     if (slug === "what-am-i-owed" || slug === "entitlements") return "owed";
     return slug;
   };
-  // A door the experiment does not mention sorts last, not first.
-  // `indexOf` returns -1 for an unlisted key, so the previous version promoted
-  // every newly added door above the one the engine had actually chosen —
-  // silently overriding the experiment with build order.
   const rank = (href: string) => {
     const i = doorOrder.indexOf(doorKey(href));
     return i === -1 ? Number.MAX_SAFE_INTEGER : i;
@@ -179,13 +157,13 @@ export default async function HomePage({
   const doors = [...doorsByKey].sort((a, b) => rank(a.href) - rank(b.href));
 
   const accentBorder: Record<string, string> = {
-    emerald: "border-[rgba(63,203,155,0.4)]",
+    emerald: "border-[rgba(63,203,155,0.45)]",
     violet: "border-[rgba(139,92,246,0.4)]",
     sky: "border-[rgba(62,198,255,0.4)]",
     amber: "border-[rgba(240,180,92,0.4)]",
   };
   const accentBg: Record<string, string> = {
-    emerald: "bg-[rgba(63,203,155,0.08)]",
+    emerald: "bg-[rgba(63,203,155,0.1)]",
     violet: "bg-[rgba(139,92,246,0.08)]",
     sky: "bg-[rgba(62,198,255,0.08)]",
     amber: "bg-[rgba(240,180,92,0.08)]",
@@ -197,7 +175,7 @@ export default async function HomePage({
     amber: "text-[#f0b45c]",
   };
   const accentIconBg: Record<string, string> = {
-    emerald: "bg-[rgba(63,203,155,0.2)]",
+    emerald: "bg-[rgba(63,203,155,0.22)]",
     violet: "bg-[rgba(139,92,246,0.2)]",
     sky: "bg-[rgba(62,198,255,0.2)]",
     amber: "bg-[rgba(240,180,92,0.2)]",
@@ -212,7 +190,7 @@ export default async function HomePage({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-12 items-center mb-10">
+      <div className="flex flex-wrap gap-12 items-center mb-12">
         <div className="flex-1 min-w-[300px] basis-[400px]">
           <Reveal>
             <PageKicker className="mb-6">
@@ -221,7 +199,7 @@ export default async function HomePage({
             </PageKicker>
           </Reveal>
           <Reveal delay={80}>
-            <h1 className="font-display text-[clamp(36px,5.4vw,52px)] leading-[1.12] m-0 text-balance">
+            <h1 className="font-display text-[clamp(36px,5.4vw,54px)] leading-[1.1] m-0 text-balance tracking-[-0.02em]">
               {t("home.title1")}
               <br />
               <span className="grad-text">{t("home.title2")}</span>
@@ -233,7 +211,7 @@ export default async function HomePage({
             </p>
             <div className="flex flex-wrap gap-3 mb-2">
               <Link href="/money">
-                <Button className="!text-[15px] !px-6 !py-3">{t("home.cta")}</Button>
+                <Button className="!text-[15px] !px-7 !py-3.5">{t("home.cta")}</Button>
               </Link>
               <Link href="/leaks">
                 <Button variant="ghost" className="!text-[14px]">
@@ -260,43 +238,51 @@ export default async function HomePage({
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
         {doors.map((d, i) => {
           const Icon = d.icon;
+          const featured = i === 0;
           const cardClass =
             "p-6 h-full " +
             accentBorder[d.accent] +
             " " +
             accentBg[d.accent] +
-            " hover:scale-[1.02] transition-transform";
+            " hover:scale-[1.02] transition-transform" +
+            (featured ? " sm:col-span-2 md:col-span-2 shadow-[0_20px_50px_rgba(63,203,155,0.12)]" : "");
           const iconClass =
             "w-11 h-11 rounded-xl " +
             accentIconBg[d.accent] +
             " flex items-center justify-center mb-4";
           return (
-            <Reveal key={d.href} delay={i * 70}>
+            <Reveal key={d.href} delay={i * 70} className={featured ? "sm:col-span-2 md:col-span-2" : undefined}>
               <Link href={d.href} className="no-underline block h-full">
                 <SpotlightCard className={cardClass}>
-                  <div className={iconClass}>
-                    <Icon
-                      size={22}
-                      className={accentText[d.accent]}
-                      aria-hidden
-                    />
-                  </div>
-                  <div
-                    className={
-                      "font-extrabold text-[17px] " + accentText[d.accent]
-                    }
-                  >
-                    {t(d.titleKey)}
-                  </div>
-                  <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed">
-                    {t(d.subKey)}
-                  </div>
-                  <div
-                    className={
-                      "mt-4 text-[14px] font-extrabold " + accentText[d.accent]
-                    }
-                  >
-                    {t(d.ctaKey)}
+                  <div className={featured ? "sm:flex sm:items-start sm:gap-5" : undefined}>
+                    <div className={iconClass}>
+                      <Icon
+                        size={22}
+                        className={accentText[d.accent]}
+                        aria-hidden
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <div
+                        className={
+                          "font-extrabold " +
+                          (featured ? "text-[19px] " : "text-[17px] ") +
+                          accentText[d.accent]
+                        }
+                      >
+                        {t(d.titleKey)}
+                      </div>
+                      <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed max-w-[520px]">
+                        {t(d.subKey)}
+                      </div>
+                      <div
+                        className={
+                          "mt-4 text-[14px] font-extrabold " + accentText[d.accent]
+                        }
+                      >
+                        {t(d.ctaKey)}
+                      </div>
+                    </div>
                   </div>
                 </SpotlightCard>
               </Link>
@@ -306,16 +292,12 @@ export default async function HomePage({
       </div>
 
       <Reveal delay={80}>
-        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
+        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
           {(
             (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
           ).map((s, i) => (
             <div key={s.label} className="text-center">
               <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
-                {/* Derived, not written down. This said 55 and the catalogue
-                    held 60 — a factual claim on the front page that went stale
-                    the moment somebody added a right, which is what a number
-                    living in a translation file always does. */}
                 {i === 1 ? ilRightsCount : s.n}
               </div>
               <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
@@ -328,7 +310,7 @@ export default async function HomePage({
 
       {proof.count > 0 && (
         <Reveal>
-          <div className="mt-10 text-center rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-5">
+          <div className="mt-10 text-center rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-5 shadow-[0_16px_40px_rgba(63,203,155,0.08)]">
             <span className="font-display grad-text text-3xl">
               {formatAgorot(
                 proof.monthlyAgorot,
@@ -368,7 +350,7 @@ export default async function HomePage({
           <Reveal key={key} delay={i * 90}>
             <SpotlightCard className="p-6 h-full">
               <div className="flex items-center gap-3">
-                <div className="w-[30px] h-[30px] rounded-[9px] grad-bg text-[#06121A] flex items-center justify-center font-black text-sm">
+                <div className="w-[30px] h-[30px] rounded-[9px] grad-bg text-[#06121A] flex items-center justify-center font-black text-sm shadow-[0_6px_16px_rgba(63,203,155,0.25)]">
                   {i + 1}
                 </div>
               </div>
@@ -392,7 +374,7 @@ export default async function HomePage({
         {(["alone", "services", "zakai"] as const).map((col, i) => {
           const isZakai = col === "zakai";
           const cardCls = isZakai
-            ? "p-6 h-full border-[rgba(63,203,155,0.45)]"
+            ? "p-6 h-full border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.06)]"
             : "p-6 h-full";
           const titleCls = isZakai
             ? "font-extrabold text-[15px] text-emerald"
@@ -432,7 +414,7 @@ export default async function HomePage({
       </div>
 
       <Reveal>
-        <div className="mt-16 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] px-6 py-7">
+        <div className="mt-16 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
           <h2 className="font-display text-[clamp(20px,3.5vw,26px)] m-0 text-center">
             {t("home.developersTitle")}
           </h2>
@@ -460,7 +442,7 @@ export default async function HomePage({
       </Reveal>
 
       <Reveal>
-        <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
+        <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] px-6 py-8 text-center shadow-[0_20px_50px_rgba(63,203,155,0.1)]">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
             {t("home.closingTitle")}
           </div>
@@ -469,7 +451,7 @@ export default async function HomePage({
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money">
-              <Button className="!text-[15px] !px-6 !py-3">{t("home.closingCta")}</Button>
+              <Button className="!text-[15px] !px-7 !py-3.5">{t("home.closingCta")}</Button>
             </Link>
             <Link href="/business">
               <Button variant="ghost">{t("home.closingB2b")}</Button>
