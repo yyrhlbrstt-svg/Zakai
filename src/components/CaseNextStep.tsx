@@ -17,6 +17,7 @@ import { openMailto } from "@/lib/mailto";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { previewSuccessFeeShekels } from "@/lib/fee";
 import { heEn } from "@/lib/heEn";
+import { FeePayButton } from "@/components/FeePayButton";
 
 type Status =
   | "ANALYZED"
@@ -414,7 +415,7 @@ export function CaseNextStep({
       return;
     }
     if (opts?.chargeable) {
-      router.push(`/dashboard?saved=1&case=${caseId}&payFee=1`);
+      router.push(`/money?case=${caseId}&payFee=1`);
       return;
     }
     router.push(`/money?case=${caseId}`);
@@ -549,11 +550,12 @@ export function CaseNextStep({
         {pendingFeeShekels != null && pendingFeeShekels > 0 ? (
           <div className="mb-3 rounded-lg border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-3 py-2.5">
             <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-snug">{t(locale, "savedPayFirst")}</p>
-            <Link href={`/dashboard?saved=1&case=${caseId}&payFee=1`} className="no-underline">
-              <Button className="!text-[13px] w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[13px] font-extrabold text-emerald">
                 {t(locale, "payFeeNow")} · ₪{pendingFeeShekels}
-              </Button>
-            </Link>
+              </span>
+              <FeePayButton caseId={caseId} />
+            </div>
           </div>
         ) : null}
         {/* Prove → fee → share: no virality / next doors while success fee is unpaid. */}
@@ -1086,6 +1088,222 @@ export function CaseNextStep({
           </div>
         ) : null}
 
+        {/*
+          When silent / missing outreach: surface follow-up ABOVE paste/manual.
+          A collapsed details at the bottom is how SENT cases stall.
+        */}
+        {agentRound < MAX_AGENT_ROUNDS && localAuth && (!proposed || needsOutreachInput) ? (
+          <div className="rounded-xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] p-3.5">
+            <div className="text-[13px] font-extrabold text-[#F0B45C] mb-2">
+              {t(locale, "followTitle")}
+            </div>
+            {needsOutreachInput && (
+              <div className="flex flex-col gap-1.5 w-full max-w-md mb-2">
+                <Input
+                  type="email"
+                  value={outreachEmail}
+                  onChange={(e) => setOutreachEmail(e.target.value)}
+                  placeholder={t(locale, "outreachEmailPh")}
+                  dir="ltr"
+                  className="text-[13px]"
+                />
+              </div>
+            )}
+            <select
+              value={replyKind}
+              onChange={(e) => setReplyKind(e.target.value as ProviderReplyKind)}
+              className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] px-3 py-2 mb-2"
+            >
+              {REPLY_KIND_OPTIONS.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {heEn(he, o.he, o.en)}
+                </option>
+              ))}
+            </select>
+            {replyKind === "competitor" && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                <Input
+                  value={competitorName}
+                  onChange={(e) => setCompetitorName(e.target.value)}
+                  placeholder={t(locale, "competitorName")}
+                  className="flex-1 min-w-[140px] text-[13px]"
+                />
+                <Input
+                  type="number"
+                  value={competitorPrice}
+                  onChange={(e) => setCompetitorPrice(e.target.value)}
+                  placeholder={t(locale, "competitorPrice")}
+                  className="max-w-[140px] text-[13px]"
+                />
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {emailConfigured && !followSentOk ? (
+                <Button
+                  disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
+                  className="text-[13px] py-2 px-3"
+                  onClick={() =>
+                    run(async () => {
+                      setFollowSentOk(false);
+                      const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          replyKind,
+                          round: nextFollowRound,
+                          send: true,
+                          competitorName: competitorName || undefined,
+                          competitorPriceShekels: competitorPrice
+                            ? Number(competitorPrice)
+                            : undefined,
+                          counterpartyEmail: needsOutreachInput
+                            ? outreachEmail.trim()
+                            : undefined,
+                        }),
+                      });
+                      const data = await res.json().catch(() => ({}));
+                      if (!res.ok) {
+                        if (data.error === "NEEDS_OUTREACH_EMAIL") {
+                          setErr(t(locale, "errNeedsEmail"));
+                          return;
+                        }
+                        if (data.error === "NO_ACTIVE_MANDATE") {
+                          setLocalAuth(false);
+                          setErr(t(locale, "mandateInactiveBanner"));
+                          return;
+                        }
+                        if (data.error === "NO_TRANSPORT") {
+                          setErr(t(locale, "errDelivery"));
+                          if (data.body) setFollowBody(data.body);
+                          return;
+                        }
+                        if (data.body) setFollowBody(data.body);
+                        throw new Error("follow-send");
+                      }
+                      setFollowBody(data.body || "");
+                      setFollowTip(data.tip || null);
+                      setFollowSentOk(data.delivered !== false || data.sent === true);
+                      router.refresh();
+                    })
+                  }
+                >
+                  {busy ? t(locale, "working") : t(locale, "followSendAndDraft")}
+                </Button>
+              ) : null}
+              {!followSentOk ? (
+                <Button
+                  variant={emailConfigured ? "ghost" : undefined}
+                  disabled={busy}
+                  className="text-[13px] py-2 px-3"
+                  onClick={() =>
+                    run(async () => {
+                      setFollowSentOk(false);
+                      const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          replyKind,
+                          round: nextFollowRound,
+                          competitorName: competitorName || undefined,
+                          competitorPriceShekels: competitorPrice
+                            ? Number(competitorPrice)
+                            : undefined,
+                        }),
+                      });
+                      if (!res.ok) throw new Error("follow");
+                      const data = await res.json();
+                      setFollowBody(data.body || "");
+                      setFollowTip(data.tip || null);
+                    })
+                  }
+                >
+                  {busy ? t(locale, "working") : t(locale, "followGen")}
+                </Button>
+              ) : null}
+              {followBody && emailConfigured && !followSentOk ? (
+                <Button
+                  variant="ghost"
+                  disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
+                  className="text-[13px] py-2 px-3"
+                  onClick={() =>
+                    run(async () => {
+                      const res = await fetch(`/api/cases/${caseId}/follow-up`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          replyKind,
+                          round: nextFollowRound,
+                          send: true,
+                          competitorName: competitorName || undefined,
+                          competitorPriceShekels: competitorPrice
+                            ? Number(competitorPrice)
+                            : undefined,
+                          counterpartyEmail: needsOutreachInput
+                            ? outreachEmail.trim()
+                            : undefined,
+                        }),
+                      });
+                      const data = await res.json().catch(() => ({}));
+                      if (!res.ok) {
+                        if (data.error === "NEEDS_OUTREACH_EMAIL") {
+                          setErr(t(locale, "errNeedsEmail"));
+                          return;
+                        }
+                        if (data.error === "NO_ACTIVE_MANDATE") {
+                          setLocalAuth(false);
+                          setErr(t(locale, "mandateInactiveBanner"));
+                          return;
+                        }
+                        if (data.error === "NO_TRANSPORT") {
+                          setErr(t(locale, "errDelivery"));
+                          if (data.body) setFollowBody(data.body);
+                          return;
+                        }
+                        if (data.body) setFollowBody(data.body);
+                        throw new Error("follow-send");
+                      }
+                      setFollowBody(data.body || followBody);
+                      setFollowTip(data.tip || followTip);
+                      setFollowSentOk(data.delivered !== false || data.sent === true);
+                      router.refresh();
+                    })
+                  }
+                >
+                  {busy ? t(locale, "working") : t(locale, "followSend")}
+                </Button>
+              ) : null}
+              {followSentOk ? (
+                <span className="text-[13px] font-bold text-emerald self-center">
+                  {t(locale, "followSent")}
+                </span>
+              ) : null}
+            </div>
+            {followTip && <p className="text-[12px] text-ink-soft mt-2 mb-0">{followTip}</p>}
+            {followBody && (
+              <div className="mt-2">
+                <pre className="whitespace-pre-wrap text-[12px] leading-relaxed bg-[#060b12] rounded-lg p-3 border border-[rgba(255,255,255,0.08)] max-h-48 overflow-y-auto">
+                  {followBody}
+                </pre>
+                <Button
+                  variant="ghost"
+                  className="text-[13px] py-2 px-3 mt-2"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(followBody);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
+                >
+                  {copied ? t(locale, "copied") : t(locale, "copyMsg")}
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : null}
+
         {/* SavingsProof first — fee and gravity only compound after this. */}
         {proposed && (
           <div className="rounded-xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.14)] p-3.5">
@@ -1265,7 +1483,8 @@ export function CaseNextStep({
           </div>
         </div>
 
-        {agentRound < MAX_AGENT_ROUNDS && localAuth ? (
+        {/* Secondary: follow-up stays available when a proposed saving already leads. */}
+        {agentRound < MAX_AGENT_ROUNDS && localAuth && proposed && !needsOutreachInput ? (
         <details className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
           <summary className="text-[12.5px] font-bold cursor-pointer select-none">
             {t(locale, "followTitle")}

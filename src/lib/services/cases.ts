@@ -539,7 +539,7 @@ export async function recordSaving(
       title: "זכאי — חיסכון מתועד",
       body:
         result.feeNet > 0
-          ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת בדשבורד.`
+          ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת ב״הכסף שלי״.`
           : `תועד חיסכון של ₪${savingShekels}. שתף או המשך ב״הכסף שלי״.`,
       url: result.feeNet > 0 ? dashPay : `/money?case=${caseId}`,
       tag: `saved-${caseId}`,

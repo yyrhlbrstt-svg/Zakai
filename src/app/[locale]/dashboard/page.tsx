@@ -476,7 +476,11 @@ export default async function DashboardPage({
         documentedMonthlyAgorot={totalDocumentedMonthly}
         pendingFeeAgorot={pendingFeeAgorot}
         pendingFeeHref={
-          payFeeCaseId ? `/dashboard?case=${payFeeCaseId}&payFee=1` : "/dashboard?payFee=1"
+          payFeeCaseId
+            ? `/money?case=${payFeeCaseId}&payFee=1`
+            : pendingFeeCases[0]?.id
+              ? `/money?case=${pendingFeeCases[0].id}&payFee=1`
+              : "/money?payFee=1"
         }
       />
       {pendingFeeAgorot <= 0 ? (

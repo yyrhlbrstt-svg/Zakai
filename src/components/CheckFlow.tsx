@@ -904,7 +904,7 @@ export function CheckFlow() {
                 <Button
                   className="w-full mt-4"
                   onClick={() =>
-                    router.push(`/dashboard?saved=1&case=${rec.caseId}&payFee=1`)
+                    router.push(`/money?case=${rec.caseId}&payFee=1`)
                   }
                 >
                   {t("payFeeNow")}
@@ -938,7 +938,7 @@ export function CheckFlow() {
                 router.push(
                   rec
                     ? outcome.chargeable
-                      ? `/dashboard?saved=1&case=${rec.caseId}&payFee=1`
+                      ? `/money?case=${rec.caseId}&payFee=1`
                       : `/money?case=${rec.caseId}`
                     : "/money",
                 )

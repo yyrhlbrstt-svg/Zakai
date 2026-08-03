@@ -194,7 +194,7 @@ describe("nextActionHref", () => {
   it("keeps fee collection on dashboard checkout", () => {
     expect(
       nextActionHref({ kind: "pending_fee", caseId: "c1", feeAmountAgorot: 1800 }),
-    ).toBe("/dashboard?case=c1&payFee=1");
+    ).toBe("/money?case=c1&payFee=1");
   });
 });
 

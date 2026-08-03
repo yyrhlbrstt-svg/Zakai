@@ -5,7 +5,7 @@ import { localeForCountry, localePath, parseLocaleParam } from "@/lib/localePath
 /**
  * Redirect after PSP return.
  * Paid → /money finish surface (share unlocks there).
- * Error → dashboard checkout retry.
+ * Error → /money checkout retry (same surface).
  */
 export async function dashboardFeeRedirectPath(
   feeParam: "paid" | "error",
@@ -38,8 +38,8 @@ export async function dashboardFeeRedirectPath(
   if (caseId) {
     return localePath(
       locale,
-      `/dashboard?case=${encodeURIComponent(caseId)}&payFee=1&fee=error`,
+      `/money?case=${encodeURIComponent(caseId)}&payFee=1&fee=error`,
     );
   }
-  return localePath(locale, "/dashboard?fee=error");
+  return localePath(locale, "/money?fee=error");
 }

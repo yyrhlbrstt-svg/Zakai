@@ -34,6 +34,6 @@ describe("dashboardFeeRedirectPath", () => {
       case: { id: "case_1", user: { country: "IL" } },
     } as never);
     const path = await dashboardFeeRedirectPath("error", "fee_1", "he");
-    expect(path).toBe("/he/dashboard?case=case_1&payFee=1&fee=error");
+    expect(path).toBe("/he/money?case=case_1&payFee=1&fee=error");
   });
 });

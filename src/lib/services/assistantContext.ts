@@ -268,7 +268,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
     lines.push(
       "",
       `OPEN_LOOP: Case ${top.id} (${top.status}) needs user action on ${href}`,
-      "OPEN_LOOP_RULE: Finish on /money (or fee checkout on /dashboard?payFee=1). Do NOT suggest /cancel or any new vertical while OPEN_LOOP exists. Stay on this Case.",
+      "OPEN_LOOP_RULE: Finish on /money (including fee checkout ?payFee=1). Do NOT suggest /cancel or any new vertical while OPEN_LOOP exists. Stay on this Case.",
     );
   }
 

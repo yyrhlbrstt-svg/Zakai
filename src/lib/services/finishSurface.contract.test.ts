@@ -2,8 +2,7 @@ import { describe, expect, it } from "vitest";
 import { nextActionHref, rankNextAction } from "./nextAction";
 
 /**
- * Finish-surface contract: open-loop kinds deep-link to /money?case=,
- * fee collection alone stays on dashboard checkout.
+ * Finish-surface contract: every open-loop kind — including fee — finishes on /money.
  */
 describe("finish surface contract", () => {
   it("routes every non-fee open-loop kind to /money?case=", () => {
@@ -23,11 +22,11 @@ describe("finish surface contract", () => {
     }
   });
 
-  it("keeps success-fee collection on dashboard", () => {
+  it("routes success-fee collection to /money checkout", () => {
     const action = rankNextAction([
       { id: "c1", status: "SAVED", fee: { amount: 1800, status: "PENDING" } },
     ]);
     expect(action.kind).toBe("pending_fee");
-    expect(nextActionHref(action)).toBe("/dashboard?case=c1&payFee=1");
+    expect(nextActionHref(action)).toBe("/money?case=c1&payFee=1");
   });
 });

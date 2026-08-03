@@ -20,12 +20,14 @@ import { PersonalProofStrip } from "@/components/PersonalProofStrip";
 import { OpenLoopFocusBanner } from "@/components/OpenLoopFocusBanner";
 import { MoneyLoopCloser } from "@/components/MoneyLoopCloser";
 import { OvernightAgent } from "@/components/OvernightAgent";
+import { FeePayButton } from "@/components/FeePayButton";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { providerHebrewName } from "@/lib/providers";
+import { formatAgorot } from "@/lib/money";
 
 export async function generateMetadata({
   params,
@@ -46,12 +48,13 @@ export default async function MoneyPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ case?: string; sent?: string; fee?: string }>;
+  searchParams?: Promise<{ case?: string; sent?: string; fee?: string; payFee?: string }>;
 }) {
   const { locale } = await params;
   const sp = searchParams ? await searchParams : {};
   const focusCaseId = typeof sp.case === "string" ? sp.case : null;
   const feeStatus = typeof sp.fee === "string" ? sp.fee : null;
+  const payFee = sp.payFee === "1";
   setRequestLocale(locale);
   const tIapp_locale_money_page = await getTranslations({ locale, namespace: "inline_app_locale_money_page" });
   const loc = bcp47[locale as Locale];
@@ -150,11 +153,18 @@ export default async function MoneyPage({
       }, 0),
     };
     if (pendingFeeCase) {
-      pendingFeeHref = `/dashboard?case=${pendingFeeCase.id}&payFee=1`;
+      pendingFeeHref = `/money?case=${pendingFeeCase.id}&payFee=1`;
     } else if (action.kind === "pending_fee") {
       pendingFeeHref = nextActionHref(action);
     }
   }
+
+  const payFeeCaseId =
+    payFee && focusCaseId
+      ? focusCaseId
+      : pendingFeeHref?.includes("case=")
+        ? pendingFeeHref.match(/case=([^&]+)/)?.[1] ?? null
+        : null;
 
   return (
     <VerticalPageShell
@@ -209,6 +219,26 @@ export default async function MoneyPage({
               {locale === "he" || locale === "ar"
                 ? "✓ עמלת ההצלחה שולמה — אפשר לשתף את החיסכון המתועד."
                 : "✓ Success fee paid — share your documented saving."}
+            </div>
+          ) : null}
+          {feeStatus === "error" ? (
+            <div className="mb-4 rounded-2xl border border-[rgba(240,138,107,0.45)] bg-[rgba(240,138,107,0.1)] px-4 py-3.5 text-[13.5px] font-bold text-[#f08a6b]">
+              {locale === "he" || locale === "ar"
+                ? "התשלום לא הושלם — נסו שוב מהכפתור למטה."
+                : "Payment did not complete — try again with the button below."}
+            </div>
+          ) : null}
+          {personalDocumented.pendingFeeAgorot > 0 && feeStatus !== "paid" && payFeeCaseId ? (
+            <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] px-4 py-3.5 flex flex-wrap items-center gap-3 justify-between">
+              <div>
+                <div className="font-extrabold text-[14px] text-emerald">
+                  {locale === "he" || locale === "ar" ? "עמלת הצלחה ממתינה" : "Success fee pending"}
+                </div>
+                <p className="text-[13px] text-ink-soft mt-1 mb-0">
+                  {formatAgorot(personalDocumented.pendingFeeAgorot, loc)}
+                </p>
+              </div>
+              <FeePayButton caseId={payFeeCaseId} autoStart={payFee} />
             </div>
           ) : null}
           <PersonalProofStrip
@@ -279,8 +309,10 @@ export default async function MoneyPage({
         </div>
       ) : (
         <div className="mt-8">
-          <Link href="/dashboard">
-            <Button className="!text-[14px]">{tIapp_locale_money_page("t_38d0577a")} →</Button>
+          <Link href={openLoopHref}>
+            <Button className="!text-[14px]">
+              {locale === "he" || locale === "ar" ? "המשיכו את התיק" : "Continue the case"} →
+            </Button>
           </Link>
         </div>
       )}

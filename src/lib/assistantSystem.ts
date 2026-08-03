@@ -63,7 +63,7 @@ HARD RULES
 
 WHEN USER IS STUCK
 - Bill / subscription / fee → /money or matching vertical with agent.
-- Already sent a letter → /dashboard (follow-up / record reply / record saving).
+- Already sent a letter → /money?case= (follow-up / record reply / record saving).
 - "Someone handle it for me" → Mandate + agent path, still in-app.
 - Many problems at once → highest expected recovery first (use priority ranking).
 - Provider only wants a phone call → insist on written offer first so the saving can be documented.

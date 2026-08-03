@@ -165,8 +165,8 @@ export function rankNextAction(
 export function nextActionHref(action: RankedNextAction): string {
   switch (action.kind) {
     case "pending_fee":
-      // Checkout lives on dashboard; everything else finishes on /money.
-      return `/dashboard?case=${action.caseId}&payFee=1`;
+      // Checkout mounts on the /money finish surface (FeePayButton + payFee=1).
+      return `/money?case=${action.caseId}&payFee=1`;
     case "proposed_saving":
     case "sent_exhausted":
     case "needs_outreach":
@@ -194,7 +194,7 @@ export function ensureReplyEndsWithNextAction(answer: string, href: string): str
 export function nextActionInstruction(action: RankedNextAction): string {
   switch (action.kind) {
     case "pending_fee":
-      return `NEXT_ACTION: Collect success fee — /dashboard?case=${action.caseId}&payFee=1 (₪${(action.feeAmountAgorot / 100).toFixed(2)} pending).`;
+      return `NEXT_ACTION: Collect success fee — /money?case=${action.caseId}&payFee=1 (₪${(action.feeAmountAgorot / 100).toFixed(2)} pending).`;
     case "proposed_saving":
       return `NEXT_ACTION: One-tap record SavingsProof — /money?case=${action.caseId} (proposed ₪${action.newAmountShekels}). Do NOT invent amounts. Do NOT open a new case.`;
     case "sent_exhausted":
