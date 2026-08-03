@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
 import { buildCarInsuranceRefundLetter } from "@/lib/carInsuranceRefund";
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 import { withFooter } from "@/lib/letterFooter";
 import { resolveInsuranceContactEmail } from "@/lib/utilityContacts";
 import { heEn } from "@/lib/heEn";
@@ -31,9 +30,8 @@ export function CarInsuranceRefundTool() {
   const [error, setError] = useState<string | null>(null);
 
   const knownInbox = resolveInsuranceContactEmail(insurer);
-  const agentReady =
-    insurer.trim().length > 0 &&
-    (normalizeOutreachEmail(contactEmail) !== null || Boolean(knownInbox));
+  // Soft-open: inbox optional — dashboard collects before dispatch.
+  const agentReady = insurer.trim().length > 0;
 
   function letterInput() {
     return {

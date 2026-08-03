@@ -26,6 +26,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
       savingsProof: { select: { savingMonthly: true } },
       fee: { select: { amount: true, status: true } },
       authorization: { select: { status: true } },
+      counterpartyEmail: true,
     },
   });
 
@@ -53,6 +54,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
       fee: c.fee,
       agentRound: agentRounds.get(c.id) ?? 0,
       mandateActive: c.authorization?.status === "ACTIVE",
+      hasOutreachEmail: Boolean(c.counterpartyEmail && /@/.test(c.counterpartyEmail)),
     })),
     proposedHints,
   );
@@ -90,6 +92,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
       ranked.kind === "pending_fee" ||
       ranked.kind === "proposed_saving" ||
       ranked.kind === "sent_exhausted" ||
+      ranked.kind === "needs_outreach" ||
       ranked.kind === "mandate_inactive" ||
       ranked.kind === "pre_send" ||
       ranked.kind === "sent_wait"

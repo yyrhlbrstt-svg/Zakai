@@ -1181,6 +1181,11 @@ export function CaseNextStep({
                         setErr(t(locale, "errNeedsEmail"));
                         return;
                       }
+                      if (data.error === "NO_ACTIVE_MANDATE") {
+                        setLocalAuth(false);
+                        setErr(t(locale, "mandateInactiveBanner"));
+                        return;
+                      }
                       if (data.error === "NO_TRANSPORT") {
                         setErr(t(locale, "errDelivery"));
                         if (data.body) setFollowBody(data.body);
@@ -1257,6 +1262,11 @@ export function CaseNextStep({
                     if (!res.ok) {
                       if (data.error === "NEEDS_OUTREACH_EMAIL") {
                         setErr(t(locale, "errNeedsEmail"));
+                        return;
+                      }
+                      if (data.error === "NO_ACTIVE_MANDATE") {
+                        setLocalAuth(false);
+                        setErr(t(locale, "mandateInactiveBanner"));
                         return;
                       }
                       if (data.error === "NO_TRANSPORT") {

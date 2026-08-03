@@ -106,12 +106,15 @@ export async function POST(request: Request) {
   let matchedUserId: string | null = null;
   let matchMethod: "code" | "email" | null = null;
 
+  // ZK-code match: SENT is enough. Do not require ACTIVE — a revoked Mandate
+  // after send must not drop forward→propose SavingsProof (paste path already
+  // works without ACTIVE). Still never auto-records amounts.
   if (extract.authorizationCode) {
     const auth = await prisma.authorization.findUnique({
       where: { code: extract.authorizationCode },
       include: { case: true },
     });
-    if (auth && auth.status === "ACTIVE" && auth.case.status === "SENT") {
+    if (auth && auth.case.status === "SENT") {
       matchedCaseId = auth.caseId;
       matchedUserId = auth.case.userId;
       matchMethod = "code";
@@ -119,6 +122,7 @@ export async function POST(request: Request) {
   }
 
   // Fallback: match by principal email on ACTIVE authorization for a SENT case.
+  // Keep ACTIVE here — email match is weaker than an explicit ZK code.
   if (!matchedCaseId && from.includes("@")) {
     const authByEmail = await prisma.authorization.findFirst({
       where: {

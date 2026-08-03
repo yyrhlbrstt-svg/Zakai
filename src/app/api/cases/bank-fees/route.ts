@@ -116,5 +116,7 @@ export async function POST(request: Request) {
     body: letter.body,
     status: kase.status,
     message: "case_opened",
+    outreachEmail: outreachTo ?? null,
+    needsOutreachEmail: !outreachTo,
   });
 }

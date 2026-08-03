@@ -109,8 +109,8 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
     </div>
   );
 
-  const formComplete =
-    Object.values(form).every((v) => v.trim().length > 0) && airlineEmail.trim().includes("@");
+  // Soft-open: airline email optional for agent open — dashboard collects before send.
+  const formComplete = Object.values(form).every((v) => v.trim().length > 0);
 
   async function sendWithAgent() {
     setError(null);

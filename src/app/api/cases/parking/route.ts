@@ -42,10 +42,8 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  const outreachTo = firstOutreachEmail(data.authorityEmail);
-  if (!outreachTo) {
-    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
-  }
+  // Soft-open: never invent an inbox and never block case+Mandate when empty.
+  const outreachTo = firstOutreachEmail(data.authorityEmail) || undefined;
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -119,5 +117,6 @@ ${name}
     body: staged.body,
     status: kase.status,
     message: "case_opened",
+    needsOutreachEmail: !outreachTo,
   });
 }

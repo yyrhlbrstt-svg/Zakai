@@ -8,8 +8,6 @@ import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
 
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
-
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
 
@@ -33,10 +31,8 @@ export function TransportFineAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const agentReady =
-    report.trim().length > 0 &&
-    operator.trim().length > 0 &&
-    normalizeOutreachEmail(operatorEmail) !== null;
+  // Soft-open: inbox optional — dashboard collects before dispatch.
+  const agentReady = report.trim().length > 0 && operator.trim().length > 0;
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);

@@ -713,6 +713,8 @@
     "sentWaitNudgeSub": "העבירו תשובת ספק ל-proofs@ או הזינו סכום חדש. בלי הוכחה אין כבידה.",
     "exhaustedNudgeTitle": "סיבובי מעקב מוצו — סגרו או רשמו תוצאה",
     "exhaustedNudgeSub": "אין עוד תזכורת אוטומטית. רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר.",
+    "needsOutreachNudgeTitle": "חסר אימייל לספק — הזינו בדשבורד",
+    "needsOutreachNudgeSub": "הסוכן מוכן להמשיך, אבל בלי כתובת יעד אין שליחה. לא ממציאים כתובת.",
     "mandateInactiveNudgeTitle": "Mandate לא פעיל — אשרו הרשאה מחדש",
     "mandateInactiveNudgeSub": "בלי Mandate פעיל הסוכן לא יכול להמשיך מול הספק. בדשבורד — הנפיקו מחדש ושלחו.",
     "proposedNudgeTitle": "הסוכן זיהה תשובה מהספק",
@@ -4987,6 +4989,8 @@
     "proposedSub": "לחץ לרישום חיסכון בלחיצה אחת בדשבורד.",
     "exhaustedTitle": "סיבובי מעקב מוצו — סגרו את התיק",
     "exhaustedSub": "רשמו סכום מתשובה בכתב או סמנו שלא השתנה — בלי עוד תזכורות.",
+    "needsOutreachTitle": "חסר אימייל לספק — השלימו בדשבורד",
+    "needsOutreachSub": "בלי כתובת יעד הסוכן לא יכול לשלוח. לא ממציאים כתובת.",
     "mandateInactiveTitle": "Mandate לא פעיל — אשרו מחדש בדשבורד",
     "mandateInactiveSub": "בלי Mandate פעיל אין המשך מול הספק. הנפיקו הרשאה מחדש."
   },

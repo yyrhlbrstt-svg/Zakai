@@ -33,13 +33,12 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  const outreachTo = firstOutreachEmail(
-    data.contactEmail,
-    resolveInsuranceContactEmail(data.insurer),
-  );
-  if (!outreachTo) {
-    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
-  }
+  // Soft-open: prefer known / user inbox, never invent, never block case+Mandate.
+  const outreachTo =
+    firstOutreachEmail(
+      data.contactEmail,
+      resolveInsuranceContactEmail(data.insurer),
+    ) || undefined;
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -92,6 +91,7 @@ export async function POST(request: Request) {
     body: letter.body,
     status: kase.status,
     message: "case_opened",
-    outreachEmail: outreachTo,
+    outreachEmail: outreachTo ?? null,
+    needsOutreachEmail: !outreachTo,
   });
 }

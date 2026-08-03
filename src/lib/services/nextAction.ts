@@ -1,8 +1,8 @@
 /**
  * Single next-action ranker for dashboard, Money Hub, and assistant.
  * Order is closure-first:
- * fee → inbound SavingsProof → exhausted SENT → inactive Mandate →
- * pre-send Mandate → SENT wait → /money.
+ * fee → inbound SavingsProof → exhausted SENT → needs outreach email →
+ * inactive Mandate → pre-send Mandate → SENT wait → /money.
  * Surfaces that disagree here stall the loop and erode trust.
  */
 
@@ -12,6 +12,7 @@ export type NextActionKind =
   | "pending_fee"
   | "proposed_saving"
   | "sent_exhausted"
+  | "needs_outreach"
   | "mandate_inactive"
   | "pre_send"
   | "sent_wait"
@@ -28,6 +29,11 @@ export type NextActionCaseInput = {
    * Omit/undefined = unknown (do not surface mandate_inactive).
    */
   mandateActive?: boolean;
+  /**
+   * Whether Case.counterpartyEmail looks usable. Only meaningful for SENT.
+   * Omit/undefined = unknown (do not surface needs_outreach).
+   */
+  hasOutreachEmail?: boolean;
 };
 
 export type ProposedSavingHint = {
@@ -38,6 +44,7 @@ export type RankedNextAction =
   | { kind: "pending_fee"; caseId: string; feeAmountAgorot: number }
   | { kind: "proposed_saving"; caseId: string; newAmountShekels: number }
   | { kind: "sent_exhausted"; caseId: string; agentRound: number }
+  | { kind: "needs_outreach"; caseId: string }
   | { kind: "mandate_inactive"; caseId: string }
   | { kind: "pre_send"; caseId: string; status: string }
   | { kind: "sent_wait"; caseId: string }
@@ -91,6 +98,17 @@ export function rankNextAction(
     };
   }
 
+  // Soft-open left SENT/follow-up without a provider inbox — collect before send.
+  const needsOutreach = cases.find(
+    (c) =>
+      c.status === "SENT" &&
+      !proposedByCaseId.has(c.id) &&
+      c.hasOutreachEmail === false,
+  );
+  if (needsOutreach) {
+    return { kind: "needs_outreach", caseId: needsOutreach.id };
+  }
+
   // SENT without ACTIVE Mandate — follow-ups and cron are blocked until reissue.
   const inactiveMandate = cases.find(
     (c) =>
@@ -124,6 +142,8 @@ export function nextActionInstruction(action: RankedNextAction): string {
       return `NEXT_ACTION: One-tap record SavingsProof — /dashboard?case=${action.caseId} (proposed ₪${action.newAmountShekels}). Do NOT invent amounts. Do NOT open a new case.`;
     case "sent_exhausted":
       return `NEXT_ACTION: Written rounds exhausted (${action.agentRound}/${MAX_AGENT_ROUNDS}) — /dashboard?case=${action.caseId}. Record the real new amount from a written reply, mark no change, or pivot (cancel/competitor). Do NOT draft another delay follow-up. Do NOT open a new case.`;
+    case "needs_outreach":
+      return `NEXT_ACTION: Enter provider outreach email — /dashboard?case=${action.caseId}. Follow-ups cannot send without a destination. Do NOT invent an inbox. Do NOT open a new case.`;
     case "mandate_inactive":
       return `NEXT_ACTION: Re-issue ACTIVE Mandate — /dashboard?case=${action.caseId}. Follow-ups are blocked until Mandate is ACTIVE again. Do NOT open a new case.`;
     case "pre_send":

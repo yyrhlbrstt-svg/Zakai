@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input } from "@/components/ui";
 import { buildRefundLetter } from "@/lib/refundChase";
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 import { withFooter } from "@/lib/letterFooter";
 
 export function RefundChaseTool() {
@@ -27,8 +26,8 @@ export function RefundChaseTool() {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const agentReady =
-    company.trim().length > 0 && normalizeOutreachEmail(contactEmail) !== null;
+  // Soft-open: inbox optional — dashboard collects before dispatch.
+  const agentReady = company.trim().length > 0;
 
   async function sendWithAgent() {
     setError(null);

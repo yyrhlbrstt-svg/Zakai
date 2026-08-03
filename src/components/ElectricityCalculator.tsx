@@ -48,11 +48,8 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
   async function openAgentCase(planId: string, providerKey: string, nameKey: string, savingAgorot: number) {
     setErr(null);
-    const email = normalizeOutreachEmail(supplierEmail);
-    if (!email) {
-      setErr(tFlow("errorNeedsEmail"));
-      return;
-    }
+    // Soft-open: inbox optional — dashboard collects before Mandate dispatch.
+    const email = normalizeOutreachEmail(supplierEmail) || undefined;
     setBusyId(planId);
     try {
       const res = await fetch("/api/cases/electricity", {

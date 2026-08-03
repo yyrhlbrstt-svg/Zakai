@@ -25,6 +25,7 @@ export async function DashboardNextActionPanel({
       select: {
         id: true,
         status: true,
+        counterpartyEmail: true,
         fee: { select: { amount: true, status: true } },
         authorization: { select: { status: true } },
       },
@@ -46,6 +47,7 @@ export async function DashboardNextActionPanel({
     fee: c.fee,
     agentRound: agentRounds.get(c.id) ?? 0,
     mandateActive: c.authorization?.status === "ACTIVE",
+    hasOutreachEmail: Boolean(c.counterpartyEmail && /@/.test(c.counterpartyEmail)),
   }));
   const action = rankNextAction(rankedCases, proposedHints);
 
@@ -83,6 +85,20 @@ export async function DashboardNextActionPanel({
       >
         <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("exhaustedNudgeTitle")}</div>
         <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("exhaustedNudgeSub")}</p>
+      </Link>
+    );
+  }
+
+  if (action.kind === "needs_outreach") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.5)] bg-[rgba(240,180,92,0.12)] px-5 py-4 hover:border-[rgba(240,180,92,0.65)] transition-colors"
+      >
+        <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("needsOutreachNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">
+          {t("needsOutreachNudgeSub")}
+        </p>
       </Link>
     );
   }

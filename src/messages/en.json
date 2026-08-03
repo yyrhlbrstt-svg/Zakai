@@ -713,6 +713,8 @@
     "sentWaitNudgeSub": "Forward the provider reply to proofs@ or enter the new amount. No proof, no gravity.",
     "exhaustedNudgeTitle": "Follow-up rounds exhausted — close or record",
     "exhaustedNudgeSub": "No more auto-reminders. Record an amount from a written reply, mark no change, or pivot path.",
+    "needsOutreachNudgeTitle": "Missing provider email — enter on dashboard",
+    "needsOutreachNudgeSub": "The agent is ready, but cannot send without a destination. We never invent an inbox.",
     "mandateInactiveNudgeTitle": "Mandate inactive — re-authorize",
     "mandateInactiveNudgeSub": "Without an ACTIVE Mandate the agent cannot continue with the provider. Re-issue on the dashboard and send.",
     "proposedNudgeTitle": "The agent spotted a provider reply",
@@ -4987,6 +4989,8 @@
     "proposedSub": "One-tap record saving on your dashboard.",
     "exhaustedTitle": "Follow-up rounds exhausted — close the case",
     "exhaustedSub": "Record an amount from a written reply or mark no change — no more reminders.",
+    "needsOutreachTitle": "Missing provider email — complete on the dashboard",
+    "needsOutreachSub": "Without a destination the agent cannot send. We never invent an inbox.",
     "mandateInactiveTitle": "Mandate inactive — re-authorize on the dashboard",
     "mandateInactiveSub": "Without an ACTIVE Mandate the agent cannot continue. Re-issue the authorization."
   },

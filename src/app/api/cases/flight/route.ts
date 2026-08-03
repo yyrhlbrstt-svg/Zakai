@@ -107,13 +107,12 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
-  const outreachTo = firstOutreachEmail(
-    data.airlineContactEmail,
-    resolveAirlineContactEmail(data.airline),
-  );
-  if (!outreachTo) {
-    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
-  }
+  // Soft-open: prefer known / user inbox, never invent, never block case+Mandate.
+  const outreachTo =
+    firstOutreachEmail(
+      data.airlineContactEmail,
+      resolveAirlineContactEmail(data.airline),
+    ) || undefined;
 
   let kase;
   try {
@@ -146,5 +145,6 @@ export async function POST(request: Request) {
     status: kase.status,
     amountShekels,
     message: "case_opened",
+    needsOutreachEmail: !outreachTo,
   });
 }

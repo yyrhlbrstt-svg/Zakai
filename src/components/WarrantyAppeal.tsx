@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Input, Button, Textarea } from "@/components/ui";
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 
 export function WarrantyAppeal() {
   const t = useTranslations("warranty");
@@ -67,11 +66,8 @@ export function WarrantyAppeal() {
     }
   }
 
-  const ready =
-    seller.trim() &&
-    product.trim() &&
-    fault.trim().length >= 3 &&
-    normalizeOutreachEmail(sellerEmail) !== null;
+  // Soft-open: inbox optional — dashboard collects before dispatch.
+  const ready = Boolean(seller.trim() && product.trim() && fault.trim().length >= 3);
 
   return (
     <div className="mt-8">

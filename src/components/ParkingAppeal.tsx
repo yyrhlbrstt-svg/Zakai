@@ -7,7 +7,6 @@ import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 
 const REASONS = ["signage", "machine", "loading", "disabled", "details", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -32,10 +31,8 @@ export function ParkingAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: str
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const agentReady =
-    ticket.trim().length > 0 &&
-    city.trim().length > 0 &&
-    normalizeOutreachEmail(authorityEmail) !== null;
+  // Soft-open: inbox optional — dashboard collects before dispatch.
+  const agentReady = ticket.trim().length > 0 && city.trim().length > 0;
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);

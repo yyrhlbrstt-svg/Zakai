@@ -54,16 +54,49 @@ describe("rankNextAction", () => {
     expect(action).toEqual({ kind: "pre_send", caseId: "pre", status: "APPROVED" });
   });
 
+  it("surfaces needs_outreach above mandate_inactive and pre-send", () => {
+    const action = rankNextAction([
+      { id: "pre", status: "VERIFIED" },
+      {
+        id: "no-mail",
+        status: "SENT",
+        agentRound: 1,
+        mandateActive: true,
+        hasOutreachEmail: false,
+      },
+      {
+        id: "dead",
+        status: "SENT",
+        agentRound: 1,
+        mandateActive: false,
+        hasOutreachEmail: true,
+      },
+    ]);
+    expect(action).toEqual({ kind: "needs_outreach", caseId: "no-mail" });
+  });
+
   it("surfaces mandate_inactive above pre-send and sent_wait", () => {
     const action = rankNextAction([
       { id: "pre", status: "VERIFIED" },
-      { id: "dead", status: "SENT", agentRound: 1, mandateActive: false },
-      { id: "ok", status: "SENT", agentRound: 0, mandateActive: true },
+      {
+        id: "dead",
+        status: "SENT",
+        agentRound: 1,
+        mandateActive: false,
+        hasOutreachEmail: true,
+      },
+      {
+        id: "ok",
+        status: "SENT",
+        agentRound: 0,
+        mandateActive: true,
+        hasOutreachEmail: true,
+      },
     ]);
     expect(action).toEqual({ kind: "mandate_inactive", caseId: "dead" });
   });
 
-  it("does not invent mandate_inactive when mandateActive is unknown", () => {
+  it("does not invent stuck kinds when outreach/mandate flags are unknown", () => {
     expect(rankNextAction([{ id: "s", status: "SENT", agentRound: 0 }])).toEqual({
       kind: "sent_wait",
       caseId: "s",
@@ -72,7 +105,15 @@ describe("rankNextAction", () => {
 
   it("falls back to sent_wait then start_money", () => {
     expect(
-      rankNextAction([{ id: "s", status: "SENT", agentRound: 0, mandateActive: true }]),
+      rankNextAction([
+        {
+          id: "s",
+          status: "SENT",
+          agentRound: 0,
+          mandateActive: true,
+          hasOutreachEmail: true,
+        },
+      ]),
     ).toEqual({
       kind: "sent_wait",
       caseId: "s",
@@ -106,5 +147,11 @@ describe("nextActionInstruction", () => {
     const line = nextActionInstruction({ kind: "mandate_inactive", caseId: "c2" });
     expect(line).toContain("/dashboard?case=c2");
     expect(line).toMatch(/Re-issue ACTIVE Mandate/i);
+  });
+
+  it("points missing outreach at dashboard email field", () => {
+    const line = nextActionInstruction({ kind: "needs_outreach", caseId: "c3" });
+    expect(line).toContain("/dashboard?case=c3");
+    expect(line).toMatch(/outreach email/i);
   });
 });

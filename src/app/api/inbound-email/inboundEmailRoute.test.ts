@@ -190,6 +190,53 @@ describe("POST /api/inbound-email", () => {
     expect(logged.extract.recordAmountShekels).toBe(89);
   });
 
+  it("ZK-code match on SENT works even when Mandate is REVOKED", async () => {
+    const caseId = "case_revoked_1";
+    const userId = "user_rev";
+    const code = "ZK-REV01";
+
+    extractSavingsFromEmail.mockResolvedValue({
+      found: true,
+      newAmountShekels: 70,
+      authorizationCode: code,
+      confidence: 0.8,
+      amountKind: "monthly",
+      reason: "test",
+    });
+
+    findAuthUnique.mockResolvedValue({
+      code,
+      status: "REVOKED",
+      caseId,
+      case: { id: caseId, userId, status: "SENT" },
+    });
+
+    findCaseUnique.mockResolvedValue({
+      vertical: "telecom",
+      amountOriginal: 12_900,
+    });
+
+    findUserUnique.mockResolvedValue({
+      id: userId,
+      email: "user@example.com",
+      name: "Test",
+      country: "IL",
+    });
+
+    const res = await post({
+      from: "billing@cellcom.co.il",
+      subject: `אישור ${code}`,
+      text: "החיוב החדש 70 שקל",
+    });
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.matched).toBe(true);
+    expect(json.caseId).toBe(caseId);
+    expect(json.matchMethod).toBe("code");
+    expect(json.notified).toBe(true);
+  });
+
   it("email match below confidence threshold → matched but not notified", async () => {
     extractSavingsFromEmail.mockResolvedValue({
       found: true,

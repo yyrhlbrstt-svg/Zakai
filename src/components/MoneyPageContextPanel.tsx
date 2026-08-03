@@ -26,6 +26,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
     select: {
       id: true,
       status: true,
+      counterpartyEmail: true,
       fee: { select: { amount: true, status: true } },
       authorization: { select: { status: true } },
     },
@@ -48,6 +49,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
       fee: c.fee,
       agentRound: agentRounds.get(c.id) ?? 0,
       mandateActive: c.authorization?.status === "ACTIVE",
+      hasOutreachEmail: Boolean(c.counterpartyEmail && /@/.test(c.counterpartyEmail)),
     })),
     proposedHints,
   );
@@ -84,6 +86,18 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
       >
         <div className="font-extrabold text-[14px] text-[#f08a6b]">{t("exhaustedTitle")}</div>
         <p className="text-[12.5px] text-ink-soft mt-1 mb-0">{t("exhaustedSub")}</p>
+      </Link>
+    );
+  }
+
+  if (action.kind === "needs_outreach") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline mb-6 rounded-2xl border border-[rgba(240,180,92,0.5)] bg-[rgba(240,180,92,0.12)] px-4 py-3.5 hover:border-[rgba(240,180,92,0.65)] transition-colors"
+      >
+        <div className="font-extrabold text-[14px] text-[#f0b45c]">{t("needsOutreachTitle")}</div>
+        <p className="text-[12.5px] text-ink-soft mt-1 mb-0">{t("needsOutreachSub")}</p>
       </Link>
     );
   }

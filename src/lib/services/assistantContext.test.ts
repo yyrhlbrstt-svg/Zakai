@@ -97,10 +97,31 @@ describe("buildAssistantCasesSnapshot", () => {
         savingsProof: null,
         fee: null,
         authorization: { status: "REVOKED" },
+        counterpartyEmail: "billing@cellcom.co.il",
       },
     ] as never);
     const snap = await buildAssistantCasesSnapshot("user_1");
     expect(snap).toContain("NEXT_ACTION: Re-issue ACTIVE Mandate");
     expect(snap).toContain("case_dead");
+  });
+
+  it("surfaces missing outreach email on SENT", async () => {
+    vi.mocked(prisma.case.findMany).mockResolvedValue([
+      {
+        id: "case_mail",
+        provider: "netflix",
+        status: "SENT",
+        vertical: "subscription",
+        amountOriginal: 5_000,
+        targetAmount: 0,
+        savingsProof: null,
+        fee: null,
+        authorization: { status: "ACTIVE" },
+        counterpartyEmail: null,
+      },
+    ] as never);
+    const snap = await buildAssistantCasesSnapshot("user_1");
+    expect(snap).toContain("NEXT_ACTION: Enter provider outreach email");
+    expect(snap).toContain("case_mail");
   });
 });
