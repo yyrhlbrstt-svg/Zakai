@@ -479,7 +479,7 @@ export function CaseNextStep({
       // Double-tap / slow network after settle — land on SAVED → fee, don't generic-fail.
       if (data.error === "ALREADY_SETTLED") {
         router.refresh();
-        router.push(`/money?case=${caseId}`);
+        router.push(`/money?case=${caseId}&payFee=1`);
         return;
       }
       throw new Error("save");

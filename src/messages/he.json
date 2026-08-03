@@ -706,6 +706,7 @@
     "feePay": "שלם עמלה",
     "feePaying": "מעביר לתשלום…",
     "feePayError": "נסה שוב",
+    "feePayUnavailable": "סליקה לא מוגדרת — בדקו PayPlus",
     "feePaid": "שולם",
     "feePaidBanner": "התשלום התקבל — תודה! העמלה שולמה בהצלחה.",
     "feeErrorBanner": "התשלום לא הושלם. אפשר לנסות שוב מהעמלה למטה.",

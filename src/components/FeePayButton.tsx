@@ -23,11 +23,13 @@ export function FeePayButton({
   const locale = useLocale();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const [errorKind, setErrorKind] = useState<string | null>(null);
   const started = useRef(false);
 
   async function pay() {
     setBusy(true);
     setError(false);
+    setErrorKind(null);
     try {
       const res = await fetch(`/api/cases/${caseId}/fee/checkout`, {
         method: "POST",
@@ -39,6 +41,16 @@ export function FeePayButton({
         window.location.href = data.checkoutUrl;
         return;
       }
+      // Already paid / nothing to collect — land on finish surface, don't look like a retry loop.
+      if (data.error === "ALREADY_PAID") {
+        window.location.href = `/${locale}/money?case=${encodeURIComponent(caseId)}&fee=paid`;
+        return;
+      }
+      if (data.error === "NOTHING_TO_COLLECT" || data.error === "NO_FEE") {
+        window.location.href = `/${locale}/money?case=${encodeURIComponent(caseId)}`;
+        return;
+      }
+      setErrorKind(typeof data.error === "string" ? data.error : "generic");
       setError(true);
     } catch {
       setError(true);
@@ -61,7 +73,13 @@ export function FeePayButton({
       disabled={busy}
       className="text-[12px] font-extrabold rounded-full px-3 py-1 bg-[rgba(63,203,155,0.14)] border border-[rgba(63,203,155,0.35)] text-emerald hover:bg-[rgba(63,203,155,0.22)] transition-colors disabled:opacity-60"
     >
-      {busy ? t("feePaying") : error ? t("feePayError") : t("feePay")}
+      {busy
+        ? t("feePaying")
+        : error
+          ? errorKind === "paymentUnavailable"
+            ? t("feePayUnavailable")
+            : t("feePayError")
+          : t("feePay")}
     </button>
   );
 }

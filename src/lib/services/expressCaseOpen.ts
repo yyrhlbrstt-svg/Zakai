@@ -2,27 +2,39 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { CaseError } from "@/lib/services/cases";
 import { dispatchAgent } from "@/lib/services/dispatch";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 
+export type ExpressSendResult = {
+  dispatched: boolean;
+  delivered: boolean;
+  /** CaseError message when express dispatch failed (fail-open for case create). */
+  blockReason?: string;
+};
+
 /**
  * After createCase(+autoApprove): same gesture → Mandate SENT when the
  * account already proved email control and ownership was primed.
- * Fail-open: never block case creation if dispatch cannot complete.
+ * Fail-open: never block case creation if dispatch cannot complete —
+ * but surface CaseError reasons so clients can recover on /money.
  */
 export async function tryExpressMandateSend(
   caseId: string,
   userId: string,
   emailVerifiedAt: Date | string | null | undefined,
-): Promise<{ dispatched: boolean; delivered: boolean }> {
+): Promise<ExpressSendResult> {
   if (!emailVerifiedAt) return { dispatched: false, delivered: false };
   try {
     const d = await dispatchAgent(caseId, userId);
     return { dispatched: true, delivered: d.delivered };
-  } catch {
+  } catch (err) {
+    if (err instanceof CaseError) {
+      return { dispatched: false, delivered: false, blockReason: err.message };
+    }
     return { dispatched: false, delivered: false };
   }
 }
@@ -32,21 +44,28 @@ export function expressOpenBody<T extends Record<string, unknown> = Record<strin
   caseId: string;
   dispatched: boolean;
   delivered: boolean;
+  blockReason?: string;
+  /** Soft-open pre-check (e.g. from-scan) — OR'd with NEEDS_OUTREACH_EMAIL block. */
+  needsOutreachEmail?: boolean;
   extra?: T;
 }): {
   caseId: string;
   message: "mandate_sent" | "case_opened";
   dispatched: boolean;
   delivered: boolean;
-  needsOutreachEmail: false;
+  needsOutreachEmail: boolean;
+  blockReason?: string;
 } & T {
+  const needsOutreachEmail =
+    input.needsOutreachEmail === true || input.blockReason === "NEEDS_OUTREACH_EMAIL";
   return {
     caseId: input.caseId,
     // Only claim mandate_sent when SMTP/Outbox actually accepted delivery.
     message: input.delivered ? ("mandate_sent" as const) : ("case_opened" as const),
     dispatched: input.dispatched,
     delivered: input.delivered,
-    needsOutreachEmail: false,
+    needsOutreachEmail,
+    ...(input.blockReason ? { blockReason: input.blockReason } : {}),
     ...(input.extra ?? ({} as T)),
   };
 }

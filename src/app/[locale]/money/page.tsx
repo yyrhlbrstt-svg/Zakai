@@ -56,6 +56,7 @@ export default async function MoneyPage({
   const focusCaseId = typeof sp.case === "string" ? sp.case : null;
   const feeStatus = typeof sp.fee === "string" ? sp.fee : null;
   const payFee = sp.payFee === "1";
+  const justSent = sp.sent === "1";
   setRequestLocale(locale);
   const tIapp_locale_money_page = await getTranslations({ locale, namespace: "inline_app_locale_money_page" });
   const loc = bcp47[locale as Locale];
@@ -208,6 +209,13 @@ export default async function MoneyPage({
           {!openLoop && !shareCaseId && !focusCaseId ? (
             <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
           ) : null}
+          {justSent && focusCaseId ? (
+            <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold text-emerald">
+              {locale === "he" || locale === "ar"
+                ? "✓ Mandate נשלח לספק — השלב הבא: להמתין לתשובה, להדביק תשובה בכתב, או לתעד חיסכון."
+                : "✓ Mandate delivered to the provider — next: wait for a reply, paste a written answer, or record a saving."}
+            </div>
+          ) : null}
           {openLoop || focusCaseId || shareCaseId ? (
             <MoneyLoopCloser
               userId={user.id}
@@ -251,7 +259,11 @@ export default async function MoneyPage({
                   {formatAgorot(personalDocumented.pendingFeeAgorot, loc)}
                 </p>
               </div>
-              <FeePayButton caseId={payFeeCaseId} autoStart={payFee} />
+              <FeePayButton
+                caseId={payFeeCaseId}
+                // Never auto-restart checkout after a failed/confirming PSP bounce.
+                autoStart={payFee && feeStatus !== "error" && feeStatus !== "confirming"}
+              />
             </div>
           ) : null}
           <PersonalProofStrip

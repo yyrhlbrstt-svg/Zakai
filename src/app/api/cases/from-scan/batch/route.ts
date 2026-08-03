@@ -154,6 +154,7 @@ export async function POST(request: Request) {
           });
           let dispatched = false;
           let delivered = false;
+          let blockReason: string | undefined;
           if (counterpartyEmail) {
             const express = await tryExpressMandateSend(
               kase.id,
@@ -162,6 +163,7 @@ export async function POST(request: Request) {
             );
             dispatched = express.dispatched;
             delivered = express.delivered;
+            blockReason = express.blockReason;
           }
           opened.push({
             caseId: kase.id,
@@ -169,9 +171,11 @@ export async function POST(request: Request) {
             status: dispatched ? "SENT" : kase.status,
             intent,
             targetShekels: target,
-            needsOutreachEmail: !counterpartyEmail,
+            needsOutreachEmail:
+              !counterpartyEmail || blockReason === "NEEDS_OUTREACH_EMAIL",
             dispatched,
             delivered,
+            ...(blockReason ? { blockReason } : {}),
           });
           activeCount += 1;
         } catch (err) {

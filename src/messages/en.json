@@ -706,6 +706,7 @@
     "feePay": "Pay fee",
     "feePaying": "Redirecting…",
     "feePayError": "Try again",
+    "feePayUnavailable": "Checkout unavailable — configure PayPlus",
     "feePaid": "paid",
     "feePaidBanner": "Payment received — thank you! The fee was paid successfully.",
     "feeErrorBanner": "Payment did not complete. You can try again from the fee below.",

@@ -156,14 +156,13 @@ export async function POST(request: Request) {
 
       return {
         status: 200,
-        body: {
-          ...expressOpenBody({
-            caseId: kase.id,
-            dispatched: express.dispatched,
-            delivered: express.delivered,
-          }),
+        body: expressOpenBody({
+          caseId: kase.id,
+          dispatched: express.dispatched,
+          delivered: express.delivered,
+          blockReason: express.blockReason,
           needsOutreachEmail: !outreachReady,
-        },
+        }),
       };
     },
   });

@@ -414,6 +414,9 @@ export function CheckFlow() {
         checkoutUrl: data.checkoutUrl as string | undefined,
       });
       setStage("result");
+    } else if (data.error === "ALREADY_SETTLED" && rec.caseId) {
+      // Double-tap after settle — finish fee on /money, don't generic-fail.
+      router.push(`/money?case=${rec.caseId}&payFee=1`);
     } else {
       setOwnErr("genericError");
     }
