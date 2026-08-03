@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { clientIp, rateLimit } from "@/lib/ratelimit";
-import { loadSevenRailsReport } from "@/lib/services/monopolyRails";
+import { loadMonopolyReport } from "@/lib/services/monopolyReport";
 import { cacheControlHeader } from "@/lib/scale/publicCache";
 
 export const runtime = "nodejs";
@@ -16,7 +16,7 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
 }
 
-/** Public seven-rails monopoly status — real counters only. */
+/** Public seven-rails + pipe gravity + next monopoly move — real counters only. */
 export async function GET(request: Request) {
   const ip = clientIp(request);
   const limited = await rateLimit("network-monopoly", ip, 60, 60);
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const report = await loadSevenRailsReport();
+    const report = await loadMonopolyReport();
     return NextResponse.json(report, { headers: CORS });
   } catch {
     return NextResponse.json(

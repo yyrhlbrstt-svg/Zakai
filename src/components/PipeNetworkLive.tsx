@@ -43,7 +43,7 @@ export async function PipeNetworkLive({
         </span>
       </div>
       <p className="text-[13px] text-ink-soft leading-relaxed m-0 mb-4">
-        {he ? n.gravity_note : n.gravity_note}
+        {he ? n.gravity_note_he : n.gravity_note}
       </p>
       <ul className="list-none p-0 m-0 grid grid-cols-2 sm:grid-cols-4 gap-3 text-[13px]">
         <Stat label={he ? "Mandates" : "Mandates"} value={String(n.mandatesIssued)} />

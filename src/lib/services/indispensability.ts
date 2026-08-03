@@ -1,7 +1,7 @@
 import "server-only";
 
 import { loadNetworkGravitySnapshot } from "@/lib/services/networkGravity";
-import { loadSevenRailsReport } from "@/lib/services/monopolyRails";
+import { loadMonopolyReport } from "@/lib/services/monopolyReport";
 import { loadTrillionGatesReport } from "@/lib/services/trillionGates";
 import { buildIndispensabilityDocument } from "@/lib/monopoly/indispensability";
 import { singleflight } from "@/lib/scale/singleflight";
@@ -10,7 +10,7 @@ export async function loadIndispensabilityReport(origin: string) {
   return singleflight(`indispensability:${origin}`, 120_000, async () => {
     const [gravity, monopoly, control] = await Promise.all([
       loadNetworkGravitySnapshot(),
-      loadSevenRailsReport(),
+      loadMonopolyReport(),
       loadTrillionGatesReport(origin),
     ]);
 
@@ -19,6 +19,8 @@ export async function loadIndispensabilityReport(origin: string) {
         origin,
         gravityIndex: gravity.assessment.gravityIndex,
         infrastructureScore: monopoly.infrastructureScore,
+        pipeGravityTier: monopoly.pipe.gravity_tier,
+        monopolyP0Id: monopoly.monopolyLoop.p0.id,
         control: {
           phase: control.phase,
           gatesPassed: control.gatesPassed,
@@ -29,6 +31,13 @@ export async function loadIndispensabilityReport(origin: string) {
       }),
       assessedAt: new Date().toISOString(),
       railsSummary: monopoly.rails.map((r) => ({ id: r.id, maturity: r.maturity, score: r.score })),
+      monopolyP0: monopoly.monopolyLoop.p0,
+      pipe: {
+        gravity_tier: monopoly.pipe.gravity_tier,
+        mandatesIssued: monopoly.pipe.mandatesIssued,
+        casesSent: monopoly.pipe.casesSent,
+        savingsProofs: monopoly.pipe.savingsProofs,
+      },
       gates: control.gates.map((g) => ({ id: g.id, passed: g.passed, evidence: g.evidence })),
     };
   });

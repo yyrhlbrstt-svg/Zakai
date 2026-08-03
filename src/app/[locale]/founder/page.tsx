@@ -8,6 +8,7 @@ import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
+import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -227,11 +228,13 @@ export default async function FounderPage({
       )}
 
       <div className="mb-2">
-        <h2 className="font-display text-xl m-0 mb-1">P0 מנכ״ל — כבידה, לא סליקה</h2>
+        <h2 className="font-display text-xl m-0 mb-1">P0 מנכ״ל — מונופול על הצינור</h2>
         <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">
-          השערים למטה הם מדד אימוץ. הם לא שווי. עד ש-G3 (verifier) ו-G5 (מנפיק שני) ירוקים —
-          PayPlus/דומיין לא מעלים מונופול. אל תחבר שלב D לפני זה.
+          מונופול = כל מוסד וסוכן חייב לדבר Mandate→SavingsProof. השערים למטה הם מדד אימוץ — לא
+          שווי. עד ש־gravity_tier≥gravity ו־G3/G5 ירוקים, PayPlus לא מקים מונופול. אל תחבר שלב D
+          לפני זה.
         </p>
+        <MonopolyMissionControl locale={locale} />
         <PipeNetworkLive locale={locale} bcp47={bcp47[locale as Locale] ?? "he-IL"} />
         <ControlGatesStrip locale={locale} />
         <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
@@ -246,7 +249,8 @@ export default async function FounderPage({
               הפרוד נשאר מאחור.
             </li>
             <li>
-              <b className="text-ink">3. נפח</b> — תיקי סלולר/ביטול/עמלות אמיתיים. לא מייל קר לבנקים.
+              <b className="text-ink">3. נפח</b> — תיקי סלולר/ביטול/עמלות אמיתיים עד{" "}
+              <code>gravity_tier=network</code>. לא מייל קר לבנקים.
             </li>
             <li>
               מגנט משיכה (הם כותבים אלינו אחרי נפח):{" "}

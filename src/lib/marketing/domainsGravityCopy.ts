@@ -3,7 +3,7 @@ export function domainsGravityLinks(locale: string) {
   const he = locale === "he" || locale === "ar";
   return {
     title: he ? "מדדי כבידה (אמיתיים בלבד)" : "Gravity meters (real only)",
-    monopoly: he ? "שבע מסילות מונופול" : "Seven monopoly rails",
+    monopoly: he ? "מכונת מונופול + שבע מסילות" : "Monopoly machine + seven rails",
     gates: he ? "שערי שליטה (לא שווי)" : "Control gates (not valuation)",
     indispensability: he ? "למה אי אפשר להתעלם (JSON)" : "Why you can't ignore (JSON)",
     agents: he ? "כלכלת סוכנים" : "Agent economy",

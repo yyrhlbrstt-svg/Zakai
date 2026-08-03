@@ -12,6 +12,7 @@ async function loadSevenRailsInputsRaw(): Promise<SevenRailsInputs> {
   const [
     verifiedOutcomes,
     savedCases,
+    casesSent,
     activeAuthorizations,
     delegatedIssuersActive,
     collectiveIntentSignals,
@@ -20,6 +21,9 @@ async function loadSevenRailsInputsRaw(): Promise<SevenRailsInputs> {
   ] = await Promise.all([
     prismaRead.strategyOutcome.count({ where: { selfReported: false } }),
     prismaRead.case.count({ where: { status: "SAVED" } }),
+    prismaRead.case.count({
+      where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
+    }),
     prismaRead.authorization.count({
       where: { mandateJti: { not: null }, revokedAt: null },
     }),
@@ -39,6 +43,7 @@ async function loadSevenRailsInputsRaw(): Promise<SevenRailsInputs> {
   return {
     verifiedOutcomes,
     savedCases,
+    casesSent,
     activeAuthorizations,
     registryIssuersActive: countActiveNetworkIssuers(),
     delegatedIssuersActive,

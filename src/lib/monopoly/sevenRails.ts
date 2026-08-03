@@ -62,13 +62,18 @@ export interface SevenRailsInputs extends FlywheelInputs {
   attributedSignups: number;
   /** Whether origin packs mirror is shippable (always true in monorepo). */
   packsOriginMirror: boolean;
+  /** SENT+ cases on the pipe (Mandate volume path). */
+  casesSent?: number;
 }
 
 export function assessSevenRails(input: SevenRailsInputs): SevenRailsReport {
   const flywheel = assessFlywheel(input);
 
+  const casesSent = input.casesSent ?? 0;
+
   const mandateScore = clamp(
     Math.log10(1 + input.activeAuthorizations) * 18 +
+      Math.log10(1 + casesSent) * 8 +
       (input.registryIssuersActive + input.delegatedIssuersActive) * 12,
   );
   const zmlScore = clamp(
@@ -78,17 +83,25 @@ export function assessSevenRails(input: SevenRailsInputs): SevenRailsReport {
     Math.log10(1 + input.verifiedOutcomes) * 22 + input.fairnessProvidersScored * 8,
   );
   const switchingScore = clamp(
-    Math.log10(1 + input.activeAuthorizations) * 15 + Math.log10(1 + input.savedCases) * 10 + 15,
+    Math.log10(1 + input.activeAuthorizations) * 15 +
+      Math.log10(1 + input.savedCases) * 10 +
+      Math.log10(1 + casesSent) * 6 +
+      15,
   );
   const regulatoryScore = clamp(
     Math.log10(1 + input.verifiedOutcomes + input.savedCases) * 20 +
       (input.fairnessProvidersScored > 0 ? 20 : 5),
   );
   const distributionScore = clamp(
-    Math.log10(1 + input.attributedSignups) * 25 + Math.log10(1 + input.savedCases) * 12 + 10,
+    Math.log10(1 + input.attributedSignups) * 25 +
+      Math.log10(1 + input.savedCases) * 12 +
+      Math.log10(1 + casesSent) * 5 +
+      10,
   );
   const closedLoopScore = clamp(
-    Math.log10(1 + input.proofsDocumented) * 28 + Math.log10(1 + input.savedCases) * 10,
+    Math.log10(1 + input.proofsDocumented) * 28 +
+      Math.log10(1 + input.savedCases) * 10 +
+      Math.log10(1 + casesSent) * 14,
   );
 
   const rails: RailAssessment[] = [
@@ -100,6 +113,7 @@ export function assessSevenRails(input: SevenRailsInputs): SevenRailsReport {
       winCondition: "≥2 registry issuers; institutions verify JWKS offline",
       evidence: [
         `active_authorizations=${input.activeAuthorizations}`,
+        `cases_sent=${casesSent}`,
         `registry_issuers=${input.registryIssuersActive}`,
         `delegated_issuers=${input.delegatedIssuersActive}`,
       ],
@@ -133,7 +147,11 @@ export function assessSevenRails(input: SevenRailsInputs): SevenRailsReport {
       maturity: maturityFromScore(switchingScore),
       score: switchingScore,
       winCondition: "Institution publishes how it accepts Mandate inbound",
-      evidence: [`authorizations=${input.activeAuthorizations}`, `saved_cases=${input.savedCases}`],
+      evidence: [
+        `authorizations=${input.activeAuthorizations}`,
+        `cases_sent=${casesSent}`,
+        `saved_cases=${input.savedCases}`,
+      ],
     },
     {
       id: MONOPOLY_RAIL.REGULATORY,
@@ -149,7 +167,11 @@ export function assessSevenRails(input: SevenRailsInputs): SevenRailsReport {
       maturity: maturityFromScore(distributionScore),
       score: distributionScore,
       winCondition: "Other AIs and partners send measurable handoffs",
-      evidence: [`attributed_signups=${input.attributedSignups}`, `saved=${input.savedCases}`],
+      evidence: [
+        `attributed_signups=${input.attributedSignups}`,
+        `cases_sent=${casesSent}`,
+        `saved=${input.savedCases}`,
+      ],
     },
     {
       id: MONOPOLY_RAIL.CLOSED_LOOP,
@@ -157,7 +179,11 @@ export function assessSevenRails(input: SevenRailsInputs): SevenRailsReport {
       maturity: maturityFromScore(closedLoopScore),
       score: closedLoopScore,
       winCondition: "detect → act → prove → fee → share without callbacks",
-      evidence: [`proofs=${input.proofsDocumented}`, `saved=${input.savedCases}`],
+      evidence: [
+        `proofs=${input.proofsDocumented}`,
+        `cases_sent=${casesSent}`,
+        `saved=${input.savedCases}`,
+      ],
     },
   ];
 

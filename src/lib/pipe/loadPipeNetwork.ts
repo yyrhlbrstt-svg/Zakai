@@ -3,7 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { scorePipeGravity, type PipeNetworkVolume } from "@/lib/pipe/pipeNetwork";
 
 export async function loadPipeNetworkVolume(): Promise<
-  PipeNetworkVolume & { gravity_tier: string; gravity_note: string }
+  PipeNetworkVolume & {
+    gravity_tier: "empty" | "signal" | "gravity" | "network";
+    gravity_note: string;
+    gravity_note_he: string;
+  }
 > {
   const [mandatesIssued, casesSent, proofAgg] = await Promise.all([
     prisma.authorization
@@ -32,5 +36,6 @@ export async function loadPipeNetworkVolume(): Promise<
     ...volume,
     gravity_tier: gravity.tier,
     gravity_note: gravity.note,
+    gravity_note_he: gravity.noteHe,
   };
 }

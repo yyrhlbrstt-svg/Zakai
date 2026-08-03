@@ -8,10 +8,11 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 
 ---
 
-## The stack (6 surfaces + Mandate gravity)
+## The stack (Pipe + 6 surfaces + Mandate gravity)
 
 | # | Surface | Win condition (market must need you) | Repo today | Parallel workstream |
 |---|---------|--------------------------------------|------------|---------------------|
+| P | **Pipe** | Visa-like Mandate→SavingsProof rails with `gravity_tier=network` | `/.well-known/zakai-pipe.json`, `/api/pipe`, `/he/pipe`, accept/handoff | SMTP + real SENT volume (human) |
 | 0 | **Mandate** | Every agent/bank verifies authority offline | JWKS, decide, test-vectors, institutions | Institution self-serve, MCP, second implementer |
 | 1 | **ZML** | Rights are data, not app logic | 76 IL, catalog, evaluate | External packs repo/CDN, EU depth, SDK |
 | 2 | **Fairness** | Providers fear public win-rate | API + widget, empty until sample | MIN_SAMPLE outcomes, embed on partner sites |
@@ -20,7 +21,17 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 | 5 | **Collective** | Demand visible before auctions | intent + summary | Legal gate then auction v1 |
 | 6 | **Autopilot** | Packs + law stay fresh without staff | crons, law watcher | Maintainer workflow only — no auto-law-merge |
 
-**Commercial wiring (PayPlus, SMTP, domain)** stays in **phase D** across all rows — gravity first.
+**Commercial wiring (PayPlus, domain)** stays in **phase D** — gravity first.  
+**SMTP is not phase D theater** — it is required for real SENT (P0 on monopoly loop).
+
+### Track P — Pipe / monopoly gravity
+
+- [x] `zakai-pipe-1` interop + `/.well-known/zakai-pipe.json` + human `/pipe`
+- [x] `GET /api/pipe` network volume + `gravity_tier`
+- [x] `POST /api/pipe/accept` + `POST /api/pipe/handoff` + acceptor mark
+- [x] Seven rails score SENT+ volume; `/api/network/monopoly` includes `monopolyLoop` P0
+- [x] Founder + domains + pipe show **MonopolyMissionControl**
+- [ ] Prod: SMTP + merge + Redeploy + real cases until `gravity_tier=network` — **founder**
 
 ---
 

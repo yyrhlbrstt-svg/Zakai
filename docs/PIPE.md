@@ -17,6 +17,8 @@
 
 We are **not** Google/Visa until `gravity_tier` reaches `network` with real SMTP delivery. Until then: ship volume on these rails — do not invent partners.
 
+**Monopoly scoreboard:** `GET /api/network/monopoly` returns seven rails + `pipe` + `monopolyLoop.p0` (next blocking move). Human board: `MonopolyMissionControl` on `/founder`, `/pipe`, `/domains`.
+
 ## What the pipe is
 
 Not another consumer screen. Four rails every bank, telecom, utility, and foreign AI must eventually speak:

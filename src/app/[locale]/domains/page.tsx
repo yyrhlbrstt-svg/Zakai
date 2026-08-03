@@ -10,6 +10,7 @@ import { CollectiveSummaryPanel } from "@/components/CollectiveSummaryPanel";
 import { AutopilotStatusStrip } from "@/components/AutopilotStatusStrip";
 import { MonopolyDomainCard } from "@/components/MonopolyDomainCard";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
+import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { getVisitorMarket } from "@/lib/global/visitorMarket";
 
 export async function generateMetadata({
@@ -68,6 +69,7 @@ export default async function DomainsPage({
         </div>
       </Card>
 
+      <MonopolyMissionControl locale={locale} />
       <ControlGatesStrip locale={locale} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12">

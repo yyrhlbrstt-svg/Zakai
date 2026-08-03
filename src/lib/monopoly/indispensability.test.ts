@@ -18,6 +18,7 @@ describe("buildIndispensabilityDocument", () => {
     });
     expect(doc.spec).toBe("zakai-indispensability");
     expect(doc.links.trillion_gates).toContain("/api/network/trillion-gates");
+    expect(doc.links.pipe).toContain("/api/pipe");
     expect(doc.disclaimer).toMatch(/not market share/i);
     expect(doc.phase).toBe(CONTROL_PHASE.SKELETON);
   });
