@@ -34,6 +34,7 @@ export const DEFAULT_PAYMENT_TERM_DAYS = 45;
 export const LATE_INTEREST_THRESHOLD_DAYS = 30;
 
 import { withFooter } from "./letterFooter";
+import { agentLetterCloseHe, agentLetterOpenHe } from "@/lib/agentLetterVoice";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -104,16 +105,17 @@ export function buildLatePaymentDemandLetter(input: LatePaymentLetterInput): str
     [
       `לכבוד ${clientName},`,
       "",
-      `שמי ${supplierName}. פנייה זו עניינה חשבונית מס' ${invoiceNumber} על סך ${amount}, שמועד התשלום החוקי שלה חלף.`,
+      agentLetterOpenHe(supplierName),
+      "",
+      `פנייה זו עניינה חשבונית מס' ${invoiceNumber} על סך ${amount} של הלקוח/ה, שמועד התשלום החוקי שלה חלף.`,
       "",
       `לפי חוק מוסר תשלומים לספקים, תשע"ז-2017, מועד התשלום המרבי לספק הוא ${status.termDays} יום מתום החודש שבו הומצאה החשבונית, אלא אם נקבע בחוזה מועד אחר כדין. מועד התשלום לפי זאת חל ב-${formatDate(status.dueDate)}, ונכון להיום חלפו ${status.daysLate} ימים מעבר למועד זה.`,
       "",
       interestLine,
       "",
-      "אבקש להסדיר את התשלום המלא בהקדם, ולקבל אישור בכתב על מועד ההעברה.",
+      "בקשה אחת: הסדרת התשלום המלא בהקדם, ואישור בכתב על מועד ההעברה.",
       "",
-      "בברכה,",
-      supplierName,
+      agentLetterCloseHe(supplierName),
     ].join("\n"),
   );
 }

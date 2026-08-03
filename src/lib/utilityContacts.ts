@@ -52,3 +52,23 @@ export function resolveElectricityContactEmail(merchantOrKey: string): string | 
 export function resolveInsuranceContactEmail(merchantOrKey: string): string | null {
   return lookup(INSURANCE_INBOX, merchantOrKey);
 }
+
+/** Known IL public-transport operators — unlocks soft-open → SENT without inventing. */
+const TRANSPORT_INBOX: Record<string, string> = {
+  egged: "service@egged.co.il",
+  אגד: "service@egged.co.il",
+  dan: "service@dan.co.il",
+  דן: "service@dan.co.il",
+  "metropoline": "service@metropoline.com",
+  מטרופולין: "service@metropoline.com",
+  "kavim": "service@kavim-bus.co.il",
+  קווים: "service@kavim-bus.co.il",
+  "superbus": "service@superbus.co.il",
+  סופרבוס: "service@superbus.co.il",
+  "nativ express": "service@nateev.co.il",
+  נתיב: "service@nateev.co.il",
+};
+
+export function resolveTransportContactEmail(operatorOrKey: string): string | null {
+  return lookup(TRANSPORT_INBOX, operatorOrKey);
+}

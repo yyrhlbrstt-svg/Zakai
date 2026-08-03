@@ -162,11 +162,24 @@ export async function dispatchCaseFollowUp(
     competitorPriceShekels: opts.competitorPriceShekels,
   });
 
+  // Re-apply the case's measured stance so rounds 2–4 stay in the same learning bucket.
+  let followBody = follow.body;
+  let followSubject = follow.subject;
+  if (kase.strategyVariant) {
+    const { variantById } = await import("@/lib/strategy/variants");
+    const { applyStance } = await import("@/lib/strategy/applyStance");
+    const variant = variantById(kase.strategyVariant);
+    if (variant) {
+      const staged = applyStance({ subject: follow.subject, body: follow.body }, variant);
+      followBody = staged.body;
+      followSubject = staged.subject;
+    }
+  }
+
   const usePrefix = opts.autoSubjectPrefix !== false;
   const subject = usePrefix
-    ? `${AGENT_SUBJECT_PREFIX} ${round} — ${follow.subject}`
-    : follow.subject;
-
+    ? `${AGENT_SUBJECT_PREFIX} ${round} — ${followSubject}`
+    : followSubject;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const protocolFooter = buildOutreachProtocolFooter({
     appUrl,
@@ -220,7 +233,7 @@ ${protocolFooter}`;
 
   const to = resolveCaseOutreachTo(kase);
   if (!to) {
-    return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL", body: follow.body, tip: follow.tip, subject };
+    return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL", body: followBody, tip: follow.tip, subject };
   }
 
   // No SMTP → do not write a phantom agent-round Outbox row that burns the cap.
@@ -229,7 +242,7 @@ ${protocolFooter}`;
       caseId,
       sent: false,
       reason: "NO_TRANSPORT",
-      body: follow.body,
+      body: followBody,
       tip: follow.tip,
       subject,
     };
@@ -238,7 +251,7 @@ ${protocolFooter}`;
   const email = await sendEmail({
     to,
     subject,
-    body: follow.body + footer,
+    body: followBody + footer,
     caseId,
     attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
   });
@@ -248,7 +261,7 @@ ${protocolFooter}`;
       caseId,
       sent: false,
       reason: "OUTREACH_DELIVERY_FAILED",
-      body: follow.body,
+      body: followBody,
       tip: follow.tip,
       subject,
     };
@@ -294,7 +307,7 @@ ${protocolFooter}`;
     caseId,
     sent: true,
     round,
-    body: follow.body,
+    body: followBody,
     tip: follow.tip,
     subject,
     ...(delivered ? {} : { reason: "QUEUED" }),

@@ -78,25 +78,9 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
     const proposedHints = new Map(
       [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
     );
-    const { resolveCaseOutreachTo } = await import("@/lib/caseOutreach");
-    const action = rankNextAction(
-      cases.map((c) => ({
-        id: c.id,
-        status: c.status,
-        fee: c.fee,
-        agentRound: agentRounds.get(c.id) ?? 0,
-        mandateActive: c.authorization?.status === "ACTIVE",
-        hasOutreachEmail: Boolean(
-          resolveCaseOutreachTo({
-            counterpartyEmail: c.counterpartyEmail,
-            provider: c.provider,
-            vertical: c.vertical,
-          }),
-        ),
-        expectedRecoveryAgorot: Math.max(0, c.amountOriginal - c.targetAmount),
-      })),
-      proposedHints,
-    );
+    const { buildRankedCaseInputs } = await import("@/lib/services/rankCasesForNextAction");
+    const rankedCases = await buildRankedCaseInputs(cases, agentRounds);
+    const action = rankNextAction(rankedCases, proposedHints);
     openLoop = action.kind !== "start_money";
   }
 

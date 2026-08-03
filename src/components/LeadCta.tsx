@@ -1,9 +1,9 @@
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 
-/** Self-serve CTA — money-first; never promises a human callback. */
+/** Self-serve CTA — /money only. No peer doors that scatter first-time users. */
 export async function LeadCta({ vertical }: { vertical: string }) {
-  void vertical; // retained for call-site compatibility; entry is always /money
+  void vertical;
 
   return (
     <div className="mt-12 rounded-2xl p-[1px] bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_55%,#8b5cf6)]">
@@ -12,12 +12,9 @@ export async function LeadCta({ vertical }: { vertical: string }) {
         <p className="text-ink-soft text-[14px] mt-2 max-w-[520px] mx-auto leading-relaxed">
           צילום מסך → תיק → Mandate. תשובה ופעולה בתוך זכאי. אין צוות שחוזר בטלפון.
         </p>
-        <div className="flex flex-wrap gap-3 justify-center mt-5">
+        <div className="mt-5 flex justify-center">
           <Link href="/money#zakai-money-scan">
-            <Button>הכסף שלי</Button>
-          </Link>
-          <Link href="/check">
-            <Button variant="ghost">בדיקת חיוב סלולר</Button>
+            <Button>הכסף שלי — התחל</Button>
           </Link>
         </div>
       </div>

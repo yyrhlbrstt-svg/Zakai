@@ -10,6 +10,7 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
 import { formatCaseDraft } from "@/lib/caseDraft";
+import { resolveTransportContactEmail } from "@/lib/utilityContacts";
 
 const REASON_BODY: Record<string, string> = {
   validator: "ניסיתי לתקף / לרכוש כרטיס אך המאמת/האפליקציה לא פעלו.",
@@ -42,8 +43,10 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  // Soft-open: never invent an inbox and never block case+Mandate when empty.
-  const outreachTo = firstOutreachEmail(data.operatorEmail) || undefined;
+  // Soft-open: known operators resolve; never invent; never block case+Mandate.
+  const outreachTo =
+    firstOutreachEmail(data.operatorEmail, resolveTransportContactEmail(data.operator) ?? undefined) ||
+    undefined;
 
   const user = await prisma.user.findUnique({ where: { id: auth.userId } });
   if (!user) return badRequest("mustLogin", 401);
@@ -60,15 +63,18 @@ export async function POST(request: Request) {
 
 הנדון: ערעור על דו"ח קנס מספר ${data.report}
 
-שמי ${name}, ואני מבקש/ת לערער על דו"ח הקנס שבנדון שניתן לי בגין נסיעה ללא כרטיס/תיקוף תקף.
+שמי זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם ${name} ובהרשאתו/ה המפורשת (Mandate). אינני הלקוח/ה עצמו/ה.
+
+בשם הלקוח/ה אני מערער על דו"ח הקנס שבנדון בגין נסיעה ללא כרטיס/תיקוף תקף.
 
 ${reasonText}${data.details ? `\n\nפירוט נוסף: ${data.details}` : ""}
 
-לאור האמור, אבקש לבטל את הדו"ח. אם הבקשה תידחה, אבקש לקבל הנמקה מפורטת ואת פירוט זכותי להישפט או לפנות לוועדת הערר.
+בקשה אחת: ביטול הדו"ח בכתב. אם הבקשה תידחה — הנמקה מפורטת ופירוט זכות ההישפטות / ועדת ערר.
+
+נא מענה בכתב בלבד.
 
 בכבוד רב,
-${name}
-(המכתב נוסח בסיוע זכאי — zakai)`;
+זכאי — סוכן דיגיטלי בשם ${name}`;
 
   const subject = `ערעור על קנס תחבורה ${data.report} — ${data.operator}`;
   const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 180;

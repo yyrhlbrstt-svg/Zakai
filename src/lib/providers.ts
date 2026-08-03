@@ -6,6 +6,11 @@
 import { resolveAirlineContactEmail } from "@/lib/airlineContacts";
 import { resolveBankContactEmail } from "@/lib/bankContacts";
 import { resolveTelecomContactEmail } from "@/lib/telecomContacts";
+import {
+  resolveElectricityContactEmail,
+  resolveInsuranceContactEmail,
+  resolveTransportContactEmail,
+} from "@/lib/utilityContacts";
 
 export type ProviderKey =
   | "cellcom"
@@ -90,6 +95,15 @@ const SUBSCRIPTION_CONTACT: Record<string, string> = {
 export function providerContactEmail(key: string, vertical?: string): string {
   if (vertical === "airline") return resolveAirlineContactEmail(key);
   if (vertical === "bank-fees") return resolveBankContactEmail(key);
+  if (vertical === "electricity") {
+    return resolveElectricityContactEmail(key) ?? "";
+  }
+  if (vertical === "transport-fine") {
+    return resolveTransportContactEmail(key) ?? "";
+  }
+  if (vertical === "car-insurance-refund" || vertical === "duplicate-insurance") {
+    return resolveInsuranceContactEmail(key) ?? "";
+  }
   if (vertical === "subscription") {
     if (SUBSCRIPTION_CONTACT[key]) return SUBSCRIPTION_CONTACT[key];
     if (isProviderKey(key)) {
@@ -107,7 +121,13 @@ export function providerContactEmail(key: string, vertical?: string): string {
     const raw = PROVIDERS[key].contactEmail;
     if (raw) return raw;
   }
-  return "";
+  // Last resort: known utility catalogs even when vertical omitted.
+  return (
+    resolveElectricityContactEmail(key) ||
+    resolveInsuranceContactEmail(key) ||
+    resolveTransportContactEmail(key) ||
+    ""
+  );
 }
 
 export function resolveProviderKey(name: string): ProviderKey {
