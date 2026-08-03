@@ -22,7 +22,7 @@ Track honest status — no fabricated metrics.
 - [x] `/about` comparison uses `about.why` + min-height cards
 - [x] `/agents` Hebrew body + RTL
 - [x] `/institutions` partial Hebrew (hero + key sections)
-- [ ] Full Hebrew for rest of `/institutions` long sections
+- [x] `/institutions` full Hebrew body (long sections via `institutionsLongCopy.ts`)
 - [ ] Home “soon” strip — keep or move to roadmap page
 
 ## SEO
@@ -31,7 +31,9 @@ Track honest status — no fabricated metrics.
 - [x] Rights slug OG images
 - [ ] Optional: per-slug `og:image` with amount for viral SAVED shares
 
-## Cannot fake (product law)
+## Related
+
+- `docs/MASTER_BRIEF_STATUS.md` — full “trillion-dollar protocol” brief mapped to code (honest)
 
 - Outcome graph population
 - Social proof numbers
