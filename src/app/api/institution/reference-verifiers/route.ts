@@ -6,6 +6,7 @@ import {
   isValidInstitutionSlug,
   serverSideReadinessOk,
 } from "@/lib/referenceVerifier";
+import { sendVerifierWelcomeEmail } from "@/lib/institutionVerifierOnboardingEmail";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +88,13 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "already_listed" }, { status: 409 });
   }
+
+  void sendVerifierWelcomeEmail({
+    institutionId,
+    displayNameEn: parsed.data.displayNameEn.trim(),
+    contactEmail: parsed.data.contactEmail.trim().toLowerCase(),
+    tier,
+  }).catch(() => undefined);
 
   return NextResponse.json({
     ok: true,

@@ -241,6 +241,8 @@ export function registryDocument() {
     },
     admission: {
       delegated_apply: "POST /api/mandate/delegation/apply",
+      delegated_roster: "GET /api/mandate/delegation/issuers",
+      admit_pilot_script: "scripts/admit-delegated-pilot.mjs",
       full_issuer_note:
         "Full issuers with their own JWKS submit via ZAKAI_EXTRA_ISSUERS_JSON after conformance review, or run their own registry fork.",
       env_extra_issuers: "ZAKAI_EXTRA_ISSUERS_JSON",

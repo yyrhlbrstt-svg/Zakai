@@ -29,6 +29,14 @@ export function buildPacksManifest(origin: string) {
     docs: {
       country_packs: "docs/COUNTRY_PACKS.md",
       infra: "docs/INFRA_ZAKAI_PACKS.md",
+      sdk_integration: "docs/ZML_SDK_INTEGRATION.md",
     },
+    sdk: {
+      mandate: "sdk/README.md",
+      npm_name: "@zakai/mandate-sdk",
+      mcp: "zakai-mandate-mcp",
+      interop_profiles: ["zakai-mandate-verifier-1", "zakai-rights-catalog-1"],
+    },
+    delegated_issuers: `${base}/api/mandate/delegation/issuers`,
   };
 }

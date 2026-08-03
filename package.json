@@ -21,6 +21,7 @@
     "packs:validate": "cd zakai-packs && npm ci && npm run validate",
     "packs:publish:dry": "cd zakai-packs && npm run publish",
     "packs:export": "bash scripts/export-zakai-packs-repo.sh",
+    "delegation:admit-pilot": "node scripts/admit-delegated-pilot.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",

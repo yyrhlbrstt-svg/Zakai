@@ -1,0 +1,73 @@
+import "server-only";
+
+export function appOriginForInstitutionEmails(): string {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    process.env.MANDATE_ISSUER?.trim() ||
+    "https://zakai-3uxj.vercel.app"
+  ).replace(/\/+$/, "");
+}
+
+/** Shared block for verifier onboarding + outbound aggregate notices. */
+export function conformanceProbeEmailSection(origin: string): string {
+  const base = origin.replace(/\/+$/, "");
+  return `
+Independent conformance (no SSRF — paste JWKS inline):
+  POST ${base}/api/mandate/conformance/probe
+  Body: { "jwks": [...], "audience": "your-institution-id", "sampleValidToken": "..." }
+
+Readiness wizard: ${base}/en/institutions/leader
+Test vectors: ${base}/api/mandate/test-vectors
+JWKS: ${base}/.well-known/zakai-jwks.json
+MCP (verification-only): npx zakai-mandate-mcp — see docs/INSTITUTION_QUICKSTART.md
+`.trim();
+}
+
+export async function sendVerifierWelcomeEmail(input: {
+  institutionId: string;
+  displayNameEn: string;
+  contactEmail: string;
+  tier: string;
+}): Promise<void> {
+  const { sendEmail } = await import("@/lib/messaging");
+  const origin = appOriginForInstitutionEmails();
+  const { subject, body } = buildVerifierWelcomeEmail({
+    origin,
+    institutionId: input.institutionId,
+    displayNameEn: input.displayNameEn,
+    tier: input.tier,
+    publicLeadersUrl: `${origin}/he/institutions/leaders`,
+  });
+  await sendEmail({
+    to: input.contactEmail,
+    subject,
+    body,
+  });
+}
+
+export function buildVerifierWelcomeEmail(input: {
+  origin: string;
+  institutionId: string;
+  displayNameEn: string;
+  tier: string;
+  publicLeadersUrl: string;
+}): { subject: string; body: string } {
+  const probe = conformanceProbeEmailSection(input.origin);
+  return {
+    subject: `Zakai — Reference Verifier listed (${input.tier})`,
+    body: `Hello ${input.displayNameEn} team,
+
+You are now on the public Reference Verifiers wall as \`${input.institutionId}\` (${input.tier} tier).
+
+What this means:
+- Display name is public; your contact email is not exposed in the API.
+- When documented consumer outreach targets your Mandate audience, you may receive aggregate notices (no customer PII).
+
+Next steps (self-serve, ~30 minutes):
+${probe}
+
+Public listing: ${input.publicLeadersUrl}
+
+— Zakai Mandate network`,
+  };
+}

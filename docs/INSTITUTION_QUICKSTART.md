@@ -79,11 +79,19 @@ Fail closed if the mandate `jti` appears in the feed.
 
 ## 6. Become a delegated issuer (optional)
 
-If you issue mandates on your own keys (same protocol, your brand):
+If you build a consumer agent and prefer Zakai to sign on your behalf (no JWKS ops):
 
 ```
 POST https://zakai-3uxj.vercel.app/api/mandate/delegation/apply
 ```
+
+Public roster of admitted pilots (no secrets):
+
+```
+GET https://zakai-3uxj.vercel.app/api/mandate/delegation/issuers
+```
+
+Issue with `X-Zakai-Issue-Key` after founder admission — see `docs/ZML_SDK_INTEGRATION.md`.
 
 UI: `/en/institutions` — Delegation apply form.
 

@@ -30,6 +30,7 @@ const paths = [
   { path: "/api/regulatory/snapshot?market=IL", expect: 200 },
   { path: "/api/regulatory/snapshot?market=IL&format=brief", expect: 200 },
   { path: "/api/autopilot/status", expect: 200 },
+  { path: "/api/mandate/delegation/issuers", expect: 200 },
   { path: "/api/rights/catalog?market=IL", expect: 200 },
   { path: "/api/rights/catalog?market=EU", expect: 200 },
   { path: "/api/markets", expect: 200 },
