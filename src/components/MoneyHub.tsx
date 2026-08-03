@@ -52,7 +52,7 @@ const copy: Record<string, Record<string, string>> = {
     act: "מה זכאי ממליץ — הסוכן פועל",
     openCase: "הסוכן פותח תיק עכשיו",
     opening: "פותח תיק…",
-    opened: "✓ תיק נפתח — לדשבורד",
+    opened: "✓ תיק נפתח — לכסף שלי",
     bestRoi: "הכי כדאי עכשיו",
     remember: "נשמר במכשיר שלך — בפעם הבאה תראה את הסיכום גם בלי להעלות שוב",
     lastSaved: "סיכום אחרון מהמכשיר",
@@ -71,9 +71,9 @@ const copy: Record<string, Record<string, string>> = {
     outreachCancel: "ביטול",
     batchOpen: "הסוכן פותח את כל התיקים המומלצים",
     batchOpening: "פותח תיקים…",
-    batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
+    batchDone: "✓ נפתחו {n} תיקים — לכסף שלי",
     batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
-    batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו בדשבורד לפני שליחה.",
+    batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו ב«כסף שלי» לפני שליחה.",
     selectHint: "סמן חיובים ואז פתח בבת אחת (Free = תיק פעיל אחד; Pro פותח יותר)",
     altLetter: "חלופות (לא מסלול הסוכן)",
   },
@@ -96,7 +96,7 @@ const copy: Record<string, Record<string, string>> = {
     act: "What Zakai recommends — agent acts",
     openCase: "Agent opens case now",
     opening: "Opening case…",
-    opened: "✓ Case opened — dashboard",
+    opened: "✓ Case opened — My money",
     bestRoi: "Best next move",
     remember: "Saved on this device",
     lastSaved: "Last summary on this device",
@@ -114,9 +114,9 @@ const copy: Record<string, Record<string, string>> = {
     outreachCancel: "Cancel",
     batchOpen: "Agent opens all recommended cases",
     batchOpening: "Opening cases…",
-    batchDone: "✓ Opened {n} cases — dashboard",
+    batchDone: "✓ Opened {n} cases — My money",
     batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
-    batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it on the dashboard before send.",
+    batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it in My money before send.",
     selectHint: "Select charges, then open together (Free = 1 active case; Pro opens more)",
     altLetter: "Alternatives (not the agent path)",
   },
@@ -368,7 +368,7 @@ export function MoneyHub({
       }
       setPendingOutreach(null);
       setOpenedId(data.caseId);
-      // Prefer /money finish surface; deep-link case on dashboard as fallback.
+      // Finish on /money — never send the user to the dashboard portfolio.
       router.push(
         data.dispatched
           ? `/money?case=${data.caseId}&sent=1`
@@ -732,7 +732,7 @@ export function MoneyHub({
               </Card>
 
               <div className="flex flex-wrap gap-2">
-                <Link href="/dashboard" className="no-underline">
+                <Link href="/money" className="no-underline">
                   <Button variant="ghost" className="!text-[13px] !py-2">
                     {tIcomponents_MoneyHub("t_38d0577a")}
                   </Button>

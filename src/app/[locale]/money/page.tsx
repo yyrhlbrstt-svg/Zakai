@@ -26,6 +26,7 @@ import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
+import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
 import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 
@@ -74,6 +75,8 @@ export default async function MoneyPage({
   let openLoopLabel = "";
   let overnightCases: Array<{ id: string; providerLabel: string; agentRound?: number }> = [];
   let pendingFeeHref: string | null = null;
+  /** Settled SAVED with proof — mount share finish even when openLoop is false. */
+  let shareCaseId: string | null = null;
   let personalDocumented = {
     count: 0,
     monthlyAgorot: 0,
@@ -157,6 +160,9 @@ export default async function MoneyPage({
     } else if (action.kind === "pending_fee") {
       pendingFeeHref = nextActionHref(action);
     }
+    if (!openLoop) {
+      shareCaseId = pickShareableSavedCaseId(cases);
+    }
   }
 
   const payFeeCaseId =
@@ -203,14 +209,14 @@ export default async function MoneyPage({
           {!openLoop ? (
             <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
           ) : null}
-          {openLoop || focusCaseId ? (
+          {openLoop || focusCaseId || shareCaseId ? (
             <MoneyLoopCloser
               userId={user.id}
               locale={locale as Locale}
               plan={user.plan}
               emailVerified={Boolean(user.emailVerifiedAt)}
               referralCode={user.referralCode}
-              focusCaseId={focusCaseId}
+              focusCaseId={focusCaseId ?? shareCaseId}
             />
           ) : null}
           {overnightCases.length > 0 ? <OvernightAgent cases={overnightCases} /> : null}

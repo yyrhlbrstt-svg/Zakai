@@ -11,6 +11,7 @@ import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
+import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
 import { heEn } from "@/lib/heEn";
 
 /**
@@ -85,9 +86,11 @@ export async function MoneyLoopCloser({
 
   const focused =
     focusCaseId && cases.find((row) => row.id === focusCaseId) ? focusCaseId : null;
+  const rankedId =
+    ranked.kind !== "start_money" && "caseId" in ranked ? ranked.caseId : null;
+  // After fee settles, ranker returns start_money — keep share CTAs on /money.
   const targetCaseId =
-    focused ??
-    (ranked.kind !== "start_money" && "caseId" in ranked ? ranked.caseId : null);
+    focused ?? rankedId ?? pickShareableSavedCaseId(cases);
   if (!targetCaseId) return null;
 
   const c = cases.find((row) => row.id === targetCaseId);

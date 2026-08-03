@@ -88,12 +88,18 @@ export default async function DashboardPage({
     include: { savingsProof: true, fee: true, authorization: true },
   });
 
-  // Legacy ?case= deep links (emails/pushes) finish on /money — fee checkout stays here.
-  const OPEN_FINISH = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT"]);
-  if (highlightCase && payFee !== "1") {
+  // Legacy ?case= / payFee deep links finish on /money (fee + share included).
+  const OPEN_FINISH = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT", "SAVED"]);
+  if (highlightCase) {
     const deep = cases.find((c) => c.id === highlightCase);
     if (deep && OPEN_FINISH.has(deep.status)) {
-      redirect({ href: `/money?case=${deep.id}`, locale });
+      redirect({
+        href:
+          payFee === "1"
+            ? `/money?case=${deep.id}&payFee=1`
+            : `/money?case=${deep.id}`,
+        locale,
+      });
     }
   }
 
