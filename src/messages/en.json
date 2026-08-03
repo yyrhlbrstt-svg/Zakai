@@ -4859,14 +4859,14 @@
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "Overnight agent — follow-up for all",
     "t_1768c8d7": "Could not draft this case.",
-    "errNeedsOutreach": "Missing provider email — complete it on the dashboard before send.",
-    "errMandateInactive": "Mandate inactive — re-issue authorization on the dashboard.",
+    "errNeedsOutreach": "Missing provider email — complete it on My money before send.",
+    "errMandateInactive": "Mandate inactive — re-issue authorization on My money.",
     "errNoTransport": "Email delivery unavailable right now — retry or copy and send manually.",
-    "errMaxRounds": "Follow-up rounds exhausted — record a result or close the case on the dashboard.",
-    "openCase": "Open the case on the dashboard"
+    "errMaxRounds": "Follow-up rounds exhausted — record a result or close the case on My money.",
+    "openCase": "Open the case on My money"
   },
   "inline_components_ReminderBanner": {
-    "t_1a1a5c0a": "Open dashboard and draft follow-up",
+    "t_1a1a5c0a": "Open My money and draft follow-up",
     "t_86e4f4c1": "Re-scan in Money OS"
   },
   "inline_components_Header": {

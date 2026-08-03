@@ -1,5 +1,6 @@
 import "server-only";
 import crypto from "node:crypto";
+import { withReturnQuery } from "@/lib/services/browserFeeReturn";
 
 /**
  * PSP-agnostic fee collection. Like the AI hub, the concrete provider is chosen
@@ -119,8 +120,11 @@ class PayPlusProvider implements PaymentProvider {
       /\/+$/,
       "",
     );
-    // The webhook route reconciles by this fee id echoed in more_info.
+    // Browser returns carry outcome= so GET can show confirming vs retry without
+    // trusting the bounce as payment proof. Webhook stays on the bare return URL.
     const returnBase = input.returnUrl;
+    const successUrl = withReturnQuery(returnBase, { outcome: "success" });
+    const failureUrl = withReturnQuery(returnBase, { outcome: "failure" });
     const res = await fetch(`${base}/PaymentPages/generateLink`, {
       method: "POST",
       headers: {
@@ -134,8 +138,8 @@ class PayPlusProvider implements PaymentProvider {
         amount: input.amountAgorot / 100, // PayPlus expects major units (₪)
         currency_code: "ILS",
         more_info: input.feeId, // echoed back on the callback for reconciliation
-        refURL_success: returnBase,
-        refURL_failure: returnBase,
+        refURL_success: successUrl,
+        refURL_failure: failureUrl,
         refURL_callback: returnBase, // server-to-server webhook
       }),
     });

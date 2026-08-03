@@ -29,11 +29,19 @@ describe("dashboardFeeRedirectPath", () => {
     expect(path).toBe("/en/money?case=case_1&fee=paid");
   });
 
-  it("sends fee errors back to dashboard checkout", async () => {
+  it("sends fee errors back to /money checkout with case deep-link", async () => {
     vi.mocked(prisma.fee.findUnique).mockResolvedValue({
       case: { id: "case_1", user: { country: "IL" } },
     } as never);
     const path = await dashboardFeeRedirectPath("error", "fee_1", "he");
     expect(path).toBe("/he/money?case=case_1&payFee=1&fee=error");
+  });
+
+  it("lands confirming (webhook in flight) on /money with case deep-link", async () => {
+    vi.mocked(prisma.fee.findUnique).mockResolvedValue({
+      case: { id: "case_1", user: { country: "IL" } },
+    } as never);
+    const path = await dashboardFeeRedirectPath("confirming", "fee_1", "he");
+    expect(path).toBe("/he/money?case=case_1&fee=confirming");
   });
 });

@@ -5,10 +5,11 @@ import { localeForCountry, localePath, parseLocaleParam } from "@/lib/localePath
 /**
  * Redirect after PSP return.
  * Paid → /money finish surface (share unlocks there).
+ * Confirming → /money while webhook may still be in flight (never claim paid from GET).
  * Error → /money checkout retry (same surface).
  */
 export async function dashboardFeeRedirectPath(
-  feeParam: "paid" | "error",
+  feeParam: "paid" | "error" | "confirming",
   feeId?: string | null,
   localeHint?: string | null,
 ): Promise<string> {
@@ -33,6 +34,16 @@ export async function dashboardFeeRedirectPath(
       );
     }
     return localePath(locale, "/money?fee=paid");
+  }
+
+  if (feeParam === "confirming") {
+    if (caseId) {
+      return localePath(
+        locale,
+        `/money?case=${encodeURIComponent(caseId)}&fee=confirming`,
+      );
+    }
+    return localePath(locale, "/money?fee=confirming");
   }
 
   if (caseId) {

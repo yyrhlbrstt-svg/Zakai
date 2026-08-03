@@ -61,6 +61,51 @@ describe("payplus adapter", () => {
       if (savedKey !== undefined) process.env.PAYPLUS_API_KEY = savedKey;
     }
   });
+
+  it("splits browser success/failure return URLs while keeping feeId", async () => {
+    process.env.PAYMENT_PROVIDER = "payplus";
+    process.env.PAYPLUS_API_KEY = "k";
+    process.env.PAYPLUS_SECRET_KEY = "s";
+    process.env.PAYPLUS_PAYMENT_PAGE_UID = "page";
+    const origFetch = globalThis.fetch;
+    let posted: unknown;
+    globalThis.fetch = (async (_url: RequestInfo | URL, init?: RequestInit) => {
+      posted = JSON.parse(String(init?.body ?? "{}"));
+      return new Response(
+        JSON.stringify({
+          results: { status: "success" },
+          data: {
+            payment_page_link: "https://payplus.example/pay",
+            page_request_uid: "req_1",
+          },
+        }),
+        { status: 200 },
+      );
+    }) as typeof fetch;
+    try {
+      await paymentProvider().createCheckout({
+        feeId: "fee_abc",
+        amountAgorot: 1800,
+        description: "fee",
+        returnUrl: "https://zakai.example/api/payments/callback?loc=he&feeId=fee_abc",
+      });
+      const body = posted as {
+        refURL_success: string;
+        refURL_failure: string;
+        refURL_callback: string;
+      };
+      expect(new URL(body.refURL_success).searchParams.get("outcome")).toBe("success");
+      expect(new URL(body.refURL_success).searchParams.get("feeId")).toBe("fee_abc");
+      expect(new URL(body.refURL_failure).searchParams.get("outcome")).toBe("failure");
+      expect(new URL(body.refURL_callback).searchParams.get("outcome")).toBeNull();
+      expect(new URL(body.refURL_callback).searchParams.get("feeId")).toBe("fee_abc");
+    } finally {
+      globalThis.fetch = origFetch;
+      delete process.env.PAYPLUS_API_KEY;
+      delete process.env.PAYPLUS_SECRET_KEY;
+      delete process.env.PAYPLUS_PAYMENT_PAGE_UID;
+    }
+  });
 });
 
 describe("verifyCallback (fail-closed money path)", () => {

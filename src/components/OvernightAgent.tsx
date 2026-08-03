@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { heEn } from "@/lib/heEn";
+import { classifyFollowUpSendError, type FollowUpSendBlock } from "@/lib/followUpSendUi";
 
 interface SentCase {
   id: string;
@@ -12,12 +13,7 @@ interface SentCase {
   agentRound?: number;
 }
 
-type SendBlock =
-  | "NEEDS_OUTREACH_EMAIL"
-  | "NO_ACTIVE_MANDATE"
-  | "NO_TRANSPORT"
-  | "MAX_ROUNDS"
-  | "generic";
+type SendBlock = FollowUpSendBlock;
 
 /**
  * Batch-draft follow-ups for every SENT case — overnight-agent feel.
@@ -48,14 +44,6 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
 
   if (cases.length === 0) return null;
 
-  function classifySendError(error: unknown): SendBlock {
-    if (error === "NEEDS_OUTREACH_EMAIL") return "NEEDS_OUTREACH_EMAIL";
-    if (error === "NO_ACTIVE_MANDATE") return "NO_ACTIVE_MANDATE";
-    if (error === "NO_TRANSPORT") return "NO_TRANSPORT";
-    if (error === "MAX_ROUNDS") return "MAX_ROUNDS";
-    return "generic";
-  }
-
   function blockCopy(block: SendBlock): string {
     switch (block) {
       case "NEEDS_OUTREACH_EMAIL":
@@ -63,6 +51,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
       case "NO_ACTIVE_MANDATE":
         return tIcomponents_OvernightAgent("errMandateInactive");
       case "NO_TRANSPORT":
+      case "OUTREACH_DELIVERY_FAILED":
         return tIcomponents_OvernightAgent("errNoTransport");
       case "MAX_ROUNDS":
         return tIcomponents_OvernightAgent("errMaxRounds");
@@ -90,7 +79,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
             providerLabel: c.providerLabel,
             body: "",
             error: true,
-            sendBlock: classifySendError(data.error),
+            sendBlock: classifyFollowUpSendError(data.error),
           });
           continue;
         }
@@ -134,7 +123,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
                 body: data.body || r.body,
                 tip: data.tip || r.tip,
                 error: !res.ok,
-                sendBlock: res.ok ? undefined : classifySendError(data.error),
+                sendBlock: res.ok ? undefined : classifyFollowUpSendError(data.error),
               }
             : r,
         ),

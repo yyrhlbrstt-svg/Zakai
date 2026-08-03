@@ -27,7 +27,9 @@ export async function initiateFeePayment(
 
   const provider = paymentProvider();
   const loc = encodeURIComponent(locale);
-  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}`;
+  // feeId must survive the PayPlus browser bounce — GET verify is fail-closed,
+  // so the callback needs feeId to deep-link /money?case=&payFee=1 on error/confirming.
+  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}&feeId=${encodeURIComponent(fee.id)}`;
   const checkout = await provider.createCheckout({
     feeId: fee.id,
     amountAgorot: fee.amount,

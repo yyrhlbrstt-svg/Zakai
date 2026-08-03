@@ -4859,14 +4859,14 @@
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "סוכן לילה — מעקב לכל התיקים",
     "t_1768c8d7": "לא הצלחנו להכין טיוטה לתיק הזה.",
-    "errNeedsOutreach": "חסר אימייל לספק — השלימו בדשבורד לפני שליחה.",
-    "errMandateInactive": "Mandate לא פעיל — הנפיקו הרשאה מחדש בדשבורד.",
+    "errNeedsOutreach": "חסר אימייל לספק — השלימו בכסף שלי לפני שליחה.",
+    "errMandateInactive": "Mandate לא פעיל — הנפיקו הרשאה מחדש בכסף שלי.",
     "errNoTransport": "שליחת מייל לא זמינה כרגע — נסו שוב או העתיקו ושלחו ידנית.",
-    "errMaxRounds": "סיבובי המעקב מוצו — רשמו תוצאה או סגרו את התיק בדשבורד.",
-    "openCase": "פתחו את התיק בדשבורד"
+    "errMaxRounds": "סיבובי המעקב מוצו — רשמו תוצאה או סגרו את התיק בכסף שלי.",
+    "openCase": "פתחו את התיק בכסף שלי"
   },
   "inline_components_ReminderBanner": {
-    "t_1a1a5c0a": "פתח דשבורד והכן הודעת המשך",
+    "t_1a1a5c0a": "פתחו כסף שלי והכינו הודעת המשך",
     "t_86e4f4c1": "סרוק שוב ב-Money OS"
   },
   "inline_components_Header": {

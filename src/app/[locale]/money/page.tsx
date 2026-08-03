@@ -227,6 +227,13 @@ export default async function MoneyPage({
                 : "✓ Success fee paid — share your documented saving."}
             </div>
           ) : null}
+          {feeStatus === "confirming" ? (
+            <div className="mb-4 rounded-2xl border border-[rgba(62,198,255,0.45)] bg-[rgba(62,198,255,0.1)] px-4 py-3.5 text-[13.5px] font-bold text-[#3EC6FF]">
+              {locale === "he" || locale === "ar"
+                ? "התשלום בתהליך אישור אצל ספק הסליקה — רעננו בעוד רגע. השיתוף ייפתח רק אחרי אישור."
+                : "Payment is confirming with the card processor — refresh in a moment. Share unlocks only after confirmation."}
+            </div>
+          ) : null}
           {feeStatus === "error" ? (
             <div className="mb-4 rounded-2xl border border-[rgba(240,138,107,0.45)] bg-[rgba(240,138,107,0.1)] px-4 py-3.5 text-[13.5px] font-bold text-[#f08a6b]">
               {locale === "he" || locale === "ar"

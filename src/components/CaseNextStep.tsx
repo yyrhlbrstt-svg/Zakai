@@ -18,6 +18,7 @@ import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { previewSuccessFeeShekels } from "@/lib/fee";
 import { heEn } from "@/lib/heEn";
 import { FeePayButton } from "@/components/FeePayButton";
+import { classifyFollowUpSendError, followUpDeliveryState } from "@/lib/followUpSendUi";
 
 type Status =
   | "ANALYZED"
@@ -116,6 +117,7 @@ const copy: Record<string, Record<string, string>> = {
     followSendAndDraft: "הכן ושלח המשך (Mandate)",
     followSend: "שלח דרך זכאי (Mandate)",
     followSent: "נשלח לספק",
+    followQueued: "בתור לשליחה — ה-worker ישלח כשהמייל מוגדר",
     draftTitle: "מכתב לשליחה — בדקו לפני שליחה",
     draftSave: "שמור טיוטה",
     copyMsg: "העתק הודעה",
@@ -219,6 +221,7 @@ const copy: Record<string, Record<string, string>> = {
     followSendAndDraft: "Draft & send follow-up (Mandate)",
     followSend: "Send via Zakai (Mandate)",
     followSent: "Sent to provider",
+    followQueued: "Queued — worker will send once mail transport is live",
     draftTitle: "Letter to send — review before dispatch",
     draftSave: "Save draft",
     copyMsg: "Copy message",
@@ -333,6 +336,7 @@ export function CaseNextStep({
   const [mailtoOpened, setMailtoOpened] = useState(false);
   const [draftEdit, setDraftEdit] = useState(draftMessageProp);
   const [followSentOk, setFollowSentOk] = useState(false);
+  const [followQueuedOk, setFollowQueuedOk] = useState(false);
   const nextFollowRound = Math.min(4, Math.max(2, agentRound + 2));
   const resolvedOutreach =
     counterpartyEmailProp?.trim() ||
@@ -454,12 +458,65 @@ export function CaseNextStep({
         selfReported: opts?.selfReported,
       }),
     });
-    if (!res.ok) throw new Error("save");
     const data = (await res.json().catch(() => ({}))) as {
       checkoutUrl?: string;
       chargeable?: boolean;
+      error?: string;
     };
+    if (!res.ok) {
+      // Double-tap / slow network after settle — land on SAVED → fee, don't generic-fail.
+      if (data.error === "ALREADY_SETTLED") {
+        router.refresh();
+        router.push(`/money?case=${caseId}`);
+        return;
+      }
+      throw new Error("save");
+    }
     finishSaving({ checkoutUrl: data.checkoutUrl, chargeable: data.chargeable === true });
+  }
+
+  /** Shared SENT follow-up send error + delivery UI (4 buttons share this). */
+  function applyFollowUpSendResult(
+    resOk: boolean,
+    data: {
+      error?: unknown;
+      body?: string;
+      tip?: string | null;
+      sent?: boolean;
+      delivered?: boolean;
+      reason?: string;
+    },
+  ): boolean {
+    if (!resOk) {
+      const block = classifyFollowUpSendError(data.error);
+      if (block === "NEEDS_OUTREACH_EMAIL") {
+        setErr(t(locale, "errNeedsEmail"));
+        return false;
+      }
+      if (block === "NO_ACTIVE_MANDATE") {
+        setLocalAuth(false);
+        setErr(t(locale, "mandateInactiveBanner"));
+        return false;
+      }
+      if (block === "NO_TRANSPORT" || block === "OUTREACH_DELIVERY_FAILED") {
+        setErr(t(locale, "errDelivery"));
+        if (data.body) setFollowBody(data.body);
+        return false;
+      }
+      if (block === "MAX_ROUNDS") {
+        setErr(t(locale, "exhaustedBanner"));
+        router.refresh();
+        return false;
+      }
+      if (data.body) setFollowBody(data.body);
+      throw new Error("follow-send");
+    }
+    if (data.body) setFollowBody(data.body);
+    if (data.tip !== undefined) setFollowTip(data.tip || null);
+    const delivery = followUpDeliveryState(data);
+    setFollowSentOk(delivery === "delivered");
+    setFollowQueuedOk(delivery === "queued");
+    return true;
   }
 
   async function proposeFromPaste() {
@@ -1206,13 +1263,14 @@ export function CaseNextStep({
               </div>
             )}
             <div className="flex flex-wrap gap-2">
-              {emailConfigured && !followSentOk ? (
+              {emailConfigured && !followSentOk && !followQueuedOk ? (
                 <Button
                   disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
                   className="text-[13px] py-2 px-3"
                   onClick={() =>
                     run(async () => {
                       setFollowSentOk(false);
+                    setFollowQueuedOk(false);
                       const res = await fetch(`/api/cases/${caseId}/follow-up`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -1230,27 +1288,7 @@ export function CaseNextStep({
                         }),
                       });
                       const data = await res.json().catch(() => ({}));
-                      if (!res.ok) {
-                        if (data.error === "NEEDS_OUTREACH_EMAIL") {
-                          setErr(t(locale, "errNeedsEmail"));
-                          return;
-                        }
-                        if (data.error === "NO_ACTIVE_MANDATE") {
-                          setLocalAuth(false);
-                          setErr(t(locale, "mandateInactiveBanner"));
-                          return;
-                        }
-                        if (data.error === "NO_TRANSPORT") {
-                          setErr(t(locale, "errDelivery"));
-                          if (data.body) setFollowBody(data.body);
-                          return;
-                        }
-                        if (data.body) setFollowBody(data.body);
-                        throw new Error("follow-send");
-                      }
-                      setFollowBody(data.body || "");
-                      setFollowTip(data.tip || null);
-                      setFollowSentOk(data.delivered !== false || data.sent === true);
+                      if (!applyFollowUpSendResult(res.ok, data)) return;
                       router.refresh();
                     })
                   }
@@ -1258,7 +1296,7 @@ export function CaseNextStep({
                   {busy ? t(locale, "working") : t(locale, "followSendAndDraft")}
                 </Button>
               ) : null}
-              {!followSentOk ? (
+              {!(followSentOk || followQueuedOk) ? (
                 <Button
                   variant={emailConfigured ? "ghost" : undefined}
                   disabled={busy}
@@ -1266,6 +1304,7 @@ export function CaseNextStep({
                   onClick={() =>
                     run(async () => {
                       setFollowSentOk(false);
+                    setFollowQueuedOk(false);
                       const res = await fetch(`/api/cases/${caseId}/follow-up`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -1288,7 +1327,7 @@ export function CaseNextStep({
                   {busy ? t(locale, "working") : t(locale, "followGen")}
                 </Button>
               ) : null}
-              {followBody && emailConfigured && !followSentOk ? (
+              {followBody && emailConfigured && !followSentOk && !followQueuedOk ? (
                 <Button
                   variant="ghost"
                   disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
@@ -1312,27 +1351,7 @@ export function CaseNextStep({
                         }),
                       });
                       const data = await res.json().catch(() => ({}));
-                      if (!res.ok) {
-                        if (data.error === "NEEDS_OUTREACH_EMAIL") {
-                          setErr(t(locale, "errNeedsEmail"));
-                          return;
-                        }
-                        if (data.error === "NO_ACTIVE_MANDATE") {
-                          setLocalAuth(false);
-                          setErr(t(locale, "mandateInactiveBanner"));
-                          return;
-                        }
-                        if (data.error === "NO_TRANSPORT") {
-                          setErr(t(locale, "errDelivery"));
-                          if (data.body) setFollowBody(data.body);
-                          return;
-                        }
-                        if (data.body) setFollowBody(data.body);
-                        throw new Error("follow-send");
-                      }
-                      setFollowBody(data.body || followBody);
-                      setFollowTip(data.tip || followTip);
-                      setFollowSentOk(data.delivered !== false || data.sent === true);
+                      if (!applyFollowUpSendResult(res.ok, data)) return;
                       router.refresh();
                     })
                   }
@@ -1343,6 +1362,11 @@ export function CaseNextStep({
               {followSentOk ? (
                 <span className="text-[13px] font-bold text-emerald self-center">
                   {t(locale, "followSent")}
+                </span>
+              ) : null}
+              {followQueuedOk && !followSentOk ? (
+                <span className="text-[13px] font-bold text-[#3EC6FF] self-center">
+                  {t(locale, "followQueued")}
                 </span>
               ) : null}
             </div>
@@ -1599,13 +1623,14 @@ export function CaseNextStep({
             </div>
           )}
           <div className="flex flex-wrap gap-2">
-            {emailConfigured && !followSentOk ? (
+            {emailConfigured && !followSentOk && !followQueuedOk ? (
               <Button
                 disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
                 className="text-[13px] py-2 px-3"
                 onClick={() =>
                   run(async () => {
                     setFollowSentOk(false);
+                    setFollowQueuedOk(false);
                     const res = await fetch(`/api/cases/${caseId}/follow-up`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
@@ -1623,28 +1648,7 @@ export function CaseNextStep({
                       }),
                     });
                     const data = await res.json().catch(() => ({}));
-                    if (!res.ok) {
-                      if (data.error === "NEEDS_OUTREACH_EMAIL") {
-                        setErr(t(locale, "errNeedsEmail"));
-                        return;
-                      }
-                      if (data.error === "NO_ACTIVE_MANDATE") {
-                        setLocalAuth(false);
-                        setErr(t(locale, "mandateInactiveBanner"));
-                        return;
-                      }
-                      if (data.error === "NO_TRANSPORT") {
-                        setErr(t(locale, "errDelivery"));
-                        if (data.body) setFollowBody(data.body);
-                        return;
-                      }
-                      if (data.body) setFollowBody(data.body);
-                      throw new Error("follow-send");
-                    }
-                    setFollowBody(data.body || "");
-                    setFollowTip(data.tip || null);
-                    // Async QUEUED is ok (worker delivers); only claim UI success when not explicitly undelivered.
-                    setFollowSentOk(data.delivered !== false || data.sent === true);
+                    if (!applyFollowUpSendResult(res.ok, data)) return;
                     router.refresh();
                   })
                 }
@@ -1652,7 +1656,7 @@ export function CaseNextStep({
                 {busy ? t(locale, "working") : t(locale, "followSendAndDraft")}
               </Button>
             ) : null}
-            {!followSentOk ? (
+            {!(followSentOk || followQueuedOk) ? (
               <Button
                 variant={emailConfigured ? "ghost" : undefined}
                 disabled={busy}
@@ -1660,6 +1664,7 @@ export function CaseNextStep({
                 onClick={() =>
                   run(async () => {
                     setFollowSentOk(false);
+                    setFollowQueuedOk(false);
                     const res = await fetch(`/api/cases/${caseId}/follow-up`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
@@ -1682,7 +1687,7 @@ export function CaseNextStep({
                 {busy ? t(locale, "working") : t(locale, "followGen")}
               </Button>
             ) : null}
-            {followBody && emailConfigured && !followSentOk ? (
+            {followBody && emailConfigured && !followSentOk && !followQueuedOk ? (
               <Button
                 variant="ghost"
                 disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
@@ -1706,27 +1711,7 @@ export function CaseNextStep({
                       }),
                     });
                     const data = await res.json().catch(() => ({}));
-                    if (!res.ok) {
-                      if (data.error === "NEEDS_OUTREACH_EMAIL") {
-                        setErr(t(locale, "errNeedsEmail"));
-                        return;
-                      }
-                      if (data.error === "NO_ACTIVE_MANDATE") {
-                        setLocalAuth(false);
-                        setErr(t(locale, "mandateInactiveBanner"));
-                        return;
-                      }
-                      if (data.error === "NO_TRANSPORT") {
-                        setErr(t(locale, "errDelivery"));
-                        if (data.body) setFollowBody(data.body);
-                        return;
-                      }
-                      if (data.body) setFollowBody(data.body);
-                      throw new Error("follow-send");
-                    }
-                    setFollowBody(data.body || followBody);
-                    setFollowTip(data.tip || followTip);
-                    setFollowSentOk(data.delivered !== false || data.sent === true);
+                    if (!applyFollowUpSendResult(res.ok, data)) return;
                     router.refresh();
                   })
                 }
@@ -1737,6 +1722,11 @@ export function CaseNextStep({
             {followSentOk ? (
               <span className="text-[13px] font-bold text-emerald self-center">
                 {t(locale, "followSent")}
+              </span>
+            ) : null}
+            {followQueuedOk && !followSentOk ? (
+              <span className="text-[13px] font-bold text-[#3EC6FF] self-center">
+                {t(locale, "followQueued")}
               </span>
             ) : null}
           </div>
