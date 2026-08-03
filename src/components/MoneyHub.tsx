@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Textarea, Input } from "@/components/ui";
 import {
   scanStatement,
@@ -355,11 +356,7 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
-        if (data.error === "OPEN_LOOP" && typeof data.nextHref === "string") {
-          router.push(data.nextHref);
-          return;
-        }
-        // Legacy hard-gate — soft-open usually opens and collects inbox on dashboard.
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setPendingOutreach(r);
           setOutreachEmail("");
@@ -411,10 +408,7 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
-        if (data.error === "OPEN_LOOP" && typeof data.nextHref === "string") {
-          router.push(data.nextHref);
-          return;
-        }
+        if (redirectIfOpenLoop(data, router.push)) return;
         setError(tx(locale, "errGeneric"));
         return;
       }

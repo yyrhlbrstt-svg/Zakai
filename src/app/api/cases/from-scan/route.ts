@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireUserId } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
-import { tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
+import { findOpenLoopBlock, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { runIdempotent, idempotencyKeyFromRequest } from "@/lib/scale/idempotency";
@@ -16,10 +16,6 @@ import {
 import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
-import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
-import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
-import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
-import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 
 const schema = z.object({
   merchant: z.string().min(1).max(120),
@@ -62,45 +58,9 @@ export async function POST(request: Request) {
       }
 
       // Finish the open loop before forking another Case — OS, not toolbox.
-      {
-        const openCases = await prisma.case.findMany({
-          where: { userId: auth.userId },
-          select: {
-            id: true,
-            status: true,
-            provider: true,
-            vertical: true,
-            amountOriginal: true,
-            targetAmount: true,
-            counterpartyEmail: true,
-            fee: { select: { amount: true, status: true } },
-            authorization: { select: { status: true } },
-          },
-          orderBy: { updatedAt: "desc" },
-          take: 40,
-        });
-        const sentIds = openCases.filter((c) => c.status === "SENT").map((c) => c.id);
-        const [proposedMap, agentRounds] = await Promise.all([
-          sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),
-          getAgentRoundMap(sentIds),
-        ]);
-        const proposedHints = new Map(
-          [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
-        );
-        const ranked = rankNextAction(
-          await buildRankedCaseInputs(openCases, agentRounds),
-          proposedHints,
-        );
-        if (ranked.kind !== "start_money") {
-          return {
-            status: 409,
-            body: {
-              error: "OPEN_LOOP",
-              nextHref: nextActionHref(ranked),
-              caseId: "caseId" in ranked ? ranked.caseId : undefined,
-            } as const,
-          };
-        }
+      const openLoop = await findOpenLoopBlock(auth.userId);
+      if (openLoop) {
+        return { status: 409, body: openLoop };
       }
 
       const intent: CancelIntent = data.intent ?? defaultScanIntent(data.category);

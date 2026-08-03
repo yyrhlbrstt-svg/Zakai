@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
@@ -52,10 +53,9 @@ export function CancelTool() {
     });
   }, [company, product, contactEmail]);
 
-  // Soft-open: inbox is optional here — dashboard collects before dispatch.
   const agentReady = useMemo(
-    () => company.trim().length > 0 && product.trim().length > 0,
-    [company, product],
+    () => company.trim().length > 0 && product.trim().length > 0 && Boolean(outreachTo),
+    [company, product, outreachTo],
   );
 
   useEffect(() => {
@@ -117,6 +117,7 @@ export function CancelTool() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         // Legacy hard-gate — soft-open usually opens and collects inbox on dashboard.
         if (data.error === "needsOutreachEmail") {
           setError(t("errorNeedsEmail"));

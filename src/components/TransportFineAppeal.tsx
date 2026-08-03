@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
+import { resolveTransportContactEmail } from "@/lib/utilityContacts";
 
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -31,8 +33,11 @@ export function TransportFineAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Soft-open: inbox optional — dashboard collects before dispatch.
-  const agentReady = report.trim().length > 0 && operator.trim().length > 0;
+  const knownInbox = resolveTransportContactEmail(operator);
+  const agentReady =
+    report.trim().length > 0 &&
+    operator.trim().length > 0 &&
+    (Boolean(knownInbox) || hasOutreachEmail(operatorEmail));
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);
@@ -77,6 +82,7 @@ ${name || "____"}
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;

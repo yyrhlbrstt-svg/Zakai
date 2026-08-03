@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input, Select } from "@/components/ui";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import {
@@ -39,7 +40,8 @@ export function BankFeesTool() {
 
   const bankLabel =
     bankKey === "other" ? bankCustom.trim() : bankOptionLabel(bankKey, locale);
-  const bankReady = bankKey !== "other" ? true : bankCustom.trim().length > 1;
+  const bankReady =
+    (bankKey !== "other" ? true : bankCustom.trim().length > 1) && hasOutreachEmail(bankEmail);
 
   function letterInput() {
     return {
@@ -78,6 +80,7 @@ export function BankFeesTool() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;

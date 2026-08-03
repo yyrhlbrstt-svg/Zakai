@@ -11,7 +11,7 @@ import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import { resolveBankProvider } from "@/lib/normalizeBankProvider";
 import { resolveBankContactEmail } from "@/lib/bankContacts";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
-import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { rateLimit } from "@/lib/ratelimit";
 
@@ -30,6 +30,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-bank-fees", auth.userId, 20, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });

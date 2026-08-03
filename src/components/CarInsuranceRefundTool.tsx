@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { buildCarInsuranceRefundLetter } from "@/lib/carInsuranceRefund";
 import { withFooter } from "@/lib/letterFooter";
@@ -30,8 +31,8 @@ export function CarInsuranceRefundTool() {
   const [error, setError] = useState<string | null>(null);
 
   const knownInbox = resolveInsuranceContactEmail(insurer);
-  // Soft-open: inbox optional — dashboard collects before dispatch.
-  const agentReady = insurer.trim().length > 0;
+  const agentReady =
+    insurer.trim().length > 0 && (Boolean(knownInbox) || hasOutreachEmail(contactEmail));
 
   function letterInput() {
     return {
@@ -63,6 +64,7 @@ export function CarInsuranceRefundTool() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;

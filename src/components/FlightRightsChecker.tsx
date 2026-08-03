@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
@@ -109,8 +110,10 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
     </div>
   );
 
-  // Soft-open: airline email optional for agent open — dashboard collects before send.
-  const formComplete = Object.values(form).every((v) => v.trim().length > 0);
+  const knownAirlineInbox = resolveAirlineContactEmail(form.airline);
+  const formComplete =
+    Object.values(form).every((v) => v.trim().length > 0) &&
+    (Boolean(knownAirlineInbox) || hasOutreachEmail(airlineEmail));
 
   async function sendWithAgent() {
     setError(null);
@@ -139,6 +142,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;

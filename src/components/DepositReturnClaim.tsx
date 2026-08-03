@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import {
@@ -64,9 +65,12 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
     );
   }
 
-  // Soft-open: landlord email optional — dashboard collects before dispatch.
+  // Destination inbox required — express Mandate cannot dispatch without it.
   const canSendWithAgent =
-    !!status?.isLate && landlordName.trim().length > 0 && propertyAddress.trim().length > 0;
+    !!status?.isLate &&
+    landlordName.trim().length > 0 &&
+    propertyAddress.trim().length > 0 &&
+    hasOutreachEmail(landlordEmail);
 
   async function sendWithAgent() {
     if (!canSendWithAgent) return;
@@ -91,12 +95,15 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setAgentError(
-          data.error === "caseLimit"
-            ? t("caseLimitError")
-            : data.error === "notLateYet"
-              ? t("notLateYetError")
-              : t("genericError"),
+          data.error === "needsOutreachEmail"
+            ? t("landlordEmailQ")
+            : data.error === "caseLimit"
+              ? t("caseLimitError")
+              : data.error === "notLateYet"
+                ? t("notLateYetError")
+                : t("genericError"),
         );
         return;
       }
@@ -214,11 +221,11 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         {!status?.isLate && (
           <p className="text-[12px] text-ink-soft">{t("agentNeedsLate")}</p>
         )}
-        {status?.isLate && !landlordEmail.trim() && (
+        {status?.isLate && !hasOutreachEmail(landlordEmail) && (
           <p className="text-[12px] text-amber mb-0">
             {he
-              ? "מומלץ למלא אימייל משכיר עכשיו — בלי יעד אי אפשר לשלוח Mandate מהדשבורד."
-              : "Add landlord email now if you have it — Mandate send needs a destination on the dashboard."}
+              ? "נדרש אימייל משכיר — בלי יעד אי אפשר לשלוח Mandate."
+              : "Landlord email is required — Mandate cannot send without a destination."}
           </p>
         )}
         {agentError && <p className="text-[13px] text-amber">{agentError}</p>}

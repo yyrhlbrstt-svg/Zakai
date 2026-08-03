@@ -21,12 +21,15 @@ export async function MoneyLoopCloser({
   plan,
   emailVerified,
   referralCode,
+  focusCaseId,
 }: {
   userId: string;
   locale: Locale;
   plan: string;
   emailVerified: boolean;
   referralCode?: string;
+  /** Deep-link from vertical open / notifications — prefer this case when owned. */
+  focusCaseId?: string | null;
 }) {
   const cases = await prisma.case.findMany({
     where: { userId },
@@ -78,9 +81,15 @@ export async function MoneyLoopCloser({
     ),
     proposedHints,
   );
-  if (ranked.kind === "start_money" || !("caseId" in ranked)) return null;
 
-  const c = cases.find((row) => row.id === ranked.caseId);
+  const focused =
+    focusCaseId && cases.find((row) => row.id === focusCaseId) ? focusCaseId : null;
+  const targetCaseId =
+    focused ??
+    (ranked.kind !== "start_money" && "caseId" in ranked ? ranked.caseId : null);
+  if (!targetCaseId) return null;
+
+  const c = cases.find((row) => row.id === targetCaseId);
   if (!c) return null;
 
   const proposed = proposedMap.get(c.id);

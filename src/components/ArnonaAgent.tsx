@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { ARNONA_AGENT_RIGHTS } from "@/lib/arnonaAppeal";
 
@@ -25,7 +26,7 @@ export function ArnonaAgent() {
   const canSend =
     municipalityName.trim().length > 0 &&
     monthlyArnona > 0 &&
-    municipalityEmail.trim().includes("@");
+    hasOutreachEmail(municipalityEmail);
 
   async function sendWithAgent() {
     if (!canSend) return;
@@ -53,6 +54,7 @@ export function ArnonaAgent() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setAgentError(
           data.error === "needsOutreachEmail"
             ? t("emailQ")

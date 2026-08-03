@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { buildRefundLetter } from "@/lib/refundChase";
 import { withFooter } from "@/lib/letterFooter";
@@ -26,8 +27,7 @@ export function RefundChaseTool() {
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Soft-open: inbox optional — dashboard collects before dispatch.
-  const agentReady = company.trim().length > 0;
+  const agentReady = company.trim().length > 0 && hasOutreachEmail(contactEmail);
 
   async function sendWithAgent() {
     setError(null);
@@ -52,6 +52,7 @@ export function RefundChaseTool() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;

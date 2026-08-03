@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
-import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { chooseStance } from "@/lib/strategy/store";
 import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
@@ -34,6 +34,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-parking", auth.userId, 15, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });

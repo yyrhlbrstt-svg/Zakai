@@ -16,7 +16,7 @@ import {
 } from "@/lib/flightRights";
 import { resolveAirlineContactEmail, resolveAirlineProviderKey } from "@/lib/airlineContacts";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
-import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { rateLimit } from "@/lib/ratelimit";
 
 const schema = z.object({
@@ -36,6 +36,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-flight", auth.userId, 15, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });

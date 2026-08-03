@@ -7,7 +7,7 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildCarInsuranceRefundLetter } from "@/lib/carInsuranceRefund";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
-import { expressOpenBody, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { resolveInsuranceContactEmail } from "@/lib/utilityContacts";
 import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
@@ -26,6 +26,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-car-ins-refund", auth.userId, 20, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });

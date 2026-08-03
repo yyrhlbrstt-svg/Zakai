@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
@@ -31,8 +32,8 @@ export function ParkingAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: str
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Soft-open: inbox optional — dashboard collects before dispatch.
-  const agentReady = ticket.trim().length > 0 && city.trim().length > 0;
+  const agentReady =
+    ticket.trim().length > 0 && city.trim().length > 0 && hasOutreachEmail(authorityEmail);
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);
@@ -56,7 +57,7 @@ ${name || "____"}
 
   async function sendWithAgent() {
     setError(null);
-    if (!authorityEmail.trim() || !/@/.test(authorityEmail)) {
+    if (!hasOutreachEmail(authorityEmail)) {
       setError(tFlow("errorNeedsEmail"));
       return;
     }
@@ -81,6 +82,7 @@ ${name || "____"}
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;

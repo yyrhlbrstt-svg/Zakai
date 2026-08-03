@@ -40,8 +40,16 @@ export async function generateMetadata({
   };
 }
 
-export default async function MoneyPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function MoneyPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ case?: string; sent?: string }>;
+}) {
   const { locale } = await params;
+  const sp = searchParams ? await searchParams : {};
+  const focusCaseId = typeof sp.case === "string" ? sp.case : null;
   setRequestLocale(locale);
   const tIapp_locale_money_page = await getTranslations({ locale, namespace: "inline_app_locale_money_page" });
   const loc = bcp47[locale as Locale];
@@ -163,13 +171,14 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
           {!openLoop ? (
             <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
           ) : null}
-          {openLoop ? (
+          {openLoop || focusCaseId ? (
             <MoneyLoopCloser
               userId={user.id}
               locale={locale as Locale}
               plan={user.plan}
               emailVerified={Boolean(user.emailVerifiedAt)}
               referralCode={user.referralCode}
+              focusCaseId={focusCaseId}
             />
           ) : null}
           <PersonalProofStrip
@@ -182,7 +191,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       ) : null}
 
       {/* Scan only when no open loop — finish Mandates/Proofs first. */}
-      {!openLoop ? (
+      {!openLoop && !focusCaseId ? (
         <div className="mt-2 mb-6">
           <MoneyHub
             bcp47={loc}
@@ -199,7 +208,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       )}
 
       {/* Secondary doors only when no open loop — otherwise they steal Mandates/Proofs. */}
-      {!openLoop ? (
+      {!openLoop && !focusCaseId ? (
         <div className="mb-8">
           <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
           <PriorityActionsRanked limit={3} />
