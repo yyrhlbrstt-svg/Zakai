@@ -414,6 +414,19 @@ model StrategyOutcome {
 }
 
 /**
+ * Anonymous collective-buying intent — no User/Case FK (publishable aggregates only).
+ */
+model CollectiveIntentSignal {
+  id        String   @id @default(cuid())
+  market    String
+  vertical  String
+  createdAt DateTime @default(now())
+
+  @@index([market, vertical])
+  @@index([createdAt])
+}
+
+/**
  * A single-use password-reset token.
  * Only the SHA-256 of the token is stored, never the token itself — the same
  * discipline PhoneVerification already uses. A leaked database must not hand

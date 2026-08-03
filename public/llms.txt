@@ -17,7 +17,8 @@ https://zakai-3uxj.vercel.app
 
 ## Worldwide (markets & ZML)
 
-- **Interop standard (start here):** [/.well-known/zakai-interop.json](https://zakai-3uxj.vercel.app/.well-known/zakai-interop.json) · live probe `GET /api/interop?probe=1`
+- **Interop standard:** [/.well-known/zakai-interop.json](https://zakai-3uxj.vercel.app/.well-known/zakai-interop.json) · live probe `GET /api/interop?probe=1`
+- **Five domains (strategy ↔ code):** [/.well-known/zakai-domains.json](https://zakai-3uxj.vercel.app/.well-known/zakai-domains.json) · [/he/domains](https://zakai-3uxj.vercel.app/he/domains)
 - Pick your market: [/en/global](https://zakai-3uxj.vercel.app/en/global)
 - Machine-readable markets list: `GET /api/markets`
 - Rights catalog (no account): `GET /api/rights/catalog?market=IL` (or `GB`, `US`, `DE`, `EU`, …)

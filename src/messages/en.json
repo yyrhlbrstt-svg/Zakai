@@ -760,6 +760,15 @@
     "ctaInstitutions": "Institutions",
     "ctaGlobal": "World markets"
   },
+  "domainsPage": {
+    "metaTitle": "Five infrastructure domains — Zakai",
+    "metaDesc": "ZML, fairness score, switching, regulatory aggregates, collective intent — what is live vs beta.",
+    "title": "Infrastructure the world can adopt",
+    "sub": "Not monopoly by force — open protocol, anonymous data, live probes. Real numbers in the API, not in a hype video.",
+    "tryIt": "Try in product",
+    "collectiveTitle": "Domain 5: collective intent (phase 0)",
+    "collectiveSub": "Anonymous signal, no account. Public counts only; auctions come when critical mass is real."
+  },
   "providers": {
     "cellcom": "Cellcom",
     "partner": "Partner",

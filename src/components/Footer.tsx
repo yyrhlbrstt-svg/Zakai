@@ -53,6 +53,9 @@ export function Footer() {
         <Link href="/standard" className="text-ink-soft no-underline hover:text-emerald">
           {locale === "he" ? "תקן Interop" : "Interop standard"}
         </Link>
+        <Link href="/domains" className="text-ink-soft no-underline hover:text-emerald">
+          {locale === "he" ? "5 דומיינים" : "5 domains"}
+        </Link>
         <Link href="/global" className="text-ink-soft no-underline hover:text-emerald">
           {t("footer.global")}
         </Link>

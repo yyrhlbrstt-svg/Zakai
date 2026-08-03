@@ -28,6 +28,7 @@ const PATHS = [
   "/rights",
   "/global",
   "/standard",
+  "/domains",
   "/scan",
   "/spending",
   "/pricing",

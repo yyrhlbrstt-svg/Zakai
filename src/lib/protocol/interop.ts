@@ -67,6 +67,10 @@ export const INTEROP_PROBE_CHECKS: readonly InteropProbeCheck[] = [
   { id: "rights_schema", profile: "zakai-rights-catalog-1", method: "GET", path: WELL_KNOWN_RELATIVE.rightsSchema, expectStatus: 200 },
   { id: "rights_catalog_il", profile: "zakai-rights-catalog-1", method: "GET", path: "/api/rights/catalog?market=IL", expectStatus: 200 },
   { id: "rights_openapi", profile: "zakai-rights-catalog-1", method: "GET", path: "/.well-known/zakai-openapi.json", expectStatus: 200 },
+  { id: "zml_stats", profile: "zakai-rights-catalog-1", method: "GET", path: "/api/zml/stats", expectStatus: 200 },
+  { id: "domains_manifest", profile: "zakai-core-1", method: "GET", path: WELL_KNOWN_RELATIVE.domains, expectStatus: 200 },
+  { id: "switching_spec", profile: "zakai-core-1", method: "GET", path: WELL_KNOWN_RELATIVE.switching, expectStatus: 200 },
+  { id: "fairness_scores", profile: "zakai-rights-catalog-1", method: "GET", path: "/api/fairness/scores?market=IL", expectStatus: 200 },
   { id: "mandate_discovery", profile: "zakai-mandate-verifier-1", method: "GET", path: WELL_KNOWN_RELATIVE.mandate, expectStatus: 200 },
   { id: "jwks", profile: "zakai-mandate-verifier-1", method: "GET", path: WELL_KNOWN_RELATIVE.jwks, expectStatus: 200 },
   { id: "trust_registry", profile: "zakai-mandate-verifier-1", method: "GET", path: WELL_KNOWN_RELATIVE.trustRegistry, expectStatus: 200 },
@@ -74,6 +78,8 @@ export const INTEROP_PROBE_CHECKS: readonly InteropProbeCheck[] = [
   { id: "mandate_scopes", profile: "zakai-mandate-verifier-1", method: "GET", path: "/api/mandate/scopes", expectStatus: 200 },
   { id: "mandate_verify_cors", profile: "zakai-mandate-verifier-1", method: "OPTIONS", path: "/api/mandate/verify", expectStatus: 204 },
   { id: "network_feed", profile: "zakai-outcome-graph-1", method: "GET", path: "/api/network", expectStatus: 200 },
+  { id: "regulatory_snapshot", profile: "zakai-outcome-graph-1", method: "GET", path: "/api/regulatory/snapshot?market=IL", expectStatus: 200 },
+  { id: "collective_summary", profile: "zakai-outcome-graph-1", method: "GET", path: "/api/collective/summary?market=IL", expectStatus: 200 },
 ] as const;
 
 export interface ProbeResultRow {
@@ -120,6 +126,7 @@ export function buildInteropDocument(origin: string) {
       interop_probe: `${base}/api/interop?probe=1`,
       protocol: `${base}/api/protocol`,
       markets: `${base}/api/markets`,
+      domains: `${base}/api/domains`,
       rights_catalog: `${base}/api/rights/catalog`,
       mandate_verify: `${base}/api/mandate/verify`,
       outcome_report: `${base}/api/outcome`,
