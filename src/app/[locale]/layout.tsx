@@ -17,6 +17,7 @@ import { PlausibleScript } from "@/components/PlausibleScript";
 import { LangSuggest } from "@/components/LangSuggest";
 import { getCurrentUser } from "@/lib/auth/user";
 import { OpenLoopResumeBar } from "@/components/OpenLoopResumeBar";
+import { HideOnRoutes } from "@/components/HideOnRoutes";
 import "../globals.css";
 
 const body = Heebo({
@@ -194,7 +195,11 @@ export default async function LocaleLayout({
           <ConsumerHonestyBanner />
           <LangSuggest />
           {children}
-          {user ? <OpenLoopResumeBar locale={locale} /> : null}
+          {user ? (
+            <HideOnRoutes substrings={["/dashboard", "/money"]}>
+              <OpenLoopResumeBar locale={locale} />
+            </HideOnRoutes>
+          ) : null}
           <Footer />
           <InstallPrompt />
           <EnablePush loggedIn={Boolean(user)} />
