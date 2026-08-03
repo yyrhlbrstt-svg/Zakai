@@ -12,6 +12,12 @@ import {
 } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
 import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
+import { ShareResult } from "@/components/ShareResult";
+import {
+  buildScanShareMessage,
+  scanShareKicker,
+  scanShareLandingPath,
+} from "@/lib/monopoly/scanShare";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -531,6 +537,17 @@ export function MoneyHub({
                 </div>
                 <div className="text-[12px] text-ink-soft mt-1">{tx(locale, "perMonth")}</div>
                 <p className="text-[12px] text-ink-soft mt-3">{tx(locale, "remember")}</p>
+                <div className="mt-4">
+                  <ShareResult
+                    message={buildScanShareMessage(locale, {
+                      amountLabel: formatAgorot(result.totalMonthlyAgorot, bcp47),
+                      recurringCount: result.recurring.length,
+                    })}
+                    path={scanShareLandingPath()}
+                    amountLabel={formatAgorot(result.totalMonthlyAgorot, bcp47)}
+                    kicker={scanShareKicker(locale)}
+                  />
+                </div>
               </Card>
 
               {best && (

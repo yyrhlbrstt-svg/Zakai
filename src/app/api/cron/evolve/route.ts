@@ -3,6 +3,7 @@ import { runEvolutionCycle } from "@/lib/evolve/store";
 import { assessOracleCalibration } from "@/lib/oracle/store";
 import { reportError } from "@/lib/report-error";
 import { requireCronAuth } from "@/lib/security/cronAuth";
+import { purgeExpiredIdempotencyRecords } from "@/lib/scale/idempotency";
 
 export const dynamic = "force-dynamic";
 
@@ -37,11 +38,14 @@ export async function GET(request: Request) {
     const calibration = await assessOracleCalibration();
     console.log("[oracle]", calibration.verdict, "—", calibration.summary);
 
+    const idempotencyPurged = await purgeExpiredIdempotencyRecords();
+
     return NextResponse.json({
       ok: true,
       promoted: result.promoted,
       digest: result.digest,
       reviewed: result.reviews.length,
+      idempotencyPurged,
       oracle: {
         verdict: calibration.verdict,
         samples: calibration.samples,

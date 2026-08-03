@@ -344,6 +344,22 @@ model RateLimit {
   @@index([expiresAt])
 }
 
+/// Idempotent mutation replay store (Class C traffic). Prevents duplicate cases
+/// when clients retry POST on flaky mobile networks at scale.
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  scope        String
+  actorId      String
+  key          String
+  statusCode   Int
+  responseJson String   @db.Text
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@unique([scope, actorId, key])
+  @@index([expiresAt])
+}
+
 // Product feedback — "what would you improve in Zakai?". Stored so the team
 // can read real user suggestions and prioritise from them. Email is optional
 // (only if the user wants a reply); `context` records which screen it came

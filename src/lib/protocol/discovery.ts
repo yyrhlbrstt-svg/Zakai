@@ -133,6 +133,7 @@ export function buildZakaiProtocolDocument(origin: string) {
       rights_catalog: `${origin}/api/rights/catalog`,
       rights_openapi: `${origin}/.well-known/zakai-openapi.json`,
       fairness_scores: `${origin}/api/fairness/scores?market=IL`,
+      network_gravity: `${origin}/api/network/gravity`,
       features: {
         mandate_verify: mandateSigningLive(),
         outcome_graph: true,
