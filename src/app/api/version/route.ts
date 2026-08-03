@@ -5,28 +5,44 @@ import { allMarkets } from "@/lib/global/registry";
 import { CATALOG_ONLY_MARKETS } from "@/lib/global/marketGeo";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { emailConfigured } from "@/lib/messaging";
+import { isInternalOpsRequest } from "@/lib/ops/internalAdminGate";
 
 export const dynamic = "force-dynamic";
 
-/** Public version probe — no internal product flags (see ?internal=1 + admin token). */
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
+
+/** Public version probe — no AI provider, ops flags, or market inventory (see internal). */
 export async function GET(request: Request) {
   const marketCodes = [
     ...allMarkets().map((m) => m.code),
     ...Object.keys(CATALOG_ONLY_MARKETS),
   ].sort();
 
-  const url = new URL(request.url);
-  const adminToken = process.env.ZAKAI_ADMIN_TOKEN?.trim();
-  const internal =
-    url.searchParams.get("internal") === "1" &&
-    adminToken &&
-    request.headers.get("x-zakai-admin-token") === adminToken;
+  const internal = isInternalOpsRequest(request);
 
-  const base = {
+  const publicBase = {
     ok: true,
     name: "zakai",
     version: pkgVersion,
     buildMarker: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? "local",
+    see: {
+      app: APP_URL,
+      protocol: "/.well-known/zakai-protocol.json",
+      interop: "/.well-known/zakai-interop.json",
+      mandate: "/.well-known/zakai-mandate.json",
+      markets: "/api/markets",
+      domains: "/.well-known/zakai-domains.json",
+      howTo: "HOW-TO-SEE.md (repo root)",
+    },
+    time: new Date().toISOString(),
+  };
+
+  if (!internal) {
+    return NextResponse.json(publicBase);
+  }
+
+  return NextResponse.json({
+    ...publicBase,
     positioning: "standard consumer money agent + Mandate infrastructure",
     operations: {
       payments_live: paymentsFullyLive(),
@@ -35,30 +51,17 @@ export async function GET(request: Request) {
     ai: { available: aiAvailable(), provider: aiProvider() },
     markets: marketCodes,
     see: {
-      app: process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app",
+      ...publicBase.see,
       version: "/api/version",
-      protocol: "/.well-known/zakai-protocol.json",
       zml_schema: "/.well-known/zakai-rights-schema.json",
       rights_catalog: "/api/rights/catalog?market={market}",
-      markets: "/api/markets",
       global_hub: "/en/global",
-      interop: "/.well-known/zakai-interop.json",
       interop_probe: "/api/interop?probe=1",
       network: "/api/network",
-      mandate: "/.well-known/zakai-mandate.json",
       jwks: "/.well-known/zakai-jwks.json",
       openapi: "/api/mandate/openapi.json",
-      howTo: "HOW-TO-SEE.md (repo root)",
+      health_internal: "/api/health?internal=1",
     },
-    time: new Date().toISOString(),
-  };
-
-  if (!internal) {
-    return NextResponse.json(base);
-  }
-
-  return NextResponse.json({
-    ...base,
     tracks: {
       consumer:
         "problem doors · Money OS · electricity/bank/cancel/airline full agent · household · viral SAVED · persistence recheck",

@@ -19,6 +19,8 @@ https://zakai-3uxj.vercel.app/api/version
 
 אם הגרסה ישנה — ה-deploy עדיין רץ. חכה דקה ורענן.
 
+**אבחון פנימי (מייסד בלבד):** `ZAKAI_ADMIN_TOKEN` + `GET /api/version?internal=1` או `/api/health?internal=1` עם כותרת `X-Zakai-Admin-Token`. פרטים: `docs/SECURITY_SURFACE.md`. תגובת `/api/health` הציבורית היא רק `{ ok, time }` — בלי ספק AI או מפת endpoints.
+
 ---
 
 ## 1. מסלול צרכני (Consumer) — למה אנשים נכנסים
