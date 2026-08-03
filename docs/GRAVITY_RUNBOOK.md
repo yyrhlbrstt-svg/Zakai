@@ -24,9 +24,11 @@ Origin mirror `/api/cdn/packs` already serves the monorepo artifact for evaluati
 ## 2) First Reference Verifier (G3) — human
 
 1. Send a bank/insurer/telco to `/he/join-network` → Reference Verifier wizard.
-2. They run inbound receive (`reference/inbound-receiver` or `/api/institution/inbound-receive`).
+2. One sitting: wizard now checks inbound receive + lists next steps; download  
+   `/api/institution/pilot-package` and `/reference/inbound-receiver/receive.mjs`.
 3. They opt into `/he/institutions/leaders` via the public register API.
 4. Leaders wall stays empty until that row exists — no fake logos.
+5. After merge: confirm `/api/cdn/packs/il/index.json` is 200 (NFT include in next.config).
 
 ## 3) Second issuer (G5) — human after dry-run
 

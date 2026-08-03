@@ -39,7 +39,11 @@
 
 import { FORBIDDEN_SCOPES, isKnownScope } from "./scopes";
 
-export type IssuerStatus = "active" | "suspended" | "withdrawn";
+/**
+ * `sandbox` — local/demo federation only. May appear in discovery for
+ * evaluation; never counts toward G5 / “second issuer” market control.
+ */
+export type IssuerStatus = "active" | "suspended" | "withdrawn" | "sandbox";
 
 export interface RegisteredIssuer {
   /** The exact `iss` claim its mandates carry. */
@@ -112,10 +116,20 @@ function extraIssuersFromEnv(): RegisteredIssuer[] {
 export function listRegisteredIssuers(): RegisteredIssuer[] {
   const merged: RegisteredIssuer[] = [...ISSUERS];
   for (const candidate of extraIssuersFromEnv()) {
+    // Sandbox rows skip strict admission (duplicate/unknown checks still run for active).
+    if (candidate.status === "sandbox") {
+      merged.push(candidate);
+      continue;
+    }
     const problems = validateIssuer(candidate, merged);
     if (problems.length === 0) merged.push(candidate);
   }
   return merged;
+}
+
+/** Issuers that count for network control (G5) — never sandbox. */
+export function countActiveNetworkIssuers(): number {
+  return listRegisteredIssuers().filter((i) => i.status === "active").length;
 }
 
 export type AdmissionProblem =
@@ -200,6 +214,8 @@ export type TrustDecision =
 export function decideTrust(iss: string, scopes: readonly string[]): TrustDecision {
   const issuer = findIssuer(iss);
   if (!issuer) return { trusted: false, reason: "unknown_issuer" };
+  // Sandbox is for offline evaluation fixtures — production trust refuses it.
+  if (issuer.status === "sandbox") return { trusted: false, reason: "suspended" };
   if (issuer.status !== "active") return { trusted: false, reason: issuer.status };
 
   for (const scope of scopes) {

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { prismaRead } from "@/lib/prismaRead";
-import { ISSUERS } from "@/lib/mandate/trustRegistry";
+import { countActiveNetworkIssuers } from "@/lib/mandate/trustRegistry";
 import { MARKETS } from "@/lib/global/registry";
 import { loadFairnessScores } from "@/lib/services/fairnessScores";
 import { packsRoot } from "@/lib/protocol/packs/serveLocal";
@@ -47,7 +47,9 @@ async function loadGateInputs(origin: string) {
       })
       .catch(() => [] as Parameters<typeof pressureRowsFromCases>[0]),
     prisma.referenceVerifier.count().catch(() => 0),
-    prismaRead.delegatedIssuer.count({ where: { status: "active" } }).catch(() => 0),
+    prismaRead.delegatedIssuer
+      .count({ where: { status: "active", NOT: { slug: { startsWith: "sandbox." } } } })
+      .catch(() => 0),
     prismaRead.user
       .count({
         where: {
@@ -74,13 +76,14 @@ async function loadGateInputs(origin: string) {
 
   const multiMarketOutcomes = marketOutcomes.filter((m) => m._count._all > 0).length >= 2;
 
-  const registryIssuers = ISSUERS.filter((i) => i.status === "active").length;
+  const registryIssuers = countActiveNetworkIssuers();
   const issuersTotal = registryIssuers + delegatedIssuersActive;
 
+  // Prefer live HTTP probes; local packsRoot only for offline CI — not a prod green.
   const packsCdn =
     (await probeUrlOk(`${(process.env.ZML_PACKS_CDN || "https://packs.zakai.io").replace(/\/+$/, "")}/il/index.json`)) ||
     (await probeUrlOk(`${origin.replace(/\/+$/, "")}/api/cdn/packs/il/index.json`)) ||
-    Boolean(packsRoot());
+    (process.env.VITEST === "true" && Boolean(packsRoot()));
 
   const interopExternalGreen = await probeUrlOk(
     `${origin.replace(/\/+$/, "")}/api/interop?probe=1`,

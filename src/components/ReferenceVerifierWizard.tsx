@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { Card, Input, Button } from "@/components/ui";
 import {
   VERIFIER_READINESS_AUDIENCE,
@@ -16,17 +17,22 @@ export function ReferenceVerifierWizard() {
     Object.fromEntries(VERIFIER_READINESS_ENDPOINTS.map((e) => [e.id, "idle"])),
   );
   const [verifyStep, setVerifyStep] = useState<StepState>("idle");
+  const [inboundStep, setInboundStep] = useState<StepState>("idle");
   const [allOk, setAllOk] = useState(false);
   const [institutionId, setInstitutionId] = useState("");
   const [nameHe, setNameHe] = useState("");
   const [nameEn, setNameEn] = useState("");
   const [email, setEmail] = useState("");
   const [registerMsg, setRegisterMsg] = useState<string | null>(null);
+  const [publicUrl, setPublicUrl] = useState<string | null>(null);
+  const [listedId, setListedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const runChecks = useCallback(async () => {
     setAllOk(false);
     setRegisterMsg(null);
+    setPublicUrl(null);
+    setListedId(null);
     const next: Record<string, StepState> = {};
     for (const ep of VERIFIER_READINESS_ENDPOINTS) {
       next[ep.id] = "running";
@@ -59,12 +65,23 @@ export function ReferenceVerifierWizard() {
     }
     setVerifyStep(verifyOk ? "ok" : "fail");
 
+    setInboundStep("running");
+    let inboundOk = false;
+    try {
+      const inbound = await fetch("/api/institution/inbound-receive", { cache: "no-store" });
+      inboundOk = inbound.ok;
+    } catch {
+      inboundOk = false;
+    }
+    setInboundStep(inboundOk ? "ok" : "fail");
+
     const endpointsOk = Object.values(next).every((s) => s === "ok");
-    setAllOk(endpointsOk && verifyOk);
+    setAllOk(endpointsOk && verifyOk && inboundOk);
   }, []);
 
   async function register() {
     setRegisterMsg(null);
+    setPublicUrl(null);
     setBusy(true);
     try {
       const res = await fetch("/api/institution/reference-verifiers", {
@@ -78,13 +95,22 @@ export function ReferenceVerifierWizard() {
           clientCompletedChecks: true,
         }),
       });
-      const data = await res.json().catch(() => ({}));
+      const data = (await res.json().catch(() => ({}))) as {
+        tier?: string;
+        institutionId?: string;
+        publicUrl?: string;
+      };
       if (res.status === 409) setRegisterMsg(t("registerConflict"));
       else if (!res.ok) setRegisterMsg(t("registerError"));
-      else
+      else {
         setRegisterMsg(
-          data.tier === "pioneer" ? t("registerPioneer", { id: data.institutionId }) : t("registerOk", { id: data.institutionId }),
+          data.tier === "pioneer"
+            ? t("registerPioneer", { id: data.institutionId ?? institutionId })
+            : t("registerOk", { id: data.institutionId ?? institutionId }),
         );
+        setPublicUrl(data.publicUrl ?? "/institutions/leaders");
+        setListedId(data.institutionId ?? institutionId.trim().toLowerCase());
+      }
     } catch {
       setRegisterMsg(t("registerError"));
     } finally {
@@ -121,6 +147,10 @@ export function ReferenceVerifierWizard() {
         <li className="flex justify-between gap-3 font-bold">
           <span>{t("check_verify")}</span>
           <span aria-hidden>{stepLabel(verifyStep)}</span>
+        </li>
+        <li className="flex justify-between gap-3 font-bold">
+          <span>{t("check_inbound")}</span>
+          <span aria-hidden>{stepLabel(inboundStep)}</span>
         </li>
       </ul>
 
@@ -161,6 +191,36 @@ export function ReferenceVerifierWizard() {
             {busy ? t("registerBusy") : t("registerCta")}
           </Button>
           {registerMsg && <p className="text-[13px] mt-3 text-ink-soft">{registerMsg}</p>}
+
+          {(listedId || allOk) && (
+            <div className="mt-5 flex flex-col gap-2">
+              <p className="text-[13px] font-extrabold text-ink m-0">{t("nextStepsTitle")}</p>
+              <a
+                href="/api/institution/pilot-package"
+                className="text-[13px] text-emerald font-bold no-underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("nextPilotPackage")}
+              </a>
+              <a
+                href="/reference/inbound-receiver/receive.mjs"
+                className="text-[13px] text-emerald font-bold no-underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("nextCloneReceiver")}
+              </a>
+              {publicUrl ? (
+                <Link href="/institutions/leaders" className="text-[13px] text-emerald font-bold">
+                  {t("nextLeadersWall")}
+                </Link>
+              ) : null}
+              <Link href="/join-network" className="text-[13px] text-emerald font-bold">
+                {t("nextJoinNetwork")}
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </Card>

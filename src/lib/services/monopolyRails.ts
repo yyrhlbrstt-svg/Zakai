@@ -1,7 +1,7 @@
 import "server-only";
 
 import { prismaRead } from "@/lib/prismaRead";
-import { ISSUERS } from "@/lib/mandate/trustRegistry";
+import { countActiveNetworkIssuers } from "@/lib/mandate/trustRegistry";
 import { MARKETS } from "@/lib/global/registry";
 import { assessSevenRails, type SevenRailsInputs } from "@/lib/monopoly/sevenRails";
 import { loadFairnessScores } from "@/lib/services/fairnessScores";
@@ -23,7 +23,9 @@ async function loadSevenRailsInputsRaw(): Promise<SevenRailsInputs> {
     prismaRead.authorization.count({
       where: { mandateJti: { not: null }, revokedAt: null },
     }),
-    prismaRead.delegatedIssuer.count({ where: { status: "active" } }),
+    prismaRead.delegatedIssuer.count({
+      where: { status: "active", NOT: { slug: { startsWith: "sandbox." } } },
+    }),
     prismaRead.collectiveIntentSignal.count(),
     prismaRead.user.count({ where: { partnerRef: { not: null } } }),
     loadFairnessScores("IL").catch(() => []),
@@ -38,7 +40,7 @@ async function loadSevenRailsInputsRaw(): Promise<SevenRailsInputs> {
     verifiedOutcomes,
     savedCases,
     activeAuthorizations,
-    registryIssuersActive: ISSUERS.filter((i) => i.status === "active").length,
+    registryIssuersActive: countActiveNetworkIssuers(),
     delegatedIssuersActive,
     collectiveIntentSignals,
     marketsWithPacks,

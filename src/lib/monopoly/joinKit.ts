@@ -32,6 +32,7 @@ export function buildJoinKitDocument(origin: string) {
           inbound_spec: `${base}/.well-known/zakai-inbound-receive.json`,
           inbound_receive: `${base}/api/institution/inbound-receive`,
           reference_clone: `${base}/reference/inbound-receiver/`,
+          pilot_package: `${base}/api/institution/pilot-package`,
           ignore_cost: `${base}/api/institution/ignore-cost`,
         },
       },
@@ -42,10 +43,12 @@ export function buildJoinKitDocument(origin: string) {
           "Or apply delegated path: POST /api/mandate/delegation/apply",
           "Pass decide + settle vectors (reference/go|python)",
           "Human admission: scripts/admit-delegated-pilot.mjs or ZAKAI_EXTRA_ISSUERS_JSON",
+          "Sandbox demos: GET /api/mandate/sandbox-issuer (never greens G5)",
         ],
         urls: {
           evidence: `${base}/api/mandate/delegation/evidence`,
           apply: `${base}/api/mandate/delegation/apply`,
+          sandbox: `${base}/api/mandate/sandbox-issuer`,
           trust_registry: `${base}/.well-known/zakai-trust-registry.json`,
           decide_vectors: `${base}/api/mandate/test-vectors`,
           settle_vectors: `${base}/api/settlement/test-vectors`,
@@ -77,7 +80,8 @@ export function buildJoinKitDocument(origin: string) {
           packs_mirror: `${base}/api/cdn/packs`,
           packs_discovery: `${base}/.well-known/zakai-packs.json`,
           catalog: `${base}/api/rights/catalog?market=IL`,
-          zml_docs: `${base}/docs/ZML_SDK_INTEGRATION.md`,
+          zml_docs:
+            "https://github.com/yyrhlbrstt-svg/Zakai/blob/main/docs/ZML_SDK_INTEGRATION.md",
         },
       },
     } satisfies Record<

@@ -111,7 +111,9 @@ export function buildInboundReceiveDocument(origin: string) {
     reference_receiver: {
       get: `${base}/api/institution/inbound-receive`,
       post: `${base}/api/institution/inbound-receive`,
-      clone: `${base.replace(/\/$/, "")}/../reference/inbound-receiver/`,
+      clone: `${base}/reference/inbound-receiver/`,
+      receive_mjs: `${base}/reference/inbound-receiver/receive.mjs`,
+      pilot_package: `${base}/api/institution/pilot-package`,
       note: "Cloneable demo that verifies Mandate JWS + Idempotency-Key=mandate_jti.",
     },
     outbound_attachment: {

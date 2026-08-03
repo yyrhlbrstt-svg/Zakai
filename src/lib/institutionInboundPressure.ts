@@ -27,6 +27,16 @@ export const INSTITUTION_PROVIDER_MAP: Readonly<Record<string, readonly string[]
   "bank-mizrahi": ["mizrahi"],
   "bank-fibi": ["fibi"],
   "one-zero": ["onezero"],
+  // Telecom / ISP — same hypothesis aliases; volume only appears after real SENT cases.
+  cellcom: ["cellcom"],
+  partner: ["partner"],
+  bezeq: ["bezeq"],
+  hot: ["hot"],
+  yes: ["yes"],
+  // Energy
+  "iec-electric": ["iec", "electricity"],
+  "pazgas": ["pazgas"],
+  "am-isragas": ["am-isragas", "isragas"],
 };
 
 const OUTBOUND_STATUSES = new Set(["SENT", "SAVED", "NO_SAVING"]);

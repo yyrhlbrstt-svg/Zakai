@@ -64,7 +64,7 @@ export function issuerEvidenceChecklist(): IssuerEvidenceChecklistItem[] {
     {
       id: "interop_g1",
       title: "Keep G1 interop green against production origin",
-      probe: "GET /api/network/interop",
+      probe: "GET /api/interop?probe=1",
       required: true,
     },
   ];
