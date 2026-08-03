@@ -10,6 +10,7 @@ import {
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
 import { resolveMandateAudience } from "@/lib/institutionAudience";
+import { publishRevocation } from "@/lib/mandate/statusIndex";
 
 /** Scope text stored on the authorization (the mandate the provider can read). */
 const SCOPE =
@@ -257,15 +258,13 @@ export async function revokeAuthorization(caseId: string, mandateJti?: string) {
 
   if (mandateJti) {
     try {
-      await prisma.mandateRevocation.upsert({
-        where: { jti: mandateJti },
-        create: {
+      await prisma.$transaction((tx) =>
+        publishRevocation(tx, {
           jti: mandateJti,
           reason: "authorization_revoked",
           internalNote: caseId,
-        },
-        update: {},
-      });
+        }),
+      );
     } catch {
       // Table may be missing in some environments; human revoke still stands.
     }

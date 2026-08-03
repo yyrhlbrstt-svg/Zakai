@@ -245,6 +245,28 @@ export async function GET(request: Request) {
             "503": { description: "status unknown / store unavailable" },
           },
         },
+        post: {
+          tags: ["status"],
+          summary: "Ops revoke — publishes an indexed bit on the signed status list",
+          description:
+            "Requires x-zakai-revoke-key. Always allocates a statusIndex so offline " +
+            "verifiers holding /api/mandate/revocations see the bit flip. A revoke " +
+            "without an index would leave the live status endpoint saying revoked " +
+            "while the cached list still looked active.",
+          parameters: [
+            {
+              name: "jti",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            "200": { description: "revoked — includes statusIndex" },
+            "401": { description: "unauthorized" },
+            "503": { description: "status_store_unavailable" },
+          },
+        },
       },
       "/api/mandate/verify": {
         post: {

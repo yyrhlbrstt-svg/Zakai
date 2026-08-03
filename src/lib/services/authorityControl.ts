@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { publishRevocation } from "@/lib/mandate/statusIndex";
 
 /**
  * The consumer's control plane over their own authority.
@@ -95,7 +96,7 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
   const normalised = code.trim().toUpperCase();
   const auth = await prisma.authorization.findFirst({
     where: { code: normalised, case: { userId } },
-    select: { code: true, status: true },
+    select: { code: true, status: true, mandateJti: true },
   });
   if (!auth) return { ok: false, reason: "not_found" };
   if (auth.status === "REVOKED") return { ok: true, code: auth.code, alreadyRevoked: true };
@@ -106,40 +107,16 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
       data: { status: "REVOKED", revokedAt: new Date() },
     });
 
-    // Publish it. Without this the person's revocation is a row in our database
-    // and nothing more — every institution holding a cached status list would
-    // go on honouring the mandate, correctly, because we never told them.
-    const existing = await tx.mandateRevocation.findUnique({
-      where: { jti: auth.code },
-      select: { jti: true },
-    });
-    if (!existing) {
-      await tx.mandateRevocation.create({
-        data: {
-          jti: auth.code,
-          statusIndex: await nextStatusIndex(tx),
-          reason: "user_request",
-        },
-      });
+    // Publish under the machine Mandate jti — the UUID institutions look up on
+    // /status and embed in status-list bits. Publishing under the human ZK-…
+    // code left every JWT still valid:true after a consumer revoke.
+    // No mandateJti means keys were off at issue time: nothing machine-side to revoke.
+    if (auth.mandateJti) {
+      await publishRevocation(tx, { jti: auth.mandateJti, reason: "user_request" });
     }
   });
 
   return { ok: true, code: auth.code, alreadyRevoked: false };
-}
-
-/**
- * Next free position in the status list.
- *
- * Indices are never reused. Reusing one would silently transfer a revocation
- * from an old mandate to a new one for every institution still holding the
- * older cached list — they would read the bit, see it set, and refuse a
- * perfectly valid credential.
- */
-async function nextStatusIndex(
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-): Promise<number> {
-  const top = await tx.mandateRevocation.aggregate({ _max: { statusIndex: true } });
-  return (top._max.statusIndex ?? -1) + 1;
 }
 
 /** How many authorities are live right now — for the header badge. */
