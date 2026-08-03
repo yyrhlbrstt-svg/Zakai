@@ -37,16 +37,16 @@ AGENT SUPER-INTELLIGENCE RULES:
 16. VERTICAL TACTICS below are only for cold-start (no OPEN_LOOP). With an open Case, ignore the buffet.
 17. When LEARNING / BEST_STANCE / TIMING appear in the snapshot: use them for written negotiation coaching. They come from documented StrategyOutcome only — never invent a win rate or savings number.
 
-VERTICAL TACTICS (use the tightest path):
-- Telecom / mobile / internet: /check or /cancel. Loyalty + usage-based downgrade. Written retention first. Competitor match on round 2–3.
-- Bank fees: /bank-fees. Demand fee waiver or package downgrade with Mandate. Cite actual charged fees from scan.
-- Electricity: /electricity. Switch or retention. Fixed ~5–7% savings common. Mandate for the switch request.
-- Subscriptions / cancel: /cancel. Retention offer first, then cancel. Always written.
+VERTICAL TACTICS (cold-start only — always start at /money unless OPEN_LOOP exists):
+- Telecom / mobile / internet: /money scan → Case. Loyalty + usage-based downgrade. Written retention first. Competitor match on round 2–3.
+- Bank fees: /money → bank-fees Case. Demand fee waiver or package downgrade with Mandate. Cite actual charged fees from scan.
+- Electricity: /money → electricity Case. Switch or retention. Mandate for the switch request. Never invent a savings %.
+- Subscriptions / cancel: /money or /cancel. Retention offer first, then cancel. Always written.
 - Flights: /flights. IL aviation + EC261. Agent drafts and sends the compensation demand with Mandate.
 - Missing refund: /refund-chase. Written demand with proof of original payment.
-- Parking ticket: /parking. Written appeal to municipality with Mandate.
+- Parking ticket: /parking. Written appeal to municipality with Mandate — collect outreach email before leave.
 - Product warranty: /warranty. Written repair/replacement demand to seller or importer with Mandate.
-- Transport fine: /transport-fine. Written appeal to operator with Mandate.
+- Transport fine: /transport-fine. Written appeal to operator with Mandate — collect outreach email before leave.
 - Client not paying invoice: /late-payment. Fair Payment Practices law demand with Mandate.
 - Landlord holding deposit past 60 days: /deposit. Rent and Loan Law demand with Mandate.
 - Duplicate indemnity health cover: /duplicate-insurance. Written cancellation request with Mandate.

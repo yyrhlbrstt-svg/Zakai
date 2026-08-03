@@ -165,6 +165,7 @@ export function rankNextAction(
 export function nextActionHref(action: RankedNextAction): string {
   switch (action.kind) {
     case "pending_fee":
+      // Checkout lives on dashboard; everything else finishes on /money.
       return `/dashboard?case=${action.caseId}&payFee=1`;
     case "proposed_saving":
     case "sent_exhausted":
@@ -172,7 +173,7 @@ export function nextActionHref(action: RankedNextAction): string {
     case "mandate_inactive":
     case "pre_send":
     case "sent_wait":
-      return `/dashboard?case=${action.caseId}`;
+      return "/money";
     case "start_money":
       return "/money";
   }
@@ -195,17 +196,17 @@ export function nextActionInstruction(action: RankedNextAction): string {
     case "pending_fee":
       return `NEXT_ACTION: Collect success fee — /dashboard?case=${action.caseId}&payFee=1 (₪${(action.feeAmountAgorot / 100).toFixed(2)} pending).`;
     case "proposed_saving":
-      return `NEXT_ACTION: One-tap record SavingsProof — /dashboard?case=${action.caseId} (proposed ₪${action.newAmountShekels}). Do NOT invent amounts. Do NOT open a new case.`;
+      return `NEXT_ACTION: One-tap record SavingsProof — /money (case ${action.caseId}, proposed ₪${action.newAmountShekels}). Do NOT invent amounts. Do NOT open a new case.`;
     case "sent_exhausted":
-      return `NEXT_ACTION: Written rounds exhausted (${action.agentRound}/${MAX_AGENT_ROUNDS}) — /dashboard?case=${action.caseId}. Record the real new amount from a written reply, mark no change, or pivot (cancel/competitor). Do NOT draft another delay follow-up. Do NOT open a new case.`;
+      return `NEXT_ACTION: Written rounds exhausted (${action.agentRound}/${MAX_AGENT_ROUNDS}) — /money. Record the real new amount from a written reply, mark no change, or pivot (cancel/competitor). Do NOT draft another delay follow-up. Do NOT open a new case.`;
     case "needs_outreach":
-      return `NEXT_ACTION: Enter provider outreach email — /dashboard?case=${action.caseId}. Mandate send / follow-ups cannot leave without a destination. Do NOT invent an inbox. Do NOT open a new case.`;
+      return `NEXT_ACTION: Enter provider outreach email — /money (case ${action.caseId}). Mandate send / follow-ups cannot leave without a destination. Do NOT invent an inbox. Do NOT open a new case.`;
     case "mandate_inactive":
-      return `NEXT_ACTION: Re-issue ACTIVE Mandate — /dashboard?case=${action.caseId}. Follow-ups are blocked until Mandate is ACTIVE again. Do NOT open a new case.`;
+      return `NEXT_ACTION: Re-issue ACTIVE Mandate — /money (case ${action.caseId}). Follow-ups are blocked until Mandate is ACTIVE again. Do NOT open a new case.`;
     case "pre_send":
-      return `NEXT_ACTION: Finish Mandate send — /dashboard?case=${action.caseId} (status=${action.status}). Verify ownership if needed, then one-tap send. Do NOT start another vertical.`;
+      return `NEXT_ACTION: Finish Mandate send — /money (case ${action.caseId}, status=${action.status}). Verify ownership if needed, then one-tap send. Do NOT start another vertical.`;
     case "sent_wait":
-      return `NEXT_ACTION: Close the loop — /dashboard?case=${action.caseId}. If they replied: record new amount (SavingsProof). If silent: draft/send written follow-up.`;
+      return `NEXT_ACTION: Close the loop — /money (case ${action.caseId}). If they replied: record new amount (SavingsProof). If silent: draft/send written follow-up.`;
     case "start_money":
       return "NEXT_ACTION: Start in /money (scan → case → Mandate). Only then other agent verticals.";
   }

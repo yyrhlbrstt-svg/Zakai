@@ -181,19 +181,29 @@ describe("ensureReplyEndsWithNextAction", () => {
 });
 
 describe("nextActionHref", () => {
-  it("maps start_money to /money", () => {
+  it("maps start_money and open-loop actions to /money", () => {
     expect(nextActionHref({ kind: "start_money" })).toBe("/money");
+    expect(nextActionHref({ kind: "pre_send", caseId: "c1", status: "VERIFIED" })).toBe("/money");
+    expect(nextActionHref({ kind: "proposed_saving", caseId: "c1", newAmountShekels: 80 })).toBe(
+      "/money",
+    );
+  });
+
+  it("keeps fee collection on dashboard checkout", () => {
+    expect(
+      nextActionHref({ kind: "pending_fee", caseId: "c1", feeAmountAgorot: 1800 }),
+    ).toBe("/dashboard?case=c1&payFee=1");
   });
 });
 
 describe("nextActionInstruction", () => {
-  it("emits a single dashboard link for proposed saving", () => {
+  it("emits a single /money finish surface for proposed saving", () => {
     const line = nextActionInstruction({
       kind: "proposed_saving",
       caseId: "c1",
       newAmountShekels: 120,
     });
-    expect(line).toContain("/dashboard?case=c1");
+    expect(line).toContain("/money");
     expect(line).toContain("120");
   });
 
@@ -207,15 +217,15 @@ describe("nextActionInstruction", () => {
     expect(line).toMatch(/Do NOT draft another delay/i);
   });
 
-  it("points inactive Mandate at dashboard re-issue", () => {
+  it("points inactive Mandate at /money re-issue", () => {
     const line = nextActionInstruction({ kind: "mandate_inactive", caseId: "c2" });
-    expect(line).toContain("/dashboard?case=c2");
+    expect(line).toContain("/money");
     expect(line).toMatch(/Re-issue ACTIVE Mandate/i);
   });
 
-  it("points missing outreach at dashboard email field", () => {
+  it("points missing outreach at /money email field", () => {
     const line = nextActionInstruction({ kind: "needs_outreach", caseId: "c3" });
-    expect(line).toContain("/dashboard?case=c3");
+    expect(line).toContain("/money");
     expect(line).toMatch(/outreach email/i);
   });
 });
