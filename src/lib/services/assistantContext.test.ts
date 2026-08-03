@@ -105,13 +105,13 @@ describe("buildAssistantCasesSnapshot", () => {
     expect(snap).toContain("case_dead");
   });
 
-  it("surfaces missing outreach email on SENT", async () => {
+  it("surfaces missing outreach email on SENT when catalog has none", async () => {
     vi.mocked(prisma.case.findMany).mockResolvedValue([
       {
         id: "case_mail",
-        provider: "netflix",
+        provider: "unknown-landlord",
         status: "SENT",
-        vertical: "subscription",
+        vertical: "deposit",
         amountOriginal: 5_000,
         targetAmount: 0,
         savingsProof: null,
@@ -123,5 +123,39 @@ describe("buildAssistantCasesSnapshot", () => {
     const snap = await buildAssistantCasesSnapshot("user_1");
     expect(snap).toContain("NEXT_ACTION: Enter provider outreach email");
     expect(snap).toContain("case_mail");
+  });
+
+  it("ranks multi-case by expected recovery and emits NEXT_ACTION_HREF", async () => {
+    vi.mocked(prisma.case.findMany).mockResolvedValue([
+      {
+        id: "small",
+        provider: "cellcom",
+        status: "SENT",
+        vertical: "telecom",
+        amountOriginal: 10_000,
+        targetAmount: 9_000,
+        savingsProof: null,
+        fee: null,
+        authorization: { status: "ACTIVE" },
+        counterpartyEmail: "service@cellcom.co.il",
+      },
+      {
+        id: "big",
+        provider: "partner",
+        status: "SENT",
+        vertical: "telecom",
+        amountOriginal: 30_000,
+        targetAmount: 15_000,
+        savingsProof: null,
+        fee: null,
+        authorization: { status: "ACTIVE" },
+        counterpartyEmail: "service@partner.co.il",
+      },
+    ] as never);
+    const snap = await buildAssistantCasesSnapshot("user_1");
+    expect(snap).toContain("MULTI_CASE_RANK");
+    expect(snap).toContain("NEXT_ACTION_HREF: /dashboard?case=big");
+    expect(snap).toContain("OPEN_LOOP_RULE");
+    expect(snap).toContain("NEGOTIATION_BRIEF");
   });
 });

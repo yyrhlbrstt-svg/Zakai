@@ -30,11 +30,16 @@ export type NextActionCaseInput = {
    */
   mandateActive?: boolean;
   /**
-   * Whether Case.counterpartyEmail looks usable.
+   * Whether outreach destination is resolvable (counterparty OR catalog).
    * Meaningful for SENT and pre-send (dispatch needs a destination).
    * Omit/undefined = unknown (do not surface needs_outreach).
    */
   hasOutreachEmail?: boolean;
+  /**
+   * Expected recovery in agorot (amountOriginal − targetAmount, floored at 0).
+   * Used to break ties within the same action kind — biggest win first.
+   */
+  expectedRecoveryAgorot?: number;
 };
 
 export type ProposedSavingHint = {
@@ -53,6 +58,23 @@ export type RankedNextAction =
 
 const PRE_SEND = new Set(["ANALYZED", "APPROVED", "VERIFIED"]);
 
+function recovery(c: NextActionCaseInput): number {
+  return c.expectedRecoveryAgorot ?? 0;
+}
+
+/** Within a kind, pick the case with the highest expected recovery (then first). */
+function pickBest(
+  cases: readonly NextActionCaseInput[],
+  pred: (c: NextActionCaseInput) => boolean,
+): NextActionCaseInput | undefined {
+  let best: NextActionCaseInput | undefined;
+  for (const c of cases) {
+    if (!pred(c)) continue;
+    if (!best || recovery(c) > recovery(best)) best = c;
+  }
+  return best;
+}
+
 /**
  * Rank the single highest-ROI unfinished loop.
  * `proposedByCaseId` maps SENT case ids → inbound proposed new monthly/lump amount.
@@ -61,8 +83,9 @@ export function rankNextAction(
   cases: readonly NextActionCaseInput[],
   proposedByCaseId: ReadonlyMap<string, ProposedSavingHint> = new Map(),
 ): RankedNextAction {
-  const pendingFee = cases.find(
-    (c) => c.fee && c.fee.status === "PENDING" && c.fee.amount > 0,
+  const pendingFee = pickBest(
+    cases,
+    (c) => Boolean(c.fee && c.fee.status === "PENDING" && c.fee.amount > 0),
   );
   if (pendingFee?.fee) {
     return {
@@ -72,20 +95,22 @@ export function rankNextAction(
     };
   }
 
-  for (const c of cases) {
-    if (c.status !== "SENT") continue;
-    const proposed = proposedByCaseId.get(c.id);
-    if (proposed) {
-      return {
-        kind: "proposed_saving",
-        caseId: c.id,
-        newAmountShekels: proposed.newAmountShekels,
-      };
-    }
+  const withProposal = pickBest(
+    cases,
+    (c) => c.status === "SENT" && proposedByCaseId.has(c.id),
+  );
+  if (withProposal) {
+    const proposed = proposedByCaseId.get(withProposal.id)!;
+    return {
+      kind: "proposed_saving",
+      caseId: withProposal.id,
+      newAmountShekels: proposed.newAmountShekels,
+    };
   }
 
   // After max written rounds the agent cannot progress — user must record or close.
-  const exhausted = cases.find(
+  const exhausted = pickBest(
+    cases,
     (c) =>
       c.status === "SENT" &&
       !proposedByCaseId.has(c.id) &&
@@ -100,7 +125,8 @@ export function rankNextAction(
   }
 
   // Soft-open left a case without a provider inbox — collect before send/follow-up.
-  const needsOutreach = cases.find(
+  const needsOutreach = pickBest(
+    cases,
     (c) =>
       (c.status === "SENT" || PRE_SEND.has(c.status)) &&
       !proposedByCaseId.has(c.id) &&
@@ -111,7 +137,8 @@ export function rankNextAction(
   }
 
   // SENT without ACTIVE Mandate — follow-ups and cron are blocked until reissue.
-  const inactiveMandate = cases.find(
+  const inactiveMandate = pickBest(
+    cases,
     (c) =>
       c.status === "SENT" &&
       !proposedByCaseId.has(c.id) &&
@@ -121,17 +148,45 @@ export function rankNextAction(
     return { kind: "mandate_inactive", caseId: inactiveMandate.id };
   }
 
-  const preSend = cases.find((c) => PRE_SEND.has(c.status));
+  const preSend = pickBest(cases, (c) => PRE_SEND.has(c.status));
   if (preSend) {
     return { kind: "pre_send", caseId: preSend.id, status: preSend.status };
   }
 
-  const sent = cases.find((c) => c.status === "SENT");
+  const sent = pickBest(cases, (c) => c.status === "SENT");
   if (sent) {
     return { kind: "sent_wait", caseId: sent.id };
   }
 
   return { kind: "start_money" };
+}
+
+/** Path the assistant must end with (enforced in ask route). */
+export function nextActionHref(action: RankedNextAction): string {
+  switch (action.kind) {
+    case "pending_fee":
+      return `/dashboard?case=${action.caseId}&payFee=1`;
+    case "proposed_saving":
+    case "sent_exhausted":
+    case "needs_outreach":
+    case "mandate_inactive":
+    case "pre_send":
+    case "sent_wait":
+      return `/dashboard?case=${action.caseId}`;
+    case "start_money":
+      return "/money";
+  }
+}
+
+/**
+ * If the model omitted the required next-action path, append one closing line.
+ * Never invent a second plan — only reinforce the ranked href.
+ */
+export function ensureReplyEndsWithNextAction(answer: string, href: string): string {
+  const trimmed = answer.trim();
+  if (!trimmed) return `→ ${href}`;
+  if (trimmed.includes(href)) return trimmed;
+  return `${trimmed}\n\n→ ${href}`;
 }
 
 /** Human/agent snapshot line — assistant must end replies with that path. */

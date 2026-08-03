@@ -43,12 +43,12 @@ export function LoopVolumePanel({
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
         <Metric
-          label={he ? "Mandates שנשלחו (SENT+)" : "Mandates sent (SENT+)"}
+          label={he ? "תיקים שנשלחו (SENT+)" : "Cases sent (SENT+)"}
           value={String(snap.mandatesSent)}
           sub={
             he
-              ? `פעילים ${snap.mandatesActive} · 7י׳ ${snap.mandatesIssued7d}`
-              : `active ${snap.mandatesActive} · 7d ${snap.mandatesIssued7d}`
+              ? `Mandates פעילים ${snap.mandatesActive} · הונפקו 7י׳ ${snap.mandatesIssued7d}`
+              : `ACTIVE Mandates ${snap.mandatesActive} · issued 7d ${snap.mandatesIssued7d}`
           }
           hero
         />

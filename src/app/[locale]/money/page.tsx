@@ -59,6 +59,10 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       select: {
         id: true,
         status: true,
+        provider: true,
+        vertical: true,
+        amountOriginal: true,
+        targetAmount: true,
         counterpartyEmail: true,
         fee: { select: { amount: true, status: true } },
         authorization: { select: { status: true } },
@@ -74,6 +78,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
     const proposedHints = new Map(
       [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
     );
+    const { resolveCaseOutreachTo } = await import("@/lib/caseOutreach");
     const action = rankNextAction(
       cases.map((c) => ({
         id: c.id,
@@ -81,7 +86,14 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         fee: c.fee,
         agentRound: agentRounds.get(c.id) ?? 0,
         mandateActive: c.authorization?.status === "ACTIVE",
-        hasOutreachEmail: Boolean(c.counterpartyEmail && /@/.test(c.counterpartyEmail)),
+        hasOutreachEmail: Boolean(
+          resolveCaseOutreachTo({
+            counterpartyEmail: c.counterpartyEmail,
+            provider: c.provider,
+            vertical: c.vertical,
+          }),
+        ),
+        expectedRecoveryAgorot: Math.max(0, c.amountOriginal - c.targetAmount),
       })),
       proposedHints,
     );

@@ -1,7 +1,7 @@
 /**
  * Canonical FAQ knowledge base — public /faq + assistant alignment.
+ * Playbook is injected once via assistantSystem — do not append here.
  */
-import { agentPlaybookBlock } from "./agentPlaybook";
 
 export type FaqCategory = "service" | "rights" | "work" | "bills" | "privacy";
 
@@ -235,5 +235,5 @@ export const FAQ: FaqEntry[] = [
 
 export function faqDigest(): string {
   const lines = FAQ.map((e) => `- Q: ${e.q_he}\n  A: ${e.a_he}`).join("\n");
-  return `VETTED FAQ (align answers to these):\n${lines}\n\n${agentPlaybookBlock()}`;
+  return `VETTED FAQ (align answers to these):\n${lines}`;
 }

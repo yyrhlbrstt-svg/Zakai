@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { MAX_AGENT_ROUNDS } from "./loopLimits";
-import { nextActionInstruction, rankNextAction } from "./nextAction";
+import {
+  ensureReplyEndsWithNextAction,
+  nextActionHref,
+  nextActionInstruction,
+  rankNextAction,
+} from "./nextAction";
 
 describe("rankNextAction", () => {
   it("prioritizes pending fee over everything", () => {
@@ -137,6 +142,47 @@ describe("rankNextAction", () => {
       caseId: "s",
     });
     expect(rankNextAction([])).toEqual({ kind: "start_money" });
+  });
+
+  it("breaks ties by highest expected recovery", () => {
+    const action = rankNextAction([
+      {
+        id: "small",
+        status: "SENT",
+        agentRound: 0,
+        mandateActive: true,
+        hasOutreachEmail: true,
+        expectedRecoveryAgorot: 1_000,
+      },
+      {
+        id: "big",
+        status: "SENT",
+        agentRound: 0,
+        mandateActive: true,
+        hasOutreachEmail: true,
+        expectedRecoveryAgorot: 15_000,
+      },
+    ]);
+    expect(action).toEqual({ kind: "sent_wait", caseId: "big" });
+  });
+});
+
+describe("ensureReplyEndsWithNextAction", () => {
+  it("appends href when the model omitted it", () => {
+    expect(ensureReplyEndsWithNextAction("תשלח עכשיו.", "/dashboard?case=c1")).toBe(
+      "תשלח עכשיו.\n\n→ /dashboard?case=c1",
+    );
+  });
+
+  it("leaves answer alone when href already present", () => {
+    const a = "פתח /dashboard?case=c1 עכשיו.";
+    expect(ensureReplyEndsWithNextAction(a, "/dashboard?case=c1")).toBe(a);
+  });
+});
+
+describe("nextActionHref", () => {
+  it("maps start_money to /money", () => {
+    expect(nextActionHref({ kind: "start_money" })).toBe("/money");
   });
 });
 

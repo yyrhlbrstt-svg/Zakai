@@ -15,8 +15,15 @@ export async function GET(request: Request) {
   }
   const snap = await loadLoopVolume(emailConfigured());
   return NextResponse.json({
+    /** Cases in SENT|SAVED|NO_SAVING — the loop send volume. */
+    casesSentPlus: snap.mandatesSent,
+    /** Alias kept for founder scripts that already key on mandatesSent. */
     mandatesSent: snap.mandatesSent,
+    mandatesActive: snap.mandatesActive,
+    mandatesIssued7d: snap.mandatesIssued7d,
     proofsDocumented: snap.proofsDocumented,
+    proofsDocumented7d: snap.proofsDocumented7d,
+    casesOpened: snap.casesOpened,
     overallSendRatePct: snap.overallSendRatePct,
     overallProofRatePct: snap.overallProofRatePct,
     sentWaitingProof: snap.sentWaitingProof,

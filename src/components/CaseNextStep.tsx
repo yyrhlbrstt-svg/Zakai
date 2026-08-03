@@ -311,6 +311,11 @@ export function CaseNextStep({
   const [newAmt, setNewAmt] = useState(
     proposedSaving?.newAmountShekels != null ? String(proposedSaving.newAmountShekels) : "",
   );
+  /** Paste extract that qualifies for the same one-tap SavingsProof card as inbound. */
+  const [pasteProposed, setPasteProposed] = useState<{
+    newAmountShekels: number;
+    confidence: number;
+  } | null>(null);
   const [localOwn, setLocalOwn] = useState(ownershipVerified);
   const [localAuth, setLocalAuth] = useState(hasAuthorization);
   const [authCode, setAuthCode] = useState<string | null>(null);
@@ -425,6 +430,7 @@ export function CaseNextStep({
 
   async function proposeFromPaste() {
     setPasteTip(null);
+    setPasteProposed(null);
     const res = await fetch(`/api/cases/${caseId}/propose-saving`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -438,12 +444,21 @@ export function CaseNextStep({
     if (!res.ok) throw new Error(data.error || "paste");
     if (data.proposed?.newAmountShekels != null) {
       setNewAmt(String(data.proposed.newAmountShekels));
+      setPasteProposed({
+        newAmountShekels: data.proposed.newAmountShekels,
+        confidence: data.proposed.confidence,
+      });
       setPasteText("");
       setPasteTip(null);
       return;
     }
     if (data.extract?.newAmountShekels != null) {
       setNewAmt(String(data.extract.newAmountShekels));
+      // Same one-tap SavingsProof card — no second "Record" hunt after extract.
+      setPasteProposed({
+        newAmountShekels: data.extract.newAmountShekels,
+        confidence: 0.7,
+      });
       setPasteTip(t(locale, "pastePartial"));
       return;
     }
@@ -918,7 +933,8 @@ export function CaseNextStep({
   }
 
   if (status === "SENT") {
-    const proposed = proposedSaving;
+    const proposed = proposedSaving ?? pasteProposed;
+    const proposedSource: "inbound" | "manual" = proposedSaving ? "inbound" : "manual";
     const roundHint =
       emailConfigured && agentRound > 0
         ? he
@@ -1020,14 +1036,16 @@ export function CaseNextStep({
             </div>
             <p className="text-[12px] text-ink-soft mt-1 mb-2.5">
               {t(locale, "proposedConf")} {(proposed.confidence * 100).toFixed(0)}%
-              {proposed.from ? ` · ${t(locale, "proposedFrom")} ${proposed.from}` : ""}
+              {"from" in proposed && proposed.from
+                ? ` · ${t(locale, "proposedFrom")} ${proposed.from}`
+                : ""}
             </p>
             <Button
               disabled={busy}
               className="text-[14px] py-3 px-5 w-full sm:w-auto font-extrabold"
               onClick={() =>
                 run(() =>
-                  recordAndFinish(proposed.newAmountShekels, { source: "inbound" }),
+                  recordAndFinish(proposed.newAmountShekels, { source: proposedSource }),
                 )
               }
             >
@@ -1036,7 +1054,7 @@ export function CaseNextStep({
           </div>
         )}
 
-        {!proposed && (
+        {!proposedSaving && (
           <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
             <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "pasteLabel")}</div>
             <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">

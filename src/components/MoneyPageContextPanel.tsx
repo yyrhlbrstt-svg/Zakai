@@ -27,6 +27,10 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
       id: true,
       status: true,
       counterpartyEmail: true,
+      provider: true,
+      vertical: true,
+      amountOriginal: true,
+      targetAmount: true,
       fee: { select: { amount: true, status: true } },
       authorization: { select: { status: true } },
     },
@@ -42,6 +46,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   const proposedHints = new Map(
     [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
   );
+  const { resolveCaseOutreachTo } = await import("@/lib/caseOutreach");
   const action = rankNextAction(
     cases.map((c) => ({
       id: c.id,
@@ -49,7 +54,14 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
       fee: c.fee,
       agentRound: agentRounds.get(c.id) ?? 0,
       mandateActive: c.authorization?.status === "ACTIVE",
-      hasOutreachEmail: Boolean(c.counterpartyEmail && /@/.test(c.counterpartyEmail)),
+      hasOutreachEmail: Boolean(
+        resolveCaseOutreachTo({
+          counterpartyEmail: c.counterpartyEmail,
+          provider: c.provider,
+          vertical: c.vertical,
+        }),
+      ),
+      expectedRecoveryAgorot: Math.max(0, c.amountOriginal - c.targetAmount),
     })),
     proposedHints,
   );

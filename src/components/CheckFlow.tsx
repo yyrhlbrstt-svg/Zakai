@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -248,8 +248,10 @@ export function CheckFlow() {
     const res = await fetch(`/api/cases/${rec.caseId}/ownership/send`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (data.error === "cooldown") setOwnErr("codeSent");
-      else if (data.error === "tooManyRequests") setOwnErr("tooManyAttempts");
+      if (data.error === "cooldown") {
+        setCodeSent(true);
+        setOwnErr("codeSent");
+      } else if (data.error === "tooManyRequests") setOwnErr("tooManyAttempts");
       else setOwnErr("genericError");
       return;
     }
@@ -257,6 +259,13 @@ export function CheckFlow() {
     setDevHint(Boolean(data.devHint));
     setPhoneMasked(data.phoneMasked || "");
   }
+
+  // Auto-send ownership magic/OTP once when the verify stage opens — removes a dead click.
+  useEffect(() => {
+    if (stage !== "verify" || !rec || ownershipOk || codeSent) return;
+    void sendCode();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot on stage enter
+  }, [stage, rec?.caseId]);
 
   async function verifyCode() {
     if (!rec) return;
@@ -279,6 +288,8 @@ export function CheckFlow() {
       return;
     }
     setOwnershipOk(true);
+    // Express: skip separate Mandate generate — dispatch issues it.
+    await send();
   }
 
   async function generateAuth() {
@@ -580,30 +591,18 @@ export function CheckFlow() {
             <div className="mt-1.5 text-[14.5px] leading-relaxed">{rec.strategy}</div>
           </Card>
 
-          <Card className="p-5 mt-3.5">
-            <div className="text-[12px] font-extrabold text-ink-soft">
-              {t("draftTitle")}
-            </div>
-            <div className="text-[12px] text-ink-soft mt-1.5 mb-2.5">{t("draftNote")}</div>
-            {(rec.needsOutreachEmail || telecomNeedsContactEmail(rec.provider || "other")) && (
-              <div className="mb-3">
-                <Input
-                  type="email"
-                  value={providerContactEmail}
-                  onChange={(e) => setProviderContactEmail(e.target.value)}
-                  placeholder={t("providerEmailPlaceholder")}
-                  dir="ltr"
-                />
-                <p className="text-[12px] text-amber mt-1.5 mb-0">{tFlow("contactEmailHint")}</p>
-              </div>
-            )}
-            <Textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              rows={10}
-              className="whitespace-pre-wrap"
-            />
-          </Card>
+          {(rec.needsOutreachEmail || telecomNeedsContactEmail(rec.provider || "other")) && (
+            <Card className="p-5 mt-3.5">
+              <Input
+                type="email"
+                value={providerContactEmail}
+                onChange={(e) => setProviderContactEmail(e.target.value)}
+                placeholder={t("providerEmailPlaceholder")}
+                dir="ltr"
+              />
+              <p className="text-[12px] text-amber mt-1.5 mb-0">{tFlow("contactEmailHint")}</p>
+            </Card>
+          )}
 
           <label className="flex gap-2.5 items-start mt-4 text-sm leading-normal cursor-pointer">
             <input
@@ -618,12 +617,24 @@ export function CheckFlow() {
           </label>
 
           <div className="flex flex-col gap-2.5 mt-4">
-            <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
-              {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
-            </Button>
             <Button onClick={approve} disabled={!consent || busy || !outreachReady()} className="flex-1 w-full">
               {t("approveBtn")}
             </Button>
+            <details className="rounded-xl border border-[rgba(255,255,255,0.08)] px-3 py-2">
+              <summary className="cursor-pointer text-[12.5px] font-bold text-ink-soft">
+                {t("draftTitle")}
+              </summary>
+              <div className="text-[12px] text-ink-soft mt-1.5 mb-2.5">{t("draftNote")}</div>
+              <Textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={8}
+                className="whitespace-pre-wrap"
+              />
+              <Button variant="ghost" onClick={copyDraftForSelf} className="w-full mt-2">
+                {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
+              </Button>
+            </details>
             <Button variant="ghost" onClick={() => location.reload()}>
               {t("startOver")}
             </Button>

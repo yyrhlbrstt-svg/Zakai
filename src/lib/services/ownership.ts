@@ -135,7 +135,8 @@ ${url}
 
 export type MagicVerifyResult =
   | { ok: true; caseId: string }
-  | { ok: false; error: "invalid" | "expired" | "already" | "not_found" };
+  | { ok: false; error: "invalid" | "expired" | "not_found" }
+  | { ok: false; error: "already"; caseId: string };
 
 /** Consume a magic-link token and stamp ownershipVerifiedAt. */
 export async function verifyOwnershipMagic(token: string): Promise<MagicVerifyResult> {
@@ -153,7 +154,7 @@ export async function verifyOwnershipMagic(token: string): Promise<MagicVerifyRe
 
   const kase = await prisma.case.findUnique({ where: { id: payload.caseId } });
   if (!kase || kase.userId !== payload.userId) return { ok: false, error: "not_found" };
-  if (kase.ownershipVerifiedAt) return { ok: false, error: "already" };
+  if (kase.ownershipVerifiedAt) return { ok: false, error: "already", caseId: payload.caseId };
 
   await prisma.case.update({
     where: { id: payload.caseId },
