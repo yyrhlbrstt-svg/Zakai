@@ -18,15 +18,19 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const he = locale === "he" || locale === "ar";
   const tIcomponents_Header = useTranslations("inline_components_Header");
 
   useEffect(() => setMobileOpen(false), [pathname]);
 
-  // Lock body scroll while the mobile menu is open — without this, a user
-  // could scroll straight past the menu panel into the page content behind
-  // it (still fully interactive, with nothing dimmed), which reads as the
-  // menu silently "ending" rather than being a real, dismissible overlay.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   useEffect(() => {
     if (!mobileOpen) return;
     const prev = document.body.style.overflow;
@@ -51,7 +55,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <button
             key={l}
             onClick={() => switchLocale(l)}
-            className="bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.09)] rounded-[10px] px-3 py-1.5 text-[13px] font-bold cursor-pointer min-w-[40px]"
+            className="bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] rounded-[10px] px-3 py-1.5 text-[13px] font-bold cursor-pointer min-w-[40px] hover:border-[rgba(63,203,155,0.35)] transition-colors"
             aria-label={`Switch language to ${localeLabel[l]}`}
           >
             {localeLabel[l]}
@@ -63,7 +67,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   const accountChip = user && (
     <Link
       href="/settings"
-      className="flex items-center gap-2 no-underline rounded-full ps-1.5 pe-3 py-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)] hover:border-[rgba(63,203,155,0.4)] transition-colors duration-200"
+      className="flex items-center gap-2 no-underline rounded-full ps-1.5 pe-3 py-1 bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] hover:border-[rgba(63,203,155,0.45)] transition-colors duration-200"
       aria-label={t("nav.settings")}
     >
       <span className="account-avatar w-6 h-6 rounded-full grad-bg text-[#06121A] inline-flex items-center justify-center text-[12px] font-black">
@@ -85,109 +89,122 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   }
 
   return (
-    <header className="max-w-[1080px] mx-auto px-5 py-4">
-      <div className="flex justify-between items-center gap-3">
-        <Link
-          href="/money#zakai-money-scan"
-          className="flex items-center no-underline"
-          aria-label={`${t("brand")} — ${tIcomponents_Header("t_bd4c0905")}`}
-        >
-          <Logo height={22} />
-        </Link>
-
-        <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
-          {/* Primary consumer door — emerald CTA so /money wins over Tools scatter. */}
-          <Link
-            href="/money#zakai-money-scan"
-            className="no-underline rounded-full px-4 py-2 text-[13.5px] font-extrabold text-[#06121A] bg-emerald hover:opacity-90 transition-opacity"
-          >
-            {tIcomponents_Header("t_bd4c0905")}
+    <header
+      className={`sticky top-0 z-40 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-200 ${{
+        true: "bg-[rgba(7,11,18,0.82)] backdrop-blur-xl border-b border-[rgba(255,255,255,0.08)] shadow-[0_8px_32px_rgba(0,0,0,0.35)]",
+        false: "bg-transparent border-b border-transparent",
+      }[String(scrolled) as "true" | "false"]}`}
+    >
+      <div className="max-w-[1080px] mx-auto px-5 py-3.5">
+        <div className="flex justify-between items-center gap-3">
+          <Link href="/" className="flex items-center no-underline" aria-label={t("brand")}>
+            <Logo height={22} />
           </Link>
-          {user ? (
-            <>
-              <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
-              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
-              {accountChip}
-            </>
-          ) : (
-            <>
-              <Link
-                href="/signup"
-                className="no-underline rounded-full px-3.5 py-1.5 text-[13px] font-extrabold text-emerald border border-[rgba(63,203,155,0.45)] hover:bg-[rgba(63,203,155,0.1)] transition-colors"
-              >
-                {t("nav.signup")}
-              </Link>
-              <NavLink href="/login">{t("nav.login")}</NavLink>
-            </>
-          )}
-          <div className="ms-1">{langButtons}</div>
-        </nav>
 
-        <div className="flex md:hidden items-center gap-2.5">
-          {user && (
-            <Link href="/pricing" aria-label={t("nav.pricing")} className="no-underline">
-              <PlanBadge plan={user.plan} />
+          <nav className="hidden md:flex gap-1 items-center flex-wrap justify-end">
+            <NavLink href="/" pathname={pathname}>{t("nav.home")}</NavLink>
+            <Link
+              href="/money#zakai-money-scan"
+              className="no-underline rounded-full px-4 py-2 text-[13.5px] font-extrabold text-[#06121A] bg-emerald hover:opacity-90 transition-opacity"
+            >
+              {tIcomponents_Header("t_bd4c0905")}
             </Link>
-          )}
-          <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-expanded={mobileOpen}
+            <NavLink href="/cancel" pathname={pathname}>{tIcomponents_Header("t_a7c55a8d")}</NavLink>
+            <NavLink href="/what-am-i-owed" pathname={pathname}>{tIcomponents_Header("t_81a5a2c8")}</NavLink>
+            <NavLink href="/leaks" pathname={pathname}>{tIcomponents_Header("t_5fcd3b9b")}</NavLink>
+            <NavLink href="/proofs" pathname={pathname}>{tIcomponents_Header("t_67f9ea4b")}</NavLink>
+            {user ? (
+              <>
+                <NavLink href="/assistant" pathname={pathname}>{t("nav.assistant")}</NavLink>
+                <NavLink href="/dashboard" pathname={pathname}>{t("nav.dashboard")}</NavLink>
+                <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
+                <NavLink href="/check" pathname={pathname}>{t("nav.newCheck")}</NavLink>
+                {accountChip}
+              </>
+            ) : (
+              <>
+                <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
+                <NavLink href="/business" pathname={pathname}>{tIcomponents_Header("t_79771be3")}</NavLink>
+                <NavLink href="/pricing" pathname={pathname}>{t("nav.pricing")}</NavLink>
+                <NavLink href="/login" pathname={pathname}>{t("nav.login")}</NavLink>
+                <NavLink href="/signup" pathname={pathname}>{t("nav.signup")}</NavLink>
+              </>
+            )}
+            <div className="ms-1">{langButtons}</div>
+          </nav>
+
+          <div className="flex md:hidden items-center gap-2.5">
+            {user && (
+              <Link href="/pricing" aria-label={t("nav.pricing")} className="no-underline">
+                <PlanBadge plan={user.plan} />
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-expanded={mobileOpen}
+              aria-label={t("nav.menu")}
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] text-ink hover:border-[rgba(63,203,155,0.4)] transition-colors"
+            >
+              {mobileOpen ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}
+            </button>
+          </div>
+        </div>
+
+        {mobileOpen && (
+          <div
+            role="dialog"
+            aria-modal="true"
             aria-label={t("nav.menu")}
-            className="w-10 h-10 flex items-center justify-center rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-ink"
+            className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420]/95 backdrop-blur-xl p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100dvh-96px)] overflow-y-auto"
           >
-            {mobileOpen ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}
-          </button>
-        </div>
+            <MobileLink href="/" pathname={pathname}>{t("nav.home")}</MobileLink>
+            <MobileLink href="/money" pathname={pathname}>{tIcomponents_Header("t_bd4c0905")}</MobileLink>
+            <MobileLink href="/cancel" pathname={pathname}>{tIcomponents_Header("t_bc18d8da")}</MobileLink>
+            <MobileLink href="/what-am-i-owed" pathname={pathname}>{tIcomponents_Header("t_81a5a2c8")}</MobileLink>
+            <MobileLink href="/leaks" pathname={pathname}>{tIcomponents_Header("t_16c6cdf1")}</MobileLink>
+            <MobileLink href="/proofs" pathname={pathname}>{tIcomponents_Header("t_60a18677")}</MobileLink>
+            {user && (
+              <>
+                <MobileLink href="/assistant" pathname={pathname}>{t("nav.assistant")}</MobileLink>
+                <MobileLink href="/dashboard" pathname={pathname}>{t("nav.dashboard")}</MobileLink>
+                <MobileLink href="/check" pathname={pathname}>{t("nav.newCheck")}</MobileLink>
+              </>
+            )}
+
+            <div className="text-[11px] font-extrabold text-ink-soft uppercase tracking-wide px-3 pt-3 pb-1">
+              {t("nav.tools")}
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              {FEATURED_TOOLS.map((tool) => (
+                <Link
+                  key={tool.href + tool.key}
+                  href={tool.href}
+                  className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
+                >
+                  <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
+                  <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
+                </Link>
+              ))}
+            </div>
+            <MobileLink href="/tools" pathname={pathname}>{t("nav.allTools")}</MobileLink>
+
+            <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
+            {user ? (
+              <MobileLink href="/settings" pathname={pathname}>{t("nav.settings")}</MobileLink>
+            ) : (
+              <>
+                <MobileLink href="/business" pathname={pathname}>{tIcomponents_Header("t_b4265709")}</MobileLink>
+                <MobileLink href="/institutions" pathname={pathname}>{tIcomponents_Header("t_8886b51f")}</MobileLink>
+                <MobileLink href="/pricing" pathname={pathname}>{t("nav.pricing")}</MobileLink>
+                <MobileLink href="/login" pathname={pathname}>{t("nav.login")}</MobileLink>
+                <MobileLink href="/signup" pathname={pathname}>{t("nav.signup")}</MobileLink>
+              </>
+            )}
+            <div className="px-3 pt-2">{langButtons}</div>
+          </div>
+        )}
       </div>
-
-      {mobileOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("nav.menu")}
-          className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)] max-h-[calc(100dvh-96px)] overflow-y-auto">
-          <Link
-            href="/money#zakai-money-scan"
-            className="no-underline rounded-xl mx-1 mb-2 px-4 py-3 text-center text-[14.5px] font-extrabold text-[#06121A] bg-emerald"
-          >
-            {tIcomponents_Header("t_bd4c0905")}
-          </Link>
-          {user && <MobileLink href="/dashboard">{t("nav.dashboard")}</MobileLink>}
-
-          {user ? (
-            <>
-              <div className="text-[11px] font-extrabold text-ink-soft uppercase tracking-wide px-3 pt-3 pb-1">
-                {t("nav.tools")}
-              </div>
-              <div className="grid grid-cols-2 gap-1">
-                {FEATURED_TOOLS.map((tool) => (
-                  <Link
-                    key={tool.href + tool.key}
-                    href={tool.href}
-                    className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
-                  >
-                    <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
-                    <span className="text-[13px] font-bold leading-tight">
-                      {toolLabel(tool.href, tool.key)}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-              <MobileLink href="/tools">{t("nav.allTools")}</MobileLink>
-              <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
-              <MobileLink href="/settings">{t("nav.settings")}</MobileLink>
-            </>
-          ) : (
-            <>
-              <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
-              <MobileLink href="/signup">{t("nav.signup")}</MobileLink>
-              <MobileLink href="/login">{t("nav.login")}</MobileLink>
-            </>
-          )}
-          <div className="px-3 pt-2">{langButtons}</div>
-        </div>
-      )}
     </header>
   );
 }
@@ -229,7 +246,7 @@ function ToolsMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         className={`inline-flex items-center gap-1 no-underline rounded-[10px] px-3.5 py-2 text-sm font-bold transition-colors ${
-          open ? "text-ink bg-[rgba(255,255,255,0.09)]" : "text-ink-soft hover:text-ink hover:bg-[rgba(255,255,255,0.09)]"
+          open ? "text-ink bg-[rgba(255,255,255,0.1)]" : "text-ink-soft hover:text-ink hover:bg-[rgba(255,255,255,0.09)]"
         }`}
       >
         {label}
@@ -243,14 +260,14 @@ function ToolsMenu({
       {open && (
         <div
           role="menu"
-          className="absolute top-[calc(100%+8px)] end-0 z-50 w-[320px] max-h-[70vh] overflow-y-auto p-2 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] grid grid-cols-2 gap-1"
+          className="absolute top-[calc(100%+8px)] end-0 z-50 w-[320px] max-h-[70vh] overflow-y-auto p-2 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420]/98 backdrop-blur-xl shadow-[0_24px_60px_rgba(0,0,0,0.55)] grid grid-cols-2 gap-1"
         >
           {FEATURED_TOOLS.map((tool) => (
             <Link
               key={tool.href + tool.key}
               href={tool.href}
               role="menuitem"
-              className="flex items-center gap-2.5 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
+              className="flex items-center gap-2.5 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.12)] transition-colors"
             >
               <ToolIcon name={tool.key} size={18} className="text-emerald shrink-0" />
               <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
@@ -259,7 +276,7 @@ function ToolsMenu({
           <Link
             href="/tools"
             role="menuitem"
-            className="col-span-2 mt-1 flex items-center justify-center gap-2 no-underline rounded-xl px-3 py-2.5 text-emerald font-extrabold text-[13px] border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] hover:bg-[rgba(63,203,155,0.14)]"
+            className="col-span-2 mt-1 flex items-center justify-center gap-2 no-underline rounded-xl px-3 py-2.5 text-emerald font-extrabold text-[13px] border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.1)] hover:bg-[rgba(63,203,155,0.16)]"
           >
             {allToolsLabel}
           </Link>
@@ -269,22 +286,53 @@ function ToolsMenu({
   );
 }
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function isActivePath(pathname: string, href: string) {
+  if (href === "/") return pathname === "/" || pathname === "";
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
+function NavLink({
+  href,
+  children,
+  pathname,
+}: {
+  href: string;
+  children: React.ReactNode;
+  pathname: string;
+}) {
+  const active = isActivePath(pathname, href);
   return (
     <Link
       href={href}
-      className="text-ink-soft no-underline rounded-[10px] px-3.5 py-2 text-sm font-bold hover:text-ink hover:bg-[rgba(255,255,255,0.09)]"
+      className={`no-underline rounded-[10px] px-3.5 py-2 text-sm font-bold transition-colors ${
+        active
+          ? "text-emerald bg-[rgba(63,203,155,0.12)]"
+          : "text-ink-soft hover:text-ink hover:bg-[rgba(255,255,255,0.09)]"
+      }`}
     >
       {children}
     </Link>
   );
 }
 
-function MobileLink({ href, children }: { href: string; children: React.ReactNode }) {
+function MobileLink({
+  href,
+  children,
+  pathname,
+}: {
+  href: string;
+  children: React.ReactNode;
+  pathname: string;
+}) {
+  const active = isActivePath(pathname, href);
   return (
     <Link
       href={href}
-      className="block no-underline rounded-xl px-3 py-2.5 text-[15px] font-bold text-ink hover:bg-[rgba(255,255,255,0.06)]"
+      className={`block no-underline rounded-xl px-3 py-2.5 text-[15px] font-bold transition-colors ${
+        active
+          ? "text-emerald bg-[rgba(63,203,155,0.12)]"
+          : "text-ink hover:bg-[rgba(255,255,255,0.06)]"
+      }`}
     >
       {children}
     </Link>

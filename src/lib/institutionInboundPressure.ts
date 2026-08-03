@@ -21,22 +21,27 @@ export interface InboundPressureStat {
 
 /** institution aud slug → case.provider keys (normalized lowercase). */
 export const INSTITUTION_PROVIDER_MAP: Readonly<Record<string, readonly string[]>> = {
+  // Banks
   "bank-hapoalim": ["hapoalim"],
   "bank-leumi": ["leumi"],
   "bank-discount": ["discount"],
   "bank-mizrahi": ["mizrahi"],
   "bank-fibi": ["fibi"],
   "one-zero": ["onezero"],
-  // Telecom / ISP — same hypothesis aliases; volume only appears after real SENT cases.
+  // Telecom — phase 2 after banks (NORTH_STAR_100) + ISP aliases
   cellcom: ["cellcom"],
   partner: ["partner"],
+  pelephone: ["pelephone"],
+  hotspot: ["hot", "hotspot", "hot-mobile"],
+  "012mobile": ["012", "012mobile"],
   bezeq: ["bezeq"],
-  hot: ["hot"],
   yes: ["yes"],
-  // Energy
-  "iec-electric": ["iec", "electricity"],
-  "pazgas": ["pazgas"],
+  // Electricity / gas — one institution id per provider key (no reverse-map overwrite)
+  iec: ["iec", "חברת החשמל", "electricity"],
+  pazgas: ["pazgas"],
+  amisor: ["amisor"],
   "am-isragas": ["am-isragas", "isragas"],
+
 };
 
 const OUTBOUND_STATUSES = new Set(["SENT", "SAVED", "NO_SAVING"]);
