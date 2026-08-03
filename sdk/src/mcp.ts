@@ -105,7 +105,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "Verify a Zakai-format Mandate",
       description:
-        "Full network verification of a Mandate token (Ed25519 JWS): resolve its issuer through the published trust registry (unknown, suspended or withdrawn issuers are rejected before any cryptography), verify the signature against that issuer's registered JWKS, and confirm every granted scope is within the issuer's registry entry. Returns the claims and the issuer's registry identity. Does not check revocation — use decide_action for a full permit/deny answer.",
+        "Full network verification of a Mandate token (Ed25519 JWS): resolve its issuer through the published trust registry (unknown, suspended or withdrawn issuers are rejected before any cryptography), verify the signature against that issuer's registered JWKS, confirm every granted scope is within the issuer's registry entry, and check live revocation on the issuer's status route. Returns ok:true only when status is active — revoked → REVOKED, unreachable/unknown → STATUS_UNKNOWN (same fail-closed doctrine as POST /api/mandate/verify). For permit/deny on a concrete act, use decide_action.",
       inputSchema: {
         token: z.string().min(20).describe("The compact JWS mandate token presented to you"),
         audience: z
@@ -118,7 +118,33 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     async ({ token, audience }) => {
       try {
         const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
-        return asText({ ok: true, claims, issuer: issuerSummary(issuer) });
+        const issuerOrigin = new URL(issuer.iss).origin;
+        const revocation = await fetchRevocationState(claims.jti, issuerOrigin);
+        if (revocation.state === "revoked") {
+          return asText({
+            ok: false,
+            code: "REVOKED",
+            error: "mandate_revoked",
+            jti: claims.jti,
+            revokedAt: revocation.revokedAt,
+            issuer: issuerSummary(issuer),
+          });
+        }
+        if (revocation.state !== "active") {
+          return asText({
+            ok: false,
+            code: "STATUS_UNKNOWN",
+            error: "revocation_unknown",
+            jti: claims.jti,
+            issuer: issuerSummary(issuer),
+          });
+        }
+        return asText({
+          ok: true,
+          claims,
+          issuer: issuerSummary(issuer),
+          revocation: { state: "active" },
+        });
       } catch (err) {
         return asText(errorPayload(err));
       }

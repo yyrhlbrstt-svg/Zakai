@@ -256,6 +256,38 @@ describe("zakai-mandate MCP server", () => {
     expect(payload.code).toBe("AUDIENCE_MISMATCH");
   });
 
+  it("verify_mandate fails closed when the mandate is revoked", async () => {
+    const { token, publicJwk } = await issueTestMandate();
+    stubPublicEndpoints(publicJwk, { status: "revoked" });
+    const client = await connectedClient();
+
+    const payload = firstText(
+      await client.callTool({
+        name: "verify_mandate",
+        arguments: { token, audience: "acme-bank" },
+      }),
+    ) as { ok: boolean; code: string; jti: string };
+    expect(payload.ok).toBe(false);
+    expect(payload.code).toBe("REVOKED");
+    expect(payload.jti).toBe("mcp-test-jti-0001");
+  });
+
+  it("verify_mandate fails closed when the status store is unreachable", async () => {
+    const { token, publicJwk } = await issueTestMandate();
+    stubPublicEndpoints(publicJwk, { status: "down" });
+    const client = await connectedClient();
+
+    const payload = firstText(
+      await client.callTool({
+        name: "verify_mandate",
+        arguments: { token, audience: "acme-bank" },
+      }),
+    ) as { ok: boolean; code: string; error: string };
+    expect(payload.ok).toBe(false);
+    expect(payload.code).toBe("STATUS_UNKNOWN");
+    expect(payload.error).toBe("revocation_unknown");
+  });
+
   it("decide_action permits a confirmed act on an active mandate", async () => {
     const { token, publicJwk } = await issueTestMandate();
     stubPublicEndpoints(publicJwk);

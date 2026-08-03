@@ -347,7 +347,9 @@ ${institutionPipeMagnetLine(appUrl)}
   // Status was already claimed above, before the letter went out.
 
   // Closed-loop: tell the user where to forward the provider reply.
+  // Never claim "נשלח" when Outbox is only QUEUED (SMTP off / async drain).
   const proofsAddr = proofsInboundAddress();
+  const delivered = email.status === "SENT";
   if (user?.email) {
     const moneyUrl = absoluteLocaleUrl(
       appUrl,
@@ -356,8 +358,11 @@ ${institutionPipeMagnetLine(appUrl)}
     );
     await sendEmail({
       to: user.email,
-      subject: `זכאי — נשלח ל-${provider} | מה הלאה`,
-      body: `שלום ${user.name},
+      subject: delivered
+        ? `זכאי — נשלח ל-${provider} | מה הלאה`
+        : `זכאי — הפנייה ל-${provider} בתור שליחה | מה הלאה`,
+      body: delivered
+        ? `שלום ${user.name},
 
 הסוכן שלח בשמך פנייה בכתב ל-${provider}, עם מסמך ההרשאה (ייפוי כוח) מצורף.
 
@@ -371,13 +376,22 @@ ${institutionPipeMagnetLine(appUrl)}
 
 הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
 
+זכאי — הסוכן שלך.`
+        : `שלום ${user.name},
+
+הפנייה ל-${provider} נשמרה בתור שליחה (עדיין לא יצאה מהמערכת). ברגע שתשלח — תוכלו להעביר תשובת ספק אל ${proofsAddr}.
+
+הכסף שלי: ${moneyUrl}
+
 זכאי — הסוכן שלך.`,
       caseId,
     });
 
     await pushToUser(userId, {
-      title: "זכאי — נשלח לספק",
-      body: `פנייה ל-${provider} יצאה. העבירו תשובה ל-${proofsAddr}`,
+      title: delivered ? "זכאי — נשלח לספק" : "זכאי — פנייה בתור שליחה",
+      body: delivered
+        ? `פנייה ל-${provider} יצאה. העבירו תשובה ל-${proofsAddr}`
+        : `פנייה ל-${provider} ממתינה לשליחה. בדקו ב״הכסף שלי״.`,
       url: `/money?case=${caseId}`,
       tag: `sent-${caseId}`,
     }).catch(() => null);
