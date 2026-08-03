@@ -114,4 +114,4 @@
 
 > אם מחר בנק גדול שואל «למה אני חייב» — התשובה חייבת להיות **נפח + תקן + עלות התעלמות**, לא «יש לנו אפליקציה נחמדה עם תשלום מחובר».
 
-ראה: `docs/MONOPOLY_FIVE_DOMAINS.md`, `docs/PROTOCOL_SCALE_ASSESSMENT.md`, `CLAUDE.md`.
+ראה: `docs/MONOPOLY_FIVE_DOMAINS.md`, `docs/PROTOCOL_SCALE_ASSESSMENT.md`, `docs/GLOBAL_MONOPOLY_PLAYBOOK.md`, `CLAUDE.md`.

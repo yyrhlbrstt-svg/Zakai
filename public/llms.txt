@@ -75,6 +75,9 @@ is always free).
 - Verify a mandate: `POST /api/mandate/verify` (CORS-enabled) · status by id:
   `GET /api/mandate/status/{jti}`
 - Institutions overview: [/en/institutions](https://zakai-3uxj.vercel.app/en/institutions)
+- **Inbound receive format (for banks/providers):** [/.well-known/zakai-inbound-receive.json](https://zakai-3uxj.vercel.app/.well-known/zakai-inbound-receive.json)
+- Seven monopoly rails (real counters): `GET /api/network/monopoly`
+- Protocol gravity: `GET /api/network/gravity`
 
 ## For developers
 

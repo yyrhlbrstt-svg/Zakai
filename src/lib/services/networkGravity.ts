@@ -4,6 +4,7 @@ import { prismaRead } from "@/lib/prismaRead";
 import { ISSUERS } from "@/lib/mandate/trustRegistry";
 import { MARKETS } from "@/lib/global/registry";
 import { buildGravitySnapshot } from "@/lib/monopoly/gravity";
+import { singleflight } from "@/lib/scale/singleflight";
 
 /**
  * Load real counters for public gravity API — never estimate or seed.
@@ -43,6 +44,8 @@ export async function loadNetworkGravityInputs() {
 }
 
 export async function loadNetworkGravitySnapshot() {
-  const inputs = await loadNetworkGravityInputs();
-  return buildGravitySnapshot(inputs);
+  return singleflight("network-gravity", 60_000, async () => {
+    const inputs = await loadNetworkGravityInputs();
+    return buildGravitySnapshot(inputs);
+  });
 }

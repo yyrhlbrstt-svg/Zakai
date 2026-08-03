@@ -27,6 +27,8 @@ import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
+import { RetentionActionStrip } from "@/components/RetentionActionStrip";
+import { loadRetentionPlan } from "@/lib/services/retentionPlan";
 import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
@@ -167,6 +169,7 @@ export default async function DashboardPage({
   const referralCode = referralRow?.referralCode ?? "";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const invitePath = `/${locale}/signup?ref=${referralCode}`;
+  const retentionActions = await loadRetentionPlan(user!.id);
 
   const renderCaseCard = (list: typeof cases) => (
     <Card className="py-1.5">
@@ -328,6 +331,7 @@ export default async function DashboardPage({
       <ReminderBanner />
 
       <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
+      <RetentionActionStrip locale={locale} actions={retentionActions} />
 
       {payFeeCaseId ? (
         <div className="sr-only" aria-hidden>

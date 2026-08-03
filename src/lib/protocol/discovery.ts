@@ -134,6 +134,8 @@ export function buildZakaiProtocolDocument(origin: string) {
       rights_openapi: `${origin}/.well-known/zakai-openapi.json`,
       fairness_scores: `${origin}/api/fairness/scores?market=IL`,
       network_gravity: `${origin}/api/network/gravity`,
+      network_monopoly: `${origin}/api/network/monopoly`,
+      inbound_receive: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.inboundReceive),
       features: {
         mandate_verify: mandateSigningLive(),
         outcome_graph: true,
@@ -143,6 +145,7 @@ export function buildZakaiProtocolDocument(origin: string) {
         fairness_scores: true,
         switching_protocol: true,
         regulatory_snapshot: true,
+        inbound_receive: true,
       },
       domains_manifest: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.domains),
       switching_spec: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.switching),

@@ -102,5 +102,6 @@ export function buildSwitchingDocument(origin: string) {
       entry_url: `${base}${p.entry_route.replace("*", "en")}`,
     })),
     mandate_discovery: `${base}/.well-known/zakai-mandate.json`,
+    inbound_receive: `${base}/.well-known/zakai-inbound-receive.json`,
   };
 }
