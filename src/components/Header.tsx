@@ -92,9 +92,13 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
         </Link>
 
         <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
-          {/* Single consumer door in chrome: Money Hub. Other verticals live under Tools. */}
-          <NavLink href="/money">{tIcomponents_Header("t_bd4c0905")}</NavLink>
-          <NavLink href="/proofs">{tIcomponents_Header("t_67f9ea4b")}</NavLink>
+          {/* Primary consumer door — emerald CTA so /money wins over Tools scatter. */}
+          <Link
+            href="/money"
+            className="no-underline rounded-full px-4 py-2 text-[13.5px] font-extrabold text-[#06121A] bg-emerald hover:opacity-90 transition-opacity"
+          >
+            {tIcomponents_Header("t_bd4c0905")}
+          </Link>
           {user ? (
             <>
               <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
@@ -104,11 +108,9 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             </>
           ) : (
             <>
-              <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
-              <NavLink href="/institutions">{tIcomponents_Header("t_79771be3")}</NavLink>
-              <NavLink href="/pricing">{t("nav.pricing")}</NavLink>
               <NavLink href="/login">{t("nav.login")}</NavLink>
               <NavLink href="/signup">{t("nav.signup")}</NavLink>
+              <NavLink href="/institutions">{tIcomponents_Header("t_79771be3")}</NavLink>
             </>
           )}
           <div className="ms-1">{langButtons}</div>
@@ -138,8 +140,12 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           aria-modal="true"
           aria-label={t("nav.menu")}
           className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)] max-h-[calc(100dvh-96px)] overflow-y-auto">
-          <MobileLink href="/money">{tIcomponents_Header("t_bd4c0905")}</MobileLink>
-          <MobileLink href="/proofs">{tIcomponents_Header("t_60a18677")}</MobileLink>
+          <Link
+            href="/money"
+            className="no-underline rounded-xl mx-1 mb-2 px-4 py-3 text-center text-[14.5px] font-extrabold text-[#06121A] bg-emerald"
+          >
+            {tIcomponents_Header("t_bd4c0905")}
+          </Link>
           {user && (
             <>
               <MobileLink href="/dashboard">{t("nav.dashboard")}</MobileLink>
@@ -147,36 +153,35 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             </>
           )}
 
-          <div className="text-[11px] font-extrabold text-ink-soft uppercase tracking-wide px-3 pt-3 pb-1">
-            {t("nav.tools")}
-          </div>
-          <div className="grid grid-cols-2 gap-1">
-            {FEATURED_TOOLS.map((tool) => (
-              <Link
-                key={tool.href + tool.key}
-                href={tool.href}
-                className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
-              >
-                <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
-                <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
-              </Link>
-            ))}
-          </div>
-          <MobileLink href="/tools">{t("nav.allTools")}</MobileLink>
-
-          <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
           {user ? (
-            <MobileLink href="/settings">{t("nav.settings")}</MobileLink>
+            <>
+              <div className="text-[11px] font-extrabold text-ink-soft uppercase tracking-wide px-3 pt-3 pb-1">
+                {t("nav.tools")}
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {FEATURED_TOOLS.map((tool) => (
+                  <Link
+                    key={tool.href + tool.key}
+                    href={tool.href}
+                    className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
+                  >
+                    <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
+                    <span className="text-[13px] font-bold leading-tight">
+                      {toolLabel(tool.href, tool.key)}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+              <MobileLink href="/tools">{t("nav.allTools")}</MobileLink>
+              <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
+              <MobileLink href="/settings">{t("nav.settings")}</MobileLink>
+            </>
           ) : (
             <>
-              <MobileLink href="/business">{tIcomponents_Header("t_b4265709")}</MobileLink>
-              <MobileLink href="/institutions">{tIcomponents_Header("t_8886b51f")}</MobileLink>
-              <MobileLink href="/pipe">{tIcomponents_Header("t_pipe")}</MobileLink>
-              <MobileLink href="/join-network">Join network</MobileLink>
-              <MobileLink href="/institutions/leader">Reference verifier</MobileLink>
-              <MobileLink href="/pricing">{t("nav.pricing")}</MobileLink>
+              <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
               <MobileLink href="/login">{t("nav.login")}</MobileLink>
               <MobileLink href="/signup">{t("nav.signup")}</MobileLink>
+              <MobileLink href="/institutions">{tIcomponents_Header("t_8886b51f")}</MobileLink>
             </>
           )}
           <div className="px-3 pt-2">{langButtons}</div>

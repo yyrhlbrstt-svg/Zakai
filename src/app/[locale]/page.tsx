@@ -88,13 +88,6 @@ export default async function HomePage({
     }
   }
 
-  // Loop-only shortcuts — never competing front doors (incident/dormant/vehicle…).
-  const loopShortcuts = [
-    { href: "/cancel", titleKey: "door.cancel.title" as const },
-    { href: "/check", titleKey: "door.check.title" as const },
-    { href: "/bank-fees", titleKey: "door.bankfees.title" as const },
-  ];
-
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       {!israeliVisitor && (
@@ -264,34 +257,16 @@ export default async function HomePage({
         </ul>
       </Reveal>
 
+      {/* Quiet signal for DoorTracker experiments — no competing shortcut strip. */}
       <DoorTracker experimentId="home_door_order" armId="money_first" />
-      <Reveal>
-        <h2 className="text-[15px] font-extrabold mb-1 text-ink-soft">
-          {t("home.secondaryDoors")}
-        </h2>
-        <p className="text-[13px] text-ink-soft mb-4 max-w-[560px] leading-relaxed">
-          {t("home.secondaryDoorsSub")}
-        </p>
-      </Reveal>
-      <div className="flex flex-wrap gap-x-5 gap-y-2 mb-14 max-w-[720px]">
-        {loopShortcuts.map((d) => (
-          <Link
-            key={d.href}
-            href={d.href}
-            className="text-[13.5px] font-bold text-ink-soft no-underline hover:text-emerald transition-colors"
-          >
-            {t(d.titleKey)} →
-          </Link>
-        ))}
-      </div>
 
-      <Reveal delay={60}>
-        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5 mb-4">
+      <Reveal delay={40}>
+        <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5 mb-10">
           {(
             (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
           ).map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-display grad-text text-[clamp(22px,5vw,30px)] leading-none tabular-nums">
+              <div className="font-display grad-text text-[clamp(20px,4.5vw,28px)] leading-none tabular-nums">
                 {s.n}
               </div>
               <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">{s.label}</div>
@@ -301,80 +276,7 @@ export default async function HomePage({
       </Reveal>
 
       <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-14 mb-4">{t("home.whyTitle")}</h2>
-      </Reveal>
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
-        {(["alone", "services", "zakai"] as const).map((col, i) => {
-          const isZakai = col === "zakai";
-          const cardCls = isZakai
-            ? "p-6 h-full border-[rgba(63,203,155,0.45)]"
-            : "p-6 h-full";
-          const titleCls = isZakai
-            ? "font-extrabold text-[15px] text-emerald"
-            : "font-extrabold text-[15px]";
-          const points = (t.raw("home.why." + col + ".points") as string[]) || [];
-          return (
-            <Reveal key={col} delay={i * 90}>
-              <SpotlightCard className={cardCls}>
-                <div className={titleCls}>{t("home.why." + col + ".title")}</div>
-                <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
-                  {points.map((p) => (
-                    <li
-                      key={p}
-                      className="flex gap-2.5 items-start text-[13px] text-ink-soft leading-relaxed"
-                    >
-                      <span
-                        className={
-                          isZakai
-                            ? "font-black shrink-0 text-emerald"
-                            : "font-black shrink-0 text-[rgba(147,166,165,0.6)]"
-                        }
-                        aria-hidden
-                      >
-                        {isZakai ? "✓" : "•"}
-                      </span>
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              </SpotlightCard>
-            </Reveal>
-          );
-        })}
-      </div>
-
-      {/* Institutions / Mandate adoption — not a tools bazaar. */}
-      <Reveal>
-        <div className="mt-16 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-7">
-          <h2 className="font-display text-[clamp(20px,3.5vw,26px)] m-0 text-center">
-            {t("home.institutionsTitle")}
-          </h2>
-          <p className="text-ink-soft text-[14.5px] mt-3 max-w-[560px] mx-auto text-center leading-relaxed">
-            {t("home.institutionsSub")}
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center mt-5">
-            <Link href="/institutions/quickstart">
-              <Button className="!text-[13.5px]">{t("home.institutionsQuickstart")}</Button>
-            </Link>
-            <Link href="/institutions">
-              <Button variant="ghost" className="!text-[13.5px]">
-                {t("home.institutionsCta")}
-              </Button>
-            </Link>
-            <Link href="/network-proof">
-              <Button variant="ghost" className="!text-[13.5px]">
-                {t("home.developersProof")}
-              </Button>
-            </Link>
-          </div>
-          <p className="text-[12.5px] text-ink-soft text-center mt-4 mb-0 font-mono" dir="ltr">
-            {t("home.institutionsSdk")}
-          </p>
-        </div>
-      </Reveal>
-
-      <Reveal>
-        <div className="mt-12 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center">
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] px-6 py-8 text-center mb-10">
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
             {t("home.closingTitle")}
           </div>
@@ -389,6 +291,32 @@ export default async function HomePage({
               <Button variant="ghost">{t("home.closingAgent")}</Button>
             </Link>
           </div>
+        </div>
+      </Reveal>
+
+      <Reveal>
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-6 py-6">
+          <h2 className="font-display text-[clamp(18px,3vw,22px)] m-0 text-center">
+            {t("home.institutionsTitle")}
+          </h2>
+          <p className="text-ink-soft text-[13.5px] mt-2 max-w-[520px] mx-auto text-center leading-relaxed">
+            {t("home.institutionsSub")}
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center mt-4">
+            <Link href="/institutions/quickstart">
+              <Button variant="ghost" className="!text-[13px]">
+                {t("home.institutionsQuickstart")}
+              </Button>
+            </Link>
+            <Link href="/institutions">
+              <Button variant="ghost" className="!text-[13px]">
+                {t("home.institutionsCta")}
+              </Button>
+            </Link>
+          </div>
+          <p className="text-[12px] text-ink-soft text-center mt-3 mb-0 font-mono" dir="ltr">
+            {t("home.institutionsSdk")}
+          </p>
         </div>
       </Reveal>
 

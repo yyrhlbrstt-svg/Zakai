@@ -85,11 +85,13 @@ export default async function DepositPage({
             {t("cta.body")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-5">
-            <Link href="/what-am-i-owed">
-              <Button>{t("cta.primary")}</Button>
+            <Link href="/money">
+              <Button>{locale === "he" || locale === "ar" ? "לכסף שלי — התחלה" : "My money — start"}</Button>
             </Link>
-            <Link href="/rights">
-              <Button variant="ghost">{t("cta.secondary")}</Button>
+            <Link href="/dashboard">
+              <Button variant="ghost">
+                {locale === "he" || locale === "ar" ? "לדשבורד — המשך תיק" : "Dashboard — continue case"}
+              </Button>
             </Link>
           </div>
         </GradientCtaCard>

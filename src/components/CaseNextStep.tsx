@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, Link } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { Button, Input, FieldError } from "@/components/ui";
@@ -128,8 +128,8 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "ביטחון",
     proposedOneTap: "רשום חיסכון בלחיצה אחת",
     proposedFrom: "מ־",
-    saveBlockTitle: "קיבלתם תוצאה? רשמו חיסכון עכשיו",
-    saveBlockSub: "בלי רישום אין עמלה ואין הוכחה. זה השלב שסוגר את הכסף.",
+    saveBlockTitle: "סגירת הלופ — רשמו SavingsProof",
+    saveBlockSub: "זו המטרה של התיק. בלי רישום אין עמלה, אין הוכחה, ואין Gravity. הזינו סכום או הדביקו תשובה למעלה.",
     quickCancel: "בוטל לגמרי (₪0)",
     quickOff20: "הנחה ~20% (הערכה — בלי עמלה)",
     quickOff50: "הנחה ~50% (הערכה — בלי עמלה)",
@@ -222,8 +222,8 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "Confidence",
     proposedOneTap: "One-tap record saving",
     proposedFrom: "from",
-    saveBlockTitle: "Got a result? Record the saving now",
-    saveBlockSub: "No record → no fee and no proof. This is the step that closes the money.",
+    saveBlockTitle: "Close the loop — record SavingsProof",
+    saveBlockSub: "This is the point of the case. No record → no fee, no proof, no Gravity. Enter an amount or paste a reply above.",
     quickCancel: "Fully cancelled (₪0)",
     quickOff20: "~20% off (estimate — no fee)",
     quickOff50: "~50% off (estimate — no fee)",
@@ -330,6 +330,39 @@ export function CaseNextStep({
     proofsEmail ||
     (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PROOFS_EMAIL) ||
     "proofs@zakai.app";
+
+  // Keep local flags in sync after router.refresh() from parent.
+  useEffect(() => {
+    setLocalOwn(ownershipVerified);
+    setLocalAuth(hasAuthorization);
+  }, [ownershipVerified, hasAuthorization]);
+
+  // Verified-email users should not redo SMS ownership — prime on mount.
+  useEffect(() => {
+    if (!emailVerified) return;
+    if (localOwn) return;
+    if (status !== "APPROVED" && status !== "VERIFIED" && status !== "ANALYZED") return;
+    let cancelled = false;
+    (async () => {
+      const res = await fetch(`/api/cases/${caseId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok || cancelled) return;
+      const data = await res.json().catch(() => ({}));
+      if (data.ownershipViaEmail) {
+        setLocalOwn(true);
+        setOwnViaEmail(true);
+        router.refresh();
+      }
+    })().catch(() => null);
+    return () => {
+      cancelled = true;
+    };
+    // Intentionally once per case mount for this status band.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseId, emailVerified, status]);
 
   function finishSaving(opts?: { checkoutUrl?: string | null; chargeable?: boolean }) {
     scheduleRecheckReminder(caseId);
@@ -553,45 +586,21 @@ export function CaseNextStep({
     return (
       <div className="w-full mt-2 flex flex-col gap-2">
         <div className="text-[11px] text-ink-soft">{t(locale, "nextHint")}</div>
-        {draftEdit ? (
-          <>
-            <div className="text-[12px] font-bold">{t(locale, "draftTitle")}</div>
-            <textarea
-              value={draftEdit}
-              onChange={(e) => setDraftEdit(e.target.value)}
-              rows={8}
-              className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
-              dir="auto"
-            />
-          </>
-        ) : null}
-        <Button
-          disabled={busy}
-          className="text-[13px] py-2 px-3 self-start"
-          onClick={() =>
-            run(async () => {
-              const res = await fetch(`/api/cases/${caseId}/approve`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  editedMessage: draftEdit.trim() || undefined,
-                }),
-              });
-              if (!res.ok) throw new Error("approve");
-              const data = await res.json().catch(() => ({}));
-              if (data.ownershipViaEmail) {
-                setLocalOwn(true);
-                setOwnViaEmail(true);
-              }
-            })
-          }
-        >
-          {busy ? t(locale, "working") : t(locale, "approve")}
-        </Button>
-        {emailVerified && (
+        {emailVerified && needsOutreachInput && (
+          <Input
+            type="email"
+            value={outreachEmail}
+            onChange={(e) => setOutreachEmail(e.target.value)}
+            placeholder={t(locale, "outreachEmailPh")}
+            dir="ltr"
+            className="text-[13px] max-w-md"
+          />
+        )}
+        {/* Send first when email is verified — draft review is optional. */}
+        {emailVerified ? (
           <Button
             disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-            className="text-[13px] py-2.5 px-4 self-start"
+            className="text-[14px] py-3 px-5 self-start font-extrabold"
             onClick={() =>
               run(async () => {
                 const approveRes = await fetch(`/api/cases/${caseId}/approve`, {
@@ -631,22 +640,54 @@ export function CaseNextStep({
                 if (data.authCode) setAuthCode(data.authCode);
                 if (data.mandateJti) setMandateInfo(t(locale, "mandateOk"));
                 setLocalAuth(true);
+                scheduleFollowUpReminder(caseId);
+                // Flip UI to SENT → SavingsProof path (completion rate).
+                router.refresh();
               })
             }
           >
             {busy ? t(locale, "working") : t(locale, "approveSend")}
           </Button>
+        ) : (
+          <Button
+            disabled={busy}
+            className="text-[14px] py-3 px-5 self-start font-extrabold"
+            onClick={() =>
+              run(async () => {
+                const res = await fetch(`/api/cases/${caseId}/approve`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    editedMessage: draftEdit.trim() || undefined,
+                  }),
+                });
+                if (!res.ok) throw new Error("approve");
+                const data = await res.json().catch(() => ({}));
+                if (data.ownershipViaEmail) {
+                  setLocalOwn(true);
+                  setOwnViaEmail(true);
+                }
+                router.refresh();
+              })
+            }
+          >
+            {busy ? t(locale, "working") : t(locale, "approve")}
+          </Button>
         )}
-        {emailVerified && needsOutreachInput && (
-          <Input
-            type="email"
-            value={outreachEmail}
-            onChange={(e) => setOutreachEmail(e.target.value)}
-            placeholder={t(locale, "outreachEmailPh")}
-            dir="ltr"
-            className="text-[13px] max-w-md"
-          />
-        )}
+        {draftEdit ? (
+          <details className="w-full">
+            <summary className="text-[12px] text-ink-soft cursor-pointer select-none font-bold">
+              {t(locale, "draftTitle")}
+            </summary>
+            <textarea
+              value={draftEdit}
+              onChange={(e) => setDraftEdit(e.target.value)}
+              rows={6}
+              className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
+              dir="auto"
+            />
+          </details>
+        ) : null}
         {err && <FieldError>{err}</FieldError>}
       </div>
     );
@@ -713,20 +754,8 @@ export function CaseNextStep({
         {localOwn && (
           <>
             <p className="text-[12.5px] text-emerald font-bold m-0">
-              {t(locale, ownViaEmail ? "ownDoneEmail" : "ownDone")}
+              {t(locale, ownViaEmail || emailVerified ? "ownDoneEmail" : "ownDone")}
             </p>
-            {draftEdit ? (
-              <div className="flex flex-col gap-1.5 w-full">
-                <div className="text-[12px] font-bold">{t(locale, "draftTitle")}</div>
-                <textarea
-                  value={draftEdit}
-                  onChange={(e) => setDraftEdit(e.target.value)}
-                  rows={8}
-                  className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
-                  dir="auto"
-                />
-              </div>
-            ) : null}
             {needsOutreachInput && (
               <div className="flex flex-col gap-1.5 w-full max-w-md">
                 <Input
@@ -739,33 +768,10 @@ export function CaseNextStep({
                 />
               </div>
             )}
-            {!emailConfigured && draftEdit.trim() && (
-              <Button
-                variant="ghost"
-                className="text-[13px] py-2 px-3 self-start"
-                disabled={
-                  !(
-                    (outreachEmail.trim() || resolvedOutreach) &&
-                    /@/.test(outreachEmail.trim() || resolvedOutreach)
-                  )
-                }
-                onClick={() => {
-                  const to = (outreachEmail.trim() || resolvedOutreach).toLowerCase();
-                  const subject = he
-                    ? `פנייה באמצעות זכאי — ${providerHebrewName(provider || "")}`
-                    : `Zakai Mandate request — ${provider || "provider"}`;
-                  if (openMailto(to, subject, draftEdit)) {
-                    setMailtoOpened(true);
-                    setTimeout(() => setMailtoOpened(false), 2500);
-                  }
-                }}
-              >
-                {mailtoOpened ? t(locale, "mailtoOpened") : t(locale, "mailtoFallback")}
-              </Button>
-            )}
+            {/* Dispatch first — draft review is optional, not a wall before send. */}
             <Button
               disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-              className="text-[13px] py-2.5 px-4 self-start"
+              className="text-[14px] py-3 px-5 self-start font-extrabold"
               onClick={() =>
                 run(async () => {
                   if (draftEdit.trim()) {
@@ -819,11 +825,51 @@ export function CaseNextStep({
                   }
                   setLocalAuth(true);
                   scheduleFollowUpReminder(caseId);
+                  // Flip UI to SENT → SavingsProof path (completion rate).
+                  router.refresh();
                 })
               }
             >
               {busy ? t(locale, "working") : t(locale, "dispatch")}
             </Button>
+            {draftEdit ? (
+              <details className="w-full">
+                <summary className="text-[12px] text-ink-soft cursor-pointer select-none font-bold">
+                  {t(locale, "draftTitle")}
+                </summary>
+                <textarea
+                  value={draftEdit}
+                  onChange={(e) => setDraftEdit(e.target.value)}
+                  rows={6}
+                  className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
+                  dir="auto"
+                />
+              </details>
+            ) : null}
+            {!emailConfigured && draftEdit.trim() && (
+              <Button
+                variant="ghost"
+                className="text-[13px] py-2 px-3 self-start"
+                disabled={
+                  !(
+                    (outreachEmail.trim() || resolvedOutreach) &&
+                    /@/.test(outreachEmail.trim() || resolvedOutreach)
+                  )
+                }
+                onClick={() => {
+                  const to = (outreachEmail.trim() || resolvedOutreach).toLowerCase();
+                  const subject = he
+                    ? `פנייה באמצעות זכאי — ${providerHebrewName(provider || "")}`
+                    : `Zakai Mandate request — ${provider || "provider"}`;
+                  if (openMailto(to, subject, draftEdit)) {
+                    setMailtoOpened(true);
+                    setTimeout(() => setMailtoOpened(false), 2500);
+                  }
+                }}
+              >
+                {mailtoOpened ? t(locale, "mailtoOpened") : t(locale, "mailtoFallback")}
+              </Button>
+            )}
             {authCode && (
               <div className="flex flex-col gap-1">
                 <div className="text-[12px] text-emerald font-bold">
@@ -954,7 +1000,7 @@ export function CaseNextStep({
             </p>
             <Button
               disabled={busy}
-              className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+              className="text-[14px] py-3 px-5 w-full sm:w-auto font-extrabold"
               onClick={() =>
                 run(() =>
                   recordAndFinish(proposed.newAmountShekels, { source: "inbound" }),
@@ -1005,7 +1051,7 @@ export function CaseNextStep({
             />
             <Button
               disabled={busy || newAmt === "" || Number(newAmt) < 0}
-              className="text-[13px] py-2 px-3"
+              className="text-[14px] py-2.5 px-4 font-extrabold"
               onClick={() => run(() => recordAndFinish(Number(newAmt), { source: "manual" }))}
             >
               {busy ? t(locale, "working") : t(locale, feeBasis === "lump" ? "recordLump" : "record")}
