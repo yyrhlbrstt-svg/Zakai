@@ -1,3 +1,7 @@
+import { decide } from "@/lib/mandate/decision";
+import type { MandateClaims } from "@/lib/mandate/mandate";
+import { vectorDocument } from "@/lib/mandate/vectors";
+
 /** Slug banks use as Mandate `aud` — e.g. bank-leumi */
 const SLUG = /^[a-z][a-z0-9-]{1,46}[a-z0-9]$/;
 
@@ -30,6 +34,56 @@ export async function serverSideReadinessOk(origin: string): Promise<boolean> {
     }
   }
   return true;
+}
+
+/**
+ * Machine gate for Pioneer / Reference Verifier listing.
+ * Honor-system checkboxes are not enough — the same decide() the SDK runs
+ * must pass every published authorization vector before anyone can claim support.
+ */
+export function authorizationVectorsConformant(): {
+  ok: boolean;
+  total: number;
+  failed: string[];
+} {
+  const doc = vectorDocument() as {
+    evaluated_at_unix: number;
+    vectors: Array<{
+      id: string;
+      claims: MandateClaims;
+      action: string;
+      audience: string;
+      subject?: string;
+      market?: string;
+      revocation?: "active" | "revoked" | "unknown";
+      act_confirmation?: string;
+      expect: { decision: string; reason?: string | null };
+    }>;
+  };
+  const now = new Date(doc.evaluated_at_unix * 1000);
+  const failed: string[] = [];
+  for (const v of doc.vectors) {
+    const result = decide({
+      claims: v.claims,
+      action: v.action,
+      audience: v.audience,
+      subject: v.subject,
+      market: v.market,
+      revocation: v.revocation ?? "unknown",
+      actConfirmation: v.act_confirmation,
+      now,
+    });
+    const expected =
+      v.expect.reason != null && v.expect.reason !== ""
+        ? `${v.expect.decision}:${v.expect.reason}`
+        : v.expect.decision;
+    const got =
+      result.decision === "deny" && result.reason
+        ? `deny:${result.reason}`
+        : result.decision;
+    if (got !== expected) failed.push(`${v.id}: expected ${expected}, got ${got}`);
+  }
+  return { ok: failed.length === 0, total: doc.vectors.length, failed };
 }
 
 export function institutionDisplayName(

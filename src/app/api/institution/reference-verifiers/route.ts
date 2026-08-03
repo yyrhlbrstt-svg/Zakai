@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import {
+  authorizationVectorsConformant,
   isValidInstitutionSlug,
   serverSideReadinessOk,
 } from "@/lib/referenceVerifier";
@@ -72,6 +73,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "platform_readiness_unavailable" }, { status: 503 });
   }
 
+  // Passing vectors is the only claim that means "we can verify Mandates."
+  // Client checkboxes alone made false Pioneer listings possible.
+  const vectors = authorizationVectorsConformant();
+  if (!vectors.ok) {
+    return NextResponse.json(
+      {
+        error: "vectors_not_conformant",
+        total: vectors.total,
+        failed: vectors.failed.slice(0, 5),
+        hint: "Run npx zakai-mandate-ready (or python3 reference/python/zakai_verify.py --ready) before registering.",
+      },
+      { status: 503 },
+    );
+  }
+
   const existingCount = await prisma.referenceVerifier.count();
   const tier = existingCount < 3 ? "pioneer" : "reference";
 
@@ -100,6 +116,8 @@ export async function POST(req: Request) {
     ok: true,
     institutionId,
     tier,
+    vectorsPassed: vectors.total,
     publicUrl: `${appOrigin()}/he/institutions/leaders`,
+    note: "Listed only after platform endpoints + authorization vectors pass server-side. Not regulatory certification.",
   });
 }
