@@ -466,6 +466,8 @@ export function CaseNextStep({
             </Link>
           </div>
         ) : null}
+        {/* Prove → fee → share: do not offer virality while success fee is unpaid. */}
+        {!(pendingFeeShekels != null && pendingFeeShekels > 0) ? (
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -511,6 +513,7 @@ export function CaseNextStep({
             {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
           </Button>
         </div>
+        ) : null}
         {showUpgradeNudge && (
           <div className="mt-3.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] px-3.5 py-2.5 flex items-center justify-between gap-3 flex-wrap">
             <p className="text-[12.5px] text-ink-soft m-0 leading-snug">{t(locale, "upgradeNudge")}</p>
@@ -1110,12 +1113,18 @@ export function CaseNextStep({
                         setErr(t(locale, "errNeedsEmail"));
                         return;
                       }
+                      if (data.error === "NO_TRANSPORT") {
+                        setErr(t(locale, "errDelivery"));
+                        if (data.body) setFollowBody(data.body);
+                        return;
+                      }
                       if (data.body) setFollowBody(data.body);
                       throw new Error("follow-send");
                     }
                     setFollowBody(data.body || "");
                     setFollowTip(data.tip || null);
-                    setFollowSentOk(true);
+                    // Async QUEUED is ok (worker delivers); only claim UI success when not explicitly undelivered.
+                    setFollowSentOk(data.delivered !== false || data.sent === true);
                     router.refresh();
                   })
                 }
@@ -1179,12 +1188,17 @@ export function CaseNextStep({
                         setErr(t(locale, "errNeedsEmail"));
                         return;
                       }
+                      if (data.error === "NO_TRANSPORT") {
+                        setErr(t(locale, "errDelivery"));
+                        if (data.body) setFollowBody(data.body);
+                        return;
+                      }
                       if (data.body) setFollowBody(data.body);
                       throw new Error("follow-send");
                     }
                     setFollowBody(data.body || followBody);
                     setFollowTip(data.tip || followTip);
-                    setFollowSentOk(true);
+                    setFollowSentOk(data.delivered !== false || data.sent === true);
                     router.refresh();
                   })
                 }

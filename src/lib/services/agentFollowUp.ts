@@ -16,7 +16,8 @@ import {
   buildInboundReceivePayload,
   inboundReceiveEmailAttachment,
 } from "@/lib/protocol/inboundPayload";
-import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
+import { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
+import { emailConfigured } from "@/lib/messaging";
 
 /**
  * The agent keeps working after the first send.
@@ -30,8 +31,7 @@ import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
  * spam a provider indefinitely.
  */
 
-export const AGENT_SUBJECT_PREFIX = "זכאי סיבוב";
-export { MAX_AGENT_ROUNDS };
+export { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS };
 
 export interface AutoFollowUpResult {
   caseId: string;
@@ -40,18 +40,31 @@ export interface AutoFollowUpResult {
   reason?: string;
 }
 
+/**
+ * Rounds that count toward the cap: delivered SENT, or async QUEUED still
+ * waiting for the worker. Exclude no-transport phantoms and inbound logs so
+ * FREE SENT cases are not exhausted without a letter ever leaving.
+ */
+function agentRoundOutboxWhere(caseId: string | { in: string[] }) {
+  return {
+    caseId,
+    channel: "EMAIL" as const,
+    subject: { startsWith: AGENT_SUBJECT_PREFIX },
+    status: { in: ["SENT", "QUEUED"] as ("SENT" | "QUEUED")[] },
+    OR: [
+      { providerMessageId: null },
+      { providerMessageId: { notIn: ["inbound", "no-transport"] } },
+    ],
+  };
+}
+
 /** Batch count of agent auto-follow-up rounds (subject marker) for next-action ranking. */
 export async function getAgentRoundMap(caseIds: string[]): Promise<Map<string, number>> {
   const map = new Map<string, number>();
   if (caseIds.length === 0) return map;
   const outs = await prisma.outbox.groupBy({
     by: ["caseId"],
-    where: {
-      caseId: { in: caseIds },
-      channel: "EMAIL",
-      providerMessageId: { not: "inbound" },
-      subject: { startsWith: AGENT_SUBJECT_PREFIX },
-    },
+    where: agentRoundOutboxWhere({ in: caseIds }),
     _count: { _all: true },
   });
   for (const o of outs) {
@@ -62,17 +75,9 @@ export async function getAgentRoundMap(caseIds: string[]): Promise<Map<string, n
 
 /** Count prior agent auto-follow-ups for this case (by subject marker). */
 async function priorAgentRounds(caseId: string): Promise<number> {
-  const rows = await prisma.outbox.findMany({
-    where: {
-      caseId,
-      channel: "EMAIL",
-      providerMessageId: { not: "inbound" },
-      subject: { startsWith: AGENT_SUBJECT_PREFIX },
-    },
-    select: { subject: true },
-    orderBy: { createdAt: "asc" },
+  return prisma.outbox.count({
+    where: agentRoundOutboxWhere(caseId),
   });
-  return rows.length;
 }
 
 export async function autoFollowUpCase(caseId: string): Promise<AutoFollowUpResult> {
@@ -204,6 +209,18 @@ ${protocolFooter}`;
     return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL", body: follow.body, tip: follow.tip, subject };
   }
 
+  // No SMTP → do not write a phantom agent-round Outbox row that burns the cap.
+  if (!emailConfigured()) {
+    return {
+      caseId,
+      sent: false,
+      reason: "NO_TRANSPORT",
+      body: follow.body,
+      tip: follow.tip,
+      subject,
+    };
+  }
+
   const email = await sendEmail({
     to,
     subject,
@@ -230,9 +247,8 @@ ${protocolFooter}`;
 
   const delivered = email.status === "SENT";
 
-  // Only claim "the agent acted toward the provider" when the letter left.
-  // QUEUED / no-transport still increments round via Outbox subject marker,
-  // but we do not email the user a false "נשלחה פנייה".
+  // Async QUEUED still returns sent:true (worker will attach Mandate + deliver).
+  // User notify only when the letter actually left.
   if (delivered && opts.notifyUser !== false && kase.user.email) {
     const proofsAddr = proofsInboundAddress();
     await sendEmail({

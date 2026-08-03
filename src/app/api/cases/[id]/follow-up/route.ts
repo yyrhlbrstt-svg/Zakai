@@ -9,8 +9,8 @@ import { agorotToShekels } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
 import {
   dispatchCaseFollowUp,
+  getAgentRoundMap,
   MAX_AGENT_ROUNDS,
-  AGENT_SUBJECT_PREFIX,
 } from "@/lib/services/agentFollowUp";
 
 const schema = z.object({
@@ -55,14 +55,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     return badRequest("genericError", 409);
   }
 
-  const priorRounds = await prisma.outbox.count({
-    where: {
-      caseId: id,
-      channel: "EMAIL",
-      providerMessageId: { not: "inbound" },
-      subject: { startsWith: AGENT_SUBJECT_PREFIX },
-    },
-  });
+  const priorRounds = (await getAgentRoundMap([id])).get(id) ?? 0;
   if (priorRounds >= MAX_AGENT_ROUNDS) {
     return NextResponse.json(
       {
@@ -94,11 +87,13 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       const status =
         result.reason === "NEEDS_OUTREACH_EMAIL"
           ? 400
-          : result.reason === "OUTREACH_DELIVERY_FAILED"
-            ? 502
-            : result.reason === "MAX_ROUNDS"
-              ? 409
-              : 409;
+          : result.reason === "NO_TRANSPORT"
+            ? 503
+            : result.reason === "OUTREACH_DELIVERY_FAILED"
+              ? 502
+              : result.reason === "MAX_ROUNDS"
+                ? 409
+                : 409;
       return NextResponse.json(
         {
           error: result.reason ?? "send_failed",

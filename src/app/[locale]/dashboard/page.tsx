@@ -23,7 +23,7 @@ import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
-import { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS } from "@/lib/services/agentFollowUp";
+import { getAgentRoundMap, MAX_AGENT_ROUNDS } from "@/lib/services/agentFollowUp";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { RetentionActionStrip } from "@/components/RetentionActionStrip";
@@ -92,22 +92,8 @@ export default async function DashboardPage({
       : undefined) ??
     cases.find((c) => c.status === "SAVED" && (c.savingsProof?.savingMonthly ?? 0) > 0);
 
-  const agentRoundMap = new Map<string, number>();
-  if (sentIds.length > 0) {
-    const outs = await prisma.outbox.groupBy({
-      by: ["caseId"],
-      where: {
-        caseId: { in: sentIds },
-        channel: "EMAIL",
-        providerMessageId: { not: "inbound" },
-        subject: { startsWith: AGENT_SUBJECT_PREFIX },
-      },
-      _count: { _all: true },
-    });
-    for (const o of outs) {
-      if (o.caseId) agentRoundMap.set(o.caseId, o._count._all);
-    }
-  }
+  const agentRoundMap =
+    sentIds.length > 0 ? await getAgentRoundMap(sentIds) : new Map<string, number>();
 
   const totalDocumentedMonthly = cases.reduce(
     (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),

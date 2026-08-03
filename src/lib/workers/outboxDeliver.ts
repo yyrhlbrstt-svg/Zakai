@@ -3,6 +3,10 @@ import "server-only";
 import nodemailer from "nodemailer";
 import type { Outbox } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import {
+  rebuildMandateAttachmentsForCase,
+  shouldAttachMandateDocs,
+} from "@/lib/services/outreachAttachments";
 
 export const OUTBOX_WORKER_BATCH_DEFAULT = 25;
 
@@ -31,11 +35,29 @@ async function deliverEmailRecord(record: Outbox): Promise<"sent" | "failed" | "
         ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
         : undefined,
     });
+
+    // Outbox does not persist attachments. Rebuild Mandate docs for provider
+    // outreach so async drain matches the sync sendEmail path.
+    let attachments:
+      | { filename: string; content: string | Buffer; contentType: string }[]
+      | undefined;
+    if (record.caseId && shouldAttachMandateDocs(record.subject)) {
+      const rebuilt = await rebuildMandateAttachmentsForCase(record.caseId);
+      if (rebuilt.length > 0) {
+        attachments = rebuilt.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+          contentType: a.contentType || "text/html; charset=utf-8",
+        }));
+      }
+    }
+
     const info = await transport.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@localhost",
       to: record.toAddress,
       subject: record.subject,
       text: record.body,
+      attachments,
     });
     await prisma.outbox.update({
       where: { id: record.id },
