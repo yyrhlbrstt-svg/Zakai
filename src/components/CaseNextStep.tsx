@@ -21,6 +21,7 @@ import { FeePayButton } from "@/components/FeePayButton";
 import { classifyFollowUpSendError, followUpDeliveryState } from "@/lib/followUpSendUi";
 import type { OutreachDelivery } from "@/lib/services/outreachDelivery";
 import { pendingFeeDisplayShekels } from "@/lib/pendingSuccessFee";
+import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 
 type Status =
   | "ANALYZED"
@@ -550,29 +551,19 @@ export function CaseNextStep({
       error?: string;
     };
     if (!res.ok) throw new Error(data.error || "paste");
-    // One-tap only from a real Outbox proposal (confidence gate + mapped amount).
-    if (data.proposed?.newAmountShekels != null) {
-      setNewAmt(String(data.proposed.newAmountShekels));
+    const decision = resolvePasteRecordField(data);
+    if (decision.kind === "proposed") {
+      setNewAmt(String(decision.newAmountShekels));
       setPasteProposed({
-        newAmountShekels: data.proposed.newAmountShekels,
-        confidence: data.proposed.confidence,
+        newAmountShekels: decision.newAmountShekels,
+        confidence: decision.confidence,
       });
       setPasteText("");
       setPasteTip(null);
       return;
     }
-    // Extract-only: fill the manual field with the mapped record amount — never one-tap raw refund.
-    const mapped =
-      data.recordAmountShekels != null && data.recordAmountShekels >= 0
-        ? data.recordAmountShekels
-        : null;
-    if (mapped != null) {
-      setNewAmt(String(mapped));
-      setPasteTip(t(locale, "pastePartial"));
-      return;
-    }
-    if (data.extract?.newAmountShekels != null) {
-      setNewAmt(String(data.extract.newAmountShekels));
+    if (decision.kind === "mapped") {
+      setNewAmt(String(decision.newAmountShekels));
       setPasteTip(t(locale, "pastePartial"));
       return;
     }

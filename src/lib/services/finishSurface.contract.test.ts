@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { nextActionHref, rankNextAction } from "./nextAction";
-import { resolveMoneyFinishCaseId } from "./shareableSavedCase";
+import {
+  pickShareableSavedCaseId,
+  resolveMoneyFinishCaseId,
+} from "./shareableSavedCase";
+import { resolveMoneyPayFeeCaseId } from "./moneyPayFeeCase";
+import { resolvePasteRecordField } from "./pasteRecordField";
+import { isPendingSuccessFee } from "@/lib/pendingSuccessFee";
 
 /**
  * Finish-surface contract: every open-loop kind — including fee — finishes on /money.
@@ -42,5 +48,43 @@ describe("finish surface contract", () => {
         rankedCaseId: "live",
       }),
     ).toBe("live");
+  });
+
+  it("payFee focus only mounts checkout when that case has PENDING fee", () => {
+    expect(
+      resolveMoneyPayFeeCaseId({
+        payFee: true,
+        focusCaseId: "paid",
+        cases: [
+          { id: "paid", fee: { amount: 900, status: "PAID" } },
+          { id: "pending", fee: { amount: 18, status: "PENDING" } },
+        ],
+      }),
+    ).toBe("pending");
+  });
+
+  it("sub-₪1 PENDING fee blocks share picker and stays collectible", () => {
+    const fee = { amount: 18, status: "PENDING" };
+    expect(isPendingSuccessFee(fee)).toBe(true);
+    expect(
+      pickShareableSavedCaseId([
+        {
+          id: "tiny",
+          status: "SAVED",
+          savingsProof: { savingMonthly: 100, selfReported: false },
+          fee,
+        },
+      ]),
+    ).toBeNull();
+  });
+
+  it("paste never one-taps raw extract without mapped recordAmount", () => {
+    expect(
+      resolvePasteRecordField({
+        proposed: null,
+        recordAmountShekels: null,
+        extract: { newAmountShekels: 1200 },
+      }).kind,
+    ).toBe("none");
   });
 });

@@ -60,6 +60,19 @@ describe("pickShareableSavedCaseId", () => {
       ]),
     ).toBe("waived");
   });
+
+  it("does not treat sub-₪1 PENDING fee as shareable", () => {
+    expect(
+      pickShareableSavedCaseId([
+        {
+          id: "tiny-fee",
+          status: "SAVED",
+          savingsProof: { savingMonthly: 100, selfReported: false },
+          fee: { amount: 18, status: "PENDING" },
+        },
+      ]),
+    ).toBeNull();
+  });
 });
 
 describe("resolveMoneyFinishCaseId", () => {

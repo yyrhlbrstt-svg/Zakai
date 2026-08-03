@@ -27,6 +27,7 @@ import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
+import { resolveMoneyPayFeeCaseId } from "@/lib/services/moneyPayFeeCase";
 import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 
@@ -78,6 +79,7 @@ export default async function MoneyPage({
   let pendingFeeHref: string | null = null;
   /** Settled SAVED with proof — mount share finish even when openLoop is false. */
   let shareCaseId: string | null = null;
+  let payFeeCaseId: string | null = null;
   let personalDocumented = {
     count: 0,
     monthlyAgorot: 0,
@@ -163,14 +165,12 @@ export default async function MoneyPage({
     }
     // Always — even with OPEN_LOOP, a settled win stays shareable via the strip.
     shareCaseId = pickShareableSavedCaseId(cases);
+    payFeeCaseId = resolveMoneyPayFeeCaseId({
+      payFee,
+      focusCaseId,
+      cases,
+    });
   }
-
-  const payFeeCaseId =
-    payFee && focusCaseId
-      ? focusCaseId
-      : pendingFeeHref?.includes("case=")
-        ? pendingFeeHref.match(/case=([^&]+)/)?.[1] ?? null
-        : null;
 
   return (
     <VerticalPageShell

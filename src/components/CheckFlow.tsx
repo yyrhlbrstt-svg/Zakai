@@ -10,6 +10,7 @@ import { FallNumber } from "@/components/FallNumber";
 import { PROVIDER_KEYS } from "@/lib/providers";
 import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
 import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachEmail";
+import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 
 type Stage =
   | "input"
@@ -363,18 +364,19 @@ export function CheckFlow() {
         setPasteTip(t("pasteFailed"));
         return;
       }
-      if (data.proposed?.newAmountShekels != null) {
+      const decision = resolvePasteRecordField(data);
+      if (decision.kind === "proposed") {
         setProposed({
-          newAmountShekels: data.proposed.newAmountShekels,
-          confidence: data.proposed.confidence ?? 0,
+          newAmountShekels: decision.newAmountShekels,
+          confidence: decision.confidence,
         });
-        setNewAmount(String(data.proposed.newAmountShekels));
+        setNewAmount(String(decision.newAmountShekels));
         setPasteText("");
         setPasteTip(null);
         return;
       }
-      if (data.extract?.newAmountShekels != null) {
-        setNewAmount(String(data.extract.newAmountShekels));
+      if (decision.kind === "mapped") {
+        setNewAmount(String(decision.newAmountShekels));
         setPasteTip(t("pastePartial"));
         return;
       }
