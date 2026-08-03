@@ -51,14 +51,15 @@ export async function POST(request: Request) {
     bankName: data.bank,
   });
 
-  const outreachTo = firstOutreachEmail(
-    data.bankEmail,
-    resolveBankContactEmail(providerKey),
-    resolveBankContactEmail(displayName),
-  );
-  if (!outreachTo) {
-    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
-  }
+  // Prefer known / user-supplied inbox, but never invent one and never block
+  // case+Mandate open when empty — dashboard CaseNextStep collects outreach
+  // before dispatch (same NEEDS_OUTREACH_EMAIL gate as sendOutreach).
+  const outreachTo =
+    firstOutreachEmail(
+      data.bankEmail,
+      resolveBankContactEmail(providerKey),
+      resolveBankContactEmail(displayName),
+    ) || undefined;
 
   const letter = buildBankFeeLetter({
     customerName: data.customerName || user.name || "",

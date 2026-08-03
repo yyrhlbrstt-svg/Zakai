@@ -107,6 +107,12 @@ export function CheckFlow() {
     checkoutUrl?: string;
   } | null>(null);
   const [delivered, setDelivered] = useState(true);
+  const [pasteText, setPasteText] = useState("");
+  const [pasteTip, setPasteTip] = useState<string | null>(null);
+  const [proposed, setProposed] = useState<{
+    newAmountShekels: number;
+    confidence: number;
+  } | null>(null);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -180,22 +186,60 @@ export function CheckFlow() {
     if (!rec || !outreachReady()) return;
     setApproveErr(null);
     setBusy(true);
-    const res = await fetch(`/api/cases/${rec.caseId}/approve`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        editedMessage: draft,
-        counterpartyEmail: providerContactEmail.trim() || undefined,
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setBusy(false);
-    if (!res.ok) {
-      if (data.error === "ALREADY_SENT") setApproveErr(tFlow("errorAlreadySent"));
-      else setApproveErr(tFlow("errorGeneric"));
-      return;
+    try {
+      const res = await fetch(`/api/cases/${rec.caseId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          editedMessage: draft,
+          counterpartyEmail: providerContactEmail.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (data.error === "ALREADY_SENT") setApproveErr(tFlow("errorAlreadySent"));
+        else setApproveErr(tFlow("errorGeneric"));
+        return;
+      }
+      // Email already verified → same express path as dashboard CaseNextStep:
+      // Mandate + send in one gesture (skip OTP / separate auth generate).
+      if (data.ownershipViaEmail) {
+        setOwnershipOk(true);
+        const dispatchRes = await fetch(`/api/cases/${rec.caseId}/dispatch`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            counterpartyEmail: providerContactEmail.trim() || undefined,
+          }),
+        });
+        const dispatchData = await dispatchRes.json().catch(() => ({}));
+        if (dispatchRes.ok) {
+          if (dispatchData.authCode) {
+            setAuth({
+              code: dispatchData.authCode,
+              scope: "",
+              verifyUrl: `/verify?code=${encodeURIComponent(dispatchData.authCode)}`,
+              documentUrl: `/authorization/${dispatchData.authCode}`,
+            });
+          }
+          setDelivered(Boolean(dispatchData.delivered));
+          setStage("sent");
+          return;
+        }
+        if (isOutreachEmailApiError(dispatchData.error)) {
+          setOwnErr("needsEmail");
+        } else if (dispatchData.error === "ALREADY_SENT") {
+          setOwnErr("alreadySent");
+        } else {
+          setOwnErr("genericError");
+        }
+        setStage("verify");
+        return;
+      }
+      setStage("verify");
+    } finally {
+      setBusy(false);
     }
-    setStage("verify");
   }
 
   async function sendCode() {
@@ -254,7 +298,14 @@ export function CheckFlow() {
   async function send() {
     if (!rec) return;
     setStage("sending");
-    const res = await fetch(`/api/cases/${rec.caseId}/send`, { method: "POST" });
+    // Prefer express dispatch (issues Mandate if missing) over bare /send.
+    const res = await fetch(`/api/cases/${rec.caseId}/dispatch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        counterpartyEmail: providerContactEmail.trim() || undefined,
+      }),
+    });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setStage("verify");
@@ -272,8 +323,52 @@ export function CheckFlow() {
       }
       return;
     }
+    if (data.authCode) {
+      setAuth({
+        code: data.authCode,
+        scope: auth?.scope || "",
+        verifyUrl: `/verify?code=${encodeURIComponent(data.authCode)}`,
+        documentUrl: `/authorization/${data.authCode}`,
+      });
+    }
     setDelivered(Boolean(data.delivered));
     setStage("sent");
+  }
+
+  async function proposeFromPaste() {
+    if (!rec) return;
+    setPasteTip(null);
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/cases/${rec.caseId}/propose-saving`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: pasteText }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPasteTip(t("pasteFailed"));
+        return;
+      }
+      if (data.proposed?.newAmountShekels != null) {
+        setProposed({
+          newAmountShekels: data.proposed.newAmountShekels,
+          confidence: data.proposed.confidence ?? 0,
+        });
+        setNewAmount(String(data.proposed.newAmountShekels));
+        setPasteText("");
+        setPasteTip(null);
+        return;
+      }
+      if (data.extract?.newAmountShekels != null) {
+        setNewAmount(String(data.extract.newAmountShekels));
+        setPasteTip(t("pastePartial"));
+        return;
+      }
+      setPasteTip(t("pasteNoAmount"));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function copyDraftForSelf() {
@@ -623,12 +718,16 @@ export function CheckFlow() {
             <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
               {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
             </Button>
-            <Button onClick={send} disabled={!ownershipOk || !auth} className="flex-1 w-full">
+            {/* ownership stamped → /dispatch issues Mandate if missing */}
+            <Button onClick={send} disabled={!ownershipOk} className="flex-1 w-full">
               {t("sendViaZakai")}
             </Button>
           </div>
-          {(!ownershipOk || !auth) && (
+          {!ownershipOk && (
             <p className="text-[12.5px] text-ink-soft mt-2 text-center">{tv("bothRequired")}</p>
+          )}
+          {ownershipOk && !auth && (
+            <p className="text-[12.5px] text-ink-soft mt-2 text-center">{t("dispatchIssuesMandate")}</p>
           )}
         </div>
       )}
@@ -649,6 +748,49 @@ export function CheckFlow() {
             <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mt-5 text-[13.5px] font-bold text-center">
               {t("notDeliveredNote")}
             </div>
+          )}
+
+          {proposed && (
+            <Card className="p-5 mt-6 border border-[rgba(63,203,155,0.45)]">
+              <div className="font-extrabold text-emerald">
+                {t("proposedTitle")}: ₪{proposed.newAmountShekels}
+              </div>
+              <p className="text-[13px] text-ink-soft mt-1 mb-3">
+                {t("proposedConf")} {(proposed.confidence * 100).toFixed(0)}%
+              </p>
+              <Button
+                disabled={busy}
+                className="w-full"
+                onClick={() => recordSaving(proposed.newAmountShekels)}
+              >
+                {t("proposedOneTap")}
+              </Button>
+            </Card>
+          )}
+
+          {!proposed && (
+            <Card className="p-5 mt-6">
+              <div className="font-extrabold">{t("pasteLabel")}</div>
+              <p className="text-[13.5px] text-ink-soft mt-1.5 mb-3 leading-relaxed">
+                {t("pasteHint")}
+              </p>
+              <Textarea
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder={t("pastePh")}
+                rows={4}
+              />
+              <Button
+                disabled={busy || pasteText.trim().length < 8}
+                className="mt-3 w-full"
+                onClick={() => void proposeFromPaste()}
+              >
+                {busy ? t("sending") : t("pasteCta")}
+              </Button>
+              {pasteTip && (
+                <p className="text-[12.5px] text-ink-soft mt-2 leading-relaxed">{pasteTip}</p>
+              )}
+            </Card>
           )}
 
           <Card className="p-5 mt-6">

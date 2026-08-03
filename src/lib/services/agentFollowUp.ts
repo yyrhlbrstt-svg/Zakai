@@ -204,7 +204,7 @@ ${protocolFooter}`;
     return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL", body: follow.body, tip: follow.tip, subject };
   }
 
-  await sendEmail({
+  const email = await sendEmail({
     to,
     subject,
     body: follow.body + footer,
@@ -212,12 +212,28 @@ ${protocolFooter}`;
     attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
   });
 
+  if (email.status === "FAILED") {
+    return {
+      caseId,
+      sent: false,
+      reason: "OUTREACH_DELIVERY_FAILED",
+      body: follow.body,
+      tip: follow.tip,
+      subject,
+    };
+  }
+
   await prisma.case.update({
     where: { id: caseId },
     data: { updatedAt: new Date() },
   });
 
-  if (opts.notifyUser !== false && kase.user.email) {
+  const delivered = email.status === "SENT";
+
+  // Only claim "the agent acted toward the provider" when the letter left.
+  // QUEUED / no-transport still increments round via Outbox subject marker,
+  // but we do not email the user a false "נשלחה פנייה".
+  if (delivered && opts.notifyUser !== false && kase.user.email) {
     const proofsAddr = proofsInboundAddress();
     await sendEmail({
       to: kase.user.email,
@@ -251,5 +267,6 @@ ${protocolFooter}`;
     body: follow.body,
     tip: follow.tip,
     subject,
+    ...(delivered ? {} : { reason: "QUEUED" }),
   };
 }

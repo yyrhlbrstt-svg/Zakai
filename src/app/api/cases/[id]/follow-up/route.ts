@@ -94,9 +94,11 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       const status =
         result.reason === "NEEDS_OUTREACH_EMAIL"
           ? 400
-          : result.reason === "MAX_ROUNDS"
-            ? 409
-            : 409;
+          : result.reason === "OUTREACH_DELIVERY_FAILED"
+            ? 502
+            : result.reason === "MAX_ROUNDS"
+              ? 409
+              : 409;
       return NextResponse.json(
         {
           error: result.reason ?? "send_failed",
@@ -109,6 +111,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     }
     return NextResponse.json({
       sent: true,
+      delivered: result.reason !== "QUEUED",
       round: result.round,
       subject: result.subject,
       body: result.body,
