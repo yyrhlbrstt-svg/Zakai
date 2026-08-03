@@ -14,7 +14,10 @@ describe("GET /api/markets", () => {
     expect(codes).toContain("IL");
     expect(codes).toContain("EU");
     expect(codes).toContain("GB");
+    // EU is a full JurisdictionPack in MARKETS (not catalog-only).
     const eu = body.markets.find((m) => m.code === "EU");
-    expect(eu?.capabilities).toEqual(["zml_catalog"]);
+    expect(eu?.capabilities).toEqual(["rights_engine", "letters", "zml_catalog"]);
+    const il = body.markets.find((m) => m.code === "IL");
+    expect(il?.capabilities).toEqual(["rights_engine", "letters", "zml_catalog"]);
   });
 });

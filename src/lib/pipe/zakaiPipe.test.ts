@@ -11,6 +11,7 @@ describe("zakaiPipe", () => {
     const doc = buildZakaiPipeDocument("https://zakai.example/");
     expect(doc.spec).toBe(PIPE_SPEC);
     expect(doc.rails.authority.accept).toContain("/api/pipe/accept");
+    expect(doc.rails.authority.ready).toContain("/api/mandate/ready");
     expect(doc.rails.authority.acceptor_mark).toContain("/api/pipe/mark");
     expect(doc.rails.intake.reference_post).toContain("/inbound-receive");
     expect(doc.rails.outcomes.savings_ledger).toContain("/savings-ledger");

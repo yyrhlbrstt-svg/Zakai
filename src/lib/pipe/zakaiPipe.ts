@@ -57,6 +57,8 @@ export function buildZakaiPipeDocument(origin: string) {
         mandate_spec: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.mandate),
         verify: `${base}/api/mandate/verify`,
         decide: `${base}/api/mandate/decide`,
+        /** Machine gate: vectors + Status List → ready_for_pioneer. */
+        ready: `${base}/api/mandate/ready`,
         /** One-shot: extract aud → verify → decide → revocation. */
         accept: `${base}/api/pipe/accept`,
         /** Public mark institutions can link when they process Mandates. */

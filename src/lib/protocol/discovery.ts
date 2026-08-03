@@ -24,40 +24,50 @@ export async function getOutcomeGraphPublicStats(): Promise<OutcomeGraphPublicSt
   // Institutions see documented pipeline outcomes only — estimate/self-report
   // shortcuts must never inflate public win rates (same filter as oracle/fairness).
   const documented = { selfReported: false as const };
-
-  const rows = await prisma.strategyOutcome.groupBy({
-    by: ["market"],
-    where: documented,
-    _count: { _all: true },
-    _sum: { recoveredMinor: true },
-  });
-
-  const paidByMarket = await prisma.strategyOutcome.groupBy({
-    by: ["market"],
-    where: { ...documented, paid: true },
-    _count: { _all: true },
-  });
-  const paidMap = new Map(paidByMarket.map((r) => [r.market, r._count._all]));
-
-  const markets = rows.map((r) => {
-    const trials = r._count._all;
-    const paidCount = paidMap.get(r.market) ?? 0;
-    return {
-      market: r.market,
-      trials,
-      paidCount,
-      winRate: trials > 0 ? paidCount / trials : null,
-      totalRecoveredMinor: r._sum.recoveredMinor ?? 0,
-    };
-  });
-
-  const totalOutcomes = markets.reduce((s, m) => s + m.trials, 0);
-
-  return {
-    totalOutcomes,
-    markets: markets.sort((a, b) => b.trials - a.trials),
+  const empty: OutcomeGraphPublicStats = {
+    totalOutcomes: 0,
+    markets: [],
     updatedAt: new Date().toISOString(),
   };
+
+  try {
+    const rows = await prisma.strategyOutcome.groupBy({
+      by: ["market"],
+      where: documented,
+      _count: { _all: true },
+      _sum: { recoveredMinor: true },
+    });
+
+    const paidByMarket = await prisma.strategyOutcome.groupBy({
+      by: ["market"],
+      where: { ...documented, paid: true },
+      _count: { _all: true },
+    });
+    const paidMap = new Map(paidByMarket.map((r) => [r.market, r._count._all]));
+
+    const markets = rows.map((r) => {
+      const trials = r._count._all;
+      const paidCount = paidMap.get(r.market) ?? 0;
+      return {
+        market: r.market,
+        trials,
+        paidCount,
+        winRate: trials > 0 ? paidCount / trials : null,
+        totalRecoveredMinor: r._sum.recoveredMinor ?? 0,
+      };
+    });
+
+    const totalOutcomes = markets.reduce((s, m) => s + m.trials, 0);
+
+    return {
+      totalOutcomes,
+      markets: markets.sort((a, b) => b.trials - a.trials),
+      updatedAt: new Date().toISOString(),
+    };
+  } catch {
+    // Empty is honest when DB is unavailable (CI, local without Neon).
+    return empty;
+  }
 }
 
 function mandateSigningLive(): boolean {

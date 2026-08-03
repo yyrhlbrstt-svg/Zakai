@@ -10,6 +10,11 @@ vi.mock("@/lib/services/proposedSaving", () => ({
   getProposedSavingsMap: vi.fn(async () => new Map()),
 }));
 
+vi.mock("@/lib/services/agentFollowUp", () => ({
+  getAgentRoundMap: vi.fn(async () => new Map()),
+  MAX_AGENT_ROUNDS: 4,
+}));
+
 import { prisma } from "@/lib/prisma";
 import { buildAssistantCasesSnapshot } from "./assistantContext";
 
