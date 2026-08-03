@@ -6,7 +6,7 @@ export function PageKicker({ children, className }: { children: ReactNode; class
     <div
       className={
         className ??
-        "inline-block text-[12.5px] font-extrabold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-full px-3.5 py-1.5 mb-4"
+        "inline-block text-[12.5px] font-extrabold tracking-wide text-emerald bg-[rgba(63,203,155,0.12)] border border-[rgba(63,203,155,0.35)] rounded-full px-3.5 py-1.5 mb-4 shadow-[0_0_24px_rgba(63,203,155,0.12)]"
       }
     >
       {children}
