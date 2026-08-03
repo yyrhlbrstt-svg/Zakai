@@ -5366,6 +5366,7 @@
     "inboundPressureRow": "{dispatched} יוצאים · {saved} עם חיסכון מתועד",
     "inboundPressureDisclaimer": "מספרים אגרגטיביים בלבד, ללא זיהוי לקוחות. לא כולל מכתבים שהוכנו מחוץ לזכאי.",
     "inboundPressureApi": "JSON: inbound-pressure",
+    "ignoreCostApi": "JSON: עלות התעלמות (ignore-cost)",
     "regulatoryStripTitle": "מודיעין רגולטורי (אגרגטים בלבד)",
     "regulatoryStripBody": "תמונת מצב אחת לפיקוח ולעיתונות: תוצאות מנותקות, לחץ נכנס מתועד, כיסוי ציון הוגנות — לא דיווח רשמי ולא נפח שוק מלא.",
     "regulatoryStripSnapshot": "snapshot JSON",

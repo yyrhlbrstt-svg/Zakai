@@ -77,7 +77,10 @@ is always free).
   `GET /api/mandate/status/{jti}`
 - Institutions overview: [/en/institutions](https://zakai-3uxj.vercel.app/en/institutions)
 - **Inbound receive format (for banks/providers):** [/.well-known/zakai-inbound-receive.json](https://zakai-3uxj.vercel.app/.well-known/zakai-inbound-receive.json)
+- **Agent economy (how other AIs distribute, not compete):** [/.well-known/zakai-agent-economy.json](https://zakai-3uxj.vercel.app/.well-known/zakai-agent-economy.json)
 - Seven monopoly rails (real counters): `GET /api/network/monopoly`
+- Control gates G1–G9 (adoption readiness — **not** a valuation): `GET /api/network/trillion-gates`
+- Institution ignore-cost (ops math from disclosed dispatches): `GET /api/institution/ignore-cost`
 - Protocol gravity: `GET /api/network/gravity`
 
 ## For developers

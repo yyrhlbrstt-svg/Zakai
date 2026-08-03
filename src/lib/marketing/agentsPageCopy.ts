@@ -16,7 +16,7 @@ export type AgentsPageCopy = {
   inviteRest: string;
   sections: AgentsSection[];
   readMoreHeading: string;
-  readMore: { institutions: string; discovery: string; openapi: string };
+  readMore: { institutions: string; discovery: string; openapi: string; agentEconomy: string };
 };
 
 const EN: AgentsPageCopy = {
@@ -74,6 +74,7 @@ const claims = await verifyMandateFromUrl(token, {
     institutions: "Institutional integration guide →",
     discovery: "Discovery document →",
     openapi: "OpenAPI →",
+    agentEconomy: "Agent economy (machine) →",
   },
 };
 
@@ -132,6 +133,7 @@ const claims = await verifyMandateFromUrl(token, {
     institutions: "מדריך שילוב מוסדי →",
     discovery: "מסמך discovery →",
     openapi: "OpenAPI →",
+    agentEconomy: "כלכלת סוכנים (מכונה) →",
   },
 };
 

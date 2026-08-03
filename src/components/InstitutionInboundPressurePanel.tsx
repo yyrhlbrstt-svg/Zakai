@@ -57,6 +57,14 @@ export async function InstitutionInboundPressurePanel({ locale }: { locale: stri
         >
           {t("inboundPressureApi")} →
         </a>
+        <a
+          href="/api/institution/ignore-cost"
+          className="text-ink-soft font-bold no-underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t("ignoreCostApi")} →
+        </a>
       </div>
     </Card>
   );

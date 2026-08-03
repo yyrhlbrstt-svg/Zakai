@@ -417,6 +417,14 @@ export function mustHavePageCopy(locale: string) {
     installHint: he
       ? "אפשר להתקין למסך הבית (PWA) — הכסף שלכם תמיד בלחיצה."
       : "Install to home screen (PWA) — your money path one tap away.",
+    progressTitle: (n: string, total: number) =>
+      he ? `התקדמות חבילת החובה · ${n}/${total}` : `Must-have progress · ${n}/${total}`,
+    progressSub: he
+      ? "סמנו מה כבר עשיתם — נשמר במכשיר בלבד. המטרה: לסגור את כל שמונה הדלתות."
+      : "Tick what you finished — stored on this device only. Goal: close all eight doors.",
+    progressDone: he
+      ? "סגרתם את החבילה — עכשיו שתפו / הוכיחו חיסכון כשיש."
+      : "Kit complete — share / prove a saving when you have one.",
   };
 }
 

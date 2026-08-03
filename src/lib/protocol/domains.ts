@@ -85,10 +85,14 @@ export function buildDomainsDocument(origin: string): {
       endpoints: {
         snapshot: `${base}/api/regulatory/snapshot`,
         inbound_pressure: `${base}/api/institution/inbound-pressure`,
+        ignore_cost: `${base}/api/institution/ignore-cost`,
+        network_gravity: `${base}/api/network/gravity`,
+        network_monopoly: `${base}/api/network/monopoly`,
+        trillion_gates: `${base}/api/network/trillion-gates`,
         outcome_graph: `${base}/api/network`,
         network_proof: `${base}/he/network-proof`,
       },
-      reference_routes: ["/network-proof", "/institutions"],
+      reference_routes: ["/network-proof", "/institutions", "/regulatory"],
     },
     {
       id: "collective_intent",

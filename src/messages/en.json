@@ -5365,6 +5365,7 @@
     "inboundPressureRow": "{dispatched} dispatched · {saved} with documented savings",
     "inboundPressureDisclaimer": "Aggregate counts only, no customer identities. Excludes letters prepared outside Zakai.",
     "inboundPressureApi": "JSON: inbound-pressure",
+    "ignoreCostApi": "JSON: ignore-cost (ops math)",
     "regulatoryStripTitle": "Regulatory intelligence (aggregates only)",
     "regulatoryStripBody": "One pane for supervisors and press: de-identified outcomes, documented inbound pressure, fairness coverage — not official filings or total market volume.",
     "regulatoryStripSnapshot": "snapshot JSON",

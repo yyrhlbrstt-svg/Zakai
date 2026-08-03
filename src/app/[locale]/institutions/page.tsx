@@ -9,6 +9,7 @@ import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator";
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
+import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { RegulatoryIntelStrip } from "@/components/RegulatoryIntelStrip";
 import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
 import { institutionsLongCopy } from "@/lib/marketing/institutionsLongCopy";
@@ -72,6 +73,8 @@ export default async function InstitutionsPage({
         networkCta={t("regulatoryStripNetwork")}
         kitCta={t("regulatoryStripKit")}
       />
+
+      <ControlGatesStrip locale={locale} />
 
       <p className="text-[13px] text-ink-soft mb-6">
         {t("agentsCrossLink")}{" "}

@@ -15,6 +15,7 @@ import {
   mustHaveToolCost,
   mustHaveToolTitle,
 } from "@/lib/monopoly/mustHaveKit";
+import { MustHaveProgress } from "@/components/MustHaveProgress";
 
 export async function generateMetadata({
   params,
@@ -54,6 +55,8 @@ export default async function MustHavePage({ params }: { params: Promise<{ local
           </Button>
         </Link>
       </div>
+
+      <MustHaveProgress locale={locale} />
 
       <Reveal>
         <SectionHeading title={c.starterTitle} className="mt-0 mb-4" as="h2" />

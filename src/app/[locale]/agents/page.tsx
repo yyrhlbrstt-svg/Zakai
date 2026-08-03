@@ -94,6 +94,14 @@ export default async function AgentsPage({
           >
             {copy.readMore.openapi}
           </a>
+          <a
+            href={`${ORIGIN}/.well-known/zakai-agent-economy.json`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink-soft font-bold no-underline"
+          >
+            {copy.readMore.agentEconomy}
+          </a>
         </div>
       </Section>
     </VerticalPageShell>

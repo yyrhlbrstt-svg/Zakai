@@ -40,6 +40,34 @@ Machine status: `GET /api/network/monopoly` · assessment `src/lib/monopoly/seve
 
 ---
 
+## Control gates G1–G9 (not a valuation)
+
+Honest ladder from protocol skeleton → hard-to-ignore globally. Implemented in
+`src/lib/monopoly/trillionGates.ts` · public API `GET /api/network/trillion-gates`.
+
+| Gate | Meaning |
+|------|---------|
+| G1 | External interop probe green |
+| G2 | ZML packs on public CDN |
+| G3 | First reference verifier listed |
+| G4 | Fairness score with real MIN_SAMPLE |
+| G5 | Second active issuer on trust registry |
+| G6 | Inbound pressure above public threshold |
+| G7 | Two markets with cited depth + consumer volume |
+| G8 | Other AIs send measurable handoffs |
+| G9 | Commercial phase D live (real PSP + fee volume) |
+
+Companion surfaces:
+
+- Institution ops math: `GET /api/institution/ignore-cost`
+- Agent distribution manifesto: `/.well-known/zakai-agent-economy.json`
+- Consumer must-have kit: `/he/must-have`
+
+**Passing gates in code ≠ controlling the market.** Gates measure readiness;
+mass, verifiers, and multi-issuer habit are still real-world work.
+
+---
+
 ## Aggressive retention (ethical)
 
 Retention means **the product keeps finishing money paths**, not dark patterns:
