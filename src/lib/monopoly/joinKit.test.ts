@@ -6,6 +6,8 @@ describe("buildJoinKitDocument", () => {
     const doc = buildJoinKitDocument("https://zakai.example");
     expect(doc.spec).toBe("zakai-network-join-kit");
     expect(doc.audiences.institution.urls.inbound_receive).toContain("/inbound-receive");
+    expect(doc.audiences.institution.urls.pipe_accept).toContain("/api/pipe/accept");
+    expect(doc.audiences.institution.urls.pipe_mark).toContain("/api/pipe/mark");
     expect(doc.audiences.issuer.urls.evidence).toContain("/evidence");
     expect(doc.audiences.agent.urls.must_have).toContain("/must-have");
     expect(doc.audiences.developer.urls.packs_mirror).toContain("/api/cdn/packs");
