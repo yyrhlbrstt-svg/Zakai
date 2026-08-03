@@ -26,8 +26,9 @@ export const AUTOPILOT_JOBS: readonly AutopilotJobDef[] = [
     id: "law-watcher",
     title: "Law Watcher",
     summary: "Hash official source URLs cited in packs; open maintainer tasks on change.",
-    intervalMs: 6 * 60 * 60 * 1000,
-    cronHint: "0 */6 * * *",
+    // Daily on Vercel Hobby (sub-daily schedules are Pro-only).
+    intervalMs: 24 * 60 * 60 * 1000,
+    cronHint: "0 4 * * *",
     humanGate: "ZML pack PRs require maintainer merge — no auto-publish of legal text.",
   },
   {

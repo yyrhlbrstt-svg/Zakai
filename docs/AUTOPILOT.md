@@ -6,7 +6,7 @@ Zakai cannot auto-merge law, auto-post spam, or move money. Autopilot **detects*
 
 | Job | Cron (Vercel) | What it does |
 |-----|----------------|--------------|
-| `law-watcher` | `0 */6 * * *` → `/api/cron/autopilot/law-watcher` | Hash HTTP `source` URLs in packs; GitHub issue on change |
+| `law-watcher` | `0 4 * * *` → `/api/cron/autopilot/law-watcher` | Hash HTTP `source` URLs in packs; GitHub issue on change (daily — Hobby cannot run sub-daily crons) |
 | `price-sentinel` | via daily `/api/cron/autopilot` | `AUTOPILOT_PRICE_FEEDS_JSON` public pages |
 | `outcome-learner` | weekly (interval) | `StrategyOutcome` variant stats; evolve runs separately |
 | `growth-bot` | daily | Topic digest from outcomes; **no TikTok post** without API keys |
