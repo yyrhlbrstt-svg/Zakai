@@ -21,7 +21,7 @@
     "dashboard": "Dashboard"
   },
   "opsBanner": {
-    "preBilling": "Transparency: paid subscriptions (Pro/Max) are not charged yet — billing is not connected. Success fees are recorded per plan; nothing is charged automatically without an explicit action from you."
+    "preBilling": "Transparency: real card billing is not connected yet — success-fee checkout runs in demo mode (no real charge), and Pro/Max subscriptions are not billed. Nothing is charged automatically without an explicit action from you."
   },
   "about": {
     "metaTitle": "Why Zakai",

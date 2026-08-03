@@ -6,7 +6,7 @@ import { isEmailVerified } from "@/lib/services/emailVerification";
 import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
-import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
+import { evaluateConsumerReleaseGate, paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
@@ -71,6 +71,7 @@ export default async function FounderPage({
 
   const releaseGate = evaluateConsumerReleaseGate();
   const smtpOk = emailConfigured();
+  const paymentsOk = paymentsFullyLive();
   const loopVolume = await loadLoopVolume(smtpOk);
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -302,6 +303,17 @@ export default async function FounderPage({
         </div>
       )}
 
+      {!paymentsOk && (
+        <div className="rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">
+          ⚠ סליקה במצב mock — <code>PAYMENT_PROVIDER</code> לא PayPlus מלא. עמלת הצלחה רצה מקצה לקצה
+          בלי לגבות כרטיס אמיתי. עד{" "}
+          <code>PAYMENT_PROVIDER=payplus</code> +{" "}
+          <code>PAYPLUS_API_KEY</code> / <code>PAYPLUS_SECRET_KEY</code> /{" "}
+          <code>PAYPLUS_PAYMENT_PAGE_UID</code>, הכנסות הצלחה על הנייר בלבד.{" "}
+          <code>node scripts/preflight.mjs</code> חייב להראות FEES בלי MOCK.
+        </div>
+      )}
+
       <div className="mb-2">
         <h2 className="font-display text-xl m-0 mb-1">P0 מנכ״ל — מונופול על הצינור</h2>
         <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">
@@ -316,15 +328,20 @@ export default async function FounderPage({
           <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו (סדר חובה)</div>
           <ul className="m-0 ps-5 flex flex-col gap-1.5 text-ink-soft">
             <li>
-              <b className="text-ink">1. SMTP_HOST</b> בפרוד — בלי זה אין מכתב אמיתי לספק. אחרי
-              הגדרה: Redeploy + תיק ניסיון אחד עד SENT.
+              <b className="text-ink">1. SMTP_HOST</b> (+ USER/PASS/FROM) בפרוד — בלי זה אין מכתב
+              אמיתי לספק. אחרי הגדרה: Redeploy + תיק ניסיון אחד עד SENT (לא QUEUED ב-Outbox).
             </li>
             <li>
-              <b className="text-ink">2. Merge</b> לסניף עם הצינור (`/he/pipe`) + Redeploy — אחרת
-              הפרוד נשאר מאחור.
+              <b className="text-ink">2. PayPlus</b> —{" "}
+              <code>PAYMENT_PROVIDER=payplus</code> + שלושת מפתחות PAYPLUS. בלי זה עמלת הצלחה נשארת
+              mock אחרי SavingsProof.
             </li>
             <li>
-              <b className="text-ink">3. נפח</b> — תיקי סלולר/ביטול/עמלות אמיתיים עד{" "}
+              <b className="text-ink">3. Merge</b> את PR הלולאה ל־main + Redeploy — אחרת הפרוד נשאר
+              מאחור על finish surface ישן.
+            </li>
+            <li>
+              <b className="text-ink">4. נפח</b> — תיקי סלולר/ביטול/עמלות אמיתיים עד{" "}
               <code>gravity_tier=network</code>. לא מייל קר לבנקים.
             </li>
             <li>
