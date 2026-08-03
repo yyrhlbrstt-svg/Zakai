@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { runEvolutionCycle } from "@/lib/evolve/store";
 import { assessOracleCalibration } from "@/lib/oracle/store";
+import { backfillSettledLearningSignals } from "@/lib/strategy/learningSignal";
 import { reportError } from "@/lib/report-error";
 import { requireCronAuth } from "@/lib/security/cronAuth";
 import { purgeExpiredIdempotencyRecords } from "@/lib/scale/idempotency";
@@ -39,6 +40,8 @@ export async function GET(request: Request) {
     console.log("[oracle]", calibration.verdict, "—", calibration.summary);
 
     const idempotencyPurged = await purgeExpiredIdempotencyRecords();
+    // Close the learning loop for settled cases missing a StrategyOutcome row.
+    const learningBackfill = await backfillSettledLearningSignals({ take: 80 });
 
     return NextResponse.json({
       ok: true,
@@ -46,6 +49,7 @@ export async function GET(request: Request) {
       digest: result.digest,
       reviewed: result.reviews.length,
       idempotencyPurged,
+      learningBackfill,
       oracle: {
         verdict: calibration.verdict,
         samples: calibration.samples,

@@ -35,6 +35,7 @@ AGENT SUPER-INTELLIGENCE RULES:
 14. Institutions / "does my bank support this": point to /institutions + /api/mandate/ready + Pioneer wall honesty (empty until real opt-in).
 15. If NEXT_ACTION says written rounds exhausted: never draft another delay follow-up. Force record / no-change / pivot only.
 16. VERTICAL TACTICS below are only for cold-start (no OPEN_LOOP). With an open Case, ignore the buffet.
+17. When LEARNING / BEST_STANCE / TIMING appear in the snapshot: use them for written negotiation coaching. They come from documented StrategyOutcome only — never invent a win rate or savings number.
 
 VERTICAL TACTICS (use the tightest path):
 - Telecom / mobile / internet: /check or /cancel. Loyalty + usage-based downgrade. Written retention first. Competitor match on round 2–3.

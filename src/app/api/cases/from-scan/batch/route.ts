@@ -12,6 +12,8 @@ import {
   defaultScanIntent,
   resolveFromScanOutreach,
 } from "@/lib/fromScanOutreach";
+import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
+import { formatCaseDraft } from "@/lib/caseDraft";
 
 const itemSchema = z.object({
   merchant: z.string().min(1).max(120),
@@ -100,7 +102,7 @@ export async function POST(request: Request) {
                 ? "הורדת מסלול מסריקה"
                 : "הקפאת מנוי מסריקה";
 
-        const { draftMessage } = buildFromScanDraft({
+        const draft = buildFromScanDraft({
           customerName: user.name || "",
           merchant: data.merchant,
           product,
@@ -108,6 +110,15 @@ export async function POST(request: Request) {
           intent,
           country: user.country,
         });
+        const staged = await stageLetterWithStance(
+          { subject: draft.subject, body: draft.body },
+          { vertical, counterparty: providerKey },
+        );
+        const draftMessage = formatCaseDraft(
+          staged.letter.subject,
+          staged.letter.body,
+          user.country,
+        );
 
         try {
           const kase = await createCase({
@@ -120,6 +131,8 @@ export async function POST(request: Request) {
             draftMessage,
             vertical,
             counterpartyEmail,
+            strategyVariant: staged.strategyVariant,
+            strategySeed: staged.strategySeed,
             autoApprove: true,
           });
           opened.push({

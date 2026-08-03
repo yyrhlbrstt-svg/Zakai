@@ -260,7 +260,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
-          <OutcomeReport vertical="deposit" counterparty="landlord" variantId="standard" />
+          <OutcomeReport vertical="deposit" counterparty="landlord" variantId="firm_statutory" />
         </Card>
       )}
     </div>

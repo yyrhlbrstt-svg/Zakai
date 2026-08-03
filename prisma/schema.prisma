@@ -178,6 +178,9 @@ model Case {
   // stance when the case closes. Null on cases opened before the engine.
   strategyVariant String?
   strategySeed    Int?
+  // When a de-identified StrategyOutcome row was written for this case.
+  // Idempotency only — the Outcome table itself never stores caseId.
+  outcomeRecordedAt DateTime?
 
   status CaseStatus @default(ANALYZED)
 

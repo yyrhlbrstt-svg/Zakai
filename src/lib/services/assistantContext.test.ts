@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     case: { findMany: vi.fn() },
+    strategyOutcome: { findMany: vi.fn(async () => []) },
   },
 }));
 
@@ -13,6 +14,10 @@ vi.mock("@/lib/services/proposedSaving", () => ({
 vi.mock("@/lib/services/agentFollowUp", () => ({
   getAgentRoundMap: vi.fn(async () => new Map()),
   MAX_AGENT_ROUNDS: 4,
+}));
+
+vi.mock("@/lib/services/priorityBoosts", () => ({
+  getPriorityCatalogBoosts: vi.fn(async () => ({})),
 }));
 
 import { prisma } from "@/lib/prisma";

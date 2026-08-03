@@ -15,7 +15,8 @@ import {
   buildInboundReceivePayload,
   inboundReceiveEmailAttachment,
 } from "@/lib/protocol/inboundPayload";
-import { recordOutcome, daysBetween } from "@/lib/strategy/store";
+import { daysBetween } from "@/lib/strategy/store";
+import { commitCaseLearningSignal } from "@/lib/strategy/learningSignal";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
@@ -481,7 +482,9 @@ export async function recordSaving(
   const fee = result.fee;
   const outcomeBasis = getRulePack(kase.vertical)?.feeBasis ?? "monthly";
 
-  await recordOutcome({
+  // Learning signal: documented settle → StrategyOutcome (de-identified). Background, fail-open.
+  await commitCaseLearningSignal({
+    caseId,
     context: {
       market: marketForCase(kase.vertical),
       vertical: kase.vertical,

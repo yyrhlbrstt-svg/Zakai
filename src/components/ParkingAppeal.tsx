@@ -207,7 +207,7 @@ ${name || "____"}
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
-          <OutcomeReport vertical="parking" counterparty="municipality" variantId={reason} />
+          <OutcomeReport vertical="parking" counterparty="municipality" variantId="firm_statutory" />
           <p className="text-[11.5px] text-ink-soft mt-3 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">
             {t("legal")}
           </p>

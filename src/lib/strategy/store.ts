@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { selectVariant, seededRng } from "./selector";
 import { VARIANTS, describeVariant, variantById } from "./variants";
+import { isCatalogVariantId } from "./normalizeKeys";
 import type { Observation, Selection, StrategyContext } from "./types";
 
 /**
@@ -79,13 +80,16 @@ export async function chooseStance(context: StrategyContext): Promise<Stance> {
       },
     });
 
-    const observations: Observation[] = rows.map((r) => ({
-      context: { market: r.market, vertical: r.vertical, counterparty: r.counterparty },
-      variantId: r.variantId,
-      paid: r.paid,
-      recoveredMinor: r.recoveredMinor,
-      days: r.days,
-    }));
+    // Drop non-catalog variantIds (self-report aliases) so Thompson buckets stay clean.
+    const observations: Observation[] = rows
+      .filter((r) => isCatalogVariantId(r.variantId))
+      .map((r) => ({
+        context: { market: r.market, vertical: r.vertical, counterparty: r.counterparty },
+        variantId: r.variantId,
+        paid: r.paid,
+        recoveredMinor: r.recoveredMinor,
+        days: r.days,
+      }));
 
     const picked = selectVariant(VARIANTS, observations, context, { rng: seededRng(seed) });
     return stanceFrom(picked.variant.id, seed, picked.evidenceLevel, picked.trials);

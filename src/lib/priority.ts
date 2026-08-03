@@ -819,11 +819,15 @@ export function formatPotentialEn(a: PriorityAction): string {
   return a.cadence === "monthly" ? `${amount}/mo` : `${amount} one-time`;
 }
 
-export function priorityDigestHe(): string {
-  return rankPriorityActions(6)
+export function priorityDigestHe(catalogBoosts?: Record<string, number>): string {
+  return rankPriorityActions(6, catalogBoosts)
     .map((a) => {
       const potential = formatPotentialHe(a);
-      return `- ${a.titleHe} (${a.href})${a.agentic ? " [AGENT]" : ""}${potential ? `: ${potential}` : ""} · ${a.whyHe}`;
+      const boost =
+        catalogBoosts && catalogBoosts[a.id] != null
+          ? ` · learn+${(catalogBoosts[a.id]! * 100).toFixed(0)}%`
+          : "";
+      return `- ${a.titleHe} (${a.href})${a.agentic ? " [AGENT]" : ""}${potential ? `: ${potential}` : ""}${boost} · ${a.whyHe}`;
     })
     .join("\n");
 }

@@ -251,7 +251,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
-          <OutcomeReport vertical="late_payment" counterparty="client" variantId="standard" />
+          <OutcomeReport vertical="late-payment" counterparty="client" variantId="firm_statutory" />
         </Card>
       )}
 

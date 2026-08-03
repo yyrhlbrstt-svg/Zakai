@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { recordSelfReport } from "@/lib/strategy/store";
 import { recordSelfReportedSaving } from "@/lib/services/selfReportedSaving";
+import {
+  normalizeOutcomeVariantId,
+  normalizeOutcomeVertical,
+} from "@/lib/strategy/normalizeKeys";
 import { getSessionUserId } from "@/lib/auth/session";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
@@ -69,7 +73,14 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "invalid" }, { status: 400 });
 
-  const { market, vertical, counterparty, variantId, paid, amountBand, days } = parsed.data;
+  const { market, paid, amountBand, days } = parsed.data;
+  // Align keys with Case.vertical / catalog stances when possible. Unknown
+  // letter-path variantIds are still accepted (self-report volume) but
+  // chooseStance ignores non-catalog ids so Thompson buckets stay clean.
+  const vertical = normalizeOutcomeVertical(parsed.data.vertical);
+  const counterparty = parsed.data.counterparty.trim().toLowerCase();
+  const variantId =
+    normalizeOutcomeVariantId(parsed.data.variantId) ?? parsed.data.variantId;
 
   // A report of "paid" with no amount, or "not paid" with one, is internally
   // inconsistent. Rejecting rather than guessing: a row we had to interpret is

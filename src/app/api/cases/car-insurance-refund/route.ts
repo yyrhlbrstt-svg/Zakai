@@ -9,6 +9,7 @@ import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { resolveInsuranceContactEmail } from "@/lib/utilityContacts";
+import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
@@ -57,6 +58,10 @@ export async function POST(request: Request) {
     premiumPaidShekels: data.premiumPaidShekels,
     unusedMonths: data.unusedMonths,
   });
+  const staged = await stageLetterWithStance(
+    { subject: letter.subject, body: letter.body },
+    { vertical: "car-insurance-refund", counterparty: data.insurer },
+  );
 
   const amount =
     data.premiumPaidShekels && data.premiumPaidShekels > 0
@@ -72,10 +77,16 @@ export async function POST(request: Request) {
       plan: data.policyNumber || data.vehicle || "ביטוח רכב",
       strategy: "החזר פרמיה יחסי — ביטול פוליסת רכב עם Mandate",
       targetShekels: 0,
-      draftMessage: formatCaseDraft(letter.subject, letter.body, user.country),
+      draftMessage: formatCaseDraft(
+        staged.letter.subject,
+        staged.letter.body,
+        user.country,
+      ),
       vertical: "car-insurance-refund",
       beneficiaryLabel: data.customerName || undefined,
       counterpartyEmail: outreachTo,
+      strategyVariant: staged.strategyVariant,
+      strategySeed: staged.strategySeed,
       autoApprove: true,
     });
   } catch (err) {

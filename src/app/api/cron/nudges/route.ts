@@ -6,6 +6,7 @@ import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
 import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
+import { currentPayload } from "@/lib/evolve/store";
 import { requireCronAuth } from "@/lib/security/cronAuth";
 import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
@@ -16,8 +17,6 @@ export const dynamic = "force-dynamic";
 const NUDGE_SUBJECT = "זכאי — המבצע שלך כנראה נגמר, שווה לבדוק שוב";
 /** Don't nudge the same user more often than this for SAVED recheck. */
 const NUDGE_COOLDOWN_DAYS = 60;
-/** SENT cases older than this get an agent auto-follow-up (round 2+ to provider). */
-const SENT_AFTER_DAYS = SENT_FOLLOWUP_AFTER_DAYS;
 const SENT_COOLDOWN_DAYS = 12;
 const FEE_NUDGE_SUBJECT = "זכאי — עמלת הצלחה ממתינה לתשלום";
 const FEE_NUDGE_AFTER_DAYS = 3;
@@ -33,9 +32,19 @@ export async function GET(request: Request) {
   const unauthorized = requireCronAuth(request);
   if (unauthorized) return unauthorized;
 
+  // Timing experiment: learn optimal chase delay from evolve when volume exists.
+  const followupDelayDays = await currentPayload<number>(
+    "followup_delay_days",
+    SENT_FOLLOWUP_AFTER_DAYS,
+  );
+  const sentAfterDays =
+    typeof followupDelayDays === "number" && followupDelayDays > 0
+      ? followupDelayDays
+      : SENT_FOLLOWUP_AFTER_DAYS;
+
   const cutoff = new Date(Date.now() - RECHECK_AFTER_DAYS * 86_400_000);
   const cooldown = new Date(Date.now() - NUDGE_COOLDOWN_DAYS * 86_400_000);
-  const sentCutoff = new Date(Date.now() - SENT_AFTER_DAYS * 86_400_000);
+  const sentCutoff = new Date(Date.now() - sentAfterDays * 86_400_000);
   const sentCooldown = new Date(Date.now() - SENT_COOLDOWN_DAYS * 86_400_000);
 
   try {
