@@ -112,11 +112,43 @@ const results = CHECKS.map((c) => {
   return { ...c, ok: has || viaAlt, viaAlt };
 });
 
-// Don't fail PayPlus credentials when still on mock — they are not in use.
+/**
+ * Mirror src/lib/deploy/releaseGate.ts paymentsFullyLive().
+ * PAYMENT_PROVIDER=mock used to show ✓ (key present) while collecting no money —
+ * that greenwash is how the product can run for months charging nobody.
+ */
+function paymentsFullyLive() {
+  const name = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
+  if (!name || name === "mock") return false;
+  if (name === "payplus") {
+    return Boolean(
+      process.env.PAYPLUS_API_KEY?.trim() &&
+        process.env.PAYPLUS_SECRET_KEY?.trim() &&
+        process.env.PAYPLUS_PAYMENT_PAGE_UID?.trim(),
+    );
+  }
+  return false;
+}
+
 const paymentProvider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
+// PayPlus credential rows only apply when that PSP is selected.
 if (paymentProvider !== "payplus") {
   for (const r of results) {
     if (r.key.startsWith("PAYPLUS_")) r.ok = true;
+  }
+} else {
+  for (const r of results) {
+    if (r.key.startsWith("PAYPLUS_") && !process.env[r.key]?.trim()) r.ok = false;
+  }
+}
+const payProv = results.find((r) => r.key === "PAYMENT_PROVIDER");
+if (payProv) {
+  payProv.ok = paymentsFullyLive();
+  if (!payProv.ok) {
+    payProv.cost =
+      paymentProvider === "payplus"
+        ? "PAYMENT_PROVIDER=payplus but PayPlus keys are incomplete — fee checkout cannot collect real money."
+        : "Success-fee checkout runs on the mock provider — no real card charges until PayPlus is fully configured.";
   }
 }
 // SMTP_USER/PASS only matter once a host is configured.
@@ -136,6 +168,16 @@ for (const r of results) {
 }
 
 console.log("");
+if (!paymentsFullyLive()) {
+  console.log(
+    "FEES: MOCK — set PAYMENT_PROVIDER=payplus and PAYPLUS_API_KEY / PAYPLUS_SECRET_KEY / PAYPLUS_PAYMENT_PAGE_UID or success fees never collect real money.\n",
+  );
+}
+if (!process.env.SMTP_HOST?.trim() || !process.env.SMTP_USER?.trim() || !process.env.SMTP_PASS?.trim()) {
+  console.log(
+    "MAIL: OFF — set SMTP_HOST / SMTP_USER / SMTP_PASS or Mandates stay in the Outbox and providers never see them.\n",
+  );
+}
 if (blocking.length) {
   console.log(`BLOCKED — ${blocking.length} required setting(s) missing: ${blocking.map((b) => b.key).join(", ")}`);
   console.log("The app will build and serve pages, and every path that touches money or authority will fail.\n");
