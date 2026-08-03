@@ -3,13 +3,14 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { EmeraldInfoPanel } from "@/components/EmeraldInfoPanel";
 import { Link } from "@/i18n/routing";
-import { Card } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator";
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
+import { institutionPilotMailto, institutionSalesEmail } from "@/lib/institutionPull";
 import { RegulatoryIntelStrip } from "@/components/RegulatoryIntelStrip";
 import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
 import { institutionsLongCopy } from "@/lib/marketing/institutionsLongCopy";
@@ -64,6 +65,22 @@ export default async function InstitutionsPage({
       <EmeraldInfoPanel className="mb-6">
         <strong className="text-emerald">{t("whyAdoptStrong")}</strong> {t("whyAdoptBody")}
       </EmeraldInfoPanel>
+
+      <div className="flex flex-wrap gap-3 mb-8">
+        <a href={institutionPilotMailto()} className="no-underline">
+          <Button>{t("heroMailtoCta")}</Button>
+        </a>
+        <Link href="/institutions/leader" className="no-underline">
+          <Button variant="ghost">{t("leaderWizardCta")}</Button>
+        </Link>
+        <a
+          href={`mailto:${institutionSalesEmail()}`}
+          className="text-[13px] text-ink-soft self-center font-mono"
+          dir="ltr"
+        >
+          {institutionSalesEmail()}
+        </a>
+      </div>
 
       <RegulatoryIntelStrip
         title={t("regulatoryStripTitle")}

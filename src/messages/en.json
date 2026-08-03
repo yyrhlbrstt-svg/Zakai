@@ -5387,7 +5387,9 @@
     "quickIntegrationHeading": "Quick integration",
     "quickIntegration1": "— step-by-step verify/decide in ~30 minutes (also in",
     "quickIntegration2": "— live ledger snapshot for inbound risk teams (no sales call).",
-    "registryHumanReadable": "human-readable"
+    "registryHumanReadable": "human-readable",
+    "heroMailtoCta": "Email us — you start the pilot",
+    "leaderWizardCta": "Reference Verifier wizard (no email needed)"
   },
   "institutionLeader": {
     "metaTitle": "Mandate verification leaders — Zakai",
@@ -5443,7 +5445,14 @@
     "tierPioneer": "Pioneer",
     "tierReference": "Reference verifier",
     "consumerStripHint": "Banks that opted into the public leaders wall after self-serve verify checks — not supervisory approval, but a signal they can verify Mandates instead of manual PDFs.",
-    "consumerStripDisclaimer": "The list stays empty until an institution registers. No fabricated partnerships."
+    "consumerStripDisclaimer": "The list stays empty until an institution registers. No fabricated partnerships.",
+    "consumerStripEmpty": "No bank is on the leaders wall yet. That does not mean Mandates are unused — only that no institution has opted in after self-serve checks.",
+    "consumerStripEmptySlots": "Up to 3 Pioneer slots remain for whoever finishes real verify and opts into listing — not invented customers.",
+    "consumerAskBankCta": "Ask your bank to support verification",
+    "institutionEmailUs": "Institution? Email us",
+    "leadersEmptySlots": "{n} Pioneer slots left (of 3) for whoever finishes the wizard and opts in.",
+    "leadersClaimPioneer": "Claim a Pioneer slot — wizard + email us",
+    "heroMailtoCta": "Email us — you initiate"
   },
   "institutionConformance": {
     "title": "Prove your implementation — ~30 minutes, no sales call",

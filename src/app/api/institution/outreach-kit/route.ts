@@ -1,57 +1,48 @@
 import { NextResponse } from "next/server";
 import { cacheControlHeader } from "@/lib/scale/publicCache";
+import { institutionSalesEmail, institutionPilotMailto } from "@/lib/institutionPull";
 
 export const runtime = "nodejs";
 export const revalidate = 300;
 
 /**
- * Founder / BD one-pager for banks — copy-pasteable, no fake logos or traction.
+ * Pull kit — how institutions email Zakai (and how founder replies).
+ * Not a cold-email blast list.
  */
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin.replace(/\/+$/, "");
-  const subject = encodeURIComponent("Zakai Mandate inbound pilot — 30 minutes, no sales call");
-  const body = encodeURIComponent(
-    [
-      "Hi —",
-      "",
-      "Zakai publishes a Mandate inbound format banks can verify offline (Ed25519 JWKS).",
-      "No outward money scopes. No callback team required.",
-      "",
-      `Pilot package (filled sample curl): ${origin}/api/institution/pilot-package?audience=YOUR_BANK_ID`,
-      `Join kit: ${origin}/he/join-network`,
-      `Wizard: ${origin}/he/institutions/leader`,
-      "",
-      "Leaders wall stays empty until you opt in — we do not invent partners.",
-      "",
-      "—",
-    ].join("\n"),
-  );
+  const sales = institutionSalesEmail();
 
   return NextResponse.json(
     {
-      spec: "zakai-institution-outreach-kit",
+      spec: "zakai-institution-pull-kit",
       version: "2026-08-03",
-      honesty:
-        "No claimed bank logos, win rates, or valuation. Use this to invite a real pilot.",
-      ceo_priority: "G3 first reference verifier — before PayPlus / branded domain.",
-      one_liner_he:
-        "בנק יכול לאמת Mandate inbound ב-30 דק בלי שיחת מכירות — JWKS offline, בלי הוצאת כסף.",
-      one_liner_en:
-        "A bank can verify Mandate inbound in 30 minutes without a sales call — offline JWKS, no outward money.",
-      mailto: `mailto:?subject=${subject}&body=${body}`,
-      send_them: {
+      thesis:
+        "Do not cold-email banks. Create desk volume + public rails so risk/ops email you. This kit is for inbound replies and self-serve magnets.",
+      honesty: "No claimed logos, win rates, or valuation.",
+      how_they_find_you: [
+        "Letter/email footers on every consumer SENT case → /institutions + sales inbox",
+        "LLM/agent discovery via llms.txt + /agents handoff",
+        "Empty Pioneer wall FOMO + consumer «ask your bank» mailto",
+        "ROI calculator mailto with their own numbers",
+      ],
+      public_inbox: sales,
+      they_email_you_via: institutionPilotMailto(),
+      send_them_when_they_ask: {
         join_network: `${origin}/he/join-network`,
         pilot_package: `${origin}/api/institution/pilot-package?audience=YOUR_BANK_ID`,
         wizard: `${origin}/he/institutions/leader`,
         inbound_spec: `${origin}/.well-known/zakai-inbound-receive.json`,
         ignore_cost: `${origin}/api/institution/ignore-cost`,
       },
-      founder_checklist: [
-        "Merge #71 and confirm /api/cdn/packs/il/index.json is 200",
-        "Email 5 risk/ops contacts using mailto template above",
-        "Walk first bank through wizard + pilot-package curl on a call-free path",
-        "Only after G3: admit second issuer (G5), then chase volume",
+      founder_pull_checklist: [
+        "Merge #71 — packs CDN + footers live in production",
+        "Drive real SENT volume on bank-fees / telecom (creates ignore-cost)",
+        "Keep leaders wall empty until a real opt-in — scarcity is the FOMO",
+        "When a bank emails: reply with pilot-package?audience=their-slug only",
+        "Phase D (PayPlus) after G3, not before",
       ],
+      doctrine: "docs/INSTITUTIONAL_PULL.md",
     },
     {
       headers: {

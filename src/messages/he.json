@@ -569,7 +569,6 @@
     "feeNote": "עמלת הצלחה (18%)",
     "feeExplain": "משלמים רק כי זה עבד. בלי חיסכון — בלי חיוב.",
     "payFeeNow": "שלם עמלת הצלחה עכשיו",
-    "payFeeNow": "שלם עמלת הצלחה עכשיו",
     "noSaving": "לא תועד חיסכון בפנייה הזו — לכן גם אין עמלה. אפשר לנסות ספק או מסלול אחר.",
     "newCase": "בדוק חשבונית נוספת",
     "toDash": "לדשבורד",
@@ -5388,7 +5387,9 @@
     "quickIntegrationHeading": "שילוב מהיר",
     "quickIntegration1": "— verify/decide בכ~30 דקות (גם ב",
     "quickIntegration2": "— תמונת מצב חיה לצוותי סיכון נכנס (בלי שיחת מכירות).",
-    "registryHumanReadable": "קריא לאדם"
+    "registryHumanReadable": "קריא לאדם",
+    "heroMailtoCta": "כתבו אלינו — אתם יוזמים את הפיילוט",
+    "leaderWizardCta": "אשף Reference Verifier (בלי מייל)"
   },
   "institutionLeader": {
     "metaTitle": "מובילי אימות Mandate — זכאי",
@@ -5444,7 +5445,14 @@
     "tierPioneer": "Pioneer",
     "tierReference": "Reference verifier",
     "consumerStripHint": "בנקים שבחרו להופיע בקיר המובילים אחרי בדיקות אימות self-serve — לא אישור פיקוח, אבל סימן שהם מוכנים לאמת Mandate במקום לקרוא PDF ידני.",
-    "consumerStripDisclaimer": "הרשימה ריקה עד שמוסד נרשם. אין כאן «שותפות» מומצאת."
+    "consumerStripDisclaimer": "הרשימה ריקה עד שמוסד נרשם. אין כאן «שותפות» מומצאת.",
+    "consumerStripEmpty": "עדיין אין בנק בקיר המובילים. זה לא אומר שאין Mandate — רק שאף מוסד עדיין לא בחר להופיע אחרי בדיקות self-serve.",
+    "consumerStripEmptySlots": "נשארו עד 3 מקומות Pioneer למי שישלימו אימות אמיתי ויאשרו פרסום — לא לקוחות מומצאים.",
+    "consumerAskBankCta": "שלחו לבנק שלכם בקשה לתמוך באימות",
+    "institutionEmailUs": "מוסד? כתבו אלינו",
+    "leadersEmptySlots": "נשארו {n} מקומות Pioneer (מתוך 3) למי שישלימו את האשף ויאשרו פרסום.",
+    "leadersClaimPioneer": "לתבוע מקום Pioneer — אשף + מייל אלינו",
+    "heroMailtoCta": "כתבו אלינו — אתם יוזמים"
   },
   "institutionConformance": {
     "title": "אימות מימוש — ~30 דקות, בלי שיחת מכירות",

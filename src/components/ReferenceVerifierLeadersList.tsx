@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import { Card } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
 import { getTranslations } from "next-intl/server";
 import { institutionDisplayName } from "@/lib/referenceVerifier";
+import { institutionPilotMailto } from "@/lib/institutionPull";
+import { Link } from "@/i18n/routing";
 
 export async function ReferenceVerifierLeadersList({
   locale,
@@ -30,9 +32,21 @@ export async function ReferenceVerifierLeadersList({
   const reference = rows.filter((r) => r.tier !== "pioneer");
 
   if (rows.length === 0) {
+    const pioneerLeft = 3;
     return (
       <Card className="p-6 mt-6">
-        <p className="text-[14px] text-ink-soft m-0">{t("leadersEmpty")}</p>
+        <p className="text-[14px] text-ink-soft m-0 mb-3">{t("leadersEmpty")}</p>
+        <p className="text-[13px] text-emerald font-extrabold m-0 mb-4">
+          {t("leadersEmptySlots", { n: pioneerLeft })}
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/institutions/leader" className="no-underline">
+            <Button>{t("leaderProgramCta")}</Button>
+          </Link>
+          <a href={institutionPilotMailto()} className="no-underline">
+            <Button variant="ghost">{t("leadersClaimPioneer")}</Button>
+          </a>
+        </div>
       </Card>
     );
   }

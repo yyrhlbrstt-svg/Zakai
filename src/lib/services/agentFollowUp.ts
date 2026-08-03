@@ -1,4 +1,5 @@
 import "server-only";
+import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { buildFollowUpForVertical } from "@/lib/followUpRouter";
@@ -130,6 +131,8 @@ export async function dispatchCaseFollowUp(
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
 מצורף: מסמך הרשאה מלא (HTML) + JSON inbound.
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
+${institutionPullFooterLine("he", appUrl)}
+לאוטומציה: ${institutionSalesEmail()}
 זוהי פנייה חוזרת של הסוכן (סיבוב ${round}) — הלקוח/ה אישר/ה את השליחה.`;
 
   const attachment = mandateEmailAttachment({

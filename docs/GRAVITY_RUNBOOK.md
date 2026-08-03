@@ -26,7 +26,19 @@ Origin mirror `/api/cdn/packs` already serves the monorepo artifact for evaluati
 - `/he/founder` shows live ControlGatesStrip + CEO action list (after ADMIN_EMAIL login).
 - Outreach one-pager: `/api/institution/outreach-kit` (mailto template, no fake logos).
 
-## 2) First Reference Verifier (G3) — human
+## 2) First Reference Verifier (G3) — pull, not cold email
+
+**Do not** blast banks. Make them email you:
+
+1. Consumer SENT volume with footers → desk pain.
+2. `/institutions` mailto + ROI → they initiate.
+3. Empty Pioneer wall + consumer «ask your bank».
+4. When they write: reply with `pilot-package?audience=…`.
+
+See `/api/institution/outreach-kit` (pull kit) and `docs/INSTITUTIONAL_PULL.md`.
+
+### G3 steps once they inquire
+
 
 1. Use `/api/institution/outreach-kit` mailto → send to risk/ops.
 2. They open `/he/join-network` → wizard; download `/api/institution/pilot-package?audience=<their-aud>` (filled sample curl when keys live).

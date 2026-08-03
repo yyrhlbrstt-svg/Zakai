@@ -235,7 +235,7 @@ export default async function FounderPage({
           <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו</div>
           <ul className="m-0 ps-5 flex flex-col gap-1.5 text-ink-soft">
             <li>
-              לשלוח לבנק:{" "}
+              מגנט משיכה (הם כותבים אלינו):{" "}
               <a className="text-emerald underline" href="/he/join-network">
                 /he/join-network
               </a>{" "}
@@ -245,8 +245,9 @@ export default async function FounderPage({
               </a>{" "}
               ·{" "}
               <a className="text-emerald underline" href="/api/institution/outreach-kit">
-                outreach-kit
-              </a>
+                pull-kit
+              </a>{" "}
+              · inbox: production footers + /institutions mailto
             </li>
             <li>
               מנפיק שני:{" "}

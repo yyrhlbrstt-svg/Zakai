@@ -21,6 +21,7 @@ import { pushToUser } from "@/lib/push";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { withFooter } from "@/lib/letterFooter";
+import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
 import { publicSupportEmail } from "@/lib/contact";
 import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
@@ -231,7 +232,9 @@ export async function sendOutreach(caseId: string, userId: string) {
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
 מצורף: מסמך הרשאה מלא (HTML) + JSON inbound (zakai-inbound-receive).
-גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.${protocolFooter}`;
+גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
+${institutionPullFooterLine("he", appUrl)}
+לאוטומציה: ${institutionSalesEmail()}${protocolFooter}`;
 
   const attachment = mandateEmailAttachment({
     code: auth.code,

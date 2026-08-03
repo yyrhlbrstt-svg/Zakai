@@ -76,6 +76,22 @@ is always free).
 - Verify a mandate: `POST /api/mandate/verify` (CORS-enabled) · status by id:
   `GET /api/mandate/status/{jti}`
 - Institutions overview: [/en/institutions](https://zakai-3uxj.vercel.app/en/institutions)
+
+## For banks & institutions (inbound only)
+
+Zakai does not cold-call institutions. When customer Mandates create desk volume,
+institutions email Zakai to automate verify — or finish the self-serve wizard alone.
+
+- Email (you initiate): use the mailto on [/en/institutions](https://zakai-3uxj.vercel.app/en/institutions) or write `SALES_EMAIL` / support inbox listed there
+- Pilot package (filled sample curl when keys live): `GET /api/institution/pilot-package?audience=<your-aud>`
+- Reference Verifier wizard: [/he/institutions/leader](https://zakai-3uxj.vercel.app/he/institutions/leader)
+- Leaders wall (empty until real opt-in): [/he/institutions/leaders](https://zakai-3uxj.vercel.app/he/institutions/leaders)
+- Inbound receive format: [/.well-known/zakai-inbound-receive.json](https://zakai-3uxj.vercel.app/.well-known/zakai-inbound-receive.json)
+- Ops math: `GET /api/institution/ignore-cost` · pressure: `GET /api/institution/inbound-pressure`
+- Join kit: `GET /api/network/join-kit`
+
+Never invent partner banks. Pioneer slots (first 3 listings) are real scarcity after verify — not paid placement.
+
 - **Inbound receive format (for banks/providers):** [/.well-known/zakai-inbound-receive.json](https://zakai-3uxj.vercel.app/.well-known/zakai-inbound-receive.json)
 - **Agent economy (how other AIs distribute, not compete):** [/.well-known/zakai-agent-economy.json](https://zakai-3uxj.vercel.app/.well-known/zakai-agent-economy.json)
 - Seven monopoly rails (real counters): `GET /api/network/monopoly`

@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Input } from "@/components/ui";
+import { Card, Input, Button } from "@/components/ui";
+import { roiMailto } from "@/lib/institutionPull";
 
 /**
  * A business case an institution's own team computes from its own numbers —
- * not an invented industry benchmark. It answers exactly one question,
- * narrowly and honestly: what does automated authorization verification save
- * on the single step Mandate actually replaces (a human confirming that a
- * scanned power of attorney is real and current)? It does not estimate
- * savings on the rest of case handling, because Mandate does not touch that.
+ * not an invented industry benchmark. Ends with mailto so they email Zakai
+ * with their math (pull), not a cold sales script.
  */
 export function InstitutionRoiCalculator() {
   const [volume, setVolume] = useState("200");
@@ -26,6 +24,14 @@ export function InstitutionRoiCalculator() {
 
   const fmt = (n: number) =>
     n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+  const mailto = roiMailto({
+    volume: v,
+    minutes: m,
+    hourlyCost: c,
+    hoursPerMonth: hoursSavedPerMonth,
+    costPerYear: costSavedPerYear,
+  });
 
   return (
     <Card className="p-6">
@@ -79,13 +85,20 @@ export function InstitutionRoiCalculator() {
         <Stat label="Cost / year" value={fmt(costSavedPerYear)} />
       </div>
 
-      <p className="text-[12px] leading-relaxed text-ink-soft mt-4">
+      <p className="text-[12px] leading-relaxed text-ink-soft mt-4 mb-4">
         Formula, in full: (requests × minutes ÷ 60) × hourly cost. No number
         above comes from us — change any input and the result changes with
         it. What this leaves out on purpose: reduced dispute/compliance
         exposure from a cryptographically bounded credential instead of a
         scanned document, and any change in resolution speed — both real, but
         neither is a number we&apos;d compute for you without your own data.
+      </p>
+
+      <a href={mailto} className="no-underline inline-block">
+        <Button className="w-full sm:w-auto">Email these numbers to Zakai →</Button>
+      </a>
+      <p className="text-[11px] text-ink-soft mt-2 mb-0">
+        Opens your mail client with the calculator inputs — you initiate contact.
       </p>
     </Card>
   );

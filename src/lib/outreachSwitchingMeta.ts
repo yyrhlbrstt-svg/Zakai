@@ -1,3 +1,4 @@
+import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
 import {
   SWITCHING_SPEC,
   SWITCHING_VERSION,
@@ -51,5 +52,9 @@ export function buildOutreachProtocolFooter(input: {
     lines.push(`mandate_status: ${base}/api/mandate/status/${input.mandateJti}`);
   }
   lines.push(`mandate_jwks: ${base}/.well-known/zakai-jwks.json`);
+  lines.push(`institutions: ${base}/he/institutions`);
+  lines.push(`pilot_package: ${base}/api/institution/pilot-package`);
+  lines.push(`contact: ${institutionSalesEmail()}`);
+  lines.push(institutionPullFooterLine("en", base));
   return lines.join("\n");
 }
