@@ -291,6 +291,13 @@
       "Success fee only — 18% of the saving",
       "Full disclosure — a digital agent under your mandate, publicly verifiable"
     ],
+    "systemsTitle": "A system in the background — not another tip list",
+    "systemsBullets": [
+      "Order from chaos — one case thread per money door",
+      "Less friction — no call centre, no \"we'll call you back\"",
+      "Machine-readable authority — Mandate you can verify and revoke",
+      "Fee only after proof — on money that actually returned"
+    ],
     "scopeNote": "Zakai acts on your behalf with providers and authorities under a digital power of attorney you approve for each request, verifiable publicly. It is not a law firm, gives no legal or tax advice, and final eligibility is determined by the body the request is filed with.",
     "verticalsTitle": "What Zakai checks for you",
     "verticals": {

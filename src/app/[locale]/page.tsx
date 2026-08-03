@@ -358,6 +358,23 @@ export default async function HomePage({
         </ul>
       </Reveal>
 
+      <Reveal delay={60}>
+        <h2 className="text-[17px] font-extrabold mt-12 mb-3">{t("home.systemsTitle")}</h2>
+        <ul className="flex flex-col gap-2 list-none p-0 m-0 max-w-[560px]">
+          {((t.raw("home.systemsBullets") as string[]) || []).map((line) => (
+            <li
+              key={line}
+              className="flex items-start gap-2.5 text-[13.5px] text-ink-soft leading-relaxed"
+            >
+              <span className="text-emerald font-black shrink-0" aria-hidden>
+                →
+              </span>
+              {line}
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">
           {t("home.howTitle")}

@@ -34,7 +34,7 @@ Track honest status — no fabricated metrics.
 ## Related
 
 - `docs/CEO_LAUNCH_DECISIONS.md` — **merge #71 only**, env checklist, smoke
-- `docs/MASTER_BRIEF_STATUS.md` — full “trillion-dollar protocol” brief mapped to code (honest)
+- `docs/PROTOCOL_SCALE_ASSESSMENT.md` — gates to protocol-scale (honest)
 
 - Outcome graph population
 - Social proof numbers

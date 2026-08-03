@@ -81,7 +81,7 @@ This maps the “trillion-dollar protocol” brief to **what exists in this repo
 | Claim “הכן טיוטה” | **#71** |
 | Proofs empty state | **#71** |
 | `/agents` Hebrew | **#71** `agentsPageCopy.ts` |
-| `/institutions` Hebrew | **Partial #71** — long sections still EN |
+| `/institutions` Hebrew | **Done (#71)** — `institutionsLongCopy.ts` |
 | Footer legal + support | **#70** |
 
 ---
@@ -112,13 +112,12 @@ This maps the “trillion-dollar protocol” brief to **what exists in this repo
 
 ## Execution order (for humans + agents)
 
-1. **Merge PR #70** → contact + ZML Hebrew  
-2. **Merge PR #71** → OG, fairness, UX, agents  
-3. **Vercel env:** PayPlus, SMTP, `CRON_SECRET`, `ZAKAI_ADMIN_TOKEN`, `NEXT_PUBLIC_SUPPORT_EMAIL`  
+1. **Merge PR #71 only** (includes #70) — see `docs/CEO_LAUNCH_DECISIONS.md`  
+2. **Vercel env:** PayPlus, SMTP, `CRON_SECRET`, `ZAKAI_ADMIN_TOKEN`, support/leads inboxes  
+3. **Scale gates:** `docs/PROTOCOL_SCALE_ASSESSMENT.md`  
 4. **One real saved case** → outcome graph + proofs (no seed script)  
 5. **Publish packs** to CDN → `POST /api/admin/packs/reload`  
-6. **Institutions** full Hebrew copy (next PR)  
-7. **Collective auction** only after legal review of bidding  
+6. **Collective auction** only after legal review of bidding  
 
 ---
 
