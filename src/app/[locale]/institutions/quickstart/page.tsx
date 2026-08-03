@@ -74,13 +74,12 @@ npx zakai-mandate-ready --origin ${ORIGIN}`}</CodeBlock>
           {heEn(he, "2) Python — בלי npm", "2) Python — no npm")}
         </div>
         <CodeBlock>{`cd reference/python
-python3 zakai_verify.py --ready --origin ${ORIGIN}
-# optional: verify one JWS
-python3 zakai_verify.py --jws '<compact>' --origin ${ORIGIN}`}</CodeBlock>
+pip install -r requirements-sdk.txt
+python3 zakai_verify.py --ready --origin ${ORIGIN}`}</CodeBlock>
         <p className="text-[13px] text-ink-soft mt-3 mb-0 leading-relaxed">
           {he
-            ? "stdlib בלבד — smoke: vectors + Status List נשלף. לאימות חתימה בפרודקשן: Node SDK או ספריית JWT שלכם."
-            : "Stdlib only — smoke: vectors + Status List fetchable. For signature verify in production: Node SDK or your JWT library."}
+            ? "מאמת statuslist+jwt מול JWKS (Ed25519) — אותו שער כמו Node. בלי cryptography אין READY_FOR_PIONEER."
+            : "Verifies statuslist+jwt against JWKS (Ed25519) — same gate as Node. Without cryptography there is no READY_FOR_PIONEER."}
         </p>
       </Card>
 

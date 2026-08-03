@@ -16,7 +16,6 @@ import { CaseNextStep } from "@/components/CaseNextStep";
 import { ReminderBanner } from "@/components/ReminderBanner";
 import { OvernightAgent } from "@/components/OvernightAgent";
 import { Reveal } from "@/components/Reveal";
-import { EmptyDashboardActions } from "@/components/EmptyDashboardActions";
 import { StrategyInsightsCard } from "@/components/StrategyInsightsCard";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
@@ -29,7 +28,6 @@ import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { RetentionActionStrip } from "@/components/RetentionActionStrip";
 import { loadRetentionPlan } from "@/lib/services/retentionPlan";
-import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { feeBasisForVertical } from "@/lib/verticals";
@@ -493,23 +491,15 @@ export default async function DashboardPage({
               : "Start with Money OS: scan charges, open an agent case — no phone left behind."}
           </div>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
-            <Link href="/money">
+            <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-6">{moneyLabel} →</Button>
             </Link>
-            <Link href="/cancel">
-              <Button variant="ghost">{locale === "he" ? "ביטול מנוי עם סוכן" : "Cancel with agent"}</Button>
-            </Link>
-            <Link href="/electricity">
-              <Button variant="ghost">{locale === "he" ? "חשמל" : "Electricity"}</Button>
-            </Link>
           </div>
-          <div className="mt-8 text-start">
-            <div className="text-[12.5px] font-extrabold text-ink-soft mb-3 uppercase tracking-wide">
-              {locale === "he" ? "מה כדאי לפתוח עכשיו" : "What to open now"}
-            </div>
-            <PriorityActionsRanked limit={4} />
-          </div>
-          <EmptyDashboardActions />
+          <p className="text-[12.5px] text-ink-soft mt-5 mb-0 max-w-[420px] mx-auto leading-relaxed">
+            {locale === "he"
+              ? "דלת אחת: סריקה → תיק → Mandate → חיסכון מתועד. קיצורים אחרים רק אחרי שיש תיק."
+              : "One door: scan → case → Mandate → documented saving. Other shortcuts only after you have a case."}
+          </p>
         </Card>
       ) : (
         <>

@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 """
-Zakai Mandate — thin Python verify client (stdlib only).
+Zakai Mandate — Python verify client.
 
-This is a smoke path, not a full crypto SDK. For production Status List
-signature verification use the Node SDK (`cd sdk && npm run ready`) or your
-own JWT/Ed25519 stack against /.well-known/zakai-jwks.json.
-
-Banks that cannot add npm still need a 15-minute path:
-  1) POST /api/mandate/verify  (crypto against published JWKS on our side,
-     or swap in your own JWT library later)
-  2) GET  /api/mandate/revocations  (signed statuslist+jwt — cache it)
-  3) python3 zakai_decide.py        (offline policy vectors)
+Paths:
+  1) Offline crypto (preferred when cryptography is installed):
+       pip install -r requirements-sdk.txt
+       python3 zakai_verify.py --ready --origin https://zakai-3uxj.vercel.app
+     Verifies the signed statuslist+jwt against JWKS (same bar as Node SDK).
+  2) Stdlib smoke (no pip): vectors + fetchable Status List shape only.
+  3) HTTP mandate verify: POST /api/mandate/verify for one JWS.
 
 Usage:
-  python3 zakai_verify.py --jws <compact> [--origin https://zakai-3uxj.vercel.app]
-  python3 zakai_verify.py --status-only
-  python3 zakai_verify.py --ready   # vectors (via zakai_decide) + status list HTTP smoke
+  python3 zakai_verify.py --ready [--origin …]
+  python3 zakai_verify.py --status-only [--origin …]
+  python3 zakai_verify.py --jws <compact> [--origin …]
 
 Exit 0 on success. Never invents permit on error.
 """
@@ -69,7 +67,37 @@ def verify_jws(origin: str, jws: str) -> int:
     return 0
 
 
-def check_status_list(origin: str) -> int:
+def check_status_list_crypto(origin: str) -> int:
+    """Cryptographic Status List verify — same gate as Node `npm run ready`."""
+    try:
+        from zakai_jws import HAS_CRYPTO, JwsError, verify_status_list_from_url
+    except ImportError as err:
+        print(f"status list crypto: FAILED — {err}", file=sys.stderr)
+        return 1
+    if not HAS_CRYPTO:
+        print(
+            "status list crypto: SKIPPED — pip install -r requirements-sdk.txt",
+            file=sys.stderr,
+        )
+        return 2
+    base = origin.rstrip("/")
+    try:
+        claims = verify_status_list_from_url(
+            status_list_uri=f"{base}/api/mandate/revocations",
+            issuer=base,
+            jwks_uri=f"{base}/.well-known/zakai-jwks.json",
+        )
+    except (JwsError, Exception) as err:  # noqa: BLE001
+        print(f"status list crypto: FAILED — {err}", file=sys.stderr)
+        return 1
+    print(
+        "status list: VERIFIED — typ=statuslist+jwt "
+        f"iss={claims.get('iss')!r} exp={claims.get('exp')}"
+    )
+    return 0
+
+
+def check_status_list_smoke(origin: str) -> int:
     url = f"{origin.rstrip('/')}/api/mandate/revocations"
     try:
         status, ctype, body = http_text(url)
@@ -79,18 +107,28 @@ def check_status_list(origin: str) -> int:
     if status != 200:
         print(f"status list: FAILED HTTP {status}", file=sys.stderr)
         return 1
-    if "statuslist" not in ctype and not body.count(".") == 2:
+    if "statuslist" not in ctype and body.count(".") != 2:
         print(f"status list: unexpected content-type {ctype!r}", file=sys.stderr)
         return 1
-    # Signature verification belongs in your JWT stack (or Node SDK
-    # verifyStatusListFromUrl). Here we only prove the artefact is fetchable
-    # and shaped like a compact JWS — enough for a 15-minute smoke.
     parts = body.strip().split(".")
     if len(parts) != 3:
         print("status list: not a compact JWS", file=sys.stderr)
         return 1
-    print(f"status list: FETCHED — content-type={ctype!r} bytes={len(body)} (verify signature with JWKS offline).")
+    print(
+        f"status list: FETCHED — content-type={ctype!r} bytes={len(body)} "
+        "(smoke only — install cryptography for signature verify)."
+    )
     return 0
+
+
+def check_status_list(origin: str) -> int:
+    crypto = check_status_list_crypto(origin)
+    if crypto == 0:
+        return 0
+    if crypto == 1:
+        return 1
+    # cryptography missing → smoke fallback (not READY_FOR_PIONEER crypto bar)
+    return check_status_list_smoke(origin)
 
 
 def run_ready(origin: str) -> int:
@@ -100,7 +138,16 @@ def run_ready(origin: str) -> int:
         [sys.executable, str(decide), "--url", origin],
         check=False,
     )
-    st = check_status_list(origin)
+    st = check_status_list_crypto(origin)
+    if st == 2:
+        # No cryptography — refuse READY so we don't overclaim vs Node.
+        print(
+            "NOT_READY — install cryptography for Status List signature verify:\n"
+            "  pip install -r requirements-sdk.txt",
+            file=sys.stderr,
+        )
+        smoke = check_status_list_smoke(origin)
+        return 1 if smoke != 0 or vec.returncode != 0 else 1
     if vec.returncode == 0 and st == 0:
         print("READY_FOR_PIONEER")
         print(f"Next: {origin.rstrip('/')}/he/institutions/leader")
@@ -110,11 +157,15 @@ def run_ready(origin: str) -> int:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="Zakai Mandate Python verify (stdlib)")
+    p = argparse.ArgumentParser(description="Zakai Mandate Python verify")
     p.add_argument("--origin", default=DEFAULT_ORIGIN)
     p.add_argument("--jws", help="Compact JWS mandate to verify via HTTP")
     p.add_argument("--status-only", action="store_true")
-    p.add_argument("--ready", action="store_true", help="vectors + status list smoke")
+    p.add_argument(
+        "--ready",
+        action="store_true",
+        help="vectors + cryptographically verified Status List (needs cryptography)",
+    )
     args = p.parse_args()
     origin = args.origin.rstrip("/")
 

@@ -22,17 +22,17 @@ cd sdk && npm ci && npm run ready -- --origin https://zakai-3uxj.vercel.app
 # npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
 ```
 
-**Python (stdlib smoke — vectors via `zakai_decide` + Status List HTTP fetch):**
+**Python (Ed25519 Status List verify — same crypto bar as Node):**
 
 ```bash
 cd reference/python
+pip install -r requirements-sdk.txt
 python3 zakai_verify.py --ready --origin https://zakai-3uxj.vercel.app
 ```
 
-`READY_FOR_PIONEER` requires vectors + a live Status List. Node cryptographically
-verifies the statuslist+jwt against JWKS; Python's `--ready` confirms the list is
-fetchable and runs the offline decide vectors — use Node (or your own JWT library)
-for the crypto bar before production listing.
+`READY_FOR_PIONEER` requires vectors + cryptographically verified statuslist+jwt.
+Without `cryptography`, Python refuses READY (smoke fetch only) so it cannot
+overclaim against the Node SDK.
 
 Live JSON twin (same gate the Pioneer wizard and listing API use):
 

@@ -95,10 +95,11 @@ export async function POST(req: Request) {
   }
 
   const origin = appOrigin();
+  const issuer = mandateIssuer();
   try {
     await verifyStatusListFromUrl({
       statusListUri: `${origin}/api/mandate/revocations`,
-      issuer: origin,
+      issuer,
       jwksUri: `${origin}/.well-known/zakai-jwks.json`,
     });
   } catch (err) {

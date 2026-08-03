@@ -1,0 +1,3 @@
+# Minimal crypto stack for Python Mandate / Status List verification.
+# Stdlib-only smoke still works without this; READY_FOR_PIONEER requires it.
+cryptography>=41.0.0

@@ -33,7 +33,7 @@ export default async function JoinNetworkPage({
     {
       title: c.institutionTitle,
       body: c.institutionBody,
-      href: "/institutions/leader",
+      href: "/institutions/quickstart",
       cta: c.institutionCta,
       external: null as string | null,
     },

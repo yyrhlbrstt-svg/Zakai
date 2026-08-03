@@ -85,6 +85,9 @@ export default async function FounderPage({
     outboxQueued,
     outboxFailed,
     mandatesActive,
+    mandatesOnSentPlus,
+    mandatesIssued7d,
+    proofsDocumented7d,
   ] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
     // Documented pipeline only — estimate shortcuts must not inflate the founder instrument.
@@ -134,6 +137,14 @@ export default async function FounderPage({
     prisma.outbox.count({ where: { status: "QUEUED" } }),
     prisma.outbox.count({ where: { status: "FAILED" } }),
     prisma.authorization.count({ where: { status: "ACTIVE", revokedAt: null } }),
+    // Mandates that actually left the building (case reached SENT+).
+    prisma.authorization.count({
+      where: { case: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } } },
+    }),
+    prisma.authorization.count({ where: { issuedAt: { gte: weekAgo } } }),
+    prisma.savingsProof.count({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: weekAgo } },
+    }),
   ]);
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
@@ -164,6 +175,9 @@ export default async function FounderPage({
     ["— משתמשים חדשים (7 ימים) —", String(newUsers7d)],
     ["בדיקות שנפתחו", String(checks)],
     ["— Mandates פעילים (ACTIVE) —", String(mandatesActive)],
+    ["— Mandates על תיקים SENT+ (נשלחו באמת) —", String(mandatesOnSentPlus)],
+    ["— Mandates שהונפקו (7 ימים) —", String(mandatesIssued7d)],
+    ["— SavingsProof מתועד (7 ימים) —", String(proofsDocumented7d)],
     ["— משפך: לפני שליחה (ANALYZED+APPROVED+VERIFIED) —", String(preSendOpen)],
     ["— משפך: SENT פתוח (ממתין ל־Proof) —", String(sentOnly)],
     ["לידים לעמלה (ביטוח/וורטיקלים)", leadsValue],
