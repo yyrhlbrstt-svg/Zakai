@@ -722,3 +722,20 @@ model ReferenceVerifier {
 
   @@index([listedAt])
 }
+
+/**
+ * Partner embed API keys. Previously ephemeral in-memory (lost on every deploy)
+ * or hand-edited into ZAKAI_WIDGET_KEYS_JSON — neither is a distribution rail.
+ * Env JSON remains a bootstrap/override; the durable source of truth is this table.
+ */
+model WidgetKey {
+  /// Opaque public key, e.g. pk_live_…
+  key       String   @id
+  /// Allowed Origin hostname (exact or subdomain of this apex).
+  domain    String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([domain])
+  @@index([revokedAt])
+}

@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const widgetKey = request.headers.get("X-Zakai-Widget-Key");
   const requestOrigin = request.headers.get("Origin");
   if (widgetKey) {
-    const ok = validateWidgetKey(widgetKey, requestOrigin);
+    const ok = await validateWidgetKey(widgetKey, requestOrigin);
     if (!ok) {
       return NextResponse.json(
         { error: "invalid_widget_key" },

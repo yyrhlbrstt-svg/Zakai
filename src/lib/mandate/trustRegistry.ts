@@ -242,9 +242,11 @@ export function registryDocument() {
     admission: {
       delegated_apply: "POST /api/mandate/delegation/apply",
       delegated_roster: "GET /api/mandate/delegation/issuers",
+      evidence_package: "GET /api/mandate/delegation/evidence",
+      evidence_dry_run: "POST /api/mandate/delegation/evidence",
       admit_pilot_script: "scripts/admit-delegated-pilot.mjs",
       full_issuer_note:
-        "Full issuers with their own JWKS submit via ZAKAI_EXTRA_ISSUERS_JSON after conformance review, or run their own registry fork.",
+        "Full issuers with their own JWKS submit via ZAKAI_EXTRA_ISSUERS_JSON after conformance review, or run their own registry fork. Dry-run a candidate row against validateIssuer via POST /api/mandate/delegation/evidence before asking for admission.",
       env_extra_issuers: "ZAKAI_EXTRA_ISSUERS_JSON",
     },
     issuers: listRegisteredIssuers().map((i) => ({

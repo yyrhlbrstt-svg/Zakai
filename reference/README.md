@@ -21,8 +21,9 @@ authorization vectors:
 
 settlement vectors:
   python   CONFORMANT - 20/20 vectors and 5 hash fixtures passed.
+  go       CONFORMANT - 20/20 vectors and 5 hash fixtures passed.
 
-  6 runs, all conformant.
+  7 runs, all conformant.
 ```
 
 There are two layers and each has its own suite. Authorization answers *may this
@@ -55,6 +56,7 @@ explicitly-unset field hash identically, and no insignificant whitespace.
 | Ruby | `ruby/zakai_decide.rb` | `ruby`, stdlib only |
 | PHP | `php/zakai_decide.php` | `php`, no Composer |
 | Python (settlement) | `python/zakai_settle.py` | `python3` |
+| Go (settlement) | `go/zakai_settle.go` | `go run`, no modules |
 
 That is not a stylistic flourish. The decision layer performs no cryptography —
 signature verification happened earlier, in whatever JWT library the

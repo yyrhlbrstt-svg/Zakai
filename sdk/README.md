@@ -5,10 +5,10 @@ audience-bound, revocable statement that a named person authorised an agent
 to act on their behalf, plus the settlement layer that decides who is right
 when the agent and the institution later disagree about what happened.
 
-Not published to npm yet. This package builds, typechecks, and passes its
-full test suite (including a live round trip against a real generated key)
-inside the Zakai repository — publishing it under a real package name is a
-deliberate, separate step, not something done silently.
+Publishing is automated but gated: `.github/workflows/sdk-publish.yml` builds
+and tests on every `sdk/**` change; npm publish runs only on an `sdk@v*` tag
+or a manual `workflow_dispatch` with `publish=true` (needs repo `NPM_TOKEN`).
+Until the first tag, install from this monorepo path.
 
 ## Why this exists
 
@@ -44,7 +44,9 @@ the same logic.
 npm install @zakai/mandate-sdk
 ```
 
-(Not on npm yet — see the note at the top of this file.)
+From this repo before the first publish: `cd sdk && npm run build && npm link`.
+To cut a release: bump `sdk/package.json` version, tag `sdk@v0.1.0`, push the tag
+(or run the **SDK publish** workflow with publish enabled).
 
 ## MCP server: give any AI agent a Mandate verifier
 
