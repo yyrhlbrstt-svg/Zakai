@@ -38,52 +38,59 @@ export function Footer() {
       </ul>
 
       <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center text-[13px] font-bold">
-        <Link href="/money" className="text-emerald no-underline hover:underline">
+        <Link
+          href="/money#zakai-money-scan"
+          className="text-[#06121A] no-underline rounded-full px-3.5 py-1.5 bg-emerald hover:opacity-90"
+        >
           {moneyLabel}
-        </Link>
-        <Link href="/must-have" className="text-emerald no-underline hover:underline">
-          {mustHaveLabel}
         </Link>
         <Link href="/cancel" className="text-ink-soft no-underline hover:text-emerald">
           {cancelLabel}
         </Link>
-        <Link href="/what-am-i-owed" className="text-ink-soft no-underline hover:text-emerald">
-          {owedLabel}
-        </Link>
-        <Link href="/electricity" className="text-ink-soft no-underline hover:text-emerald">
-          {elecLabel}
+        <Link href="/dashboard" className="text-ink-soft no-underline hover:text-emerald">
+          {t("nav.dashboard")}
         </Link>
         <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
           |
         </span>
-        <Link href="/standard" className="text-ink-soft no-underline hover:text-emerald">
-          {locale === "he" ? "תקן Interop" : "Interop standard"}
-        </Link>
-        <Link href="/domains" className="text-ink-soft no-underline hover:text-emerald">
-          {locale === "he" ? "5 דומיינים" : "5 domains"}
-        </Link>
-        <Link href="/global" className="text-ink-soft no-underline hover:text-emerald">
-          {t("footer.global")}
-        </Link>
-        <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
-          |
-        </span>
-        <Link href="/business" className="text-ink-soft no-underline hover:text-emerald">
-          {bizLabel}
-        </Link>
-        <Link href="/partners" className="text-ink-soft no-underline hover:text-emerald">
-          {partnersLabel}
-        </Link>
         <Link href="/institutions" className="text-ink-soft no-underline hover:text-emerald">
           {instLabel}
         </Link>
         <Link href="/tools" className="text-ink-soft no-underline hover:text-emerald">
           {t("footer.allTools")}
         </Link>
-        <Link href="/network-proof" className="text-ink-soft no-underline hover:text-emerald">
-          {t("footer.networkProof")}
-        </Link>
       </div>
+      <details className="text-[12.5px] text-ink-soft text-center">
+        <summary className="cursor-pointer font-bold select-none">
+          {locale === "he" ? "עוד קישורים" : "More links"}
+        </summary>
+        <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center mt-3 font-bold">
+          <Link href="/must-have" className="text-ink-soft no-underline hover:text-emerald">
+            {mustHaveLabel}
+          </Link>
+          <Link href="/what-am-i-owed" className="text-ink-soft no-underline hover:text-emerald">
+            {owedLabel}
+          </Link>
+          <Link href="/electricity" className="text-ink-soft no-underline hover:text-emerald">
+            {elecLabel}
+          </Link>
+          <Link href="/standard" className="text-ink-soft no-underline hover:text-emerald">
+            {locale === "he" ? "תקן Interop" : "Interop standard"}
+          </Link>
+          <Link href="/global" className="text-ink-soft no-underline hover:text-emerald">
+            {t("footer.global")}
+          </Link>
+          <Link href="/business" className="text-ink-soft no-underline hover:text-emerald">
+            {bizLabel}
+          </Link>
+          <Link href="/partners" className="text-ink-soft no-underline hover:text-emerald">
+            {partnersLabel}
+          </Link>
+          <Link href="/network-proof" className="text-ink-soft no-underline hover:text-emerald">
+            {t("footer.networkProof")}
+          </Link>
+        </div>
+      </details>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-[12.5px] text-ink-soft">

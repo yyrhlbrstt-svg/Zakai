@@ -15,16 +15,16 @@ export interface ToolEntry {
 }
 
 export const TOOL_CATALOG: readonly ToolEntry[] = [
-  // Featured = header dropdown only. Hard cap: Money + agent brain + mature
-  // Mandate loops. Everything else lives on /tools so nav cannot dilute volume.
-  { href: "/money", key: "money", category: "agent", featured: true, agentic: true },
-  { href: "/assistant", key: "assistant", category: "agent", featured: true },
+  // Featured = Tools dropdown only (Money is the chrome CTA — never duplicate it).
+  // Cap: mature Mandate loops after /money. Full inventory on /tools.
+  { href: "/money", key: "money", category: "agent", agentic: true },
+  { href: "/assistant", key: "assistant", category: "agent" },
   { href: "/cancel", key: "cancel", category: "agent", featured: true, agentic: true },
   { href: "/cancel/universal", key: "universalCancel", category: "agent" },
-  { href: "/check", key: "newCheck", category: "agent", featured: true, agentic: true },
+  { href: "/check", key: "newCheck", category: "agent", agentic: true },
   { href: "/bank-fees", key: "bankfees", category: "agent", featured: true, agentic: true },
   { href: "/bank-loan-fee", key: "bankloanfee", category: "rights" },
-  { href: "/electricity", key: "electricity", category: "agent", agentic: true },
+  { href: "/electricity", key: "electricity", category: "agent", featured: true, agentic: true },
   { href: "/flights", key: "flights", category: "agent", agentic: true },
   { href: "/refund-chase", key: "refundchase", category: "agent", agentic: true },
   { href: "/what-am-i-owed", key: "whatAmIOwed", category: "rights" },

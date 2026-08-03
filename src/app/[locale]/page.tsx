@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { Reveal } from "@/components/Reveal";
 import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Bot } from "lucide-react";
+import { Globe, ScanLine } from "lucide-react";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 import { DoorTracker } from "@/components/DoorTracker";
@@ -97,8 +97,8 @@ export default async function HomePage({
         </div>
       )}
 
-      {/* One composition: brand + one headline + one sub + one CTA group. */}
-      <div className="mb-8 max-w-[640px]">
+      {/* First viewport = one start: brand signal + headline + money CTA + money door. */}
+      <div className="mb-6 max-w-[640px]">
         <Reveal>
           <PageKicker className="mb-6">
             {t("home.kicker")}
@@ -116,7 +116,7 @@ export default async function HomePage({
           <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
             {t("home.sub")}
           </p>
-          <div className="flex flex-wrap gap-3 mb-2">
+          <div className="flex flex-wrap gap-3 mb-6">
             <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-6 !py-3">{t("home.cta")}</Button>
             </Link>
@@ -129,30 +129,9 @@ export default async function HomePage({
         </Reveal>
       </div>
 
-      {/* Gravity before any secondary path — prove the loop is real (zeros stay zeros). */}
-      <Reveal delay={80}>
-        <div className="mb-8">
-          <LiveGravityStrip
-            localeBcp47={bcp47[locale as Locale]}
-            verifiedMinor={gravity.monthlyAgorot}
-            verifiedCount={gravity.count}
-            sentCount={gravity.sentCount}
-            mandateCount={gravity.mandateCount}
-            labels={{
-              title: t("home.gravityTitle"),
-              sent: t("home.gravitySent"),
-              mandates: t("home.gravityMandates"),
-              proofs: t("home.gravityProofs"),
-              empty: t("home.gravityEmpty"),
-              ledger: t("home.gravityLedger"),
-            }}
-          />
-        </div>
-      </Reveal>
-
       <Reveal delay={100}>
-        <Link href="/money#zakai-money-scan" className="no-underline block mb-8">
-          <SpotlightCard className="p-7 sm:p-8 border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.08)] hover:scale-[1.01] transition-transform">
+        <Link href="/money#zakai-money-scan" className="no-underline block mb-10">
+          <SpotlightCard className="p-7 sm:p-8 border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.1)] hover:scale-[1.01] transition-transform">
             <div className="flex flex-wrap items-start gap-5">
               <div className="w-12 h-12 rounded-xl bg-[rgba(63,203,155,0.22)] flex items-center justify-center shrink-0">
                 <ScanLine size={24} className="text-emerald" aria-hidden />
@@ -212,53 +191,37 @@ export default async function HomePage({
             </Reveal>
           ))}
         </div>
+        <Reveal>
+          <div className="mb-12">
+            <Link href="/money#zakai-money-scan">
+              <Button className="!text-[14px] !px-5 !py-2.5">{t("home.cta")}</Button>
+            </Link>
+          </div>
+        </Reveal>
       </div>
-
-      {/* Agent as the brain — not a sidebar afterthought. */}
-      <Reveal delay={60}>
-        <Link href="/assistant" className="no-underline block mb-12">
-          <SpotlightCard className="p-6 border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] hover:scale-[1.01] transition-transform">
-            <div className="flex flex-wrap items-start gap-4">
-              <div className="w-11 h-11 rounded-xl bg-[rgba(62,198,255,0.18)] flex items-center justify-center shrink-0">
-                <Bot size={22} className="text-[#3ec6ff]" aria-hidden />
-              </div>
-              <div className="flex-1 min-w-[220px]">
-                <div className="text-[12px] font-extrabold text-[#3ec6ff] tracking-wide mb-1">
-                  {t("home.agentBrainKicker")}
-                </div>
-                <div className="font-extrabold text-[18px] leading-tight">
-                  {t("home.agentBrainTitle")}
-                </div>
-                <p className="text-ink-soft text-[14px] mt-2 mb-0 leading-relaxed max-w-[520px]">
-                  {t("home.agentBrainSub")}
-                </p>
-                <div className="mt-3 text-[14px] font-extrabold text-[#3ec6ff]">
-                  {t("home.agentBrainCta")} →
-                </div>
-              </div>
-            </div>
-          </SpotlightCard>
-        </Link>
-      </Reveal>
-
-      <Reveal delay={40}>
-        <ul className="flex flex-col gap-2 list-none p-0 m-0 max-w-[560px] mb-12">
-          {((t.raw("home.systemsBullets") as string[]) || []).map((line) => (
-            <li
-              key={line}
-              className="flex items-start gap-2.5 text-[13.5px] text-ink-soft leading-relaxed"
-            >
-              <span className="text-emerald font-black shrink-0" aria-hidden>
-                →
-              </span>
-              {line}
-            </li>
-          ))}
-        </ul>
-      </Reveal>
 
       {/* Quiet signal for DoorTracker experiments — no competing shortcut strip. */}
       <DoorTracker experimentId="home_door_order" armId="money_first" />
+
+      <Reveal delay={40}>
+        <div className="mb-10">
+          <LiveGravityStrip
+            localeBcp47={bcp47[locale as Locale]}
+            verifiedMinor={gravity.monthlyAgorot}
+            verifiedCount={gravity.count}
+            sentCount={gravity.sentCount}
+            mandateCount={gravity.mandateCount}
+            labels={{
+              title: t("home.gravityTitle"),
+              sent: t("home.gravitySent"),
+              mandates: t("home.gravityMandates"),
+              proofs: t("home.gravityProofs"),
+              empty: t("home.gravityEmpty"),
+              ledger: t("home.gravityLedger"),
+            }}
+          />
+        </div>
+      </Reveal>
 
       <Reveal delay={40}>
         <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5 mb-10">
@@ -287,40 +250,48 @@ export default async function HomePage({
             <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-6 !py-3">{t("home.closingCta")}</Button>
             </Link>
-            <Link href="/assistant">
-              <Button variant="ghost">{t("home.closingAgent")}</Button>
-            </Link>
           </div>
         </div>
       </Reveal>
 
-      <Reveal>
-        <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-6 py-6">
-          <h2 className="font-display text-[clamp(18px,3vw,22px)] m-0 text-center">
-            {t("home.institutionsTitle")}
-          </h2>
-          <p className="text-ink-soft text-[13.5px] mt-2 max-w-[520px] mx-auto text-center leading-relaxed">
-            {t("home.institutionsSub")}
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center mt-4">
-            <Link href="/institutions/quickstart">
+      <details className="mb-8 text-[13px] text-ink-soft">
+        <summary className="cursor-pointer font-bold select-none text-center list-outside">
+          {t("home.agentBrainKicker")} · {t("home.institutionsTitle")}
+        </summary>
+        <div className="mt-4 flex flex-col gap-4">
+          <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-5 text-center">
+            <div className="font-extrabold text-[15px]">{t("home.agentBrainTitle")}</div>
+            <p className="text-ink-soft text-[13.5px] mt-2 mb-4 leading-relaxed max-w-[480px] mx-auto">
+              {t("home.agentBrainSub")}
+            </p>
+            <Link href="/money#zakai-money-scan" className="no-underline">
               <Button variant="ghost" className="!text-[13px]">
-                {t("home.institutionsQuickstart")}
-              </Button>
-            </Link>
-            <Link href="/institutions">
-              <Button variant="ghost" className="!text-[13px]">
-                {t("home.institutionsCta")}
+                {t("home.agentBrainCta")}
               </Button>
             </Link>
           </div>
-          <p className="text-[12px] text-ink-soft text-center mt-3 mb-0 font-mono" dir="ltr">
-            {t("home.institutionsSdk")}
-          </p>
+          <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-5 text-center">
+            <div className="font-extrabold text-[15px]">{t("home.institutionsTitle")}</div>
+            <p className="text-ink-soft text-[13px] mt-2 mb-4 leading-relaxed max-w-[480px] mx-auto">
+              {t("home.institutionsSub")}
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Link href="/institutions/quickstart" className="no-underline">
+                <Button variant="ghost" className="!text-[13px]">
+                  {t("home.institutionsQuickstart")}
+                </Button>
+              </Link>
+              <Link href="/institutions" className="no-underline">
+                <Button variant="ghost" className="!text-[13px]">
+                  {t("home.institutionsCta")}
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
-      </Reveal>
+      </details>
 
-      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[560px] mx-auto">
+      <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[560px] mx-auto">
         {t("home.scopeNote")}
       </p>
     </main>

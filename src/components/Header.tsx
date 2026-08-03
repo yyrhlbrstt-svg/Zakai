@@ -87,14 +87,18 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
   return (
     <header className="max-w-[1080px] mx-auto px-5 py-4">
       <div className="flex justify-between items-center gap-3">
-        <Link href="/" className="flex items-center no-underline" aria-label={t("brand")}>
+        <Link
+          href="/money#zakai-money-scan"
+          className="flex items-center no-underline"
+          aria-label={`${t("brand")} — ${tIcomponents_Header("t_bd4c0905")}`}
+        >
           <Logo height={22} />
         </Link>
 
         <nav className="hidden md:flex gap-1.5 items-center flex-wrap justify-end">
           {/* Primary consumer door — emerald CTA so /money wins over Tools scatter. */}
           <Link
-            href="/money"
+            href="/money#zakai-money-scan"
             className="no-underline rounded-full px-4 py-2 text-[13.5px] font-extrabold text-[#06121A] bg-emerald hover:opacity-90 transition-opacity"
           >
             {tIcomponents_Header("t_bd4c0905")}
@@ -102,15 +106,18 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           {user ? (
             <>
               <NavLink href="/dashboard">{t("nav.dashboard")}</NavLink>
-              <NavLink href="/assistant">{t("nav.assistant")}</NavLink>
               <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
               {accountChip}
             </>
           ) : (
             <>
+              <Link
+                href="/signup"
+                className="no-underline rounded-full px-3.5 py-1.5 text-[13px] font-extrabold text-emerald border border-[rgba(63,203,155,0.45)] hover:bg-[rgba(63,203,155,0.1)] transition-colors"
+              >
+                {t("nav.signup")}
+              </Link>
               <NavLink href="/login">{t("nav.login")}</NavLink>
-              <NavLink href="/signup">{t("nav.signup")}</NavLink>
-              <NavLink href="/institutions">{tIcomponents_Header("t_79771be3")}</NavLink>
             </>
           )}
           <div className="ms-1">{langButtons}</div>
@@ -141,17 +148,12 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           aria-label={t("nav.menu")}
           className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[#0c1420] p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.5)] max-h-[calc(100dvh-96px)] overflow-y-auto">
           <Link
-            href="/money"
+            href="/money#zakai-money-scan"
             className="no-underline rounded-xl mx-1 mb-2 px-4 py-3 text-center text-[14.5px] font-extrabold text-[#06121A] bg-emerald"
           >
             {tIcomponents_Header("t_bd4c0905")}
           </Link>
-          {user && (
-            <>
-              <MobileLink href="/dashboard">{t("nav.dashboard")}</MobileLink>
-              <MobileLink href="/assistant">{t("nav.assistant")}</MobileLink>
-            </>
-          )}
+          {user && <MobileLink href="/dashboard">{t("nav.dashboard")}</MobileLink>}
 
           {user ? (
             <>
@@ -179,9 +181,8 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           ) : (
             <>
               <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
-              <MobileLink href="/login">{t("nav.login")}</MobileLink>
               <MobileLink href="/signup">{t("nav.signup")}</MobileLink>
-              <MobileLink href="/institutions">{tIcomponents_Header("t_8886b51f")}</MobileLink>
+              <MobileLink href="/login">{t("nav.login")}</MobileLink>
             </>
           )}
           <div className="px-3 pt-2">{langButtons}</div>

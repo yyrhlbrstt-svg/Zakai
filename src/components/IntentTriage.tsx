@@ -51,8 +51,8 @@ export function IntentTriage() {
       {showNoMatch && (
         <p className="text-ink-soft text-[12.5px] mt-3 mb-0 leading-relaxed">
           {t("noMatch")}{" "}
-          <Link href="/assistant" className="text-emerald font-bold no-underline">
-            {t("askAgent")}
+          <Link href="/money#zakai-money-scan" className="text-emerald font-bold no-underline">
+            {he ? "לכסף שלי" : "My money"}
           </Link>
         </p>
       )}
