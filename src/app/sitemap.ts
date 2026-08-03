@@ -77,6 +77,7 @@ const PATHS = [
   "/entitlements",
   "/network-proof",
   "/tools",
+  "/must-have",
   "/integrations",
   "/student-loan-overpayment",
   "/wage-statement-audit",

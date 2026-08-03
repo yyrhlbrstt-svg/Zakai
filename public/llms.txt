@@ -32,6 +32,7 @@ https://zakai-3uxj.vercel.app
   [What am I owed](https://zakai-3uxj.vercel.app/he/what-am-i-owed) ·
   [Describe the problem in free text](https://zakai-3uxj.vercel.app/he/start)
 - Common entry doors: [recurring charges](https://zakai-3uxj.vercel.app/he/money) ·
+  [must-have kit](https://zakai-3uxj.vercel.app/he/must-have) ·
   [money leak map](https://zakai-3uxj.vercel.app/he/leaks) ·
   [cancel a subscription](https://zakai-3uxj.vercel.app/he/cancel) ·
   [full tools map](https://zakai-3uxj.vercel.app/he/tools) ·

@@ -14,6 +14,7 @@ import { currentArm } from "@/lib/evolve/store";
 import { ENTITLEMENTS } from "@/lib/rights";
 import { DoorTracker } from "@/components/DoorTracker";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
+import { mustHavePageCopy } from "@/lib/monopoly/mustHaveKit";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -234,6 +235,11 @@ export default async function HomePage({
             <div className="flex flex-wrap gap-3 mb-2">
               <Link href="/money#zakai-money-scan">
                 <Button className="!text-[15px] !px-6 !py-3">{t("home.cta")}</Button>
+              </Link>
+              <Link href="/must-have">
+                <Button variant="ghost" className="!text-[14px]">
+                  {mustHavePageCopy(locale).kicker}
+                </Button>
               </Link>
               <Link href="/leaks">
                 <Button variant="ghost" className="!text-[14px]">

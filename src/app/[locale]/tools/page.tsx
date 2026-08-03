@@ -7,8 +7,10 @@ import { Reveal } from "@/components/Reveal";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { SectionHeading } from "@/components/SectionHeading";
 import { CATEGORY_ORDER, toolsInCategory, type ToolCategory } from "@/lib/toolsCatalog";
+import { STARTER_PACK, mustHavePageCopy, mustHaveToolTitle } from "@/lib/monopoly/mustHaveKit";
 import { alternateLanguages } from "@/lib/seo";
 import { toolDisplayLabel } from "@/lib/toolLabels";
+import { Button, Card } from "@/components/ui";
 
 export async function generateMetadata({
   params,
@@ -46,6 +48,29 @@ export default async function ToolsHubPage({ params }: { params: Promise<{ local
       title={t("title")}
       sub={t("sub")}
     >
+      <Reveal>
+        <div className="mb-10 rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] p-5">
+          <div className="font-extrabold text-[16px] mb-1">{mustHavePageCopy(locale).kicker}</div>
+          <p className="text-[13.5px] text-ink-soft m-0 mb-4 leading-relaxed">
+            {mustHavePageCopy(locale).sub}
+          </p>
+          <div className="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(200px,1fr))] mb-4">
+            {STARTER_PACK.slice(0, 4).map((tool) => (
+              <Link key={tool.href} href={tool.href} className="no-underline">
+                <Card className="p-3.5 h-full !rounded-xl">
+                  <div className="font-bold text-[13.5px] text-ink">
+                    {mustHaveToolTitle(tool, locale)}
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+          <Link href="/must-have">
+            <Button className="!text-[13px]">{mustHavePageCopy(locale).starterTitle}</Button>
+          </Link>
+        </div>
+      </Reveal>
+
       {CATEGORY_ORDER.map((cat, ci) => {
         const items = toolsInCategory(cat);
         if (items.length === 0) return null;

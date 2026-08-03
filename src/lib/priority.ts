@@ -42,6 +42,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    id: "must-have",
+    href: "/must-have",
+    titleHe: "חבילת חובה — כלים שכולם חייבים",
+    titleEn: "Must-have kit — tools everyone needs",
+    whyHe: "8 דלתות ראשונות לפי מצב חיים — בלי לנחש בתפריט",
+    whyEn: "Eight first doors by life situation — no menu guessing",
+    potentialShekels: 140,
+    cadence: "monthly",
+    effort: "low",
+    agentic: true,
+  },
+  {
     // Ranked high on potential and low on effort because the money per event is
     // an order of magnitude above anything else in this list, and the first
     // step is one tap. This fires once and pays once — cadence says so

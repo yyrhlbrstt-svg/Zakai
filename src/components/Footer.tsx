@@ -5,10 +5,12 @@ import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/Logo";
 import { FooterAppVersion } from "@/components/FooterAppVersion";
 import { FooterSupportLink } from "@/components/FooterSupportLink";
+import { mustHavePageCopy } from "@/lib/monopoly/mustHaveKit";
 
 export function Footer() {
   const t = useTranslations();
   const locale = useLocale();
+  const mustHaveLabel = mustHavePageCopy(locale).kicker;
   const moneyLabel =
     locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
   const cancelLabel =
@@ -38,6 +40,9 @@ export function Footer() {
       <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center text-[13px] font-bold">
         <Link href="/money" className="text-emerald no-underline hover:underline">
           {moneyLabel}
+        </Link>
+        <Link href="/must-have" className="text-emerald no-underline hover:underline">
+          {mustHaveLabel}
         </Link>
         <Link href="/cancel" className="text-ink-soft no-underline hover:text-emerald">
           {cancelLabel}
