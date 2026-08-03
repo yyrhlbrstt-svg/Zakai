@@ -2,7 +2,7 @@ import * as React from "react";
 
 /** Shared class fragments for the glass/dark design language. */
 export const glass =
-  "bg-[rgba(255,255,255,0.045)] border border-[rgba(255,255,255,0.09)] rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.45)]";
+  "bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]";
 
 export function Card({
   className = "",
@@ -25,15 +25,15 @@ export function Button({ variant = "primary", className = "", ...rest }: ButtonP
     "rounded-[14px] font-extrabold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,box-shadow,filter,background-color,border-color] duration-200 ease-[var(--ease-snappy)] focus-visible:outline-none";
   const styles =
     variant === "primary"
-      ? "grad-bg btn-sheen text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_10px_30px_rgba(63,203,155,0.28)] hover:-translate-y-0.5 hover:brightness-[1.06] hover:shadow-[0_16px_42px_rgba(63,203,155,0.42)] active:translate-y-0 active:scale-[0.98] active:brightness-100"
-      : "bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.09)] px-6 py-3.5 text-[15px] font-bold hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(63,203,155,0.4)] active:bg-[rgba(255,255,255,0.08)]";
+      ? "grad-bg btn-sheen text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_12px_32px_rgba(63,203,155,0.32)] hover:-translate-y-0.5 hover:brightness-[1.07] hover:shadow-[0_18px_48px_rgba(63,203,155,0.48)] active:translate-y-0 active:scale-[0.98] active:brightness-100"
+      : "bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] px-6 py-3.5 text-[15px] font-bold hover:bg-[rgba(255,255,255,0.11)] hover:border-[rgba(63,203,155,0.45)] active:bg-[rgba(255,255,255,0.08)]";
   return <button className={`${base} ${styles} ${className}`} {...rest} />;
 }
 
 export function Input({ className = "", ...rest }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border transition-colors duration-200 ease-[var(--ease-out)] hover:border-[rgba(255,255,255,0.16)] ${className}`}
+      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border transition-[border-color,box-shadow] duration-200 ease-[var(--ease-out)] hover:border-[rgba(255,255,255,0.18)] focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     />
   );
@@ -42,7 +42,7 @@ export function Input({ className = "", ...rest }: React.InputHTMLAttributes<HTM
 export function Select({ className = "", children, ...rest }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border ${className}`}
+      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     >
       {children}
@@ -53,7 +53,7 @@ export function Select({ className = "", children, ...rest }: React.SelectHTMLAt
 export function Textarea({ className = "", ...rest }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[15px] leading-relaxed text-ink outline-none box-border ${className}`}
+      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[15px] leading-relaxed text-ink outline-none box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     />
   );
@@ -155,8 +155,8 @@ export function RadioChips<T extends string>({
             onClick={() => onChange(o.value)}
             className={`rounded-full px-3.5 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
               active
-                ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
-                : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
+                ? "bg-[rgba(63,203,155,0.16)] border-[rgba(63,203,155,0.55)] text-emerald shadow-[0_0_0_1px_rgba(63,203,155,0.12)]"
+                : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.22)]"
             }`}
           >
             {o.label}
@@ -236,7 +236,7 @@ export function CheckboxChips<T extends string>({
             onClick={() => onToggle(o.value)}
             className={`rounded-xl px-4 py-3 text-[15px] font-bold border transition-colors duration-200 text-start leading-snug cursor-pointer ${
               on
-                ? "bg-[rgba(63,203,155,0.14)] border-emerald text-ink"
+                ? "bg-[rgba(63,203,155,0.16)] border-emerald text-ink shadow-[0_0_0_1px_rgba(63,203,155,0.12)]"
                 : "bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(63,203,155,0.4)]"
             }`}
           >
@@ -254,9 +254,9 @@ export function Spinner({ label, sub }: { label: string; sub?: string }) {
       <div className="relative w-[70px] h-[70px] mx-auto mb-6">
         <div
           className="absolute inset-[-12px] rounded-full"
-          style={{ background: "#3EC6FF", filter: "blur(24px)", opacity: 0.4 }}
+          style={{ background: "#3FCB9B", filter: "blur(24px)", opacity: 0.35 }}
         />
-        <div className="relative w-[70px] h-[70px] rounded-full border-4 border-[rgba(255,255,255,0.1)] border-t-cyan animate-spin" />
+        <div className="relative w-[70px] h-[70px] rounded-full border-4 border-[rgba(255,255,255,0.1)] border-t-[var(--emerald)] animate-spin" />
       </div>
       <div className="font-display text-2xl">{label}</div>
       {sub ? <div className="text-ink-soft mt-2 text-[14.5px]">{sub}</div> : null}
