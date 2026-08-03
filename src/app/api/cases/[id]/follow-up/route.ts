@@ -63,6 +63,16 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       subject: { startsWith: AGENT_SUBJECT_PREFIX },
     },
   });
+  if (priorRounds >= MAX_AGENT_ROUNDS) {
+    return NextResponse.json(
+      {
+        error: "MAX_ROUNDS",
+        round: priorRounds,
+        tip: "Written rounds exhausted — record SavingsProof, mark no change, or pivot. Do not draft another delay.",
+      },
+      { status: 409 },
+    );
+  }
   const nextRound = Math.min(
     MAX_AGENT_ROUNDS,
     parsed.data.round ?? priorRounds + 2,

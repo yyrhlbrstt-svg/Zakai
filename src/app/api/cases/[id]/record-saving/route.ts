@@ -42,11 +42,15 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
         if (!(err instanceof PaymentError)) throw err;
       }
     }
+    // Wire contract must match what was actually persisted — estimate/selfReported
+    // proofs waive the fee (feeNet = 0) even when computeCaseSuccessFee would bill.
+    const chargeable = result.feeNet > 0;
     return NextResponse.json({
       ok: true,
       savingMonthlyShekels: agorotToShekels(fee.savingMonthly),
-      feeShekels: agorotToShekels(fee.amount),
-      chargeable: fee.chargeable,
+      feeShekels: agorotToShekels(result.feeNet),
+      chargeable,
+      selfReported: parsed.data.selfReported === true,
       checkoutUrl,
     });
   } catch (err) {

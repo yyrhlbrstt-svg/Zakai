@@ -119,7 +119,12 @@ export async function dispatchCaseFollowUp(
   }
 
   const prior = await priorAgentRounds(caseId);
-  const round = opts.round ?? prior + 2;
+  // Cap is on prior sends, not on the clamped round number — otherwise HITL
+  // can re-send forever at round === MAX after Math.min in the API.
+  if (prior >= MAX_AGENT_ROUNDS) {
+    return { caseId, sent: false, reason: "MAX_ROUNDS", round: prior };
+  }
+  const round = Math.min(MAX_AGENT_ROUNDS, opts.round ?? prior + 2);
   if (round > MAX_AGENT_ROUNDS) {
     return { caseId, sent: false, reason: "MAX_ROUNDS", round };
   }

@@ -6,7 +6,9 @@ describe("buildAgentsIndexDocument", () => {
     const doc = buildAgentsIndexDocument("https://zakai.example/");
     expect(doc.spec).toBe(AGENTS_INDEX_SPEC);
     expect(doc.required_tools[0]?.id).toBe("pipe_handoff");
+    expect(doc.required_tools.some((t) => t.id === "mandate_ready")).toBe(true);
     expect(doc.manifests.pipe).toContain("zakai-pipe.json");
+    expect(doc.manifests.mandate_ready).toContain("/api/mandate/ready");
     expect(doc.doors).toContain("money");
     expect(doc.honesty).toMatch(/Empty volume/i);
   });

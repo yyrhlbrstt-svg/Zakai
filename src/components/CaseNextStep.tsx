@@ -308,12 +308,16 @@ export function CaseNextStep({
     (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PROOFS_EMAIL) ||
     "proofs@zakai.app";
 
-  function finishSaving(checkoutUrl?: string | null) {
+  function finishSaving(opts?: { checkoutUrl?: string | null; chargeable?: boolean }) {
     scheduleRecheckReminder(caseId);
     navigatedAfterSave = true;
     // Prove → fee in one gesture when checkout is ready (same as CheckFlow).
-    if (checkoutUrl) {
-      window.location.href = checkoutUrl;
+    if (opts?.checkoutUrl) {
+      window.location.href = opts.checkoutUrl;
+      return;
+    }
+    if (opts?.chargeable) {
+      router.push(`/dashboard?saved=1&case=${caseId}&payFee=1`);
       return;
     }
     router.push(`/dashboard?saved=1&case=${caseId}`);
@@ -334,8 +338,11 @@ export function CaseNextStep({
       }),
     });
     if (!res.ok) throw new Error("save");
-    const data = (await res.json().catch(() => ({}))) as { checkoutUrl?: string };
-    finishSaving(data.checkoutUrl);
+    const data = (await res.json().catch(() => ({}))) as {
+      checkoutUrl?: string;
+      chargeable?: boolean;
+    };
+    finishSaving({ checkoutUrl: data.checkoutUrl, chargeable: data.chargeable === true });
   }
 
   async function run(fn: () => Promise<void>) {
@@ -976,6 +983,7 @@ export function CaseNextStep({
           </div>
         </div>
 
+        {agentRound < MAX_AGENT_ROUNDS ? (
         <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>
           <select
@@ -1102,6 +1110,7 @@ export function CaseNextStep({
             </div>
           )}
         </div>
+        ) : null}
 
         <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "sentShareTitle")}</div>

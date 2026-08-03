@@ -45,6 +45,14 @@ export function buildAgentsIndexDocument(origin: string) {
         body: { token: "compact-jws", audience: "your-institution-id" },
       },
       {
+        id: "mandate_ready",
+        why: "Machine gate before claiming Pioneer — vectors + verified Status List",
+        method: "GET",
+        path: "/api/mandate/ready",
+        curl: `curl -sS ${base}/api/mandate/ready`,
+        cli: "npx zakai-mandate-ready",
+      },
+      {
         id: "mcp",
         why: "verify_mandate / decide_action / pipe tools for MCP hosts",
         path: "zakai-mandate-mcp (sdk/)",
@@ -58,6 +66,7 @@ export function buildAgentsIndexDocument(origin: string) {
       jwks: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.jwks),
       packs: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.packs),
       interop: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.interop),
+      mandate_ready: `${base}/api/mandate/ready`,
       join_kit: `${base}/api/network/join-kit`,
       llms_txt: `${base}/llms.txt`,
     },
@@ -66,6 +75,8 @@ export function buildAgentsIndexDocument(origin: string) {
       pipe: `${base}/he/pipe`,
       join: `${base}/he/join-network`,
       money: `${base}/he/money`,
+      institutions_quickstart: `${base}/he/institutions/quickstart`,
+      pioneer_wizard: `${base}/he/institutions/leader`,
     },
     honesty:
       "Empty volume is honest. Never invent Mandates, SavingsProofs, or partner logos. LLM proposes; user executes.",

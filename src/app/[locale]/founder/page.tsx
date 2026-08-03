@@ -68,6 +68,8 @@ export default async function FounderPage({
   const [
     byStatus,
     savedAgg,
+    estimateProofs,
+    documentedSaved,
     feeAgg,
     paidAgg,
     pendingFeeAgg,
@@ -84,7 +86,19 @@ export default async function FounderPage({
     outboxFailed,
   ] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
-    prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
+    // Documented pipeline only — estimate shortcuts must not inflate the founder instrument.
+    prisma.savingsProof.aggregate({
+      where: { selfReported: false, savingMonthly: { gt: 0 } },
+      _sum: { savingMonthly: true },
+      _count: { _all: true },
+    }),
+    prisma.savingsProof.count({ where: { selfReported: true } }),
+    prisma.case.count({
+      where: {
+        status: "SAVED",
+        savingsProof: { is: { selfReported: false, savingMonthly: { gt: 0 } } },
+      },
+    }),
     prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
     prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
     prisma.fee.aggregate({
@@ -122,12 +136,10 @@ export default async function FounderPage({
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
   const sent = count("SENT") + count("SAVED") + count("NO_SAVING");
-  const saved = count("SAVED");
   const noSaving = count("NO_SAVING");
-  const settled = saved + noSaving;
-  // The number that validates the whole model: of outreach that got a reply,
-  // what share produced a real, documented saving?
-  const winRate = settled > 0 ? Math.round((saved / settled) * 100) : null;
+  // Win rate uses documented SavingsProof only — estimate SAVED must not count as a win.
+  const settled = documentedSaved + noSaving;
+  const winRate = settled > 0 ? Math.round((documentedSaved / settled) * 100) : null;
 
   const money = (a: number) => formatAgorot(a, "he-IL");
 
@@ -148,11 +160,12 @@ export default async function FounderPage({
     ["משובים שהתקבלו", String(feedbackCount)],
     ["נשלחו לספק (SENT+)", String(sent)],
     ["הגיעו לתוצאה (נענו)", String(settled)],
-    ["חיסכון תועד (SAVED)", String(saved)],
+    ["חיסכון מתועד (SAVED, לא הערכה)", String(documentedSaved)],
+    ["הערכות selfReported (בלי עמלה)", String(estimateProofs)],
     ["ללא חיסכון (NO_SAVING)", String(noSaving)],
-    ["— אחוז הצלחה (SAVED מהנענים) —", winRate === null ? "אין עדיין נתונים" : `${winRate}%`],
+    ["— אחוז הצלחה (מתועד מהנענים) —", winRate === null ? "אין עדיין נתונים" : `${winRate}%`],
     ["סה״כ חיסכון חודשי מתועד", money(savedAgg._sum.savingMonthly ?? 0)],
-    ["הוכחות חיסכון", String(savedAgg._count._all)],
+    ["הוכחות חיסכון מתועדות", String(savedAgg._count._all)],
     ["עמלות שנוצרו", `${feeAgg._count._all} · ${money(feeAgg._sum.amount ?? 0)}`],
     ["עמלות ממתינות לגבייה", `${pendingFeeAgg._count._all} · ${money(pendingFeeAgg._sum.amount ?? 0)}`],
     ["עמלות ששולמו", `${paidAgg._count._all} · ${money(paidAgg._sum.amount ?? 0)}`],
