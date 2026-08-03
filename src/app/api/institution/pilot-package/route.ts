@@ -114,6 +114,8 @@ export async function GET(request: Request) {
       jwks: `${origin}/.well-known/zakai-jwks.json`,
       trust_registry: `${origin}/.well-known/zakai-trust-registry.json`,
       join_kit: `${origin}/api/network/join-kit`,
+      ready: `${origin}/api/mandate/ready`,
+      quickstart: `${origin}/he/institutions/quickstart`,
       wizard: `${origin}/he/institutions/leader`,
       clone_dir: `${origin}/reference/inbound-receiver/`,
       ignore_cost: `${origin}/api/institution/ignore-cost`,

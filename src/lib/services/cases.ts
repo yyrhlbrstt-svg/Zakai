@@ -248,13 +248,17 @@ export async function sendOutreach(caseId: string, userId: string) {
   const provider = providerHebrewName(kase.provider);
   const mandateTok = await ensureMandateTokenForCase(caseId);
   // When signing keys are live, the pipe requires a machine Mandate on every SENT.
+  // If we cannot issue one, unclaim SENT → VERIFIED so FREE maxActiveCases is not
+  // frozen on a ghost send (same recovery path as OUTREACH_DELIVERY_FAILED).
   if (!mandateTok) {
     try {
       loadSigningKeyFromEnv();
+      await prisma.case.update({ where: { id: caseId }, data: { status: "VERIFIED" } });
       throw new CaseError("MANDATE_REQUIRED");
     } catch (err) {
       if (err instanceof CaseError) throw err;
       if (!(err instanceof MandateKeyUnavailableError)) {
+        await prisma.case.update({ where: { id: caseId }, data: { status: "VERIFIED" } });
         throw new CaseError("MANDATE_REQUIRED");
       }
       // Keys unavailable — human Authorization still goes out (dev / pre-key envs).

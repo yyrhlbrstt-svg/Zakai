@@ -119,7 +119,7 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "העתק קישור הפניה",
     linkCopied: "הקישור הועתק",
     sentBanner:
-      "הסוכן שלח. אם ענו — העבירו את המייל שלהם לכתובת למטה (או הזינו סכום). אם לא — אחרי כמה ימים, כל עוד ה-Mandate פעיל, הסוכן עשוי לשלוח סיבוב המשך (עד 4 סיבובים).",
+      "הסוכן שלח. אם ענו — הדביקו את התשובה למטה, העבירו מייל לכתובת ההוכחות, או הזינו סכום. אם לא — אחרי כמה ימים, כל עוד ה-Mandate פעיל, הסוכן עשוי לשלוח סיבוב המשך (עד 4 סיבובים).",
     notDeliveredBanner:
       "שליחת מייל עדיין לא מוגדרת בסביבה הזו — הפנייה מוכנה אבל עוד לא יצאה בפועל לספק.",
     competitorName: "שם המתחרה",
@@ -143,6 +143,12 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopy: "העתק כתובת",
     proofsCopied: "הועתק",
     proofsHint: "Forward Email / העברת מייל — הסוכן מזהה סכום ומציע רישום בלחיצה אחת.",
+    pasteLabel: "או הדביקו כאן את תשובת הספק",
+    pasteHint: "העתקה מהמייל / וואטסאפ / צילום מסך כטקסט — הסוכן מציע רישום בלחיצה אחת.",
+    pastePh: "הדביקו את גוף התשובה…",
+    pasteCta: "זהה סכום מהתשובה",
+    pasteNoAmount: "לא זוהה סכום ברור — הזינו ידנית למטה או נסו טקסט מלא יותר.",
+    pastePartial: "זוהה סכום חלקי — בדקו למטה ואשרו רישום.",
     ownDone: "בעלות אומתה — לחיצה אחת לשליחה לספק עם Mandate.",
     ownDoneEmail:
       "המייל בחשבון כבר מאומת — הבעלות נרשמה. לחיצה אחת שולחת עם Mandate.",
@@ -203,7 +209,7 @@ const copy: Record<string, Record<string, string>> = {
     copyLink: "Copy referral link",
     linkCopied: "Link copied",
     sentBanner:
-      "Agent sent. If they replied — forward their email below (or enter amount). If not — after several days, while your Mandate is active, the agent may send a follow-up round (up to 4 total).",
+      "Agent sent. If they replied — paste the reply below, forward to the proofs address, or enter an amount. If not — after several days, while your Mandate is active, the agent may send a follow-up round (up to 4 total).",
     notDeliveredBanner:
       "Email delivery isn't configured in this environment yet — the request is ready but hasn't actually reached the provider.",
     competitorName: "Competitor name",
@@ -227,6 +233,12 @@ const copy: Record<string, Record<string, string>> = {
     proofsCopy: "Copy address",
     proofsCopied: "Copied",
     proofsHint: "Forward Email — agent extracts the amount and offers one-tap record.",
+    pasteLabel: "Or paste the provider reply here",
+    pasteHint: "Copy from email / WhatsApp / OCR text — agent offers one-tap record.",
+    pastePh: "Paste the reply body…",
+    pasteCta: "Extract amount from reply",
+    pasteNoAmount: "No clear amount found — enter manually below or paste fuller text.",
+    pastePartial: "Partial amount spotted — check below and confirm record.",
     ownDone: "Ownership verified — one tap to send to the provider with Mandate.",
     ownDoneEmail:
       "Email already verified on your account — ownership stamped. One tap sends with Mandate.",
@@ -303,6 +315,8 @@ export function CaseNextStep({
   const [linkCopied, setLinkCopied] = useState(false);
   const [proofsCopied, setProofsCopied] = useState(false);
   const [ownViaEmail, setOwnViaEmail] = useState(false);
+  const [pasteText, setPasteText] = useState("");
+  const [pasteTip, setPasteTip] = useState<string | null>(null);
   let navigatedAfterSave = false;
 
   const proofsAddr =
@@ -345,6 +359,33 @@ export function CaseNextStep({
       chargeable?: boolean;
     };
     finishSaving({ checkoutUrl: data.checkoutUrl, chargeable: data.chargeable === true });
+  }
+
+  async function proposeFromPaste() {
+    setPasteTip(null);
+    const res = await fetch(`/api/cases/${caseId}/propose-saving`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: pasteText }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      proposed?: { newAmountShekels: number; confidence: number } | null;
+      extract?: { found?: boolean; newAmountShekels?: number | null };
+      error?: string;
+    };
+    if (!res.ok) throw new Error(data.error || "paste");
+    if (data.proposed?.newAmountShekels != null) {
+      setNewAmt(String(data.proposed.newAmountShekels));
+      setPasteText("");
+      setPasteTip(null);
+      return;
+    }
+    if (data.extract?.newAmountShekels != null) {
+      setNewAmt(String(data.extract.newAmountShekels));
+      setPasteTip(t(locale, "pastePartial"));
+      return;
+    }
+    setPasteTip(t(locale, "pasteNoAmount"));
   }
 
   async function run(fn: () => Promise<void>) {
@@ -866,6 +907,32 @@ export function CaseNextStep({
             >
               {busy ? t(locale, "working") : t(locale, "proposedOneTap")}
             </Button>
+          </div>
+        )}
+
+        {!proposed && (
+          <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
+            <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "pasteLabel")}</div>
+            <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">
+              {t(locale, "pasteHint")}
+            </p>
+            <textarea
+              value={pasteText}
+              onChange={(e) => setPasteText(e.target.value)}
+              placeholder={t(locale, "pastePh")}
+              rows={4}
+              className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#060b12] px-3 py-2 text-[13px] text-ink placeholder:text-ink-soft/70 resize-y min-h-[88px]"
+            />
+            <Button
+              disabled={busy || pasteText.trim().length < 8}
+              className="text-[13px] py-2.5 px-4 w-full sm:w-auto mt-2.5"
+              onClick={() => run(() => proposeFromPaste())}
+            >
+              {busy ? t(locale, "working") : t(locale, "pasteCta")}
+            </Button>
+            {pasteTip && (
+              <p className="text-[12px] text-ink-soft mt-2 leading-relaxed">{pasteTip}</p>
+            )}
           </div>
         )}
 

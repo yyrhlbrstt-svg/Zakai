@@ -7,6 +7,6 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   const { locale } = await params;
   setRequestLocale(locale);
   const user = await getCurrentUser();
-  if (user) redirect({ href: "/check", locale });
+  if (user) redirect({ href: "/dashboard", locale });
   return <AuthForm mode="login" />;
 }
