@@ -9,6 +9,8 @@ describe("institutionAudience", () => {
 
   it("tracks institution audiences", () => {
     expect(isTrackedInstitutionAudience("bank-leumi")).toBe(true);
-    expect(isTrackedInstitutionAudience("cellcom")).toBe(false);
+    // Telecom desks are in INSTITUTION_PROVIDER_MAP for inbound pressure.
+    expect(isTrackedInstitutionAudience("cellcom")).toBe(true);
+    expect(isTrackedInstitutionAudience("random-corner-shop")).toBe(false);
   });
 });

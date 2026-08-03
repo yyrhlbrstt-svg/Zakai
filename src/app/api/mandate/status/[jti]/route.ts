@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { publishRevocation } from "@/lib/mandate/statusIndex";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { secretsMatch } from "@/lib/security/timingSafe";
 
@@ -103,18 +104,19 @@ export async function POST(
   }
 
   try {
-    const row = await prisma.mandateRevocation.upsert({
-      where: { jti: id },
-      create: { jti: id, reason },
-      update: {},
-      select: { jti: true, revokedAt: true, reason: true },
-    });
+    // Must allocate statusIndex — rows without an index never appear on the
+    // signed /revocations list, so offline verifiers would keep treating the
+    // mandate as active after an ops revoke.
+    const row = await prisma.$transaction((tx) =>
+      publishRevocation(tx, { jti: id, reason }),
+    );
 
     return NextResponse.json({
       jti: row.jti,
       status: "revoked",
       revokedAt: row.revokedAt.toISOString(),
       reason: row.reason,
+      statusIndex: row.statusIndex,
     });
   } catch {
     return NextResponse.json({ error: "status_store_unavailable" }, { status: 503 });

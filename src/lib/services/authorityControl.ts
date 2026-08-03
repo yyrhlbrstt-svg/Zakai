@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { publishRevocation } from "@/lib/mandate/statusIndex";
 
 /**
  * The consumer's control plane over their own authority.
@@ -109,37 +110,16 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
     // Publish it. Without this the person's revocation is a row in our database
     // and nothing more — every institution holding a cached status list would
     // go on honouring the mandate, correctly, because we never told them.
-    const existing = await tx.mandateRevocation.findUnique({
-      where: { jti: auth.code },
-      select: { jti: true },
-    });
-    if (!existing) {
-      await tx.mandateRevocation.create({
-        data: {
-          jti: auth.code,
-          statusIndex: await nextStatusIndex(tx),
-          reason: "user_request",
-        },
-      });
-    }
+    //
+    // Today the control plane keys the row by the human auth code (ZK-…). The
+    // machine Mandate jti is a separate UUID that is not persisted on
+    // Authorization yet — so institutions verifying the JWT still see active
+    // until that link lands. publishRevocation still guarantees the published
+    // row is indexed for the signed status list (no silent null statusIndex).
+    await publishRevocation(tx, { jti: auth.code, reason: "user_request" });
   });
 
   return { ok: true, code: auth.code, alreadyRevoked: false };
-}
-
-/**
- * Next free position in the status list.
- *
- * Indices are never reused. Reusing one would silently transfer a revocation
- * from an old mandate to a new one for every institution still holding the
- * older cached list — they would read the bit, see it set, and refuse a
- * perfectly valid credential.
- */
-async function nextStatusIndex(
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-): Promise<number> {
-  const top = await tx.mandateRevocation.aggregate({ _max: { statusIndex: true } });
-  return (top._max.statusIndex ?? -1) + 1;
 }
 
 /** How many authorities are live right now — for the header badge. */
