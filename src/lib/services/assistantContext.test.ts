@@ -51,5 +51,31 @@ describe("buildAssistantCasesSnapshot", () => {
     expect(snap).toContain("PROPOSED_SAVING");
     expect(snap).toContain("case_1");
     expect(snap).toContain("120");
+    expect(snap).toContain("NEXT_ACTION: One-tap record SavingsProof");
+  });
+
+  it("points empty users at /money", async () => {
+    vi.mocked(prisma.case.findMany).mockResolvedValue([] as never);
+    const snap = await buildAssistantCasesSnapshot("user_1");
+    expect(snap).toContain("/money");
+    expect(snap).toContain("NEXT:");
+  });
+
+  it("prioritizes Mandate send over new doors", async () => {
+    vi.mocked(prisma.case.findMany).mockResolvedValue([
+      {
+        id: "case_pre",
+        provider: "partner",
+        status: "VERIFIED",
+        vertical: "telecom",
+        amountOriginal: 10_000,
+        targetAmount: 8_000,
+        savingsProof: null,
+        fee: null,
+      },
+    ] as never);
+    const snap = await buildAssistantCasesSnapshot("user_1");
+    expect(snap).toContain("NEXT_ACTION: Finish Mandate send");
+    expect(snap).toContain("case_pre");
   });
 });

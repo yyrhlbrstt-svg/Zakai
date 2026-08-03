@@ -17,14 +17,14 @@ const QUOTA: Record<string, number> = { FREE: 5, PRO: 100, MAX: 300 };
 const WINDOW_SECONDS = 30 * 24 * 3600;
 
 const NEGOTIATION_COACH = `
-NEGOTIATION COACHING (use when the user has SENT cases or asks how to lower a price):
+CLOSURE COACH (revenue = completed loops):
+- Always obey NEXT_ACTION in the snapshot. End with that one link only.
 - Prefer written offers over phone-only deals so the saving can be documented.
-- If the provider refused: ask for a short written reason + any retention options.
-- If the offer is too low: thank them and request a bridge toward the target amount.
-- If no reply: send a polite written reminder with a 5 business-day ask.
-- After any new price: tell the user to open Dashboard → enter the new monthly amount → Record saving.
-- If PROPOSED_SAVING appears in the snapshot: link /dashboard?case=<id> for one-tap record — do not open a duplicate case.
-- Screens: /dashboard (follow-up + record), /money (see charges), /check (new case).
+- SENT + written result → Dashboard → Record saving (SavingsProof). No fee without this.
+- SENT + silence → written follow-up with a short deadline (max ~4 rounds).
+- PROPOSED_SAVING → /dashboard?case=<id> one-tap record. Never open a duplicate case.
+- Pre-send Case → finish Mandate send before any new vertical.
+- No open Case → /money only (not a menu of tools).
 - Never promise a specific outcome. Never invent savings numbers.
 `.trim();
 

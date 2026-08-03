@@ -125,6 +125,11 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "ביטחון",
     proposedOneTap: "רשום חיסכון בלחיצה אחת",
     proposedFrom: "מ־",
+    saveBlockTitle: "קיבלתם תוצאה? רשמו חיסכון עכשיו",
+    saveBlockSub: "בלי רישום אין עמלה ואין הוכחה. זה השלב שסוגר את הכסף.",
+    quickCancel: "בוטל לגמרי (₪0)",
+    quickOff20: "הנחה ~20%",
+    quickOff50: "הנחה ~50%",
     proofsLabel: "העבירו תשובת ספק לכאן",
     proofsCopy: "העתק כתובת",
     proofsCopied: "הועתק",
@@ -198,6 +203,11 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "Confidence",
     proposedOneTap: "One-tap record saving",
     proposedFrom: "from",
+    saveBlockTitle: "Got a result? Record the saving now",
+    saveBlockSub: "No record → no fee and no proof. This is the step that closes the money.",
+    quickCancel: "Fully cancelled (₪0)",
+    quickOff20: "~20% off",
+    quickOff50: "~50% off",
     proofsLabel: "Forward provider reply here",
     proofsCopy: "Copy address",
     proofsCopied: "Copied",
@@ -771,7 +781,7 @@ export function CaseNextStep({
           </Button>
         )}
 
-        {/* SavingsProof path first — the only institutional marketing that compounds. */}
+        {/* SavingsProof first — fee and gravity only compound after this. */}
         {proposed && (
           <div className="rounded-xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.14)] p-3.5">
             <div className="text-[13.5px] font-extrabold text-emerald">
@@ -801,6 +811,159 @@ export function CaseNextStep({
             </Button>
           </div>
         )}
+
+        <div className="rounded-xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] p-3.5">
+          <div className="text-[13.5px] font-extrabold text-emerald">{t(locale, "saveBlockTitle")}</div>
+          <p className="text-[12px] text-ink-soft mt-1 mb-3 leading-relaxed">{t(locale, "saveBlockSub")}</p>
+          <div className="flex flex-wrap gap-2 items-center mb-2">
+            <Input
+              type="number"
+              value={newAmt}
+              onChange={(e) => setNewAmt(e.target.value)}
+              placeholder={t(locale, feeBasis === "lump" ? "newAmtLump" : "newAmt")}
+              className="max-w-[180px] text-[13px]"
+            />
+            <Button
+              disabled={busy || newAmt === "" || Number(newAmt) < 0}
+              className="text-[13px] py-2 px-3"
+              onClick={() =>
+                run(async () => {
+                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ newAmountShekels: Number(newAmt) }),
+                  });
+                  if (!res.ok) throw new Error("save");
+                  finishSaving();
+                })
+              }
+            >
+              {busy ? t(locale, "working") : t(locale, feeBasis === "lump" ? "recordLump" : "record")}
+            </Button>
+            {feeBasis === "lump" ? (
+              <Button
+                variant="ghost"
+                disabled={busy}
+                className="text-[13px] py-2 px-3"
+                onClick={() =>
+                  run(async () => {
+                    const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ newAmountShekels: 0 }),
+                    });
+                    if (!res.ok) throw new Error("save");
+                    finishSaving();
+                  })
+                }
+              >
+                {t(locale, "fullRecovery")}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  disabled={busy}
+                  className="text-[13px] py-2 px-3"
+                  onClick={() =>
+                    run(async () => {
+                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ newAmountShekels: 0 }),
+                      });
+                      if (!res.ok) throw new Error("save");
+                      finishSaving();
+                    })
+                  }
+                >
+                  {t(locale, "quickCancel")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={busy || amountOriginalShekels <= 0}
+                  className="text-[13px] py-2 px-3"
+                  onClick={() =>
+                    run(async () => {
+                      const next = Math.round(amountOriginalShekels * 0.8);
+                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ newAmountShekels: next }),
+                      });
+                      if (!res.ok) throw new Error("save");
+                      finishSaving();
+                    })
+                  }
+                >
+                  {t(locale, "quickOff20")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={busy || amountOriginalShekels <= 0}
+                  className="text-[13px] py-2 px-3"
+                  onClick={() =>
+                    run(async () => {
+                      const next = Math.round(amountOriginalShekels * 0.5);
+                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ newAmountShekels: next }),
+                      });
+                      if (!res.ok) throw new Error("save");
+                      finishSaving();
+                    })
+                  }
+                >
+                  {t(locale, "quickOff50")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={busy}
+                  className="text-[13px] py-2 px-3"
+                  onClick={() =>
+                    run(async () => {
+                      const res = await fetch(`/api/cases/${caseId}/record-saving`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ newAmountShekels: amountOriginalShekels }),
+                      });
+                      if (!res.ok) throw new Error("save");
+                      finishSaving();
+                    })
+                  }
+                >
+                  {t(locale, "noChange")}
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
+          <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
+          <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="text-[13.5px] font-extrabold tracking-wide bg-[#060b12] border border-[rgba(255,255,255,0.12)] rounded-lg px-3 py-2 select-all">
+              {proofsAddr}
+            </code>
+            <Button
+              variant="ghost"
+              className="!text-[13px] !py-2"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(proofsAddr);
+                  setProofsCopied(true);
+                  setTimeout(() => setProofsCopied(false), 2000);
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              {proofsCopied ? t(locale, "proofsCopied") : t(locale, "proofsCopy")}
+            </Button>
+          </div>
+        </div>
 
         <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>
@@ -929,72 +1092,6 @@ export function CaseNextStep({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 items-center">
-          <Input
-            type="number"
-            value={newAmt}
-            onChange={(e) => setNewAmt(e.target.value)}
-            placeholder={t(locale, feeBasis === "lump" ? "newAmtLump" : "newAmt")}
-            className="max-w-[180px] text-[13px]"
-          />
-          <Button
-            disabled={busy || newAmt === "" || Number(newAmt) < 0}
-            className="text-[13px] py-2 px-3"
-            onClick={() =>
-              run(async () => {
-                const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ newAmountShekels: Number(newAmt) }),
-                });
-                if (!res.ok) throw new Error("save");
-                finishSaving();
-              })
-            }
-          >
-            {busy ? t(locale, "working") : t(locale, feeBasis === "lump" ? "recordLump" : "record")}
-          </Button>
-          {feeBasis === "lump" ? (
-            <Button
-              variant="ghost"
-              disabled={busy}
-              className="text-[13px] py-2 px-3"
-              onClick={() =>
-                run(async () => {
-                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ newAmountShekels: 0 }),
-                  });
-                  if (!res.ok) throw new Error("save");
-                  finishSaving();
-                })
-              }
-            >
-              {t(locale, "fullRecovery")}
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              disabled={busy}
-              className="text-[13px] py-2 px-3"
-              onClick={() =>
-                run(async () => {
-                  const res = await fetch(`/api/cases/${caseId}/record-saving`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ newAmountShekels: amountOriginalShekels }),
-                  });
-                  if (!res.ok) throw new Error("save");
-                  finishSaving();
-                })
-              }
-            >
-              {t(locale, "noChange")}
-            </Button>
-          )}
-        </div>
-
         <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "sentShareTitle")}</div>
           <ShareResult
@@ -1009,31 +1106,6 @@ export function CaseNextStep({
                 : "Zakai"
             }
           />
-        </div>
-
-        <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
-          <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
-          <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>
-          <div className="flex flex-wrap items-center gap-2">
-            <code className="text-[13.5px] font-extrabold tracking-wide bg-[#060b12] border border-[rgba(255,255,255,0.12)] rounded-lg px-3 py-2 select-all">
-              {proofsAddr}
-            </code>
-            <Button
-              variant="ghost"
-              className="!text-[13px] !py-2"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(proofsAddr);
-                  setProofsCopied(true);
-                  setTimeout(() => setProofsCopied(false), 2000);
-                } catch {
-                  /* ignore */
-                }
-              }}
-            >
-              {proofsCopied ? t(locale, "proofsCopied") : t(locale, "proofsCopy")}
-            </Button>
-          </div>
         </div>
 
         {err && <FieldError>{err}</FieldError>}
