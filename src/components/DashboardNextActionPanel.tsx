@@ -26,6 +26,7 @@ export async function DashboardNextActionPanel({
         id: true,
         status: true,
         fee: { select: { amount: true, status: true } },
+        authorization: { select: { status: true } },
       },
       orderBy: { updatedAt: "desc" },
     }),
@@ -40,8 +41,11 @@ export async function DashboardNextActionPanel({
     [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
   );
   const rankedCases = cases.map((c) => ({
-    ...c,
+    id: c.id,
+    status: c.status,
+    fee: c.fee,
     agentRound: agentRounds.get(c.id) ?? 0,
+    mandateActive: c.authorization?.status === "ACTIVE",
   }));
   const action = rankNextAction(rankedCases, proposedHints);
 
@@ -79,6 +83,20 @@ export async function DashboardNextActionPanel({
       >
         <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("exhaustedNudgeTitle")}</div>
         <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("exhaustedNudgeSub")}</p>
+      </Link>
+    );
+  }
+
+  if (action.kind === "mandate_inactive") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-5 py-4 hover:border-[rgba(240,138,107,0.65)] transition-colors"
+      >
+        <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("mandateInactiveNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">
+          {t("mandateInactiveNudgeSub")}
+        </p>
       </Link>
     );
   }

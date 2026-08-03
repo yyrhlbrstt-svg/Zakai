@@ -97,11 +97,13 @@ export async function GET(request: Request) {
     }
 
     // —— 2. AGENT auto-follow-up on SENT cases ——
+    // Do NOT require ACTIVE Mandate here: autoFollowUpCase returns
+    // NO_ACTIVE_MANDATE and the branch below nudges the user to re-issue.
+    // Filtering ACTIVE made that branch unreachable.
     const waiting = await prisma.case.findMany({
       where: {
         status: "SENT",
         updatedAt: { lt: sentCutoff },
-        authorization: { status: "ACTIVE" },
         ownershipVerifiedAt: { not: null },
       },
       select: {

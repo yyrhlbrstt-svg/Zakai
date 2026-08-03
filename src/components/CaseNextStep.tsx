@@ -138,6 +138,10 @@ const copy: Record<string, Record<string, string>> = {
     savedPayFirst: "קודם העמלה על התוצאה המתועדת — אחר כך שיתוף.",
     exhaustedBanner:
       "סיבובי המעקב בכתב מוצו. אל תשלחו עוד תזכורת — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר (ביטול / מתחרה).",
+    mandateInactiveBanner:
+      "אין Mandate פעיל על התיק — הסוכן לא יכול לשלוח המשך לספק עד שתאשרו הרשאה מחדש.",
+    mandateReissue: "הנפק Mandate מחדש",
+    mandateReissued: "Mandate פעיל שוב",
     proofsLabel: "העבירו תשובת ספק לכאן",
     proofsCopy: "העתק כתובת",
     proofsCopied: "הועתק",
@@ -228,6 +232,10 @@ const copy: Record<string, Record<string, string>> = {
     savedPayFirst: "Pay the documented-outcome fee first — then share.",
     exhaustedBanner:
       "Written follow-up rounds are exhausted. Do not send another reminder — record an amount from a written reply, mark no change, or pivot (cancel / competitor).",
+    mandateInactiveBanner:
+      "No ACTIVE Mandate on this case — the agent cannot send a follow-up until you re-issue authorization.",
+    mandateReissue: "Re-issue Mandate",
+    mandateReissued: "Mandate active again",
     proofsLabel: "Forward provider reply here",
     proofsCopy: "Copy address",
     proofsCopied: "Copied",
@@ -865,6 +873,50 @@ export function CaseNextStep({
           </div>
         )}
 
+        {!localAuth && (
+          <div className="rounded-xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] p-3.5">
+            <div className="text-[12.5px] font-extrabold text-[#f08a6b] leading-relaxed mb-2.5">
+              {t(locale, "mandateInactiveBanner")}
+            </div>
+            <Button
+              disabled={busy}
+              className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+              onClick={() =>
+                run(async () => {
+                  const res = await fetch(`/api/cases/${caseId}/authorization`, {
+                    method: "POST",
+                  });
+                  const data = await res.json().catch(() => ({}));
+                  if (!res.ok) throw new Error("reissue");
+                  if (data.code) setAuthCode(data.code);
+                  if (data.mandate?.jti) {
+                    setMandateInfo(
+                      `${t(locale, "mandateOk")} · jti ${String(data.mandate.jti).slice(0, 8)}…`,
+                    );
+                  } else {
+                    setMandateInfo(t(locale, "mandateReissued"));
+                  }
+                  setLocalAuth(true);
+                  router.refresh();
+                })
+              }
+            >
+              {busy ? t(locale, "working") : t(locale, "mandateReissue")}
+            </Button>
+            {authCode && (
+              <a
+                href={`/${locale}/authorization/${authCode}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block mt-2 text-[12px] text-[#3EC6FF] font-bold no-underline"
+              >
+                {t(locale, "openDoc")} →
+              </a>
+            )}
+            {mandateInfo && <div className="text-[12px] text-ink-soft mt-2">{mandateInfo}</div>}
+          </div>
+        )}
+
         {!emailConfigured && draftEdit.trim() && (
           <Button
             className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
@@ -1056,7 +1108,7 @@ export function CaseNextStep({
           </div>
         </div>
 
-        {agentRound < MAX_AGENT_ROUNDS ? (
+        {agentRound < MAX_AGENT_ROUNDS && localAuth ? (
         <div className="rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.03)] p-3">
           <div className="text-[12.5px] font-bold mb-2">{t(locale, "followTitle")}</div>
           {needsOutreachInput && (

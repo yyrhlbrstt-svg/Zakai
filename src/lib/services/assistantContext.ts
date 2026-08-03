@@ -25,6 +25,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
       targetAmount: true,
       savingsProof: { select: { savingMonthly: true } },
       fee: { select: { amount: true, status: true } },
+      authorization: { select: { status: true } },
     },
   });
 
@@ -46,7 +47,13 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
     [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
   );
   const ranked = rankNextAction(
-    cases.map((c) => ({ ...c, agentRound: agentRounds.get(c.id) ?? 0 })),
+    cases.map((c) => ({
+      id: c.id,
+      status: c.status,
+      fee: c.fee,
+      agentRound: agentRounds.get(c.id) ?? 0,
+      mandateActive: c.authorization?.status === "ACTIVE",
+    })),
     proposedHints,
   );
 
@@ -83,6 +90,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
       ranked.kind === "pending_fee" ||
       ranked.kind === "proposed_saving" ||
       ranked.kind === "sent_exhausted" ||
+      ranked.kind === "mandate_inactive" ||
       ranked.kind === "pre_send" ||
       ranked.kind === "sent_wait"
         ? ranked.caseId

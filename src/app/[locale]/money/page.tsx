@@ -60,6 +60,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
         id: true,
         status: true,
         fee: { select: { amount: true, status: true } },
+        authorization: { select: { status: true } },
       },
       orderBy: { updatedAt: "desc" },
       take: 40,
@@ -73,7 +74,13 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
     );
     const action = rankNextAction(
-      cases.map((c) => ({ ...c, agentRound: agentRounds.get(c.id) ?? 0 })),
+      cases.map((c) => ({
+        id: c.id,
+        status: c.status,
+        fee: c.fee,
+        agentRound: agentRounds.get(c.id) ?? 0,
+        mandateActive: c.authorization?.status === "ACTIVE",
+      })),
       proposedHints,
     );
     openLoop = action.kind !== "start_money";

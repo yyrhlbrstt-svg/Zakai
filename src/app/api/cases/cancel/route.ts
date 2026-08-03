@@ -48,14 +48,14 @@ export async function POST(request: Request) {
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
   const resolved = resolveSubscriptionCompany(data.company, data.product);
-  // Do not treat the customer's account/email as the provider inbox.
-  const outreachTo = pickOutreachEmail({
-    contactEmail: data.contactEmail,
-    defaultContactEmail: resolved.defaultContactEmail,
-  });
-  if (!outreachTo) {
-    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
-  }
+  // Prefer known / user-supplied inbox, but never invent one and never block
+  // case+Mandate open when empty — dashboard CaseNextStep collects outreach
+  // before dispatch (same soft-open as bank-fees / from-scan).
+  const outreachTo =
+    pickOutreachEmail({
+      contactEmail: data.contactEmail,
+      defaultContactEmail: resolved.defaultContactEmail,
+    }) || undefined;
 
   const letter = buildCancelLetter({
     customerName: data.customerName || user.name || "",
@@ -127,7 +127,8 @@ ${bodyWithFooter}`,
     body: letter.body,
     status: kase.status,
     message: "case_opened",
-    outreachEmail: outreachTo,
+    outreachEmail: outreachTo ?? null,
+    needsOutreachEmail: !outreachTo,
     // createCase(autoApprove) already primes verified-email → VERIFIED when possible
     primed: kase.status === "VERIFIED" || Boolean(kase.ownershipVerifiedAt),
   });

@@ -27,6 +27,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
       id: true,
       status: true,
       fee: { select: { amount: true, status: true } },
+      authorization: { select: { status: true } },
     },
     orderBy: { updatedAt: "desc" },
     take: 40,
@@ -41,7 +42,13 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
     [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
   );
   const action = rankNextAction(
-    cases.map((c) => ({ ...c, agentRound: agentRounds.get(c.id) ?? 0 })),
+    cases.map((c) => ({
+      id: c.id,
+      status: c.status,
+      fee: c.fee,
+      agentRound: agentRounds.get(c.id) ?? 0,
+      mandateActive: c.authorization?.status === "ACTIVE",
+    })),
     proposedHints,
   );
 
@@ -77,6 +84,18 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
       >
         <div className="font-extrabold text-[14px] text-[#f08a6b]">{t("exhaustedTitle")}</div>
         <p className="text-[12.5px] text-ink-soft mt-1 mb-0">{t("exhaustedSub")}</p>
+      </Link>
+    );
+  }
+
+  if (action.kind === "mandate_inactive") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline mb-6 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-4 py-3.5 hover:border-[rgba(240,138,107,0.65)] transition-colors"
+      >
+        <div className="font-extrabold text-[14px] text-[#f08a6b]">{t("mandateInactiveTitle")}</div>
+        <p className="text-[12.5px] text-ink-soft mt-1 mb-0">{t("mandateInactiveSub")}</p>
       </Link>
     );
   }

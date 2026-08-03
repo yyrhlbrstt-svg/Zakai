@@ -48,14 +48,32 @@ describe("rankNextAction", () => {
 
   it("prefers pre-send over silent SENT that still has rounds left", () => {
     const action = rankNextAction([
-      { id: "sent", status: "SENT", agentRound: 1 },
+      { id: "sent", status: "SENT", agentRound: 1, mandateActive: true },
       { id: "pre", status: "APPROVED" },
     ]);
     expect(action).toEqual({ kind: "pre_send", caseId: "pre", status: "APPROVED" });
   });
 
-  it("falls back to sent_wait then start_money", () => {
+  it("surfaces mandate_inactive above pre-send and sent_wait", () => {
+    const action = rankNextAction([
+      { id: "pre", status: "VERIFIED" },
+      { id: "dead", status: "SENT", agentRound: 1, mandateActive: false },
+      { id: "ok", status: "SENT", agentRound: 0, mandateActive: true },
+    ]);
+    expect(action).toEqual({ kind: "mandate_inactive", caseId: "dead" });
+  });
+
+  it("does not invent mandate_inactive when mandateActive is unknown", () => {
     expect(rankNextAction([{ id: "s", status: "SENT", agentRound: 0 }])).toEqual({
+      kind: "sent_wait",
+      caseId: "s",
+    });
+  });
+
+  it("falls back to sent_wait then start_money", () => {
+    expect(
+      rankNextAction([{ id: "s", status: "SENT", agentRound: 0, mandateActive: true }]),
+    ).toEqual({
       kind: "sent_wait",
       caseId: "s",
     });
@@ -82,5 +100,11 @@ describe("nextActionInstruction", () => {
     });
     expect(line).toContain("c9");
     expect(line).toMatch(/Do NOT draft another delay/i);
+  });
+
+  it("points inactive Mandate at dashboard re-issue", () => {
+    const line = nextActionInstruction({ kind: "mandate_inactive", caseId: "c2" });
+    expect(line).toContain("/dashboard?case=c2");
+    expect(line).toMatch(/Re-issue ACTIVE Mandate/i);
   });
 });

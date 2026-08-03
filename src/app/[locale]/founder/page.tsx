@@ -7,6 +7,8 @@ import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
+import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
@@ -88,6 +90,9 @@ export default async function FounderPage({
     mandatesOnSentPlus,
     mandatesIssued7d,
     proofsDocumented7d,
+    stuckNoMandate,
+    stuckNoOutreach,
+    sentOpenIds,
   ] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
     // Documented pipeline only — estimate shortcuts must not inflate the founder instrument.
@@ -145,7 +150,29 @@ export default async function FounderPage({
     prisma.savingsProof.count({
       where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: weekAgo } },
     }),
+    // SENT stuck: no ACTIVE Mandate (missing or REVOKED) — cron/follow-up blocked.
+    prisma.case.count({
+      where: {
+        status: "SENT",
+        NOT: { authorization: { is: { status: "ACTIVE" } } },
+      },
+    }),
+    // SENT stuck: no provider inbox to write to.
+    prisma.case.count({
+      where: {
+        status: "SENT",
+        OR: [{ counterpartyEmail: null }, { counterpartyEmail: "" }],
+      },
+    }),
+    prisma.case.findMany({
+      where: { status: "SENT" },
+      select: { id: true },
+      take: 2000,
+    }),
   ]);
+
+  const agentRounds = await getAgentRoundMap(sentOpenIds.map((c) => c.id));
+  const stuckMaxRounds = [...agentRounds.values()].filter((n) => n >= MAX_AGENT_ROUNDS).length;
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
   const sent = count("SENT") + count("SAVED") + count("NO_SAVING");
@@ -180,6 +207,9 @@ export default async function FounderPage({
     ["— SavingsProof מתועד (7 ימים) —", String(proofsDocumented7d)],
     ["— משפך: לפני שליחה (ANALYZED+APPROVED+VERIFIED) —", String(preSendOpen)],
     ["— משפך: SENT פתוח (ממתין ל־Proof) —", String(sentOnly)],
+    ["— תקוע: SENT בלי Mandate פעיל —", String(stuckNoMandate)],
+    ["— תקוע: SENT בלי אימייל ספק —", String(stuckNoOutreach)],
+    [`— תקוע: SENT ב־${MAX_AGENT_ROUNDS}+ סיבובי מעקב —`, String(stuckMaxRounds)],
     ["לידים לעמלה (ביטוח/וורטיקלים)", leadsValue],
     ["משובים שהתקבלו", String(feedbackCount)],
     ["נשלחו לספק (SENT+)", String(sent)],

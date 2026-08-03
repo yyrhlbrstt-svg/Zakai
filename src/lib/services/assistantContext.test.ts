@@ -77,10 +77,30 @@ describe("buildAssistantCasesSnapshot", () => {
         targetAmount: 8_000,
         savingsProof: null,
         fee: null,
+        authorization: { status: "ACTIVE" },
       },
     ] as never);
     const snap = await buildAssistantCasesSnapshot("user_1");
     expect(snap).toContain("NEXT_ACTION: Finish Mandate send");
     expect(snap).toContain("case_pre");
+  });
+
+  it("surfaces inactive Mandate on SENT above wait", async () => {
+    vi.mocked(prisma.case.findMany).mockResolvedValue([
+      {
+        id: "case_dead",
+        provider: "cellcom",
+        status: "SENT",
+        vertical: "telecom",
+        amountOriginal: 20_000,
+        targetAmount: 15_000,
+        savingsProof: null,
+        fee: null,
+        authorization: { status: "REVOKED" },
+      },
+    ] as never);
+    const snap = await buildAssistantCasesSnapshot("user_1");
+    expect(snap).toContain("NEXT_ACTION: Re-issue ACTIVE Mandate");
+    expect(snap).toContain("case_dead");
   });
 });

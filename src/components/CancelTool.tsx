@@ -52,9 +52,10 @@ export function CancelTool() {
     });
   }, [company, product, contactEmail]);
 
+  // Soft-open: inbox is optional here — dashboard collects before dispatch.
   const agentReady = useMemo(
-    () => company.trim().length > 0 && product.trim().length > 0 && outreachTo !== null,
-    [company, product, outreachTo],
+    () => company.trim().length > 0 && product.trim().length > 0,
+    [company, product],
   );
 
   useEffect(() => {
@@ -116,6 +117,7 @@ export function CancelTool() {
         return;
       }
       if (!res.ok) {
+        // Legacy hard-gate — soft-open usually opens and collects inbox on dashboard.
         if (data.error === "needsOutreachEmail") {
           setError(t("errorNeedsEmail"));
           return;
