@@ -14,6 +14,7 @@
     "verify:pack-labels": "tsx scripts/generate-pack-labels.mjs && git diff --exit-code src/lib/global/packLabels.generated.ts",
     "release-gate": "tsx scripts/release-gate.ts",
     "preflight": "node scripts/preflight.mjs",
+    "verify:interop": "node scripts/verify-interop.mjs",
     "generate:pack-labels": "tsx scripts/generate-pack-labels.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

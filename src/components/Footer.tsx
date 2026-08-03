@@ -50,6 +50,9 @@ export function Footer() {
         <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
           |
         </span>
+        <Link href="/standard" className="text-ink-soft no-underline hover:text-emerald">
+          {locale === "he" ? "תקן Interop" : "Interop standard"}
+        </Link>
         <Link href="/global" className="text-ink-soft no-underline hover:text-emerald">
           {t("footer.global")}
         </Link>

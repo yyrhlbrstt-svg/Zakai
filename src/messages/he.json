@@ -750,6 +750,17 @@
     "catalogTeaserSub": "{total} זכויות ממוסדות בקטלוג הציבורי (דוגמאות למטה).",
     "catalogApiLink": "JSON מלא ב-API"
   },
+  "standard": {
+    "metaTitle": "תקן זכאי — Interop",
+    "metaDesc": "נקודת כניסה אחת למנדט, קטלוג ZML והוכחת תאימות בלי שיחת מכירות.",
+    "title": "תשתית שאי אפשר לעבוד בלעדיה",
+    "sub": "תקן Interop מפרסם פרופילים, כתובות well-known ובדיקה חיה. מי שמיישם — בודק. מי שמאמת — סומך על קריפטוגרפיה, לא על מוקד.",
+    "startHere": "התחילו כאן (מכונה + אנושי):",
+    "profilesTitle": "פרופילי תאימות",
+    "ctaIntegrations": "מדריך אינטגרציה",
+    "ctaInstitutions": "למוסדות",
+    "ctaGlobal": "שווקים בעולם"
+  },
   "providers": {
     "cellcom": "סלקום",
     "partner": "פרטנר",

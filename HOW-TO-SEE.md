@@ -68,6 +68,7 @@ https://zakai-3uxj.vercel.app/api/version
 | Embed script | `/embed.js` |
 | Fairness widget | `/widget/zakai-widget.js` · `docs/WIDGET_EMBED.md` |
 | פרוטוקול (JSON) | `/.well-known/zakai-protocol.json` |
+| **תקן Interop (התחילו כאן)** | `/.well-known/zakai-interop.json` · `GET /api/interop?probe=1` · `/he/standard` |
 | ZML schema | `/.well-known/zakai-rights-schema.json` |
 | OpenAPI (ZML + APIs) | `/.well-known/zakai-openapi.json` |
 | קטלוג זכויות | `GET /api/rights/catalog?market=IL` |

@@ -79,6 +79,11 @@ export function buildZakaiProtocolDocument(origin: string) {
     thesis:
       "Bitcoin removed the need to trust a central bank to hold scarcity rules. Zakai removes the need to trust a call centre to hold consumer authority: mandates are Ed25519-verifiable, revocable, and scoped; outcomes are public aggregates without identity.",
     issuer,
+    interop: {
+      entrypoint: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.interop),
+      live_probe: `${origin}/api/interop?probe=1`,
+      profiles: ["zakai-core-1", "zakai-rights-catalog-1", "zakai-mandate-verifier-1", "zakai-outcome-graph-1"],
+    },
     laws: PROTOCOL_LAWS,
     layers: {
       authority: {

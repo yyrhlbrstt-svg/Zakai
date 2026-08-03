@@ -21,5 +21,6 @@ describe("buildZakaiProtocolDocument", () => {
     expect(doc.layers.authority.jwks).toContain("zakai-jwks");
     expect(doc.laws.length).toBeGreaterThanOrEqual(5);
     expect(doc.zml?.rights_catalog).toContain("/api/rights/catalog");
+    expect(doc.interop?.entrypoint).toContain("zakai-interop.json");
   });
 });

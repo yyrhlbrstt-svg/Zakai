@@ -70,6 +70,8 @@ export async function GET() {
       rights_catalog: "/api/rights/catalog?market={market}",
       markets: "/api/markets",
       global_hub: "/en/global",
+      interop: "/.well-known/zakai-interop.json",
+      interop_probe: "/api/interop?probe=1",
       network: "/api/network",
       mandate: "/.well-known/zakai-mandate.json",
       jwks: "/.well-known/zakai-jwks.json",

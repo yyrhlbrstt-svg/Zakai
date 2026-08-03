@@ -749,6 +749,17 @@
     "catalogTeaserSub": "{total} machine-readable rights in the public catalog (sample below).",
     "catalogApiLink": "Full JSON via API"
   },
+  "standard": {
+    "metaTitle": "Zakai Standard — Interop",
+    "metaDesc": "One entrypoint for Mandate, ZML catalog, and live conformance — no sales call.",
+    "title": "Infrastructure you cannot skip",
+    "sub": "The Interop standard publishes profiles, well-known URLs, and a live probe. Implementers verify; institutions trust cryptography, not a call centre.",
+    "startHere": "Start here (machine + human):",
+    "profilesTitle": "Conformance profiles",
+    "ctaIntegrations": "Integration guide",
+    "ctaInstitutions": "Institutions",
+    "ctaGlobal": "World markets"
+  },
   "providers": {
     "cellcom": "Cellcom",
     "partner": "Partner",

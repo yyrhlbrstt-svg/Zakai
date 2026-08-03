@@ -11,6 +11,7 @@ export function isValidInstitutionSlug(slug: string): boolean {
 export const VERIFIER_READINESS_AUDIENCE = "zakai-verifier-readiness-self-test";
 
 export const VERIFIER_READINESS_ENDPOINTS = [
+  { id: "interop", path: "/.well-known/zakai-interop.json" },
   { id: "jwks", path: "/.well-known/zakai-jwks.json" },
   { id: "protocol", path: "/.well-known/zakai-protocol.json" },
   { id: "discovery", path: "/.well-known/zakai-mandate.json" },
