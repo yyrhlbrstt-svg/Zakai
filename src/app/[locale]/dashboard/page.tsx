@@ -294,8 +294,12 @@ export default async function DashboardPage({
         const settled = c.status === "SAVED" || c.status === "NO_SAVING";
         const effectiveNew = c.savingsProof ? c.savingsProof.newAmount : c.targetAmount;
         const delta = Math.max(0, c.amountOriginal - effectiveNew);
+        const proofSelfReported = Boolean(c.savingsProof?.selfReported);
         const shareMsg =
-          c.status === "SAVED" && c.savingsProof && c.savingsProof.savingMonthly > 0
+          c.status === "SAVED" &&
+          c.savingsProof &&
+          !proofSelfReported &&
+          c.savingsProof.savingMonthly > 0
             ? t("share.msgSaved", {
                 amount: formatAgorot(c.savingsProof.savingMonthly, loc),
               })
@@ -400,6 +404,7 @@ export default async function DashboardPage({
                   documentedSavingShekels={
                     c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
                   }
+                  proofSelfReported={proofSelfReported}
                   pendingFeeShekels={
                     c.fee && c.fee.status === "PENDING" && c.fee.amount > 0
                       ? Math.round(c.fee.amount / 100)
@@ -410,7 +415,11 @@ export default async function DashboardPage({
                   draftMessage={c.draftMessage}
                   emailVerified={Boolean(user!.emailVerifiedAt)}
                   learningTip={learningTips.get(`${c.vertical}::${c.provider}`) ?? null}
-                  nextOpenCase={c.status === "SAVED" ? nextOpenCase : null}
+                  nextOpenCase={
+                    c.status === "SAVED" || c.status === "NO_SAVING" || c.status === "REVOKED"
+                      ? nextOpenCase
+                      : null
+                  }
                 />
               ) : !settled ? (
                 <Link

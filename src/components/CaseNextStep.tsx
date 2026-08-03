@@ -60,6 +60,8 @@ interface Props {
   documentedSavingShekels?: number;
   /** Pending success fee in shekels — primary CTA on SAVED before share. */
   pendingFeeShekels?: number;
+  /** Estimate / self-reported SavingsProof — no virality (prove → fee → share). */
+  proofSelfReported?: boolean;
   /**
    * Whether this environment can actually deliver email (SMTP_HOST set).
    * A case's status flips to SENT the moment the agent claims the send —
@@ -150,6 +152,8 @@ const copy: Record<string, Record<string, string>> = {
     estimateHints: "קיצורי הערכה — לא תיעוד מספק. לא נגבית עמלה על הערכה.",
     payFeeNow: "שלמו את עמלת ההצלחה",
     savedPayFirst: "קודם העמלה על התוצאה המתועדת — אחר כך שיתוף.",
+    estimateNoShare:
+      "זו הערכה עצמית — בלי תיעוד מספק אין שיתוף ויראלי. הדביקו תשובה בכתב בתיק הבא לחיסכון מתועד.",
     exhaustedBanner:
       "סיבובי המעקב בכתב מוצו. אל תשלחו עוד תזכורת — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר (ביטול / מתחרה).",
     mandateInactiveBanner:
@@ -251,6 +255,8 @@ const copy: Record<string, Record<string, string>> = {
     estimateHints: "Estimate shortcuts — not provider documentation. No success fee on estimates.",
     payFeeNow: "Pay the success fee",
     savedPayFirst: "Pay the documented-outcome fee first — then share.",
+    estimateNoShare:
+      "This is a self-reported estimate — no viral share without provider documentation. Paste a written reply on the next case for a documented saving.",
     exhaustedBanner:
       "Written follow-up rounds are exhausted. Do not send another reminder — record an amount from a written reply, mark no change, or pivot (cancel / competitor).",
     mandateInactiveBanner:
@@ -313,6 +319,7 @@ export function CaseNextStep({
   feeBasis = "monthly",
   currentPlan,
   documentedSavingShekels,
+  proofSelfReported = false,
   draftMessage: draftMessageProp = "",
   emailVerified = false,
   learningTip = null,
@@ -604,55 +611,61 @@ export function CaseNextStep({
             </div>
           </div>
         ) : null}
-        {/* Prove → fee → share: no virality / next doors while success fee is unpaid. */}
+        {/* Prove → fee → share: unpaid fee and self-reported estimates never unlock virality. */}
         {!(pendingFeeShekels != null && pendingFeeShekels > 0) ? (
           <>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
-            onClick={() => {
-              window.open(
-                `https://wa.me/?text=${encodeURIComponent(fullText)}`,
-                "_blank",
-                "noopener,noreferrer",
-              );
-            }}
-          >
-            {t(locale, "whatsapp")}
-          </button>
-          {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
+        {proofSelfReported ? (
+          <p className="text-[13px] text-ink-soft mb-3 leading-relaxed m-0">
+            {t(locale, "estimateNoShare")}
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
+              onClick={() => {
+                window.open(
+                  `https://wa.me/?text=${encodeURIComponent(fullText)}`,
+                  "_blank",
+                  "noopener,noreferrer",
+                );
+              }}
+            >
+              {t(locale, "whatsapp")}
+            </button>
+            {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
+              <Button
+                variant="ghost"
+                className="!text-[13px] !py-2"
+                onClick={async () => {
+                  try {
+                    await navigator.share({ title: "Zakai", text: msg, url: shareUrl });
+                  } catch {
+                    /* cancelled */
+                  }
+                }}
+              >
+                {t(locale, "nativeShare")}
+              </Button>
+            )}
             <Button
               variant="ghost"
               className="!text-[13px] !py-2"
               onClick={async () => {
                 try {
-                  await navigator.share({ title: "Zakai", text: msg, url: shareUrl });
+                  await navigator.clipboard.writeText(shareUrl);
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 2000);
                 } catch {
-                  /* cancelled */
+                  /* ignore */
                 }
               }}
             >
-              {t(locale, "nativeShare")}
+              {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            className="!text-[13px] !py-2"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(shareUrl);
-                setLinkCopied(true);
-                setTimeout(() => setLinkCopied(false), 2000);
-              } catch {
-                /* ignore */
-              }
-            }}
-          >
-            {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
-          </Button>
-        </div>
-        {showUpgradeNudge && (
+          </div>
+        )}
+        {!proofSelfReported && showUpgradeNudge && (
           <div className="mt-3.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] px-3.5 py-2.5 flex items-center justify-between gap-3 flex-wrap">
             <p className="text-[12.5px] text-ink-soft m-0 leading-snug">{t(locale, "upgradeNudge")}</p>
             <Link href="/pricing">
@@ -730,6 +743,15 @@ export function CaseNextStep({
                   const data = await res.json().catch(() => ({}));
                   if (isOutreachEmailApiError(data.error)) {
                     setErr(t(locale, "errNeedsEmail"));
+                    return;
+                  }
+                  if (data.error === "OUTREACH_DELIVERY_FAILED") {
+                    setErr(t(locale, "errDelivery"));
+                    return;
+                  }
+                  if (data.error === "ALREADY_SENT") {
+                    setErr(t(locale, "errAlreadySent"));
+                    router.refresh();
                     return;
                   }
                   throw new Error("dispatch");

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nextActionHref, rankNextAction } from "./nextAction";
+import { resolveMoneyFinishCaseId } from "./shareableSavedCase";
 
 /**
  * Finish-surface contract: every open-loop kind — including fee — finishes on /money.
@@ -28,5 +29,18 @@ describe("finish surface contract", () => {
     ]);
     expect(action.kind).toBe("pending_fee");
     expect(nextActionHref(action)).toBe("/money?case=c1&payFee=1");
+  });
+
+  it("dead ?case= pin never steals CaseNextStep from a live open loop", () => {
+    expect(
+      resolveMoneyFinishCaseId({
+        cases: [
+          { id: "dead", status: "REVOKED", savingsProof: null, fee: null },
+          { id: "live", status: "SENT", savingsProof: null, fee: null },
+        ],
+        focusCaseId: "dead",
+        rankedCaseId: "live",
+      }),
+    ).toBe("live");
   });
 });

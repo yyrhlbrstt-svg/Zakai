@@ -3,7 +3,7 @@ import { CaseNextStep } from "@/components/CaseNextStep";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
-import { rankNextAction } from "@/lib/services/nextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { emailConfigured } from "@/lib/messaging";
 import { feeBasisForVertical } from "@/lib/verticals";
@@ -11,7 +11,10 @@ import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
-import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
+import {
+  isDeadFinishStatus,
+  resolveMoneyFinishCaseId,
+} from "@/lib/services/shareableSavedCase";
 import { heEn } from "@/lib/heEn";
 
 /**
@@ -84,17 +87,29 @@ export async function MoneyLoopCloser({
     proposedHints,
   );
 
-  const focused =
-    focusCaseId && cases.find((row) => row.id === focusCaseId) ? focusCaseId : null;
   const rankedId =
     ranked.kind !== "start_money" && "caseId" in ranked ? ranked.caseId : null;
-  // After fee settles, ranker returns start_money — keep share CTAs on /money.
-  const targetCaseId =
-    focused ?? rankedId ?? pickShareableSavedCaseId(cases);
+  // Dead ?case= pins must not stall a live open loop; after fee settle keep share.
+  const targetCaseId = resolveMoneyFinishCaseId({
+    cases,
+    focusCaseId,
+    rankedCaseId: rankedId,
+  });
   if (!targetCaseId) return null;
 
   const c = cases.find((row) => row.id === targetCaseId);
   if (!c) return null;
+
+  const habitCase =
+    rankedId && rankedId !== c.id ? cases.find((row) => row.id === rankedId) : null;
+  const nextOpenCase =
+    habitCase && (c.status === "SAVED" || isDeadFinishStatus(c.status))
+      ? {
+          href: nextActionHref(ranked),
+          labelHe: `המשיכו את התיק מול ${providerHebrewName(habitCase.provider)}`,
+          labelEn: `Continue the case with ${providerHebrewName(habitCase.provider)}`,
+        }
+      : null;
 
   const proposed = proposedMap.get(c.id);
   const proposedClient = proposed
@@ -115,8 +130,12 @@ export async function MoneyLoopCloser({
         medianDays: cohort.medianDaysToWin,
       }
     : null;
+  const proofSelfReported = Boolean(c.savingsProof?.selfReported);
   const shareMsg =
-    c.status === "SAVED" && c.savingsProof && c.savingsProof.savingMonthly > 0
+    c.status === "SAVED" &&
+    c.savingsProof &&
+    !proofSelfReported &&
+    c.savingsProof.savingMonthly > 0
       ? locale === "he" || locale === "ar"
         ? `תיעדתי חיסכון של ${formatAgorot(c.savingsProof.savingMonthly, loc)} עם זכאי`
         : `I documented ${formatAgorot(c.savingsProof.savingMonthly, loc)} savings with Zakai`
@@ -160,6 +179,7 @@ export async function MoneyLoopCloser({
         documentedSavingShekels={
           c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
         }
+        proofSelfReported={proofSelfReported}
         pendingFeeShekels={
           c.fee && c.fee.status === "PENDING" && c.fee.amount > 0
             ? Math.round(c.fee.amount / 100)
@@ -170,6 +190,7 @@ export async function MoneyLoopCloser({
         draftMessage={c.draftMessage}
         emailVerified={emailVerified}
         learningTip={learningTip}
+        nextOpenCase={nextOpenCase}
       />
     </div>
   );

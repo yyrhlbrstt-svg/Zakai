@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isDeadFinishStatus, pickShareableSavedCaseId } from "./shareableSavedCase";
+import {
+  isDeadFinishStatus,
+  pickShareableSavedCaseId,
+  resolveMoneyFinishCaseId,
+} from "./shareableSavedCase";
 
 describe("isDeadFinishStatus", () => {
   it("marks NO_SAVING and REVOKED as dead finish pins", () => {
@@ -55,5 +59,78 @@ describe("pickShareableSavedCaseId", () => {
         },
       ]),
     ).toBe("waived");
+  });
+});
+
+describe("resolveMoneyFinishCaseId", () => {
+  const cases = [
+    {
+      id: "dead",
+      status: "NO_SAVING",
+      savingsProof: null,
+      fee: null,
+    },
+    {
+      id: "sent",
+      status: "SENT",
+      savingsProof: null,
+      fee: null,
+    },
+    {
+      id: "share",
+      status: "SAVED",
+      savingsProof: { savingMonthly: 4000, selfReported: false },
+      fee: { amount: 700, status: "PAID" },
+    },
+  ];
+
+  it("prefers live ranked open loop over a dead ?case= pin", () => {
+    expect(
+      resolveMoneyFinishCaseId({
+        cases,
+        focusCaseId: "dead",
+        rankedCaseId: "sent",
+      }),
+    ).toBe("sent");
+  });
+
+  it("keeps a live focused case even when ranked differs", () => {
+    expect(
+      resolveMoneyFinishCaseId({
+        cases,
+        focusCaseId: "share",
+        rankedCaseId: "sent",
+      }),
+    ).toBe("share");
+  });
+
+  it("shows dead finish when there is no open loop", () => {
+    expect(
+      resolveMoneyFinishCaseId({
+        cases,
+        focusCaseId: "dead",
+        rankedCaseId: null,
+      }),
+    ).toBe("dead");
+  });
+
+  it("falls back to shareable SAVED after start_money", () => {
+    expect(
+      resolveMoneyFinishCaseId({
+        cases,
+        focusCaseId: null,
+        rankedCaseId: null,
+      }),
+    ).toBe("share");
+  });
+
+  it("uses ranked open loop when no focus", () => {
+    expect(
+      resolveMoneyFinishCaseId({
+        cases,
+        focusCaseId: null,
+        rankedCaseId: "sent",
+      }),
+    ).toBe("sent");
   });
 });
