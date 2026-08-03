@@ -16,6 +16,7 @@ import {
   buildInboundReceivePayload,
   inboundReceiveEmailAttachment,
 } from "@/lib/protocol/inboundPayload";
+import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 
 /**
  * The agent keeps working after the first send.
@@ -30,13 +31,33 @@ import {
  */
 
 export const AGENT_SUBJECT_PREFIX = "זכאי סיבוב";
-export const MAX_AGENT_ROUNDS = 4;
+export { MAX_AGENT_ROUNDS };
 
 export interface AutoFollowUpResult {
   caseId: string;
   sent: boolean;
   round?: number;
   reason?: string;
+}
+
+/** Batch count of agent auto-follow-up rounds (subject marker) for next-action ranking. */
+export async function getAgentRoundMap(caseIds: string[]): Promise<Map<string, number>> {
+  const map = new Map<string, number>();
+  if (caseIds.length === 0) return map;
+  const outs = await prisma.outbox.groupBy({
+    by: ["caseId"],
+    where: {
+      caseId: { in: caseIds },
+      channel: "EMAIL",
+      providerMessageId: { not: "inbound" },
+      subject: { startsWith: AGENT_SUBJECT_PREFIX },
+    },
+    _count: { _all: true },
+  });
+  for (const o of outs) {
+    if (o.caseId) map.set(o.caseId, o._count._all);
+  }
+  return map;
 }
 
 /** Count prior agent auto-follow-ups for this case (by subject marker). */

@@ -694,6 +694,8 @@
     "preSendNudgeSub": "Approve / verify / send to the provider with Mandate. Every send strengthens the pipe.",
     "sentWaitNudgeTitle": "Sent — close the loop with a SavingsProof",
     "sentWaitNudgeSub": "Forward the provider reply to proofs@ or enter the new amount. No proof, no gravity.",
+    "exhaustedNudgeTitle": "Follow-up rounds exhausted — close or record",
+    "exhaustedNudgeSub": "No more auto-reminders. Record an amount from a written reply, mark no change, or pivot path.",
     "proposedNudgeTitle": "The agent spotted a provider reply",
     "proposedNudgeSub": "Tap to one-tap record the saving — this step closes the money loop.",
     "feeNudgeTitle": "Success fee ready — pay in one tap",
@@ -4963,7 +4965,9 @@
     "pendingCaseTitle": "You have an open case — continue on the dashboard",
     "pendingCaseSub": "Verify, send to provider, or record saving — next step is waiting.",
     "proposedTitle": "The agent spotted a provider reply",
-    "proposedSub": "One-tap record saving on your dashboard."
+    "proposedSub": "One-tap record saving on your dashboard.",
+    "exhaustedTitle": "Follow-up rounds exhausted — close the case",
+    "exhaustedSub": "Record an amount from a written reply or mark no change — no more reminders."
   },
   "inline_app_locale_proofs_page": {
     "t_d2c8fb14": "Savings wall · anonymous",

@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { providerHebrewName } from "@/lib/providers";
 import { nextActionInstruction, rankNextAction } from "@/lib/services/nextAction";
 
@@ -35,11 +36,17 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
   }
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
-  const proposedMap = sentIds.length > 0 ? await getProposedSavingsMap(sentIds) : new Map();
+  const [proposedMap, agentRounds] = await Promise.all([
+    sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),
+    getAgentRoundMap(sentIds),
+  ]);
   const proposedHints = new Map(
     [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
   );
-  const ranked = rankNextAction(cases, proposedHints);
+  const ranked = rankNextAction(
+    cases.map((c) => ({ ...c, agentRound: agentRounds.get(c.id) ?? 0 })),
+    proposedHints,
+  );
 
   const lines: string[] = ["CASES (newest first):"];
   for (const c of cases) {
@@ -73,6 +80,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
     const topId =
       ranked.kind === "pending_fee" ||
       ranked.kind === "proposed_saving" ||
+      ranked.kind === "sent_exhausted" ||
       ranked.kind === "pre_send" ||
       ranked.kind === "sent_wait"
         ? ranked.caseId

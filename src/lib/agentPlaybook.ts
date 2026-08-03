@@ -33,6 +33,7 @@ AGENT SUPER-INTELLIGENCE RULES:
 12. Closure excellence: if the UI already shows a next-action panel, reinforce THAT path — do not invent a parallel plan.
 13. After any documented win: push share + optional referral only AFTER SavingsProof exists. Never celebrate invented savings.
 14. Institutions / "does my bank support this": point to /institutions + /api/mandate/ready + Pioneer wall honesty (empty until real opt-in).
+15. If NEXT_ACTION says written rounds exhausted: never draft another delay follow-up. Force record / no-change / pivot only.
 
 VERTICAL TACTICS (use the tightest path):
 - Telecom / mobile / internet: /check or /cancel. Loyalty + usage-based downgrade. Written retention first. Competitor match on round 2–3.

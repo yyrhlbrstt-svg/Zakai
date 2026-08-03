@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { MAX_AGENT_ROUNDS } from "./loopLimits";
 import { nextActionInstruction, rankNextAction } from "./nextAction";
 
 describe("rankNextAction", () => {
   it("prioritizes pending fee over everything", () => {
     const action = rankNextAction(
       [
-        { id: "a", status: "SENT" },
+        { id: "a", status: "SENT", agentRound: MAX_AGENT_ROUNDS },
         { id: "b", status: "SAVED", fee: { amount: 1800, status: "PENDING" } },
         { id: "c", status: "ANALYZED" },
       ],
@@ -33,16 +34,28 @@ describe("rankNextAction", () => {
     });
   });
 
-  it("prefers pre-send over silent SENT", () => {
+  it("forces close when written rounds are exhausted", () => {
     const action = rankNextAction([
-      { id: "sent", status: "SENT" },
+      { id: "pre", status: "APPROVED" },
+      { id: "stuck", status: "SENT", agentRound: MAX_AGENT_ROUNDS },
+    ]);
+    expect(action).toEqual({
+      kind: "sent_exhausted",
+      caseId: "stuck",
+      agentRound: MAX_AGENT_ROUNDS,
+    });
+  });
+
+  it("prefers pre-send over silent SENT that still has rounds left", () => {
+    const action = rankNextAction([
+      { id: "sent", status: "SENT", agentRound: 1 },
       { id: "pre", status: "APPROVED" },
     ]);
     expect(action).toEqual({ kind: "pre_send", caseId: "pre", status: "APPROVED" });
   });
 
   it("falls back to sent_wait then start_money", () => {
-    expect(rankNextAction([{ id: "s", status: "SENT" }])).toEqual({
+    expect(rankNextAction([{ id: "s", status: "SENT", agentRound: 0 }])).toEqual({
       kind: "sent_wait",
       caseId: "s",
     });
@@ -59,5 +72,15 @@ describe("nextActionInstruction", () => {
     });
     expect(line).toContain("/dashboard?case=c1");
     expect(line).toContain("120");
+  });
+
+  it("tells the agent not to draft another delay after exhaustion", () => {
+    const line = nextActionInstruction({
+      kind: "sent_exhausted",
+      caseId: "c9",
+      agentRound: MAX_AGENT_ROUNDS,
+    });
+    expect(line).toContain("c9");
+    expect(line).toMatch(/Do NOT draft another delay/i);
   });
 });

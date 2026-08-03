@@ -24,7 +24,7 @@ import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
-import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
+import { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS } from "@/lib/services/agentFollowUp";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { RetentionActionStrip } from "@/components/RetentionActionStrip";
@@ -116,10 +116,12 @@ export default async function DashboardPage({
     0,
   );
 
-  const totalPotential = cases.reduce(
-    (sum, c) => sum + Math.max(0, c.amountOriginal - c.targetAmount),
-    0,
-  );
+  // Open-loop potential only — settled cases must not inflate the hero forever.
+  const OPEN_FOR_POTENTIAL = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT"]);
+  const totalPotential = cases.reduce((sum, c) => {
+    if (!OPEN_FOR_POTENTIAL.has(c.status)) return sum;
+    return sum + Math.max(0, c.amountOriginal - c.targetAmount);
+  }, 0);
 
   const pendingFeeCases = cases.filter(
     (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
@@ -139,9 +141,14 @@ export default async function DashboardPage({
       c.status === "SENT",
   ).length;
 
-  // Follow-up drafts only for silent SENT cases — skip when inbound already proposed a saving.
+  // Follow-up drafts only for silent SENT that still have rounds left.
   const sentCases = cases
-    .filter((c) => c.status === "SENT" && !proposedMap.has(c.id))
+    .filter(
+      (c) =>
+        c.status === "SENT" &&
+        !proposedMap.has(c.id) &&
+        (agentRoundMap.get(c.id) ?? 0) < MAX_AGENT_ROUNDS,
+    )
     .map((c) => ({
       id: c.id,
       providerLabel: providerHebrewName(c.provider),
@@ -542,11 +549,11 @@ export default async function DashboardPage({
                   {formatAgorot(totalPotential, loc)} {t("common.perMonthTag")}
                 </div>
                 <div className="text-[12.5px] text-ink-soft mt-1.5">{t("dashboard.potentialSub")}</div>
-                {hasFamily && totalDocumentedMonthly > 0 && (
+                {totalDocumentedMonthly > 0 && (
                   <div className="text-[12.5px] text-emerald mt-2 font-bold">
                     {locale === "he"
-                      ? `מתועד בפועל: ${formatAgorot(totalDocumentedMonthly, loc)}/ח׳ (כולל משפחה)`
-                      : `Documented: ${formatAgorot(totalDocumentedMonthly, loc)}/mo (incl. household)`}
+                      ? `מתועד בפועל: ${formatAgorot(totalDocumentedMonthly, loc)}/ח׳${hasFamily ? " (כולל משפחה)" : ""}`
+                      : `Documented: ${formatAgorot(totalDocumentedMonthly, loc)}/mo${hasFamily ? " (incl. household)" : ""}`}
                   </div>
                 )}
               </div>

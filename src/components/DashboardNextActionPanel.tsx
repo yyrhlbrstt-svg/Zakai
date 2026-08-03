@@ -6,6 +6,7 @@ import { DashboardNextActionClient } from "@/components/DashboardNextActionClien
 import type { Locale } from "@/i18n/config";
 import { bcp47 } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { formatAgorot } from "@/lib/money";
 import { rankNextAction } from "@/lib/services/nextAction";
 
@@ -36,11 +37,18 @@ export async function DashboardNextActionPanel({
   ]);
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
-  const proposedMap = sentIds.length > 0 ? await getProposedSavingsMap(sentIds) : new Map();
+  const [proposedMap, agentRounds] = await Promise.all([
+    sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),
+    getAgentRoundMap(sentIds),
+  ]);
   const proposedHints = new Map(
     [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
   );
-  const action = rankNextAction(cases, proposedHints);
+  const rankedCases = cases.map((c) => ({
+    ...c,
+    agentRound: agentRounds.get(c.id) ?? 0,
+  }));
+  const action = rankNextAction(rankedCases, proposedHints);
 
   if (action.kind === "pending_fee") {
     return (
@@ -64,6 +72,18 @@ export async function DashboardNextActionPanel({
       >
         <div className="font-extrabold text-[15px] text-emerald">{t("proposedNudgeTitle")}</div>
         <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("proposedNudgeSub")}</p>
+      </Link>
+    );
+  }
+
+  if (action.kind === "sent_exhausted") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-5 py-4 hover:border-[rgba(240,138,107,0.65)] transition-colors"
+      >
+        <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("exhaustedNudgeTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("exhaustedNudgeSub")}</p>
       </Link>
     );
   }

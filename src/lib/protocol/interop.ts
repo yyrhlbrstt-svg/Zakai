@@ -153,6 +153,7 @@ export function buildInteropDocument(origin: string) {
       domains: `${base}/api/domains`,
       rights_catalog: `${base}/api/rights/catalog`,
       mandate_verify: `${base}/api/mandate/verify`,
+      mandate_ready: `${base}/api/mandate/ready`,
       outcome_report: `${base}/api/outcome`,
       network: `${base}/api/network`,
       pipe: `${base}/api/pipe`,

@@ -15,6 +15,7 @@ import { buildShareLandingUrl } from "@/lib/shareUrl";
 import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 import { openMailto } from "@/lib/mailto";
 import { ShareResult } from "@/components/ShareResult";
+import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 
 type Status =
   | "ANALYZED"
@@ -135,6 +136,8 @@ const copy: Record<string, Record<string, string>> = {
     estimateHints: "קיצורי הערכה — לא תיעוד מספק. לא נגבית עמלה על הערכה.",
     payFeeNow: "שלמו את עמלת ההצלחה",
     savedPayFirst: "קודם העמלה על התוצאה המתועדת — אחר כך שיתוף.",
+    exhaustedBanner:
+      "סיבובי המעקב בכתב מוצו. אל תשלחו עוד תזכורת — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר (ביטול / מתחרה).",
     proofsLabel: "העבירו תשובת ספק לכאן",
     proofsCopy: "העתק כתובת",
     proofsCopied: "הועתק",
@@ -216,6 +219,8 @@ const copy: Record<string, Record<string, string>> = {
     estimateHints: "Estimate shortcuts — not provider documentation. No success fee on estimates.",
     payFeeNow: "Pay the success fee",
     savedPayFirst: "Pay the documented-outcome fee first — then share.",
+    exhaustedBanner:
+      "Written follow-up rounds are exhausted. Do not send another reminder — record an amount from a written reply, mark no change, or pivot (cancel / competitor).",
     proofsLabel: "Forward provider reply here",
     proofsCopy: "Copy address",
     proofsCopied: "Copied",
@@ -799,6 +804,12 @@ export function CaseNextStep({
             </span>
           )}
         </div>
+
+        {agentRound >= MAX_AGENT_ROUNDS && !proposed && (
+          <div className="rounded-xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-3 py-2.5 text-[12.5px] font-extrabold text-[#f08a6b] leading-relaxed">
+            {t(locale, "exhaustedBanner")}
+          </div>
+        )}
 
         {!emailConfigured && draftEdit.trim() && (
           <Button

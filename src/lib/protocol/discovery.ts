@@ -21,15 +21,20 @@ export interface OutcomeGraphPublicStats {
 }
 
 export async function getOutcomeGraphPublicStats(): Promise<OutcomeGraphPublicStats> {
+  // Institutions see documented pipeline outcomes only — estimate/self-report
+  // shortcuts must never inflate public win rates (same filter as oracle/fairness).
+  const documented = { selfReported: false as const };
+
   const rows = await prisma.strategyOutcome.groupBy({
     by: ["market"],
+    where: documented,
     _count: { _all: true },
     _sum: { recoveredMinor: true },
   });
 
   const paidByMarket = await prisma.strategyOutcome.groupBy({
     by: ["market"],
-    where: { paid: true },
+    where: { ...documented, paid: true },
     _count: { _all: true },
   });
   const paidMap = new Map(paidByMarket.map((r) => [r.market, r._count._all]));
@@ -95,6 +100,8 @@ export function buildZakaiProtocolDocument(origin: string) {
         conformance: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.conformance),
         verify: `${origin}/api/mandate/verify`,
         decide: `${origin}/api/mandate/decide`,
+        /** Machine gate: authorization vectors + verified Status List → ready_for_pioneer. */
+        ready: `${origin}/api/mandate/ready`,
         live: mandateSigningLive(),
       },
       outcome_graph: {

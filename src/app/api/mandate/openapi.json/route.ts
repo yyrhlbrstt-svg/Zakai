@@ -396,6 +396,22 @@ export async function GET(request: Request) {
           responses: { "200": { description: "Vector document" } },
         },
       },
+      "/api/mandate/ready": {
+        get: {
+          tags: ["conformance"],
+          summary: "Machine readiness — READY_FOR_PIONEER gate",
+          description:
+            "Runs published authorization vectors and cryptographically verifies the signed Status List. " +
+            "Returns ready_for_pioneer when both pass. Same gate as Pioneer wall listing — not regulatory " +
+            "certification and not proof of production volume. Client twin: npx zakai-mandate-ready.",
+          responses: {
+            "200": {
+              description:
+                "{ ok, ready, ready_for_pioneer, vectors, status_list, next, disclaimer }",
+            },
+          },
+        },
+      },
       "/api/settlement/test-vectors": {
         get: {
           tags: ["conformance"],

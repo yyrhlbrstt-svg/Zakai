@@ -3,6 +3,7 @@ import { Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { rankNextAction } from "@/lib/services/nextAction";
 import type { Locale } from "@/i18n/config";
 
@@ -32,11 +33,17 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   });
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
-  const proposedMap = sentIds.length > 0 ? await getProposedSavingsMap(sentIds) : new Map();
+  const [proposedMap, agentRounds] = await Promise.all([
+    sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),
+    getAgentRoundMap(sentIds),
+  ]);
   const proposedHints = new Map(
     [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
   );
-  const action = rankNextAction(cases, proposedHints);
+  const action = rankNextAction(
+    cases.map((c) => ({ ...c, agentRound: agentRounds.get(c.id) ?? 0 })),
+    proposedHints,
+  );
 
   if (action.kind === "pending_fee") {
     return (
@@ -58,6 +65,18 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
       >
         <div className="font-extrabold text-[14px] text-emerald">{t("proposedTitle")}</div>
         <p className="text-[12.5px] text-ink-soft mt-1 mb-0">{t("proposedSub")}</p>
+      </Link>
+    );
+  }
+
+  if (action.kind === "sent_exhausted") {
+    return (
+      <Link
+        href={`/dashboard?case=${action.caseId}`}
+        className="block no-underline mb-6 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-4 py-3.5 hover:border-[rgba(240,138,107,0.65)] transition-colors"
+      >
+        <div className="font-extrabold text-[14px] text-[#f08a6b]">{t("exhaustedTitle")}</div>
+        <p className="text-[12.5px] text-ink-soft mt-1 mb-0">{t("exhaustedSub")}</p>
       </Link>
     );
   }

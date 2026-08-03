@@ -744,6 +744,13 @@ export function CheckFlow() {
                 >
                   {t("payFeeNow")}
                 </Button>
+              ) : rec ? (
+                <Button
+                  className="w-full mt-4"
+                  onClick={() => router.push(`/dashboard?case=${rec.caseId}&payFee=1`)}
+                >
+                  {t("payFeeNow")}
+                </Button>
               ) : null}
             </Card>
           )}
