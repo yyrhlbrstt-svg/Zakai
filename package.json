@@ -25,6 +25,8 @@
     "packs:publish:dry": "cd zakai-packs && npm run publish",
     "packs:export": "bash scripts/export-zakai-packs-repo.sh",
     "packs:sync": "tsx scripts/sync-zakai-packs-from-registry.mjs",
+    "packs:release-check": "npm run packs:sync && npm run verify:packs-cdn",
+    "gravity:checklist": "node scripts/gravity-checklist.mjs",
     "delegation:admit-pilot": "node scripts/admit-delegated-pilot.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

@@ -37,8 +37,12 @@ export function buildAgentEconomyDocument(origin: string) {
     delegation: {
       apply: `${base}/api/mandate/delegation/apply`,
       issuers: `${base}/api/mandate/delegation/issuers`,
+      evidence: `${base}/api/mandate/delegation/evidence`,
       mcp: "zakai-mandate-mcp (verify-only)",
     },
+    join_kit: `${base}/api/network/join-kit`,
+    human_join: `${base}/he/join-network`,
+    fairness_certified_page: `${base}/he/fairness-certified`,
     win_condition:
       "A general-purpose agent that skips Mandate cannot close claims institutions will accept — so agents route here.",
   };

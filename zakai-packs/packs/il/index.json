@@ -88,7 +88,7 @@
   },
   "_meta": {
     "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
-    "last_updated": "2026-08-03T15:02:55.647Z",
+    "last_updated": "2026-08-03T15:17:41.515Z",
     "source": "src/lib/global/registry"
   }
 }

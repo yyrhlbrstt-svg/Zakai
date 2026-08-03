@@ -10,7 +10,9 @@ export function regulatoryKitCopy(locale: string) {
       schemaNote: (schema: string, version: string) =>
         `סכימה ${schema} · גרסה ${version}. זה אינו דיווח רשמי לרגולטור ולא סטטיסטיקה ממשלתית.`,
       briefCta: "ייצוא טקסט (brief)",
+      mdCta: "ייצוא Markdown",
       jsonCta: "JSON מלא",
+      joinKitCta: "ערכת הצטרפות לרשת",
       pressureCta: "לחץ inbound למוסדות",
       gravityCta: "מדד כבידה (gravity)",
       institutions: "למוסדות",
@@ -26,7 +28,9 @@ export function regulatoryKitCopy(locale: string) {
     schemaNote: (schema: string, version: string) =>
       `Schema ${schema} · v${version}. Not an official regulatory filing or government statistic.`,
     briefCta: "Plain-text brief export",
+    mdCta: "Markdown brief",
     jsonCta: "Full JSON snapshot",
+    joinKitCta: "Network join kit",
     pressureCta: "Institution inbound pressure",
     gravityCta: "Network gravity index",
     institutions: "Institutions",

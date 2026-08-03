@@ -87,34 +87,51 @@ export async function GET(request: Request) {
       fairness: `/api/fairness/scores?market=${market}`,
       network: "/api/network",
       brief_export: `/api/regulatory/snapshot?market=${market}&format=brief`,
+      markdown_export: `/api/regulatory/snapshot?market=${market}&format=md`,
+      join_kit: "/api/network/join-kit",
     },
   };
 
   const format = url.searchParams.get("format");
-  if (format === "brief") {
+  if (format === "brief" || format === "md") {
+    const emptyNote =
+      outcome.totalOutcomes === 0 && pressure.length === 0 && fairness.length === 0
+        ? "\nHonesty: all aggregates are zero/empty — do not cite as market statistics.\n"
+        : "";
+    const top =
+      pressure.length === 0
+        ? ["  (none disclosed yet)"]
+        : pressure.slice(0, 5).map(
+            (p) =>
+              `  - ${p.institutionId}: dispatched=${p.dispatchedCases} saved=${p.savedCases}`,
+          );
     const lines = [
-      `Zakai regulatory snapshot — ${market}`,
+      format === "md" ? `# Zakai regulatory snapshot — ${market}` : `Zakai regulatory snapshot — ${market}`,
       `Schema: ${REGULATORY_SNAPSHOT_SCHEMA} @ ${REGULATORY_SNAPSHOT_VERSION}`,
       "",
       payload.disclaimer,
-      "",
+      emptyNote,
       `Outcome graph (global): ${outcome.totalOutcomes}`,
       `Inbound pressure (disclosed institutions): ${pressure.length}`,
       `Fairness scores (providers): ${fairness.length} (min n=${MIN_SAMPLE})`,
       `Collective intent signals: ${collectiveTotal}`,
       "",
       "Top inbound pressure (disclosed only):",
-      ...pressure.slice(0, 5).map(
-        (p) =>
-          `  - ${p.institutionId}: dispatched=${p.dispatchedCases} saved=${p.savedCases}`,
-      ),
+      ...top,
       "",
       `JSON: ${url.origin}/api/regulatory/snapshot?market=${market}`,
+      `Join kit: ${url.origin}/api/network/join-kit`,
     ];
     return new NextResponse(lines.join("\n"), {
       headers: {
         ...CORS,
-        "Content-Type": "text/plain; charset=utf-8",
+        "Content-Type":
+          format === "md" ? "text/markdown; charset=utf-8" : "text/plain; charset=utf-8",
+        ...(format === "md"
+          ? {
+              "Content-Disposition": `inline; filename="zakai-regulatory-${market}.md"`,
+            }
+          : {}),
       },
     });
   }

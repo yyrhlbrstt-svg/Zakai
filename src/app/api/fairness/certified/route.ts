@@ -4,11 +4,13 @@ import { loadFairnessScores } from "@/lib/services/fairnessScores";
 import { cacheControlHeader } from "@/lib/scale/publicCache";
 
 export const runtime = "nodejs";
-export const revalidate = 300;
+export const revalidate = 120;
 
+/** Partner-facing Fairness Certified package + live MIN_SAMPLE providers only. */
 export async function GET(request: Request) {
-  const origin = new URL(request.url).origin;
-  const market = new URL(request.url).searchParams.get("market") ?? "IL";
+  const url = new URL(request.url);
+  const origin = url.origin;
+  const market = (url.searchParams.get("market") ?? "IL").toUpperCase();
   let scores: Awaited<ReturnType<typeof loadFairnessScores>> = [];
   try {
     scores = await loadFairnessScores(market);

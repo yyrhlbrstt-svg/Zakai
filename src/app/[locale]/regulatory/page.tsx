@@ -47,9 +47,19 @@ export default async function RegulatoryKitPage({
         <a href={`${SITE_URL}/api/regulatory/snapshot?market=IL&format=brief`} className="no-underline">
           <Button className="w-full">{c.briefCta}</Button>
         </a>
+        <a href={`${SITE_URL}/api/regulatory/snapshot?market=IL&format=md`} className="no-underline">
+          <Button variant="ghost" className="w-full">
+            {c.mdCta}
+          </Button>
+        </a>
         <a href={`${SITE_URL}/api/regulatory/snapshot?market=IL`} className="no-underline">
           <Button variant="ghost" className="w-full">
             {c.jsonCta}
+          </Button>
+        </a>
+        <a href={`${SITE_URL}/api/network/join-kit`} className="no-underline">
+          <Button variant="ghost" className="w-full">
+            {c.joinKitCta}
           </Button>
         </a>
         <a href={`${SITE_URL}/api/institution/inbound-pressure`} className="no-underline">

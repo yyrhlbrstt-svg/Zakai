@@ -1,0 +1,46 @@
+name: Packs export artifact
+
+# Keeps multi-market zakai-packs green in CI and uploads a pushable tree.
+# Does not publish to packs.zakai.io (needs AWS secrets on the standalone repo).
+
+on:
+  pull_request:
+    paths:
+      - "zakai-packs/**"
+      - "src/lib/global/**"
+      - "scripts/sync-zakai-packs-from-registry.mjs"
+      - "scripts/export-zakai-packs-repo.sh"
+      - "scripts/verify-packs-cdn.mjs"
+      - ".github/workflows/packs-export.yml"
+  push:
+    branches: [main]
+    paths:
+      - "zakai-packs/**"
+      - "src/lib/global/**"
+      - "scripts/sync-zakai-packs-from-registry.mjs"
+      - "scripts/export-zakai-packs-repo.sh"
+      - "scripts/verify-packs-cdn.mjs"
+      - ".github/workflows/packs-export.yml"
+  workflow_dispatch:
+
+jobs:
+  packs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Sync packs from registry
+        run: npm run packs:sync
+      - name: Verify local multi-market artifact
+        run: npm run verify:packs-cdn
+      - name: Export standalone tree
+        run: npm run packs:export -- ${{ runner.temp }}/zakai-packs-export
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zakai-packs-export
+          path: ${{ runner.temp }}/zakai-packs-export
+          if-no-files-found: error

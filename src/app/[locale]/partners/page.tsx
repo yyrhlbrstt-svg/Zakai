@@ -116,9 +116,17 @@ export default async function PartnersPage({
         <p className="text-[13px] text-ink-soft mt-2 mb-4 leading-relaxed m-0">
           {tIapp_locale_partners_page("widgetFairnessBody")}
         </p>
-        <Link href="/business">
-          <Button variant="ghost">{tIapp_locale_partners_page("widgetFairnessCta")}</Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/fairness-certified">
+            <Button variant="ghost">{tIapp_locale_partners_page("widgetFairnessCta")}</Button>
+          </Link>
+          <Link href="/join-network">
+            <Button variant="ghost">Join network</Button>
+          </Link>
+          <Link href="/business">
+            <Button variant="ghost">Business</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-3 mt-6 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
