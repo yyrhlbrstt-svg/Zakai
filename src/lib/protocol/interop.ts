@@ -71,6 +71,7 @@ export const INTEROP_PROBE_CHECKS: readonly InteropProbeCheck[] = [
   { id: "domains_manifest", profile: "zakai-core-1", method: "GET", path: WELL_KNOWN_RELATIVE.domains, expectStatus: 200 },
   { id: "switching_spec", profile: "zakai-core-1", method: "GET", path: WELL_KNOWN_RELATIVE.switching, expectStatus: 200 },
   { id: "inbound_receive", profile: "zakai-mandate-verifier-1", method: "GET", path: WELL_KNOWN_RELATIVE.inboundReceive, expectStatus: 200 },
+  { id: "inbound_receive_ref", profile: "zakai-mandate-verifier-1", method: "GET", path: "/api/institution/inbound-receive", expectStatus: 200 },
   { id: "agent_economy", profile: "zakai-core-1", method: "GET", path: WELL_KNOWN_RELATIVE.agentEconomy, expectStatus: 200 },
   { id: "fairness_certified", profile: "zakai-rights-catalog-1", method: "GET", path: WELL_KNOWN_RELATIVE.fairnessCertified, expectStatus: 200 },
   { id: "fairness_scores", profile: "zakai-rights-catalog-1", method: "GET", path: "/api/fairness/scores?market=IL", expectStatus: 200 },

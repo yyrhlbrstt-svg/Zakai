@@ -242,6 +242,8 @@ model Authorization {
   mandateAudience String?
   /// Ed25519 mandate `jti` when machine mandate was issued at authorization time.
   mandateJti      String? @unique
+  /// Compact JWS for institution inbound JSON attachment (same token as jti).
+  mandateJws      String? @db.Text
 
   status    AuthorizationStatus @default(ACTIVE)
   issuedAt  DateTime            @default(now())

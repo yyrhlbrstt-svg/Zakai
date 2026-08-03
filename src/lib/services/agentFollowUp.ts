@@ -9,6 +9,11 @@ import { agorotToShekels } from "@/lib/money";
 import { pushToUser } from "@/lib/push";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
+import { ensureMandateTokenForCase } from "@/lib/services/authorization";
+import {
+  buildInboundReceivePayload,
+  inboundReceiveEmailAttachment,
+} from "@/lib/protocol/inboundPayload";
 
 /**
  * The agent keeps working after the first send.
@@ -123,7 +128,7 @@ export async function dispatchCaseFollowUp(
 מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
-מצורף: מסמך הרשאה מלא (HTML).
+מצורף: מסמך הרשאה מלא (HTML) + JSON inbound.
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
 זוהי פנייה חוזרת של הסוכן (סיבוב ${round}) — הלקוח/ה אישר/ה את השליחה.`;
 
@@ -137,6 +142,25 @@ export async function dispatchCaseFollowUp(
     status: auth.status,
   });
 
+  const mandateTok =
+    auth.mandateJws && auth.mandateJti
+      ? { jti: auth.mandateJti, jws: auth.mandateJws }
+      : await ensureMandateTokenForCase(caseId);
+  const inboundAtt = mandateTok
+    ? inboundReceiveEmailAttachment(
+        buildInboundReceivePayload({
+          mandateJws: mandateTok.jws,
+          mandateJti: mandateTok.jti,
+          authorizationCode: auth.code,
+          caseId,
+          vertical: kase.vertical,
+          strategyHint: kase.strategy,
+          locale: "he-IL",
+          market: "IL",
+        }),
+      )
+    : null;
+
   const to = resolveCaseOutreachTo(kase);
   if (!to) {
     return { caseId, sent: false, reason: "NEEDS_OUTREACH_EMAIL", body: follow.body, tip: follow.tip, subject };
@@ -147,7 +171,7 @@ export async function dispatchCaseFollowUp(
     subject,
     body: follow.body + footer,
     caseId,
-    attachments: [attachment],
+    attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
   });
 
   await prisma.case.update({

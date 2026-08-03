@@ -8,7 +8,11 @@ import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
-import { createAuthorization, ensureMandateJtiForCase } from "./authorization";
+import { createAuthorization, ensureMandateTokenForCase } from "./authorization";
+import {
+  buildInboundReceivePayload,
+  inboundReceiveEmailAttachment,
+} from "@/lib/protocol/inboundPayload";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
@@ -210,7 +214,8 @@ export async function sendOutreach(caseId: string, userId: string) {
 
   const appUrl = appBaseUrl();
   const provider = providerHebrewName(kase.provider);
-  const mandateJti = await ensureMandateJtiForCase(caseId);
+  const mandateTok = await ensureMandateTokenForCase(caseId);
+  const mandateJti = mandateTok?.jti;
   const protocolFooter = buildOutreachProtocolFooter({
     appUrl,
     authCode: auth.code,
@@ -225,7 +230,7 @@ export async function sendOutreach(caseId: string, userId: string) {
 מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
-מצורף: מסמך הרשאה מלא (HTML) להדפסה/שמירה.
+מצורף: מסמך הרשאה מלא (HTML) + JSON inbound (zakai-inbound-receive).
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.${protocolFooter}`;
 
   const attachment = mandateEmailAttachment({
@@ -242,12 +247,27 @@ export async function sendOutreach(caseId: string, userId: string) {
   const footerLocale = loc === "he" || loc === "ar" ? "he" : "en";
   const messageBody = withFooter(kase.draftMessage, footerLocale);
 
+  const inboundAtt = mandateTok
+    ? inboundReceiveEmailAttachment(
+        buildInboundReceivePayload({
+          mandateJws: mandateTok.jws,
+          mandateJti: mandateTok.jti,
+          authorizationCode: auth.code,
+          caseId,
+          vertical: kase.vertical,
+          strategyHint: kase.strategy,
+          locale: loc === "he" ? "he-IL" : "en",
+          market: user?.country ?? "IL",
+        }),
+      )
+    : null;
+
   const email = await sendEmail({
     to,
     subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
     body: messageBody + footer,
     caseId,
-    attachments: [attachment],
+    attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
   });
 
   if (email.status === "FAILED") {

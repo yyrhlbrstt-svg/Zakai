@@ -108,6 +108,17 @@ export function buildInboundReceiveDocument(origin: string) {
       "Publish your webhook URL on your developer portal; link this spec.",
       "Human Authorization codes are optional convenience, not a substitute for JWKS verify.",
     ],
+    reference_receiver: {
+      get: `${base}/api/institution/inbound-receive`,
+      post: `${base}/api/institution/inbound-receive`,
+      clone: `${base.replace(/\/$/, "")}/../reference/inbound-receiver/`,
+      note: "Cloneable demo that verifies Mandate JWS + Idempotency-Key=mandate_jti.",
+    },
+    outbound_attachment: {
+      filename_pattern: "zakai-inbound-<jti-prefix>.json",
+      content_type: "application/json",
+      note: "Every Zakai Outbox send includes this JSON when a Mandate JWS is available.",
+    },
     related: {
       switching: `${base}/.well-known/zakai-switching.json`,
       institutions: `${base}/he/institutions`,

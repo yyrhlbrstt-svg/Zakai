@@ -89,7 +89,10 @@ export async function createAuthorization(caseId: string): Promise<Authorization
   if (mandate.mandateJti) {
     doc = await prisma.authorization.update({
       where: { caseId },
-      data: { mandateJti: mandate.mandateJti },
+      data: {
+        mandateJti: mandate.mandateJti,
+        ...(mandate.mandateToken ? { mandateJws: mandate.mandateToken } : {}),
+      },
     });
   }
 
@@ -146,7 +149,10 @@ async function reissueAuthorization(
   if (mandate.mandateJti) {
     doc = await prisma.authorization.update({
       where: { caseId },
-      data: { mandateJti: mandate.mandateJti },
+      data: {
+        mandateJti: mandate.mandateJti,
+        ...(mandate.mandateToken ? { mandateJws: mandate.mandateToken } : {}),
+      },
     });
   }
 
@@ -201,11 +207,21 @@ async function tryIssueCaseMandate(input: {
   }
 }
 
-/** Issue machine mandate if missing; persists jti on the Authorization row. */
+/** Issue machine mandate if missing; persists jti (+ JWS) on the Authorization row. */
 export async function ensureMandateJtiForCase(caseId: string): Promise<string | undefined> {
+  const full = await ensureMandateTokenForCase(caseId);
+  return full?.jti;
+}
+
+/** Ensure jti + compact JWS exist for structured inbound attachments. */
+export async function ensureMandateTokenForCase(
+  caseId: string,
+): Promise<{ jti: string; jws: string } | undefined> {
   const auth = await prisma.authorization.findUnique({ where: { caseId } });
   if (!auth || auth.status !== "ACTIVE") return undefined;
-  if (auth.mandateJti) return auth.mandateJti;
+  if (auth.mandateJti && auth.mandateJws) {
+    return { jti: auth.mandateJti, jws: auth.mandateJws };
+  }
 
   const kase = await prisma.case.findUnique({
     where: { id: caseId },
@@ -224,13 +240,13 @@ export async function ensureMandateJtiForCase(caseId: string): Promise<string | 
     authCode: auth.code,
     mandateAudience: auth.mandateAudience ?? resolveMandateAudience(kase.provider),
   });
-  if (!mandate.mandateJti) return undefined;
+  if (!mandate.mandateJti || !mandate.mandateToken) return undefined;
 
   await prisma.authorization.update({
     where: { caseId },
-    data: { mandateJti: mandate.mandateJti },
+    data: { mandateJti: mandate.mandateJti, mandateJws: mandate.mandateToken },
   });
-  return mandate.mandateJti;
+  return { jti: mandate.mandateJti, jws: mandate.mandateToken };
 }
 
 export async function revokeAuthorization(caseId: string, mandateJti?: string) {
