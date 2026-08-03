@@ -24,8 +24,8 @@ export function Footer() {
     locale === "he" ? "B2B · עובדים + API" : locale === "ar" ? "B2B" : locale === "ru" ? "B2B" : "B2B · employees + API";
 
   return (
-    <footer className="max-w-[1080px] mx-auto px-5 py-8 mt-8 border-t border-[rgba(255,255,255,0.07)] flex flex-col gap-5">
-      <ul className="flex flex-wrap gap-x-5 gap-y-2 list-none p-0 m-0 justify-center">
+    <footer className="max-w-[1080px] mx-auto px-5 py-10 mt-10 border-t border-[rgba(255,255,255,0.08)] flex flex-col gap-6">
+      <ul className="flex flex-wrap gap-x-5 gap-y-2 list-none p-0 m-0 justify-center rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] px-4 py-3">
         {(["encrypted", "noTrackers", "deletion", "verifiablePoa"] as const).map((k) => (
           <li key={k} className="flex items-center gap-1.5 text-[11.5px] text-ink-soft">
             <span className="text-emerald" aria-hidden>●</span>
@@ -34,35 +34,35 @@ export function Footer() {
         ))}
       </ul>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center text-[13px] font-bold">
-        <Link href="/money" className="text-emerald no-underline hover:underline">
+      <div className="flex flex-wrap gap-x-4 gap-y-2.5 justify-center text-[13px] font-bold">
+        <Link href="/money" className="text-emerald no-underline hover:underline underline-offset-4">
           {moneyLabel}
         </Link>
-        <Link href="/cancel" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/cancel" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {cancelLabel}
         </Link>
-        <Link href="/what-am-i-owed" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/what-am-i-owed" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {owedLabel}
         </Link>
-        <Link href="/electricity" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/electricity" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {elecLabel}
         </Link>
-        <span className="text-[rgba(147,166,165,0.4)]" aria-hidden>
+        <span className="text-[rgba(147,166,165,0.35)]" aria-hidden>
           |
         </span>
-        <Link href="/business" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/business" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {bizLabel}
         </Link>
-        <Link href="/partners" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/partners" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {partnersLabel}
         </Link>
-        <Link href="/institutions" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/institutions" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {instLabel}
         </Link>
-        <Link href="/tools" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/tools" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {t("footer.allTools")}
         </Link>
-        <Link href="/network-proof" className="text-ink-soft no-underline hover:text-emerald">
+        <Link href="/network-proof" className="text-ink-soft no-underline hover:text-emerald transition-colors">
           {t("footer.networkProof")}
         </Link>
       </div>
