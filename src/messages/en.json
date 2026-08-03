@@ -741,6 +741,7 @@
     "trust": "Security & Trust",
     "terms": "Terms",
     "privacy": "Privacy",
+    "github": "Open source (GitHub)",
     "trustStrip": {
       "encrypted": "Encrypted transport (HTTPS/HSTS)",
       "noTrackers": "Zero tracking or ad cookies",

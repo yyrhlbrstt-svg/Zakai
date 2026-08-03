@@ -13,6 +13,7 @@ import { Footer } from "@/components/Footer";
 import { ConsumerHonestyBanner } from "@/components/ConsumerHonestyBanner";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { EnablePush } from "@/components/EnablePush";
+import { PlausibleScript } from "@/components/PlausibleScript";
 import { LangSuggest } from "@/components/LangSuggest";
 import { getCurrentUser } from "@/lib/auth/user";
 import "../globals.css";
@@ -195,6 +196,7 @@ export default async function LocaleLayout({
           <Footer />
           <InstallPrompt />
           <EnablePush loggedIn={Boolean(user)} />
+          <PlausibleScript />
         </NextIntlClientProvider>
       </body>
     </html>

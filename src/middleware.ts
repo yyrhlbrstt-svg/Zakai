@@ -32,13 +32,16 @@ function makeNonce(): string {
  * and tracking are deliberately absent (see the privacy policy).
  */
 function cspHeader(nonce: string): string {
+  const plausible = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN?.trim();
+  const scriptExtra = plausible ? " https://plausible.io" : "";
+  const connectExtra = plausible ? " https://plausible.io" : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
+    `script-src 'self' 'nonce-${nonce}'${scriptExtra}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    `connect-src 'self'${connectExtra}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

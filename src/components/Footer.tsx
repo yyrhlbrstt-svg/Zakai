@@ -97,17 +97,34 @@ export function Footer() {
               { href: "/companies", key: "footer.companies" as const },
               { href: "/trust", key: "footer.trust" as const },
               { href: "/terms", key: "footer.terms" as const },
-              { href: "/privacy", key: "footer.privacy" as const },
-            ] as const
-          ).map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
-            >
-              {t(l.key)}
-            </Link>
-          ))}
+            { href: "/privacy", key: "footer.privacy" as const },
+            {
+              href: "https://github.com/yyrhlbrstt-svg/Zakai",
+              key: "footer.github" as const,
+              external: true,
+            },
+          ] as const
+          ).map((l) =>
+            "external" in l && l.external ? (
+              <a
+                key={l.href}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
+              >
+                {t(l.key)}
+              </a>
+            ) : (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
+              >
+                {t(l.key)}
+              </Link>
+            ),
+          )}
         </span>
       </div>
 

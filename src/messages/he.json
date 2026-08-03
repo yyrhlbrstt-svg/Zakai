@@ -742,6 +742,7 @@
     "trust": "אבטחה ואמון",
     "terms": "תנאי שימוש",
     "privacy": "פרטיות",
+    "github": "קוד פתוח (GitHub)",
     "trustStrip": {
       "encrypted": "תעבורה מוצפנת (HTTPS/HSTS)",
       "noTrackers": "אפס עוגיות מעקב ופרסום",
