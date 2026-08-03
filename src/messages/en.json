@@ -523,7 +523,7 @@
     "institutionsSub": "Live JWKS, test vectors, Status List. No sales call. Pass the gate, then claim Pioneer.",
     "institutionsQuickstart": "Quickstart — 15 minutes",
     "institutionsCta": "Institutions page",
-    "institutionsSdk": "npm i @zakai/mandate-sdk · npx zakai-mandate-ready",
+    "institutionsSdk": "npm run ready · pip install -e 'sdk/python[crypto]' · zakai-mandate-ready",
     "agentBrainKicker": "The system brain",
     "agentBrainTitle": "The agent steers you to the open loop",
     "agentBrainSub": "Not a menu of 60 tools — one next step: My money, Mandate send, or record a saving. The agent never promises a callback.",

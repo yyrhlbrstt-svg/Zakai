@@ -99,49 +99,41 @@ export default async function InstitutionsPage({
         />
       </div>
 
-      <Card className="mb-6 p-5 border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)]">
-        <div className="font-extrabold text-[15px] text-[#3ec6ff] mb-2">
-          {heEn(he, "SDK רשמי קטן — שלוש שורות לאימות", "Small official SDK — three lines to verify")}
+      <Card className="mb-8 p-5 border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.07)]">
+        <div className="font-extrabold text-[16px] text-emerald mb-2">
+          {heEn(he, "מסלול אימוץ אחד — 20–30 דקות", "One adoption path — 20–30 minutes")}
         </div>
         <p className="text-[13.5px] text-ink-soft leading-relaxed mb-3">
           {he
-            ? "אותו לוגיקת אימות כמו בפרודקשן. עד הפרסום הראשון ב־npm — מהמונורפו (sdk/). אחרי תג sdk@v* — npm install."
-            : "Same verification logic as production. Until first npm publish — install from the monorepo (sdk/). After an sdk@v* tag — npm install."}
+            ? "Node או Python → READY_FOR_PIONEER → תביעת Pioneer באשף. אותו שער מכונה. בלי שיחת מכירות."
+            : "Node or Python → READY_FOR_PIONEER → claim Pioneer in the wizard. Same machine gate. No sales call."}
         </p>
         <pre
           className="rounded-xl bg-[#060b12] border border-[rgba(255,255,255,0.1)] px-4 py-3 text-[12.5px] font-mono text-ink overflow-x-auto mb-3"
           dir="ltr"
-        >{`npm i @zakai/mandate-sdk
-npx zakai-mandate-ready`}</pre>
-        <div className="flex flex-wrap gap-2">
-          <a
-            href="https://github.com/yyrhlbrstt-svg/Zakai/tree/main/sdk"
-            className="no-underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Button variant="ghost" className="!text-[13px]">
-              {heEn(he, "קוד SDK ב־GitHub", "SDK source on GitHub")}
-            </Button>
-          </a>
-          <a href={`${ORIGIN}/api/mandate/ready`} className="no-underline" target="_blank" rel="noreferrer">
-            <Button variant="ghost" className="!text-[13px] font-mono">
-              GET /api/mandate/ready
-            </Button>
-          </a>
-        </div>
-      </Card>
+        >{`# Node
+cd sdk && npm ci && npm run ready
 
-      <Card className="mb-8 p-5 border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)]">
-        <div className="font-extrabold text-[15px] text-emerald mb-2">
-          {heEn(he, "אימות Mandate ב־15 דקות — בלי שיחת מכירות", "Verify a Mandate in 15 minutes — no sales call")}
-        </div>
-        <p className="text-[13.5px] text-ink-soft leading-relaxed mb-3">
-          {he
-            ? "עברת test vectors + Status List = READY_FOR_PIONEER. אחרת אל תטענו תמיכה."
-            : "Pass test vectors + Status List = READY_FOR_PIONEER. Otherwise do not claim support."}
-        </p>
-        <div className="flex flex-wrap gap-2 mb-3">
+# Python
+cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
+        <ol className="m-0 ps-5 flex flex-col gap-1.5 text-[13.5px] text-ink-soft leading-relaxed mb-4">
+          <li>
+            <span className="font-mono">zakai-mandate-ready</span>
+            {heEn(he, " / ", " / ")}
+            <span className="font-mono">npm run ready</span>
+            {heEn(he, " → READY_FOR_PIONEER", " → READY_FOR_PIONEER")}
+          </li>
+          <li>
+            GET{" "}
+            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/api/mandate/ready`}>
+              /api/mandate/ready
+            </a>
+          </li>
+          <li>
+            {heEn(he, "אשף Reference Verifier → מקום Pioneer (עד 3)", "Reference Verifier wizard → Pioneer slot (max 3)")}
+          </li>
+        </ol>
+        <div className="flex flex-wrap gap-2">
           <Link href="/institutions/quickstart" className="no-underline">
             <Button className="!text-[13px]">{heEn(he, "Quickstart מלא", "Full quickstart")}</Button>
           </Link>
@@ -150,64 +142,41 @@ npx zakai-mandate-ready`}</pre>
               {heEn(he, "תביעת Pioneer", "Claim Pioneer")}
             </Button>
           </Link>
-          <a href={`${ORIGIN}/api/mandate/ready`} className="no-underline" target="_blank" rel="noreferrer">
-            <Button variant="ghost" className="!text-[13px] font-mono">
-              GET /api/mandate/ready
+          <a
+            href="https://github.com/yyrhlbrstt-svg/Zakai/tree/main/sdk/python"
+            className="no-underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button variant="ghost" className="!text-[13px]">
+              {heEn(he, "Python SDK", "Python SDK")}
             </Button>
           </a>
         </div>
-        <ol className="m-0 ps-5 flex flex-col gap-1.5 text-[13.5px] text-ink-soft leading-relaxed">
-          <li>
-            <span className="font-mono">npx zakai-mandate-ready</span>
-            {heEn(he, " או ", " or ")}
-            <span className="font-mono">python3 reference/python/zakai_verify.py --ready</span>
-          </li>
-          <li>
-            GET{" "}
-            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/api/mandate/ready`}>
-              /api/mandate/ready
-            </a>
-            {he
-              ? " — שער מכונה: vectors + Status List → ready_for_pioneer"
-              : " — machine gate: vectors + Status List → ready_for_pioneer"}
-          </li>
-          <li>
-            GET{" "}
-            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/api/mandate/revocations`}>
-              /api/mandate/revocations
-            </a>
-            {heEn(he, " — statuslist+jwt חתום, ניתן לקאש", " — signed statuslist+jwt, cacheable")}
-          </li>
-          <li>
-            GET{" "}
-            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/.well-known/zakai-jwks.json`}>
-              /.well-known/zakai-jwks.json
-            </a>
-          </li>
-        </ol>
       </Card>
 
-      <div className="flex flex-wrap gap-3 mb-8">
-        <Link href="/institutions/quickstart" className="no-underline">
-          <Button>{heEn(he, "Quickstart — 15 דקות", "Quickstart — 15 minutes")}</Button>
-        </Link>
-        <Link href="/pipe" className="no-underline">
-          <Button variant="ghost">{locale === "he" || locale === "ar" ? "הצינור — Mandate → SavingsProof" : "The Pipe — Mandate → SavingsProof"}</Button>
-        </Link>
-        <a href={institutionPilotMailto()} className="no-underline">
-          <Button variant="ghost">{t("heroMailtoCta")}</Button>
-        </a>
-        <Link href="/institutions/leader" className="no-underline">
-          <Button variant="ghost">{t("leaderWizardCta")}</Button>
-        </Link>
-        <a
-          href={`mailto:${institutionSalesEmail()}`}
-          className="text-[13px] text-ink-soft self-center font-mono"
-          dir="ltr"
-        >
-          {institutionSalesEmail()}
-        </a>
-      </div>
+      <details className="mb-8 text-[13px] text-ink-soft">
+        <summary className="cursor-pointer font-bold select-none text-ink">
+          {heEn(he, "חלופות (לא הדלת הראשית)", "Alternatives (not the main door)")}
+        </summary>
+        <div className="flex flex-wrap gap-3 mt-3">
+          <Link href="/pipe" className="no-underline">
+            <Button variant="ghost" className="!text-[13px]">
+              {heEn(he, "הצינור — Mandate → SavingsProof", "The Pipe — Mandate → SavingsProof")}
+            </Button>
+          </Link>
+          <a href={institutionPilotMailto()} className="no-underline">
+            <Button variant="ghost" className="!text-[13px]">{t("heroMailtoCta")}</Button>
+          </a>
+          <a
+            href={`mailto:${institutionSalesEmail()}`}
+            className="text-[13px] text-ink-soft self-center font-mono"
+            dir="ltr"
+          >
+            {institutionSalesEmail()}
+          </a>
+        </div>
+      </details>
 
       <RegulatoryIntelStrip
         title={t("regulatoryStripTitle")}

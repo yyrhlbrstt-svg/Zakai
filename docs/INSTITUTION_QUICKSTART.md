@@ -1,18 +1,24 @@
-# Institution quickstart — Mandate verification in ~15 minutes
+# Institution quickstart — Mandate verification in 20–30 minutes
 
 This guide is for a bank, insurer, utility, or fintech that must answer: **did this
 customer authorise this agent, for this action, right now?**
 
-**Clear gate:** pass authorization test vectors + verify the signed Status List →
-`READY_FOR_PIONEER` → claim a Pioneer slot at `/institutions/leader`.  
+**One path:**
+
+1. Run the official SDK gate on your machine (~10 min)
+2. See `READY_FOR_PIONEER` (vectors + signed Status List)
+3. Claim Pioneer at `/institutions/leader` (Reference Verifier wizard)
+
 That is **not** regulatory certification. The leaders wall stays empty until a real opt-in.
 
 Zakai does not need to be in the hot path for every verification. Your service can
 verify offline against published keys and the trust registry.
 
+Human UI twin: `/he/institutions/quickstart`
+
 ## 0. One command (preferred)
 
-**Node (SDK — cryptographic Status List verify):**
+**Node (`@zakai/mandate-sdk`):**
 
 ```bash
 # From this monorepo (works today without npm publish):
@@ -22,13 +28,15 @@ cd sdk && npm ci && npm run ready -- --origin https://zakai-3uxj.vercel.app
 # npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
 ```
 
-**Python (Ed25519 Status List verify — same crypto bar as Node):**
+**Python (`zakai-mandate` — same crypto bar as Node):**
 
 ```bash
-cd reference/python
-pip install -r requirements-sdk.txt
-python3 zakai_verify.py --ready --origin https://zakai-3uxj.vercel.app
+cd sdk/python
+pip install -e '.[crypto]'
+zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
 ```
+
+Legacy shim (same gate): `python3 reference/python/zakai_verify.py --ready`
 
 `READY_FOR_PIONEER` requires vectors + cryptographically verified statuslist+jwt.
 Without `cryptography`, Python refuses READY (smoke fetch only) so it cannot

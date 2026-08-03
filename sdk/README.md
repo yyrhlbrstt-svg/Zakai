@@ -90,7 +90,13 @@ Runs every published authorization test vector and cryptographically verifies
 the signed `statuslist+jwt`. Exit 0 prints `READY_FOR_PIONEER` — then claim a
 slot at `/institutions/leader`. Not regulatory certification.
 
-Python (stdlib): `python3 reference/python/zakai_verify.py --ready`
+Python (official package):
+
+```bash
+cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready
+```
+
+Legacy shim: `python3 reference/python/zakai_verify.py --ready`
 
 Human twin: `/he/institutions/quickstart`
 

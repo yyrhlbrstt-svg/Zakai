@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+src/zakai_mandate/__init__.py
+src/zakai_mandate/__main__.py
+src/zakai_mandate/decide.py
+src/zakai_mandate/jws.py
+src/zakai_mandate/verify.py
+src/zakai_mandate.egg-info/PKG-INFO
+src/zakai_mandate.egg-info/SOURCES.txt
+src/zakai_mandate.egg-info/dependency_links.txt
+src/zakai_mandate.egg-info/entry_points.txt
+src/zakai_mandate.egg-info/requires.txt
+src/zakai_mandate.egg-info/top_level.txt

@@ -523,7 +523,7 @@
     "institutionsSub": "JWKS חי, test vectors, Status List. בלי שיחת מכירות. מי שעבר את השער יכול לתבוע Pioneer.",
     "institutionsQuickstart": "Quickstart — 15 דקות",
     "institutionsCta": "לעמוד המוסדות",
-    "institutionsSdk": "npm i @zakai/mandate-sdk · npx zakai-mandate-ready",
+    "institutionsSdk": "npm run ready · pip install -e 'sdk/python[crypto]' · zakai-mandate-ready",
     "agentBrainKicker": "המוח של המערכת",
     "agentBrainTitle": "הסוכן מכוון אתכם ללולאה הפתוחה",
     "agentBrainSub": "לא תפריט של 60 כלים — צעד אחד: כסף שלי, שליחת Mandate, או רישום חיסכון. הסוכן לא מבטיח שיחה חוזרת.",
