@@ -79,9 +79,15 @@ export function AuthForm({
         return;
       }
       // Honor ?return= from verticals (cancel/parking/…) so the loop continues.
-      // Defaults: signup → My money scan; login → dashboard (resume open cases).
+      // Defaults: signup → scan; login → open-loop finish (/money?case=) or Money OS.
+      const nextHref =
+        typeof data.nextHref === "string" && data.nextHref.startsWith("/")
+          ? data.nextHref
+          : null;
       router.replace(
-        returnTo || (mode === "signup" ? "/money#zakai-money-scan" : "/dashboard"),
+        returnTo ||
+          nextHref ||
+          (mode === "signup" ? "/money#zakai-money-scan" : "/money"),
       );
       router.refresh();
     } catch {

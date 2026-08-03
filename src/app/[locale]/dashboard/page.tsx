@@ -88,6 +88,15 @@ export default async function DashboardPage({
     include: { savingsProof: true, fee: true, authorization: true },
   });
 
+  // Legacy ?case= deep links (emails/pushes) finish on /money — fee checkout stays here.
+  const OPEN_FINISH = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT"]);
+  if (highlightCase && payFee !== "1") {
+    const deep = cases.find((c) => c.id === highlightCase);
+    if (deep && OPEN_FINISH.has(deep.status)) {
+      redirect({ href: `/money?case=${deep.id}`, locale });
+    }
+  }
+
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
   const proposedMap = await getProposedSavingsMap(sentIds);
   const proposedCount = proposedMap.size;

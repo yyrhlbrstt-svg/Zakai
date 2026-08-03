@@ -5,6 +5,7 @@ import { createSession } from "@/lib/auth/session";
 import { loginSchema, firstError } from "@/lib/validation";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { postAuthDestination } from "@/lib/services/postAuthDestination";
 
 export async function POST(request: Request) {
   const limited = await rateLimit("login", clientIp(request), 10, 600);
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
     }
 
     await createSession(user.id);
-    return NextResponse.json({ ok: true });
+    const nextHref = await postAuthDestination(user.id);
+    return NextResponse.json({ ok: true, nextHref });
   } catch (err) {
     await reportError(err, { route: "login" });
     return NextResponse.json({ error: "genericError" }, { status: 500 });

@@ -88,7 +88,7 @@ export default async function DepositPage({
             <Link href="/money">
               <Button>{locale === "he" || locale === "ar" ? "לכסף שלי — התחלה" : "My money — start"}</Button>
             </Link>
-            <Link href="/dashboard">
+            <Link href="/money">
               <Button variant="ghost">
                 {locale === "he" || locale === "ar" ? "לדשבורד — המשך תיק" : "Dashboard — continue case"}
               </Button>
