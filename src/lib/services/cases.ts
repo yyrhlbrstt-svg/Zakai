@@ -8,7 +8,7 @@ import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
-import { createAuthorization } from "./authorization";
+import { createAuthorization, ensureMandateJtiForCase } from "./authorization";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
@@ -19,6 +19,7 @@ import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { withFooter } from "@/lib/letterFooter";
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
 import { publicSupportEmail } from "@/lib/contact";
+import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
 
 export class CaseError extends Error {}
 
@@ -197,6 +198,14 @@ export async function sendOutreach(caseId: string, userId: string) {
 
   const appUrl = appBaseUrl();
   const provider = providerHebrewName(kase.provider);
+  const mandateJti = await ensureMandateJtiForCase(caseId);
+  const protocolFooter = buildOutreachProtocolFooter({
+    appUrl,
+    authCode: auth.code,
+    mandateJti,
+    vertical: kase.vertical,
+    market: user?.country ?? "IL",
+  });
   const footer = `
 
 ————————————————————————
@@ -205,7 +214,7 @@ export async function sendOutreach(caseId: string, userId: string) {
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
 מצורף: מסמך הרשאה מלא (HTML) להדפסה/שמירה.
-גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.`;
+גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.${protocolFooter}`;
 
   const attachment = mandateEmailAttachment({
     code: auth.code,

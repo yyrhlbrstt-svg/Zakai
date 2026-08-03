@@ -800,6 +800,11 @@
     "ctaInstitutions": "למוסדות",
     "ctaGlobal": "שווקים בעולם"
   },
+  "zmlFooter": {
+    "label": "תקן ZML (זכויות כנתונים)",
+    "body": "{count} זכויות IL בקטלוג החי — סכימה, API וחבילות לפרסום חיצוני.",
+    "domainsLink": "חמשת הדומיינים"
+  },
   "domainsPage": {
     "metaTitle": "חמשת דומייני התשתית — זכאי",
     "metaDesc": "ZML, ציון הוגנות, מעבר ספק, מודיעין רגולטורי, כוונה קולקטיבית — מה חי בקוד ומה בשלב בטא.",
@@ -819,6 +824,16 @@
     "tryIt": "נסו במוצר",
     "collectiveTitle": "כוונה קולקטיבית (שלב 0)",
     "collectiveSub": "סימון אנונימי בלי חשבון. הספירה ציבורית; מכרזים יבואו רק כשיש מסה קריטית אמיתית.",
+    "collectiveSummaryTitle": "ספירה ציבורית (חיה)",
+    "collectiveSummarySub": "מגיע מה-API — לא מספר שיווקי. אפס אומר שעדיין אין מספיק סיגנלים.",
+    "collectiveTotal": "{n} סיגנלים",
+    "collectiveVertical": "{id}",
+    "collectiveApiHint": "GET /api/collective/summary",
+    "autopilotTitle": "Autopilot — תחזוקה בלי צוות",
+    "autopilotSub": "Law watcher, price sentinel, outcome learner, market expander — שער אנושי על שינויי חוק; אין מיזוג אוטומטי ל-ZML.",
+    "autopilotManifest": "zakai-autopilot.json",
+    "autopilotLastRun": "ריצה אחרונה: {ok} · {at}",
+    "autopilotNever": "עדיין לא רץ בפרוד",
     "footerHonesty": "מעל כולם = איחוד Mandate + ZML + outcomes + switching + רגולציה + ביקוש קולקטיבי — כל אחד ניתן לבדיקה חיצונית."
   },
   "providers": {
@@ -3495,6 +3510,9 @@
     "emptyTitle": "בונים את זה עכשיו",
     "emptySub": "ציון זכאי מבוסס על תיקים אמיתיים ומתועדים. עוד אין מספיק נתונים כדי להציג חברה בהוגנות — נציג כל ספק רק אחרי מספיק בדיקות. היה מהראשונים שיוצרים את הנתונים.",
     "emptyCta": "התחל בדיקה",
+    "emptyFairnessTitle": "איך מופיע ציון הוגנות?",
+    "emptyFairnessBody": "רק אחרי מספיק תצפיות מנותקות זהות (אותו סף כמו כאן). עד אז — ריק, בכוונה. שותפים יכולים להטמיע וידג'ט רק עם מפתח מאומת; בלי מפתח — בלי ציון ציבורי.",
+    "emptyFairnessDocs": "תוכנית Fairness Certified (מפרט)",
     "sampleTag": "{count} בדיקות",
     "savedRateTag": "{pct}% הצליחו",
     "avgTag": "חיסכון ממוצע {amount}",
@@ -5066,6 +5084,9 @@
     "widgetSub": "פס הוגנות קל על האתר שלכם — בלי PII עד שהמשתמש לוחץ לזכאי. דורש מפתח שותף (domain allowlist).",
     "widgetValidate": "אימות מפתח: GET /api/widget/validate עם Origin + X-Zakai-Widget-Key",
     "widgetDocs": "מדריך הטמעה מלא (מפתחות + CORS)",
+    "widgetFairnessTitle": "רישום ל-Fairness Certified",
+    "widgetFairnessBody": "מפרט + מפתח וידג'ט — אחרי אימות דומיין. הציון הציבורי מופיע רק כשיש מספיק תצפיות; עד אז הווידג'ט מציג מצב ריק כנה.",
+    "widgetFairnessCta": "פנייה לשותפים / מפתח",
     "metaTitle": "Zakai Partners — הטמעה B2B ו-Money OS",
     "metaDesc": "הטמעה מוכנה לבנקים, פינטק ומעסיקים. סוכן כסף ללקוח עם Mandate — בלי מוקד, עמלה רק על חיסכון מתועד. כמה מסלולים: כסף, ביטול, זכויות."
   },
@@ -5339,6 +5360,11 @@
     "inboundPressureRow": "{dispatched} יוצאים · {saved} עם חיסכון מתועד",
     "inboundPressureDisclaimer": "מספרים אגרגטיביים בלבד, ללא זיהוי לקוחות. לא כולל מכתבים שהוכנו מחוץ לזכאי.",
     "inboundPressureApi": "JSON: inbound-pressure",
+    "regulatoryStripTitle": "מודיעין רגולטורי (אגרגטים בלבד)",
+    "regulatoryStripBody": "תמונת מצב אחת לפיקוח ולעיתונות: תוצאות מנותקות, לחץ נכנס מתועד, כיסוי ציון הוגנות — לא דיווח רשמי ולא נפח שוק מלא.",
+    "regulatoryStripSnapshot": "snapshot JSON",
+    "regulatoryStripPressure": "inbound-pressure",
+    "regulatoryStripNetwork": "network proof",
     "heroKicker": "לבנקים · ביטוח · ספקים · עיריות · פינטק",
     "heroTitle": "Mandate של זכאי",
     "heroSub": "הצהרה חתומה שאדם ספציפי הרשה לסוכן לבצע פעולות מוגבלות בשמו — ניתנת לאימות offline מול מפתח ציבורי, בלי לחייג לזכאי בכל בקשה, ובלי יכולת להוציא כסף מחשבונות הלקוח.",

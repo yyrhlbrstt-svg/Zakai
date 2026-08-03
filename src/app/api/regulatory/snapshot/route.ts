@@ -9,6 +9,11 @@ import {
 } from "@/lib/institutionInboundPressure";
 import { prisma } from "@/lib/prisma";
 import { MIN_SAMPLE } from "@/lib/companyScore";
+import {
+  REGULATORY_SNAPSHOT_CHANGELOG,
+  REGULATORY_SNAPSHOT_SCHEMA,
+  REGULATORY_SNAPSHOT_VERSION,
+} from "@/lib/regulatory/snapshotSchema";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,35 +57,67 @@ export async function GET(request: Request) {
   const pressure = disclosedInboundPressure(aggregateInboundPressure(pressureRowsFromCases(cases)));
   const marketOutcomes = outcome.markets.filter((m) => m.market === market);
 
-  return NextResponse.json(
-    {
-      ok: true,
-      market,
-      disclaimer:
-        "Aggregates from Zakai consumer activity and de-identified outcomes — not total market complaints or government statistics.",
-      outcome_graph: {
-        total_outcomes_global: outcome.totalOutcomes,
-        market_slice: marketOutcomes,
-        updated_at: outcome.updatedAt,
-      },
-      inbound_pressure: {
-        disclosed_institutions: pressure.length,
-        top: pressure.slice(0, 10),
-      },
-      fairness_scores: {
-        providers_with_score: fairness.length,
-        min_observations: MIN_SAMPLE,
-      },
-      collective_intent: {
-        total_signals: collectiveTotal,
-        phase: "intent_only",
-      },
-      links: {
-        inbound_pressure: "/api/institution/inbound-pressure",
-        fairness: `/api/fairness/scores?market=${market}`,
-        network: "/api/network",
-      },
+  const payload = {
+    ok: true,
+    schema: REGULATORY_SNAPSHOT_SCHEMA,
+    schema_version: REGULATORY_SNAPSHOT_VERSION,
+    changelog: REGULATORY_SNAPSHOT_CHANGELOG,
+    market,
+    disclaimer:
+      "Aggregates from Zakai consumer activity and de-identified outcomes — not total market complaints or government statistics.",
+    outcome_graph: {
+      total_outcomes_global: outcome.totalOutcomes,
+      market_slice: marketOutcomes,
+      updated_at: outcome.updatedAt,
     },
-    { headers: CORS },
-  );
+    inbound_pressure: {
+      disclosed_institutions: pressure.length,
+      top: pressure.slice(0, 10),
+    },
+    fairness_scores: {
+      providers_with_score: fairness.length,
+      min_observations: MIN_SAMPLE,
+    },
+    collective_intent: {
+      total_signals: collectiveTotal,
+      phase: "intent_only",
+    },
+    links: {
+      inbound_pressure: "/api/institution/inbound-pressure",
+      fairness: `/api/fairness/scores?market=${market}`,
+      network: "/api/network",
+      brief_export: `/api/regulatory/snapshot?market=${market}&format=brief`,
+    },
+  };
+
+  const format = url.searchParams.get("format");
+  if (format === "brief") {
+    const lines = [
+      `Zakai regulatory snapshot — ${market}`,
+      `Schema: ${REGULATORY_SNAPSHOT_SCHEMA} @ ${REGULATORY_SNAPSHOT_VERSION}`,
+      "",
+      payload.disclaimer,
+      "",
+      `Outcome graph (global): ${outcome.totalOutcomes}`,
+      `Inbound pressure (disclosed institutions): ${pressure.length}`,
+      `Fairness scores (providers): ${fairness.length} (min n=${MIN_SAMPLE})`,
+      `Collective intent signals: ${collectiveTotal}`,
+      "",
+      "Top inbound pressure (disclosed only):",
+      ...pressure.slice(0, 5).map(
+        (p) =>
+          `  - ${p.institutionId}: dispatched=${p.dispatchedCases} saved=${p.savedCases}`,
+      ),
+      "",
+      `JSON: ${url.origin}/api/regulatory/snapshot?market=${market}`,
+    ];
+    return new NextResponse(lines.join("\n"), {
+      headers: {
+        ...CORS,
+        "Content-Type": "text/plain; charset=utf-8",
+      },
+    });
+  }
+
+  return NextResponse.json(payload, { headers: CORS });
 }

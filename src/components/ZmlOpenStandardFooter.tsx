@@ -1,9 +1,10 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { SITE_URL } from "@/lib/seo";
 import { buildZmlCatalogForMarket } from "@/lib/protocol/zml/catalog";
 
 export async function ZmlOpenStandardFooter({ locale }: { locale: string }) {
-  const he = locale === "he" || locale === "ar";
+  const t = await getTranslations({ locale, namespace: "zmlFooter" });
   let ilCount = 0;
   try {
     const rights = await buildZmlCatalogForMarket(SITE_URL, "IL");
@@ -12,15 +13,12 @@ export async function ZmlOpenStandardFooter({ locale }: { locale: string }) {
     ilCount = 0;
   }
 
-  const label = he ? "תקן ZML (זכויות כנתונים)" : "ZML open standard (rights as data)";
-  const body = he
-    ? `${ilCount} זכויות IL בקטלוג החי — סכימה, API וחבילות לפרסום חיצוני.`
-    : `${ilCount} live IL rights — schema, APIs, and packs for external publish.`;
-
   return (
     <footer className="mt-12 pt-6 border-t border-[rgba(255,255,255,0.08)]">
-      <p className="text-[12px] font-extrabold text-emerald m-0 mb-1">{label}</p>
-      <p className="text-[12.5px] text-ink-soft m-0 mb-3 leading-relaxed">{body}</p>
+      <p className="text-[12px] font-extrabold text-emerald m-0 mb-1">{t("label")}</p>
+      <p className="text-[12.5px] text-ink-soft m-0 mb-3 leading-relaxed">
+        {t("body", { count: ilCount })}
+      </p>
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-[12.5px] font-bold">
         <a
           href={`${SITE_URL}/.well-known/zakai-packs.json`}
@@ -44,7 +42,7 @@ export async function ZmlOpenStandardFooter({ locale }: { locale: string }) {
           catalog (IL)
         </a>
         <Link href="/domains" className="text-ink-soft no-underline hover:text-emerald">
-          {he ? "חמשת הדומיינים" : "Five domains"}
+          {t("domainsLink")}
         </Link>
       </div>
     </footer>

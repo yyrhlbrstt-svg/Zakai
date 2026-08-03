@@ -799,6 +799,11 @@
     "ctaInstitutions": "Institutions",
     "ctaGlobal": "World markets"
   },
+  "zmlFooter": {
+    "label": "ZML open standard (rights as data)",
+    "body": "{count} live IL rights — schema, APIs, and packs for external publish.",
+    "domainsLink": "Five domains"
+  },
   "domainsPage": {
     "metaTitle": "Five infrastructure domains — Zakai",
     "metaDesc": "ZML, fairness score, switching, regulatory aggregates, collective intent — what is live vs beta.",
@@ -818,6 +823,16 @@
     "tryIt": "Try in product",
     "collectiveTitle": "Collective intent (phase 0)",
     "collectiveSub": "Anonymous signal, no account. Public counts only; auctions come when critical mass is real.",
+    "collectiveSummaryTitle": "Public count (live)",
+    "collectiveSummarySub": "From the API — not a marketing number. Zero means not enough signals yet.",
+    "collectiveTotal": "{n} signals",
+    "collectiveVertical": "{id}",
+    "collectiveApiHint": "GET /api/collective/summary",
+    "autopilotTitle": "Autopilot — maintenance without headcount",
+    "autopilotSub": "Law watcher, price sentinel, outcome learner, market expander — human gate on law changes; no auto-merge to ZML.",
+    "autopilotManifest": "zakai-autopilot.json",
+    "autopilotLastRun": "Last run: {ok} · {at}",
+    "autopilotNever": "Not run in production yet",
     "footerHonesty": "Above everyone means Mandate + ZML + outcomes + switching + regulatory signal + collective demand — each externally testable."
   },
   "providers": {
@@ -3494,6 +3509,9 @@
     "emptyTitle": "We are building this now",
     "emptySub": "The Zakai Score is built from real, documented cases. There isn't enough data yet to show any company fairly — we only show a provider after enough checks. Be among the first to create the data.",
     "emptyCta": "Start a check",
+    "emptyFairnessTitle": "How do fairness scores appear?",
+    "emptyFairnessBody": "Only after enough de-identified observations (same MIN_SAMPLE gate as here). Until then — empty on purpose. Partners embed the widget with a validated key; no key, no public score.",
+    "emptyFairnessDocs": "Fairness Certified program (spec)",
     "sampleTag": "{count} checks",
     "savedRateTag": "{pct}% succeeded",
     "avgTag": "avg saving {amount}",
@@ -5065,6 +5083,9 @@
     "widgetSub": "Lightweight fairness strip on your site — no PII until the user clicks through to Zakai. Requires a partner API key (domain allowlist).",
     "widgetValidate": "Key check: GET /api/widget/validate with Origin + X-Zakai-Widget-Key",
     "widgetDocs": "Full embed guide (keys + CORS)",
+    "widgetFairnessTitle": "Fairness Certified registration",
+    "widgetFairnessBody": "Spec + widget key after domain validation. Public score only when MIN_SAMPLE is met; until then the widget shows an honest empty state.",
+    "widgetFairnessCta": "Partner / API key enquiry",
     "metaTitle": "Zakai Partners — B2B embed & Money OS",
     "metaDesc": "Drop-in embed for banks, fintech and employers. Customer money agent with Mandate — no call center, fee only on documented savings. Multi-path: money, cancel, rights."
   },
@@ -5338,6 +5359,11 @@
     "inboundPressureRow": "{dispatched} dispatched · {saved} with documented savings",
     "inboundPressureDisclaimer": "Aggregate counts only, no customer identities. Excludes letters prepared outside Zakai.",
     "inboundPressureApi": "JSON: inbound-pressure",
+    "regulatoryStripTitle": "Regulatory intelligence (aggregates only)",
+    "regulatoryStripBody": "One pane for supervisors and press: de-identified outcomes, documented inbound pressure, fairness coverage — not official filings or total market volume.",
+    "regulatoryStripSnapshot": "snapshot JSON",
+    "regulatoryStripPressure": "inbound-pressure",
+    "regulatoryStripNetwork": "network proof",
     "heroKicker": "For banks · insurers · utilities · municipalities · fintechs",
     "heroTitle": "Zakai Mandate",
     "heroSub": "A signed statement that a named person authorised an agent to do specific things on their behalf — verifiable offline against a public key, without calling Zakai on every request, and without any ability to move money out of the principal's accounts.",

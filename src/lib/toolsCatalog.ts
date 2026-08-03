@@ -24,7 +24,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/flights", key: "flights", category: "agent", featured: true, agentic: true },
   { href: "/refund-chase", key: "refundchase", category: "agent", featured: true, agentic: true },
   { href: "/what-am-i-owed", key: "whatAmIOwed", category: "rights", featured: true },
-  { href: "/entitlements", key: "entitlements", category: "rights", featured: true },
+  { href: "/entitlements", key: "entitlements", category: "rights" },
   { href: "/rights", key: "rights", category: "rights", featured: true },
   { href: "/leaks", key: "leaks", category: "agent", featured: true },
   { href: "/proofs", key: "proofs", category: "agent", featured: true },

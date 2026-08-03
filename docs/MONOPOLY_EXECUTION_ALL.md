@@ -30,7 +30,7 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 
 - [x] Institution leader page: conformance panel + test vectors in readiness wizard
 - [ ] `POST /api/mandate/conformance/probe` in institution onboarding email template
-- [ ] Publish `zakai-mandate-mcp` discoverability in every integration doc
+- [x] Publish `zakai-mandate-mcp` discoverability in integration docs (`WIDGET_EMBED`, `SWITCHING_REFERENCE_FLOWS`, `INSTITUTION_QUICKSTART`)
 - [ ] Third-party agent issues via **delegated issuance** (one admitted pilot)
 
 ### Track 1 — ZML
@@ -43,32 +43,32 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 
 ### Track 2 — Fairness
 
-- [ ] Widget on **3 partner pages** (register + validate keys)
-- [ ] `/companies` shows empty state + «how scores appear» (honest)
-- [ ] Fairness Certified program **spec only** (legal review)
+- [ ] Widget on **3 partner pages** (register + validate keys) — founder outreach
+- [x] `/companies` shows empty state + «how scores appear» (honest)
+- [x] Fairness Certified program **spec only** (legal review) — `docs/FAIRNESS_CERTIFIED_PROGRAM.md`
 
 ### Track 3 — Switching
 
-- [ ] Every outbound case carries verifiable Mandate reference in letter metadata
-- [ ] `zakai-switching.json` version bump when a new vertical template ships
-- [ ] Telecom + universal cancel as **reference conformance** for institutions
+- [x] Every outbound case carries verifiable Mandate reference in letter metadata (`mandateJti` + protocol footer)
+- [x] `zakai-switching.json` version bump when a new vertical template ships (`SWITCHING_VERSION`)
+- [x] Telecom + universal cancel as **reference conformance** — `docs/SWITCHING_REFERENCE_FLOWS.md`
 
 ### Track 4 — Regulatory
 
-- [ ] `GET /api/regulatory/snapshot` stable schema + changelog
-- [ ] Inbound-pressure API linked from `/institutions` hero
-- [ ] One-pager export (JSON → printable) when snapshot non-empty
+- [x] `GET /api/regulatory/snapshot` stable schema + changelog
+- [x] Inbound-pressure API linked from `/institutions` hero (`RegulatoryIntelStrip`)
+- [x] One-pager export (`?format=brief`) when snapshot non-empty or empty counts
 
 ### Track 5 — Collective
 
-- [ ] Public summary on `/domains` (done UI)
-- [ ] Market expander opens GitHub issues from intent thresholds
+- [x] Public summary on `/domains` (`CollectiveSummaryPanel` + API)
+- [x] Market expander opens GitHub issues from intent thresholds (when `GITHUB_TOKEN` + `AUTOPILOT_GITHUB_REPO`)
 - [ ] Auction: **blocked** until legal sign-off
 
 ### Track 6 — Autopilot
 
-- [ ] Law watcher issues → human review queue (no auto-merge)
-- [ ] Price sentinel feeds **documented** consumer tools only
+- [x] Law watcher issues → human review queue (no auto-merge) — documented in autopilot manifest
+- [x] Price sentinel feeds **documented** consumer tools only — manifest + `AutopilotStatusStrip` on `/domains`
 
 ---
 

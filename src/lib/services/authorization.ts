@@ -27,7 +27,7 @@ const CASE_MANDATE_SCOPES = [
 
 /** Human Authorization row plus optional machine-verifiable Mandate fields. */
 export type AuthorizationWithMandate = Authorization & {
-  mandateJti?: string;
+  mandateJti?: string | null;
   mandateToken?: string;
 };
 
@@ -86,6 +86,13 @@ export async function createAuthorization(caseId: string): Promise<Authorization
     mandateAudience,
   });
 
+  if (mandate.mandateJti) {
+    doc = await prisma.authorization.update({
+      where: { caseId },
+      data: { mandateJti: mandate.mandateJti },
+    });
+  }
+
   return { ...doc, ...mandate };
 }
 
@@ -136,6 +143,13 @@ async function reissueAuthorization(
     mandateAudience,
   });
 
+  if (mandate.mandateJti) {
+    doc = await prisma.authorization.update({
+      where: { caseId },
+      data: { mandateJti: mandate.mandateJti },
+    });
+  }
+
   return { ...doc, ...mandate };
 }
 
@@ -185,6 +199,38 @@ async function tryIssueCaseMandate(input: {
     console.error("mandate_issue_failed", err);
     return {};
   }
+}
+
+/** Issue machine mandate if missing; persists jti on the Authorization row. */
+export async function ensureMandateJtiForCase(caseId: string): Promise<string | undefined> {
+  const auth = await prisma.authorization.findUnique({ where: { caseId } });
+  if (!auth || auth.status !== "ACTIVE") return undefined;
+  if (auth.mandateJti) return auth.mandateJti;
+
+  const kase = await prisma.case.findUnique({
+    where: { id: caseId },
+    include: { user: true },
+  });
+  if (!kase) return undefined;
+
+  const mandate = await tryIssueCaseMandate({
+    caseId,
+    userId: kase.userId,
+    name: kase.user.name,
+    email: kase.user.email,
+    phone: kase.user.phone,
+    provider: kase.provider,
+    country: kase.user.country || "IL",
+    authCode: auth.code,
+    mandateAudience: auth.mandateAudience ?? resolveMandateAudience(kase.provider),
+  });
+  if (!mandate.mandateJti) return undefined;
+
+  await prisma.authorization.update({
+    where: { caseId },
+    data: { mandateJti: mandate.mandateJti },
+  });
+  return mandate.mandateJti;
 }
 
 export async function revokeAuthorization(caseId: string, mandateJti?: string) {

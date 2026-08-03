@@ -43,7 +43,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     if (!existing || existing.status !== "ACTIVE") {
       const created = await createAuthorization(id);
       authCode = created.code;
-      mandateJti = created.mandateJti;
+      mandateJti = created.mandateJti ?? undefined;
     } else {
       authCode = existing.code;
     }

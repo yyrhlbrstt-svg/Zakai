@@ -9,6 +9,7 @@ import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator";
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
+import { RegulatoryIntelStrip } from "@/components/RegulatoryIntelStrip";
 import { INSTITUTION_FIT_HYPOTHESES } from "@/lib/institutionBankFit";
 import { institutionsLongCopy } from "@/lib/marketing/institutionsLongCopy";
 import { textDirection } from "@/lib/textDirection";
@@ -62,6 +63,14 @@ export default async function InstitutionsPage({
       <EmeraldInfoPanel className="mb-6">
         <strong className="text-emerald">{t("whyAdoptStrong")}</strong> {t("whyAdoptBody")}
       </EmeraldInfoPanel>
+
+      <RegulatoryIntelStrip
+        title={t("regulatoryStripTitle")}
+        body={t("regulatoryStripBody")}
+        snapshotCta={t("regulatoryStripSnapshot")}
+        pressureCta={t("regulatoryStripPressure")}
+        networkCta={t("regulatoryStripNetwork")}
+      />
 
       <p className="text-[13px] text-ink-soft mb-6">
         {t("agentsCrossLink")}{" "}

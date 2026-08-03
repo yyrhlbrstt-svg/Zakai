@@ -6,6 +6,8 @@ import { buildDomainsDocument } from "@/lib/protocol/domains";
 import { Card } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 import { CollectiveIntentForm } from "@/components/CollectiveIntentForm";
+import { CollectiveSummaryPanel } from "@/components/CollectiveSummaryPanel";
+import { AutopilotStatusStrip } from "@/components/AutopilotStatusStrip";
 import { MonopolyDomainCard } from "@/components/MonopolyDomainCard";
 import { getVisitorMarket } from "@/lib/global/visitorMarket";
 
@@ -88,11 +90,27 @@ export default async function DomainsPage({
         </Link>
       </section>
 
-      <section className="border-t border-[rgba(255,255,255,0.08)] pt-10">
+      <section className="border-t border-[rgba(255,255,255,0.08)] pt-10 mb-10">
+        <CollectiveSummaryPanel
+          market={market}
+          title={t("collectiveSummaryTitle")}
+          sub={t("collectiveSummarySub")}
+          totalLabel={t("collectiveTotal")}
+          verticalLabel={t("collectiveVertical")}
+          apiHint={t("collectiveApiHint")}
+        />
         <h2 className="text-lg font-extrabold mb-2">{t("collectiveTitle")}</h2>
         <p className="text-[13px] text-ink-soft mb-4 max-w-[560px]">{t("collectiveSub")}</p>
         <CollectiveIntentForm market={market} />
       </section>
+
+      <AutopilotStatusStrip
+        title={t("autopilotTitle")}
+        sub={t("autopilotSub")}
+        manifestLabel={t("autopilotManifest")}
+        lastRunLabel={t("autopilotLastRun")}
+        neverLabel={t("autopilotNever")}
+      />
 
       <p className="mt-10 text-[11.5px] text-ink-soft/70 text-center max-w-[560px] mx-auto leading-relaxed">
         {t("footerHonesty")}
