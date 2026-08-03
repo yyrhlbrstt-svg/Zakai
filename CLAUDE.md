@@ -3,6 +3,8 @@
 This file is the **only** architectural source of truth for autonomous development.
 Read it before every non-trivial change.
 
+**Cursor operating law:** `docs/INFRASTRUCTURE_DOCTRINE.md` — Zakai is rails (Mandate + SavingsProof), not “another consumer app.” Every change must tighten the IL closed loop, raise Mandate/SavingsProof volume, or make institutions/agents adopt the open format. If it does none of those, do not ship it.
+
 ## Product thesis
 
 Zakai recovers money people are already losing or owed, and finishes the path **in-app** without a human callback team.
