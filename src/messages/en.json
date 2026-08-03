@@ -283,7 +283,7 @@
     "title1": "You're overpaying.",
     "title2": "Zakai gets it back.",
     "sub": "Zakai scans charges, drafts outreach, and after you approve and verify — sends in your name with a Mandate and tracks documented savings. No call centre, no forms. Fee only on money that actually returns.",
-    "cta": "Check a bill now",
+    "cta": "Start in My money",
     "heroLeaks": "Money leak map",
     "howTitle": "How it works",
     "trust": [
@@ -514,7 +514,20 @@
     "developersSub": "Find us through the public protocol — no sales calls. Verify, then write.",
     "developersTools": "Tools map",
     "developersProof": "Network proof",
-    "developersIntegrations": "Mandate integration"
+    "developersIntegrations": "Mandate integration",
+    "ctaSecondary": "How it works",
+    "secondaryDoors": "Continue after you start",
+    "secondaryDoorsSub": "More tools once you already have a case — not competing front doors.",
+    "estimateTitle": "Want an estimate before you start?",
+    "gravityTitle": "What has actually happened",
+    "gravitySent": "Outreach sent",
+    "gravityMandates": "Active Mandates",
+    "gravityProofs": "Documented savings · {count} proofs",
+    "gravityEmpty": "No documented savings yet — this number stays zero until it is real",
+    "gravityLedger": "Open the public ledger",
+    "moneyFeatureTitle": "Start here",
+    "moneyFeatureSub": "Photo a bill → case → Mandate → send → documented saving.",
+    "moneyFeatureCta": "Open My money"
   },
   "flow": {
     "steps": [
@@ -1115,9 +1128,9 @@
       "flights": "Flight compensation",
       "subs": "Subscriptions"
     },
-    "cta": "Check my bills — free",
+    "cta": "Photo a bill — start in My money",
     "ctaHint": "Next step: a free profile check — no signup required",
-    "ctaScan": "Scan recurring charges (CSV)",
+    "ctaScan": "Or check what you are owed (free)",
     "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
   },
   "universalCancel": {
@@ -4696,7 +4709,7 @@
     }
   },
   "door": {
-    "title": "Where do you start?",
+    "title": "Continue after My money",
     "money": {
       "title": "I'm paying too much",
       "sub": "Photograph a bill — open a case, verify on the dashboard, then Mandate send and follow-up.",

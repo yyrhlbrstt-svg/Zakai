@@ -66,6 +66,41 @@ export default async function InstitutionsPage({
         <strong className="text-emerald">{t("whyAdoptStrong")}</strong> {t("whyAdoptBody")}
       </EmeraldInfoPanel>
 
+      <Card className="mb-8 p-5 border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)]">
+        <div className="font-extrabold text-[15px] text-emerald mb-2">
+          {he ? "אימות Mandate בפחות משעה — בלי שיחת מכירות" : "Verify a Mandate in under an hour — no sales call"}
+        </div>
+        <ol className="m-0 ps-5 flex flex-col gap-1.5 text-[13.5px] text-ink-soft leading-relaxed">
+          <li>
+            GET{" "}
+            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/.well-known/zakai-jwks.json`}>
+              /.well-known/zakai-jwks.json
+            </a>
+          </li>
+          <li>
+            GET{" "}
+            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/api/mandate/test-vectors`}>
+              /api/mandate/test-vectors
+            </a>
+          </li>
+          <li>
+            POST{" "}
+            <span className="font-mono">/api/mandate/verify</span>
+            {he ? " עם ה־JWS מהווקטורים" : " with a vector JWS"}
+          </li>
+          <li>
+            GET{" "}
+            <a className="text-emerald font-mono break-all" href={`${ORIGIN}/.well-known/zakai-conformance.json`}>
+              /.well-known/zakai-conformance.json
+            </a>
+            {he ? " — ואז" : " — then"}{" "}
+            <Link href="/pipe" className="text-emerald font-extrabold no-underline hover:underline">
+              Pipe
+            </Link>
+          </li>
+        </ol>
+      </Card>
+
       <div className="flex flex-wrap gap-3 mb-8">
         <Link href="/pipe" className="no-underline">
           <Button>{locale === "he" || locale === "ar" ? "הצינור — Mandate → SavingsProof" : "The Pipe — Mandate → SavingsProof"}</Button>

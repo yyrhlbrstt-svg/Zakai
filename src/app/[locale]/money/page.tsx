@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale , getTranslations } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { MoneyHub } from "@/components/MoneyHub";
 import { MoneyInstallInline } from "@/components/MoneyInstallInline";
@@ -15,6 +15,9 @@ import { proofsInboundAddress } from "@/lib/mandate/document";
 import { getCurrentUser } from "@/lib/auth/user";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
+import { LiveGravityStrip } from "@/components/LiveGravityStrip";
+import { provenSavings } from "@/lib/services/selfReportedSaving";
+import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata({
   params,
@@ -37,6 +40,14 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
   const loc = bcp47[locale as Locale];
   const proofsEmail = proofsInboundAddress();
   const user = await getCurrentUser();
+  const tHome = await getTranslations({ locale });
+  const [proof, sentCount, mandateCount] = await Promise.all([
+    provenSavings(),
+    prisma.case.count({ where: { status: { in: ["SENT", "SAVED"] } } }).catch(() => 0),
+    prisma.authorization
+      .count({ where: { status: "ACTIVE", revokedAt: null } })
+      .catch(() => 0),
+  ]);
 
   return (
     <VerticalPageShell
@@ -45,6 +56,24 @@ export default async function MoneyPage({ params }: { params: Promise<{ locale: 
       title={tIapp_locale_money_page("t_2144de53")}
       sub={tIapp_locale_money_page("t_ef77bbd3")}
     >
+      <div className="mb-6">
+        <LiveGravityStrip
+          localeBcp47={loc}
+          verifiedMinor={proof.verifiedMinor}
+          verifiedCount={proof.verifiedCount}
+          sentCount={sentCount}
+          mandateCount={mandateCount}
+          labels={{
+            title: tHome("home.gravityTitle"),
+            sent: tHome("home.gravitySent"),
+            mandates: tHome("home.gravityMandates"),
+            proofs: tHome("home.gravityProofs"),
+            empty: tHome("home.gravityEmpty"),
+            ledger: tHome("home.gravityLedger"),
+          }}
+        />
+      </div>
+
       <MoneyPageContextPanel locale={locale as Locale} />
 
       {user ? (

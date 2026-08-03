@@ -7,14 +7,14 @@ import { Reveal } from "@/components/Reveal";
 import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
-import { formatAgorot } from "@/lib/money";
 import { isIsrael, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 import { currentArm } from "@/lib/evolve/store";
 import { ENTITLEMENTS } from "@/lib/rights";
 import { DoorTracker } from "@/components/DoorTracker";
 import { provenSavings } from "@/lib/services/selfReportedSaving";
-import { mustHavePageCopy } from "@/lib/monopoly/mustHaveKit";
+import { LiveGravityStrip } from "@/components/LiveGravityStrip";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -56,9 +56,20 @@ export async function generateMetadata(): Promise<Metadata> {
  * apart; the flagship homepage number now only ever counts the verified side,
  * which is the only side the copy is actually allowed to describe that way.
  */
-async function loadProof() {
-  const proof = await provenSavings();
-  return { monthlyAgorot: proof.verifiedMinor, count: proof.verifiedCount };
+async function loadLoopGravity() {
+  const [proof, sentCount, mandateCount] = await Promise.all([
+    provenSavings(),
+    prisma.case.count({ where: { status: { in: ["SENT", "SAVED"] } } }).catch(() => 0),
+    prisma.authorization
+      .count({ where: { status: "ACTIVE", revokedAt: null } })
+      .catch(() => 0),
+  ]);
+  return {
+    monthlyAgorot: proof.verifiedMinor,
+    count: proof.verifiedCount,
+    sentCount,
+    mandateCount,
+  };
 }
 
 export default async function HomePage({
@@ -69,7 +80,7 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
-  const proof = await loadProof();
+  const gravity = await loadLoopGravity();
   // Counted from the catalogue so the front page cannot disagree with it.
   const ilRightsCount = ENTITLEMENTS.filter((e) => !/^(us|uk|de|fr|ca|au|it)_/.test(e.id)).length;
 
@@ -90,21 +101,12 @@ export default async function HomePage({
     }
   }
 
-  // Which problem to lead with is decided by the self-improvement engine from
-  // what has actually been converting, not by the order the doors happened to
-  // be built in. Falls back to the baseline order if the engine is unreachable.
+  // Secondary-door order still learns from convert experiments — but Money Hub
+  // is no longer one of several equal front doors; it is the only start.
   const doorArm = await currentArm<string[]>("home_door_order");
-  const doorOrder = doorArm?.payload ?? ["money", "cancel", "owed", "electricity"];
+  const doorOrder = doorArm?.payload ?? ["cancel", "owed", "electricity"];
 
-  const doorsByKey = [
-    {
-      href: "/money",
-      icon: ScanLine,
-      titleKey: "door.money.title",
-      subKey: "door.money.sub",
-      ctaKey: "door.money.cta",
-      accent: "emerald",
-    },
+  const secondaryDoorsByKey = [
     {
       href: "/cancel",
       icon: Ban,
@@ -129,11 +131,6 @@ export default async function HomePage({
       ctaKey: "door.electricity.cta",
       accent: "amber",
     },
-    // The two categories nobody else covers, and they were not on this page at
-    // all. An injury reaches four to seven payers at once and one of those
-    // windows is twelve months; forgotten money is the only thing here somebody
-    // checks for a parent rather than for themselves. Leaving them off the front
-    // door meant the two strongest reasons to open the app were invisible.
     {
       href: "/incident",
       icon: HeartPulse,
@@ -150,8 +147,6 @@ export default async function HomePage({
       ctaKey: "door.dormant.cta",
       accent: "sky",
     },
-    // The only door that prevents a loss instead of recovering one, and the
-    // largest single sum on the page.
     {
       href: "/vehicle-check",
       icon: Car,
@@ -164,20 +159,16 @@ export default async function HomePage({
 
   const doorKey = (href: string) => {
     const slug = href.replace("/", "");
-    // Same problem door — quiz funnel replaced the static hub; experiment arms
-    // still key it as "owed".
     if (slug === "what-am-i-owed" || slug === "entitlements") return "owed";
     return slug;
   };
-  // A door the experiment does not mention sorts last, not first.
-  // `indexOf` returns -1 for an unlisted key, so the previous version promoted
-  // every newly added door above the one the engine had actually chosen —
-  // silently overriding the experiment with build order.
   const rank = (href: string) => {
     const i = doorOrder.indexOf(doorKey(href));
     return i === -1 ? Number.MAX_SAFE_INTEGER : i;
   };
-  const doors = [...doorsByKey].sort((a, b) => rank(a.href) - rank(b.href));
+  const secondaryDoors = [...secondaryDoorsByKey].sort(
+    (a, b) => rank(a.href) - rank(b.href),
+  );
 
   const accentBorder: Record<string, string> = {
     emerald: "border-[rgba(63,203,155,0.4)]",
@@ -213,58 +204,97 @@ export default async function HomePage({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-12 items-center mb-10">
-        <div className="flex-1 min-w-[300px] basis-[400px]">
-          <Reveal>
-            <PageKicker className="mb-6">
-              {t("home.kicker")}
-              {countryTag}
-            </PageKicker>
-          </Reveal>
-          <Reveal delay={80}>
-            <h1 className="font-display text-[clamp(36px,5.4vw,52px)] leading-[1.12] m-0 text-balance">
-              {t("home.title1")}
-              <br />
-              <span className="grad-text">{t("home.title2")}</span>
-            </h1>
-          </Reveal>
-          <Reveal delay={160}>
-            <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
-              {t("home.sub")}
-            </p>
-            <div className="flex flex-wrap gap-3 mb-2">
-              <Link href="/money#zakai-money-scan">
-                <Button className="!text-[15px] !px-6 !py-3">{t("home.cta")}</Button>
-              </Link>
-              <Link href="/must-have">
-                <Button variant="ghost" className="!text-[14px]">
-                  {mustHavePageCopy(locale).kicker}
-                </Button>
-              </Link>
-              <Link href="/leaks">
-                <Button variant="ghost" className="!text-[14px]">
-                  {t("home.heroLeaks")}
-                </Button>
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-
-        <Reveal delay={160} className="flex-1 min-w-[320px] basis-[380px]">
-          <Zakameter bcp47={bcp47[locale as Locale]} />
+      {/* One composition: brand + one headline + one sub + one CTA group. */}
+      <div className="mb-10 max-w-[640px]">
+        <Reveal>
+          <PageKicker className="mb-6">
+            {t("home.kicker")}
+            {countryTag}
+          </PageKicker>
+        </Reveal>
+        <Reveal delay={80}>
+          <h1 className="font-display text-[clamp(36px,5.4vw,52px)] leading-[1.12] m-0 text-balance">
+            {t("home.title1")}
+            <br />
+            <span className="grad-text">{t("home.title2")}</span>
+          </h1>
+        </Reveal>
+        <Reveal delay={160}>
+          <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
+            {t("home.sub")}
+          </p>
+          <div className="flex flex-wrap gap-3 mb-2">
+            <Link href="/money#zakai-money-scan">
+              <Button className="!text-[15px] !px-6 !py-3">{t("home.cta")}</Button>
+            </Link>
+            <Link href="#how-zakai-works">
+              <Button variant="ghost" className="!text-[14px]">
+                {t("home.ctaSecondary")}
+              </Button>
+            </Link>
+          </div>
         </Reveal>
       </div>
 
+      <Reveal delay={120}>
+        <Link href="/money#zakai-money-scan" className="no-underline block mb-10">
+          <SpotlightCard className="p-7 sm:p-8 border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.08)] hover:scale-[1.01] transition-transform">
+            <div className="flex flex-wrap items-start gap-5">
+              <div className="w-12 h-12 rounded-xl bg-[rgba(63,203,155,0.22)] flex items-center justify-center shrink-0">
+                <ScanLine size={24} className="text-emerald" aria-hidden />
+              </div>
+              <div className="flex-1 min-w-[220px]">
+                <div className="text-[12px] font-extrabold text-emerald tracking-wide mb-1">
+                  {t("home.moneyFeatureTitle")}
+                </div>
+                <div className="font-extrabold text-[22px] text-emerald leading-tight">
+                  {t("door.money.title")}
+                </div>
+                <p className="text-ink-soft text-[14.5px] mt-2 mb-0 leading-relaxed max-w-[520px]">
+                  {t("home.moneyFeatureSub")}
+                </p>
+                <div className="mt-4 text-[15px] font-extrabold text-emerald">
+                  {t("home.moneyFeatureCta")} →
+                </div>
+              </div>
+            </div>
+          </SpotlightCard>
+        </Link>
+      </Reveal>
+
+      <Reveal delay={80}>
+        <div className="mb-12">
+          <LiveGravityStrip
+            localeBcp47={bcp47[locale as Locale]}
+            verifiedMinor={gravity.monthlyAgorot}
+            verifiedCount={gravity.count}
+            sentCount={gravity.sentCount}
+            mandateCount={gravity.mandateCount}
+            labels={{
+              title: t("home.gravityTitle"),
+              sent: t("home.gravitySent"),
+              mandates: t("home.gravityMandates"),
+              proofs: t("home.gravityProofs"),
+              empty: t("home.gravityEmpty"),
+              ledger: t("home.gravityLedger"),
+            }}
+          />
+        </div>
+      </Reveal>
+
       <Reveal>
-        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
-          {t("door.title")}
+        <h2 className="text-[15px] font-extrabold mb-1 text-ink-soft">
+          {t("home.secondaryDoors")}
         </h2>
+        <p className="text-[13px] text-ink-soft mb-4 max-w-[560px] leading-relaxed">
+          {t("home.secondaryDoorsSub")}
+        </p>
       </Reveal>
 
       <DoorTracker experimentId="home_door_order" armId={doorArm?.id ?? "money_first"} />
 
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
-        {doors.map((d, i) => {
+        {secondaryDoors.map((d, i) => {
           const Icon = d.icon;
           const cardClass =
             "p-6 h-full " +
@@ -311,6 +341,15 @@ export default async function HomePage({
         })}
       </div>
 
+      <Reveal delay={60}>
+        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
+          {t("home.estimateTitle")}
+        </h2>
+        <div className="mb-14 max-w-[480px]">
+          <Zakameter bcp47={bcp47[locale as Locale]} />
+        </div>
+      </Reveal>
+
       <Reveal delay={80}>
         <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] px-4 py-5">
           {(
@@ -318,10 +357,6 @@ export default async function HomePage({
           ).map((s, i) => (
             <div key={s.label} className="text-center">
               <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
-                {/* Derived, not written down. This said 55 and the catalogue
-                    held 60 — a factual claim on the front page that went stale
-                    the moment somebody added a right, which is what a number
-                    living in a translation file always does. */}
                 {i === 1 ? ilRightsCount : s.n}
               </div>
               <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
@@ -331,22 +366,6 @@ export default async function HomePage({
           ))}
         </div>
       </Reveal>
-
-      {proof.count > 0 && (
-        <Reveal>
-          <div className="mt-10 text-center rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-6 py-5">
-            <span className="font-display grad-text text-3xl">
-              {formatAgorot(
-                proof.monthlyAgorot,
-                bcp47[locale as Locale]
-              )}
-            </span>
-            <span className="block text-[13px] text-ink-soft mt-1.5">
-              {t("home.proof", { count: proof.count })}
-            </span>
-          </div>
-        </Reveal>
-      )}
 
       <Reveal delay={100}>
         <ul className="flex flex-col gap-2 mt-10 list-none p-0 m-0 max-w-[560px]">
@@ -381,29 +400,31 @@ export default async function HomePage({
         </ul>
       </Reveal>
 
-      <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-4">
-          {t("home.howTitle")}
-        </h2>
-      </Reveal>
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
-        {steps.map((key, i) => (
-          <Reveal key={key} delay={i * 90}>
-            <SpotlightCard className="p-6 h-full">
-              <div className="flex items-center gap-3">
-                <div className="w-[30px] h-[30px] rounded-[9px] grad-bg text-[#06121A] flex items-center justify-center font-black text-sm">
-                  {i + 1}
+      <div id="how-zakai-works">
+        <Reveal>
+          <h2 className="text-[17px] font-extrabold mt-16 mb-4">
+            {t("home.howTitle")}
+          </h2>
+        </Reveal>
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
+          {steps.map((key, i) => (
+            <Reveal key={key} delay={i * 90}>
+              <SpotlightCard className="p-6 h-full">
+                <div className="flex items-center gap-3">
+                  <div className="w-[30px] h-[30px] rounded-[9px] grad-bg text-[#06121A] flex items-center justify-center font-black text-sm">
+                    {i + 1}
+                  </div>
                 </div>
-              </div>
-              <div className="font-extrabold text-base mt-3">
-                {t("onboarding.steps." + key + ".title")}
-              </div>
-              <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
-                {t("onboarding.steps." + key + ".sub")}
-              </div>
-            </SpotlightCard>
-          </Reveal>
-        ))}
+                <div className="font-extrabold text-base mt-3">
+                  {t("onboarding.steps." + key + ".title")}
+                </div>
+                <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
+                  {t("onboarding.steps." + key + ".sub")}
+                </div>
+              </SpotlightCard>
+            </Reveal>
+          ))}
+        </div>
       </div>
 
       <Reveal>
@@ -491,10 +512,10 @@ export default async function HomePage({
             {t("home.closingSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
-            <Link href="/money">
+            <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-6 !py-3">{t("home.closingCta")}</Button>
             </Link>
-            <Link href="/business">
+            <Link href="/institutions">
               <Button variant="ghost">{t("home.closingB2b")}</Button>
             </Link>
           </div>

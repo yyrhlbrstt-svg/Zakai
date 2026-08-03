@@ -67,6 +67,14 @@ export default async function DepositPage({
 
       <Reveal>
         <SectionHeading title={t("templateTitle")} description={t("templateSub")} className="mt-12 mb-3" />
+        <p className="mb-4 text-[13.5px] text-ink-soft leading-relaxed border border-[rgba(63,203,155,0.28)] rounded-xl px-4 py-3 bg-[rgba(63,203,155,0.06)]">
+          {locale === "he" || locale === "ar"
+            ? "אחרי 60 יום: דרישה → תיק → Mandate → שליחה → מעקב. אותו מסלול כמו בכסף שלי."
+            : "After 60 days: demand → case → Mandate → send → track. Same loop as My money."}{" "}
+          <Link href="/money" className="text-emerald font-extrabold no-underline hover:underline">
+            {locale === "he" || locale === "ar" ? "לכסף שלי" : "My money"}
+          </Link>
+        </p>
         <DepositReturnClaim bcp47={bcp47[locale as Locale]} />
       </Reveal>
 

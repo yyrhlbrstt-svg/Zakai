@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
@@ -9,14 +9,11 @@ import { computeZakameter } from "@/lib/zakameter";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 
 /**
- * The Zakameter — the homepage hook. Four quick questions, zero signup, one
- * personalized answer no search engine or bank gives: "how much money is
- * waiting for you this year?". Live math in the browser via the same tested
- * engines the product runs on.
+ * Quick estimate — always funnels into Money Hub so the closed loop is the
+ * product, not a quiz destination.
  */
 export function Zakameter({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("zakameter");
-  const locale = useLocale();
   const [mobile, setMobile] = useState(120);
   const [electricity, setElectricity] = useState(450);
   const [flights, setFlights] = useState(0);
@@ -125,20 +122,13 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
             ))}
           </div>
         )}
-        {/* Value before wall: send people into the FREE, no-signup breakdown of
-            what they're owed — not straight to a signup gate (real user feedback:
-            "you can't do anything / it just pushes you elsewhere"). */}
-        <Link href="/what-am-i-owed" className="no-underline">
+        {/* Single product door: Money Hub closes the loop. Quiz stays secondary. */}
+        <Link href="/money#zakai-money-scan" className="no-underline">
           <Button className="mt-5 w-full">{t("cta")}</Button>
         </Link>
-        <Link href="/money" className="no-underline block mt-2">
+        <Link href="/what-am-i-owed" className="no-underline block mt-2">
           <Button variant="ghost" className="w-full !text-[13px]">
             {t("ctaScan")}
-          </Button>
-        </Link>
-        <Link href="/cancel/universal" className="no-underline block mt-2">
-          <Button variant="ghost" className="w-full !text-[13px] !border-amber/40">
-            {locale === "he" || locale === "ar" ? "ביטול מנויים מרוכז (ללא שליחה אוטומטית)" : "Bulk cancel letters (you send)"}
           </Button>
         </Link>
         <p className="text-[10.5px] text-ink-soft mt-3 mb-0 leading-snug">{t("note")}</p>
