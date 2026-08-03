@@ -93,8 +93,8 @@ export function planMonopolyLoop(input: MonopolyLoopInput): MonopolyLoopPlan {
     moves.push({
       id: "smtp",
       priority: 1,
-      titleHe: "הפעל SMTP_HOST בפרוד",
-      titleEn: "Turn on SMTP_HOST in production",
+      titleHe: "הפעל SMTP מלא בפרוד (HOST+USER+PASS)",
+      titleEn: "Turn on full SMTP in production (HOST+USER+PASS)",
       whyHe:
         "בלי דואר יוצא אין מכתב אמיתי לספק — SENT באפליקציה ≠ מייל שהגיע. מונופול על מסילות ריקות הוא מצג שווא.",
       whyEn:

@@ -18,8 +18,16 @@ export function LoopVolumePanel({
 }) {
   const he = locale === "he" || locale === "ar";
 
+  const smtpOff = !snap.smtpConfigured;
+
   return (
-    <section className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.07)] px-5 py-5 mb-6">
+    <section
+      className={`rounded-2xl border px-5 py-5 mb-6 ${
+        smtpOff
+          ? "border-[rgba(240,138,107,0.45)] bg-[rgba(240,138,107,0.07)]"
+          : "border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.07)]"
+      }`}
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1">
         <h2 className="font-display text-xl m-0">
           {heEn(he, "נפח לולאה — המספרים היחידים", "Loop volume — the only numbers")}
@@ -34,11 +42,11 @@ export function LoopVolumePanel({
           : "Mandates sent · documented SavingsProof · completion per vertical. Self-reported estimates do not count."}
       </p>
 
-      {!snap.smtpConfigured && (
+      {smtpOff && (
         <p className="text-[12.5px] text-[#F08A6B] font-bold mb-4 leading-relaxed">
           {he
-            ? "⚠ SMTP לא מוגדר — SENT+ סופר סימון באפליקציה, לא מייל שעלה לספק."
-            : "⚠ SMTP unset — SENT+ counts in-app status, not mail that left the building."}
+            ? "⚠ SMTP לא מלא (HOST+USER+PASS) — HOST לבד לא מספיק. SENT+ כאן = סטטוס באפליקציה, לא מייל לספק."
+            : "⚠ SMTP incomplete (HOST+USER+PASS) — HOST alone is not enough. SENT+ here = in-app status, not mail to the provider."}
         </p>
       )}
 
