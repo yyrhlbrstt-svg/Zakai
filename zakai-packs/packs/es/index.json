@@ -1,0 +1,29 @@
+{
+  "pack_version": "2026.08.1",
+  "market": "ES",
+  "language": "es-ES",
+  "maintainer": "es-maintainer@zakai.io",
+  "rights_count": 11,
+  "rights": [
+    "es_imv",
+    "es_desempleo",
+    "es_pension",
+    "es_discapacidad",
+    "es_bono_social",
+    "es_alquiler_ayuda",
+    "es_fianza",
+    "es_becas",
+    "es_comisiones_banco",
+    "es_vuelo",
+    "es_suscripciones"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:17:41.526Z",
+    "source": "src/lib/global/registry"
+  }
+}

@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/messaging";
 import { reportError } from "@/lib/report-error";
 import { requireCronAuth } from "@/lib/security/cronAuth";
 import { INSTITUTION_INBOUND_DIGEST_SUBJECT } from "@/lib/institutionInboundDigest";
+import { conformanceProbeEmailSection } from "@/lib/institutionVerifierOnboardingEmail";
 import {
   aggregateInboundPressure,
   institutionIdFromOutboundRow,
@@ -82,6 +83,8 @@ export async function GET(request: Request) {
       const total =
         pressure.find((p) => p.institutionId === v.institutionId)?.dispatchedCases ?? 0;
 
+      const probe = conformanceProbeEmailSection(origin);
+
       const body = `Hello ${v.displayNameEn} team,
 
 Weekly Zakai inbound snapshot for institution id \`${v.institutionId}\` (mapped provider keys only — not your full mailroom):
@@ -91,6 +94,8 @@ Weekly Zakai inbound snapshot for institution id \`${v.institutionId}\` (mapped 
 
 Verify readiness wizard: ${origin}/en/institutions/leader
 Public pressure API: ${origin}/api/institution/inbound-pressure
+
+${probe}
 
 Numbers are aggregate; no customer identities. This is not regulatory certification.
 

@@ -1,9 +1,10 @@
 import "server-only";
+
 import { prisma } from "@/lib/prisma";
 
 export type WidgetKeyRecord = { domain: string; created: string };
 
-function parseRegistry(): Map<string, WidgetKeyRecord> {
+function parseEnvRegistry(): Map<string, WidgetKeyRecord> {
   const map = new Map<string, WidgetKeyRecord>();
   const raw = process.env.ZAKAI_WIDGET_KEYS_JSON?.trim();
   if (!raw) return map;
@@ -22,48 +23,62 @@ function parseRegistry(): Map<string, WidgetKeyRecord> {
   return map;
 }
 
-/**
- * In-memory cache only: a same-warm-instance fast path so a key registered
- * and validated in quick succession (tests, or two requests hitting the same
- * lambda) doesn't need a DB round trip. The `WidgetKey` table below is the
- * actual durable store — Vercel functions don't share memory across
- * instances/cold starts, so relying on this map alone silently lost every
- * key registered via POST /api/widget/register after the first cold start.
- */
+/** Process-local fallback when DB is unavailable (tests / cold misconfig). */
 const inMemoryKeys = new Map<string, WidgetKeyRecord>();
 
+function originMatchesDomain(origin: string | null, domain: string): boolean {
+  if (!origin) return true;
+  try {
+    const host = new URL(origin).hostname;
+    return host === domain || host.endsWith(`.${domain}`);
+  } catch {
+    return false;
+  }
+}
+
+function memoryOnly(): boolean {
+  // Unit tests and emergency bootstrap; production registers hit Postgres.
+  return process.env.VITEST === "true" || process.env.ZAKAI_WIDGET_KEYS_MEMORY === "1";
+}
+
+/**
+ * Mint a partner key and persist it. Env JSON remains a read-side override for
+ * bootstrap; new registrations land in Postgres so embeds survive deploys.
+ */
 export async function registerWidgetKey(domain: string): Promise<string> {
   const key = `pk_live_${crypto.randomUUID().replace(/-/g, "")}`;
-  const rec: WidgetKeyRecord = { domain, created: new Date().toISOString() };
+  const created = new Date().toISOString();
+  const rec: WidgetKeyRecord = { domain, created };
   inMemoryKeys.set(key, rec);
+  if (memoryOnly()) return key;
   try {
-    await prisma.widgetKey.create({ data: { key, domain } });
+    await prisma.widgetKey.create({
+      data: { key, domain },
+    });
   } catch {
-    // DB unreachable (or unset locally) — key still works for this warm
-    // instance via inMemoryKeys, and can be pinned permanently by adding it
-    // to ZAKAI_WIDGET_KEYS_JSON.
+    // Keep the in-memory copy so register→validate still works before migrate deploy.
   }
   return key;
 }
 
-export async function validateWidgetKey(key: string | null, origin: string | null): Promise<boolean> {
+export async function validateWidgetKey(
+  key: string | null,
+  origin: string | null,
+): Promise<boolean> {
   if (!key) return false;
+
+  const env = parseEnvRegistry().get(key);
+  if (env) return originMatchesDomain(origin, env.domain);
+
   const mem = inMemoryKeys.get(key);
-  const env = parseRegistry().get(key);
-  let rec = mem ?? env;
-  if (!rec) {
-    try {
-      const row = await prisma.widgetKey.findUnique({ where: { key } });
-      if (row) rec = { domain: row.domain, created: row.createdAt.toISOString() };
-    } catch {
-      // DB unreachable — fall through with rec still undefined, key invalid.
-    }
-  }
-  if (!rec) return false;
-  if (!origin) return true;
+  if (mem) return originMatchesDomain(origin, mem.domain);
+
+  if (memoryOnly()) return false;
+
   try {
-    const host = new URL(origin).hostname;
-    return host === rec.domain || host.endsWith(`.${rec.domain}`);
+    const row = await prisma.widgetKey.findUnique({ where: { key } });
+    if (!row || row.revokedAt) return false;
+    return originMatchesDomain(origin, row.domain);
   } catch {
     return false;
   }

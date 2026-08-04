@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_credit_report_dispute",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Credit Report Dispute",
+    "he": "זיכוי · דוח · ערעור"
+  },
+  "market": "US",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_credit_report_dispute",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Fair Credit Reporting Act; 15 U.S.C. §1681i"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

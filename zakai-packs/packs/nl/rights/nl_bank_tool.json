@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "nl_bank_tool",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Bank fees — agent",
+    "he": "עמלות בנק — סוכן"
+  },
+  "market": "NL",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/bank-fees",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Bankkosten — in-app agent"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

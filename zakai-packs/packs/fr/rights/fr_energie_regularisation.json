@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "fr_energie_regularisation",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Energie Regularisation",
+    "he": "אנרגיה · הסדר"
+  },
+  "market": "FR",
+  "category": "energy",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/fr_energie_regularisation",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Code de l'énergie — facturation"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

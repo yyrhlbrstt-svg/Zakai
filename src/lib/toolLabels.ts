@@ -4,6 +4,11 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   leaks: { he: "מפת נזילות", en: "Leaks map" },
   proofs: { he: "קיר חיסכונות", en: "Savings wall" },
   cancel: { he: "ביטול מנוי", en: "Cancel sub" },
+  universalCancel: { he: "ביטול אוניברסלי", en: "Universal cancel" },
+  mustHave: { he: "חבילת חובה", en: "Must-have kit" },
+  assistant: { he: "הסוכן שלי", en: "My agent" },
+  companiesFairness: { he: "הוגנות ספקים", en: "Provider fairness" },
+  regulatoryKit: { he: "ערכה רגולטורית", en: "Regulatory kit" },
   whatAmIOwed: { he: "מה מגיע לי", en: "What am I owed" },
   creditcard: { he: "ריבית כרטיס", en: "Card interest" },
   refundchase: { he: "החזר שלא הגיע", en: "Missing refund" },
@@ -34,7 +39,13 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   duplicateCharge: { he: "חיוב כפול", en: "Duplicate charge" },
   telecomExit: { he: "ניתוק סלולר", en: "Telecom disconnect" },
   networkProof: { he: "הוכחת רשת (ציבורי)", en: "Network proof (public)" },
+  joinNetwork: { he: "הצטרפות לרשת", en: "Join the network" },
+  fairnessCertified: { he: "Fairness Certified", en: "Fairness Certified" },
+  domainsHub: { he: "חמשת הדומיינים", en: "Five domains hub" },
   institutionLeader: { he: "מובילי אימות Mandate", en: "Mandate verification leaders" },
+  globalMarkets: { he: "עולם · שווקים", en: "World · markets" },
+  standardInterop: { he: "תקן Interop", en: "Interop standard" },
+  protocolPage: { he: "פרוטוקול זכאי", en: "Zakai protocol" },
 };
 
 export function toolDisplayLabel(

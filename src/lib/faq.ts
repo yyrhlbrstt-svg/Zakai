@@ -1,7 +1,7 @@
 /**
  * Canonical FAQ knowledge base — public /faq + assistant alignment.
+ * Playbook is injected once via assistantSystem — do not append here.
  */
-import { agentPlaybookBlock } from "./agentPlaybook";
 
 export type FaqCategory = "service" | "rights" | "work" | "bills" | "privacy";
 
@@ -208,6 +208,14 @@ export const FAQ: FaqEntry[] = [
     a_en: "At /arnona: discount/objection request, municipality email, case — send after verification with Mandate and tracking.",
   },
   {
+    id: "car-insurance-refund",
+    category: "bills",
+    q_he: "ביטלתי ביטוח רכב באמצע התקופה — מגיע לי החזר?",
+    a_he: "בדרך כלל כן, יחסית לתקופה שלא נוצלה. ב-/car-insurance-refund הסוכן פותח תיק עם Mandate ושולח דרישת החזר פרו־רטה למבטח.",
+    q_en: "I cancelled car insurance mid-term — am I owed a refund?",
+    a_en: "Usually yes, pro-rata for unused months. At /car-insurance-refund the agent opens a Mandate case and sends a pro-rata demand to the insurer.",
+  },
+  {
     id: "data",
     category: "privacy",
     q_he: "מה קורה עם המידע שלי? זה בטוח?",
@@ -227,5 +235,5 @@ export const FAQ: FaqEntry[] = [
 
 export function faqDigest(): string {
   const lines = FAQ.map((e) => `- Q: ${e.q_he}\n  A: ${e.a_he}`).join("\n");
-  return `VETTED FAQ (align answers to these):\n${lines}\n\n${agentPlaybookBlock()}`;
+  return `VETTED FAQ (align answers to these):\n${lines}`;
 }

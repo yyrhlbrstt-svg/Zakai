@@ -28,16 +28,20 @@ export const INSTITUTION_PROVIDER_MAP: Readonly<Record<string, readonly string[]
   "bank-mizrahi": ["mizrahi"],
   "bank-fibi": ["fibi"],
   "one-zero": ["onezero"],
-  // Telecom — phase 2 after banks (NORTH_STAR_100)
+  // Telecom — phase 2 after banks (NORTH_STAR_100) + ISP aliases
   cellcom: ["cellcom"],
   partner: ["partner"],
   pelephone: ["pelephone"],
   hotspot: ["hot", "hotspot", "hot-mobile"],
   "012mobile": ["012", "012mobile"],
-  // Electricity
+  bezeq: ["bezeq"],
+  yes: ["yes"],
+  // Electricity / gas — one institution id per provider key (no reverse-map overwrite)
   iec: ["iec", "חברת החשמל", "electricity"],
   pazgas: ["pazgas"],
   amisor: ["amisor"],
+  "am-isragas": ["am-isragas", "isragas"],
+
 };
 
 const OUTBOUND_STATUSES = new Set(["SENT", "SAVED", "NO_SAVING"]);

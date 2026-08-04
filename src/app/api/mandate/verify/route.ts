@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
+import { MandateError, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import {
-  verifyMandate,
-  publicJwkFor,
-  loadSigningKeyFromEnv,
-  MandateError,
-  MandateKeyUnavailableError,
-} from "@/lib/mandate/mandate";
+  verifyMandateWithTrustRegistry,
+  RegistryVerifyError,
+} from "@/lib/mandate/verifyWithRegistry";
+import { resolveRevocationState } from "@/lib/mandate/revocationCheck";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 
@@ -30,18 +29,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: CORS });
   }
 
-  let body: { token?: string; audience?: string };
+  let body: { token?: string; mandate?: string; jws?: string; audience?: string; aud?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid_json" }, { status: 400, headers: CORS });
   }
 
-  const token = (body.token || "").trim();
-  const audience = (body.audience || "").trim();
+  // Quickstart / Python historically sent { mandate }; SDK clients send { token }.
+  const token = (body.token || body.mandate || body.jws || "").trim();
+  const audience = (body.audience || body.aud || "").trim();
   if (!token || !audience) {
     return NextResponse.json(
-      { error: "missing_fields", need: ["token", "audience"] },
+      {
+        error: "missing_fields",
+        need: ["token|mandate", "audience"],
+        hint: "POST { \"mandate\": \"<compact-jws>\", \"audience\": \"your-institution-id\" }",
+      },
       { status: 400, headers: CORS },
     );
   }
@@ -50,28 +54,42 @@ export async function POST(req: Request) {
   }
 
   try {
-    const key = loadSigningKeyFromEnv();
-    const jwk = await publicJwkFor(key);
-    const claims = await verifyMandate(token, {
-      audience,
-      publicJwks: [jwk],
-    });
+    const { claims, issuer } = await verifyMandateWithTrustRegistry(token, { audience });
 
-    let status: "active" | "revoked" | "unknown" = "active";
-    try {
-      const row = await prisma.mandateRevocation.findUnique({
-        where: { jti: claims.jti },
-        select: { jti: true },
-      });
-      if (row) status = "revoked";
-    } catch {
-      status = "unknown";
-    }
+    // Prefer signed status list when the token embeds zkm.status (same path
+    // institutions use offline). Live DB lookup is for legacy tokens only —
+    // list outages stay unknown (fail closed), never valid:true.
+    const liveLookup = async (jti: string) => {
+      try {
+        const row = await prisma.mandateRevocation.findUnique({
+          where: { jti },
+          select: { jti: true },
+        });
+        return row ? ("revoked" as const) : ("active" as const);
+      } catch {
+        return "unknown" as const;
+      }
+    };
+
+    const { state: status, via } = await resolveRevocationState({
+      jti: claims.jti,
+      status: claims.status,
+      issuer: issuer.iss,
+      jwksUri: issuer.jwksUri,
+      liveLookup,
+    });
 
     if (status === "revoked") {
       return NextResponse.json(
-        { valid: false, reason: "revoked", jti: claims.jti },
+        { valid: false, reason: "revoked", jti: claims.jti, via },
         { status: 410, headers: CORS },
+      );
+    }
+
+    if (status === "unknown") {
+      return NextResponse.json(
+        { valid: false, reason: "revocation_unknown", jti: claims.jti, via },
+        { status: 503, headers: CORS },
       );
     }
 
@@ -79,6 +97,8 @@ export async function POST(req: Request) {
       {
         valid: true,
         status,
+        via,
+        issuer: { iss: issuer.iss, name: issuer.name, status: issuer.status },
         claims: {
           jti: claims.jti,
           aud: claims.aud,
@@ -88,6 +108,7 @@ export async function POST(req: Request) {
           exp: claims.exp,
           principal: claims.principal,
           statement: claims.statement,
+          status: claims.status,
         },
       },
       { headers: CORS },
@@ -97,6 +118,12 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "mandate_keys_not_configured" },
         { status: 503, headers: CORS },
+      );
+    }
+    if (err instanceof RegistryVerifyError) {
+      return NextResponse.json(
+        { valid: false, reason: err.code, message: err.message },
+        { status: 400, headers: CORS },
       );
     }
     if (err instanceof MandateError) {

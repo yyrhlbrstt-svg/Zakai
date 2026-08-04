@@ -70,6 +70,18 @@ export default async function CompaniesPage({
           <Link href="/check">
             <Button className="mt-6">{t("companies.emptyCta")}</Button>
           </Link>
+          <div className="mt-8 text-start max-w-[480px] mx-auto rounded-xl border border-[rgba(255,255,255,0.08)] p-5">
+            <div className="font-extrabold text-[14px] mb-2">{t("companies.emptyFairnessTitle")}</div>
+            <p className="text-[13px] text-ink-soft m-0 leading-relaxed">{t("companies.emptyFairnessBody")}</p>
+            <a
+              href="https://github.com/yyrhlbrstt-svg/Zakai/blob/main/docs/FAIRNESS_CERTIFIED_PROGRAM.md"
+              className="inline-block mt-3 text-[13px] font-bold text-emerald"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t("companies.emptyFairnessDocs")} →
+            </a>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-2.5">

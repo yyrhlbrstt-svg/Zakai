@@ -42,6 +42,19 @@ export const WELL_KNOWN_RELATIVE = {
   jwks: "/.well-known/zakai-jwks.json",
   trustRegistry: "/.well-known/zakai-trust-registry.json",
   conformance: "/.well-known/zakai-conformance.json",
+  interop: "/.well-known/zakai-interop.json",
+  domains: "/.well-known/zakai-domains.json",
+  packs: "/.well-known/zakai-packs.json",
+  switching: "/.well-known/zakai-switching.json",
+  inboundReceive: "/.well-known/zakai-inbound-receive.json",
+  agentEconomy: "/.well-known/zakai-agent-economy.json",
+  fairnessCertified: "/.well-known/zakai-fairness-certified.json",
+  autopilot: "/.well-known/zakai-autopilot.json",
+  intelligence: "/.well-known/zakai-intelligence.json",
+  /** Single discovery document for the Mandate → SavingsProof rails. */
+  pipe: "/.well-known/zakai-pipe.json",
+  /** Foreign-agent index: handoff + accept + MCP + packs. */
+  agents: "/.well-known/zakai-agents.json",
 } as const;
 
 export function absoluteWellKnown(origin: string, path: string): string {

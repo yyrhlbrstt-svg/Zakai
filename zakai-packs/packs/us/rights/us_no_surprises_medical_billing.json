@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_no_surprises_medical_billing",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Surprises Medical Billing",
+    "he": "חיוב"
+  },
+  "market": "US",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_no_surprises_medical_billing",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "No Surprises Act (Consolidated Appropriations Act, 2021); 45 C.F.R. Part 149"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

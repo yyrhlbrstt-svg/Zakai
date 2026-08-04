@@ -33,5 +33,10 @@ export async function GET(
   }
 
   const guide = buildEvaluationGuide(right);
-  return NextResponse.json(guide, { headers: CORS });
+  return NextResponse.json(guide, {
+    headers: {
+      ...CORS,
+      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",
+    },
+  });
 }

@@ -11,6 +11,7 @@ import { shouldNotifyInbound } from "@/lib/inboundDecision";
 import { resolveInboundRecordAmountShekels } from "@/lib/fee";
 import { feeBasisForVertical } from "@/lib/verticals";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
+import { issueProposedSavingConfirmUrl } from "@/lib/services/confirmProposedSaving";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -104,21 +105,43 @@ export async function POST(request: Request) {
   // 2. Match a Case.
   let matchedCaseId: string | null = null;
   let matchedUserId: string | null = null;
-  let matchMethod: "code" | "email" | null = null;
+  let matchMethod: "code" | "email" | "counterparty" | null = null;
 
+  // ZK-code match: SENT is enough. Do not require ACTIVE — a revoked Mandate
+  // after send must not drop forward→propose SavingsProof (paste path already
+  // works without ACTIVE). Still never auto-records amounts.
   if (extract.authorizationCode) {
     const auth = await prisma.authorization.findUnique({
       where: { code: extract.authorizationCode },
       include: { case: true },
     });
-    if (auth && auth.status === "ACTIVE" && auth.case.status === "SENT") {
+    if (auth && auth.case.status === "SENT") {
       matchedCaseId = auth.caseId;
       matchedUserId = auth.case.userId;
       matchMethod = "code";
     }
   }
 
+  // Counterparty inbox: provider replies from the address we mailed (common
+  // when Reply-To / thread omit ZK-…). Stronger than principal-email fuzzy.
+  if (!matchedCaseId && from.includes("@")) {
+    const byCounterparty = await prisma.case.findFirst({
+      where: {
+        status: "SENT",
+        counterpartyEmail: { equals: from, mode: "insensitive" },
+      },
+      select: { id: true, userId: true },
+      orderBy: { updatedAt: "desc" },
+    });
+    if (byCounterparty) {
+      matchedCaseId = byCounterparty.id;
+      matchedUserId = byCounterparty.userId;
+      matchMethod = "counterparty";
+    }
+  }
+
   // Fallback: match by principal email on ACTIVE authorization for a SENT case.
+  // Keep ACTIVE here — email match is weaker than an explicit ZK code.
   if (!matchedCaseId && from.includes("@")) {
     const authByEmail = await prisma.authorization.findFirst({
       where: {
@@ -234,19 +257,26 @@ export async function POST(request: Request) {
         basis === "lump"
           ? recordShekels === 0
             ? `זוהה אישור על החזר/תשלום — ניתן לרשום התקבל במלואו (נותר ₪0).`
-            : `זוהה סכום שקשור להחזר — נותר לשלם בערך ₪${recordShekels} (אשר בדשבורד).`
+            : `זוהה סכום שקשור להחזר — נותר לשלם בערך ₪${recordShekels} (אשר ב״הכסף שלי״).`
           : `סכום חודשי חדש שזוהה: ₪${recordShekels}.`;
       const pushBody =
         basis === "lump"
           ? recordShekels === 0
-            ? "זוהה אישור החזר במלואו. אשר בדשבורד בלחיצה אחת."
-            : `נותר לשלם בערך ₪${recordShekels}. אשר בדשבורד.`
-          : `זוהה סכום חדש ₪${recordShekels}. אשר בדשבורד בלחיצה אחת.`;
-      const dashboardUrl = absoluteLocaleUrl(
+            ? "זוהה אישור החזר במלואו. אשר ב״הכסף שלי״ בלחיצה אחת."
+            : `נותר לשלם בערך ₪${recordShekels}. אשר ב״הכסף שלי״.`
+          : `זוהה סכום חדש ₪${recordShekels}. אשר ב״הכסף שלי״ בלחיצה אחת.`;
+      const moneyUrl = absoluteLocaleUrl(
         appUrl,
         localeForCountry(user.country),
-        `/dashboard?case=${matchedCaseId}`,
+        `/money?case=${matchedCaseId}`,
       );
+      const confirmUrl =
+        (await issueProposedSavingConfirmUrl({
+          userId: matchedUserId,
+          caseId: matchedCaseId,
+          newAmountShekels: recordShekels,
+          country: user.country,
+        }).catch(() => null)) || moneyUrl;
 
       await sendEmail({
         to: user.email,
@@ -257,8 +287,11 @@ export async function POST(request: Request) {
           `קיבלנו הודעה שנראית כמו אישור חיסכון לתיק שלך.`,
           amountLine,
           ``,
-          `כדי לסגור את התיק ולתעד את החיסכון (העמלה נגזרת רק אחרי אישור שלך):`,
-          dashboardUrl,
+          `אשרו בלחיצה אחת (מתעדים חיסכון — עמלה רק אחרי אישור שלכם):`,
+          confirmUrl,
+          ``,
+          `או ב״הכסף שלי״:`,
+          moneyUrl,
           ``,
           `זכאי — סוכן כסף לצרכן.`,
         ].join("\n"),
@@ -268,7 +301,7 @@ export async function POST(request: Request) {
       await pushToUser(matchedUserId, {
         title: "זכאי — אישור חיסכון הגיע",
         body: pushBody,
-        url: `/dashboard?case=${matchedCaseId}`,
+        url: `/money?case=${matchedCaseId}`,
         tag: `inbound-${matchedCaseId}`,
       }).catch(() => null);
 

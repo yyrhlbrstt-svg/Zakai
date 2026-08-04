@@ -14,6 +14,6 @@ export default async function SignupPage({
   const { ref } = await searchParams;
   setRequestLocale(locale);
   const user = await getCurrentUser();
-  if (user) redirect({ href: "/check", locale });
+  if (user) redirect({ href: "/money", locale });
   return <AuthForm mode="signup" referralCode={ref} />;
 }

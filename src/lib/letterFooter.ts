@@ -47,6 +47,8 @@
  * agent-claims-it-filed-with-a-government-body failure this codebase forbids.
  */
 
+import { institutionPullFooterLine } from "@/lib/institutionPull";
+
 const DEFAULT_ORIGIN = "https://zakai-3uxj.vercel.app";
 
 function origin(): string {
@@ -69,12 +71,15 @@ export function letterFooter(locale: FooterLocale = "he"): string {
     he: [
       "—",
       "המכתב הוכן באמצעות זכאי. הפנייה היא של השולח/ת בלבד.",
-      `לגוף שמקבל פניות רבות כאלה: אפשר לאמת ייפוי כוח ולקבל החלטה אוטומטית — ${url}`,
+      institutionPullFooterLine("he", origin()),
+      // Short magnet — full pipe lines live in outbound protocol footer.
+      `Machine: POST ${origin()}/api/pipe/accept`,
     ].join("\n"),
     en: [
       "—",
       "Prepared with Zakai. The request is the sender's own.",
-      `If your organisation receives many of these, they can be verified and answered automatically — ${url}`,
+      institutionPullFooterLine("en", origin()),
+      `Machine: POST ${origin()}/api/pipe/accept`,
     ].join("\n"),
     ar: [
       "—",

@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_bank_abandoned_funds",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Bank Abandoned Funds",
+    "he": "בנק · נטוש · כספים"
+  },
+  "market": "US",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_bank_abandoned_funds",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "State unclaimed property law; 12 U.S.C. banking safety-and-soundness norms for escheat of dormant deposits"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

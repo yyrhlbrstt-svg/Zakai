@@ -1,16 +1,25 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireUserId, badRequest } from "@/lib/api";
+import { requireUserId } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import {
+  expressOpenBody,
+  findOpenLoopBlock,
+  tryExpressMandateSend,
+} from "@/lib/services/expressCaseOpen";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
+import { runIdempotent, idempotencyKeyFromRequest } from "@/lib/scale/idempotency";
 import type { CancelIntent } from "@/lib/cancelLetter";
 import {
   buildFromScanDraft,
   defaultScanIntent,
   resolveFromScanOutreach,
 } from "@/lib/fromScanOutreach";
+import { stageLetterWithStance } from "@/lib/strategy/stageLetter";
+import { formatCaseDraft } from "@/lib/caseDraft";
+import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 
 const schema = z.object({
   merchant: z.string().min(1).max(120),
@@ -30,77 +39,136 @@ export async function POST(request: Request) {
   const limited = await rateLimit("cases-from-scan", auth.userId, 30, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
 
-  const body = await request.json().catch(() => null);
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) return badRequest("genericError");
-  const data = parsed.data;
+  const idemKey = idempotencyKeyFromRequest(request);
 
-  const user = await prisma.user.findUnique({ where: { id: auth.userId } });
-  if (!user) return badRequest("mustLogin", 401);
+  const idem = await runIdempotent<Record<string, unknown>>({
+    scope: "cases-from-scan",
+    key: idemKey,
+    actorId: auth.userId,
+    run: async () => {
+      const body = await request.json().catch(() => null);
+      const parsed = schema.safeParse(body);
+      if (!parsed.success) return { status: 400, body: { error: "genericError" } as const };
+      const data = parsed.data;
 
-  const activeCount = await prisma.case.count({
-    where: { userId: auth.userId, status: { in: [...ACTIVE_CASE_STATUSES] } },
+      const user = await prisma.user.findUnique({ where: { id: auth.userId } });
+      if (!user) return { status: 401, body: { error: "mustLogin" } as const };
+
+      const activeCount = await prisma.case.count({
+        where: { userId: auth.userId, status: { in: [...ACTIVE_CASE_STATUSES] } },
+      });
+      if (!canOpenCase(user.plan, activeCount)) {
+        return { status: 403, body: { error: "caseLimit" } as const };
+      }
+
+      // Finish the open loop before forking another Case — OS, not toolbox.
+      const openLoop = await findOpenLoopBlock(auth.userId);
+      if (openLoop) {
+        return { status: 409, body: openLoop };
+      }
+
+      const intent: CancelIntent = data.intent ?? defaultScanIntent(data.category);
+      const product = data.product?.trim() || data.merchant;
+      const { vertical, providerKey, outreachTo } = resolveFromScanOutreach({
+        merchant: data.merchant,
+        product,
+        category: data.category,
+        contactEmail: data.contactEmail,
+      });
+
+      // Soft-open like bank-fees: never invent an inbox and never block case+Mandate
+      // open when empty — dashboard CaseNextStep collects outreach before dispatch.
+      const counterpartyEmail = outreachTo || undefined;
+
+      const amount = Math.round(data.monthlyShekels);
+      const target =
+        intent === "cancel" || intent === "pause" ? 0 : Math.round(amount * 0.7);
+
+      const strategy =
+        intent === "cancel"
+          ? "ביטול מנוי שזוהה בסריקה — Mandate"
+          : intent === "retention"
+            ? "הורדת מחיר / שימור מסריקה"
+            : intent === "downgrade"
+              ? "הורדת מסלול מסריקה"
+              : "הקפאת מנוי מסריקה";
+
+      const draft = buildFromScanDraft({
+        customerName: user.name || "",
+        merchant: data.merchant,
+        product,
+        monthlyShekels: amount,
+        intent,
+        country: user.country,
+      });
+      const staged = await stageLetterWithStance(
+        { subject: draft.subject, body: draft.body },
+        { vertical, counterparty: providerKey },
+      );
+      const draftMessage = formatCaseDraft(
+        staged.letter.subject,
+        staged.letter.body,
+        user.country,
+      );
+
+      let kase;
+      try {
+        kase = await createCase({
+          userId: auth.userId,
+          provider: providerKey.slice(0, 80),
+          amountShekels: amount,
+          plan: product.slice(0, 120),
+          strategy,
+          targetShekels: target,
+          draftMessage,
+          vertical,
+          counterpartyEmail,
+          strategyVariant: staged.strategyVariant,
+          strategySeed: staged.strategySeed,
+          autoApprove: true,
+        });
+      } catch (err) {
+        if (err instanceof CaseError && err.message === "CASE_LIMIT") {
+          return { status: 403, body: { error: "caseLimit" } as const };
+        }
+        throw err;
+      }
+
+      // Same gesture → Mandate SENT when ownership + outreach are ready.
+      const refreshed = await prisma.case.findUnique({
+        where: { id: kase.id },
+        select: {
+          counterpartyEmail: true,
+          provider: true,
+          vertical: true,
+        },
+      });
+      const outreachReady = refreshed
+        ? resolveCaseOutreachTo({
+            counterpartyEmail: refreshed.counterpartyEmail,
+            provider: refreshed.provider,
+            vertical: refreshed.vertical,
+          })
+        : "";
+      const express = outreachReady
+        ? await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt)
+        : { dispatched: false, delivered: false };
+
+      return {
+        status: 200,
+        body: expressOpenBody({
+          caseId: kase.id,
+          dispatched: express.dispatched,
+          delivered: express.delivered,
+          blockReason: express.blockReason,
+          needsOutreachEmail: !outreachReady,
+        }),
+      };
+    },
   });
-  if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
-  const intent: CancelIntent = data.intent ?? defaultScanIntent(data.category);
-  const product = data.product?.trim() || data.merchant;
-  const { vertical, providerKey, outreachTo } = resolveFromScanOutreach({
-    merchant: data.merchant,
-    product,
-    category: data.category,
-    contactEmail: data.contactEmail,
-  });
-
-  if (!outreachTo) {
-    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
-  }
-
-  const amount = Math.round(data.monthlyShekels);
-  const target =
-    intent === "cancel" || intent === "pause" ? 0 : Math.round(amount * 0.7);
-
-  const strategy =
-    intent === "cancel"
-      ? "ביטול מנוי שזוהה בסריקה — Mandate"
-      : intent === "retention"
-        ? "הורדת מחיר / שימור מסריקה"
-        : intent === "downgrade"
-          ? "הורדת מסלול מסריקה"
-          : "הקפאת מנוי מסריקה";
-
-  const { draftMessage } = buildFromScanDraft({
-    customerName: user.name || "",
-    merchant: data.merchant,
-    product,
-    monthlyShekels: amount,
-    intent,
-    country: user.country,
-  });
-
-  let kase;
-  try {
-    kase = await createCase({
-      userId: auth.userId,
-      provider: providerKey.slice(0, 80),
-      amountShekels: amount,
-      plan: product.slice(0, 120),
-      strategy,
-      targetShekels: target,
-      draftMessage,
-      vertical,
-      counterpartyEmail: outreachTo,
-      autoApprove: true,
-    });
-  } catch (err) {
-    if (err instanceof CaseError && err.message === "CASE_LIMIT") {
-      return badRequest("caseLimit", 403);
-    }
-    throw err;
-  }
-
-  return NextResponse.json({
-    caseId: kase.id,
-    message: "case_opened",
+  return NextResponse.json(idem.body, {
+    status: idem.status,
+    headers: idem.replayed ? { "X-Idempotent-Replayed": "1" } : undefined,
   });
 }

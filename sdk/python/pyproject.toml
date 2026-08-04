@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zakai-mandate"
+version = "0.1.0"
+description = "Minimal Zakai Mandate SDK — JWKS fetch, Ed25519 verify, Status List, READY_FOR_PIONEER gate."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Zakai" }]
+keywords = ["mandate", "jws", "ed25519", "jwks", "zakai"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Security :: Cryptography",
+]
+dependencies = []
+
+[project.optional-dependencies]
+crypto = ["cryptography>=41.0.0"]
+
+[project.scripts]
+zakai-mandate-ready = "zakai_mandate.verify:main"
+
+[project.urls]
+Homepage = "https://zakai-3uxj.vercel.app/institutions/quickstart"
+Repository = "https://github.com/yyrhlbrstt-svg/Zakai/tree/main/sdk/python"
+Ready = "https://zakai-3uxj.vercel.app/api/mandate/ready"
+
+[tool.setuptools.packages.find]
+where = ["src"]

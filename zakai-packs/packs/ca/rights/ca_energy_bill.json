@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ca_energy_bill",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Energy Bill",
+    "he": "אנרגיה"
+  },
+  "market": "CA",
+  "category": "energy",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/ca_energy_bill",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Provincial utility rules"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

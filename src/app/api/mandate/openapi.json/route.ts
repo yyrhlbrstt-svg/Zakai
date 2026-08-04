@@ -10,10 +10,11 @@ export async function GET(request: Request) {
     openapi: "3.0.3",
     info: {
       title: "Zakai Mandate API",
-      version: "1.2.0",
+      version: "1.3.0",
       description:
         "Institutional verification of consumer authority. Signed, scoped, audience-bound, revocable. " +
-        "Offline signature verification via JWKS; online status for revocation/recency. " +
+        "Offline signature verification via JWKS; revocation via signed status list at zkm.status " +
+        "(live /status/{jti} only for legacy tokens without that claim). " +
         "Hard constraint: Mandates cannot initiate outbound payments, transfers, loans, or account closure. " +
         "Money only flows toward the principal (refunds, settlements).",
       contact: { url: `${origin}/en/institutions` },
@@ -107,14 +108,15 @@ export async function GET(request: Request) {
           description:
             "The self-attested route above asks a candidate to run the suite against their own endpoints " +
             "and report back; this route runs the reference verifier here, against artifacts the candidate " +
-            "submits, as a neutral judge instead of trusting their report. Settles 7 of the 10 published " +
-            "checks in one call: publishes_jwks, issues_valid_jwt, registered_claims_present, " +
-            "scope_is_oauth_shaped, refuses_forbidden_scope, rejects_forged_signature, enforces_audience. " +
-            "enforces_expiry is included only if sampleExpiredToken is supplied — never faked as passing. " +
-            "publishes_status_list and revocation_takes_effect need monitoring over time and are always " +
-            "absent here, same as an unrun check: the response's report.missing lists them. The JWKS is " +
-            "submitted inline rather than fetched from a candidate-supplied URL, since a server-side fetch " +
-            "of an arbitrary caller-given URL would make this endpoint usable to probe internal addresses.",
+            "submits, as a neutral judge instead of trusting their report. Settles publishes_jwks, " +
+            "issues_valid_jwt, registered_claims_present, scope_is_oauth_shaped, refuses_forbidden_scope, " +
+            "rejects_forged_signature, enforces_audience, and publishes_status_list (sample must embed " +
+            "zkm.status). enforces_expiry is included only if sampleExpiredToken is supplied — never " +
+            "faked as passing. revocation_takes_effect is included only if sampleStatusListToken is " +
+            "supplied and the sample's zkm.status.idx bit is set in that signed list — never faked. " +
+            "The JWKS and status list are submitted inline rather than fetched from a " +
+            "candidate-supplied URL, since a server-side fetch of an arbitrary caller-given URL would " +
+            "make this endpoint usable to probe internal addresses.",
           requestBody: {
             required: true,
             content: {
@@ -127,6 +129,11 @@ export async function GET(request: Request) {
                     audience: { type: "string", description: "The audience the sampleValidToken was actually issued for" },
                     sampleValidToken: { type: "string", description: "A currently-valid mandate the candidate issued" },
                     sampleExpiredToken: { type: "string", description: "Optional: an already-expired sample, to check enforces_expiry" },
+                    sampleStatusListToken: {
+                      type: "string",
+                      description:
+                        "Optional: signed statuslist+jwt where the sample mandate's status index is revoked — settles revocation_takes_effect",
+                    },
                   },
                 },
               },
@@ -245,14 +252,39 @@ export async function GET(request: Request) {
             "503": { description: "status unknown / store unavailable" },
           },
         },
+        post: {
+          tags: ["status"],
+          summary: "Ops revoke — flips the issue-time bit on the signed status list",
+          description:
+            "Requires x-zakai-revoke-key. Reuses the statusIndex allocated at issue " +
+            "(MandateStatusAllocation / Authorization.mandateStatusIndex) so offline " +
+            "verifiers holding /api/mandate/revocations see zkm.status.idx flip. " +
+            "Never invents a new bit — missing issue-time index → 409 status_index_unknown.",
+          parameters: [
+            {
+              name: "jti",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            "200": { description: "revoked — includes statusIndex" },
+            "401": { description: "unauthorized" },
+            "409": { description: "status_index_unknown — no issue-time bit; refuse to invent" },
+            "503": { description: "status_store_unavailable or status_list_capacity" },
+          },
+        },
       },
       "/api/mandate/verify": {
         post: {
           tags: ["verify"],
           summary: "Reference verify (token + audience)",
           description:
-            "Verifies compact JWS, typ, audience binding, expiry, and optionally status. " +
-            "Institutions may implement offline verification using JWKS alone and call status separately.",
+            "Verifies compact JWS, typ, audience binding, expiry, and revocation. " +
+            "When the token embeds zkm.status, the signed status list is authoritative " +
+            "(list unreachable → revocation_unknown, never valid:true). Legacy tokens " +
+            "without zkm.status use live /status/{jti}.",
           requestBody: {
             required: true,
             content: {
@@ -275,6 +307,10 @@ export async function GET(request: Request) {
             "200": { description: "valid — claims returned" },
             "400": { description: "invalid signature or claims" },
             "410": { description: "revoked" },
+            "503": {
+              description:
+                "revocation_unknown or mandate_keys_not_configured — never valid:true when the revocation store is unreachable",
+            },
           },
         },
       },
@@ -394,6 +430,22 @@ export async function GET(request: Request) {
             "Five zero-dependency reference implementations (Python, Go, Java, Ruby, PHP) all pass " +
             "these — a specification only its author has implemented is an API with documentation.",
           responses: { "200": { description: "Vector document" } },
+        },
+      },
+      "/api/mandate/ready": {
+        get: {
+          tags: ["conformance"],
+          summary: "Machine readiness — READY_FOR_PIONEER gate",
+          description:
+            "Runs published authorization vectors and cryptographically verifies the signed Status List. " +
+            "Returns ready_for_pioneer when both pass. Same gate as Pioneer wall listing — not regulatory " +
+            "certification and not proof of production volume. Client twin: npx zakai-mandate-ready.",
+          responses: {
+            "200": {
+              description:
+                "{ ok, ready, ready_for_pioneer, vectors, status_list, next, disclaimer }",
+            },
+          },
         },
       },
       "/api/settlement/test-vectors": {

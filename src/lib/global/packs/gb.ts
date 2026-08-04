@@ -511,12 +511,72 @@ Please confirm the current balance, any credit balance on the account, and repay
 If the deposit was not protected within the statutory period, please confirm how you propose to remedy that.`,
     },
   ),
+  // ---- Banking depth (institutional surface for UK bank pilots) ------------
+  right(
+    "app_fraud_refund_claim",
+    "banking",
+    always,
+    "Payment Services Regulations 2017; Contingent Reimbursement Model Code for Authorised Push Payment scams (CRM Code) as adopted by participating PSP members",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber", "details"],
+      subject: "Authorised push payment scam — reimbursement request — account {accountNumber}",
+      body: `${IDENTITY} I was deceived into authorising a payment from account {accountNumber}. Particulars: {details}
+
+Please confirm whether you participate in the Contingent Reimbursement Model Code, apply the relevant reimbursement assessment, and set out in writing the outcome and any refund timeline.`,
+    },
+  ),
+  right(
+    "basic_bank_account_access",
+    "banking",
+    always,
+    "Payment Accounts Regulations 2015, Part 4 (access to a payment account with basic features)",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty"],
+      subject: "Request for a payment account with basic features",
+      body: `${IDENTITY} Please confirm whether you offer a payment account with basic features under the Payment Accounts Regulations 2015 and, if so, the eligibility criteria, fees, and how I may open one.
+
+If you refuse, please state the lawful ground for refusal in writing.`,
+    },
+  ),
+  right(
+    "dormant_account_unclaimed",
+    "banking",
+    always,
+    "Dormant Bank and Building Society Accounts Act 2008; reclaim process administered via reclaim funds / participating institutions",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber", "details"],
+      subject: "Reclaim enquiry — possible dormant account balance",
+      body: `${IDENTITY} I believe funds belonging to me (or to a person for whom I am a lawful claimant) may be held in a dormant account with you. Account or identifying details: {accountNumber}. Further particulars: {details}
+
+Please search your records, confirm any reclaimable balance, and provide the forms required to complete repayment.`,
+    },
+  ),
+  right(
+    "persistent_overdraft_review",
+    "banking",
+    always,
+    "FCA Handbook, CONC 5D (persistent debt) and BCOBS (overdraft charges and communications)",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber"],
+      subject: "Persistent overdraft / arranged overdraft review — account {accountNumber}",
+      body: `${IDENTITY} Please provide a schedule of overdraft interest and charges on account {accountNumber} for the last 12 months, confirm whether I have been treated under the persistent debt rules in CONC 5D, and set out cheaper alternatives or forbearance options available to me.`,
+    },
+  ),
+
 ];
 
 export const GB_PACK: JurisdictionPack = {
   market: "GB",
-  version: "2026.08.1",
-  reviewed: "2026-08-02",
+  version: "2026.08.2",
+  reviewed: "2026-08-03",
   docLocale: "en-GB",
   currency: "GBP",
   minorUnits: 100,

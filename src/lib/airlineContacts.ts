@@ -1,10 +1,8 @@
 /**
  * Public customer-service contact emails for flight compensation outreach.
- * Placeholders use example.com until operations configures real addresses in env
- * (AIRLINE_CONTACT_OVERRIDES JSON) — never invent deliverability.
+ * Unknown carriers return "" — never a .example placeholder that could be sent.
+ * Operations may set AIRLINE_CONTACT_OVERRIDES (JSON) for extra carriers.
  */
-
-const DEFAULT_FALLBACK = "customerservice@airline.example";
 
 /** Substring match on normalized airline name → contact email. */
 const AIRLINE_EMAIL_BY_PATTERN: readonly { pattern: RegExp; email: string }[] = [
@@ -44,7 +42,7 @@ export function resolveAirlineContactEmail(airlineLabel: string): string {
       return `support@${email}`;
     }
   }
-  return DEFAULT_FALLBACK;
+  return "";
 }
 
 /** Map free-text airline to rule-pack counterparty key when possible. */

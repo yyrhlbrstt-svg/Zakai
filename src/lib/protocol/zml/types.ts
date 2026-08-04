@@ -83,6 +83,8 @@ export interface ZmlRight {
 export interface ZmlCatalogEntry {
   id: string;
   display_name: Record<string, string>;
+  /** Resolved label when catalog is requested with ?locale= or Accept-Language */
+  label?: string;
   category: ZmlCategory;
   market: string;
   predicate_summary: string;

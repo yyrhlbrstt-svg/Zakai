@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_liheap_energy_assistance",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Liheap Energy Assistance",
+    "he": "סיוע אנרגיה · אנרגיה · סיוע"
+  },
+  "market": "US",
+  "category": "energy",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "incomeBand",
+        "operator": "in",
+        "value": [
+          "low"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_liheap_energy_assistance",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Low Income Home Energy Assistance Act (42 U.S.C. §8621 et seq.)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -9,10 +9,8 @@ describe("institutionAudience", () => {
 
   it("tracks institution audiences", () => {
     expect(isTrackedInstitutionAudience("bank-leumi")).toBe(true);
-    // cellcom is a registered institution in INSTITUTION_PROVIDER_MAP (phase 2:
-    // telecom/electricity) — it must be tracked so notifyInstitutionOnOutboundSend
-    // actually fires for it, not just for banks.
+    // Telecom desks are in INSTITUTION_PROVIDER_MAP for inbound pressure.
     expect(isTrackedInstitutionAudience("cellcom")).toBe(true);
-    expect(isTrackedInstitutionAudience("some-unregistered-provider")).toBe(false);
+    expect(isTrackedInstitutionAudience("random-corner-shop")).toBe(false);
   });
 });

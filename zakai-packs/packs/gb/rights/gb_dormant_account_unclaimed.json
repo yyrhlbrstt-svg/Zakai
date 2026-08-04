@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_dormant_account_unclaimed",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "dormant account unclaimed",
+    "he": "dormant account unclaimed"
+  },
+  "market": "GB",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_dormant_account_unclaimed",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Dormant Bank and Building Society Accounts Act 2008; reclaim process administered via reclaim funds / participating institutions"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

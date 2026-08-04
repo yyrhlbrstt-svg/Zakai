@@ -19,7 +19,17 @@ describe("buildZakaiProtocolDocument", () => {
     const doc = buildZakaiProtocolDocument("https://zakai.example");
     expect(doc.spec).toBe("zakai-protocol");
     expect(doc.layers.authority.jwks).toContain("zakai-jwks");
+    expect(doc.layers.authority.ready).toContain("/api/mandate/ready");
     expect(doc.laws.length).toBeGreaterThanOrEqual(5);
     expect(doc.zml?.rights_catalog).toContain("/api/rights/catalog");
+    expect(doc.interop?.entrypoint).toContain("zakai-interop.json");
+  });
+});
+
+describe("interop advertises mandate ready gate", () => {
+  it("lists mandate_ready in the machine api map", async () => {
+    const { buildInteropDocument } = await import("./interop");
+    const doc = buildInteropDocument("https://zakai.example");
+    expect(doc.api.mandate_ready).toBe("https://zakai.example/api/mandate/ready");
   });
 });

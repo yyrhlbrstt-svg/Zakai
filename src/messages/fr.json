@@ -78,7 +78,7 @@
     "vehicleCheck": "Vérification véhicule d'occasion"
   },
   "door": {
-    "title": "Par où commencer ?",
+    "title": "Continuer après Mon argent",
     "money": {
       "title": "Je paie trop cher",
       "sub": "Photographiez une facture — l'agent rédige, envoie, relance et documente l'économie.",
@@ -285,7 +285,7 @@
     "title1": "Vous payez trop cher.",
     "title2": "Zakai le récupère.",
     "sub": "Zakai analyse vos factures, rédige la demande, l'envoie en votre nom et relance jusqu'à ce que l'argent revienne — sans que vous ayez à appeler qui que ce soit. Pas de centre d'appels, pas d'attente, pas de formulaires. Commission uniquement sur l'argent réellement récupéré.",
-    "cta": "Vérifier une facture maintenant",
+    "cta": "Commencer dans Mon argent",
     "howTitle": "Comment ça marche",
     "trust": [
       "Zéro appel téléphonique — l'agent appelle pour vous, pas l'inverse",
@@ -323,15 +323,37 @@
     },
     "proof": "Économies mensuelles documentées réalisées par Zakai à ce jour, sur {count} vérifications complétées. Directement issu du registre de preuves — jamais saisi manuellement.",
     "stats": [
-      { "n": "12+", "label": "vérifications d'argent" },
-      { "n": "55", "label": "droits légaux" },
-      { "n": "0 ₪", "label": "tant que l'économie n'est pas prouvée" }
+      {
+        "n": "12+",
+        "label": "vérifications d'argent"
+      },
+      {
+        "n": "55",
+        "label": "droits légaux"
+      },
+      {
+        "n": "0 ₪",
+        "label": "tant que l'économie n'est pas prouvée"
+      }
     ],
     "geoNote": "Il semble que vous naviguiez depuis l'extérieur d'Israël. Certains outils (argent perdu, résiliation d'abonnements, protection de prix) fonctionnent partout ; les droits et remboursements sont aujourd'hui adaptés à Israël, et nous nous étendons à d'autres régions.",
     "closingTitle": "L'argent qui vous est dû — sans rien faire",
     "closingSub": "Chaque shekel économisé est documenté, et chaque demande est envoyée avec une autorité que chacun peut vérifier. Vous n'avez qu'à regarder le chiffre augmenter.",
     "closingCta": "Commencer maintenant",
-    "closingB2b": "Entreprises & institutions"
+    "closingB2b": "Entreprises & institutions",
+    "ctaSecondary": "Comment ça marche",
+    "secondaryDoors": "Continuer après le démarrage",
+    "secondaryDoorsSub": "Autres outils une fois un dossier ouvert — pas des portes concurrentes.",
+    "estimateTitle": "Une estimation avant de commencer ?",
+    "gravityTitle": "Ce qui s’est vraiment passé",
+    "gravitySent": "Envois effectués",
+    "gravityMandates": "Mandates actifs",
+    "gravityProofs": "Économies documentées · {count} preuves",
+    "gravityEmpty": "Pas encore d’économies documentées — ce chiffre reste à zéro tant qu’il n’est pas réel",
+    "gravityLedger": "Ouvrir le registre public",
+    "moneyFeatureTitle": "Commencez ici",
+    "moneyFeatureSub": "Photo de facture → dossier → Mandate → envoi → économie documentée.",
+    "moneyFeatureCta": "Ouvrir Mon argent"
   },
   "onboarding": {
     "title": "Ce que Zakai fait pour vous",
@@ -446,5 +468,9 @@
   "meta": {
     "title": "Zakai — l'argent qui vous est dû, de retour dans votre poche",
     "desc": "L'agent IA qui récupère l'argent qui vous est dû : remboursements d'impôts, argent perdu, indemnisation de vol, allocations, réductions de factures et plus encore — commission uniquement sur l'économie documentée."
+  },
+  "zakameter": {
+    "cta": "Photo de facture — commencer dans Mon argent",
+    "ctaScan": "Ou vérifier ce qui vous est dû (gratuit)"
   }
 }

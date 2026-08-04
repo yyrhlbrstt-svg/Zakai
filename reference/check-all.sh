@@ -72,6 +72,7 @@ echo
 echo "settlement vectors:"
 ARGS_CURRENT=("${SETTLE_ARGS[@]}")
 run python  python3 python3 python/zakai_settle.py
+run go      go      go run go/zakai_settle.go
 
 echo
 if [[ $failed -gt 0 ]]; then

@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 const findAuthUnique = vi.fn();
 const findAuthFirst = vi.fn();
 const findCaseUnique = vi.fn();
+const findCaseFirst = vi.fn();
 const outboxCreate = vi.fn();
 const findUserUnique = vi.fn();
 const extractSavingsFromEmail = vi.fn();
@@ -15,7 +16,7 @@ vi.mock("@/lib/prisma", () => ({
       findUnique: findAuthUnique,
       findFirst: findAuthFirst,
     },
-    case: { findUnique: findCaseUnique },
+    case: { findUnique: findCaseUnique, findFirst: findCaseFirst },
     outbox: { create: outboxCreate },
     user: { findUnique: findUserUnique },
   },
@@ -51,6 +52,7 @@ describe("POST /api/inbound-email", () => {
     outboxCreate.mockResolvedValue({ id: "ob_1" });
     sendEmail.mockResolvedValue(undefined);
     pushToUser.mockResolvedValue(undefined);
+    findCaseFirst.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -188,6 +190,92 @@ describe("POST /api/inbound-email", () => {
       extract: { recordAmountShekels?: number };
     };
     expect(logged.extract.recordAmountShekels).toBe(89);
+  });
+
+  it("matches provider reply from counterparty inbox without ZK code", async () => {
+    const caseId = "case_cp_1";
+    const userId = "user_cp";
+    const from = "service@cellcom.co.il";
+
+    extractSavingsFromEmail.mockResolvedValue({
+      found: true,
+      newAmountShekels: 79,
+      authorizationCode: null,
+      confidence: 0.55,
+      amountKind: "monthly",
+      reason: "deterministic",
+    });
+
+    findAuthUnique.mockResolvedValue(null);
+    findCaseFirst.mockResolvedValue({ id: caseId, userId });
+    findCaseUnique.mockResolvedValue({
+      vertical: "telecom",
+      amountOriginal: 12_900,
+    });
+    findUserUnique.mockResolvedValue({
+      id: userId,
+      email: "user@example.com",
+      name: "User",
+      country: "IL",
+    });
+
+    const res = await post({
+      from,
+      subject: "עדכון",
+      text: "החיוב החדש ₪79",
+    });
+    const json = await res.json();
+
+    expect(json.matched).toBe(true);
+    expect(json.matchMethod).toBe("counterparty");
+    expect(json.notified).toBe(true);
+  });
+
+  it("ZK-code match on SENT works even when Mandate is REVOKED", async () => {
+    const caseId = "case_revoked_1";
+    const userId = "user_rev";
+    const code = "ZK-REV01";
+
+    extractSavingsFromEmail.mockResolvedValue({
+      found: true,
+      newAmountShekels: 70,
+      authorizationCode: code,
+      confidence: 0.8,
+      amountKind: "monthly",
+      reason: "test",
+    });
+
+    findAuthUnique.mockResolvedValue({
+      code,
+      status: "REVOKED",
+      caseId,
+      case: { id: caseId, userId, status: "SENT" },
+    });
+
+    findCaseUnique.mockResolvedValue({
+      vertical: "telecom",
+      amountOriginal: 12_900,
+    });
+
+    findUserUnique.mockResolvedValue({
+      id: userId,
+      email: "user@example.com",
+      name: "Test",
+      country: "IL",
+    });
+
+    const res = await post({
+      from: "billing@cellcom.co.il",
+      subject: `אישור ${code}`,
+      text: "החיוב החדש 70 שקל",
+    });
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.matched).toBe(true);
+    expect(json.caseId).toBe(caseId);
+    expect(json.matchMethod).toBe("code");
+    expect(json.notified).toBe(true);
   });
 
   it("email match below confidence threshold → matched but not notified", async () => {

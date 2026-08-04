@@ -1,4 +1,6 @@
-/** Deterministic electricity supplier-switch request letters — no AI required. */
+/** Deterministic electricity supplier-switch request letters — Mandate agent voice. */
+
+import { agentLetterCloseHe, agentLetterOpenHe } from "@/lib/agentLetterVoice";
 
 export interface ElectricityLetterInput {
   customerName: string;
@@ -29,13 +31,13 @@ export function buildElectricityLetter(input: ElectricityLetterInput): {
       : "";
   const meter = input.hasSmartMeter
     ? "בבית מותקן מונה חכם."
-    : "אין מונה חכם — מבקש/ת מסלול שטוח (flat) בלבד.";
+    : "אין מונה חכם — מבקשים מסלול שטוח (flat) בלבד.";
   const city = input.addressCity?.trim() ? `יישוב: ${input.addressCity.trim()}.` : "";
 
   const lines = [
     `לכבוד שירות הלקוחות, ${target}`,
     "",
-    `שמי ${name}.`,
+    agentLetterOpenHe(name),
   ];
   if (city) lines.push(city);
   if (current) lines.push(`ספק נוכחי (אם ידוע): ${current}.`);
@@ -44,11 +46,11 @@ export function buildElectricityLetter(input: ElectricityLetterInput): {
   lines.push(meter);
   lines.push("");
   lines.push(
-    `אני מבקש/ת להתחיל תהליך מעבר אליכם למסלול "${plan}" (או המסלול הקרוב ביותר הזמין בכתובת שלי), בהתאם לכללי ניוד ספקי החשמל בישראל.`,
+    `בשם הלקוח/ה אני מבקש להתחיל תהליך מעבר אליכם למסלול "${plan}" (או המסלול הקרוב ביותר הזמין בכתובת), בהתאם לכללי ניוד ספקי החשמל בישראל.`,
   );
   lines.push("");
-  lines.push("מבקש/ת:");
-  lines.push("1. אישור בכתב על קבלת הבקשה ועל השלבים הבאים.");
+  lines.push("בקשה אחת — מענה בכתב עם:");
+  lines.push("1. אישור קבלת הבקשה והשלבים הבאים.");
   lines.push("2. פירוט התעריף החודשי הצפוי והתנאים (הנחה, חלון שעות, תקופת התחייבות אם קיימת).");
   lines.push('3. לוח זמנים משוער להשלמת הניוד מול "נגה" / חברת החשמל.');
   lines.push("");
@@ -56,9 +58,7 @@ export function buildElectricityLetter(input: ElectricityLetterInput): {
     "אין באמור בקשה לביצוע תשלום או שינוי פרטי חשבון בנק — רק מעבר ספק ובירור תעריף.",
   );
   lines.push("");
-  lines.push("בברכה,");
-  lines.push(name);
-  lines.push("(המכתב נוסח בסיוע זכאי — סוכן דיגיטלי הפועל בהרשאת הלקוח/ה)");
+  lines.push(agentLetterCloseHe(name));
 
   return {
     subject: `בקשת מעבר לספק חשמל — ${plan} | ${name}`,

@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ie_flight_comp_eu261",
+  "version": "2026-07-31",
+  "display_name": {
+    "en": "Flight compensation (EU261)",
+    "he": "פיצוי טיסה (EU261)"
+  },
+  "market": "IE",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/flights",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Regulation (EC) No 261/2004 (EU261)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-31",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

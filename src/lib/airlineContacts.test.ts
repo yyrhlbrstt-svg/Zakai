@@ -7,7 +7,7 @@ describe("airlineContacts", () => {
     expect(resolveAirlineProviderKey("אל על")).toBe("elal");
   });
 
-  it("falls back without inventing a real inbox", () => {
-    expect(resolveAirlineContactEmail("Unknown Wings LLC")).toBe("customerservice@airline.example");
+  it("falls back empty without inventing an inbox", () => {
+    expect(resolveAirlineContactEmail("Unknown Wings LLC")).toBe("");
   });
 });

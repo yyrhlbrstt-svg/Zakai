@@ -20,7 +20,7 @@ Zakai publishes an open **Mandate** format: scoped, signed, revocable consumer-a
 
 Why teams adopt it:
 
-- **Fail-closed verification** — JWKS + trust registry + live revocation feed  
+- **Fail-closed verification** — JWKS + trust registry + signed status list (`/api/mandate/revocations`; live `/status/{jti}` only for legacy tokens)  
 - **Forbidden outbound payment scopes** — enforced in code, not policy PDFs  
 - **Worst case of a bad mandate** = unwanted correspondence, not an emptied account  
 

@@ -9,6 +9,9 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import { resolveBankProvider } from "@/lib/normalizeBankProvider";
+import { resolveBankContactEmail } from "@/lib/bankContacts";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
 import { rateLimit } from "@/lib/ratelimit";
 
@@ -16,6 +19,7 @@ const schema = z.object({
   customerName: z.string().max(80).default(""),
   bankKey: z.string().max(32).optional(),
   bank: z.string().min(1).max(120),
+  bankEmail: z.string().max(120).optional(),
   accountLast4: z.string().max(8).optional(),
   feeKind: z.enum(["account_mgmt", "atm", "foreign_fx", "check", "rejected", "other"]),
   feeDescription: z.string().max(160).optional(),
@@ -26,6 +30,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-bank-fees", auth.userId, 20, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
@@ -48,6 +56,16 @@ export async function POST(request: Request) {
     bankName: data.bank,
   });
 
+  const outreachTo =
+    firstOutreachEmail(
+      data.bankEmail,
+      resolveBankContactEmail(providerKey),
+      resolveBankContactEmail(displayName),
+    ) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
+
   const letter = buildBankFeeLetter({
     customerName: data.customerName || user.name || "",
     bank: displayName,
@@ -58,7 +76,11 @@ export async function POST(request: Request) {
     chargeDate: data.chargeDate,
   });
 
-  const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 30;
+  // Never invent a baseline fee — SavingsProof math starts from this figure.
+  if (!data.amountShekels || data.amountShekels <= 0) {
+    return NextResponse.json({ error: "amount_required" }, { status: 400 });
+  }
+  const amount = data.amountShekels;
 
   let kase;
   try {
@@ -78,6 +100,7 @@ export async function POST(request: Request) {
     kase = await createCase({
       userId: auth.userId,
       provider: providerKey,
+      counterpartyEmail: outreachTo,
       amountShekels: amount,
       plan: data.feeDescription || data.feeKind,
       strategy: "ערעור על עמלת בנק עם Mandate",
@@ -96,11 +119,17 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
-    status: kase.status,
-    message: "case_opened",
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: letter.subject,
+        body: letter.body,
+        status: express.dispatched ? "SENT" : kase.status,
+        outreachEmail: outreachTo,
+      },
+    }),
+  );
 }

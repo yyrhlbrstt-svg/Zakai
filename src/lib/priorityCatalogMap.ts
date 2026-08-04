@@ -16,4 +16,5 @@ export const VERTICAL_TO_CATALOG_ID: Record<string, string> = {
   "duplicate-insurance": "duplicate-insurance",
   arnona: "arnona",
   warranty: "warranty",
+  "car-insurance-refund": "car-insurance-refund",
 };

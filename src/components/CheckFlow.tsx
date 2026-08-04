@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
 import { PROVIDER_KEYS } from "@/lib/providers";
 import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
 import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachEmail";
+import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
+import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
 
 type Stage =
   | "input"
@@ -90,6 +93,8 @@ export function CheckFlow() {
   const [phoneMasked, setPhoneMasked] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [devHint, setDevHint] = useState(false);
+  const [magicDelivered, setMagicDelivered] = useState(false);
+  const [magicQueued, setMagicQueued] = useState(false);
   const [code, setCode] = useState("");
   const [ownershipOk, setOwnershipOk] = useState(false);
   const [ownErr, setOwnErr] = useState<string | null>(null);
@@ -100,13 +105,22 @@ export function CheckFlow() {
 
   // outcome
   const [newAmount, setNewAmount] = useState("");
+  const [saveErr, setSaveErr] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<{
     saving: number;
     fee: number;
     chargeable: boolean;
     checkoutUrl?: string;
+    checkoutError?: string;
+    paymentsLive?: boolean;
   } | null>(null);
   const [delivered, setDelivered] = useState(true);
+  const [pasteText, setPasteText] = useState("");
+  const [pasteTip, setPasteTip] = useState<string | null>(null);
+  const [proposed, setProposed] = useState<{
+    newAmountShekels: number;
+    confidence: number;
+  } | null>(null);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -134,6 +148,7 @@ export function CheckFlow() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setError(data.error || "genericError");
         setStage("input");
         if (data.error === "aiUnavailable") setManualOpen(true);
@@ -180,22 +195,60 @@ export function CheckFlow() {
     if (!rec || !outreachReady()) return;
     setApproveErr(null);
     setBusy(true);
-    const res = await fetch(`/api/cases/${rec.caseId}/approve`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        editedMessage: draft,
-        counterpartyEmail: providerContactEmail.trim() || undefined,
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setBusy(false);
-    if (!res.ok) {
-      if (data.error === "ALREADY_SENT") setApproveErr(tFlow("errorAlreadySent"));
-      else setApproveErr(tFlow("errorGeneric"));
-      return;
+    try {
+      const res = await fetch(`/api/cases/${rec.caseId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          editedMessage: draft,
+          counterpartyEmail: providerContactEmail.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (data.error === "ALREADY_SENT") setApproveErr(tFlow("errorAlreadySent"));
+        else setApproveErr(tFlow("errorGeneric"));
+        return;
+      }
+      // Email already verified → same express path as dashboard CaseNextStep:
+      // Mandate + send in one gesture (skip OTP / separate auth generate).
+      if (data.ownershipViaEmail) {
+        setOwnershipOk(true);
+        const dispatchRes = await fetch(`/api/cases/${rec.caseId}/dispatch`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            counterpartyEmail: providerContactEmail.trim() || undefined,
+          }),
+        });
+        const dispatchData = await dispatchRes.json().catch(() => ({}));
+        if (dispatchRes.ok) {
+          if (dispatchData.authCode) {
+            setAuth({
+              code: dispatchData.authCode,
+              scope: "",
+              verifyUrl: `/verify?code=${encodeURIComponent(dispatchData.authCode)}`,
+              documentUrl: `/authorization/${dispatchData.authCode}`,
+            });
+          }
+          setDelivered(Boolean(dispatchData.delivered));
+          setStage("sent");
+          return;
+        }
+        if (isOutreachEmailApiError(dispatchData.error)) {
+          setOwnErr("needsEmail");
+        } else if (dispatchData.error === "ALREADY_SENT") {
+          setOwnErr("alreadySent");
+        } else {
+          setOwnErr("genericError");
+        }
+        setStage("verify");
+        return;
+      }
+      setStage("verify");
+    } finally {
+      setBusy(false);
     }
-    setStage("verify");
   }
 
   async function sendCode() {
@@ -204,15 +257,26 @@ export function CheckFlow() {
     const res = await fetch(`/api/cases/${rec.caseId}/ownership/send`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (data.error === "cooldown") setOwnErr("codeSent");
-      else if (data.error === "tooManyRequests") setOwnErr("tooManyAttempts");
+      if (data.error === "cooldown") {
+        setCodeSent(true);
+        setOwnErr("codeSent");
+      } else if (data.error === "tooManyRequests") setOwnErr("tooManyAttempts");
       else setOwnErr("genericError");
       return;
     }
     setCodeSent(true);
     setDevHint(Boolean(data.devHint));
+    setMagicDelivered(Boolean(data.magicDelivered));
+    setMagicQueued(Boolean(data.magicSent) && !data.magicDelivered);
     setPhoneMasked(data.phoneMasked || "");
   }
+
+  // Auto-send ownership magic/OTP once when the verify stage opens — removes a dead click.
+  useEffect(() => {
+    if (stage !== "verify" || !rec || ownershipOk || codeSent) return;
+    void sendCode();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot on stage enter
+  }, [stage, rec?.caseId]);
 
   async function verifyCode() {
     if (!rec) return;
@@ -235,6 +299,8 @@ export function CheckFlow() {
       return;
     }
     setOwnershipOk(true);
+    // Express: skip separate Mandate generate — dispatch issues it.
+    await send();
   }
 
   async function generateAuth() {
@@ -254,7 +320,14 @@ export function CheckFlow() {
   async function send() {
     if (!rec) return;
     setStage("sending");
-    const res = await fetch(`/api/cases/${rec.caseId}/send`, { method: "POST" });
+    // Prefer express dispatch (issues Mandate if missing) over bare /send.
+    const res = await fetch(`/api/cases/${rec.caseId}/dispatch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        counterpartyEmail: providerContactEmail.trim() || undefined,
+      }),
+    });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setStage("verify");
@@ -272,8 +345,53 @@ export function CheckFlow() {
       }
       return;
     }
+    if (data.authCode) {
+      setAuth({
+        code: data.authCode,
+        scope: auth?.scope || "",
+        verifyUrl: `/verify?code=${encodeURIComponent(data.authCode)}`,
+        documentUrl: `/authorization/${data.authCode}`,
+      });
+    }
     setDelivered(Boolean(data.delivered));
     setStage("sent");
+  }
+
+  async function proposeFromPaste() {
+    if (!rec) return;
+    setPasteTip(null);
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/cases/${rec.caseId}/propose-saving`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: pasteText }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPasteTip(t("pasteFailed"));
+        return;
+      }
+      const decision = resolvePasteRecordField(data);
+      if (decision.kind === "proposed") {
+        setProposed({
+          newAmountShekels: decision.newAmountShekels,
+          confidence: decision.confidence,
+        });
+        setNewAmount(String(decision.newAmountShekels));
+        setPasteText("");
+        setPasteTip(null);
+        return;
+      }
+      if (decision.kind === "mapped") {
+        setNewAmount(String(decision.newAmountShekels));
+        setPasteTip(t("pastePartial"));
+        return;
+      }
+      setPasteTip(t("pasteNoAmount"));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function copyDraftForSelf() {
@@ -291,6 +409,7 @@ export function CheckFlow() {
   async function recordSaving(amt: number) {
     if (!rec) return;
     setBusy(true);
+    setSaveErr(null);
     const res = await fetch(`/api/cases/${rec.caseId}/record-saving`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -300,14 +419,24 @@ export function CheckFlow() {
     setBusy(false);
     if (res.ok) {
       setOutcome({
-        saving: data.savingMonthlyShekels,
-        fee: data.feeShekels,
-        chargeable: data.chargeable,
+        saving: Number(data.savingMonthlyShekels) || 0,
+        fee: Number(data.feeShekels) || 0,
+        chargeable: data.chargeable === true,
         checkoutUrl: data.checkoutUrl as string | undefined,
+        checkoutError:
+          typeof data.checkoutError === "string" ? data.checkoutError : undefined,
+        paymentsLive: data.paymentsLive === true,
       });
       setStage("result");
+    } else if (data.error === "ALREADY_SETTLED" && rec.caseId) {
+      // Double-tap after settle — case finish surface; don't invent payFee=1.
+      router.push(`/money?case=${rec.caseId}`);
+    } else if (data.error === "AUTH_REVOKED") {
+      setSaveErr("authRevoked");
+    } else if (data.error === "MANDATE_REQUIRED") {
+      setSaveErr("feeMandateRequired");
     } else {
-      setOwnErr("genericError");
+      setSaveErr("genericError");
     }
   }
 
@@ -485,30 +614,18 @@ export function CheckFlow() {
             <div className="mt-1.5 text-[14.5px] leading-relaxed">{rec.strategy}</div>
           </Card>
 
-          <Card className="p-5 mt-3.5">
-            <div className="text-[12px] font-extrabold text-ink-soft">
-              {t("draftTitle")}
-            </div>
-            <div className="text-[12px] text-ink-soft mt-1.5 mb-2.5">{t("draftNote")}</div>
-            {(rec.needsOutreachEmail || telecomNeedsContactEmail(rec.provider || "other")) && (
-              <div className="mb-3">
-                <Input
-                  type="email"
-                  value={providerContactEmail}
-                  onChange={(e) => setProviderContactEmail(e.target.value)}
-                  placeholder={t("providerEmailPlaceholder")}
-                  dir="ltr"
-                />
-                <p className="text-[12px] text-amber mt-1.5 mb-0">{tFlow("contactEmailHint")}</p>
-              </div>
-            )}
-            <Textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              rows={10}
-              className="whitespace-pre-wrap"
-            />
-          </Card>
+          {(rec.needsOutreachEmail || telecomNeedsContactEmail(rec.provider || "other")) && (
+            <Card className="p-5 mt-3.5">
+              <Input
+                type="email"
+                value={providerContactEmail}
+                onChange={(e) => setProviderContactEmail(e.target.value)}
+                placeholder={t("providerEmailPlaceholder")}
+                dir="ltr"
+              />
+              <p className="text-[12px] text-amber mt-1.5 mb-0">{tFlow("contactEmailHint")}</p>
+            </Card>
+          )}
 
           <label className="flex gap-2.5 items-start mt-4 text-sm leading-normal cursor-pointer">
             <input
@@ -523,12 +640,24 @@ export function CheckFlow() {
           </label>
 
           <div className="flex flex-col gap-2.5 mt-4">
-            <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
-              {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
-            </Button>
             <Button onClick={approve} disabled={!consent || busy || !outreachReady()} className="flex-1 w-full">
               {t("approveBtn")}
             </Button>
+            <details className="rounded-xl border border-[rgba(255,255,255,0.08)] px-3 py-2">
+              <summary className="cursor-pointer text-[12.5px] font-bold text-ink-soft">
+                {t("draftTitle")}
+              </summary>
+              <div className="text-[12px] text-ink-soft mt-1.5 mb-2.5">{t("draftNote")}</div>
+              <Textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={8}
+                className="whitespace-pre-wrap"
+              />
+              <Button variant="ghost" onClick={copyDraftForSelf} className="w-full mt-2">
+                {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
+              </Button>
+            </details>
             <Button variant="ghost" onClick={() => location.reload()}>
               {t("startOver")}
             </Button>
@@ -559,6 +688,15 @@ export function CheckFlow() {
                     <p className="text-[13.5px] text-ink-soft mb-2.5">
                       {tv("ownershipSub", { phone: phoneMasked })}
                     </p>
+                    {magicDelivered ? (
+                      <p className="text-[12.5px] text-emerald mb-2.5 font-bold">
+                        {tv("ownershipMagicSent")}
+                      </p>
+                    ) : magicQueued ? (
+                      <p className="text-[12.5px] text-amber mb-2.5 font-bold">
+                        {tv("ownershipMagicQueued")}
+                      </p>
+                    ) : null}
                     {devHint && (
                       <p className="text-[12px] text-amber mb-2.5">{tv("ownershipDevNote")}</p>
                     )}
@@ -623,12 +761,16 @@ export function CheckFlow() {
             <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
               {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
             </Button>
-            <Button onClick={send} disabled={!ownershipOk || !auth} className="flex-1 w-full">
+            {/* ownership stamped → /dispatch issues Mandate if missing */}
+            <Button onClick={send} disabled={!ownershipOk} className="flex-1 w-full">
               {t("sendViaZakai")}
             </Button>
           </div>
-          {(!ownershipOk || !auth) && (
+          {!ownershipOk && (
             <p className="text-[12.5px] text-ink-soft mt-2 text-center">{tv("bothRequired")}</p>
+          )}
+          {ownershipOk && !auth && (
+            <p className="text-[12.5px] text-ink-soft mt-2 text-center">{t("dispatchIssuesMandate")}</p>
           )}
         </div>
       )}
@@ -649,6 +791,49 @@ export function CheckFlow() {
             <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mt-5 text-[13.5px] font-bold text-center">
               {t("notDeliveredNote")}
             </div>
+          )}
+
+          {proposed && (
+            <Card className="p-5 mt-6 border border-[rgba(63,203,155,0.45)]">
+              <div className="font-extrabold text-emerald">
+                {t("proposedTitle")}: ₪{proposed.newAmountShekels}
+              </div>
+              <p className="text-[13px] text-ink-soft mt-1 mb-3">
+                {t("proposedConf")} {(proposed.confidence * 100).toFixed(0)}%
+              </p>
+              <Button
+                disabled={busy}
+                className="w-full"
+                onClick={() => recordSaving(proposed.newAmountShekels)}
+              >
+                {t("proposedOneTap")}
+              </Button>
+            </Card>
+          )}
+
+          {!proposed && (
+            <Card className="p-5 mt-6">
+              <div className="font-extrabold">{t("pasteLabel")}</div>
+              <p className="text-[13.5px] text-ink-soft mt-1.5 mb-3 leading-relaxed">
+                {t("pasteHint")}
+              </p>
+              <Textarea
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder={t("pastePh")}
+                rows={4}
+              />
+              <Button
+                disabled={busy || pasteText.trim().length < 8}
+                className="mt-3 w-full"
+                onClick={() => void proposeFromPaste()}
+              >
+                {busy ? t("sending") : t("pasteCta")}
+              </Button>
+              {pasteTip && (
+                <p className="text-[12.5px] text-ink-soft mt-2 leading-relaxed">{pasteTip}</p>
+              )}
+            </Card>
           )}
 
           <Card className="p-5 mt-6">
@@ -677,6 +862,7 @@ export function CheckFlow() {
                 {t("noChangeBtn")}
               </Button>
             </div>
+            {saveErr && <FieldError>{tvSafe(tv, saveErr)}</FieldError>}
           </Card>
         </div>
       )}
@@ -693,7 +879,8 @@ export function CheckFlow() {
               <div className="text-[13px] text-ink-soft font-extrabold">
                 {t("resultTitle")}
               </div>
-              {outcome.chargeable ? (
+              {/* chargeable ≠ documented saving (Max / credit / self-report can waive fee). */}
+              {outcome.saving > 0 ? (
                 <>
                   {/* The old amount, settling down to the new one — weight lifted. */}
                   <div className="text-ink-soft text-[15px] mt-4 line-through decoration-[rgba(147,166,165,0.5)]">
@@ -735,7 +922,9 @@ export function CheckFlow() {
                 <div className="font-display grad-text text-2xl">₪{nf.format(outcome.fee)}</div>
               </div>
               <div className="text-[13px] text-ink-soft mt-1.5">{t("feeExplain")}</div>
-              {outcome.checkoutUrl ? (
+              {outcome.checkoutError === "MANDATE_REQUIRED" ? (
+                <FieldError>{tv("feeMandateRequired")}</FieldError>
+              ) : outcome.checkoutUrl ? (
                 <Button
                   className="w-full mt-4"
                   onClick={() => {
@@ -744,15 +933,62 @@ export function CheckFlow() {
                 >
                   {t("payFeeNow")}
                 </Button>
+              ) : rec ? (
+                <Button
+                  className="w-full mt-4"
+                  onClick={() =>
+                    router.push(
+                      moneyPendingFeeHref({
+                        caseId: rec.caseId,
+                        mandateActive: true,
+                        paymentsLive: outcome.paymentsLive === true,
+                      }),
+                    )
+                  }
+                >
+                  {t("payFeeNow")}
+                </Button>
               ) : null}
             </Card>
           )}
 
+          {outcome.saving > 0 && !outcome.chargeable ? (
+            <Card className="p-5 mt-3.5 border border-[rgba(63,203,155,0.35)]">
+              <p className="text-[13.5px] text-ink-soft m-0 mb-3 leading-relaxed">
+                {t("waivedShareHint")}
+              </p>
+              <Button
+                className="w-full"
+                onClick={() => router.push(`/money?case=${rec.caseId}`)}
+              >
+                {t("toDash")}
+              </Button>
+            </Card>
+          ) : null}
+
           <div className="flex gap-2.5 mt-4">
-            <Button variant="ghost" onClick={() => location.reload()} className="flex-1">
-              {t("newCase")}
-            </Button>
-            <Button onClick={() => router.push(rec ? `/dashboard?case=${rec.caseId}` : "/dashboard")} className="flex-1">
+            {!outcome.chargeable ? (
+              <Button variant="ghost" onClick={() => location.reload()} className="flex-1">
+                {t("newCase")}
+              </Button>
+            ) : null}
+            <Button
+              onClick={() =>
+                router.push(
+                  rec
+                    ? outcome.chargeable &&
+                      outcome.checkoutError !== "MANDATE_REQUIRED"
+                      ? moneyPendingFeeHref({
+                          caseId: rec.caseId,
+                          mandateActive: true,
+                          paymentsLive: outcome.paymentsLive === true,
+                        })
+                      : `/money?case=${rec.caseId}`
+                    : "/money",
+                )
+              }
+              className="flex-1"
+            >
               {t("toDash")}
             </Button>
           </div>

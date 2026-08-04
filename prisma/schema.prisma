@@ -178,6 +178,9 @@ model Case {
   // stance when the case closes. Null on cases opened before the engine.
   strategyVariant String?
   strategySeed    Int?
+  // When a de-identified StrategyOutcome row was written for this case.
+  // Idempotency only — the Outcome table itself never stores caseId.
+  outcomeRecordedAt DateTime?
 
   status CaseStatus @default(ANALYZED)
 
@@ -240,6 +243,12 @@ model Authorization {
   scope          String
   /// JWT `aud` at mandate issue time (institution slug for banks).
   mandateAudience String?
+  /// Ed25519 mandate `jti` when machine mandate was issued at authorization time.
+  mandateJti      String? @unique
+  /// Compact JWS for institution inbound JSON attachment (same token as jti).
+  mandateJws      String? @db.Text
+  /// Bit position in the signed status list — allocated at issue, flipped on revoke.
+  mandateStatusIndex Int? @unique
 
   status    AuthorizationStatus @default(ACTIVE)
   issuedAt  DateTime            @default(now())
@@ -322,6 +331,10 @@ model Fee {
   status                FeeStatus @default(PENDING)
   createdAt             DateTime  @default(now())
 
+  /// Machine Mandate jti that authorized the outreach this fee settles.
+  /// Null only for legacy / pre-key envs; checkout refuses PENDING fees without it.
+  mandateJti String?
+
   // Fee collection. `provider` is which PSP handled it (or "mock" until a real
   // one is configured); `providerRef` is the payment/transaction id it returned;
   // `paidAt` is when the fee was confirmed collected. All null until a payment
@@ -329,6 +342,8 @@ model Fee {
   provider    String? // e.g. "mock" | "payplus" | "tranzila"
   providerRef String?
   paidAt      DateTime?
+
+  @@index([mandateJti])
 }
 
 // Durable fixed-window rate limiting for auth/OTP endpoints. Serverless
@@ -342,18 +357,20 @@ model RateLimit {
   @@index([expiresAt])
 }
 
-// Embeddable-widget API keys (POST /api/widget/register). Same serverless-
-// memory problem as RateLimit above: a key registered on one Vercel instance
-// was invisible to the instance serving the next request, so the "partner
-// API key (domain allowlist)" the widget promises silently failed after the
-// first cold start. `ZAKAI_WIDGET_KEYS_JSON` remains supported as a
-// pre-provisioned/env-seeded layer on top of this table.
-model WidgetKey {
-  key       String   @id
-  domain    String
-  createdAt DateTime @default(now())
+/// Idempotent mutation replay store (Class C traffic). Prevents duplicate cases
+/// when clients retry POST on flaky mobile networks at scale.
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  scope        String
+  actorId      String
+  key          String
+  statusCode   Int
+  responseJson String   @db.Text
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
 
-  @@index([domain])
+  @@unique([scope, actorId, key])
+  @@index([expiresAt])
 }
 
 // Product feedback — "what would you improve in Zakai?". Stored so the team
@@ -425,6 +442,41 @@ model StrategyOutcome {
   @@index([market, vertical, counterparty])
   @@index([market, vertical])
   @@index([selfReported, createdAt])
+}
+
+/**
+ * Anonymous collective-buying intent — no User/Case FK (publishable aggregates only).
+ */
+model CollectiveIntentSignal {
+  id        String   @id @default(cuid())
+  market    String
+  vertical  String
+  createdAt DateTime @default(now())
+
+  @@index([market, vertical])
+  @@index([createdAt])
+}
+
+model AutopilotSourceSnapshot {
+  sourceUrl   String   @id
+  market      String
+  rightId     String
+  contentHash String
+  lastSnippet String?  @db.Text
+  lastChangedAt DateTime?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model AutopilotRun {
+  id        String   @id @default(cuid())
+  jobId     String
+  ok        Boolean
+  summary   String
+  findings  Json
+  createdAt DateTime @default(now())
+
+  @@index([jobId, createdAt])
 }
 
 /**
@@ -554,6 +606,13 @@ model MandateRevocation {
   @@index([revokedAt])
 }
 
+/// Reserves a status-list bit at Mandate issue (before any revocation row exists).
+model MandateStatusAllocation {
+  statusIndex Int      @id
+  jti         String   @unique
+  issuedAt    DateTime @default(now())
+}
+
 /**
  * Web Push subscription for the installed PWA.
  * endpoint is unique across the table so a device re-subscribe upserts cleanly.
@@ -680,4 +739,21 @@ model ReferenceVerifier {
   listedAt      DateTime @default(now())
 
   @@index([listedAt])
+}
+
+/**
+ * Partner embed API keys. Previously ephemeral in-memory (lost on every deploy)
+ * or hand-edited into ZAKAI_WIDGET_KEYS_JSON — neither is a distribution rail.
+ * Env JSON remains a bootstrap/override; the durable source of truth is this table.
+ */
+model WidgetKey {
+  /// Opaque public key, e.g. pk_live_…
+  key       String   @id
+  /// Allowed Origin hostname (exact or subdomain of this apex).
+  domain    String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([domain])
+  @@index([revokedAt])
 }

@@ -9,6 +9,7 @@ import {
   readStatus,
   signStatusList,
   verifyStatusList,
+  verifyStatusListFromUrl,
 } from "./statusList";
 import {
   ISSUERS,
@@ -96,10 +97,10 @@ describe("revocation works while we are down", () => {
     expect(readStatus(packed, -1)).toBe(false);
   });
 
-  it("drops an out-of-range revocation instead of refusing to build the list", () => {
-    // One malformed row must not mean nobody can check revocation at all.
-    expect(() => packStatusList([1, 99_999], 16)).not.toThrow();
-    expect(readStatus(packStatusList([1, 99_999], 16), 1)).toBe(true);
+  it("refuses out-of-range indices instead of silently dropping bits", () => {
+    // A dropped bit means offline verifiers keep treating a revoked mandate as active.
+    expect(() => packStatusList([1, 99_999], 16)).toThrow(StatusListError);
+    expect(readStatus(packStatusList([1], 16), 1)).toBe(true);
   });
 
   it("rejects a negative index outright, which can only be a bug", () => {
@@ -120,6 +121,36 @@ describe("revocation works while we are down", () => {
     const sl = payload.status_list as { bits: number; lst: string };
     expect(sl.bits).toBe(BITS_PER_STATUS);
     expect(readStatus(sl.lst, 7)).toBe(true);
+  });
+
+  it("verifyStatusListFromUrl fetches list + JWKS then verifies offline", async () => {
+    const token = await signStatusList(
+      { issuer: ISS, revokedIndices: [11], size: 64, ttlSeconds: 900 },
+      key,
+    );
+    const pub = await publicJwkFor(key);
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("revocations")) {
+        return new Response(token, { status: 200 });
+      }
+      if (url.includes("jwks")) {
+        return Response.json({ keys: [pub] });
+      }
+      return new Response("not found", { status: 404 });
+    }) as typeof fetch;
+    try {
+      const list = await verifyStatusListFromUrl({
+        statusListUri: "https://example.test/api/mandate/revocations",
+        issuer: ISS,
+        jwksUri: "https://example.test/.well-known/zakai-jwks.json",
+      });
+      expect(list.isRevoked(11)).toBe(true);
+      expect(list.isRevoked(12)).toBe(false);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 });
 

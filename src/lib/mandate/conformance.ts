@@ -118,7 +118,8 @@ export const CHECKS: readonly CheckDef[] = [
   {
     id: "publishes_status_list",
     severity: "should",
-    requirement: "A signed status list is served, refreshed at least hourly.",
+    requirement:
+      "Issued mandates embed zkm.status { idx, uri } pointing at a signed status list (refreshed at least hourly).",
     rationale:
       "Without it, revocation requires a live per-mandate call — which is the availability dependency and the query trail this protocol exists to remove.",
   },

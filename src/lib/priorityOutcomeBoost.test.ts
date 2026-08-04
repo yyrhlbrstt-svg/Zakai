@@ -22,8 +22,11 @@ describe("catalogBoostsFromOutcomes", () => {
   });
 
   it("applies catalog boosts to ranking weight", () => {
-    const without = rankPriorityActions(50).findIndex((a) => a.id === "money");
-    const withBoost = rankPriorityActions(50, { money: 0.5 }).findIndex((a) => a.id === "money");
+    // money is already #1 unboosted — pick a mid-pack monthly agent door.
+    const without = rankPriorityActions(50).findIndex((a) => a.id === "bank-fees");
+    const withBoost = rankPriorityActions(50, { "bank-fees": 0.5 }).findIndex(
+      (a) => a.id === "bank-fees",
+    );
     expect(withBoost).toBeLessThan(without);
   });
 });

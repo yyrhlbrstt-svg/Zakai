@@ -35,7 +35,7 @@ export function Footer() {
       </ul>
 
       <div className="flex flex-wrap gap-x-4 gap-y-2.5 justify-center text-[13px] font-bold">
-        <Link href="/money" className="text-emerald no-underline hover:underline underline-offset-4">
+        <Link href="/money#zakai-money-scan" className="text-[#06121A] no-underline rounded-full px-3.5 py-1.5 bg-emerald hover:opacity-90">
           {moneyLabel}
         </Link>
         <Link href="/cancel" className="text-ink-soft no-underline hover:text-emerald transition-colors">

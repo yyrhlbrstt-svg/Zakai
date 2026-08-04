@@ -15,6 +15,7 @@ import {
 } from "@/lib/normalizeSubscriptionProvider";
 import { withFooter } from "@/lib/letterFooter";
 import { localeForCountry } from "@/lib/localePath";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
@@ -30,6 +31,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-cancel", auth.userId, 20, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
@@ -48,11 +53,11 @@ export async function POST(request: Request) {
   if (!canOpenCase(user.plan, activeCount)) return badRequest("caseLimit", 403);
 
   const resolved = resolveSubscriptionCompany(data.company, data.product);
-  const outreachTo = pickOutreachEmail({
-    contactEmail: data.contactEmail,
-    accountOrEmail: data.accountOrEmail,
-    defaultContactEmail: resolved.defaultContactEmail,
-  });
+  const outreachTo =
+    pickOutreachEmail({
+      contactEmail: data.contactEmail,
+      defaultContactEmail: resolved.defaultContactEmail,
+    }) || undefined;
   if (!outreachTo) {
     return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
   }
@@ -67,7 +72,11 @@ export async function POST(request: Request) {
     reason: data.reason,
   });
 
-  const amount = data.monthlyShekels && data.monthlyShekels > 0 ? data.monthlyShekels : 50;
+  // Never invent a monthly baseline — success fee / SavingsProof need a real figure.
+  if (!data.monthlyShekels || data.monthlyShekels <= 0) {
+    return NextResponse.json({ error: "amount_required" }, { status: 400 });
+  }
+  const amount = data.monthlyShekels;
   const target =
     data.intent === "cancel" || data.intent === "pause"
       ? 0
@@ -121,12 +130,18 @@ ${bodyWithFooter}`,
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: letter.subject,
-    body: letter.body,
-    status: kase.status,
-    message: "case_opened",
-    outreachEmail: outreachTo,
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: letter.subject,
+        body: letter.body,
+        status: express.dispatched ? "SENT" : kase.status,
+        outreachEmail: outreachTo,
+        primed: kase.status === "VERIFIED" || Boolean(kase.ownershipVerifiedAt),
+      },
+    }),
+  );
 }

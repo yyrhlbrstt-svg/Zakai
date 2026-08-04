@@ -3,10 +3,13 @@
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, FieldError, RadioChips } from "@/components/ui";
 import { estimatePlans, type UsageProfile } from "@/lib/electricity";
 import { formatAgorot, shekelsToAgorot, agorotToShekels } from "@/lib/money";
 import { normalizeOutreachEmail } from "@/lib/outreachEmail";
+import { resolveElectricityContactEmail } from "@/lib/utilityContacts";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const PROFILES: UsageProfile[] = ["spread", "day_home", "evening_family", "ev_night"];
 
@@ -48,8 +51,9 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
   async function openAgentCase(planId: string, providerKey: string, nameKey: string, savingAgorot: number) {
     setErr(null);
-    const email = normalizeOutreachEmail(supplierEmail);
-    if (!email) {
+    const email = normalizeOutreachEmail(supplierEmail) || undefined;
+    const known = resolveElectricityContactEmail(providerKey);
+    if (!email && !known) {
       setErr(tFlow("errorNeedsEmail"));
       return;
     }
@@ -69,12 +73,13 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
           supplierEmail: email,
         }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.status === 401) {
-        router.push("/login");
+        router.replace("/login?return=/electricity");
         return;
       }
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setErr(tFlow("errorNeedsEmail"));
           return;
@@ -82,9 +87,8 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
         setErr(he ? "לא ניתן לפתוח תיק כרגע. נסו שוב או התחברו." : "Could not open case. Try again or log in.");
         return;
       }
-      const data = await res.json();
       setOpened(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
       router.refresh();
     } catch {
       setErr(he ? "שגיאת רשת. נסו שוב." : "Network error. Try again.");

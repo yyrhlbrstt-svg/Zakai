@@ -1,50 +1,37 @@
 # @zakai/mandate-sdk
 
-The reference client for the **Zakai Mandate** protocol — a signed, scoped,
-audience-bound, revocable statement that a named person authorised an agent
-to act on their behalf, plus the settlement layer that decides who is right
-when the agent and the institution later disagree about what happened.
+Official **Node** Mandate verifier for institutions (Python twin: [`sdk/python`](./python)).
 
-Not published to npm yet. This package builds, typechecks, and passes its
-full test suite (including a live round trip against a real generated key)
-inside the Zakai repository — publishing it under a real package name is a
-deliberate, separate step, not something done silently.
+**Start here → [`QUICKSTART.md`](./QUICKSTART.md)** (20–30 minutes to `READY_FOR_PIONEER`).  
+Safety contract → [`SAFETY.md`](./SAFETY.md) (inbound-only, no outbound money, no private keys).
 
-## Why this exists
+```bash
+cd sdk && npm ci && npm run ready
+# → READY_FOR_PIONEER → https://zakai-3uxj.vercel.app/he/institutions/leader
+```
 
-Every agentic product on the market today can *act* for a user — draft a
-letter, negotiate a price, fill a form. None of that is worth building a
-moat on: it commoditises the moment a better model ships. What every one of
-those agents will eventually need, and what almost nobody has built, is a
-cheap way to **prove to a third party that the act was authorised** — and,
-when the third party disputes it, a **neutral record of who is right** that
-doesn't require either side to be trusted.
+Publishing is gated: `.github/workflows/sdk-publish.yml`; npm publish on `sdk@v*` tag
+or `workflow_dispatch` with `publish=true`. Until then, use the monorepo path above.
 
-That is what this package gives you, in the order you'll probably need it:
+## What you get (minimal surface)
 
-1. **Verify** a mandate someone presented to you — three lines, against a
-   published JWKS, no live call to Zakai required.
-2. **Decide** whether a specific act is authorised right now — the ~50 lines
-   of scope-matching, audience-checking, per-act-confirmation logic every
-   integrator writes slightly differently and usually gets one rule wrong.
-   Written once here, pass/fail against
-   [published test vectors](https://zakai-3uxj.vercel.app/api/mandate/test-vectors).
-3. **Settle** — if you want a durable, disputable record of that decision
-   (and later, what actually happened), build one with two helper functions
-   and hand the result to `adjudicate()`.
+1. **Verify** — `verifyMandateFromUrl` against published JWKS (offline after fetch).
+2. **Decide** — `decide()` against [test vectors](https://zakai-3uxj.vercel.app/api/mandate/test-vectors).
+3. **Revocation** — `verifyStatusListFromUrl` (`statuslist+jwt`).
+4. **Ready gate** — `zakai-mandate-ready` → Pioneer wizard.
 
-Every function in this package is ported from the production Zakai app, not
-reimplemented against a spec describing it. The SDK and the servers it talks
-to cannot silently disagree about what a mandate means, because they run
-the same logic.
+Same logic as production Zakai — the SDK cannot silently disagree with the issuer.
 
 ## Install
 
 ```bash
-npm install @zakai/mandate-sdk
-```
+# Monorepo (works today):
+cd sdk && npm ci && npm run build
 
-(Not on npm yet — see the note at the top of this file.)
+# After publish:
+npm install @zakai/mandate-sdk
+npx zakai-mandate-ready
+```
 
 ## MCP server: give any AI agent a Mandate verifier
 
@@ -72,18 +59,46 @@ reading an ID card, not signing one. Every verification resolves the token's
 issuer through the published **trust registry** first: unknown, suspended or
 withdrawn issuers are rejected before any cryptography, and an issuer that
 granted a scope beyond its registry entry poisons the whole mandate.
-`decide_action` additionally checks live revocation at the issuer's own
+`decide_action` checks revocation via the signed status list when the token
+embeds `zkm.status`, otherwise live revocation at the issuer's own
 status route and fails closed: an unreachable status endpoint is a deny,
 never a shrug. `ZAKAI_BASE_URL` points it at a staging or self-hosted
 registry operator.
 
+## Ready for Pioneer (15 minutes)
+
+```bash
+npm run ready
+# or: npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app
+```
+
+Runs every published authorization test vector and cryptographically verifies
+the signed `statuslist+jwt`. Exit 0 prints `READY_FOR_PIONEER` — then claim a
+slot at `/institutions/leader`. Not regulatory certification.
+
+Python (official package):
+
+```bash
+cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready
+```
+
+Legacy shim: `python3 reference/python/zakai_verify.py --ready`
+
+Human twin: `/he/institutions/quickstart`
+
 ## Quickstart: verify a mandate someone sent you
 
 ```ts
-import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
+import { verifyMandateFromUrl, verifyStatusListFromUrl } from "@zakai/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(token, {
   audience: "my-institution-id",
+  jwksUri: "https://zakai-3uxj.vercel.app/.well-known/zakai-jwks.json",
+});
+
+const list = await verifyStatusListFromUrl({
+  statusListUri: "https://zakai-3uxj.vercel.app/api/mandate/revocations",
+  issuer: "https://zakai-3uxj.vercel.app",
   jwksUri: "https://zakai-3uxj.vercel.app/.well-known/zakai-jwks.json",
 });
 
@@ -154,8 +169,9 @@ before it ships.
 *self-reported* pass/fail results — honest, but not independent verification.
 `probeIssuer()` closes part of that gap: given a candidate's public JWKS and
 one or more sample mandates they issue, it runs an independent judge (this
-SDK's own `verifyMandate`) against 7 of the 10 published conformance checks,
-without trusting anything the candidate says about their own code.
+SDK's own `verifyMandate` / `verifyStatusList`) against the published
+conformance checks that are settleable from artifacts alone, without trusting
+anything the candidate says about their own code.
 
 ```ts
 import { probeIssuer, assessConformance } from "@zakai/mandate-sdk";
@@ -164,27 +180,27 @@ const results = await probeIssuer({
   jwks: candidateJwks,
   audience: "my-institution-id",
   sampleValidToken: candidateSampleToken,
-  sampleExpiredToken: candidateExpiredSample, // optional — see below
+  sampleExpiredToken: candidateExpiredSample, // optional — enforces_expiry
+  sampleStatusListToken: candidateStatusListJwt, // optional — revocation_takes_effect
 });
 
 const report = assessConformance(results);
 console.log(report.verdict); // "conformant" | "conformant_with_notes" | "not_conformant"
 ```
 
-Checks it can genuinely settle from artifacts alone: `publishes_jwks` (no
-leaked private key material), `issues_valid_jwt`, `registered_claims_present`,
+Checks settled from the sample + JWKS alone: `publishes_jwks` (no leaked
+private key material), `issues_valid_jwt`, `registered_claims_present`,
 `scope_is_oauth_shaped`, `refuses_forbidden_scope`, `rejects_forged_signature`
 (by flipping a bit in the signature's actual decoded bytes — the trailing
 characters of a base64url segment can be pure padding, so tampering the text
-directly can silently round-trip to the same bytes), and `enforces_audience`.
+directly can silently round-trip to the same bytes), `enforces_audience`, and
+`publishes_status_list` (sample must embed `zkm.status`).
 
-`enforces_expiry` needs a sample token the candidate issued *already
-expired*; if one isn't supplied, `probeIssuer` leaves it out of the results
-entirely rather than assuming a pass, and `assessConformance` reports it as
-`missing`. Two checks — `publishes_status_list` freshness and
-`revocation_takes_effect` — need monitoring over time or a bespoke
-issuance-API call this SDK can't assume the shape of, so they're always left
-for the registry operator to verify directly rather than faked here.
+Optional artifacts (absent → `missing`, never a silent pass):
+
+- `enforces_expiry` — supply a sample the candidate issued *already expired*
+- `revocation_takes_effect` — supply a signed `statuslist+jwt` where the
+  sample's `zkm.status.idx` bit is set (inline token; no live fetch)
 
 ## Beyond money
 

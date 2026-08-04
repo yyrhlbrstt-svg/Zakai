@@ -48,10 +48,12 @@ describe("feeBasis on rule packs", () => {
     expect(getRulePack("deposit")?.feeBasis).toBe("lump");
     expect(getRulePack("telecom")?.feeBasis).toBe("monthly");
     expect(getRulePack("duplicate-insurance")?.feeBasis).toBe("monthly");
+    expect(getRulePack("car-insurance-refund")?.feeBasis).toBe("lump");
   });
 
   it("feeBasisForVertical defaults to monthly", () => {
     expect(feeBasisForVertical("deposit")).toBe("lump");
+    expect(feeBasisForVertical("car-insurance-refund")).toBe("lump");
     expect(feeBasisForVertical("unknown")).toBe("monthly");
   });
 });

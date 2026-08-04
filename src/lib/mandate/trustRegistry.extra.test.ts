@@ -1,5 +1,11 @@
 import { describe, expect, it, afterEach } from "vitest";
-import { ISSUERS, listRegisteredIssuers, validateIssuer } from "./trustRegistry";
+import {
+  ISSUERS,
+  countActiveNetworkIssuers,
+  decideTrust,
+  listRegisteredIssuers,
+  validateIssuer,
+} from "./trustRegistry";
 
 describe("listRegisteredIssuers", () => {
   const prev = process.env.ZAKAI_EXTRA_ISSUERS_JSON;
@@ -27,5 +33,22 @@ describe("listRegisteredIssuers", () => {
     process.env.ZAKAI_EXTRA_ISSUERS_JSON = JSON.stringify([extra]);
     const merged = listRegisteredIssuers();
     expect(merged.some((i) => i.iss === extra.iss)).toBe(true);
+    expect(countActiveNetworkIssuers()).toBe(ISSUERS.length + 1);
+  });
+
+  it("lists sandbox extras without counting them for G5 / decideTrust", () => {
+    const sandbox = {
+      iss: "https://sandbox.issuer.example",
+      name: "Sandbox",
+      jwksUri: "https://sandbox.issuer.example/.well-known/jwks.json",
+      statusListUri: "https://sandbox.issuer.example/api/revocations",
+      allowedScopes: ["read:bills"],
+      status: "sandbox" as const,
+      admittedAt: "2026-08-03",
+    };
+    process.env.ZAKAI_EXTRA_ISSUERS_JSON = JSON.stringify([sandbox]);
+    expect(listRegisteredIssuers().some((i) => i.iss === sandbox.iss)).toBe(true);
+    expect(countActiveNetworkIssuers()).toBe(ISSUERS.filter((i) => i.status === "active").length);
+    expect(decideTrust(sandbox.iss, ["read:bills"]).trusted).toBe(false);
   });
 });

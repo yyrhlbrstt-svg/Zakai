@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_bank_charges_review",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Bank fees — agent",
+    "he": "עמלות בנק — סוכן"
+  },
+  "market": "GB",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/bank-fees",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "FCA Handbook, BCOBS and CONC 5D (persistent debt and overdraft charges)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -128,6 +128,14 @@ export interface MandateClaims {
     name: string;
     note: string;
   };
+  /**
+   * Offline revocation pointer (IETF Token Status List style under `zkm`).
+   * Institutions fetch `uri`, verify the signed bitstring, and read bit `idx`.
+   */
+  status?: {
+    idx: number;
+    uri: string;
+  };
 }
 
 export interface IssueMandateInput {
@@ -142,6 +150,11 @@ export interface IssueMandateInput {
   ttlSeconds?: number;
   /** See `MandateClaims.onBehalfOf`. Omit for a first-party mandate. */
   onBehalfOf?: MandateClaims["onBehalfOf"];
+  /**
+   * Status-list bit allocated at issue. Required for offline revoke; omit only
+   * in unit tests that exercise legacy tokens without the claim.
+   */
+  status?: MandateClaims["status"];
   /** Injectable for deterministic tests. */
   now?: Date;
 }
@@ -163,6 +176,15 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
   if (!input.jti.trim()) throw new MandateError("jti is required", "MALFORMED");
 
   const nowSec = Math.floor((input.now?.getTime() ?? Date.now()) / 1000);
+  if (input.status) {
+    if (!Number.isInteger(input.status.idx) || input.status.idx < 0) {
+      throw new MandateError("status.idx must be a non-negative integer", "MALFORMED");
+    }
+    if (!input.status.uri.trim()) {
+      throw new MandateError("status.uri is required when status is set", "MALFORMED");
+    }
+  }
+
   const claims: MandateClaims = {
     v: MANDATE_VERSION,
     jti: input.jti,
@@ -177,6 +199,9 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
     exp: nowSec + (input.ttlSeconds ?? DEFAULT_TTL_SECONDS),
     statement: input.statement,
     onBehalfOf: input.onBehalfOf,
+    status: input.status
+      ? { idx: input.status.idx, uri: input.status.uri.trim() }
+      : undefined,
   };
 
   const privateKey = await importJWK(key.privateJwk, "EdDSA");
@@ -191,6 +216,7 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
       market: claims.market,
       statement: claims.statement,
       ...(claims.onBehalfOf ? { onBehalfOf: claims.onBehalfOf } : {}),
+      ...(claims.status ? { status: claims.status } : {}),
     },
   })
     .setProtectedHeader({ alg: "EdDSA", kid: key.kid, typ: MANDATE_TYPE })
@@ -320,6 +346,16 @@ function normaliseClaims(raw: Record<string, unknown>): MandateClaims {
     // claim existed — both are the same case to a verifier and neither is an
     // error, so this stays undefined rather than a guessed default.
     onBehalfOf: isJwtShape ? (ns.onBehalfOf as MandateClaims["onBehalfOf"] | undefined) : undefined,
+    status: (() => {
+      const rawStatus = (isJwtShape ? ns.status : raw.status) as
+        | { idx?: unknown; uri?: unknown }
+        | undefined;
+      if (!rawStatus || typeof rawStatus !== "object") return undefined;
+      const idx = Number(rawStatus.idx);
+      const uri = typeof rawStatus.uri === "string" ? rawStatus.uri : "";
+      if (!Number.isInteger(idx) || idx < 0 || !uri) return undefined;
+      return { idx, uri };
+    })(),
   };
 }
 

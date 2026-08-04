@@ -1,0 +1,33 @@
+{
+  "pack_version": "2026.07.3",
+  "market": "DE",
+  "language": "de-DE",
+  "maintainer": "de-maintainer@zakai.io",
+  "rights_count": 15,
+  "rights": [
+    "de_lohnsteuer_jahresausgleich",
+    "de_kindergeld_check",
+    "de_elterngeld_check",
+    "de_grundsicherung_check",
+    "de_rentenauskunft",
+    "de_bankentgelte_pruefung",
+    "de_strom_gas_abrechnung",
+    "de_kaution_rueckzahlung",
+    "de_pflege_kranken_beitrag",
+    "de_urlaubsentgelt",
+    "de_wohngebaeude_versicherung",
+    "de_bafog_check",
+    "de_flug_eu261",
+    "de_abo_audit",
+    "de_bank_fees_tool"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:17:41.521Z",
+    "source": "src/lib/global/registry"
+  }
+}

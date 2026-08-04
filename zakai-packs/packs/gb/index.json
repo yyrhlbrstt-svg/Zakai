@@ -1,0 +1,52 @@
+{
+  "pack_version": "2026.08.2",
+  "market": "GB",
+  "language": "en-GB",
+  "maintainer": "gb-maintainer@zakai.io",
+  "rights_count": 34,
+  "rights": [
+    "gb_marriage_allowance",
+    "gb_employment_expenses_relief",
+    "gb_tax_overpayment_review",
+    "gb_pension_tax_relief_higher_rate",
+    "gb_council_tax_single_person",
+    "gb_council_tax_reduction",
+    "gb_council_tax_disability_band",
+    "gb_council_tax_student_exemption",
+    "gb_child_benefit",
+    "gb_universal_credit",
+    "gb_pension_credit",
+    "gb_attendance_allowance",
+    "gb_personal_independence_payment",
+    "gb_state_pension_gaps",
+    "gb_winter_fuel_payment",
+    "gb_warm_home_discount",
+    "gb_energy_billing_review",
+    "gb_flight_comp_uk261",
+    "gb_subscription_audit",
+    "gb_bank_charges_review",
+    "gb_missing_refund",
+    "gb_mortgage_refinance",
+    "gb_pension_fees",
+    "gb_free_childcare_hours",
+    "gb_tax_free_childcare",
+    "gb_nhs_low_income_scheme",
+    "gb_workplace_pension_check",
+    "gb_holiday_pay_review",
+    "gb_student_loan_overpayment",
+    "gb_tenancy_deposit_check",
+    "gb_app_fraud_refund_claim",
+    "gb_basic_bank_account_access",
+    "gb_dormant_account_unclaimed",
+    "gb_persistent_overdraft_review"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:32:07.528Z",
+    "source": "src/lib/global/registry"
+  }
+}

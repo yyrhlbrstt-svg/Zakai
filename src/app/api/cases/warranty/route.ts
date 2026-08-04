@@ -9,6 +9,7 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
 
 const schema = z.object({
@@ -24,6 +25,10 @@ export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
 
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
+
   const limited = await rateLimit("cases-warranty", auth.userId, 15, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
 
@@ -32,7 +37,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  const outreachTo = firstOutreachEmail(data.sellerEmail);
+  const outreachTo = firstOutreachEmail(data.sellerEmail) || undefined;
   if (!outreachTo) {
     return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
   }
@@ -101,11 +106,16 @@ ${name}
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: staged.subject,
-    body: staged.body,
-    status: kase.status,
-    message: "case_opened",
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: staged.subject,
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

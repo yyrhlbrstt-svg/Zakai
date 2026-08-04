@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "pl_swiadczenie_pielegnacyjne",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Swiadczenie Pielegnacyjne",
+    "he": "קצבת טיפול"
+  },
+  "market": "PL",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "hasDisability",
+        "operator": "eq",
+        "value": true,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/pl_swiadczenie_pielegnacyjne",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Ustawa z dnia 28 listopada 2003 r. — świadczenie pielęgnacyjne"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

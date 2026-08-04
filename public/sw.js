@@ -34,7 +34,8 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let data = { title: "זכאי", body: "עדכון מהסוכן", url: "/he/dashboard", tag: "zakai" };
+  // Finish surface is Money OS — never fall back to portfolio /dashboard.
+  let data = { title: "זכאי", body: "עדכון מהסוכן", url: "/he/money", tag: "zakai" };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch {
@@ -46,7 +47,7 @@ self.addEventListener("push", (event) => {
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
       tag: data.tag || "zakai",
-      data: { url: data.url || "/he/dashboard" },
+      data: { url: data.url || "/he/money" },
       dir: "rtl",
       lang: "he",
     }),
@@ -55,7 +56,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/he/dashboard";
+  const url = (event.notification.data && event.notification.data.url) || "/he/money";
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
       for (const c of clients) {

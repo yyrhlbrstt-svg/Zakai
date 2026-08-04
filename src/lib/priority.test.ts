@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { rankPriorityActions, formatPotentialHe, formatPotentialEn, priorityDigestHe } from "./priority";
+import {
+  rankPriorityActions,
+  formatPotentialHe,
+  formatPotentialEn,
+  priorityDigestHe,
+  priorityWeight,
+  MONTHLY_LEAK_PIN_IDS,
+} from "./priority";
 import { RULE_PACKS } from "./verticals";
 
 describe("priority cadence", () => {
@@ -84,20 +91,36 @@ describe("priority cadence", () => {
     }
   });
 
-  it("ranking is unaffected by cadence — only potentialShekels and effort matter", () => {
+  it("ranking stays sorted by descending priorityWeight", () => {
     const ranked = rankPriorityActions(20);
-    // A sanity check on the ranking function itself, not a cadence test: it
-    // must still be sorted by descending weight regardless of what mix of
-    // cadences the top results happen to have.
-    const weight = (a: (typeof ranked)[number], boosts: Record<string, number> = {}) => {
-      const base =
-        a.potentialShekels / (a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2);
-      const agentic = base * (a.agentic ? 1.35 : 1);
-      const boost = boosts[a.id] ?? 0;
-      return agentic * (1 + boost);
-    };
     for (let i = 1; i < ranked.length; i++) {
-      expect(weight(ranked[i - 1])).toBeGreaterThanOrEqual(weight(ranked[i]));
+      expect(priorityWeight(ranked[i - 1])).toBeGreaterThanOrEqual(priorityWeight(ranked[i]));
     }
+  });
+
+  it("monthly agent doors outrank one-time calculator doors after cadence factor", () => {
+    // Pain fit: bank + telecom + cancel compound monthly and already close
+    // Mandate → SavingsProof. Warranty / vehicle-check are useful but bury the
+    // volume engine when raw one-time ₪ figures win the sort.
+    const top = rankPriorityActions(12).map((a) => a.id);
+    expect(top).toContain("cancel");
+    expect(top).toContain("bank-fees");
+    const cancelIdx = top.indexOf("cancel");
+    const warrantyIdx = top.indexOf("warranty");
+    if (warrantyIdx >= 0) {
+      expect(cancelIdx).toBeLessThan(warrantyIdx);
+    }
+  });
+
+  it("pinIds put the monthly-leak trio first on /money", () => {
+    const top = rankPriorityActions(
+      3,
+      {},
+      {
+        pinIds: [...MONTHLY_LEAK_PIN_IDS],
+        excludeIds: ["money"],
+      },
+    ).map((a) => a.id);
+    expect(top).toEqual(["cancel", "check", "bank-fees"]);
   });
 });

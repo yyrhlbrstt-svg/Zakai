@@ -3,9 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { Card, Button, Textarea } from "@/components/ui";
-import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
+import { redirectIfOpenLoop } from "@/lib/openLoopClient";
+import { Card, Button, Textarea, Input } from "@/components/ui";
+import {
+  scanStatement,
+  type ScanResult,
+  type ChargeCategory,
+  type RecurringCharge,
+} from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
+import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
+import { ShareResult } from "@/components/ShareResult";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
+import {
+  buildScanShareMessage,
+  scanShareKicker,
+  scanShareLandingPath,
+} from "@/lib/monopoly/scanShare";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -30,6 +44,8 @@ const copy: Record<string, Record<string, string>> = {
     pasteTitle: "או הדבק / העלה קובץ תנועות",
     pastePh: "הדבק כאן ייצוא CSV/טקסט מהבנק…",
     scanBtn: "סרוק חיובים",
+    loadDemo: "נסו דוגמה (סלקום + נטפליקס)",
+    tooShort: "הדביקו לפחות כמה שורות מהדוח — או לחצו «נסו דוגמה».",
     uploadBtn: "העלה קובץ",
     total: "סה״כ חיובים קבועים שזוהו",
     perMonth: "לחודש",
@@ -37,7 +53,7 @@ const copy: Record<string, Record<string, string>> = {
     act: "מה זכאי ממליץ — הסוכן פועל",
     openCase: "הסוכן פותח תיק עכשיו",
     opening: "פותח תיק…",
-    opened: "✓ תיק נפתח — לדשבורד",
+    opened: "✓ תיק נפתח — לכסף שלי",
     bestRoi: "הכי כדאי עכשיו",
     remember: "נשמר במכשיר שלך — בפעם הבאה תראה את הסיכום גם בלי להעלות שוב",
     lastSaved: "סיכום אחרון מהמכשיר",
@@ -50,12 +66,17 @@ const copy: Record<string, Record<string, string>> = {
     universalCancelCta: "רק מכתבי ביטול להעתקה (בלי שליחה מזכאי)",
     errGeneric: "משהו השתבש. נסה שוב.",
     errLimit: "הגעת למגבלת התיקים. שדרג או סגור תיק קיים.",
-    errNeedsEmail: "חסר אימייל לספק — פתח כל חיוב בנפרד או השתמש בביטול מנוי עם כתובת.",
+    errNeedsEmail: "חסר אימייל לספק — הזינו כתובת שירות למטה והמשיכו.",
+    outreachPh: "אימייל שירות / ביטולים של הספק",
+    outreachContinue: "המשך עם האימייל",
+    outreachCancel: "ביטול",
     batchOpen: "הסוכן פותח את כל התיקים המומלצים",
     batchOpening: "פותח תיקים…",
-    batchDone: "✓ נפתחו {n} תיקים — לדשבורד",
-    batchPartial: "נפתחו {n} תיקים (חלק דולגו בגלל מגבלת מסלול)",
-    selectHint: "סמן חיובים ואז פתח בבת אחת (עד 5 לפי המסלול)",
+    batchDone: "✓ נפתחו {n} תיקים — לכסף שלי",
+    batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
+    batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו ב«כסף שלי» לפני שליחה.",
+    selectHint: "סמן חיובים ואז פתח בבת אחת (Free = תיק פעיל אחד; Pro פותח יותר)",
+    altLetter: "חלופות (לא מסלול הסוכן)",
   },
   en: {
     privacy:
@@ -67,6 +88,8 @@ const copy: Record<string, Record<string, string>> = {
     pasteTitle: "Or paste / upload a statement file",
     pastePh: "Paste CSV/text export from your bank…",
     scanBtn: "Scan charges",
+    loadDemo: "Try demo (Cellcom + Netflix)",
+    tooShort: "Paste at least a few statement lines — or tap Try demo.",
     uploadBtn: "Upload file",
     total: "Recurring charges found",
     perMonth: "per month",
@@ -74,7 +97,7 @@ const copy: Record<string, Record<string, string>> = {
     act: "What Zakai recommends — agent acts",
     openCase: "Agent opens case now",
     opening: "Opening case…",
-    opened: "✓ Case opened — dashboard",
+    opened: "✓ Case opened — My money",
     bestRoi: "Best next move",
     remember: "Saved on this device",
     lastSaved: "Last summary on this device",
@@ -86,12 +109,17 @@ const copy: Record<string, Record<string, string>> = {
     universalCancelCta: "Copy-only cancel letters (you send)",
     errGeneric: "Something went wrong. Try again.",
     errLimit: "Case limit reached. Upgrade or close an open case.",
-    errNeedsEmail: "Missing provider email — open charges one by one or use cancel with an address.",
+    errNeedsEmail: "Missing provider email — enter their support address below to continue.",
+    outreachPh: "Provider support / cancel email",
+    outreachContinue: "Continue with email",
+    outreachCancel: "Cancel",
     batchOpen: "Agent opens all recommended cases",
     batchOpening: "Opening cases…",
-    batchDone: "✓ Opened {n} cases — dashboard",
-    batchPartial: "Opened {n} cases (some skipped by plan limit)",
-    selectHint: "Select charges, then open in one go (up to 5 by plan)",
+    batchDone: "✓ Opened {n} cases — My money",
+    batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
+    batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it in My money before send.",
+    selectHint: "Select charges, then open together (Free = 1 active case; Pro opens more)",
+    altLetter: "Alternatives (not the agent path)",
   },
   ar: {
     privacy: "لا نطلب كلمة مرور البنك.",
@@ -125,6 +153,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "جارٍ الفتح…",
     batchDone: "✓ فُتح {n} ملفات",
     batchPartial: "فُتح {n} ملفات",
+    batchNeedsEmail: "فُتح {n} — بعضها بلا بريد؛ أكمل في لوحة التحكم قبل الإرسال.",
     selectHint: "اختر ثم افتح دفعة واحدة",
   },
   ru: {
@@ -160,6 +189,7 @@ const copy: Record<string, Record<string, string>> = {
     batchOpening: "Открываем…",
     batchDone: "✓ Открыто {n} дел",
     batchPartial: "Открыто {n} дел",
+    batchNeedsEmail: "Открыто {n} — для части нужен email; укажите в дашборде перед отправкой.",
     selectHint: "Выберите и откройте пакетом",
   },
 };
@@ -187,9 +217,11 @@ function topN(recurring: RecurringCharge[], n: number): RecurringCharge[] {
 export function MoneyHub({
   bcp47,
   screenshotEnabled,
+  referralCode,
 }: {
   bcp47: string;
   screenshotEnabled: boolean;
+  referralCode?: string;
 }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -206,6 +238,10 @@ export function MoneyHub({
   const [batchCount, setBatchCount] = useState<number | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [pendingOutreach, setPendingOutreach] = useState<RecurringCharge | null>(null);
+  /** Soft-open already created this case — Continue must not POST from-scan again. */
+  const [pendingCaseId, setPendingCaseId] = useState<string | null>(null);
+  const [outreachEmail, setOutreachEmail] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const shotRef = useRef<HTMLInputElement>(null);
 
@@ -216,6 +252,12 @@ export function MoneyHub({
     } catch {
       /* ignore */
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#zakai-money-scan") return;
+    document.getElementById("zakai-money-scan")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   function persist(scan: ScanResult) {
@@ -239,9 +281,13 @@ export function MoneyHub({
     setOpenedId(null);
     setBatchCount(null);
     setError(null);
-    // Pre-select top 3 by monthly amount for one-tap batch.
-    const tops = topN(scan.recurring, 3).map((r) => r.merchant);
-    setSelected(new Set(tops));
+    // Pre-select top 3 by monthly amount — keys must match checkbox indices.
+    const tops = topN(scan.recurring, 3);
+    const keys = tops
+      .map((r) => scan.recurring.findIndex((x) => x === r))
+      .filter((i) => i >= 0)
+      .map((i) => String(i));
+    setSelected(new Set(keys));
     if (scan.recurring.length > 0) persist(scan);
   }
 
@@ -291,8 +337,50 @@ export function MoneyHub({
     });
   }
 
-  async function openCase(r: RecurringCharge) {
+  /** Attach outreach email to an already-opened soft-open case, then finish on /money. */
+  async function finishPendingOutreach(caseId: string, email: string) {
+    setBusyMerchant(pendingOutreach?.merchant ?? "…");
+    try {
+      const approveRes = await fetch(`/api/cases/${caseId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ counterpartyEmail: email }),
+      });
+      if (!approveRes.ok) {
+        const data = await approveRes.json().catch(() => ({}));
+        if (data.error !== "ALREADY_SENT") {
+          setError(tx(locale, "errNeedsEmail"));
+          return;
+        }
+      }
+      const dispatchRes = await fetch(`/api/cases/${caseId}/dispatch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ counterpartyEmail: email }),
+      });
+      const data = await dispatchRes.json().catch(() => ({}));
+      setPendingOutreach(null);
+      setPendingCaseId(null);
+      setOpenedId(caseId);
+      router.push(
+        moneyCaseHref(caseId, {
+          delivered: dispatchRes.ok && data.delivered === true,
+        }),
+      );
+    } catch {
+      setError(tx(locale, "errGeneric"));
+    } finally {
+      setBusyMerchant(null);
+    }
+  }
+
+  async function openCase(r: RecurringCharge, contactEmail?: string) {
     setError(null);
+    // Soft-open already created the case — never double from-scan.
+    if (pendingCaseId && pendingOutreach?.merchant === r.merchant && contactEmail?.trim()) {
+      await finishPendingOutreach(pendingCaseId, contactEmail.trim());
+      return;
+    }
     setBusyMerchant(r.merchant);
     try {
       const monthlyShekels = Math.max(1, Math.round(r.monthlyAgorot / 100));
@@ -304,6 +392,7 @@ export function MoneyHub({
           product: r.merchant,
           monthlyShekels,
           category: r.category,
+          contactEmail: contactEmail?.trim() || undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -312,18 +401,33 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
-          const monthlyShekels = Math.max(1, Math.round(r.monthlyAgorot / 100));
-          router.push(
-            `/cancel?company=${encodeURIComponent(r.merchant)}&monthly=${monthlyShekels}`,
-          );
+          setPendingOutreach(r);
+          setPendingCaseId(null);
+          setOutreachEmail("");
+          setError(tx(locale, "errNeedsEmail"));
           return;
         }
         setError(data.error === "caseLimit" ? tx(locale, "errLimit") : tx(locale, "errGeneric"));
         return;
       }
+      // Soft-open: case exists, Mandate not sent — collect inbox here (no second create).
+      if (data.needsOutreachEmail && data.caseId) {
+        setPendingOutreach(r);
+        setPendingCaseId(data.caseId);
+        setOpenedId(data.caseId);
+        setOutreachEmail(contactEmail?.trim() || "");
+        setError(tx(locale, "errNeedsEmail"));
+        return;
+      }
+      setPendingOutreach(null);
+      setPendingCaseId(null);
       setOpenedId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      // Finish on /money — never send the user to the dashboard portfolio.
+      router.push(
+        moneyCaseHref(data.caseId, { delivered: data.delivered }),
+      );
     } catch {
       setError(tx(locale, "errGeneric"));
     } finally {
@@ -358,27 +462,34 @@ export function MoneyHub({
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setError(tx(locale, "errGeneric"));
         return;
       }
       const n = data.openedCount ?? 0;
-      const skipped = (data.skipped as Array<{ reason?: string }> | undefined) ?? [];
+      const skipped =
+        (data.skipped as Array<{ merchant?: string; reason?: string }> | undefined) ?? [];
+      const opened =
+        (data.opened as Array<{ caseId?: string; needsOutreachEmail?: boolean }> | undefined) ??
+        [];
       setBatchCount(n);
+
       if (n > 0) {
         if (data.skippedCount > 0) {
           setError(tx(locale, "batchPartial").replace("{n}", String(n)));
+        } else if (opened.some((o) => o.needsOutreachEmail)) {
+          setError(tx(locale, "batchNeedsEmail").replace("{n}", String(n)));
         }
-        const firstId = data.opened?.[0]?.caseId as string | undefined;
+        // Prefer a case that still needs outreach email so CaseNextStep can collect it.
+        const needEmail = opened.find((o) => o.needsOutreachEmail && o.caseId);
+        const firstId = (needEmail?.caseId || opened[0]?.caseId) as string | undefined;
         setTimeout(
-          () => router.push(firstId ? `/dashboard?case=${firstId}` : "/dashboard"),
+          () => router.push(firstId ? `/money?case=${firstId}` : "/money"),
           600,
         );
       } else if (data.skippedCount > 0) {
-        const allNeedEmail =
-          skipped.length > 0 && skipped.every((s) => s.reason === "needsOutreachEmail");
         const allLimit = skipped.length > 0 && skipped.every((s) => s.reason === "caseLimit");
-        if (allNeedEmail) setError(tx(locale, "errNeedsEmail"));
-        else if (allLimit) setError(tx(locale, "errLimit"));
+        if (allLimit) setError(tx(locale, "errLimit"));
         else setError(tx(locale, "errGeneric"));
       }
     } catch {
@@ -389,9 +500,15 @@ export function MoneyHub({
   }
 
   const best = result ? topRoi(result.recurring) : null;
+  const canScan = text.trim().length >= STATEMENT_SCAN_MIN_CHARS;
+
+  function loadDemo() {
+    setText(UNIVERSAL_CANCEL_DEMO_CSV);
+    runScan(UNIVERSAL_CANCEL_DEMO_CSV);
+  }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 pb-28">
       <div className="flex items-start gap-2.5 text-[13px] text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3">
         <span aria-hidden>🔒</span>
         <span>{tx(locale, "privacy")}</span>
@@ -448,7 +565,7 @@ export function MoneyHub({
         )}
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-6" id="zakai-money-scan">
         <div className="font-extrabold text-[15px]">{tx(locale, "pasteTitle")}</div>
         <Textarea
           rows={5}
@@ -456,14 +573,20 @@ export function MoneyHub({
           className="mt-2 font-mono text-[12.5px]"
           placeholder={tx(locale, "pastePh")}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            if (result) setResult(null);
+          }}
         />
         <div className="flex gap-3 mt-3 flex-wrap">
-          <Button onClick={() => runScan(text)} disabled={text.trim().length === 0}>
+          <Button className="flex-1 min-w-[140px]" onClick={() => runScan(text)} disabled={!canScan}>
             {tx(locale, "scanBtn")}
           </Button>
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
             {tx(locale, "uploadBtn")}
+          </Button>
+          <Button variant="ghost" className="!text-[13px]" type="button" onClick={loadDemo}>
+            {tx(locale, "loadDemo")}
           </Button>
           <input
             ref={fileRef}
@@ -473,7 +596,18 @@ export function MoneyHub({
             onChange={(e) => onFile(e.target.files?.[0])}
           />
         </div>
+        {!canScan && text.trim().length > 0 && (
+          <p className="text-[12px] text-ink-soft mt-2 mb-0">{tx(locale, "tooShort")}</p>
+        )}
       </Card>
+
+      {!result && canScan && (
+        <div className="fixed inset-x-3 bottom-3 z-[9990] mx-auto max-w-[520px] md:hidden">
+          <Button className="w-full shadow-lg" onClick={() => runScan(text)}>
+            {tx(locale, "scanBtn")}
+          </Button>
+        </div>
+      )}
 
       <p className="text-[12.5px] text-ink-soft leading-relaxed px-1">{tx(locale, "openBankSoon")}</p>
 
@@ -492,6 +626,18 @@ export function MoneyHub({
                 </div>
                 <div className="text-[12px] text-ink-soft mt-1">{tx(locale, "perMonth")}</div>
                 <p className="text-[12px] text-ink-soft mt-3">{tx(locale, "remember")}</p>
+                <div className="mt-4">
+                  <ShareResult
+                    message={buildScanShareMessage(locale, {
+                      amountLabel: formatAgorot(result.totalMonthlyAgorot, bcp47),
+                      recurringCount: result.recurring.length,
+                    })}
+                    path={scanShareLandingPath()}
+                    amountLabel={formatAgorot(result.totalMonthlyAgorot, bcp47)}
+                    kicker={scanShareKicker(locale)}
+                    referralCode={referralCode}
+                  />
+                </div>
               </Card>
 
               {best && (
@@ -541,13 +687,55 @@ export function MoneyHub({
               <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13.5px] font-bold">
                 {tx(locale, "nextStep")}
               </div>
-              <Link href="/cancel/universal" className="no-underline block">
-                <Button variant="ghost" className="w-full !text-[13px]">
-                  {tx(locale, "universalCancelCta")}
-                </Button>
-              </Link>
+              <details className="text-[13px] text-ink-soft">
+                <summary className="cursor-pointer font-bold select-none">
+                  {tx(locale, "altLetter")}
+                </summary>
+                <Link href="/cancel/universal" className="no-underline block mt-2">
+                  <Button variant="ghost" className="w-full !text-[13px]">
+                    {tx(locale, "universalCancelCta")}
+                  </Button>
+                </Link>
+              </details>
 
               {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
+
+              {pendingOutreach && (
+                <Card className="p-4 border border-[rgba(240,180,92,0.4)] bg-[rgba(240,180,92,0.08)]">
+                  <div className="font-extrabold text-[14px] mb-2">{pendingOutreach.merchant}</div>
+                  <Input
+                    type="email"
+                    value={outreachEmail}
+                    onChange={(e) => setOutreachEmail(e.target.value)}
+                    placeholder={tx(locale, "outreachPh")}
+                    dir="ltr"
+                    className="text-[13px] mb-2"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      disabled={
+                        busyMerchant === pendingOutreach.merchant || !/@/.test(outreachEmail.trim())
+                      }
+                      onClick={() => openCase(pendingOutreach, outreachEmail.trim())}
+                    >
+                      {busyMerchant === pendingOutreach.merchant
+                        ? tx(locale, "opening")
+                        : tx(locale, "outreachContinue")}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setPendingOutreach(null);
+                        setPendingCaseId(null);
+                        setOutreachEmail("");
+                        setError(null);
+                      }}
+                    >
+                      {tx(locale, "outreachCancel")}
+                    </Button>
+                  </div>
+                </Card>
+              )}
 
               <div className="text-[13px] font-extrabold text-emerald">{tx(locale, "act")}</div>
 
@@ -599,7 +787,7 @@ export function MoneyHub({
               </Card>
 
               <div className="flex flex-wrap gap-2">
-                <Link href="/dashboard" className="no-underline">
+                <Link href="/money" className="no-underline">
                   <Button variant="ghost" className="!text-[13px] !py-2">
                     {tIcomponents_MoneyHub("t_38d0577a")}
                   </Button>

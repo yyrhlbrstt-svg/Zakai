@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input, Select } from "@/components/ui";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import {
@@ -12,17 +13,21 @@ import {
   feeKindLabel,
   BANK_FEE_KINDS,
 } from "@/lib/normalizeBankProvider";
+import { resolveBankContactEmail } from "@/lib/bankContacts";
 import { withFooter } from "@/lib/letterFooter";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function BankFeesTool() {
   const locale = useLocale();
   const footerLocale = locale === "he" || locale === "ar" ? "he" : "en";
   const t = useTranslations("inline_components_BankFeesTool");
+  const tFlow = useTranslations("agentFlow");
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [bankKey, setBankKey] = useState<BankProviderKey>("leumi");
   const [bankCustom, setBankCustom] = useState("");
+  const [bankEmail, setBankEmail] = useState(() => resolveBankContactEmail("leumi"));
   const [accountLast4, setAccountLast4] = useState("");
   const [feeKind, setFeeKind] = useState<BankFeeKind>("account_mgmt");
   const [feeDescription, setFeeDescription] = useState("");
@@ -36,7 +41,8 @@ export function BankFeesTool() {
 
   const bankLabel =
     bankKey === "other" ? bankCustom.trim() : bankOptionLabel(bankKey, locale);
-  const bankReady = bankKey !== "other" ? true : bankCustom.trim().length > 1;
+  const bankReady =
+    (bankKey !== "other" ? true : bankCustom.trim().length > 1) && hasOutreachEmail(bankEmail);
 
   function letterInput() {
     return {
@@ -61,6 +67,7 @@ export function BankFeesTool() {
           customerName: name,
           bankKey,
           bank: bankLabel,
+          bankEmail: bankEmail.trim() || undefined,
           accountLast4: accountLast4 || undefined,
           feeKind,
           feeDescription: feeDescription || undefined,
@@ -74,6 +81,15 @@ export function BankFeesTool() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
+        if (data.error === "needsOutreachEmail") {
+          setError(tFlow("errorNeedsEmail"));
+          return;
+        }
+        if (data.error === "amount_required") {
+          setError(t("errorAmountRequired"));
+          return;
+        }
         setError(res.status === 403 && data.error === "caseLimit" ? t("errorCaseLimit") : t("errorGeneric"));
         return;
       }
@@ -83,7 +99,7 @@ export function BankFeesTool() {
         body: withFooter(letter.body, footerLocale),
       });
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(t("errorGeneric"));
     } finally {
@@ -96,7 +112,15 @@ export function BankFeesTool() {
       <Card className="p-5 flex flex-col gap-3">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("t_ebd6b437")} />
         <label className="text-[12px] text-ink-soft font-bold">{t("bankLabel")}</label>
-        <Select value={bankKey} onChange={(e) => setBankKey(e.target.value as BankProviderKey)}>
+        <Select
+          value={bankKey}
+          onChange={(e) => {
+            const next = e.target.value as BankProviderKey;
+            setBankKey(next);
+            const known = resolveBankContactEmail(next);
+            if (known) setBankEmail(known);
+          }}
+        >
           {IL_BANK_OPTIONS.map((b) => (
             <option key={b.key} value={b.key}>
               {bankOptionLabel(b.key, locale)}
@@ -110,6 +134,15 @@ export function BankFeesTool() {
             placeholder={t("t_e5cbb043")}
           />
         )}
+        <label className="text-[12px] text-ink-soft font-bold">{tFlow("contactEmail")}</label>
+        <Input
+          type="email"
+          dir="ltr"
+          value={bankEmail}
+          onChange={(e) => setBankEmail(e.target.value)}
+          placeholder={tFlow("contactEmailHint")}
+        />
+        <p className="text-[12px] text-ink-soft m-0 leading-snug">{tFlow("honestNote")}</p>
         <Input
           value={accountLast4}
           onChange={(e) => setAccountLast4(e.target.value.replace(/\D/g, "").slice(0, 4))}
@@ -165,7 +198,7 @@ export function BankFeesTool() {
         <Card className="p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">{t("t_360e126e")}</div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("t_5a0296a5")}</p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{t("t_8ae29d51")}</Button>
           </Link>
         </Card>

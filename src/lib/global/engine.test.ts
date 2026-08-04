@@ -210,15 +210,18 @@ describe("market registry", () => {
     expect(preferredLocale(getMarket("IL"), ["fr-FR"])).toBe("he");
   });
 
-  it("ships thirteen jurisdiction packs in MARKETS", () => {
-    expect(allMarkets()).toHaveLength(13);
-    expect(allMarkets().map((m) => m.code).sort()).toEqual(
-      ["AU", "CA", "DE", "ES", "FR", "GB", "IE", "IL", "IT", "NL", "PL", "SE", "US"].sort(),
-    );
+  it("ships world jurisdiction packs including EU and XX", () => {
+    expect(allMarkets().length).toBeGreaterThanOrEqual(22);
+    const codes = allMarkets().map((m) => m.code);
+    expect(codes).toContain("EU");
+    expect(codes).toContain("XX");
+    expect(codes).toContain("BR");
+    expect(codes).toContain("IN");
+    expect(codes).toContain("JP");
   });
 
-  it("falls back to the default market for an unknown country", () => {
-    expect(getMarket("ZZ").code).toBe("IL");
-    expect(getMarket(undefined).code).toBe("IL");
+  it("falls back to the international pack for an unknown country", () => {
+    expect(getMarket("ZZ").code).toBe("XX");
+    expect(getMarket(undefined).code).toBe("XX");
   });
 });

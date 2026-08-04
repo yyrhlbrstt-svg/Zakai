@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, Textarea } from "@/components/ui";
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function WarrantyAppeal() {
   const t = useTranslations("warranty");
@@ -46,6 +47,7 @@ export function WarrantyAppeal() {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(t("agentNeedsEmail"));
           return;
@@ -59,7 +61,7 @@ export function WarrantyAppeal() {
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(t("agentError"));
     } finally {
@@ -67,11 +69,10 @@ export function WarrantyAppeal() {
     }
   }
 
-  const ready =
-    seller.trim() &&
-    product.trim() &&
-    fault.trim().length >= 3 &&
-    normalizeOutreachEmail(sellerEmail) !== null;
+  // Destination inbox required — express Mandate cannot dispatch without it.
+  const ready = Boolean(
+    seller.trim() && product.trim() && fault.trim().length >= 3 && hasOutreachEmail(sellerEmail),
+  );
 
   return (
     <div className="mt-8">
@@ -125,7 +126,7 @@ export function WarrantyAppeal() {
         <Card className="mt-5 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">{t("agentOpenedTitle")}</div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("agentOpenedSub")}</p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{t("agentDashboard")}</Button>
           </Link>
         </Card>

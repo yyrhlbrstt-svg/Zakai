@@ -9,6 +9,7 @@ import { generateReferralCode } from "@/lib/codes";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { sendVerificationEmail } from "@/lib/services/emailVerification";
+import { CONSUMER_REF_COOKIE } from "@/lib/consumerReferralAttribution";
 
 export async function POST(request: Request) {
   const limited = await rateLimit("signup", clientIp(request), 10, 3600);
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: firstError(parsed.error) }, { status: 400 });
   }
-  const { name, email, password, phone, country, referralCode } = parsed.data;
+  const { name, email, password, phone, country, referralCode: referralFromBody } = parsed.data;
   const normalizedPhone = normalizePhone(phone)!;
 
   try {
@@ -29,6 +30,10 @@ export async function POST(request: Request) {
     if (existing) {
       return NextResponse.json({ error: "emailTaken" }, { status: 409 });
     }
+
+    const cookieStore = await cookies();
+    const referralCode =
+      referralFromBody?.trim() || cookieStore.get(CONSUMER_REF_COOKIE)?.value?.trim() || undefined;
 
     // Resolve the invite code to a referrer, if any. Unknown codes are ignored
     // silently — a bad ?ref never blocks signup.
@@ -44,7 +49,7 @@ export async function POST(request: Request) {
     // Set once at signup, never touched again — see middleware.ts's
     // capturePartnerRef for why this exists (the B2B embed channel had no
     // attribution at all before this).
-    const partnerRef = (await cookies()).get("zakai_partner_ref")?.value || undefined;
+    const partnerRef = cookieStore.get("zakai_partner_ref")?.value || undefined;
 
     const user = await prisma.user.create({
       data: {

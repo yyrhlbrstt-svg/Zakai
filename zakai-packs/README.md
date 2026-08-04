@@ -14,9 +14,18 @@ npm run validate
 | Path | Role |
 |------|------|
 | `schema/zakai-rights-schema.json` | JSON Schema for each right document |
-| `packs/il/rights/*.json` | Israel catalog (76 rights) |
-| `packs/eu/` | EU samples (e.g. flight delay 261) |
+| `packs/il/rights/*.json` | Israel catalog (synced from registry) |
+| `packs/us/`, `packs/gb/`, … | Other markets synced via `npm run packs:sync` |
+| `packs/eu/` | EU samples (e.g. flight delay 261) — curated stub |
 | `maintainers/_registry.json` | Maintainer registry for sign-check |
+
+Regenerate market folders from the monorepo registry:
+
+```bash
+# from Zakai monorepo root
+npm run packs:sync          # all registered markets
+npm run packs:sync -- US GB # subset
+```
 
 ## Publish (CI)
 
@@ -39,10 +48,17 @@ npm run publish
 From the monorepo root:
 
 ```bash
-./scripts/export-zakai-packs-repo.sh
+npm run packs:export
+# or: ./scripts/export-zakai-packs-repo.sh
 ```
 
 Follow the printed `git push` instructions. Do not commit `node_modules/`.
+
+See `docs/ZML_SDK_INTEGRATION.md` and `docs/INFRA_ZAKAI_PACKS.md` in the main repo.
+
+## Engine discovery
+
+Live manifest: `/.well-known/zakai-packs.json` on the Zakai deployment (CDN base in `cdn_base`).
 
 ## Engine consumption
 

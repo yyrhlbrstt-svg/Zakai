@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_mortgage_escrow_surplus",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Mortgage Escrow Surplus",
+    "he": "משכנתא · נאמנות · עודף"
+  },
+  "market": "US",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "housing",
+        "operator": "in",
+        "value": [
+          "owner"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_mortgage_escrow_surplus",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Real Estate Settlement Procedures Act; Regulation X escrow rules"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

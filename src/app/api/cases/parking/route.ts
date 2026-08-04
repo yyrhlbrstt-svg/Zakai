@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { createCase, CaseError } from "@/lib/services/cases";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { chooseStance } from "@/lib/strategy/store";
 import { applyStance, stanceAffects } from "@/lib/strategy/applyStance";
 import { variantById } from "@/lib/strategy/variants";
@@ -34,6 +35,10 @@ export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
 
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
+
   const limited = await rateLimit("cases-parking", auth.userId, 15, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
 
@@ -42,7 +47,8 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  const outreachTo = firstOutreachEmail(data.authorityEmail);
+  // Parking without an authority inbox never reaches SENT — collect before open.
+  const outreachTo = firstOutreachEmail(data.authorityEmail) || undefined;
   if (!outreachTo) {
     return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
   }
@@ -62,15 +68,18 @@ export async function POST(request: Request) {
 
 הנדון: ערעור על דוח חניה מספר ${data.ticket}
 
-שמי ${name}, ואני מבקש/ת לערער על דוח החניה שבנדון.
+שמי זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם ${name} ובהרשאתו/ה המפורשת (Mandate). אינני הלקוח/ה עצמו/ה.
+
+בשם הלקוח/ה אני מערער על דוח החניה שבנדון.
 
 ${reasonText}${data.details ? `\n\nפירוט נוסף: ${data.details}` : ""}
 
-לאור האמור, אבקש לבטל את הדוח. ככל שהבקשה תידחה, אבקש לקבל הנמקה מפורטת ואת זכותי להישפט בבית המשפט לעניינים מקומיים.
+בקשה אחת: ביטול הדוח בכתב. ככל שהבקשה תידחה — הנמקה מפורטת ופירוט זכות ההישפטות בבית המשפט לעניינים מקומיים.
+
+נא מענה בכתב בלבד.
 
 בכבוד רב,
-${name}
-(המכתב נוסח בסיוע זכאי — zakai)`;
+זכאי — סוכן דיגיטלי בשם ${name}`;
 
   const subject = `ערעור על דוח חניה ${data.ticket} — עיריית ${data.city}`;
   const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 100;
@@ -113,11 +122,16 @@ ${name}
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: staged.subject,
-    body: staged.body,
-    status: kase.status,
-    message: "case_opened",
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: staged.subject,
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

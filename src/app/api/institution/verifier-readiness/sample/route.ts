@@ -11,15 +11,20 @@ const CORS = {
 
 /** Demo JWT for the Reference Verifier readiness wizard (verify API self-test). */
 export async function GET() {
-  const token = await issueVerifierReadinessDemoToken();
-  if (!token) {
+  const sample = await issueVerifierReadinessDemoToken();
+  if (!sample) {
     return NextResponse.json(
       { ok: false, error: "mandate_keys_not_configured" },
       { status: 503, headers: CORS },
     );
   }
   return NextResponse.json(
-    { ok: true, audience: VERIFIER_READINESS_AUDIENCE, token },
+    {
+      ok: true,
+      audience: VERIFIER_READINESS_AUDIENCE,
+      token: sample.token,
+      jti: sample.jti,
+    },
     { headers: CORS },
   );
 }

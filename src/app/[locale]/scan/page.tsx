@@ -28,6 +28,7 @@ export default async function ScanPage({
         fullScan={planConfig(user!.plan).fullScan}
         bcp47={bcp47[locale as Locale]}
         screenshotEnabled={aiAvailable()}
+        referralCode={user!.referralCode}
       />
     </main>
   );

@@ -1,0 +1,31 @@
+{
+  "pack_version": "2026.07.1",
+  "market": "IE",
+  "language": "en-IE",
+  "maintainer": "ie-maintainer@zakai.io",
+  "rights_count": 13,
+  "rights": [
+    "ie_statutory_redundancy",
+    "ie_wages_unlawful_deduction",
+    "ie_minimum_wage_check",
+    "ie_consumer_remedy",
+    "ie_cooling_off_cancellation",
+    "ie_tenancy_deposit",
+    "ie_child_benefit",
+    "ie_illness_benefit",
+    "ie_working_family_payment",
+    "ie_flight_comp_eu261",
+    "ie_recurring_charges_scan",
+    "ie_bank_charges_review",
+    "ie_missing_refund"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:17:41.524Z",
+    "source": "src/lib/global/registry"
+  }
+}

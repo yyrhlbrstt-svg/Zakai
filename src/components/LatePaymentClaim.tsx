@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import {
@@ -11,6 +12,8 @@ import {
   DEFAULT_PAYMENT_TERM_DAYS,
 } from "@/lib/latePaymentClaim";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 /**
  * Late-invoice demand letter for a freelancer/small supplier — the one tool
@@ -21,6 +24,8 @@ import { formatAgorot, shekelsToAgorot } from "@/lib/money";
  */
 export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("latePayment");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
   const router = useRouter();
   const [invoiceDate, setInvoiceDate] = useState("");
   const [agreedTermDays, setAgreedTermDays] = useState("");
@@ -59,7 +64,9 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
     );
   }
 
-  const canSendWithAgent = !!status?.isLate && clientName.trim().length > 0 && clientEmail.trim().length > 0;
+  // Destination inbox required — express Mandate cannot dispatch without it.
+  const canSendWithAgent =
+    !!status?.isLate && clientName.trim().length > 0 && hasOutreachEmail(clientEmail);
 
   async function sendWithAgent() {
     if (!canSendWithAgent) return;
@@ -72,7 +79,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         body: JSON.stringify({
           supplierName: supplierName.trim(),
           clientName: clientName.trim(),
-          clientEmail: clientEmail.trim(),
+          clientEmail: clientEmail.trim() || undefined,
           invoiceNumber: invoiceNumber.trim(),
           invoiceDate,
           agreedTermDays: agreedTermDays.trim() ? Number(agreedTermDays) : undefined,
@@ -85,17 +92,20 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setAgentError(
-          data.error === "caseLimit"
-            ? t("caseLimitError")
-            : data.error === "notLateYet"
-              ? t("notLateYetError")
-              : t("genericError"),
+          data.error === "needsOutreachEmail"
+            ? t("clientEmailQ")
+            : data.error === "caseLimit"
+              ? t("caseLimitError")
+              : data.error === "notLateYet"
+                ? t("notLateYetError")
+                : t("genericError"),
         );
         return;
       }
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setAgentError(t("genericError"));
     } finally {
@@ -183,12 +193,29 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
           <Button onClick={sendWithAgent} disabled={!canSendWithAgent || busy}>
             {busy ? t("agentBusy") : t("agentSendCta")}
           </Button>
-          <Button variant="ghost" onClick={generateLetter} disabled={!status}>
-            {t("generateCta")}
-          </Button>
+          <details className="text-[13px] text-ink-soft">
+            <summary className="cursor-pointer font-bold select-none">
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
+            </summary>
+            <Button
+              variant="ghost"
+              className="mt-2 w-full"
+              onClick={generateLetter}
+              disabled={!status}
+            >
+              {t("generateCta")}
+            </Button>
+          </details>
         </div>
-        {!status?.isLate && clientName.trim() && clientEmail.trim() && (
+        {!status?.isLate && (
           <p className="text-[12px] text-ink-soft">{t("agentNeedsLate")}</p>
+        )}
+        {status?.isLate && !hasOutreachEmail(clientEmail) && (
+          <p className="text-[12px] text-amber mb-0">
+            {he
+              ? "נדרש אימייל לקוח — בלי יעד אי אפשר לשלוח Mandate."
+              : "Client email is required — Mandate cannot send without a destination."}
+          </p>
         )}
         {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
       </Card>
@@ -199,7 +226,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {t("caseOpenedBody")}
           </p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{t("goToDashboard")}</Button>
           </Link>
         </Card>
@@ -231,7 +258,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
-          <OutcomeReport vertical="late_payment" counterparty="client" variantId="standard" />
+          <OutcomeReport vertical="late-payment" counterparty="client" variantId="firm_statutory" />
         </Card>
       )}
 

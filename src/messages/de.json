@@ -78,7 +78,7 @@
     "vehicleCheck": "Gebrauchtwagen-Check"
   },
   "door": {
-    "title": "Wo möchten Sie beginnen?",
+    "title": "Weiter nach Mein Geld",
     "money": {
       "title": "Ich zahle zu viel",
       "sub": "Fotografieren Sie eine Rechnung — der Agent verfasst, sendet, verfolgt nach und dokumentiert die Ersparnis.",
@@ -285,7 +285,7 @@
     "title1": "Sie zahlen zu viel.",
     "title2": "Zakai holt es zurück.",
     "sub": "Zakai analysiert Ihre Rechnungen, verfasst die Anfrage, sendet sie in Ihrem Namen und verfolgt nach, bis das Geld zurückkommt — ohne dass Sie jemanden anrufen müssen. Kein Callcenter, keine Warteschleife, keine Formulare. Gebühr nur auf Geld, das tatsächlich zu Ihnen zurückkehrt.",
-    "cta": "Jetzt eine Rechnung prüfen",
+    "cta": "In Mein Geld starten",
     "howTitle": "So funktioniert es",
     "trust": [
       "Null Anrufe — der Agent ruft für Sie an, nicht umgekehrt",
@@ -323,15 +323,37 @@
     },
     "proof": "Dokumentierte monatliche Ersparnisse, die Zakai bisher erzielt hat, über {count} abgeschlossene Prüfungen. Direkt aus dem Nachweisregister — nie manuell eingegeben.",
     "stats": [
-      { "n": "12+", "label": "Geld-Checks" },
-      { "n": "55", "label": "gesetzliche Rechte" },
-      { "n": "0 ₪", "label": "bis Ersparnis nachgewiesen ist" }
+      {
+        "n": "12+",
+        "label": "Geld-Checks"
+      },
+      {
+        "n": "55",
+        "label": "gesetzliche Rechte"
+      },
+      {
+        "n": "0 ₪",
+        "label": "bis Ersparnis nachgewiesen ist"
+      }
     ],
     "geoNote": "Es sieht so aus, als würden Sie von außerhalb Israels zugreifen. Einige Werkzeuge (verlorenes Geld, Abo-Kündigung, Preisschutz) funktionieren überall; Rechte und Rückerstattungen sind derzeit auf Israel ausgerichtet, und wir erweitern auf weitere Regionen.",
     "closingTitle": "Das Geld, das Ihnen zusteht — ohne etwas zu tun",
     "closingSub": "Jeder gesparte Schekel ist dokumentiert, und jede Anfrage wird mit einer Vollmacht gesendet, die jeder überprüfen kann. Sie sehen nur zu, wie die Zahl steigt.",
     "closingCta": "Jetzt starten",
-    "closingB2b": "Unternehmen & Institutionen"
+    "closingB2b": "Unternehmen & Institutionen",
+    "ctaSecondary": "So funktioniert’s",
+    "secondaryDoors": "Weiter nach dem Start",
+    "secondaryDoorsSub": "Weitere Tools, sobald ein Fall läuft — keine konkurrierenden Einstiege.",
+    "estimateTitle": "Schätzung vor dem Start?",
+    "gravityTitle": "Was wirklich passiert ist",
+    "gravitySent": "Gesendete Anfragen",
+    "gravityMandates": "Aktive Mandates",
+    "gravityProofs": "Dokumentierte Ersparnis · {count} Nachweise",
+    "gravityEmpty": "Noch keine dokumentierte Ersparnis — die Zahl bleibt null, bis sie echt ist",
+    "gravityLedger": "Öffentliches Register öffnen",
+    "moneyFeatureTitle": "Hier starten",
+    "moneyFeatureSub": "Rechnung fotografieren → Fall → Mandate → senden → dokumentierte Ersparnis.",
+    "moneyFeatureCta": "Mein Geld öffnen"
   },
   "onboarding": {
     "title": "Was Zakai für Sie tut",
@@ -446,5 +468,9 @@
   "meta": {
     "title": "Zakai — das Geld, das Ihnen zusteht, zurück in Ihrer Tasche",
     "desc": "Der KI-Agent, der Ihnen zustehendes Geld zurückholt: Steuerrückerstattungen, verlorenes Geld, Flugentschädigung, Leistungen, Rechnungssenkungen und mehr — Gebühr nur auf dokumentierte Ersparnis."
+  },
+  "zakameter": {
+    "cta": "Rechnung fotografieren — in Mein Geld starten",
+    "ctaScan": "Oder prüfen, was Ihnen zusteht (kostenlos)"
   }
 }

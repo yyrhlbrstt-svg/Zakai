@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "se_akassa",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Akassa",
+    "he": "דמי אבטלה"
+  },
+  "market": "SE",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "unemployed"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/se_akassa",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Lagen (1997:238) om arbetslöshetsförsäkring"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

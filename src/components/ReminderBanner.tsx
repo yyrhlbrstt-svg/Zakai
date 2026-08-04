@@ -29,7 +29,7 @@ export function ReminderBanner() {
               ? `יש ${follow.length} תיקים שממתינים למעקב אחרי הספק`
               : `${follow.length} case(s) waiting for a provider follow-up`}
           </div>
-          <Link href="/dashboard" className="text-emerald font-bold no-underline text-[13px]">
+          <Link href="/money" className="text-emerald font-bold no-underline text-[13px]">
             {tIcomponents_ReminderBanner("t_1a1a5c0a")}
           </Link>
         </div>

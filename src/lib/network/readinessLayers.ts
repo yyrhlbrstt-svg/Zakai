@@ -5,7 +5,6 @@ import { readinessOperationalScore, readinessTier } from "./readinessScore";
 import { evaluateConsumerReleaseGate, paymentsFullyLive } from "@/lib/deploy/releaseGate";
 
 export function buildReadinessSnapshot() {
-  const paymentProvider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
   const paymentsLive = paymentsFullyLive();
 
   const layers = {
@@ -29,7 +28,7 @@ export function buildReadinessSnapshot() {
 
   return {
     layers,
-    paymentProvider: paymentsLive ? paymentProvider : "mock",
+    paymentsMode: paymentsLive ? "live" : "demo",
     operationalScore,
     tier: readinessTier(operationalScore),
     consumerReleaseScore: release.releaseScore,

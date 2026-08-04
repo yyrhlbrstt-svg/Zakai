@@ -111,6 +111,24 @@ export default async function PartnersPage({
         </a>
       </p>
 
+      <div className="mt-6 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] px-5 py-5">
+        <div className="font-extrabold text-[15px]">{tIapp_locale_partners_page("widgetFairnessTitle")}</div>
+        <p className="text-[13px] text-ink-soft mt-2 mb-4 leading-relaxed m-0">
+          {tIapp_locale_partners_page("widgetFairnessBody")}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/fairness-certified">
+            <Button variant="ghost">{tIapp_locale_partners_page("widgetFairnessCta")}</Button>
+          </Link>
+          <Link href="/join-network">
+            <Button variant="ghost">Join network</Button>
+          </Link>
+          <Link href="/business">
+            <Button variant="ghost">Business</Button>
+          </Link>
+        </div>
+      </div>
+
       <div className="grid gap-3 mt-6 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
         <SpotlightCard className="p-4">
           <div className="font-extrabold text-[14px]">data-locale</div>

@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "pl_bank_oplaty",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Bank Oplaty",
+    "he": "עמלות בנק"
+  },
+  "market": "PL",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/pl_bank_oplaty",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Ustawa z dnia 19 sierpnia 2011 r. — opłaty bankowe"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

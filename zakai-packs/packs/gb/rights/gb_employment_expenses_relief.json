@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_employment_expenses_relief",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Employment Expenses Relief",
+    "he": "עבודה · הוצאות · זיכוי"
+  },
+  "market": "GB",
+  "category": "tax",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "employee"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_employment_expenses_relief",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Income Tax (Earnings and Pensions) Act 2003, s. 336 and s. 367"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

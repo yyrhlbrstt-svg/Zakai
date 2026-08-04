@@ -1,5 +1,10 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import {
+  publishRevocation,
+  StatusIndexUnknownError,
+  StatusListCapacityError,
+} from "@/lib/mandate/statusIndex";
 
 /**
  * The consumer's control plane over their own authority.
@@ -95,51 +100,74 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
   const normalised = code.trim().toUpperCase();
   const auth = await prisma.authorization.findFirst({
     where: { code: normalised, case: { userId } },
-    select: { code: true, status: true },
+    select: {
+      code: true,
+      status: true,
+      mandateJti: true,
+      mandateStatusIndex: true,
+      caseId: true,
+    },
   });
   if (!auth) return { ok: false, reason: "not_found" };
-  if (auth.status === "REVOKED") return { ok: true, code: auth.code, alreadyRevoked: true };
 
-  await prisma.$transaction(async (tx) => {
-    await tx.authorization.update({
-      where: { code: auth.code },
-      data: { status: "REVOKED", revokedAt: new Date() },
-    });
-
-    // Publish it. Without this the person's revocation is a row in our database
-    // and nothing more — every institution holding a cached status list would
-    // go on honouring the mandate, correctly, because we never told them.
-    const existing = await tx.mandateRevocation.findUnique({
-      where: { jti: auth.code },
-      select: { jti: true },
-    });
-    if (!existing) {
-      await tx.mandateRevocation.create({
-        data: {
-          jti: auth.code,
-          statusIndex: await nextStatusIndex(tx),
-          reason: "user_request",
-        },
-      });
+  // Already-revoked rows still need a heal path: pre-fix revokes published
+  // under the human ZK code, leaving the JWT jti active. Re-tap / revokeAll
+  // must publish under mandateJti (idempotent if already indexed).
+  if (auth.status === "REVOKED") {
+    if (auth.mandateJti) {
+      try {
+        await prisma.$transaction((tx) =>
+          publishRevocation(tx, {
+            jti: auth.mandateJti!,
+            reason: "user_request",
+            statusIndex: auth.mandateStatusIndex ?? undefined,
+          }),
+        );
+      } catch {
+        /* status store down — human revoke already stands */
+      }
     }
+    return { ok: true, code: auth.code, alreadyRevoked: true };
+  }
+
+  // Human revoke must not roll back if the status-list publish cannot resolve
+  // an issue-time bit — offline verifiers stay honest via fail-closed unknown,
+  // while the consumer's Authorization is still withdrawn.
+  await prisma.authorization.update({
+    where: { code: auth.code },
+    data: { status: "REVOKED", revokedAt: new Date() },
   });
 
-  return { ok: true, code: auth.code, alreadyRevoked: false };
-}
+  // Close the consumer loop: a pre-settle case under withdrawn authority must
+  // not stay SENT (recordSaving would otherwise still mint a fee).
+  await prisma.case.updateMany({
+    where: {
+      id: auth.caseId,
+      status: { in: ["ANALYZED", "APPROVED", "VERIFIED", "SENT"] },
+    },
+    data: { status: "REVOKED" },
+  });
 
-/**
- * Next free position in the status list.
- *
- * Indices are never reused. Reusing one would silently transfer a revocation
- * from an old mandate to a new one for every institution still holding the
- * older cached list — they would read the bit, see it set, and refuse a
- * perfectly valid credential.
- */
-async function nextStatusIndex(
-  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
-): Promise<number> {
-  const top = await tx.mandateRevocation.aggregate({ _max: { statusIndex: true } });
-  return (top._max.statusIndex ?? -1) + 1;
+  if (auth.mandateJti) {
+    try {
+      await prisma.$transaction((tx) =>
+        publishRevocation(tx, {
+          jti: auth.mandateJti!,
+          reason: "user_request",
+          statusIndex: auth.mandateStatusIndex ?? undefined,
+        }),
+      );
+    } catch (err) {
+      if (
+        !(err instanceof StatusIndexUnknownError) &&
+        !(err instanceof StatusListCapacityError)
+      ) {
+        // Status store down — human revoke already stands.
+      }
+    }
+  }
+
+  return { ok: true, code: auth.code, alreadyRevoked: false };
 }
 
 /** How many authorities are live right now — for the header badge. */

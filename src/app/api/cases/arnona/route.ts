@@ -9,12 +9,14 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { ARNONA_AGENT_RIGHTS, buildArnonaAgentLetter } from "@/lib/arnonaAppeal";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 
 const schema = z.object({
   customerName: z.string().max(80).default(""),
   customerId: z.string().max(20).default(""),
   municipalityName: z.string().min(1).max(120),
-  municipalityEmail: z.string().email().max(200),
+  municipalityEmail: z.string().max(200).optional(),
   rightId: z.enum(ARNONA_AGENT_RIGHTS),
   propertyAddress: z.string().max(200).default(""),
   payerNumber: z.string().max(80).default(""),
@@ -26,6 +28,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-arnona", auth.userId, 20, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
@@ -67,12 +73,17 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
+  const outreachTo = firstOutreachEmail(data.municipalityEmail) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
+
   let kase;
   try {
     kase = await createCase({
       userId: auth.userId,
       provider: data.municipalityName.slice(0, 80),
-      counterpartyEmail: data.municipalityEmail,
+      counterpartyEmail: outreachTo,
       amountShekels: data.monthlyArnonaShekels,
       plan: data.payerNumber || data.propertyAddress || "ארנונה",
       strategy: "בקשת הנחה / תיקון חיוב ארנונה עם Mandate",
@@ -91,11 +102,16 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: staged.subject,
-    body: staged.body,
-    status: kase.status,
-    message: "case_opened",
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: staged.subject,
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

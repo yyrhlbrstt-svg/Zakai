@@ -14,24 +14,33 @@ import {
   type MandateClaims,
   type VerifyOptions,
 } from "./mandate";
+import { resolveRevocationState, type RevocationState } from "./revocationCheck";
 
-export type StatusLookup = (jti: string) => Promise<"active" | "revoked" | "unknown">;
+export type StatusLookup = (jti: string) => Promise<RevocationState>;
 
 export interface InstitutionalVerifyInput {
   token: string;
   /** Your institution id — must match the Mandate `aud` claim. */
   audience: string;
   publicJwks: VerifyOptions["publicJwks"];
+  /** Live `/status/{jti}` fallback (and path for legacy tokens without zkm.status). */
   statusLookup: StatusLookup;
+  /**
+   * Required to prefer the signed status list when the token embeds
+   * `zkm.status`. Omit only in unit tests that exercise live-jti alone.
+   */
+  issuer?: string;
+  jwksUri?: string;
   toleranceSeconds?: number;
 }
 
 export type InstitutionalVerifyResult =
-  | { ok: true; claims: MandateClaims; status: "active" }
+  | { ok: true; claims: MandateClaims; status: "active"; via: "status_list" | "live_status" }
   | { ok: false; reason: string; code?: string };
 
 /**
  * Full institutional check: signature + audience + time + revocation status.
+ * Prefers the signed status list when `zkm.status` is present.
  */
 export async function institutionalVerify(
   input: InstitutionalVerifyInput,
@@ -49,7 +58,27 @@ export async function institutionalVerify(
     return { ok: false, reason: message, code };
   }
 
-  const status = await input.statusLookup(claims.jti);
+  // Tokens that advertise zkm.status must not be checked live-only — that
+  // bypasses the offline path the token claimed. Require issuer + jwksUri.
+  if (claims.status && (!input.issuer || !input.jwksUri)) {
+    return {
+      ok: false,
+      reason: "zkm.status present but issuer/jwksUri omitted — refuse live bypass",
+      code: "STATUS_UNKNOWN",
+    };
+  }
+
+  const { state: status, via } =
+    input.issuer && input.jwksUri
+      ? await resolveRevocationState({
+          jti: claims.jti,
+          status: claims.status,
+          issuer: input.issuer,
+          jwksUri: input.jwksUri,
+          liveLookup: input.statusLookup,
+        })
+      : { state: await input.statusLookup(claims.jti), via: "live_status" as const };
+
   if (status === "revoked") {
     return { ok: false, reason: "mandate has been revoked", code: "REVOKED" };
   }
@@ -58,7 +87,7 @@ export async function institutionalVerify(
     return { ok: false, reason: "status store unavailable", code: "STATUS_UNKNOWN" };
   }
 
-  return { ok: true, claims, status: "active" };
+  return { ok: true, claims, status: "active", via };
 }
 
 /**
@@ -66,11 +95,15 @@ export async function institutionalVerify(
  *
  *   jwks = HTTP GET /.well-known/zakai-jwks.json   # cache 1h
  *   claims = jws.verify(token, jwks, alg=EdDSA)
- *   assert claims.typ == "zakai-mandate+jws"      # from header
+ *   assert claims.typ == "JWT" or "zakai-mandate+jws"
  *   assert claims.aud == MY_INSTITUTION_ID
  *   assert now in [claims.nbf, claims.exp)
  *   assert no claim.scope in FORBIDDEN_SCOPES
- *   status = HTTP GET /api/mandate/status/{claims.jti}
- *   assert status.status == "active"
+ *   if claims.zkm.status:
+ *     list = GET+verify claims.zkm.status.uri (statuslist+jwt, same JWKS)
+ *     assert list.bit[claims.zkm.status.idx] == 0   # offline revoke
+ *   else:
+ *     status = HTTP GET /api/mandate/status/{claims.jti}
+ *     assert status.status == "active"
  *   allow only actions ⊆ claims.scopes
  */

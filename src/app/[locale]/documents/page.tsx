@@ -129,14 +129,14 @@ export default async function DocumentsPage({
       )}
 
       <div className="mt-10 flex flex-wrap gap-3">
-        <Link href="/dashboard">
-          <Button>{tIapp_locale_documents_page("t_143fe31f")}</Button>
+        <Link href="/money">
+          <Button>{tIapp_locale_documents_page("t_bd4c0905")}</Button>
         </Link>
         <Link href="/wrapped">
           <Button variant="ghost">{tIapp_locale_documents_page("t_d3297759")}</Button>
         </Link>
-        <Link href="/money">
-          <Button variant="ghost">{tIapp_locale_documents_page("t_bd4c0905")}</Button>
+        <Link href="/dashboard">
+          <Button variant="ghost">{tIapp_locale_documents_page("t_143fe31f")}</Button>
         </Link>
       </div>
     </VerticalPageShell>

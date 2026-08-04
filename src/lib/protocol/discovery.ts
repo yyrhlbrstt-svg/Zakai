@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { emailConfigured } from "@/lib/messaging";
+import { publicSecurityEmail, publicSupportEmail } from "@/lib/contact";
 import { MandateKeyUnavailableError, loadSigningKeyFromEnv } from "@/lib/mandate/mandate";
 import { PROTOCOL_LAWS, WELL_KNOWN_RELATIVE, absoluteWellKnown } from "@/lib/protocol/laws";
 import { MARKETS } from "@/lib/global/registry";
@@ -20,16 +21,26 @@ export interface OutcomeGraphPublicStats {
 }
 
 export async function getOutcomeGraphPublicStats(): Promise<OutcomeGraphPublicStats> {
+  // Institutions see documented pipeline outcomes only — estimate/self-report
+  // shortcuts must never inflate public win rates (same filter as oracle/fairness).
+  const documented = { selfReported: false as const };
+  const empty: OutcomeGraphPublicStats = {
+    totalOutcomes: 0,
+    markets: [],
+    updatedAt: new Date().toISOString(),
+  };
+
   try {
     const rows = await prisma.strategyOutcome.groupBy({
       by: ["market"],
+      where: documented,
       _count: { _all: true },
       _sum: { recoveredMinor: true },
     });
 
     const paidByMarket = await prisma.strategyOutcome.groupBy({
       by: ["market"],
-      where: { paid: true },
+      where: { ...documented, paid: true },
       _count: { _all: true },
     });
     const paidMap = new Map(paidByMarket.map((r) => [r.market, r._count._all]));
@@ -54,8 +65,8 @@ export async function getOutcomeGraphPublicStats(): Promise<OutcomeGraphPublicSt
       updatedAt: new Date().toISOString(),
     };
   } catch {
-    // A missing/unreachable DB must never break a public protocol endpoint.
-    return { totalOutcomes: 0, markets: [], updatedAt: new Date().toISOString() };
+    // Empty is honest when DB is unavailable (CI, local without Neon).
+    return empty;
   }
 }
 
@@ -84,6 +95,11 @@ export function buildZakaiProtocolDocument(origin: string) {
     thesis:
       "Bitcoin removed the need to trust a central bank to hold scarcity rules. Zakai removes the need to trust a call centre to hold consumer authority: mandates are Ed25519-verifiable, revocable, and scoped; outcomes are public aggregates without identity.",
     issuer,
+    interop: {
+      entrypoint: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.interop),
+      live_probe: `${origin}/api/interop?probe=1`,
+      profiles: ["zakai-core-1", "zakai-rights-catalog-1", "zakai-mandate-verifier-1", "zakai-outcome-graph-1"],
+    },
     laws: PROTOCOL_LAWS,
     layers: {
       authority: {
@@ -94,6 +110,8 @@ export function buildZakaiProtocolDocument(origin: string) {
         conformance: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.conformance),
         verify: `${origin}/api/mandate/verify`,
         decide: `${origin}/api/mandate/decide`,
+        /** Machine gate: authorization vectors + verified Status List → ready_for_pioneer. */
+        ready: `${origin}/api/mandate/ready`,
         live: mandateSigningLive(),
       },
       outcome_graph: {
@@ -117,6 +135,8 @@ export function buildZakaiProtocolDocument(origin: string) {
     operations: {
       payments_live: paymentsFullyLive(),
       email_delivery: emailConfigured(),
+      support_email: publicSupportEmail(),
+      security_email: publicSecurityEmail(),
     },
     links: {
       version: `${origin}/api/version`,
@@ -130,14 +150,44 @@ export function buildZakaiProtocolDocument(origin: string) {
       rights_catalog: `${origin}/api/rights/catalog`,
       rights_openapi: `${origin}/.well-known/zakai-openapi.json`,
       fairness_scores: `${origin}/api/fairness/scores?market=IL`,
+      network_gravity: `${origin}/api/network/gravity`,
+      network_monopoly: `${origin}/api/network/monopoly`,
+      trillion_gates: `${origin}/api/network/trillion-gates`,
+      indispensability: `${origin}/api/network/indispensability`,
+      join_kit: `${origin}/api/network/join-kit`,
+      packs_cdn_mirror: `${origin}/api/cdn/packs`,
+      ignore_cost: `${origin}/api/institution/ignore-cost`,
+      inbound_receive: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.inboundReceive),
+      agent_economy: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.agentEconomy),
+      agents_index: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.agents),
+      fairness_certified: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.fairnessCertified),
+      pipe: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.pipe),
+      pipe_api: `${origin}/api/pipe`,
+      pipe_accept: `${origin}/api/pipe/accept`,
+      pipe_mark: `${origin}/api/pipe/mark`,
+      pipe_handoff: `${origin}/api/pipe/handoff`,
+      savings_ledger: `${origin}/api/network/savings-ledger`,
       features: {
         mandate_verify: mandateSigningLive(),
         outcome_graph: true,
         embedded_widget: true,
         collective_auction: false,
+        collective_intent: true,
         fairness_scores: true,
+        switching_protocol: true,
+        regulatory_snapshot: true,
+        inbound_receive: true,
+        trillion_gates: true,
+        agent_economy: true,
+        indispensability: true,
+        join_kit: true,
       },
+      domains_manifest: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.domains),
+      switching_spec: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.switching),
+      intelligence: absoluteWellKnown(origin, WELL_KNOWN_RELATIVE.intelligence),
       packs_builtin: Object.keys(MARKETS),
+      markets_api: `${origin}/api/markets`,
+      global_hub: `${origin}/en/global`,
     },
   };
 }

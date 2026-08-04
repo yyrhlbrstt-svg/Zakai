@@ -210,7 +210,7 @@ export default async function HomePage({
               {t("home.sub")}
             </p>
             <div className="flex flex-wrap gap-3 mb-2">
-              <Link href="/money">
+              <Link href="/money#zakai-money-scan">
                 <Button className="!text-[15px] !px-7 !py-3.5">{t("home.cta")}</Button>
               </Link>
               <Link href="/leaks">
@@ -450,7 +450,7 @@ export default async function HomePage({
             {t("home.closingSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
-            <Link href="/money">
+            <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-7 !py-3.5">{t("home.closingCta")}</Button>
             </Link>
             <Link href="/business">

@@ -51,13 +51,13 @@ export function computeInsights(input: InsightInput): Insight[] {
       (s, c) => s + Math.max(0, c.amountOriginal - c.targetAmount),
       0,
     );
-    out.push({ key: "pendingCase", params: { count: waiting.length, potential }, href: "/dashboard", weight: 100 });
+    out.push({ key: "pendingCase", params: { count: waiting.length, potential }, href: "/money", weight: 100 });
   }
 
   // 2. Sent and awaiting the provider's reply — remind to record the outcome.
   const sent = input.cases.filter((c) => c.status === "SENT");
   if (sent.length > 0) {
-    out.push({ key: "awaitingReply", params: { count: sent.length }, href: "/dashboard", weight: 80 });
+    out.push({ key: "awaitingReply", params: { count: sent.length }, href: "/money", weight: 80 });
   }
 
   // 3. No cases at all — Money OS is the single entry (scan → agent case).
@@ -85,7 +85,7 @@ export function computeInsights(input: InsightInput): Insight[] {
   // 5. Documented monthly savings so far — reinforce the outcome (trust loop).
   const savedMonthly = input.cases.reduce((s, c) => s + c.savedMonthlyAgorot, 0);
   if (savedMonthly > 0) {
-    out.push({ key: "savedSoFar", params: { monthly: savedMonthly, yearly: savedMonthly * 12 }, href: "/dashboard", weight: 60 });
+    out.push({ key: "savedSoFar", params: { monthly: savedMonthly, yearly: savedMonthly * 12 }, href: "/money", weight: 60 });
   }
 
   // 6. Nothing active and no referral credit — suggest inviting a friend.

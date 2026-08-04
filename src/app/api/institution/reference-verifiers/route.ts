@@ -3,9 +3,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import {
+  authorizationVectorsConformant,
   isValidInstitutionSlug,
   serverSideReadinessOk,
 } from "@/lib/referenceVerifier";
+import { verifyStatusListFromUrl } from "@/lib/mandate/statusList";
+import { sendVerifierWelcomeEmail } from "@/lib/institutionVerifierOnboardingEmail";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +51,12 @@ function appOrigin(): string {
     process.env.NEXT_PUBLIC_APP_URL?.trim() ||
     process.env.MANDATE_ISSUER?.trim() ||
     "https://zakai-3uxj.vercel.app"
-  );
+  ).replace(/\/$/, "");
+}
+
+/** Must match the issuer claim on the signed Status List (same as /api/mandate/ready). */
+function mandateIssuer(): string {
+  return (process.env.MANDATE_ISSUER?.trim() || appOrigin()).replace(/\/$/, "");
 }
 
 export async function POST(req: Request) {
@@ -71,6 +79,40 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "platform_readiness_unavailable" }, { status: 503 });
   }
 
+  // Same hard gate as GET /api/mandate/ready — vectors + signed Status List.
+  // Client checkboxes alone made false Pioneer listings possible.
+  const vectors = authorizationVectorsConformant();
+  if (!vectors.ok) {
+    return NextResponse.json(
+      {
+        error: "vectors_not_conformant",
+        total: vectors.total,
+        failed: vectors.failed.slice(0, 5),
+        hint: "Run npx zakai-mandate-ready (or cd sdk && npm run ready) before registering.",
+      },
+      { status: 503 },
+    );
+  }
+
+  const origin = appOrigin();
+  const issuer = mandateIssuer();
+  try {
+    await verifyStatusListFromUrl({
+      statusListUri: `${origin}/api/mandate/revocations`,
+      issuer,
+      jwksUri: `${origin}/.well-known/zakai-jwks.json`,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      {
+        error: "status_list_not_verified",
+        detail: err instanceof Error ? err.message : "status_list_failed",
+        hint: "GET /api/mandate/ready must report status_list.ok before Pioneer listing.",
+      },
+      { status: 503 },
+    );
+  }
+
   const existingCount = await prisma.referenceVerifier.count();
   const tier = existingCount < 3 ? "pioneer" : "reference";
 
@@ -88,10 +130,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "already_listed" }, { status: 409 });
   }
 
+  void sendVerifierWelcomeEmail({
+    institutionId,
+    displayNameEn: parsed.data.displayNameEn.trim(),
+    contactEmail: parsed.data.contactEmail.trim().toLowerCase(),
+    tier,
+  }).catch(() => undefined);
+
   return NextResponse.json({
     ok: true,
     institutionId,
     tier,
-    publicUrl: `${appOrigin()}/he/institutions/leaders`,
+    vectorsPassed: vectors.total,
+    publicUrl: `${origin}/he/institutions/leaders`,
+    note: "Listed only after platform endpoints + vectors + signed Status List pass server-side. Not regulatory certification.",
   });
 }

@@ -20,4 +20,6 @@ export * from "./decision.js";
 export * from "./settlement.js";
 export * from "./conformance.js";
 export * from "./registry.js";
+export * from "./statusList.js";
 export * from "./protocol.js";
+export * from "./interop.js";

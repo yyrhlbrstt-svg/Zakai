@@ -2,20 +2,29 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { rankPriorityActions, formatPotentialHe, formatPotentialEn } from "@/lib/priority";
+import {
+  rankPriorityActions,
+  formatPotentialHe,
+  formatPotentialEn,
+  type RankPriorityOpts,
+} from "@/lib/priority";
 import { SpotlightCard } from "@/components/SpotlightCard";
 
 export function PriorityActions({
   limit = 5,
   catalogBoosts,
+  pinIds,
+  excludeIds,
 }: {
   limit?: number;
   catalogBoosts?: Record<string, number>;
+  pinIds?: RankPriorityOpts["pinIds"];
+  excludeIds?: RankPriorityOpts["excludeIds"];
 }) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const t = useTranslations("priority");
-  const items = rankPriorityActions(limit, catalogBoosts);
+  const items = rankPriorityActions(limit, catalogBoosts, { pinIds, excludeIds });
 
   return (
     <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">

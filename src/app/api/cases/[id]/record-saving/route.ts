@@ -4,10 +4,13 @@ import { requireUserId, badRequest } from "@/lib/api";
 import { recordSaving, CaseError } from "@/lib/services/cases";
 import { initiateFeePayment, PaymentError } from "@/lib/services/payments";
 import { agorotToShekels } from "@/lib/money";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 
 const schema = z.object({
   newAmountShekels: z.number().min(0).max(100000),
   locale: z.string().max(8).optional(),
+  source: z.enum(["manual", "inbound", "estimate"]).optional(),
+  selfReported: z.boolean().optional(),
 });
 
 export async function POST(request: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -20,10 +23,17 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
   if (!parsed.success) return badRequest("genericError");
 
   try {
-    const result = await recordSaving(id, auth.userId, parsed.data.newAmountShekels);
+    const result = await recordSaving(id, auth.userId, parsed.data.newAmountShekels, {
+      source: parsed.data.source,
+      selfReported: parsed.data.selfReported,
+    });
     const fee = result.fee;
     let checkoutUrl: string | undefined;
-    if (result.feeNet > 0) {
+    let checkoutError: string | undefined;
+    const paymentsLive = paymentsFullyLive();
+    // Never mint a mock checkout URL for auto-redirect — that invents PAID theater.
+    // Manual FeePayButton still works under mock for founder E2E.
+    if (result.feeNet > 0 && paymentsLive) {
       const origin = new URL(request.url).origin;
       try {
         const checkout = await initiateFeePayment(
@@ -35,14 +45,22 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
         checkoutUrl = checkout.checkoutUrl;
       } catch (err) {
         if (!(err instanceof PaymentError)) throw err;
+        // Surface to the client — especially MANDATE_REQUIRED (fee without Mandate bind).
+        checkoutError = err.message;
       }
     }
+    // Wire contract must match what was actually persisted — estimate/selfReported
+    // proofs waive the fee (feeNet = 0) even when computeCaseSuccessFee would bill.
+    const chargeable = result.feeNet > 0;
     return NextResponse.json({
       ok: true,
       savingMonthlyShekels: agorotToShekels(fee.savingMonthly),
-      feeShekels: agorotToShekels(fee.amount),
-      chargeable: fee.chargeable,
+      feeShekels: agorotToShekels(result.feeNet),
+      chargeable,
+      selfReported: parsed.data.selfReported === true,
+      paymentsLive,
       checkoutUrl,
+      checkoutError,
     });
   } catch (err) {
     if (err instanceof CaseError) {

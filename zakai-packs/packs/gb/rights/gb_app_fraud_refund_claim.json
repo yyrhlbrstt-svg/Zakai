@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_app_fraud_refund_claim",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "app fraud refund claim",
+    "he": "app fraud refund claim"
+  },
+  "market": "GB",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_app_fraud_refund_claim",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Payment Services Regulations 2017; Contingent Reimbursement Model Code for Authorised Push Payment scams (CRM Code) as adopted by participating PSP members"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

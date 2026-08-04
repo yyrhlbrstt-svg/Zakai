@@ -65,6 +65,10 @@ export async function GET(request: Request) {
     // silently. Run them in your own language and you are conformant or you
     // know exactly which rule you got wrong.
     test_vectors_uri: `${origin}/api/mandate/test-vectors`,
+    // Machine readiness: pass published authorization vectors + verify the signed
+    // Status List. Same gate as Pioneer listing — not regulatory certification.
+    ready_uri: `${origin}/api/mandate/ready`,
+    ready_cli: "npx zakai-mandate-ready",
     // The second layer. Authorization answers who may act; settlement answers
     // what was agreed, what happened, and who is right when those disagree.
     // Each link is an ordinary JWT signed by the party making the claim and

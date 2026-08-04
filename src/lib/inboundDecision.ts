@@ -14,7 +14,9 @@
  * Rules:
  *  - No amount extracted → never notify (nothing actionable to confirm).
  *  - Matched by exact authorization code → notify. The code is the evidence.
- *  - Matched only by sender email (fuzzy) → require confidence >= 0.6, since
+ *  - Matched by counterparty inbox (the address we mailed) → notify. Same
+ *    strength as a reply on the thread we opened — not a fuzzy guess.
+ *  - Matched only by principal email (fuzzy) → require confidence >= 0.6, since
  *    both the match and the amount are guesses.
  *  - No match → never notify.
  *
@@ -22,7 +24,7 @@
  * ignores) in the dashboard, and only that confirmation records the saving.
  */
 
-export type InboundMatchMethod = "code" | "email" | null;
+export type InboundMatchMethod = "code" | "email" | "counterparty" | null;
 
 export const EMAIL_MATCH_MIN_CONFIDENCE = 0.6;
 
@@ -37,7 +39,7 @@ export function shouldNotifyInbound(input: InboundNotifyInput): boolean {
   if (!input.found || input.newAmountShekels == null || input.newAmountShekels < 0) {
     return false;
   }
-  if (input.matchMethod === "code") return true;
+  if (input.matchMethod === "code" || input.matchMethod === "counterparty") return true;
   if (input.matchMethod === "email") return input.confidence >= EMAIL_MATCH_MIN_CONFIDENCE;
   return false;
 }

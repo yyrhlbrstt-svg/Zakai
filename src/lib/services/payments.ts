@@ -21,13 +21,34 @@ export async function initiateFeePayment(
     include: { fee: true },
   });
   if (!kase || !kase.fee) throw new PaymentError("NO_FEE");
-  const fee = kase.fee;
+  let fee = kase.fee;
   if (fee.status === "PAID") throw new PaymentError("ALREADY_PAID");
   if (fee.status === "WAIVED" || fee.amount <= 0) throw new PaymentError("NOTHING_TO_COLLECT");
+  // Never collect under withdrawn / unbound authority — even when Fee.mandateJti
+  // was already set at settle (revoke-after-SAVED must still block checkout).
+  // Legacy PENDING rows may heal jti from ACTIVE Authorization; never mint here.
+  const auth = await prisma.authorization.findUnique({
+    where: { caseId },
+    select: { mandateJti: true, status: true },
+  });
+  if (!auth || auth.status !== "ACTIVE" || !auth.mandateJti) {
+    throw new PaymentError("MANDATE_REQUIRED");
+  }
+  if (!fee.mandateJti) {
+    fee = await prisma.fee.update({
+      where: { id: fee.id },
+      data: { mandateJti: auth.mandateJti },
+    });
+  } else if (fee.mandateJti !== auth.mandateJti) {
+    // Fee still points at a prior jti (e.g. after reissue) — do not collect.
+    throw new PaymentError("MANDATE_REQUIRED");
+  }
 
   const provider = paymentProvider();
   const loc = encodeURIComponent(locale);
-  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}`;
+  // feeId must survive the PayPlus browser bounce — GET verify is fail-closed,
+  // so the callback needs feeId to deep-link /money?case=&payFee=1 on error/confirming.
+  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}&feeId=${encodeURIComponent(fee.id)}`;
   const checkout = await provider.createCheckout({
     feeId: fee.id,
     amountAgorot: fee.amount,

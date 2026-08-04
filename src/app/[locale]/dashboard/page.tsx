@@ -16,7 +16,6 @@ import { CaseNextStep } from "@/components/CaseNextStep";
 import { ReminderBanner } from "@/components/ReminderBanner";
 import { OvernightAgent } from "@/components/OvernightAgent";
 import { Reveal } from "@/components/Reveal";
-import { EmptyDashboardActions } from "@/components/EmptyDashboardActions";
 import { StrategyInsightsCard } from "@/components/StrategyInsightsCard";
 import { computeMoneyScore } from "@/lib/moneyScore";
 import { formatAgorot } from "@/lib/money";
@@ -24,13 +23,29 @@ import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
-import { AGENT_SUBJECT_PREFIX } from "@/lib/services/agentFollowUp";
+import { getAgentRoundMap, MAX_AGENT_ROUNDS } from "@/lib/services/agentFollowUp";
+import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
+import { isOvernightFollowUpDue } from "@/lib/services/overnightFollowUpGate";
+import { followUpAfterDays } from "@/lib/strategy/learningInsights";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
-import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
+import { RetentionActionStrip } from "@/components/RetentionActionStrip";
+import { loadRetentionPlan } from "@/lib/services/retentionPlan";
 import { emailConfigured } from "@/lib/messaging";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { feeBasisForVertical } from "@/lib/verticals";
+import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
+import { PersonalProofStrip } from "@/components/PersonalProofStrip";
+import { buildRankedCaseInputs } from "@/lib/services/rankCasesForNextAction";
+import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
+import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
+import { mapOutboxToOutreachDelivery } from "@/lib/services/outreachDelivery";
+import { isPendingSuccessFee } from "@/lib/pendingSuccessFee";
+import {
+  moneyPendingFeeHref,
+  resolveMoneyPayFeeCaseId,
+} from "@/lib/services/moneyPayFeeCase";
+import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -74,12 +89,28 @@ export default async function DashboardPage({
   const t = await getTranslations();
   const loc = bcp47[locale as Locale];
   const proofsEmail = proofsInboundAddress();
+  const paymentsLive = paymentsFullyLive();
 
   const cases = await prisma.case.findMany({
     where: { userId: user!.id },
     orderBy: { createdAt: "desc" },
     include: { savingsProof: true, fee: true, authorization: true },
   });
+
+  // Legacy ?case= / payFee deep links finish on /money (fee + share included).
+  // Never forward payFee=1 under mock PSP — autoStart would invent live checkout.
+  const OPEN_FINISH = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT", "SAVED"]);
+  if (highlightCase) {
+    const deep = cases.find((c) => c.id === highlightCase);
+    if (deep && OPEN_FINISH.has(deep.status)) {
+      const q = new URLSearchParams({ case: deep.id });
+      if (payFee === "1" && paymentsLive) q.set("payFee", "1");
+      if (feeStatus === "paid" || feeStatus === "error" || feeStatus === "confirming") {
+        q.set("fee", feeStatus);
+      }
+      redirect({ href: `/money?${q.toString()}`, locale });
+    }
+  }
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
   const proposedMap = await getProposedSavingsMap(sentIds);
@@ -91,42 +122,141 @@ export default async function DashboardPage({
       : undefined) ??
     cases.find((c) => c.status === "SAVED" && (c.savingsProof?.savingMonthly ?? 0) > 0);
 
-  const agentRoundMap = new Map<string, number>();
+  const agentRoundMap =
+    sentIds.length > 0 ? await getAgentRoundMap(sentIds) : new Map<string, number>();
+
+  const outreachDeliveryMap = new Map<
+    string,
+    ReturnType<typeof mapOutboxToOutreachDelivery>
+  >();
   if (sentIds.length > 0) {
-    const outs = await prisma.outbox.groupBy({
-      by: ["caseId"],
+    const outRows = await prisma.outbox.findMany({
       where: {
         caseId: { in: sentIds },
         channel: "EMAIL",
-        providerMessageId: { not: "inbound" },
-        subject: { startsWith: AGENT_SUBJECT_PREFIX },
+        OR: [{ providerMessageId: null }, { providerMessageId: { not: "inbound" } }],
       },
-      _count: { _all: true },
+      orderBy: { createdAt: "desc" },
+      select: { caseId: true, status: true, providerMessageId: true },
     });
-    for (const o of outs) {
-      if (o.caseId) agentRoundMap.set(o.caseId, o._count._all);
+    for (const row of outRows) {
+      if (!row.caseId || outreachDeliveryMap.has(row.caseId)) continue;
+      outreachDeliveryMap.set(row.caseId, mapOutboxToOutreachDelivery(row));
     }
   }
 
-  const totalDocumentedMonthly = cases.reduce(
-    (sum, c) => sum + (c.savingsProof?.savingMonthly ?? 0),
-    0,
-  );
+  const outcomeRows = (await prisma.strategyOutcome
+    .findMany({
+      where: { market: "IL", createdAt: { gte: new Date(Date.now() - 540 * 86_400_000) } },
+      select: {
+        market: true,
+        vertical: true,
+        counterparty: true,
+        variantId: true,
+        paid: true,
+        recoveredMinor: true,
+        days: true,
+        selfReported: true,
+      },
+      take: 8_000,
+      orderBy: { createdAt: "desc" },
+    })
+    .catch(() => [])) as LearningOutcomeRow[];
 
-  const totalPotential = cases.reduce(
-    (sum, c) => sum + Math.max(0, c.amountOriginal - c.targetAmount),
-    0,
+  const learningTips = new Map<
+    string,
+    {
+      winRatePct: number;
+      trials: number;
+      bestStanceHe?: string;
+      bestStanceEn?: string;
+      medianDays?: number | null;
+    }
+  >();
+  for (const c of cases) {
+    const key = `${c.vertical}::${c.provider}`;
+    if (learningTips.has(key)) continue;
+    const cohort = cohortLearning(outcomeRows, "IL", c.vertical, c.provider);
+    if (!cohort) continue;
+    learningTips.set(key, {
+      winRatePct: cohort.winRate * 100,
+      trials: cohort.trials,
+      bestStanceHe: cohort.bestStance?.labelHe,
+      bestStanceEn: cohort.bestStance?.labelEn,
+      medianDays: cohort.medianDaysToWin,
+    });
+  }
+
+  const rankedForHabit = rankNextAction(
+    await buildRankedCaseInputs(
+      cases.map((c) => ({
+        id: c.id,
+        status: c.status,
+        provider: c.provider,
+        vertical: c.vertical,
+        amountOriginal: c.amountOriginal,
+        targetAmount: c.targetAmount,
+        counterpartyEmail: c.counterpartyEmail,
+        fee: c.fee,
+        authorization: c.authorization,
+      })),
+      agentRoundMap,
+    ),
+    new Map(
+      [...proposedMap.entries()].map(([id, p]) => [id, { newAmountShekels: p.newAmountShekels }]),
+    ),
   );
+  const habitCase =
+    rankedForHabit.kind !== "start_money" && "caseId" in rankedForHabit
+      ? cases.find((c) => c.id === rankedForHabit.caseId)
+      : null;
+  const nextOpenCase = habitCase
+    ? {
+        href: nextActionHref(rankedForHabit, { paymentsLive }),
+        labelHe: `המשיכו את התיק מול ${providerHebrewName(habitCase.provider)}`,
+        labelEn: `Continue the case with ${providerHebrewName(habitCase.provider)}`,
+      }
+    : null;
+
+  const totalDocumentedMonthly = cases.reduce((sum, c) => {
+    if (!c.savingsProof || c.savingsProof.selfReported) return sum;
+    return sum + c.savingsProof.savingMonthly;
+  }, 0);
+  const documentedProofCount = cases.filter(
+    (c) => c.savingsProof && !c.savingsProof.selfReported && c.savingsProof.savingMonthly > 0,
+  ).length;
+
+  // Open-loop potential only — settled cases must not inflate the hero forever.
+  const OPEN_FOR_POTENTIAL = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT"]);
+  const totalPotential = cases.reduce((sum, c) => {
+    if (!OPEN_FOR_POTENTIAL.has(c.status)) return sum;
+    return sum + Math.max(0, c.amountOriginal - c.targetAmount);
+  }, 0);
 
   const pendingFeeCases = cases.filter(
     (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
   );
   const pendingFeeAgorot = pendingFeeCases.reduce((s, c) => s + (c.fee?.amount ?? 0), 0);
-
-  const payFeeCaseId =
-    payFee === "1" && highlightCase && pendingFeeCases.some((c) => c.id === highlightCase)
-      ? highlightCase
-      : null;
+  // Checkout autoStart / payFee=1 only when Mandate is ACTIVE (#91 money gate).
+  const payFeeCaseId = resolveMoneyPayFeeCaseId({
+    payFee: payFee === "1",
+    focusCaseId: highlightCase,
+    cases,
+  });
+  const stripPendingFeeCase = pendingFeeCases[0];
+  const pendingFeeHref = payFeeCaseId
+    ? moneyPendingFeeHref({
+        caseId: payFeeCaseId,
+        mandateActive: true,
+        paymentsLive,
+      })
+    : stripPendingFeeCase
+      ? moneyPendingFeeHref({
+          caseId: stripPendingFeeCase.id,
+          mandateActive: stripPendingFeeCase.authorization?.status === "ACTIVE",
+          paymentsLive,
+        })
+      : "/money";
 
   const pendingActions = cases.filter(
     (c) =>
@@ -136,11 +266,36 @@ export default async function DashboardPage({
       c.status === "SENT",
   ).length;
 
+  // Follow-up drafts only after the same wait as cron auto-follow-up —
+  // day-0 "overnight delay" contradicts SENT wait honesty.
+  // Outreach must match send resolution (catalog OR counterparty) — not raw email only.
+  const { resolveCaseOutreachTo } = await import("@/lib/caseOutreach");
   const sentCases = cases
-    .filter((c) => c.status === "SENT")
+    .filter((c) => {
+      if (c.status !== "SENT") return false;
+      if (proposedMap.has(c.id)) return false;
+      if ((agentRoundMap.get(c.id) ?? 0) >= MAX_AGENT_ROUNDS) return false;
+      if (c.authorization?.status !== "ACTIVE") return false;
+      if (
+        !resolveCaseOutreachTo({
+          counterpartyEmail: c.counterpartyEmail,
+          provider: c.provider,
+          vertical: c.vertical,
+        })
+      ) {
+        return false;
+      }
+      const tip = learningTips.get(`${c.vertical}::${c.provider}`);
+      const waitDays =
+        tip?.medianDays != null
+          ? followUpAfterDays(tip.medianDays)
+          : SENT_FOLLOWUP_AFTER_DAYS;
+      return isOvernightFollowUpDue({ updatedAt: c.updatedAt, waitDays });
+    })
     .map((c) => ({
       id: c.id,
       providerLabel: providerHebrewName(c.provider),
+      agentRound: agentRoundMap.get(c.id) ?? 0,
     }));
 
   const ownCases = cases.filter((c) => !c.beneficiaryLabel);
@@ -167,6 +322,14 @@ export default async function DashboardPage({
   const referralCode = referralRow?.referralCode ?? "";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const invitePath = `/${locale}/signup?ref=${referralCode}`;
+  const retentionActions = await loadRetentionPlan(user!.id);
+
+  // One operating system: expand only the ranked next action (or deep-linked case).
+  const nbaCaseId =
+    rankedForHabit.kind !== "start_money" && "caseId" in rankedForHabit
+      ? rankedForHabit.caseId
+      : null;
+  const expandedCaseId = highlightCase || nbaCaseId;
 
   const renderCaseCard = (list: typeof cases) => (
     <Card className="py-1.5">
@@ -174,8 +337,12 @@ export default async function DashboardPage({
         const settled = c.status === "SAVED" || c.status === "NO_SAVING";
         const effectiveNew = c.savingsProof ? c.savingsProof.newAmount : c.targetAmount;
         const delta = Math.max(0, c.amountOriginal - effectiveNew);
+        const proofSelfReported = Boolean(c.savingsProof?.selfReported);
         const shareMsg =
-          c.status === "SAVED" && c.savingsProof && c.savingsProof.savingMonthly > 0
+          c.status === "SAVED" &&
+          c.savingsProof &&
+          !proofSelfReported &&
+          c.savingsProof.savingMonthly > 0
             ? t("share.msgSaved", {
                 amount: formatAgorot(c.savingsProof.savingMonthly, loc),
               })
@@ -190,6 +357,10 @@ export default async function DashboardPage({
             }
           : null;
         const label = providerHebrewName(c.provider);
+        const isExpanded =
+          !expandedCaseId ||
+          c.id === expandedCaseId ||
+          (savedCelebrate === "1" && celebrateCase?.id === c.id);
         return (
           <div
             key={c.id}
@@ -197,6 +368,11 @@ export default async function DashboardPage({
             className="flex items-center gap-3.5 px-5 py-4 flex-wrap"
             style={{
               borderBottom: i < list.length - 1 ? "1px solid rgba(255,255,255,0.09)" : "none",
+              outline:
+                isExpanded && expandedCaseId === c.id
+                  ? "1px solid rgba(63,203,155,0.45)"
+                  : undefined,
+              borderRadius: isExpanded && expandedCaseId === c.id ? 12 : undefined,
             }}
           >
             <div className="flex-1 basis-[140px]">
@@ -243,36 +419,60 @@ export default async function DashboardPage({
               {t(`dashboard.status.${STATUS_KEY[c.status]}`)}
             </div>
             <div className="basis-full">
-              <CaseNextStep
-                caseId={c.id}
-                status={
-                  c.status as
-                    | "ANALYZED"
-                    | "APPROVED"
-                    | "VERIFIED"
-                    | "SENT"
-                    | "SAVED"
-                    | "NO_SAVING"
-                    | "REVOKED"
-                }
-                ownershipVerified={Boolean(c.ownershipVerifiedAt)}
-                hasAuthorization={Boolean(c.authorization && c.authorization.status === "ACTIVE")}
-                amountOriginalShekels={amountOriginalShekels}
-                shareMessage={shareMsg}
-                referralCode={referralCode}
-                proposedSaving={proposedClient}
-                proofsEmail={proofsEmail}
-                agentRound={agentRoundMap.get(c.id) ?? 0}
-                emailConfigured={emailConfigured()}
-                vertical={c.vertical}
-                feeBasis={feeBasisForVertical(c.vertical)}
-                currentPlan={user!.plan}
-                documentedSavingShekels={
-                  c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
-                }
-                provider={c.provider}
-                counterpartyEmail={c.counterpartyEmail}
-              />
+              {isExpanded ? (
+                <CaseNextStep
+                  caseId={c.id}
+                  status={
+                    c.status as
+                      | "ANALYZED"
+                      | "APPROVED"
+                      | "VERIFIED"
+                      | "SENT"
+                      | "SAVED"
+                      | "NO_SAVING"
+                      | "REVOKED"
+                  }
+                  ownershipVerified={Boolean(c.ownershipVerifiedAt)}
+                  hasAuthorization={Boolean(c.authorization && c.authorization.status === "ACTIVE")}
+                  amountOriginalShekels={amountOriginalShekels}
+                  shareMessage={shareMsg}
+                  referralCode={referralCode}
+                  proposedSaving={proposedClient}
+                  proofsEmail={proofsEmail}
+                  agentRound={agentRoundMap.get(c.id) ?? 0}
+                  emailConfigured={emailConfigured()}
+                  outreachDelivery={outreachDeliveryMap.get(c.id) ?? "none"}
+                  vertical={c.vertical}
+                  feeBasis={feeBasisForVertical(c.vertical)}
+                  currentPlan={user!.plan}
+                  documentedSavingShekels={
+                    c.savingsProof ? Math.round(c.savingsProof.savingMonthly / 100) : undefined
+                  }
+                  proofSelfReported={proofSelfReported}
+                  pendingFeeShekels={
+                    isPendingSuccessFee(c.fee) ? Math.round(c.fee!.amount / 100) : undefined
+                  }
+                  pendingFeeAgorot={isPendingSuccessFee(c.fee) ? c.fee!.amount : undefined}
+                  provider={c.provider}
+                  counterpartyEmail={c.counterpartyEmail}
+                  draftMessage={c.draftMessage}
+                  emailVerified={Boolean(user!.emailVerifiedAt)}
+                  learningTip={learningTips.get(`${c.vertical}::${c.provider}`) ?? null}
+                  nextOpenCase={
+                    c.status === "SAVED" || c.status === "NO_SAVING" || c.status === "REVOKED"
+                      ? nextOpenCase
+                      : null
+                  }
+                  strategyVariant={c.strategyVariant}
+                />
+              ) : !settled ? (
+                <Link
+                  href={`/money?case=${c.id}`}
+                  className="inline-block text-[13px] font-extrabold text-emerald no-underline mt-1"
+                >
+                  {locale === "he" || locale === "ar" ? "המשיכו תיק זה →" : "Continue this case →"}
+                </Link>
+              ) : null}
             </div>
           </div>
         );
@@ -327,15 +527,25 @@ export default async function DashboardPage({
 
       <ReminderBanner />
 
-      <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
+      {!user!.emailVerifiedAt ? <EmailVerifyNudge /> : null}
 
-      {payFeeCaseId ? (
-        <div className="sr-only" aria-hidden>
-          <FeePayButton caseId={payFeeCaseId} autoStart />
-        </div>
+      <DashboardNextActionPanel userId={user!.id} locale={locale as Locale} />
+      <PersonalProofStrip
+        locale={locale as Locale}
+        documentedCount={documentedProofCount}
+        documentedMonthlyAgorot={totalDocumentedMonthly}
+        pendingFeeAgorot={pendingFeeAgorot}
+        pendingFeeHref={pendingFeeHref}
+        shareCaseHref={(() => {
+          const id = pickShareableSavedCaseId(cases);
+          return id ? `/money?case=${id}` : null;
+        })()}
+      />
+      {pendingFeeAgorot <= 0 ? (
+        <RetentionActionStrip locale={locale} actions={retentionActions} />
       ) : null}
 
-      {pendingFeeAgorot > 0 && feeStatus !== "paid" && !payFeeCaseId && (
+      {pendingFeeAgorot > 0 && feeStatus !== "paid" ? (
         <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] px-5 py-4 mb-5 flex flex-wrap items-center gap-3 justify-between">
           <div>
             <div className="font-extrabold text-[14.5px] text-emerald">{t("dashboard.feeOutstandingTitle")}</div>
@@ -345,9 +555,32 @@ export default async function DashboardPage({
               })}
             </p>
           </div>
-          {pendingFeeCases[0] ? (
-            <FeePayButton caseId={pendingFeeCases[0].id} />
+          {payFeeCaseId ? (
+            <FeePayButton
+              caseId={payFeeCaseId}
+              autoStart={
+                paymentsLive &&
+                payFee === "1" &&
+                feeStatus !== "error" &&
+                feeStatus !== "confirming"
+              }
+            />
+          ) : stripPendingFeeCase ? (
+            <Link
+              href={pendingFeeHref}
+              className="text-[12px] font-extrabold rounded-full px-3 py-1 bg-[rgba(63,203,155,0.14)] border border-[rgba(63,203,155,0.35)] text-emerald no-underline hover:bg-[rgba(63,203,155,0.22)]"
+            >
+              {locale === "he" ? "המשך בתיק →" : "Continue on case →"}
+            </Link>
           ) : null}
+        </div>
+      ) : null}
+
+      {!emailConfigured() && (
+        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed font-bold">
+          {locale === "he"
+            ? "שליחת מייל מהשרת לא מוגדרת (SMTP) — אפשר עדיין לפתוח תיק + Mandate ולשלוח מהמייל שלכם. ברגע שיוגדר SMTP, הסוכן ישלח ישירות לספק."
+            : "Server email (SMTP) is not configured — you can still open a case + Mandate and send from your own mail. Once SMTP is set, the agent sends to the provider directly."}
         </div>
       )}
 
@@ -375,7 +608,13 @@ export default async function DashboardPage({
         </div>
       )}
 
-      <OvernightAgent cases={sentCases} />
+      <OvernightAgent
+        cases={
+          rankedForHabit.kind === "sent_wait"
+            ? sentCases.filter((c) => c.id === rankedForHabit.caseId)
+            : []
+        }
+      />
 
       {intent && (
         <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)] px-5 py-4 mb-5 flex items-center gap-3">
@@ -418,12 +657,13 @@ export default async function DashboardPage({
           <p className="text-[13.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{t("dashboard.savedCelebrateSub")}</p>
           {celebrateCase?.fee &&
             celebrateCase.fee.status === "PENDING" &&
-            celebrateCase.fee.amount > 0 && (
+            celebrateCase.fee.amount > 0 &&
+            payFeeCaseId !== celebrateCase.id && (
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <span className="text-[13px] font-bold text-ink-soft">
                   {t("dashboard.feeTag")}: {formatAgorot(celebrateCase.fee.amount, loc)}
                 </span>
-                <FeePayButton caseId={celebrateCase.id} autoStart={payFeeCaseId === celebrateCase.id} />
+                <FeePayButton caseId={celebrateCase.id} />
               </div>
             )}
         </div>
@@ -452,29 +692,6 @@ export default async function DashboardPage({
         </div>
       )}
 
-      <MoneyScoreCard result={scoreResult} />
-
-      <VigilWatchCard bcp47={loc} />
-
-      <StrategyInsightsCard locale={locale} bcp47={loc} />
-
-      <ShareResult
-        message={shareMessage}
-        referralCode={referralCode}
-        amountLabel={shareAmountLabel}
-        kicker={justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined}
-      />
-
-      <div className="mt-5">
-        <ReferralCard
-          path={invitePath}
-          fallbackLink={`${appUrl}${invitePath}`}
-          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
-          rewardAgorot={REFERRAL_REWARD_AGOROT}
-          bcp47={loc}
-        />
-      </div>
-
       {cases.length === 0 ? (
         <Card className="text-center px-8 py-14">
           <Inbox size={40} className="mx-auto mb-3.5 text-ink-soft" aria-hidden />
@@ -485,23 +702,15 @@ export default async function DashboardPage({
               : "Start with Money OS: scan charges, open an agent case — no phone left behind."}
           </div>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
-            <Link href="/money">
+            <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-6">{moneyLabel} →</Button>
             </Link>
-            <Link href="/cancel">
-              <Button variant="ghost">{locale === "he" ? "ביטול מנוי עם סוכן" : "Cancel with agent"}</Button>
-            </Link>
-            <Link href="/electricity">
-              <Button variant="ghost">{locale === "he" ? "חשמל" : "Electricity"}</Button>
-            </Link>
           </div>
-          <div className="mt-8 text-start">
-            <div className="text-[12.5px] font-extrabold text-ink-soft mb-3 uppercase tracking-wide">
-              {locale === "he" ? "מה כדאי לפתוח עכשיו" : "What to open now"}
-            </div>
-            <PriorityActionsRanked limit={4} />
-          </div>
-          <EmptyDashboardActions />
+          <p className="text-[12.5px] text-ink-soft mt-5 mb-0 max-w-[420px] mx-auto leading-relaxed">
+            {locale === "he"
+              ? "דלת אחת: סריקה → תיק → Mandate → חיסכון מתועד. קיצורים אחרים רק אחרי שיש תיק."
+              : "One door: scan → case → Mandate → documented saving. Other shortcuts only after you have a case."}
+          </p>
         </Card>
       ) : (
         <>
@@ -518,11 +727,11 @@ export default async function DashboardPage({
                   {formatAgorot(totalPotential, loc)} {t("common.perMonthTag")}
                 </div>
                 <div className="text-[12.5px] text-ink-soft mt-1.5">{t("dashboard.potentialSub")}</div>
-                {hasFamily && totalDocumentedMonthly > 0 && (
+                {totalDocumentedMonthly > 0 && (
                   <div className="text-[12.5px] text-emerald mt-2 font-bold">
                     {locale === "he"
-                      ? `מתועד בפועל: ${formatAgorot(totalDocumentedMonthly, loc)}/ח׳ (כולל משפחה)`
-                      : `Documented: ${formatAgorot(totalDocumentedMonthly, loc)}/mo (incl. household)`}
+                      ? `מתועד בפועל: ${formatAgorot(totalDocumentedMonthly, loc)}/ח׳${hasFamily ? " (כולל משפחה)" : ""}`
+                      : `Documented: ${formatAgorot(totalDocumentedMonthly, loc)}/mo${hasFamily ? " (incl. household)" : ""}`}
                   </div>
                 )}
               </div>
@@ -580,6 +789,8 @@ export default async function DashboardPage({
             </Card>
           )}
 
+          {/* Prove → fee first: no household / volume sprawl while a fee is outstanding. */}
+          {pendingFeeAgorot <= 0 ? (
           <div className="mt-7 rounded-2xl border border-[rgba(139,92,246,0.28)] bg-[rgba(139,92,246,0.06)] px-5 py-4 flex items-center gap-3.5 flex-wrap">
             <Users size={22} className="text-[#8B5CF6] shrink-0" aria-hidden />
             <div className="flex-1 min-w-[180px]">
@@ -604,7 +815,10 @@ export default async function DashboardPage({
               </Button>
             </Link>
           </div>
+          ) : null}
 
+          {/* Prove → fee first: no volume-door sprawl while a success fee is outstanding. */}
+          {pendingFeeAgorot <= 0 ? (
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/money">
               <Button>{moneyLabel}</Button>
@@ -628,8 +842,43 @@ export default async function DashboardPage({
               <Button variant="ghost">{locale === "he" ? "מסמכים" : "Documents"}</Button>
             </Link>
           </div>
+          ) : (
+            <div className="mt-6">
+              <Link href="/money">
+                <Button>{moneyLabel}</Button>
+              </Link>
+            </div>
+          )}
         </>
       )}
+
+      {/* Virality is not gated on fee payment — SCALE_DISTRIBUTION. */}
+      <ShareResult
+        message={shareMessage}
+        referralCode={referralCode}
+        amountLabel={shareAmountLabel}
+        kicker={
+          justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined
+        }
+      />
+      <div className="mt-5 mb-5">
+        <ReferralCard
+          path={invitePath}
+          fallbackLink={`${appUrl}${invitePath}`}
+          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
+          rewardAgorot={REFERRAL_REWARD_AGOROT}
+          bcp47={loc}
+        />
+      </div>
+
+      {/* Secondary chrome waits until the success fee is cleared. */}
+      {pendingFeeAgorot <= 0 ? (
+        <>
+          <MoneyScoreCard result={scoreResult} />
+          <VigilWatchCard bcp47={loc} />
+          <StrategyInsightsCard locale={locale} bcp47={loc} />
+        </>
+      ) : null}
 
       <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.6)]">
         {t("disclosure.agent")}
