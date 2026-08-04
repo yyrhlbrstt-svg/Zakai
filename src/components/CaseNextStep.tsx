@@ -65,7 +65,7 @@ interface Props {
   documentedSavingShekels?: number;
   /** Pending success fee in shekels — display only (may round away sub-₪1). */
   pendingFeeShekels?: number;
-  /** Pending success fee in agorot — share gate (honest; sub-₪1 still blocks virality). */
+  /** Pending success fee in agorot — fee banner only; share stays unlocked. */
   pendingFeeAgorot?: number;
   /** Estimate / self-reported SavingsProof — no virality (prove → fee → share). */
   proofSelfReported?: boolean;
@@ -168,7 +168,7 @@ const copy: Record<string, Record<string, string>> = {
     quickOff50: "הנחה ~50% (הערכה — בלי עמלה)",
     estimateHints: "קיצורי הערכה — לא תיעוד מספק. לא נגבית עמלה על הערכה.",
     payFeeNow: "שלמו את עמלת ההצלחה",
-    savedPayFirst: "קודם העמלה על התוצאה המתועדת — אחר כך שיתוף.",
+    savedPayFirst: "עמלת הצלחה ממתינה על החיסכון המתועד — אפשר גם לשתף בינתיים.",
     estimateNoShare:
       "זו הערכה עצמית — בלי תיעוד מספק אין שיתוף ויראלי. הדביקו תשובה בכתב בתיק הבא לחיסכון מתועד.",
     exhaustedBanner:
@@ -283,7 +283,7 @@ const copy: Record<string, Record<string, string>> = {
     quickOff50: "~50% off (estimate — no fee)",
     estimateHints: "Estimate shortcuts — not provider documentation. No success fee on estimates.",
     payFeeNow: "Pay the success fee",
-    savedPayFirst: "Pay the documented-outcome fee first — then share.",
+    savedPayFirst: "Documented-outcome fee is pending — you can still share.",
     estimateNoShare:
       "This is a self-reported estimate — no viral share without provider documentation. Paste a written reply on the next case for a documented saving.",
     exhaustedBanner:
@@ -788,12 +788,8 @@ export function CaseNextStep({
           </div>
           ) : null;
         })()}
-        {/* Prove → fee → share: unpaid fee (agorot) and self-reported estimates never unlock virality. */}
-        {!((pendingFeeAgorot != null && pendingFeeAgorot > 0) ||
-          (pendingFeeAgorot == null &&
-            pendingFeeShekels != null &&
-            pendingFeeShekels > 0)) ? (
-          <>
+        {/* Prove → fee and prove → share run in parallel (SCALE_DISTRIBUTION).
+            Self-reported estimates still never unlock virality. */}
         {proofSelfReported ? (
           <p className="text-[13px] text-ink-soft mb-3 leading-relaxed m-0">
             {t(locale, "estimateNoShare")}
@@ -867,8 +863,6 @@ export function CaseNextStep({
             ))}
           </div>
         </div>
-          </>
-        ) : null}
       </div>
     );
   }

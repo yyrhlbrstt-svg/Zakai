@@ -851,29 +851,31 @@ export default async function DashboardPage({
         </>
       )}
 
+      {/* Virality is not gated on fee payment — SCALE_DISTRIBUTION. */}
+      <ShareResult
+        message={shareMessage}
+        referralCode={referralCode}
+        amountLabel={shareAmountLabel}
+        kicker={
+          justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined
+        }
+      />
+      <div className="mt-5 mb-5">
+        <ReferralCard
+          path={invitePath}
+          fallbackLink={`${appUrl}${invitePath}`}
+          creditAgorot={referralRow?.referralCreditAgorot ?? 0}
+          rewardAgorot={REFERRAL_REWARD_AGOROT}
+          bcp47={loc}
+        />
+      </div>
+
       {/* Secondary chrome waits until the success fee is cleared. */}
       {pendingFeeAgorot <= 0 ? (
         <>
           <MoneyScoreCard result={scoreResult} />
           <VigilWatchCard bcp47={loc} />
           <StrategyInsightsCard locale={locale} bcp47={loc} />
-          <ShareResult
-            message={shareMessage}
-            referralCode={referralCode}
-            amountLabel={shareAmountLabel}
-            kicker={
-              justDocumentedSaving && celebrateProviderLabel ? celebrateProviderLabel : undefined
-            }
-          />
-          <div className="mt-5">
-            <ReferralCard
-              path={invitePath}
-              fallbackLink={`${appUrl}${invitePath}`}
-              creditAgorot={referralRow?.referralCreditAgorot ?? 0}
-              rewardAgorot={REFERRAL_REWARD_AGOROT}
-              bcp47={loc}
-            />
-          </div>
         </>
       ) : null}
 

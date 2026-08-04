@@ -38,7 +38,7 @@ export async function notifyInstitutionOnOutboundSend(mandateAudience: string | 
     subject: SUBJECT,
     body: `Hello ${verifier.displayNameEn} team,
 
-A Zakai consumer case with Mandate audience \`${aud}\` reached outbound dispatch (email sent or queued per environment).
+A Zakai consumer case with Mandate audience \`${aud}\` reached outbound dispatch (Outbox SENT — the letter left the system).
 
 This notice has no customer identity.
 

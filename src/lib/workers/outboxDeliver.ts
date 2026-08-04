@@ -144,6 +144,8 @@ export interface OutboxWorkerResult {
   skipped: number;
   /** Provider outreach that left — user notify upgrades attempted (best-effort). */
   notifiedDelivered: number;
+  /** Registered institutions pinged after real SENT (best-effort). */
+  notifiedInstitutions: number;
 }
 
 /**
@@ -151,7 +153,8 @@ export interface OutboxWorkerResult {
  * FAILED rows that hit MAX_OUTBOX_ATTEMPTS stay dead-lettered (no retry storm).
  *
  * When a provider Mandate letter finally SENT after async queue, upgrade the
- * consumer from "בתור שליחה" / silence → honest "נשלח" (sync path already does).
+ * consumer from "בתור שליחה" / silence → honest "נשלח" (sync path already does),
+ * and ping registered institutions the same way sync `sendOutreach` does.
  */
 export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): Promise<OutboxWorkerResult> {
   const result: OutboxWorkerResult = {
@@ -160,6 +163,7 @@ export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): P
     failed: 0,
     skipped: 0,
     notifiedDelivered: 0,
+    notifiedInstitutions: 0,
   };
   const smtpUp = emailConfigured();
 
@@ -219,6 +223,24 @@ export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): P
           if (notified) result.notifiedDelivered += 1;
         } catch {
           // Delivery already committed; notify is best-effort honesty upgrade.
+        }
+        try {
+          const { shouldAttachMandateDocs } = await import(
+            "@/lib/services/outreachAttachments"
+          );
+          if (shouldAttachMandateDocs(fresh.subject)) {
+            const auth = await prisma.authorization.findUnique({
+              where: { caseId: fresh.caseId },
+              select: { mandateAudience: true },
+            });
+            const { notifyInstitutionOnOutboundSend } = await import(
+              "@/lib/institutionOutboundNotify"
+            );
+            await notifyInstitutionOnOutboundSend(auth?.mandateAudience);
+            if (auth?.mandateAudience) result.notifiedInstitutions += 1;
+          }
+        } catch {
+          // Best-effort institutional pull — never roll back SENT.
         }
       }
     } else if (outcome === "failed") result.failed += 1;

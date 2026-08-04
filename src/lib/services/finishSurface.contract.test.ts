@@ -103,7 +103,7 @@ describe("finish surface contract", () => {
     ).toBe("/money?case=c1");
   });
 
-  it("sub-₪1 PENDING fee blocks share picker and stays collectible", () => {
+  it("sub-₪1 PENDING fee stays collectible and shareable", () => {
     const fee = { amount: 18, status: "PENDING" };
     expect(isPendingSuccessFee(fee)).toBe(true);
     expect(
@@ -115,7 +115,7 @@ describe("finish surface contract", () => {
           fee,
         },
       ]),
-    ).toBeNull();
+    ).toBe("tiny");
   });
 
   it("paste never one-taps raw extract without mapped recordAmount", () => {

@@ -15,7 +15,7 @@ describe("isDeadFinishStatus", () => {
 });
 
 describe("pickShareableSavedCaseId", () => {
-  it("returns newest documented SAVED without pending fee", () => {
+  it("returns documented SAVED even when success fee is still PENDING", () => {
     expect(
       pickShareableSavedCaseId([
         {
@@ -31,7 +31,7 @@ describe("pickShareableSavedCaseId", () => {
           fee: { amount: 700, status: "PAID" },
         },
       ]),
-    ).toBe("share");
+    ).toBe("pending");
   });
 
   it("skips self-reported and non-SAVED", () => {
@@ -61,7 +61,7 @@ describe("pickShareableSavedCaseId", () => {
     ).toBe("waived");
   });
 
-  it("does not treat sub-₪1 PENDING fee as shareable", () => {
+  it("treats sub-₪1 PENDING fee as still shareable (virality unlocked)", () => {
     expect(
       pickShareableSavedCaseId([
         {
@@ -71,7 +71,7 @@ describe("pickShareableSavedCaseId", () => {
           fee: { amount: 18, status: "PENDING" },
         },
       ]),
-    ).toBeNull();
+    ).toBe("tiny-fee");
   });
 });
 
