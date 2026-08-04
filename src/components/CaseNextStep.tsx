@@ -20,6 +20,7 @@ import { heEn } from "@/lib/heEn";
 import { FeePayButton } from "@/components/FeePayButton";
 import { classifyFollowUpSendError, followUpDeliveryState } from "@/lib/followUpSendUi";
 import type { OutreachDelivery } from "@/lib/services/outreachDelivery";
+import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
 import { pendingFeeDisplayShekels } from "@/lib/pendingSuccessFee";
 import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 
@@ -490,10 +491,11 @@ export function CaseNextStep({
       checkoutError?: string;
     };
     if (!res.ok) {
-      // Double-tap / slow network after settle — land on SAVED → fee, don't generic-fail.
+      // Double-tap / slow network after settle — land on SAVED finish surface.
+      // payFee=1 only when Mandate is still known-active (#91/#94 gates).
       if (data.error === "ALREADY_SETTLED") {
         router.refresh();
-        router.push(`/money?case=${caseId}&payFee=1`);
+        router.push(moneyPendingFeeHref({ caseId, mandateActive: localAuth }));
         return;
       }
       if (data.error === "AUTH_REVOKED") {
@@ -508,10 +510,11 @@ export function CaseNextStep({
       }
       throw new Error("save");
     }
-    // Fee without Mandate bind: land on pay surface so FeePayButton shows the
-    // honest refusal — don't pretend checkout started.
+    // Fee without Mandate bind: case surface for reissue — do not invent payFee=1
+    // (FeePayButton no longer auto-mounts when Mandate is inactive).
     if (data.checkoutError === "MANDATE_REQUIRED") {
-      finishSaving({ checkoutUrl: undefined, chargeable: true });
+      setLocalAuth(false);
+      finishSaving({ checkoutUrl: undefined, chargeable: false });
       return;
     }
     finishSaving({ checkoutUrl: data.checkoutUrl, chargeable: data.chargeable === true });

@@ -422,8 +422,9 @@ export function CheckFlow() {
       });
       setStage("result");
     } else if (data.error === "ALREADY_SETTLED" && rec.caseId) {
-      // Double-tap after settle — finish fee on /money, don't generic-fail.
-      router.push(`/money?case=${rec.caseId}&payFee=1`);
+      // Double-tap after settle — case finish surface; don't invent payFee=1
+      // (Mandate may be inactive; /money gates checkout).
+      router.push(`/money?case=${rec.caseId}`);
     } else if (data.error === "AUTH_REVOKED") {
       setSaveErr("authRevoked");
     } else if (data.error === "MANDATE_REQUIRED") {
@@ -920,9 +921,7 @@ export function CheckFlow() {
               ) : rec ? (
                 <Button
                   className="w-full mt-4"
-                  onClick={() =>
-                    router.push(`/money?case=${rec.caseId}&payFee=1`)
-                  }
+                  onClick={() => router.push(`/money?case=${rec.caseId}&payFee=1`)}
                 >
                   {t("payFeeNow")}
                 </Button>
@@ -954,7 +953,8 @@ export function CheckFlow() {
               onClick={() =>
                 router.push(
                   rec
-                    ? outcome.chargeable
+                    ? outcome.chargeable &&
+                      outcome.checkoutError !== "MANDATE_REQUIRED"
                       ? `/money?case=${rec.caseId}&payFee=1`
                       : `/money?case=${rec.caseId}`
                     : "/money",

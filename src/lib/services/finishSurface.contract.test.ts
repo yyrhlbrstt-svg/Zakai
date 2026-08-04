@@ -4,7 +4,7 @@ import {
   pickShareableSavedCaseId,
   resolveMoneyFinishCaseId,
 } from "./shareableSavedCase";
-import { resolveMoneyPayFeeCaseId } from "./moneyPayFeeCase";
+import { moneyPendingFeeHref, resolveMoneyPayFeeCaseId } from "./moneyPayFeeCase";
 import { resolvePasteRecordField } from "./pasteRecordField";
 import { isPendingSuccessFee } from "@/lib/pendingSuccessFee";
 
@@ -85,6 +85,15 @@ describe("finish surface contract", () => {
         ],
       }),
     ).toBeNull();
+  });
+
+  it("post-settle href invents payFee only when Mandate is active", () => {
+    expect(moneyPendingFeeHref({ caseId: "c1", mandateActive: true })).toBe(
+      "/money?case=c1&payFee=1",
+    );
+    expect(moneyPendingFeeHref({ caseId: "c1", mandateActive: false })).toBe(
+      "/money?case=c1",
+    );
   });
 
   it("sub-₪1 PENDING fee blocks share picker and stays collectible", () => {
