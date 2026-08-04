@@ -2671,7 +2671,7 @@
     "kicker": "Zakai for Business 🏢",
     "title": "The wellbeing perk that puts real money back in employees' pockets.",
     "sub": "Instead of another gift card — give employees a tool that finds the money they're owed: payslip checks, rights, tax refunds, bills and taxes. No setup cost, no HR effort, and employees who feel cared for.",
-    "cta": "Book a call",
+    "cta": "Written enquiry — no sales call",
     "valuesTitle": "Why employers choose Zakai",
     "values": [
       {
@@ -2711,19 +2711,22 @@
       }
     ],
     "form": {
-      "title": "Let's talk",
-      "sub": "Leave your details and we'll get back with an offer tailored to your organization.",
+      "title": "Written organisational enquiry",
+      "sub": "Leave details in writing. No sales call and no promise we will phone you back — we reply in writing when we can. Meanwhile continue self-serve: Quickstart / Verify / Embed.",
       "company": "Company name",
       "contact": "Contact person",
       "email": "Email",
       "employees": "Number of employees (approx.)",
       "note": "Anything we should know (optional)",
-      "submit": "Send",
+      "submit": "Send in writing",
       "sending": "Sending...",
-      "doneTitle": "Got it, thank you!",
-      "doneSub": "We'll be in touch soon with a tailored offer.",
+      "doneTitle": "Enquiry saved",
+      "doneSub": "No callback promise. Continue self-serve: institutional Quickstart, or the Reference Verifier wizard.",
+      "doneQuickstart": "Institutional Quickstart →",
+      "doneLeader": "Reference Verifier wizard →",
+      "doneIntegrations": "Integration guide →",
       "error": "Something went wrong. Please try again.",
-      "privacy": "Details are used for business contact only and never shared with third parties."
+      "privacy": "Details are used for written business contact only and never shared with third parties."
     },
     "metaTitle": "Zakai for Business — Employee benefits + Mandate infrastructure",
     "metaDesc": "Employee money-rights benefit + verifiable Mandate API for banks, insurers and fintechs. No outbound payments. Success fee only on documented savings.",
@@ -5540,6 +5543,7 @@
     "check_decide": "POST /api/mandate/decide (permit claim:submit + deny payment:initiate)",
     "check_status": "GET /api/mandate/status/{jti}",
     "check_probe": "POST /api/mandate/conformance/probe",
+    "check_revoke": "POST demo-revoke → status=revoked (readiness_* only)",
     "check_inbound": "GET /api/institution/inbound-receive (reference receiver)",
     "check_ready": "GET /api/mandate/ready → READY_FOR_PIONEER",
     "readyForPioneer": "READY_FOR_PIONEER — you may claim a wall slot",
@@ -5756,6 +5760,7 @@
     "verifyLinkHint": "JWS verification",
     "decideLinkHint": "scope/audience decision",
     "statusLinkHint": "live status by jti",
+    "demoRevokeLinkHint": "demo revoke for readiness_* only (not live consumers)",
     "proofTitle": "60-second proof (no sales call)",
     "proofBody": "Machine chain: discovery → JWKS → test-vectors → verify sample → decide. If it works, the protocol is real before you email us.",
     "proofCurl": "curl -s $ORIGIN/.well-known/zakai-mandate.json | head -c 200\ncurl -s $ORIGIN/.well-known/zakai-jwks.json | head -c 200\ncurl -s $ORIGIN/api/mandate/test-vectors | head -c 200\n# then: POST /api/mandate/verify + POST /api/mandate/decide with a sample from /api/institution/verifier-readiness/sample",

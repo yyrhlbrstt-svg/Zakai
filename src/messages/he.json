@@ -2671,7 +2671,7 @@
     "kicker": "זכאי לעסקים 🏢",
     "title": "הטבת הרווחה שמחזירה לעובדים כסף אמיתי.",
     "sub": "במקום עוד כרטיס מתנה — תנו לעובדים כלי שמגלה להם כמה כסף מגיע להם: בדיקת תלוש, זכויות, החזרי מס, חשבונות ומיסים. ללא עלות הקמה, בלי מאמץ מ-HR, ועם עובדים שמרגישים שדואגים להם.",
-    "cta": "לתיאום שיחה",
+    "cta": "פנייה כתובה — בלי שיחת מכירות",
     "valuesTitle": "למה מעסיקים בוחרים בזכאי",
     "values": [
       {
@@ -2711,19 +2711,22 @@
       }
     ],
     "form": {
-      "title": "בואו נדבר",
-      "sub": "השאירו פרטים ונחזור אליכם עם הצעה מותאמת לארגון.",
+      "title": "פנייה כתובה לארגון",
+      "sub": "השאירו פרטים בכתב. אין שיחת מכירות ואין הבטחה שנחזור בטלפון — נענה בכתב כשאפשר, ובינתיים אפשר להמשיך ב-self-serve: Quickstart / Verify / Embed.",
       "company": "שם החברה",
       "contact": "איש קשר",
       "email": "אימייל",
       "employees": "מספר עובדים (בערך)",
       "note": "משהו שנשמח לדעת (לא חובה)",
-      "submit": "שליחה",
+      "submit": "שליחה בכתב",
       "sending": "שולח...",
-      "doneTitle": "קיבלנו, תודה!",
-      "doneSub": "נחזור אליכם בהקדם עם הצעה מותאמת.",
+      "doneTitle": "הפנייה נשמרה",
+      "doneSub": "אין הבטחת שיחה חוזרת. המשיכו ב-self-serve: Quickstart למוסדות, או אשף מובילי אימות.",
+      "doneQuickstart": "Quickstart מוסדי →",
+      "doneLeader": "אשף מובילי אימות →",
+      "doneIntegrations": "מדריך אינטגרציה →",
       "error": "משהו השתבש. נסו שוב.",
-      "privacy": "הפרטים משמשים ליצירת קשר עסקי בלבד ולא מועברים לצד שלישי."
+      "privacy": "הפרטים משמשים ליצירת קשר עסקי בכתב בלבד ולא מועברים לצד שלישי."
     },
     "metaTitle": "Zakai לעסקים — הטבת עובדים + תשתית Mandate",
     "metaDesc": "הטבת זכויות כספיות לעובדים + Mandate API הניתן לאימות לבנקים, מבטחים וחברות פינטק. בלי תשלומים יוצאים. עמלת הצלחה רק על חיסכון מתועד.",
@@ -5540,6 +5543,7 @@
     "check_decide": "POST /api/mandate/decide (permit claim:submit + deny payment:initiate)",
     "check_status": "GET /api/mandate/status/{jti}",
     "check_probe": "POST /api/mandate/conformance/probe",
+    "check_revoke": "POST demo-revoke → status=revoked (readiness_* בלבד)",
     "check_inbound": "GET /api/institution/inbound-receive (מקלט ייחוס)",
     "check_ready": "GET /api/mandate/ready → READY_FOR_PIONEER",
     "readyForPioneer": "READY_FOR_PIONEER — אפשר לתבוע מקום בקיר",
@@ -5756,6 +5760,7 @@
     "verifyLinkHint": "אימות JWS",
     "decideLinkHint": "החלטת היקף/קהל",
     "statusLinkHint": "סטטוס חי לפי jti",
+    "demoRevokeLinkHint": "ביטול דמו readiness_* בלבד (לא צרכן חי)",
     "proofTitle": "הוכחה ב־60 שניות (בלי שיחת מכירה)",
     "proofBody": "שרשרת מכונה: discovery → JWKS → test-vectors → verify sample → decide. אם זה עובד — הפרוטוקול אמיתי לפני שאתם כותבים לנו.",
     "proofCurl": "curl -s $ORIGIN/.well-known/zakai-mandate.json | head -c 200\ncurl -s $ORIGIN/.well-known/zakai-jwks.json | head -c 200\ncurl -s $ORIGIN/api/mandate/test-vectors | head -c 200\n# then: POST /api/mandate/verify + POST /api/mandate/decide with a sample from /api/institution/verifier-readiness/sample",
