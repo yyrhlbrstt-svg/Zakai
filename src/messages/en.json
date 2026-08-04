@@ -5741,7 +5741,7 @@
       },
       {
         "title": "Verify",
-        "body": "POST /api/mandate/verify with the JWS, or use @zakai/mandate-sdk / zakai-mandate-mcp."
+        "body": "POST /api/mandate/verify with the JWS, or use @zakai-app/mandate-sdk / zakai-mandate-mcp."
       },
       {
         "title": "Decide",

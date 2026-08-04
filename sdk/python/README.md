@@ -1,6 +1,6 @@
 # zakai-mandate (Python)
 
-Official **Python** Mandate verifier — twin of [`@zakai/mandate-sdk`](../README.md).
+Official **Python** Mandate verifier — twin of [`@zakai-app/mandate-sdk`](../README.md).
 
 **Start here → [`../QUICKSTART.md`](../QUICKSTART.md)** · Safety → [`../SAFETY.md`](../SAFETY.md)
 

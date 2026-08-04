@@ -30,7 +30,7 @@ HTTP **503** lists which checks failed — fix or do not claim compatibility.
 
 ## Reference SDK
 
-- TypeScript: `sdk/` (`@zakai/mandate-sdk`) — verify, decide, settlement records
+- TypeScript: `sdk/` (`@zakai-app/mandate-sdk`) — verify, decide, settlement records
 - MCP: verification-only server for AI platforms
 - `fetchZakaiProtocol()` — legacy entry; prefer `GET /.well-known/zakai-interop.json`
 

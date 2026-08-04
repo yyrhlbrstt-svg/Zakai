@@ -163,7 +163,7 @@ export function buildInteropDocument(origin: string) {
     },
     sdk: {
       reference: "sdk/",
-      npm_name: "@zakai/mandate-sdk",
+      npm_name: "@zakai-app/mandate-sdk",
       mcp_server: "zakai-mandate-mcp",
     },
     rules: [

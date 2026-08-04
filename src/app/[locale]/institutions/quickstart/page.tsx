@@ -126,8 +126,8 @@ export default async function InstitutionQuickstartPage({
         <p className="text-[13px] text-ink-soft mt-0 mb-3 leading-relaxed">
           {heEn(
             he,
-            "חבילה רשמית @zakai/mandate-sdk. עד פרסום npm — מהמונורפו.",
-            "Official @zakai/mandate-sdk. Until npm publish — from the monorepo.",
+            "חבילה רשמית @zakai-app/mandate-sdk. עד פרסום npm — מהמונורפו.",
+            "Official @zakai-app/mandate-sdk. Until npm publish — from the monorepo.",
           )}
         </p>
         <CodeBlock>{`git clone https://github.com/yyrhlbrstt-svg/Zakai.git
@@ -185,7 +185,7 @@ zakai-mandate-ready --origin ${ORIGIN}`}</CodeBlock>
         <div className="font-extrabold text-[15px] mb-1">
           {heEn(he, "אופציונלי — 3 שורות בקוד שלכם", "Optional — 3 lines in your code")}
         </div>
-        <CodeBlock>{`import { verifyMandateFromUrl, FORBIDDEN_SCOPES } from "@zakai/mandate-sdk";
+        <CodeBlock>{`import { verifyMandateFromUrl, FORBIDDEN_SCOPES } from "@zakai-app/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(jws, {
   audience: "your-institution-slug",

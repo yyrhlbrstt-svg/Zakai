@@ -5741,7 +5741,7 @@
       },
       {
         "title": "אימות",
-        "body": "POST /api/mandate/verify עם ה-JWS, או SDK @zakai/mandate-sdk / zakai-mandate-mcp."
+        "body": "POST /api/mandate/verify עם ה-JWS, או SDK @zakai-app/mandate-sdk / zakai-mandate-mcp."
       },
       {
         "title": "החלטה",

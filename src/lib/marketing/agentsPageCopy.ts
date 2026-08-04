@@ -72,7 +72,7 @@ const EN: AgentsPageCopy = {
     {
       heading: "Try it now",
       paragraphs: ["Three lines with any JWT library:"],
-      code: `import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
+      code: `import { verifyMandateFromUrl } from "@zakai-app/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(token, {
   audience: "your-agent-or-institution-id",
@@ -147,7 +147,7 @@ const HE: AgentsPageCopy = {
     {
       heading: "נסו עכשיו",
       paragraphs: ["שלוש שורות עם כל ספריית JWT:"],
-      code: `import { verifyMandateFromUrl } from "@zakai/mandate-sdk";
+      code: `import { verifyMandateFromUrl } from "@zakai-app/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(token, {
   audience: "your-agent-or-institution-id",

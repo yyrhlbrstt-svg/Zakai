@@ -7,7 +7,7 @@
 | Asset | Location |
 |-------|----------|
 | Source | `sdk/` in this monorepo |
-| Package name (future npm) | `@zakai/mandate-sdk` |
+| Package name (future npm) | `@zakai-app/mandate-sdk` |
 | MCP binary | `zakai-mandate-mcp` (`npm run build` in `sdk/`, then `node dist/mcp-bin.js`) |
 | Interop profile | `zakai-mandate-verifier-1` in `/.well-known/zakai-interop.json` |
 | Live probes | `GET /api/interop?probe=1` |

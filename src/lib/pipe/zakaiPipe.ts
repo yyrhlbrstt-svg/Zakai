@@ -87,7 +87,7 @@ export function buildZakaiPipeDocument(origin: string) {
         handoff: `${base}/api/pipe/handoff`,
         agents_index: absoluteWellKnown(base, WELL_KNOWN_RELATIVE.agents),
         mcp: "zakai-mandate-mcp (verify + pipe_handoff + pipe_accept + discover_pipe)",
-        sdk: `${base.replace(/\/$/, "")}/` + "sdk/ (monorepo) → @zakai/mandate-sdk",
+        sdk: `${base.replace(/\/$/, "")}/` + "sdk/ (monorepo) → @zakai-app/mandate-sdk",
         join_kit: `${base}/api/network/join-kit`,
       },
     },

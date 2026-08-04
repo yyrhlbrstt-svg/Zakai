@@ -146,7 +146,7 @@ export async function GET(request: Request) {
     licensing: {
       specification:
         "Freely implementable by anyone, in any language, without royalty or permission. Zakai will not assert any claim against a good-faith independent implementation of this specification.",
-      reference_implementations: "MIT-licensed. See @zakai/mandate-sdk and this deployment's own verifier logic.",
+      reference_implementations: "MIT-licensed. See @zakai-app/mandate-sdk and this deployment's own verifier logic.",
       trademark:
         "\"Zakai Mandate\" names this specification profile. An independent implementation may call itself whatever it likes — conformance is established at conformance_uri, never by name.",
     },
@@ -154,7 +154,7 @@ export async function GET(request: Request) {
     discoverability: {
       llms_txt_uri: `${origin}/llms.txt`,
       mcp_server: {
-        package: "@zakai/mandate-sdk",
+        package: "@zakai-app/mandate-sdk",
         binary: "zakai-mandate-mcp",
         env: { base_url: "ZAKAI_BASE_URL", oracle_key: "ZAKAI_ORACLE_API_KEY" },
         tools: [

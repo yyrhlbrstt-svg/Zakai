@@ -35,7 +35,7 @@ export function buildPacksManifest(origin: string) {
     },
     sdk: {
       mandate: "sdk/README.md",
-      npm_name: "@zakai/mandate-sdk",
+      npm_name: "@zakai-app/mandate-sdk",
       mcp: "zakai-mandate-mcp",
       interop_profiles: ["zakai-mandate-verifier-1", "zakai-rights-catalog-1"],
     },

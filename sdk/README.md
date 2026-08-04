@@ -1,4 +1,4 @@
-# @zakai/mandate-sdk
+# @zakai-app/mandate-sdk
 
 Official **Node** Mandate verifier for institutions (Python twin: [`sdk/python`](./python)).
 
@@ -10,8 +10,9 @@ cd sdk && npm ci && npm run ready
 # → READY_FOR_PIONEER → https://zakai-3uxj.vercel.app/he/institutions/leader
 ```
 
-Publishing is gated: `.github/workflows/sdk-publish.yml`; npm publish on `sdk@v*` tag
-or `workflow_dispatch` with `publish=true`. Until then, use the monorepo path above.
+Publishing is gated: `.github/workflows/sdk-publish.yml`; publishes to GitHub
+Packages on `sdk@v*` tag or `workflow_dispatch` with `publish=true`. Until then,
+use the monorepo path above.
 
 ## What you get (minimal surface)
 
@@ -25,13 +26,28 @@ Same logic as production Zakai — the SDK cannot silently disagree with the iss
 ## Install
 
 ```bash
-# Monorepo (works today):
+# Monorepo (works today, no account/token needed):
 cd sdk && npm ci && npm run build
 
-# After publish:
-npm install @zakai/mandate-sdk
+# Directly from GitHub (works today, no account/token needed):
+npm install github:yyrhlbrstt-svg/Zakai#path:sdk
+
+# After publish to GitHub Packages (needs a GitHub token — see below):
+npm install @zakai-app/mandate-sdk
 npx zakai-mandate-ready
 ```
+
+GitHub Packages requires a GitHub token to **install** a package, not just to
+publish one — even for public packages, unlike npmjs.com. A consumer needs a
+`~/.npmrc` with:
+
+```
+@zakai-app:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=<a GitHub token with read:packages>
+```
+
+If that's friction you don't want to impose on people evaluating the SDK, the
+`github:` install above works with zero setup for anyone.
 
 ## MCP server: give any AI agent a Mandate verifier
 
@@ -89,7 +105,7 @@ Human twin: `/he/institutions/quickstart`
 ## Quickstart: verify a mandate someone sent you
 
 ```ts
-import { verifyMandateFromUrl, verifyStatusListFromUrl } from "@zakai/mandate-sdk";
+import { verifyMandateFromUrl, verifyStatusListFromUrl } from "@zakai-app/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(token, {
   audience: "my-institution-id",
@@ -108,7 +124,7 @@ console.log(claims.scopes); // ["contract:cancel", "dispute:charge"]
 ## Decide whether a specific act is authorised right now
 
 ```ts
-import { decide } from "@zakai/mandate-sdk";
+import { decide } from "@zakai-app/mandate-sdk";
 
 const result = decide({
   claims,
@@ -136,7 +152,7 @@ with a warning attached.
 ## Produce a settlement record
 
 ```ts
-import { buildMandateRef, draftDecisionRecord, adjudicate } from "@zakai/mandate-sdk";
+import { buildMandateRef, draftDecisionRecord, adjudicate } from "@zakai-app/mandate-sdk";
 
 const mandateRef = buildMandateRef(claims, token);
 const decisionDraft = draftDecisionRecord(mandateRef, {
@@ -174,7 +190,7 @@ conformance checks that are settleable from artifacts alone, without trusting
 anything the candidate says about their own code.
 
 ```ts
-import { probeIssuer, assessConformance } from "@zakai/mandate-sdk";
+import { probeIssuer, assessConformance } from "@zakai-app/mandate-sdk";
 
 const results = await probeIssuer({
   jwks: candidateJwks,

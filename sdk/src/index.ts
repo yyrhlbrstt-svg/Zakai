@@ -1,5 +1,5 @@
 /**
- * @zakai/mandate-sdk — the reference client for the Zakai Mandate protocol.
+ * @zakai-app/mandate-sdk — the reference client for the Zakai Mandate protocol.
  *
  * Three things, in the order you probably need them:
  *   1. Verify a mandate someone presented to you: `verifyMandateFromUrl`.

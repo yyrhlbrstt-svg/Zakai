@@ -1,7 +1,7 @@
 name: SDK publish
 
-# Build/test @zakai/mandate-sdk on every change under sdk/.
-# Publish to npm only on an explicit sdk@v* tag or workflow_dispatch —
+# Build/test @zakai-app/mandate-sdk on every change under sdk/.
+# Publish to GitHub Packages only on an explicit sdk@v* tag or workflow_dispatch —
 # never on every main merge (founder control of the public package name).
 
 on:
@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: "Publish to npm (requires NPM_TOKEN secret)"
+        description: "Publish to GitHub Packages (requires GH_PACKAGES_TOKEN secret)"
         type: boolean
         default: false
 
@@ -52,20 +52,20 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          registry-url: "https://registry.npmjs.org"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@zakai-app"
           cache: npm
           cache-dependency-path: sdk/package-lock.json
       - name: Install
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
       - run: npm run build
-      - name: Publish @zakai/mandate-sdk
-        run: npm publish --access public --provenance
+      - name: Publish @zakai-app/mandate-sdk
+        run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}

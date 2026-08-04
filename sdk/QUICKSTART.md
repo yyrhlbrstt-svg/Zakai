@@ -27,7 +27,7 @@ Live discovery: `GET /.well-known/zakai-mandate.json`
 
 Pick **one** stack.
 
-### Node (official `@zakai/mandate-sdk`)
+### Node (official `@zakai-app/mandate-sdk`)
 
 ```bash
 git clone https://github.com/yyrhlbrstt-svg/Zakai.git
@@ -105,7 +105,7 @@ Human twin of this doc: `/he/institutions/quickstart`
 **Node**
 
 ```ts
-import { verifyMandateFromUrl, verifyStatusListFromUrl, FORBIDDEN_SCOPES } from "@zakai/mandate-sdk";
+import { verifyMandateFromUrl, verifyStatusListFromUrl, FORBIDDEN_SCOPES } from "@zakai-app/mandate-sdk";
 
 const claims = await verifyMandateFromUrl(jws, {
   audience: "your-institution-slug",
