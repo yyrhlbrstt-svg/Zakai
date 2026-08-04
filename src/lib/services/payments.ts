@@ -21,11 +21,25 @@ export async function initiateFeePayment(
     include: { fee: true },
   });
   if (!kase || !kase.fee) throw new PaymentError("NO_FEE");
-  const fee = kase.fee;
+  let fee = kase.fee;
   if (fee.status === "PAID") throw new PaymentError("ALREADY_PAID");
   if (fee.status === "WAIVED" || fee.amount <= 0) throw new PaymentError("NOTHING_TO_COLLECT");
   // Never collect a success fee that is not bound to the Mandate that authorized the act.
-  if (!fee.mandateJti) throw new PaymentError("MANDATE_REQUIRED");
+  // Legacy PENDING rows (pre Fee.mandateJti) may still have the jti on Authorization —
+  // heal from that, do not mint a new Mandate.
+  if (!fee.mandateJti) {
+    const auth = await prisma.authorization.findUnique({
+      where: { caseId },
+      select: { mandateJti: true, status: true },
+    });
+    if (!auth?.mandateJti || auth.status !== "ACTIVE") {
+      throw new PaymentError("MANDATE_REQUIRED");
+    }
+    fee = await prisma.fee.update({
+      where: { id: fee.id },
+      data: { mandateJti: auth.mandateJti },
+    });
+  }
 
   const provider = paymentProvider();
   const loc = encodeURIComponent(locale);
