@@ -40,6 +40,10 @@ import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
 import { mapOutboxToOutreachDelivery } from "@/lib/services/outreachDelivery";
 import { isPendingSuccessFee } from "@/lib/pendingSuccessFee";
+import {
+  moneyPendingFeeHref,
+  resolveMoneyPayFeeCaseId,
+} from "@/lib/services/moneyPayFeeCase";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 
 const STATUS_KEY: Record<string, string> = {
@@ -230,11 +234,21 @@ export default async function DashboardPage({
     (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
   );
   const pendingFeeAgorot = pendingFeeCases.reduce((s, c) => s + (c.fee?.amount ?? 0), 0);
-
-  const payFeeCaseId =
-    payFee === "1" && highlightCase && pendingFeeCases.some((c) => c.id === highlightCase)
-      ? highlightCase
-      : null;
+  // Checkout autoStart / payFee=1 only when Mandate is ACTIVE (#91 money gate).
+  const payFeeCaseId = resolveMoneyPayFeeCaseId({
+    payFee: payFee === "1",
+    focusCaseId: highlightCase,
+    cases,
+  });
+  const stripPendingFeeCase = pendingFeeCases[0];
+  const pendingFeeHref = payFeeCaseId
+    ? moneyPendingFeeHref({ caseId: payFeeCaseId, mandateActive: true })
+    : stripPendingFeeCase
+      ? moneyPendingFeeHref({
+          caseId: stripPendingFeeCase.id,
+          mandateActive: stripPendingFeeCase.authorization?.status === "ACTIVE",
+        })
+      : "/money";
 
   const pendingActions = cases.filter(
     (c) =>
@@ -512,13 +526,7 @@ export default async function DashboardPage({
         documentedCount={documentedProofCount}
         documentedMonthlyAgorot={totalDocumentedMonthly}
         pendingFeeAgorot={pendingFeeAgorot}
-        pendingFeeHref={
-          payFeeCaseId
-            ? `/money?case=${payFeeCaseId}&payFee=1`
-            : pendingFeeCases[0]?.id
-              ? `/money?case=${pendingFeeCases[0].id}&payFee=1`
-              : "/money?payFee=1"
-        }
+        pendingFeeHref={pendingFeeHref}
         shareCaseHref={(() => {
           const id = pickShareableSavedCaseId(cases);
           return id ? `/money?case=${id}` : null;
@@ -538,15 +546,18 @@ export default async function DashboardPage({
               })}
             </p>
           </div>
-          {(payFeeCaseId || pendingFeeCases[0]?.id) ? (
+          {payFeeCaseId ? (
             <FeePayButton
-              caseId={payFeeCaseId ?? pendingFeeCases[0]!.id}
-              autoStart={
-                Boolean(payFeeCaseId) &&
-                feeStatus !== "error" &&
-                feeStatus !== "confirming"
-              }
+              caseId={payFeeCaseId}
+              autoStart={feeStatus !== "error" && feeStatus !== "confirming"}
             />
+          ) : stripPendingFeeCase ? (
+            <Link
+              href={pendingFeeHref}
+              className="text-[12px] font-extrabold rounded-full px-3 py-1 bg-[rgba(63,203,155,0.14)] border border-[rgba(63,203,155,0.35)] text-emerald no-underline hover:bg-[rgba(63,203,155,0.22)]"
+            >
+              {locale === "he" ? "המשך בתיק →" : "Continue on case →"}
+            </Link>
           ) : null}
         </div>
       ) : null}
