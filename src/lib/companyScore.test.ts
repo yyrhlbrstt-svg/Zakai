@@ -2,9 +2,11 @@ import { describe, it, expect } from "vitest";
 import {
   aggregateCompanyStats,
   aggregateProviderVerticalStats,
+  aggregateActivePressure,
   MIN_SAMPLE,
   type CaseOutcome,
   type VerticalCaseOutcome,
+  type ActivePressureRow,
 } from "./companyScore";
 
 function make(provider: string, n: number, savedEach: number, savingAgorot: number): CaseOutcome[] {
@@ -129,5 +131,52 @@ describe("aggregateProviderVerticalStats", () => {
 
   it("returns empty for no input", () => {
     expect(aggregateProviderVerticalStats("anyone", [])).toEqual([]);
+  });
+});
+
+function makeActive(provider: string, n: number, status = "SENT"): ActivePressureRow[] {
+  return Array.from({ length: n }, () => ({ provider, status }));
+}
+
+describe("aggregateActivePressure", () => {
+  it("excludes providers below MIN_SAMPLE — same defamation gate as scores", () => {
+    const rows = makeActive("cellcom", MIN_SAMPLE - 1);
+    expect(aggregateActivePressure(rows)).toEqual([]);
+  });
+
+  it("counts a provider at or above MIN_SAMPLE", () => {
+    const rows = makeActive("cellcom", MIN_SAMPLE);
+    const stats = aggregateActivePressure(rows);
+    expect(stats).toEqual([{ provider: "cellcom", activeCases: MIN_SAMPLE }]);
+  });
+
+  it("only counts open statuses — resolved cases are not 'currently pursuing'", () => {
+    const rows = [
+      ...makeActive("cellcom", MIN_SAMPLE, "SENT"),
+      ...makeActive("cellcom", 20, "SAVED"),
+      ...makeActive("cellcom", 20, "NO_SAVING"),
+    ];
+    const stats = aggregateActivePressure(rows);
+    expect(stats).toEqual([{ provider: "cellcom", activeCases: MIN_SAMPLE }]);
+  });
+
+  it("covers every open status, not just SENT", () => {
+    const rows: ActivePressureRow[] = [
+      ...makeActive("bank-leumi", 2, "ANALYZED"),
+      ...makeActive("bank-leumi", 2, "APPROVED"),
+      ...makeActive("bank-leumi", 1, "VERIFIED"),
+    ];
+    const stats = aggregateActivePressure(rows);
+    expect(stats).toEqual([{ provider: "bank-leumi", activeCases: 5 }]);
+  });
+
+  it("sorts providers by active-case volume, most pressure first", () => {
+    const rows = [...makeActive("cellcom", 6), ...makeActive("bank-leumi", 9)];
+    const stats = aggregateActivePressure(rows);
+    expect(stats.map((s) => s.provider)).toEqual(["bank-leumi", "cellcom"]);
+  });
+
+  it("returns empty for no input", () => {
+    expect(aggregateActivePressure([])).toEqual([]);
   });
 });

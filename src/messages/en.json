@@ -3608,6 +3608,7 @@
     "institutionCta": "See the institutional integration",
     "byVerticalTitle": "By category, where the sample supports it",
     "noDataYet": "Not enough documented cases yet to show facts about {name} specifically. Be the first — start a check and your result becomes part of the record.",
+    "activePressure": "{count} people currently have an open, unresolved case against this provider.",
     "checkCategoriesTitle": "Categories where you might be owed money from this provider",
     "startCheck": "Start a check"
   },

@@ -128,3 +128,42 @@ export function aggregateProviderVerticalStats(
   stats.sort((a, b) => b.cases - a.cases);
   return stats;
 }
+
+/** Case statuses that count as "currently pursuing this provider" — mirrors plans.ts's ACTIVE_CASE_STATUSES. */
+const ACTIVE_PRESSURE_STATUSES = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT"]);
+
+export interface ActivePressureRow {
+  provider: string;
+  status: string;
+}
+
+export interface ActivePressureStat {
+  provider: string;
+  /** Open (not yet resolved) cases currently targeting this provider. */
+  activeCases: number;
+}
+
+/**
+ * "N people currently have an open case against this provider" — real-time
+ * collective-pressure signal for a company's page, gated by the same
+ * MIN_SAMPLE the rest of this file uses for the identical reason: a count of
+ * one or two identifies individuals and carries defamation risk the same way
+ * a thin-sample rating would. Below MIN_SAMPLE, a provider simply doesn't
+ * appear here — never a fabricated small number.
+ */
+export function aggregateActivePressure(rows: readonly ActivePressureRow[]): ActivePressureStat[] {
+  const byProvider = new Map<string, number>();
+  for (const r of rows) {
+    if (!ACTIVE_PRESSURE_STATUSES.has(r.status)) continue;
+    byProvider.set(r.provider, (byProvider.get(r.provider) ?? 0) + 1);
+  }
+
+  const stats: ActivePressureStat[] = [];
+  for (const [provider, activeCases] of byProvider) {
+    if (activeCases < MIN_SAMPLE) continue;
+    stats.push({ provider, activeCases });
+  }
+
+  stats.sort((a, b) => b.activeCases - a.activeCases);
+  return stats;
+}
