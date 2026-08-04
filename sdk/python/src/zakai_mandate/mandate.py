@@ -7,7 +7,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from .jws import JwsError, fetch_jwks, verify_compact_jws
+from .jws import JwsError, fetch_jwks, status_list_revocation_state, verify_compact_jws
 from .scopes import contains_forbidden
 
 
@@ -63,13 +63,32 @@ def verify_mandate_from_url(
     jwks_uri: str,
     now: float | None = None,
     tolerance_sec: int = 60,
+    check_status_list: bool = True,
 ) -> dict[str, Any]:
-    """Fetch JWKS and verify — the three-line institutional path."""
+    """Fetch JWKS and verify — the three-line institutional path.
+
+    When the token embeds zkm.status and check_status_list is True, also
+    verifies the signed status list and refuses revoked / unreachable lists.
+    """
     jwks = fetch_jwks(jwks_uri)
-    return verify_mandate(
+    claims = verify_mandate(
         token,
         audience=audience,
         jwks=jwks,
         now=now,
         tolerance_sec=tolerance_sec,
     )
+    if check_status_list:
+        zkm = claims.get("zkm") if isinstance(claims.get("zkm"), dict) else {}
+        status = zkm.get("status") if isinstance(zkm, dict) else None
+        if isinstance(status, dict):
+            state = status_list_revocation_state(
+                status,
+                issuer=str(claims.get("iss") or ""),
+                jwks_uri=jwks_uri,
+            )
+            if state == "revoked":
+                raise JwsError("mandate revoked on signed status list")
+            if state == "unknown":
+                raise JwsError("status list unavailable")
+    return claims

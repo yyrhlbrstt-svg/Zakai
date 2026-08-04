@@ -9,10 +9,11 @@ Used by zakai_verify.py --ready for the same crypto bar as the Node SDK.
 from __future__ import annotations
 
 import base64
+import gzip
 import json
 import time
 import urllib.request
-from typing import Any
+from typing import Any, Literal
 
 try:
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
@@ -131,3 +132,39 @@ def verify_status_list_from_url(
     with urllib.request.urlopen(status_list_uri, timeout=30) as resp:
         token = resp.read().decode("utf-8", errors="replace").strip()
     return verify_status_list_jwt(token, issuer=issuer, jwks=jwks)
+
+
+def read_status(lst: str, index: int) -> bool:
+    """Read one bit from a packed status-list lst. Unknown indices → not revoked."""
+    if not isinstance(index, int) or index < 0:
+        return False
+    raw = gzip.decompress(b64url_decode(lst))
+    byte = index >> 3
+    if byte >= len(raw):
+        return False
+    return (raw[byte] & (1 << (index & 7))) != 0
+
+
+def status_list_revocation_state(
+    status: dict[str, Any],
+    *,
+    issuer: str,
+    jwks_uri: str,
+) -> Literal["active", "revoked", "unknown"]:
+    """Fail-closed offline revocation for a mandate that embeds zkm.status."""
+    try:
+        idx = status.get("idx")
+        uri = status.get("uri")
+        if not isinstance(idx, int) or idx < 0 or not isinstance(uri, str) or not uri.strip():
+            return "unknown"
+        claims = verify_status_list_from_url(
+            status_list_uri=uri.strip(),
+            issuer=issuer,
+            jwks_uri=jwks_uri,
+        )
+        lst = (claims.get("status_list") or {}).get("lst")
+        if not isinstance(lst, str) or not lst:
+            return "unknown"
+        return "revoked" if read_status(lst, idx) else "active"
+    except Exception:
+        return "unknown"

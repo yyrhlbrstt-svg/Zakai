@@ -15,7 +15,8 @@
  * one-shot decide path (still offline-verifiable locally first).
  */
 import { createServer } from "node:http";
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from "jose";
+import { gunzipSync } from "node:zlib";
+import { compactVerify, createRemoteJWKSet, decodeJwt, importJWK, jwtVerify } from "jose";
 
 const PORT = Number(process.env.PORT || 8790);
 const ORIGIN = (process.env.ZAKAI_ORIGIN || "https://zakai-3uxj.vercel.app").replace(/\/+$/, "");
@@ -54,6 +55,90 @@ function jwksFor(uri) {
     jwksCache.set(uri, set);
   }
   return set;
+}
+
+/** Read one bit from a statuslist+jwt lst (IETF Token Status List). */
+function readStatusBit(lst, index) {
+  if (!Number.isInteger(index) || index < 0) return false;
+  const bytes = gunzipSync(Buffer.from(lst, "base64url"));
+  const byte = index >> 3;
+  if (byte >= bytes.length) return false;
+  return (bytes[byte] & (1 << (index & 7))) !== 0;
+}
+
+/**
+ * Prefer signed status list when zkm.status is present; else live /status/{jti}.
+ * Fail closed — never accepted:true on unknown.
+ */
+async function checkRevocation(jti, payload, jwksUri, issuerIss) {
+  const zkm = payload.zkm && typeof payload.zkm === "object" ? payload.zkm : {};
+  const status = zkm.status;
+  if (status && Number.isInteger(status.idx) && typeof status.uri === "string" && status.uri) {
+    try {
+      const listRes = await fetch(status.uri);
+      if (!listRes.ok) {
+        return { http: 503, body: { error: "revocation_unknown", mandate_jti: jti, via: "status_list" } };
+      }
+      const listToken = await listRes.text();
+      const jwksRes = await fetch(jwksUri);
+      if (!jwksRes.ok) {
+        return { http: 503, body: { error: "revocation_unknown", mandate_jti: jti, via: "status_list" } };
+      }
+      const jwks = await jwksRes.json();
+      let verifiedPayload;
+      for (const jwk of jwks.keys || []) {
+        try {
+          const result = await compactVerify(listToken, await importJWK(jwk, "EdDSA"));
+          if (result.protectedHeader.typ !== "statuslist+jwt") continue;
+          verifiedPayload = JSON.parse(new TextDecoder().decode(result.payload));
+          break;
+        } catch {
+          /* try next key */
+        }
+      }
+      if (!verifiedPayload || verifiedPayload.iss !== issuerIss) {
+        return { http: 503, body: { error: "revocation_unknown", mandate_jti: jti, via: "status_list" } };
+      }
+      const lst = verifiedPayload.status_list?.lst;
+      if (!lst) {
+        return { http: 503, body: { error: "revocation_unknown", mandate_jti: jti, via: "status_list" } };
+      }
+      if (readStatusBit(lst, status.idx)) {
+        return { http: 401, body: { error: "revoked", mandate_jti: jti, via: "status_list" } };
+      }
+      return { http: 200, body: { status: "active", via: "status_list" } };
+    } catch {
+      return { http: 503, body: { error: "revocation_unknown", mandate_jti: jti, via: "status_list" } };
+    }
+  }
+
+  try {
+    const sr = await fetch(STATUS_URL(jti), { headers: { accept: "application/json" } });
+    if (!sr.ok) {
+      return {
+        http: 503,
+        body: {
+          error: "revocation_unknown",
+          mandate_jti: jti,
+          via: "live_status",
+          detail: sr.status === 503 ? undefined : `status_${sr.status}`,
+        },
+      };
+    }
+    const statusDoc = await sr.json();
+    if (statusDoc.status === "revoked") {
+      return { http: 401, body: { error: "revoked", mandate_jti: jti, via: "live_status" } };
+    }
+    if (statusDoc.status !== "active") {
+      return {
+        http: 503,
+        body: { error: "revocation_unknown", mandate_jti: jti, via: "live_status", status: statusDoc.status },
+      };
+    }
+    return { http: 200, body: { status: "active", via: "live_status" } };
+  } catch {
+    return { http: 503, body: { error: "revocation_unknown", mandate_jti: jti, via: "live_status" } };
+  }
 }
 
 createServer(async (req, res) => {
@@ -134,35 +219,12 @@ createServer(async (req, res) => {
       return;
     }
 
-    // Fail closed on revocation: never accepted:true when status is unknown/unreachable.
-    // Remember jti only after accept so transient 503s do not poison retries.
-    let statusDoc;
-    try {
-      const sr = await fetch(STATUS_URL(jti), { headers: { accept: "application/json" } });
-      if (sr.status === 503) {
-        res.writeHead(503, { "content-type": "application/json" });
-        res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti }));
-        return;
-      }
-      if (!sr.ok) {
-        res.writeHead(503, { "content-type": "application/json" });
-        res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti, detail: `status_${sr.status}` }));
-        return;
-      }
-      statusDoc = await sr.json();
-    } catch {
-      res.writeHead(503, { "content-type": "application/json" });
-      res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti }));
-      return;
-    }
-    if (statusDoc.status === "revoked") {
-      res.writeHead(401, { "content-type": "application/json" });
-      res.end(JSON.stringify({ error: "revoked", mandate_jti: jti }));
-      return;
-    }
-    if (statusDoc.status !== "active") {
-      res.writeHead(503, { "content-type": "application/json" });
-      res.end(JSON.stringify({ error: "revocation_unknown", mandate_jti: jti, status: statusDoc.status }));
+    // Prefer signed status list when zkm.status is present; else live /status/{jti}.
+    // Fail closed; remember jti only after accept so transient 503s do not poison retries.
+    const rev = await checkRevocation(jti, payload, jwksUri, issuer.iss);
+    if (rev.http !== 200) {
+      res.writeHead(rev.http, { "content-type": "application/json" });
+      res.end(JSON.stringify(rev.body));
       return;
     }
 

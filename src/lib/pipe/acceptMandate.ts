@@ -4,6 +4,7 @@ import {
   RegistryVerifyError,
 } from "@/lib/mandate/verifyWithRegistry";
 import { decide, permittedActions, type RevocationState } from "@/lib/mandate/decision";
+import { resolveRevocationState } from "@/lib/mandate/revocationCheck";
 import { buildMandateRef, draftDecisionRecord } from "@/lib/settlement/records";
 
 export type AcceptResult =
@@ -37,7 +38,8 @@ function audienceFromJws(jws: string): string | null {
 
 /**
  * Institution one-shot on the pipe: extract aud → verify → revocation → decide.
- * Caller supplies revocation lookup (DB) so this stays testable without Prisma.
+ * Caller supplies live jti lookup (DB); when the token embeds `zkm.status`,
+ * the signed status list is preferred (same doctrine as /api/mandate/verify).
  */
 export async function acceptMandateOnPipe(input: {
   mandateJws: string;
@@ -62,8 +64,14 @@ export async function acceptMandateOnPipe(input: {
   }
 
   try {
-    const { claims } = await verifyMandateWithTrustRegistry(token, { audience });
-    const revocation = await input.lookupRevocation(claims.jti);
+    const { claims, issuer } = await verifyMandateWithTrustRegistry(token, { audience });
+    const { state: revocation } = await resolveRevocationState({
+      jti: claims.jti,
+      status: claims.status,
+      issuer: issuer.iss,
+      jwksUri: issuer.jwksUri,
+      liveLookup: input.lookupRevocation,
+    });
 
     const decideInput = {
       claims,

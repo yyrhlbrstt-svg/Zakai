@@ -10,6 +10,8 @@ against that issuer's JWKS (same network rule as /api/pipe/accept).
 
 from __future__ import annotations
 
+import base64
+import gzip
 import json
 import os
 import urllib.error
@@ -39,29 +41,94 @@ def load_registry() -> dict:
         return json.load(r)
 
 
-def check_revocation(jti: str) -> tuple[int, dict]:
-    """Return (http_status, body). Fail closed when status is unknown/unreachable."""
+def _b64url_decode(data: str) -> bytes:
+    pad = "=" * (-len(data) % 4)
+    return base64.urlsafe_b64decode(data + pad)
+
+
+def read_status_bit(lst: str, index: int) -> bool:
+    if not isinstance(index, int) or index < 0:
+        return False
+    raw = gzip.decompress(_b64url_decode(lst))
+    byte = index >> 3
+    if byte >= len(raw):
+        return False
+    return (raw[byte] & (1 << (index & 7))) != 0
+
+
+def check_status_list(jti: str, status: dict, jwks_uri: str, issuer_iss: str) -> tuple[int, dict]:
+    """Prefer offline statuslist+jwt when the mandate embeds zkm.status."""
+    try:
+        idx = status.get("idx")
+        uri = status.get("uri")
+        if not isinstance(idx, int) or idx < 0 or not isinstance(uri, str) or not uri:
+            return 503, {"error": "revocation_unknown", "mandate_jti": jti, "via": "status_list"}
+
+        import jwt  # type: ignore
+        from jwt import PyJWKClient  # type: ignore
+
+        with urllib.request.urlopen(uri, timeout=10) as r:
+            list_token = r.read().decode("utf-8", errors="replace").strip()
+        client = PyJWKClient(jwks_uri)
+        key = client.get_signing_key_from_jwt(list_token)
+        header = jwt.get_unverified_header(list_token)
+        if header.get("typ") != "statuslist+jwt":
+            return 503, {"error": "revocation_unknown", "mandate_jti": jti, "via": "status_list"}
+        claims = jwt.decode(
+            list_token,
+            key.key,
+            algorithms=["EdDSA"],
+            options={"verify_aud": False},
+        )
+        if claims.get("iss") != issuer_iss:
+            return 503, {"error": "revocation_unknown", "mandate_jti": jti, "via": "status_list"}
+        lst = (claims.get("status_list") or {}).get("lst")
+        if not lst:
+            return 503, {"error": "revocation_unknown", "mandate_jti": jti, "via": "status_list"}
+        if read_status_bit(lst, idx):
+            return 401, {"error": "revoked", "mandate_jti": jti, "via": "status_list"}
+        return 200, {"status": "active", "via": "status_list"}
+    except Exception:
+        return 503, {"error": "revocation_unknown", "mandate_jti": jti, "via": "status_list"}
+
+
+def check_revocation_live(jti: str) -> tuple[int, dict]:
+    """Live /status/{jti}. Fail closed when status is unknown/unreachable."""
     try:
         req = urllib.request.Request(status_url(jti), headers={"Accept": "application/json"})
         with urllib.request.urlopen(req, timeout=10) as r:
             doc = json.load(r)
     except urllib.error.HTTPError as err:
         if err.code == 503:
-            return 503, {"error": "revocation_unknown", "mandate_jti": jti}
+            return 503, {"error": "revocation_unknown", "mandate_jti": jti, "via": "live_status"}
         return 503, {
             "error": "revocation_unknown",
             "mandate_jti": jti,
+            "via": "live_status",
             "detail": f"status_{err.code}",
         }
     except Exception:
-        return 503, {"error": "revocation_unknown", "mandate_jti": jti}
+        return 503, {"error": "revocation_unknown", "mandate_jti": jti, "via": "live_status"}
 
     status = doc.get("status")
     if status == "revoked":
-        return 401, {"error": "revoked", "mandate_jti": jti}
+        return 401, {"error": "revoked", "mandate_jti": jti, "via": "live_status"}
     if status != "active":
-        return 503, {"error": "revocation_unknown", "mandate_jti": jti, "status": status}
-    return 200, doc
+        return 503, {
+            "error": "revocation_unknown",
+            "mandate_jti": jti,
+            "via": "live_status",
+            "status": status,
+        }
+    return 200, {**doc, "via": "live_status"}
+
+
+def check_revocation(jti: str, claims: dict, jwks_uri: str, issuer_iss: str) -> tuple[int, dict]:
+    zkm = claims.get("zkm") if isinstance(claims.get("zkm"), dict) else {}
+    status = zkm.get("status") if isinstance(zkm, dict) else None
+    if isinstance(status, dict):
+        return check_status_list(jti, status, jwks_uri, issuer_iss)
+    return check_revocation_live(jti)
 
 
 def unverified_iss(token: str) -> str:
@@ -149,8 +216,8 @@ class Handler(BaseHTTPRequestHandler):
             if allowed and any(s not in allowed for s in scopes):
                 self._json(422, {"error": "issuer_scope_exceeded", "scopes": scopes})
                 return
-            # Fail closed on revocation; remember jti only after accept.
-            code, status_body = check_revocation(jti)
+            # Prefer signed status list when zkm.status is present; else live.
+            code, status_body = check_revocation(jti, claims, jwks_uri, issuer.get("iss") or iss)
             if code != 200:
                 self._json(code, status_body)
                 return

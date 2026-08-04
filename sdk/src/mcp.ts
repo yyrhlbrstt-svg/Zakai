@@ -147,7 +147,12 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ token, audience }) => {
       try {
-        const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
+        // checkStatusList:false — resolveRevocation covers list + live legacy.
+        const { claims, issuer } = await verifyMandateWithRegistry(token, {
+          audience,
+          registryUri,
+          checkStatusList: false,
+        });
         const revocation = await resolveRevocation(claims, issuer);
         if (revocation.state === "revoked") {
           return asText({
@@ -208,7 +213,11 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ token, audience, action, actConfirmation, subject, market }) => {
       try {
-        const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
+        const { claims, issuer } = await verifyMandateWithRegistry(token, {
+          audience,
+          registryUri,
+          checkStatusList: false,
+        });
         const revocation = await resolveRevocation(claims, issuer);
         const decision = decide({
           claims,

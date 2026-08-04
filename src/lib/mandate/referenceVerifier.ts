@@ -14,24 +14,33 @@ import {
   type MandateClaims,
   type VerifyOptions,
 } from "./mandate";
+import { resolveRevocationState, type RevocationState } from "./revocationCheck";
 
-export type StatusLookup = (jti: string) => Promise<"active" | "revoked" | "unknown">;
+export type StatusLookup = (jti: string) => Promise<RevocationState>;
 
 export interface InstitutionalVerifyInput {
   token: string;
   /** Your institution id — must match the Mandate `aud` claim. */
   audience: string;
   publicJwks: VerifyOptions["publicJwks"];
+  /** Live `/status/{jti}` fallback (and path for legacy tokens without zkm.status). */
   statusLookup: StatusLookup;
+  /**
+   * Required to prefer the signed status list when the token embeds
+   * `zkm.status`. Omit only in unit tests that exercise live-jti alone.
+   */
+  issuer?: string;
+  jwksUri?: string;
   toleranceSeconds?: number;
 }
 
 export type InstitutionalVerifyResult =
-  | { ok: true; claims: MandateClaims; status: "active" }
+  | { ok: true; claims: MandateClaims; status: "active"; via: "status_list" | "live_status" }
   | { ok: false; reason: string; code?: string };
 
 /**
  * Full institutional check: signature + audience + time + revocation status.
+ * Prefers the signed status list when `zkm.status` is present.
  */
 export async function institutionalVerify(
   input: InstitutionalVerifyInput,
@@ -49,7 +58,17 @@ export async function institutionalVerify(
     return { ok: false, reason: message, code };
   }
 
-  const status = await input.statusLookup(claims.jti);
+  const { state: status, via } =
+    input.issuer && input.jwksUri
+      ? await resolveRevocationState({
+          jti: claims.jti,
+          status: claims.status,
+          issuer: input.issuer,
+          jwksUri: input.jwksUri,
+          liveLookup: input.statusLookup,
+        })
+      : { state: await input.statusLookup(claims.jti), via: "live_status" as const };
+
   if (status === "revoked") {
     return { ok: false, reason: "mandate has been revoked", code: "REVOKED" };
   }
@@ -58,7 +77,7 @@ export async function institutionalVerify(
     return { ok: false, reason: "status store unavailable", code: "STATUS_UNKNOWN" };
   }
 
-  return { ok: true, claims, status: "active" };
+  return { ok: true, claims, status: "active", via };
 }
 
 /**
