@@ -20,38 +20,43 @@ export interface OutcomeGraphPublicStats {
 }
 
 export async function getOutcomeGraphPublicStats(): Promise<OutcomeGraphPublicStats> {
-  const rows = await prisma.strategyOutcome.groupBy({
-    by: ["market"],
-    _count: { _all: true },
-    _sum: { recoveredMinor: true },
-  });
+  try {
+    const rows = await prisma.strategyOutcome.groupBy({
+      by: ["market"],
+      _count: { _all: true },
+      _sum: { recoveredMinor: true },
+    });
 
-  const paidByMarket = await prisma.strategyOutcome.groupBy({
-    by: ["market"],
-    where: { paid: true },
-    _count: { _all: true },
-  });
-  const paidMap = new Map(paidByMarket.map((r) => [r.market, r._count._all]));
+    const paidByMarket = await prisma.strategyOutcome.groupBy({
+      by: ["market"],
+      where: { paid: true },
+      _count: { _all: true },
+    });
+    const paidMap = new Map(paidByMarket.map((r) => [r.market, r._count._all]));
 
-  const markets = rows.map((r) => {
-    const trials = r._count._all;
-    const paidCount = paidMap.get(r.market) ?? 0;
+    const markets = rows.map((r) => {
+      const trials = r._count._all;
+      const paidCount = paidMap.get(r.market) ?? 0;
+      return {
+        market: r.market,
+        trials,
+        paidCount,
+        winRate: trials > 0 ? paidCount / trials : null,
+        totalRecoveredMinor: r._sum.recoveredMinor ?? 0,
+      };
+    });
+
+    const totalOutcomes = markets.reduce((s, m) => s + m.trials, 0);
+
     return {
-      market: r.market,
-      trials,
-      paidCount,
-      winRate: trials > 0 ? paidCount / trials : null,
-      totalRecoveredMinor: r._sum.recoveredMinor ?? 0,
+      totalOutcomes,
+      markets: markets.sort((a, b) => b.trials - a.trials),
+      updatedAt: new Date().toISOString(),
     };
-  });
-
-  const totalOutcomes = markets.reduce((s, m) => s + m.trials, 0);
-
-  return {
-    totalOutcomes,
-    markets: markets.sort((a, b) => b.trials - a.trials),
-    updatedAt: new Date().toISOString(),
-  };
+  } catch {
+    // A missing/unreachable DB must never break a public protocol endpoint.
+    return { totalOutcomes: 0, markets: [], updatedAt: new Date().toISOString() };
+  }
 }
 
 function mandateSigningLive(): boolean {
