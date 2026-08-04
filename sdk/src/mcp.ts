@@ -82,9 +82,9 @@ export async function fetchRevocationState(
 }
 
 /**
- * Prefer the signed status list when the token embeds `zkm.status` (offline
- * path). Fall back to live `/status/{jti}` for legacy tokens or when the list
- * is unreachable. List saying revoked always wins.
+ * When the token embeds `zkm.status`, the signed status list is authoritative
+ * (including unknown — never fall back to live and mint active). Live
+ * `/status/{jti}` is only for legacy tokens without the claim.
  */
 export async function resolveRevocation(
   claims: MandateClaims,
@@ -95,8 +95,7 @@ export async function resolveRevocation(
       issuer: issuer.iss,
       jwksUri: issuer.jwksUri,
     });
-    if (listState === "revoked") return { state: "revoked", via: "status_list" };
-    if (listState === "active") return { state: "active", via: "status_list" };
+    return { state: listState, via: "status_list" };
   }
 
   const issuerOrigin = (() => {

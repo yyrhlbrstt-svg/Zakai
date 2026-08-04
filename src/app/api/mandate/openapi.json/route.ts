@@ -10,10 +10,11 @@ export async function GET(request: Request) {
     openapi: "3.0.3",
     info: {
       title: "Zakai Mandate API",
-      version: "1.2.0",
+      version: "1.3.0",
       description:
         "Institutional verification of consumer authority. Signed, scoped, audience-bound, revocable. " +
-        "Offline signature verification via JWKS; online status for revocation/recency. " +
+        "Offline signature verification via JWKS; revocation via signed status list at zkm.status " +
+        "(live /status/{jti} only for legacy tokens without that claim). " +
         "Hard constraint: Mandates cannot initiate outbound payments, transfers, loans, or account closure. " +
         "Money only flows toward the principal (refunds, settlements).",
       contact: { url: `${origin}/en/institutions` },
@@ -247,12 +248,12 @@ export async function GET(request: Request) {
         },
         post: {
           tags: ["status"],
-          summary: "Ops revoke — publishes an indexed bit on the signed status list",
+          summary: "Ops revoke — flips the issue-time bit on the signed status list",
           description:
-            "Requires x-zakai-revoke-key. Always allocates a statusIndex so offline " +
-            "verifiers holding /api/mandate/revocations see the bit flip. A revoke " +
-            "without an index would leave the live status endpoint saying revoked " +
-            "while the cached list still looked active.",
+            "Requires x-zakai-revoke-key. Reuses the statusIndex allocated at issue " +
+            "(MandateStatusAllocation / Authorization.mandateStatusIndex) so offline " +
+            "verifiers holding /api/mandate/revocations see zkm.status.idx flip. " +
+            "Never invents a new bit — missing issue-time index → 409 status_index_unknown.",
           parameters: [
             {
               name: "jti",
@@ -264,7 +265,8 @@ export async function GET(request: Request) {
           responses: {
             "200": { description: "revoked — includes statusIndex" },
             "401": { description: "unauthorized" },
-            "503": { description: "status_store_unavailable" },
+            "409": { description: "status_index_unknown — no issue-time bit; refuse to invent" },
+            "503": { description: "status_store_unavailable or status_list_capacity" },
           },
         },
       },
@@ -273,8 +275,10 @@ export async function GET(request: Request) {
           tags: ["verify"],
           summary: "Reference verify (token + audience)",
           description:
-            "Verifies compact JWS, typ, audience binding, expiry, and optionally status. " +
-            "Institutions may implement offline verification using JWKS alone and call status separately.",
+            "Verifies compact JWS, typ, audience binding, expiry, and revocation. " +
+            "When the token embeds zkm.status, the signed status list is authoritative " +
+            "(list unreachable → revocation_unknown, never valid:true). Legacy tokens " +
+            "without zkm.status use live /status/{jti}.",
           requestBody: {
             required: true,
             content: {

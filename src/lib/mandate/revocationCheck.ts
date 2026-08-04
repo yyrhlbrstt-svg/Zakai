@@ -2,8 +2,9 @@
  * Revocation resolution for verifier paths.
  *
  * Tokens that embed `zkm.status` are checked against the signed status list
- * first (offline / JWKS path). Live `/status/{jti}` remains for legacy tokens
- * and as a fallback when the list cannot be fetched.
+ * only (offline / JWKS path). If the list is unreachable → unknown (deny).
+ * Live `/status/{jti}` is for legacy tokens that never advertised a status
+ * pointer — never as a bypass when the token claimed the offline path.
  */
 
 import { verifyStatusListFromUrl } from "./statusList";
@@ -29,8 +30,8 @@ export async function statusListRevocationState(
 }
 
 /**
- * Prefer status list when the mandate advertises `zkm.status`; otherwise use
- * the provided live lookup (usually DB /status/{jti}).
+ * When the mandate advertises `zkm.status`, the signed list is authoritative
+ * (including unknown). Live lookup only for legacy tokens without the claim.
  */
 export async function resolveRevocationState(input: {
   jti: string;
@@ -46,9 +47,7 @@ export async function resolveRevocationState(input: {
       jwksUri: input.jwksUri,
       now: input.now,
     });
-    if (listState === "revoked" || listState === "active") {
-      return { state: listState, via: "status_list" };
-    }
+    return { state: listState, via: "status_list" };
   }
 
   return { state: await input.liveLookup(input.jti), via: "live_status" };

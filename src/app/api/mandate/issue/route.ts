@@ -9,7 +9,11 @@ import {
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { prisma } from "@/lib/prisma";
 import { checkDelegation, delegationClaim, hashIssuerKey, issuerKeyMatches } from "@/lib/mandate/delegation";
-import { allocateStatusIndex, statusListUriForIssuer } from "@/lib/mandate/statusIndex";
+import {
+  allocateStatusIndex,
+  StatusListCapacityError,
+  statusListUriForIssuer,
+} from "@/lib/mandate/statusIndex";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -180,6 +184,9 @@ export async function POST(req: Request) {
   } catch (err) {
     if (err instanceof MandateKeyUnavailableError) {
       return NextResponse.json({ error: "mandate_keys_not_configured" }, { status: 503 });
+    }
+    if (err instanceof StatusListCapacityError) {
+      return NextResponse.json({ error: "status_list_capacity" }, { status: 503 });
     }
     if (err instanceof MandateError) {
       return NextResponse.json({ error: err.code, message: err.message }, { status: 400 });

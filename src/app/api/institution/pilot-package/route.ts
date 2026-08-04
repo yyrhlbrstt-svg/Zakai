@@ -103,7 +103,8 @@ export async function GET(request: Request) {
           audience: sample.audience,
           mandate_jti: sample.jti,
           mandate_jws: sample.token,
-          note: "Demo only — not a live consumer claim. Re-fetch this package for a fresh token.",
+          statusIndex: sample.statusIndex,
+          note: "Demo only — not a live consumer claim. Embeds zkm.status for offline revoke. Re-fetch for a fresh token.",
         }
       : null,
     urls: {
