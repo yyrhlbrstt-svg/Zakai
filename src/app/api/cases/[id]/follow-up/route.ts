@@ -109,7 +109,8 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     }
     return NextResponse.json({
       sent: true,
-      delivered: result.reason !== "QUEUED",
+      delivered: result.delivered === true,
+      ...(result.reason ? { reason: result.reason } : {}),
       round: result.round,
       subject: result.subject,
       body: result.body,

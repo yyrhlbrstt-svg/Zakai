@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { classifyFollowUpSendError, followUpDeliveryState } from "./followUpSendUi";
+import {
+  classifyFollowUpSendError,
+  followUpDeliveryState,
+  followUpDispatchOutcome,
+} from "./followUpSendUi";
 
 describe("classifyFollowUpSendError", () => {
   it("maps known CaseError codes", () => {
@@ -20,5 +24,16 @@ describe("followUpDeliveryState", () => {
     );
     expect(followUpDeliveryState({ sent: true, delivered: false })).toBe("queued");
     expect(followUpDeliveryState({})).toBeNull();
+  });
+});
+
+describe("followUpDispatchOutcome", () => {
+  it("marks SMTP SENT as delivered and QUEUED as not delivered", () => {
+    expect(followUpDispatchOutcome("SENT")).toEqual({ sent: true, delivered: true });
+    expect(followUpDispatchOutcome("QUEUED")).toEqual({
+      sent: true,
+      delivered: false,
+      reason: "QUEUED",
+    });
   });
 });

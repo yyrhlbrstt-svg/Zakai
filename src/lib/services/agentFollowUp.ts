@@ -22,6 +22,7 @@ import {
 } from "@/lib/protocol/inboundPayload";
 import { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { emailConfigured } from "@/lib/messaging";
+import { followUpDispatchOutcome } from "@/lib/followUpSendUi";
 
 /**
  * The agent keeps working after the first send.
@@ -39,7 +40,10 @@ export { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS };
 
 export interface AutoFollowUpResult {
   caseId: string;
+  /** Accepted into Outbox (QUEUED or SENT). Not the same as delivered to the provider. */
   sent: boolean;
+  /** SMTP accepted the message (`Outbox.status === "SENT"`). */
+  delivered?: boolean;
   round?: number;
   reason?: string;
 }
@@ -281,11 +285,11 @@ ${protocolFooter}`;
     data: { updatedAt: new Date() },
   });
 
-  const delivered = email.status === "SENT";
+  const outcome = followUpDispatchOutcome(email.status);
 
   // Async QUEUED still returns sent:true (worker will attach Mandate + deliver).
-  // User notify only when the letter actually left.
-  if (delivered && opts.notifyUser !== false && kase.user.email) {
+  // User notify only when the letter actually left (delivered).
+  if (outcome.delivered && opts.notifyUser !== false && kase.user.email) {
     const proofsAddr = proofsInboundAddress();
     await sendEmail({
       to: kase.user.email,
@@ -314,11 +318,10 @@ ${protocolFooter}`;
 
   return {
     caseId,
-    sent: true,
+    ...outcome,
     round,
     body: followBody,
     tip: follow.tip,
     subject,
-    ...(delivered ? {} : { reason: "QUEUED" }),
   };
 }

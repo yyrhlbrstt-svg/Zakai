@@ -29,6 +29,22 @@ export function followUpDeliveryState(data: {
   reason?: string;
 }): FollowUpDeliveryUi | null {
   if (data.delivered === true) return "delivered";
+  // `sent: true` means accepted into Outbox (QUEUED or SENT) — not "delivered".
   if (data.sent === true || data.reason === "QUEUED") return "queued";
   return null;
+}
+
+/**
+ * Map Outbox row status after a follow-up dispatch.
+ * `sent` = accepted into the delivery pipeline; `delivered` = SMTP accepted.
+ */
+export function followUpDispatchOutcome(status: string): {
+  sent: true;
+  delivered: boolean;
+  reason?: "QUEUED";
+} {
+  const delivered = status === "SENT";
+  return delivered
+    ? { sent: true, delivered: true }
+    : { sent: true, delivered: false, reason: "QUEUED" };
 }
