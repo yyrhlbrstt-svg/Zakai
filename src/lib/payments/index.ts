@@ -168,11 +168,20 @@ class PayPlusProvider implements PaymentProvider {
     if (!secret) return null;
     if (ctx.method !== "POST" || !ctx.rawBody) return null;
 
-    // PayPlus signs the webhook body; the signature arrives in a header. The
-    // exact header name/algorithm MUST be confirmed against your PayPlus
-    // sandbox before going live — until then this verifier fails closed and no
-    // real payment is ever confirmed. (Common shape: base64 HMAC-SHA256.)
-    const provided = ctx.headers["hash"] || ctx.headers["user-agent-hash"] || "";
+    // PayPlus sends the webhook signature in a header literally named `hash`
+    // (base64 HMAC-SHA256 of the raw body, keyed with the secret key) —
+    // confirmed against PayPlus's published docs and an independent
+    // open-source SDK's actual verification code, not guessed. PayPlus also
+    // sends a separate `user-agent` header (not part of the signature — do
+    // not concatenate it into the header name).
+    //
+    // That confirmation is second-hand (no live PayPlus sandbox account was
+    // available to test against directly) — before ever flipping
+    // PAYMENT_PROVIDER=payplus on with real card charges, send one real
+    // transaction through the PayPlus SANDBOX and confirm this header/algorithm
+    // against the actual webhook payload PayPlus delivers. Until that's done,
+    // this stays a well-evidenced assumption, not a proven fact.
+    const provided = ctx.headers["hash"] || "";
     if (!provided) return null;
     const expected = crypto.createHmac("sha256", secret).update(ctx.rawBody).digest("base64");
     const a = Buffer.from(provided);
