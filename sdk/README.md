@@ -59,7 +59,8 @@ reading an ID card, not signing one. Every verification resolves the token's
 issuer through the published **trust registry** first: unknown, suspended or
 withdrawn issuers are rejected before any cryptography, and an issuer that
 granted a scope beyond its registry entry poisons the whole mandate.
-`decide_action` additionally checks live revocation at the issuer's own
+`decide_action` checks revocation via the signed status list when the token
+embeds `zkm.status`, otherwise live revocation at the issuer's own
 status route and fails closed: an unreachable status endpoint is a deny,
 never a shrug. `ZAKAI_BASE_URL` points it at a staging or self-hosted
 registry operator.

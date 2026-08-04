@@ -19,6 +19,7 @@ describe("probeIssuer", () => {
         scopes: ["contract:cancel"],
         market: "IL",
         statement: "Cancel my subscription.",
+        status: { idx: 3, uri: "https://issuer.example/api/mandate/revocations" },
       },
       key,
     );
@@ -39,13 +40,36 @@ describe("probeIssuer", () => {
       "refuses_forbidden_scope",
       "rejects_forged_signature",
       "enforces_audience",
+      "publishes_status_list",
     ] as const) {
       expect(byId.get(id)?.passed, `expected ${id} to pass: ${byId.get(id)?.detail}`).toBe(true);
     }
 
     expect(byId.has("enforces_expiry")).toBe(false);
     const report = assessConformance(results);
-    expect(report.missing).toEqual(["enforces_expiry", "publishes_status_list", "revocation_takes_effect"]);
+    expect(report.missing).toEqual(["enforces_expiry", "revocation_takes_effect"]);
+  });
+
+  it("fails publishes_status_list when the sample omits zkm.status", async () => {
+    const { privateKey } = await generateKeyPair("EdDSA", { crv: "Ed25519", extractable: true });
+    const privateJwk = await exportJWK(privateKey);
+    const key: SigningKey = { kid: "probe-legacy-key", privateJwk };
+    const token = await issueMandate(
+      {
+        jti: "probe-legacy-1",
+        issuer: "https://issuer.example",
+        audience: "probe-bank",
+        subject: "user-probe-1",
+        principal: { name: "Probe User" },
+        scopes: ["contract:cancel"],
+        market: "IL",
+        statement: "Cancel my subscription.",
+      },
+      key,
+    );
+    const jwk = await publicJwkFor(key);
+    const results = await probeIssuer({ jwks: [jwk], audience: "probe-bank", sampleValidToken: token });
+    expect(results.find((r) => r.id === "publishes_status_list")?.passed).toBe(false);
   });
 
   it("catches a leaked private key in the published JWKS", async () => {

@@ -108,14 +108,14 @@ export async function GET(request: Request) {
           description:
             "The self-attested route above asks a candidate to run the suite against their own endpoints " +
             "and report back; this route runs the reference verifier here, against artifacts the candidate " +
-            "submits, as a neutral judge instead of trusting their report. Settles 7 of the 10 published " +
-            "checks in one call: publishes_jwks, issues_valid_jwt, registered_claims_present, " +
-            "scope_is_oauth_shaped, refuses_forbidden_scope, rejects_forged_signature, enforces_audience. " +
-            "enforces_expiry is included only if sampleExpiredToken is supplied — never faked as passing. " +
-            "publishes_status_list and revocation_takes_effect need monitoring over time and are always " +
-            "absent here, same as an unrun check: the response's report.missing lists them. The JWKS is " +
-            "submitted inline rather than fetched from a candidate-supplied URL, since a server-side fetch " +
-            "of an arbitrary caller-given URL would make this endpoint usable to probe internal addresses.",
+            "submits, as a neutral judge instead of trusting their report. Settles publishes_jwks, " +
+            "issues_valid_jwt, registered_claims_present, scope_is_oauth_shaped, refuses_forbidden_scope, " +
+            "rejects_forged_signature, enforces_audience, and publishes_status_list (sample must embed " +
+            "zkm.status). enforces_expiry is included only if sampleExpiredToken is supplied — never " +
+            "faked as passing. revocation_takes_effect still needs a post-revoke refresh window and is " +
+            "absent here (report.missing). The JWKS is submitted inline rather than fetched from a " +
+            "candidate-supplied URL, since a server-side fetch of an arbitrary caller-given URL would " +
+            "make this endpoint usable to probe internal addresses.",
           requestBody: {
             required: true,
             content: {

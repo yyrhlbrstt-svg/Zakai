@@ -58,6 +58,16 @@ export async function institutionalVerify(
     return { ok: false, reason: message, code };
   }
 
+  // Tokens that advertise zkm.status must not be checked live-only — that
+  // bypasses the offline path the token claimed. Require issuer + jwksUri.
+  if (claims.status && (!input.issuer || !input.jwksUri)) {
+    return {
+      ok: false,
+      reason: "zkm.status present but issuer/jwksUri omitted — refuse live bypass",
+      code: "STATUS_UNKNOWN",
+    };
+  }
+
   const { state: status, via } =
     input.issuer && input.jwksUri
       ? await resolveRevocationState({

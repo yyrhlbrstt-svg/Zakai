@@ -57,8 +57,8 @@ export async function POST(req: Request) {
     const { claims, issuer } = await verifyMandateWithTrustRegistry(token, { audience });
 
     // Prefer signed status list when the token embeds zkm.status (same path
-    // institutions use offline). Live DB lookup covers legacy tokens and
-    // list outages. Fail closed — never mint valid:true on unknown.
+    // institutions use offline). Live DB lookup is for legacy tokens only —
+    // list outages stay unknown (fail closed), never valid:true.
     const liveLookup = async (jti: string) => {
       try {
         const row = await prisma.mandateRevocation.findUnique({
