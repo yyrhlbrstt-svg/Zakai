@@ -28,7 +28,8 @@ export function PersonalProofStrip({
   if (documentedCount <= 0 && pendingFeeAgorot <= 0) return null;
   const he = locale === "he" || locale === "ar";
   const loc = bcp47[locale];
-  const feeHref = pendingFeeHref || "/money?payFee=1";
+  // Never invent payFee=1 — inactive Mandate must land on the case (reissue), not auto-checkout.
+  const feeHref = pendingFeeHref || "/money";
 
   return (
     <div className="mb-6 rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] px-4 py-3.5">

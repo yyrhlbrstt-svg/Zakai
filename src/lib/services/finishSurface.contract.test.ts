@@ -50,17 +50,41 @@ describe("finish surface contract", () => {
     ).toBe("live");
   });
 
-  it("payFee focus only mounts checkout when that case has PENDING fee", () => {
+  it("payFee focus only mounts checkout when PENDING fee has ACTIVE Mandate", () => {
     expect(
       resolveMoneyPayFeeCaseId({
         payFee: true,
         focusCaseId: "paid",
         cases: [
-          { id: "paid", fee: { amount: 900, status: "PAID" } },
-          { id: "pending", fee: { amount: 18, status: "PENDING" } },
+          {
+            id: "paid",
+            fee: { amount: 900, status: "PAID" },
+            authorization: { status: "ACTIVE" },
+          },
+          {
+            id: "pending",
+            fee: { amount: 18, status: "PENDING" },
+            authorization: { status: "ACTIVE" },
+          },
         ],
       }),
     ).toBe("pending");
+  });
+
+  it("payFee does not auto-mount when PENDING fee Mandate is inactive", () => {
+    expect(
+      resolveMoneyPayFeeCaseId({
+        payFee: true,
+        focusCaseId: "stuck",
+        cases: [
+          {
+            id: "stuck",
+            fee: { amount: 1800, status: "PENDING" },
+            authorization: { status: "REVOKED" },
+          },
+        ],
+      }),
+    ).toBeNull();
   });
 
   it("sub-₪1 PENDING fee blocks share picker and stays collectible", () => {

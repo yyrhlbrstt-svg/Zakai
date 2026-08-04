@@ -27,7 +27,10 @@ import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
 import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
-import { resolveMoneyPayFeeCaseId } from "@/lib/services/moneyPayFeeCase";
+import {
+  moneyPendingFeeHref,
+  resolveMoneyPayFeeCaseId,
+} from "@/lib/services/moneyPayFeeCase";
 import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 
@@ -153,9 +156,6 @@ export default async function MoneyPage({
         ];
       }
     }
-    const pendingFeeCase = cases.find(
-      (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
-    );
     personalDocumented = {
       count: cases.filter(
         (c) =>
@@ -172,10 +172,20 @@ export default async function MoneyPage({
         return sum;
       }, 0),
     };
-    if (pendingFeeCase) {
-      pendingFeeHref = `/money?case=${pendingFeeCase.id}&payFee=1`;
-    } else if (action.kind === "pending_fee") {
+    // Never invent payFee=1 when Mandate is inactive — ranker already routes
+    // that state to mandate_inactive /money?case= (reissue before checkout).
+    if (action.kind === "pending_fee" || action.kind === "mandate_inactive") {
       pendingFeeHref = nextActionHref(action);
+    } else {
+      const pendingFeeCase = cases.find(
+        (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
+      );
+      if (pendingFeeCase) {
+        pendingFeeHref = moneyPendingFeeHref({
+          caseId: pendingFeeCase.id,
+          mandateActive: pendingFeeCase.authorization?.status === "ACTIVE",
+        });
+      }
     }
     // Always — even with OPEN_LOOP, a settled win stays shareable via the strip.
     shareCaseId = pickShareableSavedCaseId(cases);
