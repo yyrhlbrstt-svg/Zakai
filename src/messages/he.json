@@ -5184,7 +5184,7 @@
     "t_784db4db": "למוסדות — Mandate",
     "t_ed2796c2": "סקריפט אחד. הלקוח שלכם נכנס ל-Money OS, סורק חיובים, פותח תיק עם Mandate — בלי מוקד ובלי להשאיר טלפון. אתם מקבלים ref ב-UTM. בחרו דלת כניסה עם data-path.",
     "widgetTitle": "ווידג'ט ZML (קטלוג זכויות)",
-    "widgetSub": "פס הוגנות קל על האתר שלכם — בלי PII עד שהמשתמש לוחץ לזכאי. דורש מפתח שותף (domain allowlist).",
+    "widgetSub": "פס בדיקת זכויות קל על האתר שלכם — בלי PII עד שהמשתמש לוחץ לזכאי. דורש מפתח שותף (domain allowlist).",
     "widgetValidate": "אימות מפתח: GET /api/widget/validate עם Origin + X-Zakai-Widget-Key",
     "widgetDocs": "מדריך הטמעה מלא (מפתחות + CORS)",
     "widgetFairnessTitle": "רישום ל-Fairness Certified",

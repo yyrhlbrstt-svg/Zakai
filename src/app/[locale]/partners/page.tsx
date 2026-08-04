@@ -38,7 +38,7 @@ export default async function PartnersPage({
      data-path="money"></div>
 <script src="${SITE_URL}/embed.js" async></script>`;
 
-  const widgetSnippet = `<div id="zakai-fairness"
+  const widgetSnippet = `<div id="zakai-rights-check"
      data-api-key="pk_live_YOUR_KEY"
      data-provider="YourProvider"
      data-market="IL"></div>
