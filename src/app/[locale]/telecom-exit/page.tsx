@@ -28,6 +28,12 @@ export default async function TelecomExitPage({ params }: { params: Promise<{ lo
 
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")} cite={t("cite")}>
+      <div className="mb-6 rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)] px-4 py-4 text-center">
+        <p className="text-[14px] leading-relaxed m-0 mb-3">{t("agentLoopHint")}</p>
+        <Link href="/check">
+          <Button className="!text-[14px]">{t("checkCta")}</Button>
+        </Link>
+      </div>
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
       <div className="mt-8 flex flex-wrap gap-3 justify-center">
         <Link href="/cancel">

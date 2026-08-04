@@ -76,7 +76,11 @@ export async function POST(request: Request) {
     chargeDate: data.chargeDate,
   });
 
-  const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 30;
+  // Never invent a baseline fee — SavingsProof math starts from this figure.
+  if (!data.amountShekels || data.amountShekels <= 0) {
+    return NextResponse.json({ error: "amount_required" }, { status: 400 });
+  }
+  const amount = data.amountShekels;
 
   let kase;
   try {

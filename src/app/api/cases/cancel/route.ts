@@ -72,7 +72,11 @@ export async function POST(request: Request) {
     reason: data.reason,
   });
 
-  const amount = data.monthlyShekels && data.monthlyShekels > 0 ? data.monthlyShekels : 50;
+  // Never invent a monthly baseline — success fee / SavingsProof need a real figure.
+  if (!data.monthlyShekels || data.monthlyShekels <= 0) {
+    return NextResponse.json({ error: "amount_required" }, { status: 400 });
+  }
+  const amount = data.monthlyShekels;
   const target =
     data.intent === "cancel" || data.intent === "pause"
       ? 0

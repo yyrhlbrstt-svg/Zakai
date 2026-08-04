@@ -86,6 +86,10 @@ export function BankFeesTool() {
           setError(tFlow("errorNeedsEmail"));
           return;
         }
+        if (data.error === "amount_required") {
+          setError(t("errorAmountRequired"));
+          return;
+        }
         setError(res.status === 403 && data.error === "caseLimit" ? t("errorCaseLimit") : t("errorGeneric"));
         return;
       }

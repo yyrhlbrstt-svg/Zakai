@@ -6,6 +6,7 @@ import { MoneyInstallInline } from "@/components/MoneyInstallInline";
 import { MoneyPageContextPanel } from "@/components/MoneyPageContextPanel";
 import { MoneyGrowthPanel } from "@/components/MoneyGrowthPanel";
 import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
+import { MONTHLY_LEAK_PIN_IDS } from "@/lib/priority";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
 import { aiAvailable } from "@/lib/ai";
@@ -339,7 +340,11 @@ export default async function MoneyPage({
       {!openLoop && !focusCaseId ? (
         <div className="mb-8">
           <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
-          <PriorityActionsRanked limit={3} />
+          <PriorityActionsRanked
+            limit={3}
+            pinIds={[...MONTHLY_LEAK_PIN_IDS]}
+            excludeIds={["money"]}
+          />
         </div>
       ) : null}
 
@@ -365,6 +370,11 @@ export default async function MoneyPage({
             <Link href="/check">
               <Button variant="ghost" className="!text-[13px]">
                 {tIapp_locale_money_page("t_a4c2b6a9")}
+              </Button>
+            </Link>
+            <Link href="/bank-fees">
+              <Button variant="ghost" className="!text-[13px]">
+                {tIapp_locale_money_page("t_bankFeesShortcut")}
               </Button>
             </Link>
             <Link href="/dashboard">
