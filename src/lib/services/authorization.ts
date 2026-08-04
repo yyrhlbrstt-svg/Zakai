@@ -187,6 +187,13 @@ async function reissueAuthorization(
           : {}),
       },
     });
+    // SAVED + PENDING fee still points at the revoked prior jti after #88's
+    // exact-match checkout gate. Re-bind to the live Mandate so prove→fee→share
+    // can finish — never mint a fee here, only retarget the existing PENDING row.
+    await prisma.fee.updateMany({
+      where: { caseId, status: "PENDING" },
+      data: { mandateJti: mandate.mandateJti },
+    });
   }
 
   return { ...doc, ...mandate };

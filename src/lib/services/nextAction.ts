@@ -25,7 +25,8 @@ export type NextActionCaseInput = {
   /** Agent auto-follow-up rounds already sent (Outbox). */
   agentRound?: number;
   /**
-   * Whether the case has an ACTIVE Mandate. Only meaningful for SENT.
+   * Whether the case has an ACTIVE Mandate. Meaningful for SENT follow-ups
+   * and for SAVED + PENDING fee (checkout requires matching live jti).
    * Omit/undefined = unknown (do not surface mandate_inactive).
    */
   mandateActive?: boolean;
@@ -83,9 +84,13 @@ export function rankNextAction(
   cases: readonly NextActionCaseInput[],
   proposedByCaseId: ReadonlyMap<string, ProposedSavingHint> = new Map(),
 ): RankedNextAction {
+  // Collect fee only when Mandate is not known-inactive — otherwise checkout
+  // refuses (#88) and payFee=1 is a dead end until reissue rebinds the jti.
   const pendingFee = pickBest(
     cases,
-    (c) => Boolean(c.fee && c.fee.status === "PENDING" && c.fee.amount > 0),
+    (c) =>
+      Boolean(c.fee && c.fee.status === "PENDING" && c.fee.amount > 0) &&
+      c.mandateActive !== false,
   );
   if (pendingFee?.fee) {
     return {
@@ -136,13 +141,15 @@ export function rankNextAction(
     return { kind: "needs_outreach", caseId: needsOutreach.id };
   }
 
-  // SENT without ACTIVE Mandate — follow-ups and cron are blocked until reissue.
+  // SENT without ACTIVE Mandate — follow-ups blocked until reissue.
+  // SAVED + PENDING fee without ACTIVE Mandate — checkout blocked until reissue.
   const inactiveMandate = pickBest(
     cases,
     (c) =>
-      c.status === "SENT" &&
-      !proposedByCaseId.has(c.id) &&
-      c.mandateActive === false,
+      c.mandateActive === false &&
+      ((c.status === "SENT" && !proposedByCaseId.has(c.id)) ||
+        (c.status === "SAVED" &&
+          Boolean(c.fee && c.fee.status === "PENDING" && c.fee.amount > 0))),
   );
   if (inactiveMandate) {
     return { kind: "mandate_inactive", caseId: inactiveMandate.id };
@@ -202,7 +209,7 @@ export function nextActionInstruction(action: RankedNextAction): string {
     case "needs_outreach":
       return `NEXT_ACTION: Enter provider outreach email — /money?case=${action.caseId}. Mandate send / follow-ups cannot leave without a destination. Do NOT invent an inbox. Do NOT open a new case.`;
     case "mandate_inactive":
-      return `NEXT_ACTION: Re-issue ACTIVE Mandate — /money?case=${action.caseId}. Follow-ups are blocked until Mandate is ACTIVE again. Do NOT open a new case.`;
+      return `NEXT_ACTION: Re-issue ACTIVE Mandate — /money?case=${action.caseId}. Follow-ups and fee checkout stay blocked until Mandate is ACTIVE again (reissue rebinds PENDING fee jti). Do NOT open a new case.`;
     case "pre_send":
       return `NEXT_ACTION: Finish Mandate send — /money?case=${action.caseId} (status=${action.status}). Verify ownership if needed, then one-tap send. Do NOT start another vertical.`;
     case "sent_wait":

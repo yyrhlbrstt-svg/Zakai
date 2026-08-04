@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const authFindUnique = vi.fn();
 const authUpdate = vi.fn();
 const caseFindUnique = vi.fn();
+const feeUpdateMany = vi.fn();
 const allocateStatusIndex = vi.fn();
 const statusIndexForJti = vi.fn();
 const publishRevocation = vi.fn();
@@ -18,6 +19,9 @@ vi.mock("@/lib/prisma", () => ({
     },
     case: {
       findUnique: (...args: unknown[]) => caseFindUnique(...args),
+    },
+    fee: {
+      updateMany: (...args: unknown[]) => feeUpdateMany(...args),
     },
     $transaction: (fn: (tx: unknown) => unknown) => transactionMock(fn),
   },
@@ -185,6 +189,7 @@ describe("reissueAuthorization via createAuthorization", () => {
     authFindUnique.mockReset();
     authUpdate.mockReset();
     caseFindUnique.mockReset();
+    feeUpdateMany.mockReset();
     allocateStatusIndex.mockReset();
     publishRevocation.mockReset();
     issueMandate.mockReset();
@@ -193,6 +198,7 @@ describe("reissueAuthorization via createAuthorization", () => {
     loadSigningKeyFromEnv.mockReturnValue({ kid: "k", privateJwk: {} });
     issueMandate.mockResolvedValue("fresh.jws.token");
     allocateStatusIndex.mockResolvedValue(22);
+    feeUpdateMany.mockResolvedValue({ count: 1 });
     transactionMock.mockImplementation(async (fn: (tx: unknown) => unknown) => fn({}));
     authUpdate.mockImplementation(async ({ data }: { data: Record<string, unknown> }) => ({
       id: "auth1",
@@ -203,7 +209,7 @@ describe("reissueAuthorization via createAuthorization", () => {
     }));
   });
 
-  it("publishes prior jti and clears Mandate fields before minting a replacement", async () => {
+  it("publishes prior jti, clears Mandate fields, and rebinds PENDING fee jti", async () => {
     authFindUnique
       .mockResolvedValueOnce({
         id: "auth1",
@@ -243,5 +249,10 @@ describe("reissueAuthorization via createAuthorization", () => {
       }),
     );
     expect(allocateStatusIndex).toHaveBeenCalled();
+    expect(feeUpdateMany).toHaveBeenCalledWith({
+      where: { caseId: "c1", status: "PENDING" },
+      data: { mandateJti: expect.any(String) },
+    });
+    expect(feeUpdateMany.mock.calls[0][0].data.mandateJti).not.toBe("jti-old");
   });
 });

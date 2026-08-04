@@ -710,13 +710,47 @@ export function CaseNextStep({
                 : null;
           return feePending ? (
           <div className="mb-3 rounded-lg border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-3 py-2.5">
-            <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-snug">{t(locale, "savedPayFirst")}</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[13px] font-extrabold text-emerald">
-                {t(locale, "payFeeNow")} · ₪{feeLabel}
-              </span>
-              <FeePayButton caseId={caseId} />
-            </div>
+            {!localAuth ? (
+              <>
+                <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-snug">
+                  {t(locale, "feeMandateRequired")}
+                </p>
+                <Button
+                  disabled={busy}
+                  className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+                  onClick={() =>
+                    run(async () => {
+                      const res = await fetch(`/api/cases/${caseId}/authorization`, {
+                        method: "POST",
+                      });
+                      const data = await res.json().catch(() => ({}));
+                      if (!res.ok) throw new Error("reissue");
+                      if (data.code) setAuthCode(data.code);
+                      setMandateInfo(t(locale, "mandateReissued"));
+                      setLocalAuth(true);
+                      router.refresh();
+                    })
+                  }
+                >
+                  {busy ? t(locale, "working") : t(locale, "mandateReissue")}
+                </Button>
+                {mandateInfo && (
+                  <div className="text-[12px] text-ink-soft mt-2">{mandateInfo}</div>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-snug">
+                  {t(locale, "savedPayFirst")}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[13px] font-extrabold text-emerald">
+                    {t(locale, "payFeeNow")} · ₪{feeLabel}
+                  </span>
+                  <FeePayButton caseId={caseId} />
+                </div>
+              </>
+            )}
           </div>
           ) : null;
         })()}

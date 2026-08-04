@@ -24,6 +24,36 @@ describe("rankNextAction", () => {
     });
   });
 
+  it("surfaces mandate_inactive for SAVED pending fee when Mandate is inactive", () => {
+    const action = rankNextAction([
+      {
+        id: "stuck-fee",
+        status: "SAVED",
+        fee: { amount: 1800, status: "PENDING" },
+        mandateActive: false,
+      },
+      { id: "pre", status: "VERIFIED" },
+    ]);
+    expect(action).toEqual({ kind: "mandate_inactive", caseId: "stuck-fee" });
+    expect(nextActionHref(action)).toBe("/money?case=stuck-fee");
+  });
+
+  it("still ranks pending_fee when Mandate is ACTIVE on SAVED", () => {
+    const action = rankNextAction([
+      {
+        id: "pay",
+        status: "SAVED",
+        fee: { amount: 1800, status: "PENDING" },
+        mandateActive: true,
+      },
+    ]);
+    expect(action).toEqual({
+      kind: "pending_fee",
+      caseId: "pay",
+      feeAmountAgorot: 1800,
+    });
+  });
+
   it("prioritizes inbound proposed saving over pre-send", () => {
     const action = rankNextAction(
       [
