@@ -13,16 +13,11 @@ import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { agorotToShekels } from "@/lib/money";
 import { pushToUser } from "@/lib/push";
-import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
-import { maskPhone } from "@/lib/phone";
-import { ensureMandateTokenForCase } from "@/lib/services/authorization";
-import {
-  buildInboundReceivePayload,
-  inboundReceiveEmailAttachment,
-} from "@/lib/protocol/inboundPayload";
+import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { emailConfigured } from "@/lib/messaging";
 import { followUpDispatchOutcome } from "@/lib/followUpSendUi";
+import { rebuildMandateAttachmentsForCase } from "@/lib/services/outreachAttachments";
 
 /**
  * The agent keeps working after the first send.
@@ -200,6 +195,24 @@ export async function dispatchCaseFollowUp(
     vertical: kase.vertical,
     market: "IL",
   });
+
+  // Same Mandate attach policy as async Outbox rebuild (#92): keys live without
+  // a machine JWS → refuse; pre-key may still send human Authorization HTML.
+  const attachments = await rebuildMandateAttachmentsForCase(caseId);
+  if (attachments.length === 0) {
+    return {
+      caseId,
+      sent: false,
+      reason: "MANDATE_REQUIRED",
+      body: followBody,
+      tip: follow.tip,
+      subject,
+    };
+  }
+  const attachLine =
+    attachments.length >= 2
+      ? "מצורף: מסמך הרשאה מלא (HTML) + JSON inbound."
+      : "מצורף: מסמך הרשאה (HTML).";
   const footer = `
 
 ————————————————————————
@@ -207,42 +220,13 @@ export async function dispatchCaseFollowUp(
 מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
 קוד אימות ההרשאה: ${auth.code}
 לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
-מצורף: מסמך הרשאה מלא (HTML) + JSON inbound.
+${attachLine}
 גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
 ${institutionPullFooterLine("he", appUrl)}
 ${institutionPipeMagnetLine(appUrl)}
 לאוטומציה: ${institutionSalesEmail()}
 זוהי פנייה חוזרת של הסוכן (סיבוב ${round}) — הלקוח/ה אישר/ה את השליחה.
 ${protocolFooter}`;
-
-  const attachment = mandateEmailAttachment({
-    code: auth.code,
-    principalName: auth.principalName,
-    principalContact: maskPhone(auth.principalPhone),
-    provider: auth.provider,
-    scope: auth.scope,
-    issuedAt: auth.issuedAt,
-    status: auth.status,
-  });
-
-  const mandateTok =
-    auth.mandateJws && auth.mandateJti
-      ? { jti: auth.mandateJti, jws: auth.mandateJws }
-      : await ensureMandateTokenForCase(caseId);
-  const inboundAtt = mandateTok
-    ? inboundReceiveEmailAttachment(
-        buildInboundReceivePayload({
-          mandateJws: mandateTok.jws,
-          mandateJti: mandateTok.jti,
-          authorizationCode: auth.code,
-          caseId,
-          vertical: kase.vertical,
-          strategyHint: kase.strategy,
-          locale: "he-IL",
-          market: "IL",
-        }),
-      )
-    : null;
 
   const to = resolveCaseOutreachTo(kase);
   if (!to) {
@@ -266,7 +250,7 @@ ${protocolFooter}`;
     subject,
     body: followBody + footer,
     caseId,
-    attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
+    attachments,
   });
 
   if (email.status === "FAILED") {

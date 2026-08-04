@@ -12,6 +12,7 @@ describe("classifyFollowUpSendError", () => {
     );
     expect(classifyFollowUpSendError("MAX_ROUNDS")).toBe("MAX_ROUNDS");
     expect(classifyFollowUpSendError("NEEDS_OUTREACH_EMAIL")).toBe("NEEDS_OUTREACH_EMAIL");
+    expect(classifyFollowUpSendError("MANDATE_REQUIRED")).toBe("NO_ACTIVE_MANDATE");
     expect(classifyFollowUpSendError("mystery")).toBe("generic");
   });
 });

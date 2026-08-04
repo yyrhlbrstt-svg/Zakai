@@ -13,7 +13,10 @@ export type FollowUpSendBlock =
 
 export function classifyFollowUpSendError(error: unknown): FollowUpSendBlock {
   if (error === "NEEDS_OUTREACH_EMAIL") return "NEEDS_OUTREACH_EMAIL";
-  if (error === "NO_ACTIVE_MANDATE") return "NO_ACTIVE_MANDATE";
+  // Keys live without machine JWS — same recovery as revoked/missing auth (reissue).
+  if (error === "NO_ACTIVE_MANDATE" || error === "MANDATE_REQUIRED") {
+    return "NO_ACTIVE_MANDATE";
+  }
   if (error === "NO_TRANSPORT") return "NO_TRANSPORT";
   if (error === "OUTREACH_DELIVERY_FAILED") return "OUTREACH_DELIVERY_FAILED";
   if (error === "MAX_ROUNDS") return "MAX_ROUNDS";
