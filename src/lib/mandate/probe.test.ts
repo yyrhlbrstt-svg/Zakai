@@ -3,6 +3,7 @@ import { generateKeyPair, exportJWK, SignJWT, importJWK, type JWK } from "jose";
 import { issueMandate, publicJwkFor, type SigningKey } from "./mandate";
 import { probeIssuer } from "./probe";
 import { assessConformance } from "./conformance";
+import { signStatusList } from "./statusList";
 
 describe("probeIssuer", () => {
   async function issueSample() {
@@ -46,8 +47,72 @@ describe("probeIssuer", () => {
     }
 
     expect(byId.has("enforces_expiry")).toBe(false);
+    expect(byId.has("revocation_takes_effect")).toBe(false);
     const report = assessConformance(results);
     expect(report.missing).toEqual(["enforces_expiry", "revocation_takes_effect"]);
+  });
+
+  it("settles revocation_takes_effect when the submitted list marks the sample idx revoked", async () => {
+    const { token, jwk, key } = await issueSample();
+    const listToken = await signStatusList(
+      {
+        issuer: "https://issuer.example",
+        revokedIndices: [3],
+        size: 64,
+        ttlSeconds: 3600,
+      },
+      key,
+    );
+    const results = await probeIssuer({
+      jwks: [jwk],
+      audience: "probe-bank",
+      sampleValidToken: token,
+      sampleStatusListToken: listToken,
+    });
+    const check = results.find((r) => r.id === "revocation_takes_effect");
+    expect(check?.passed).toBe(true);
+    const report = assessConformance(results);
+    expect(report.missing).toEqual(["enforces_expiry"]);
+  });
+
+  it("fails revocation_takes_effect when the list leaves the sample idx active", async () => {
+    const { token, jwk, key } = await issueSample();
+    const listToken = await signStatusList(
+      {
+        issuer: "https://issuer.example",
+        revokedIndices: [7],
+        size: 64,
+        ttlSeconds: 3600,
+      },
+      key,
+    );
+    const results = await probeIssuer({
+      jwks: [jwk],
+      audience: "probe-bank",
+      sampleValidToken: token,
+      sampleStatusListToken: listToken,
+    });
+    expect(results.find((r) => r.id === "revocation_takes_effect")?.passed).toBe(false);
+  });
+
+  it("fails revocation_takes_effect when the status list issuer does not match the sample", async () => {
+    const { token, jwk, key } = await issueSample();
+    const listToken = await signStatusList(
+      {
+        issuer: "https://other-issuer.example",
+        revokedIndices: [3],
+        size: 64,
+        ttlSeconds: 3600,
+      },
+      key,
+    );
+    const results = await probeIssuer({
+      jwks: [jwk],
+      audience: "probe-bank",
+      sampleValidToken: token,
+      sampleStatusListToken: listToken,
+    });
+    expect(results.find((r) => r.id === "revocation_takes_effect")?.passed).toBe(false);
   });
 
   it("fails publishes_status_list when the sample omits zkm.status", async () => {

@@ -112,8 +112,9 @@ export async function GET(request: Request) {
             "issues_valid_jwt, registered_claims_present, scope_is_oauth_shaped, refuses_forbidden_scope, " +
             "rejects_forged_signature, enforces_audience, and publishes_status_list (sample must embed " +
             "zkm.status). enforces_expiry is included only if sampleExpiredToken is supplied — never " +
-            "faked as passing. revocation_takes_effect still needs a post-revoke refresh window and is " +
-            "absent here (report.missing). The JWKS is submitted inline rather than fetched from a " +
+            "faked as passing. revocation_takes_effect is included only if sampleStatusListToken is " +
+            "supplied and the sample's zkm.status.idx bit is set in that signed list — never faked. " +
+            "The JWKS and status list are submitted inline rather than fetched from a " +
             "candidate-supplied URL, since a server-side fetch of an arbitrary caller-given URL would " +
             "make this endpoint usable to probe internal addresses.",
           requestBody: {
@@ -128,6 +129,11 @@ export async function GET(request: Request) {
                     audience: { type: "string", description: "The audience the sampleValidToken was actually issued for" },
                     sampleValidToken: { type: "string", description: "A currently-valid mandate the candidate issued" },
                     sampleExpiredToken: { type: "string", description: "Optional: an already-expired sample, to check enforces_expiry" },
+                    sampleStatusListToken: {
+                      type: "string",
+                      description:
+                        "Optional: signed statuslist+jwt where the sample mandate's status index is revoked — settles revocation_takes_effect",
+                    },
                   },
                 },
               },

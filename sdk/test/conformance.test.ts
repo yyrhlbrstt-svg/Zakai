@@ -1,7 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { generateKeyPair, exportJWK, type JWK } from "jose";
+import { gzipSync } from "node:zlib";
+import { generateKeyPair, exportJWK, SignJWT, importJWK, type JWK } from "jose";
 import { issueMandate, publicJwkFor, type SigningKey } from "../src/mandate.js";
 import { CHECKS, assessConformance, probeIssuer, type CheckResult } from "../src/conformance.js";
+import { STATUS_LIST_TYPE } from "../src/statusList.js";
+
+async function signProbeStatusList(
+  key: SigningKey,
+  opts: { issuer: string; revokedIdx: number },
+): Promise<string> {
+  const bytes = new Uint8Array(Math.ceil(64 / 8));
+  bytes[opts.revokedIdx >> 3]! |= 1 << (opts.revokedIdx & 7);
+  const lst = Buffer.from(gzipSync(Buffer.from(bytes))).toString("base64url");
+  const nowSec = Math.floor(Date.now() / 1000);
+  const priv = await importJWK(key.privateJwk, "EdDSA");
+  return new SignJWT({
+    status_list: { bits: 1, lst },
+  })
+    .setProtectedHeader({ alg: "EdDSA", kid: key.kid, typ: STATUS_LIST_TYPE })
+    .setIssuer(opts.issuer)
+    .setIssuedAt(nowSec)
+    .setExpirationTime(nowSec + 3600)
+    .sign(priv);
+}
 
 describe("assessConformance", () => {
   it("is conformant only when every 'must' check passed", () => {
@@ -98,14 +119,43 @@ describe("probeIssuer", () => {
       expect(byId.get(id)?.passed, `expected ${id} to pass: ${byId.get(id)?.detail}`).toBe(true);
     }
 
-    // No expired sample was supplied, so expiry cannot be honestly claimed
-    // as checked — it must be absent, and assessConformance must report it
-    // as missing rather than silently passing. revocation_takes_effect still
-    // needs a post-revoke window.
+    // Optional artifacts absent → missing, never a silent pass.
     expect(byId.has("enforces_expiry")).toBe(false);
+    expect(byId.has("revocation_takes_effect")).toBe(false);
     const report = assessConformance(results);
     expect(report.missing).toEqual(["enforces_expiry", "revocation_takes_effect"]);
     expect(report.verdict).toBe("not_conformant");
+  });
+
+  it("settles revocation_takes_effect when the submitted list marks the sample idx revoked", async () => {
+    const { token, jwk, key } = await issueSample();
+    const listToken = await signProbeStatusList(key, {
+      issuer: "https://issuer.example",
+      revokedIdx: 3,
+    });
+    const results = await probeIssuer({
+      jwks: [jwk],
+      audience: "probe-bank",
+      sampleValidToken: token,
+      sampleStatusListToken: listToken,
+    });
+    expect(results.find((r) => r.id === "revocation_takes_effect")?.passed).toBe(true);
+    expect(assessConformance(results).missing).toEqual(["enforces_expiry"]);
+  });
+
+  it("fails revocation_takes_effect when the list leaves the sample idx active", async () => {
+    const { token, jwk, key } = await issueSample();
+    const listToken = await signProbeStatusList(key, {
+      issuer: "https://issuer.example",
+      revokedIdx: 7,
+    });
+    const results = await probeIssuer({
+      jwks: [jwk],
+      audience: "probe-bank",
+      sampleValidToken: token,
+      sampleStatusListToken: listToken,
+    });
+    expect(results.find((r) => r.id === "revocation_takes_effect")?.passed).toBe(false);
   });
 
   it("fails publishes_status_list when the sample omits zkm.status", async () => {

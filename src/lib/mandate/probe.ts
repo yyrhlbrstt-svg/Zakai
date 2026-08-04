@@ -11,13 +11,15 @@
  * reference verifier, not the candidate's code — against every check that is
  * genuinely settleable from those artifacts alone. `publishes_status_list` is
  * settled from the sample embedding `zkm.status`. Expiry needs an already-
- * expired sample; `revocation_takes_effect` still needs a post-revoke refresh
- * window and is left absent rather than assumed to pass.
+ * expired sample. `revocation_takes_effect` settles when the candidate submits
+ * a signed statuslist+jwt where the sample's `zkm.status.idx` bit is set —
+ * never assumed to pass when the list token is absent.
  */
 
 import type { JWK } from "jose";
 import { FORBIDDEN_SCOPES } from "./scopes";
 import { verifyMandate, MandateError } from "./mandate";
+import { verifyStatusList } from "./statusList";
 import type { CheckResult } from "./conformance";
 
 export interface ProbeInput {
@@ -29,6 +31,12 @@ export interface ProbeInput {
   sampleValidToken: string;
   /** Optional: an already-expired sample, needed to test expiry enforcement independently. */
   sampleExpiredToken?: string;
+  /**
+   * Optional: a signed statuslist+jwt from the candidate where the sample
+   * mandate's status index is revoked. Settles `revocation_takes_effect`
+   * without a live fetch (no SSRF).
+   */
+  sampleStatusListToken?: string;
   now?: Date;
 }
 
@@ -162,6 +170,38 @@ export async function probeIssuer(input: ProbeInput): Promise<CheckResult[]> {
       ? `zkm.status.idx=${idx}`
       : "sample mandate missing zkm.status { idx, uri } — offline revoke unavailable",
   });
+
+  // revocation_takes_effect: candidate submits a signed status list that
+  // already marks the sample's idx as revoked. Absent → missing, never a pass.
+  if (input.sampleStatusListToken) {
+    let takesEffect = false;
+    let detail: string | undefined;
+    const iss = typeof payload?.iss === "string" ? payload.iss : "";
+    if (!statusPointerOk) {
+      detail = "sample mandate missing zkm.status.idx — cannot bind list bit";
+    } else if (!iss) {
+      detail = "sample mandate missing iss";
+    } else {
+      try {
+        const list = await verifyStatusList(input.sampleStatusListToken, {
+          issuer: iss,
+          publicJwks: input.jwks,
+          now,
+        });
+        takesEffect = list.isRevoked(idx) === true;
+        detail = takesEffect
+          ? undefined
+          : `idx=${idx} still active in submitted status list`;
+      } catch (err) {
+        detail = err instanceof Error ? err.message : "status list verification failed";
+      }
+    }
+    results.push({
+      id: "revocation_takes_effect",
+      passed: takesEffect,
+      detail,
+    });
+  }
 
   return results;
 }
