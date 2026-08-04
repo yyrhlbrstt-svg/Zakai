@@ -129,7 +129,7 @@ const rights: RightDef[] = [
     "pl_kaucja",
     "housing",
     renting,
-    "Ustawa z dnia 21 czerwca 2001 r. — kodeks cywilny (kaucja najmu)",
+    "Ustawa z dnia 21 czerwca 2001 r. o ochronie praw lokatorów, mieszkaniowym zasobie gminy i o zmianie Kodeksu cywilnego, art. 6",
     {
       kind: "letter",
       recipient: "wynajmujacy",
@@ -155,13 +155,13 @@ const rights: RightDef[] = [
     "pl_dodatek_oslonowy",
     "consumer",
     lowIncome,
-    "Ustawa z dnia 27 października 2017 r. — dodatek energetyczny",
+    "Ustawa z dnia 17 grudnia 2021 r. o dodatku osłonowym",
     {
       kind: "letter",
-      recipient: "provider",
-      fields: ["counterparty", "accountNumber"],
-      subject: "Dodatek energetyczny — umowa {accountNumber}",
-      body: `${IDENTITY}\n\nProszę o zastosowanie lub weryfikację dodatku energetycznego na umowie {accountNumber}.`,
+      recipient: "zus",
+      fields: ["municipality"],
+      subject: "Dodatek osłonowy — wniosek",
+      body: `${IDENTITY}\n\nProszę o rozpatrzenie prawa do dodatku osłonowego i wypłatę należności.`,
     },
   ),
   right("pl_lot", "consumer", always, "Rozporządzenie (WE) nr 261/2004", {

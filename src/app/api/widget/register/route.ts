@@ -17,11 +17,7 @@ export async function POST(request: Request) {
   if (!body.domain?.trim()) {
     return NextResponse.json({ error: "domain_required" }, { status: 400 });
   }
-  const api_key = registerWidgetKey(body.domain.trim());
-  return NextResponse.json({
-    api_key,
-    domain: body.domain,
-    note: "Persist key in ZAKAI_WIDGET_KEYS_JSON on the deployment for production.",
-  });
+  const api_key = await registerWidgetKey(body.domain.trim());
+  return NextResponse.json({ api_key, domain: body.domain });
 }
 

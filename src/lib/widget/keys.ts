@@ -1,4 +1,5 @@
 import "server-only";
+import { prisma } from "@/lib/prisma";
 
 export type WidgetKeyRecord = { domain: string; created: string };
 
@@ -21,22 +22,43 @@ function parseRegistry(): Map<string, WidgetKeyRecord> {
   return map;
 }
 
-export function registerWidgetKey(domain: string): string {
+/**
+ * In-memory cache only: a same-warm-instance fast path so a key registered
+ * and validated in quick succession (tests, or two requests hitting the same
+ * lambda) doesn't need a DB round trip. The `WidgetKey` table below is the
+ * actual durable store — Vercel functions don't share memory across
+ * instances/cold starts, so relying on this map alone silently lost every
+ * key registered via POST /api/widget/register after the first cold start.
+ */
+const inMemoryKeys = new Map<string, WidgetKeyRecord>();
+
+export async function registerWidgetKey(domain: string): Promise<string> {
   const key = `pk_live_${crypto.randomUUID().replace(/-/g, "")}`;
-  const reg = parseRegistry();
-  reg.set(key, { domain, created: new Date().toISOString() });
-  // Ephemeral in-memory only unless persisted via env — admin must update ZAKAI_WIDGET_KEYS_JSON
-  inMemoryKeys.set(key, reg.get(key)!);
+  const rec: WidgetKeyRecord = { domain, created: new Date().toISOString() };
+  inMemoryKeys.set(key, rec);
+  try {
+    await prisma.widgetKey.create({ data: { key, domain } });
+  } catch {
+    // DB unreachable (or unset locally) — key still works for this warm
+    // instance via inMemoryKeys, and can be pinned permanently by adding it
+    // to ZAKAI_WIDGET_KEYS_JSON.
+  }
   return key;
 }
 
-const inMemoryKeys = new Map<string, WidgetKeyRecord>();
-
-export function validateWidgetKey(key: string | null, origin: string | null): boolean {
+export async function validateWidgetKey(key: string | null, origin: string | null): Promise<boolean> {
   if (!key) return false;
-  const reg = parseRegistry();
   const mem = inMemoryKeys.get(key);
-  const rec = mem ?? reg.get(key);
+  const env = parseRegistry().get(key);
+  let rec = mem ?? env;
+  if (!rec) {
+    try {
+      const row = await prisma.widgetKey.findUnique({ where: { key } });
+      if (row) rec = { domain: row.domain, created: row.createdAt.toISOString() };
+    } catch {
+      // DB unreachable — fall through with rec still undefined, key invalid.
+    }
+  }
   if (!rec) return false;
   if (!origin) return true;
   try {

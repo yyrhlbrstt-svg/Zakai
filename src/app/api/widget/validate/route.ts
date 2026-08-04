@@ -14,7 +14,7 @@ export async function OPTIONS(request: Request) {
 export async function GET(request: Request) {
   const origin = request.headers.get("Origin");
   const key = request.headers.get("X-Zakai-Widget-Key");
-  const valid = validateWidgetKey(key, origin);
+  const valid = await validateWidgetKey(key, origin);
 
   const cors = widgetCorsHeaders(request, {
     allowOrigin: valid && origin ? origin : "*",

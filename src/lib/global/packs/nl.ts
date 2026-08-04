@@ -128,7 +128,7 @@ const rights: RightDef[] = [
     "nl_bank_kosten",
     "banking",
     always,
-    "Wet op het financieel toezicht — bankkosten (AFM/DNB klachtenroute)",
+    "Wet op het financieel toezicht (Wft) — klachten via Kifid (Klachteninstituut Financiële Dienstverlening)",
     {
       kind: "letter",
       recipient: "bank",
@@ -167,11 +167,11 @@ const rights: RightDef[] = [
     kind: "tool",
     tool: "/flights",
   }),
-  right("nl_abonnementen", "consumer", always, "Consumentenrecht — opzegging", {
+  right("nl_abonnementen", "consumer", always, "Burgerlijk Wetboek art. 6:236/6:237 (Wet van Dam) — stilzwijgende verlenging", {
     kind: "tool",
     tool: "/cancel",
   }),
-  right("nl_bank_tool", "banking", always, "Bankkosten — in-app agent", {
+  right("nl_bank_tool", "banking", always, "Wet op het financieel toezicht (Wft) — klachten via Kifid", {
     kind: "tool",
     tool: "/bank-fees",
   }),

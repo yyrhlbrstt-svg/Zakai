@@ -342,6 +342,20 @@ model RateLimit {
   @@index([expiresAt])
 }
 
+// Embeddable-widget API keys (POST /api/widget/register). Same serverless-
+// memory problem as RateLimit above: a key registered on one Vercel instance
+// was invisible to the instance serving the next request, so the "partner
+// API key (domain allowlist)" the widget promises silently failed after the
+// first cold start. `ZAKAI_WIDGET_KEYS_JSON` remains supported as a
+// pre-provisioned/env-seeded layer on top of this table.
+model WidgetKey {
+  key       String   @id
+  domain    String
+  createdAt DateTime @default(now())
+
+  @@index([domain])
+}
+
 // Product feedback — "what would you improve in Zakai?". Stored so the team
 // can read real user suggestions and prioritise from them. Email is optional
 // (only if the user wants a reply); `context` records which screen it came
