@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shouldAttachMandateDocs } from "./outreachAttachments";
+import { mandateAttachClaimLine, shouldAttachMandateDocs } from "./outreachAttachments";
 import { AGENT_SUBJECT_PREFIX } from "./loopLimits";
 
 describe("shouldAttachMandateDocs", () => {
@@ -19,5 +19,19 @@ describe("shouldAttachMandateDocs", () => {
       false,
     );
     expect(shouldAttachMandateDocs(null)).toBe(false);
+  });
+});
+
+describe("mandateAttachClaimLine", () => {
+  it("never invents JSON inbound when only HTML was attached", () => {
+    const htmlOnly = mandateAttachClaimLine(false);
+    expect(htmlOnly).toContain("HTML");
+    expect(htmlOnly).not.toContain("JSON inbound");
+  });
+
+  it("claims JSON inbound when the inbound attachment is present", () => {
+    const full = mandateAttachClaimLine(true);
+    expect(full).toContain("JSON inbound");
+    expect(full).toContain("zakai-inbound-receive");
   });
 });

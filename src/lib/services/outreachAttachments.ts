@@ -34,6 +34,16 @@ export function shouldAttachMandateDocs(subject: string | null | undefined): boo
   return /הרשאה\s+ZK-[A-Z0-9]/i.test(subject);
 }
 
+/**
+ * Footer claim for what was actually attached — never invent JSON inbound
+ * when only the human Authorization HTML went out (pre-key soft path).
+ */
+export function mandateAttachClaimLine(hasInboundJson: boolean): string {
+  return hasInboundJson
+    ? "מצורף: מסמך הרשאה מלא (HTML) + JSON inbound (zakai-inbound-receive)."
+    : "מצורף: מסמך הרשאה (HTML).";
+}
+
 export async function rebuildMandateAttachmentsForCase(
   caseId: string,
 ): Promise<OutreachAttachment[]> {

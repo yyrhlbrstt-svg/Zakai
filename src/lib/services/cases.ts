@@ -31,6 +31,7 @@ import {
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
 import { publicSupportEmail } from "@/lib/contact";
 import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
+import { mandateAttachClaimLine } from "@/lib/services/outreachAttachments";
 
 export class CaseError extends Error {}
 
@@ -285,18 +286,6 @@ export async function sendOutreach(caseId: string, userId: string) {
     vertical: kase.vertical,
     market: user?.country ?? "IL",
   });
-  const footer = `
-
-————————————————————————
-מסמך הרשאה (ייפוי כוח) — שירות זכאי
-מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
-קוד אימות ההרשאה: ${auth.code}
-לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
-מצורף: מסמך הרשאה מלא (HTML) + JSON inbound (zakai-inbound-receive).
-גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
-${institutionPullFooterLine("he", appUrl)}
-${institutionPipeMagnetLine(appUrl)}
-לאוטומציה: ${institutionSalesEmail()}${protocolFooter}`;
 
   const attachment = mandateEmailAttachment({
     code: auth.code,
@@ -326,6 +315,20 @@ ${institutionPipeMagnetLine(appUrl)}
         }),
       )
     : null;
+
+  // Claim only what was attached — pre-key soft path may send HTML-only.
+  const footer = `
+
+————————————————————————
+מסמך הרשאה (ייפוי כוח) — שירות זכאי
+מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
+קוד אימות ההרשאה: ${auth.code}
+לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
+${mandateAttachClaimLine(Boolean(inboundAtt))}
+גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
+${institutionPullFooterLine("he", appUrl)}
+${institutionPipeMagnetLine(appUrl)}
+לאוטומציה: ${institutionSalesEmail()}${protocolFooter}`;
 
   const email = await sendEmail({
     to,

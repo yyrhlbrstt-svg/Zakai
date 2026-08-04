@@ -21,6 +21,8 @@ vi.mock("@/lib/prisma", () => ({
 
 vi.mock("@/lib/services/outreachAttachments", () => ({
   rebuildMandateAttachmentsForCase: (...args: unknown[]) => rebuild(...args),
+  mandateAttachClaimLine: (hasInbound: boolean) =>
+    hasInbound ? "מצורף: HTML + JSON inbound" : "מצורף: HTML",
 }));
 
 vi.mock("@/lib/messaging", () => ({

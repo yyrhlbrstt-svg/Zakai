@@ -17,7 +17,10 @@ import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { emailConfigured } from "@/lib/messaging";
 import { followUpDispatchOutcome } from "@/lib/followUpSendUi";
-import { rebuildMandateAttachmentsForCase } from "@/lib/services/outreachAttachments";
+import {
+  mandateAttachClaimLine,
+  rebuildMandateAttachmentsForCase,
+} from "@/lib/services/outreachAttachments";
 
 /**
  * The agent keeps working after the first send.
@@ -209,10 +212,7 @@ export async function dispatchCaseFollowUp(
       subject,
     };
   }
-  const attachLine =
-    attachments.length >= 2
-      ? "מצורף: מסמך הרשאה מלא (HTML) + JSON inbound."
-      : "מצורף: מסמך הרשאה (HTML).";
+  const attachLine = mandateAttachClaimLine(attachments.length >= 2);
   const footer = `
 
 ————————————————————————
