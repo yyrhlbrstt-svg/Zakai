@@ -7,6 +7,7 @@ import { Card, Button } from "@/components/ui";
 import { BusinessLeadForm } from "@/components/BusinessLeadForm";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator";
+import { InstitutionIgnoreCostLive } from "@/components/InstitutionIgnoreCostLive";
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
@@ -303,8 +304,9 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
               </p>
             ))}
             {section.id === "roi" ? (
-              <div className="mt-4">
+              <div className="mt-4 flex flex-col gap-4">
                 <InstitutionRoiCalculator />
+                <InstitutionIgnoreCostLive />
               </div>
             ) : null}
             {section.id === "delegatedApply" ? (
