@@ -11,6 +11,7 @@ import { shouldNotifyInbound } from "@/lib/inboundDecision";
 import { resolveInboundRecordAmountShekels } from "@/lib/fee";
 import { feeBasisForVertical } from "@/lib/verticals";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
+import { issueProposedSavingConfirmUrl } from "@/lib/services/confirmProposedSaving";
 
 /**
  * Inbound email webhook — the missing half of the closed-loop SavingsProof.
@@ -269,6 +270,13 @@ export async function POST(request: Request) {
         localeForCountry(user.country),
         `/money?case=${matchedCaseId}`,
       );
+      const confirmUrl =
+        (await issueProposedSavingConfirmUrl({
+          userId: matchedUserId,
+          caseId: matchedCaseId,
+          newAmountShekels: recordShekels,
+          country: user.country,
+        }).catch(() => null)) || moneyUrl;
 
       await sendEmail({
         to: user.email,
@@ -279,7 +287,10 @@ export async function POST(request: Request) {
           `קיבלנו הודעה שנראית כמו אישור חיסכון לתיק שלך.`,
           amountLine,
           ``,
-          `כדי לסגור את התיק ולתעד את החיסכון (העמלה נגזרת רק אחרי אישור שלך):`,
+          `אשרו בלחיצה אחת (מתעדים חיסכון — עמלה רק אחרי אישור שלכם):`,
+          confirmUrl,
+          ``,
+          `או ב״הכסף שלי״:`,
           moneyUrl,
           ``,
           `זכאי — סוכן כסף לצרכן.`,
