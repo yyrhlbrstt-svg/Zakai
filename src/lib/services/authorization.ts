@@ -331,44 +331,6 @@ export async function ensureMandateTokenForCase(
   return { jti: mandate.mandateJti, jws: mandate.mandateToken };
 }
 
-export async function revokeAuthorization(caseId: string, mandateJti?: string) {
-  const existing = await prisma.authorization.findUnique({
-    where: { caseId },
-    select: { mandateStatusIndex: true },
-  });
-  const updated = await prisma.authorization.update({
-    where: { caseId },
-    data: { status: "REVOKED", revokedAt: new Date() },
-  });
-
-  // Pre-settle cases must not remain SENT after authority is withdrawn —
-  // otherwise recordSaving could still close the loop under a revoked mandate.
-  await prisma.case.updateMany({
-    where: {
-      id: caseId,
-      status: { in: ["ANALYZED", "APPROVED", "VERIFIED", "SENT"] },
-    },
-    data: { status: "REVOKED" },
-  });
-
-  if (mandateJti) {
-    try {
-      await prisma.$transaction((tx) =>
-        publishRevocation(tx, {
-          jti: mandateJti,
-          reason: "authorization_revoked",
-          internalNote: caseId,
-          statusIndex: existing?.mandateStatusIndex ?? undefined,
-        }),
-      );
-    } catch {
-      // Table may be missing in some environments; human revoke still stands.
-    }
-  }
-
-  return updated;
-}
-
 /** Public lookup for the provider-facing verification page. Masks PII. */
 export async function getPublicAuthorization(code: string) {
   const auth = await prisma.authorization.findUnique({
