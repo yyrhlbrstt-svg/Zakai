@@ -463,6 +463,7 @@ export default async function DashboardPage({
                       ? nextOpenCase
                       : null
                   }
+                  strategyVariant={c.strategyVariant}
                 />
               ) : !settled ? (
                 <Link

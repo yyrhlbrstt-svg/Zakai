@@ -210,6 +210,7 @@ export async function MoneyLoopCloser({
         emailVerified={emailVerified}
         learningTip={learningTip}
         nextOpenCase={nextOpenCase}
+        strategyVariant={c.strategyVariant}
       />
     </div>
   );

@@ -23,6 +23,8 @@ import type { OutreachDelivery } from "@/lib/services/outreachDelivery";
 import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
 import { pendingFeeDisplayShekels } from "@/lib/pendingSuccessFee";
 import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
+import { OutcomeReport } from "@/components/OutcomeReport";
+import { UNATTRIBUTED_VARIANT_ID } from "@/lib/strategy/normalizeKeys";
 
 type Status =
   | "ANALYZED"
@@ -93,6 +95,12 @@ interface Props {
   nextOpenCase?: { href: string; labelHe: string; labelEn: string } | null;
   /** Account already proved email control — enables approve→send express path. */
   emailVerified?: boolean;
+  /**
+   * Latched stance for de-identified OutcomeReport (SENT drop-off path).
+   * SAVED settles already write StrategyOutcome via commitCaseLearningSignal —
+   * do not double-report there.
+   */
+  strategyVariant?: string | null;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -359,6 +367,7 @@ export function CaseNextStep({
   emailVerified = false,
   learningTip = null,
   nextOpenCase = null,
+  strategyVariant = null,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -1895,10 +1904,30 @@ export function CaseNextStep({
 
         {/* Share only after SAVED + fee settled — virality before proof dilutes gravity. */}
 
+        {/* Soft outcome graph feed when the user abandons before SavingsProof.
+            Documented settles already latch via commitCaseLearningSignal. */}
+        {vertical ? (
+          <OutcomeReport
+            market="IL"
+            vertical={vertical}
+            counterparty={outcomeCounterpartyKey(provider)}
+            variantId={
+              strategyVariant?.trim() || UNATTRIBUTED_VARIANT_ID
+            }
+          />
+        ) : null}
+
         {err && <FieldError>{err}</FieldError>}
       </div>
     );
   }
 
   return null;
+}
+
+/** OutcomeReport rejects free-text counterparties — keep a closed slug. */
+function outcomeCounterpartyKey(provider?: string): string {
+  const raw = (provider || "provider").trim().toLowerCase();
+  const slug = raw.replace(/[^a-z0-9_:-]+/g, "_").replace(/_+/g, "_").slice(0, 60);
+  return slug.length >= 2 ? slug : "provider";
 }
