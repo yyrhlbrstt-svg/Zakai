@@ -5,14 +5,17 @@ import { useLocale } from "next-intl";
 import { Button } from "@/components/ui";
 import { heEn } from "@/lib/heEn";
 
+type ResendState = "idle" | "delivered" | "queued" | "accepted";
+
 /**
  * Unverified email blocks the fast Mandate path. One tap resends the link.
+ * Never claim "נשלח" unless Outbox actually SENT.
  */
 export function EmailVerifyNudge() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
+  const [state, setState] = useState<ResendState>("idle");
   const [err, setErr] = useState(false);
 
   async function resend() {
@@ -23,13 +26,35 @@ export function EmailVerifyNudge() {
         method: "PUT",
       });
       if (!res.ok) throw new Error("fail");
-      setDone(true);
+      const data = (await res.json().catch(() => ({}))) as {
+        delivered?: boolean;
+        queued?: boolean;
+      };
+      if (data.delivered === true) setState("delivered");
+      else if (data.queued === true) setState("queued");
+      else setState("accepted");
     } catch {
       setErr(true);
     } finally {
       setBusy(false);
     }
   }
+
+  const done = state !== "idle";
+  const label =
+    state === "delivered"
+      ? heEn(he, "נשלח — בדקו את המייל", "Sent — check your inbox")
+      : state === "queued"
+        ? heEn(
+            he,
+            "בתור שליחה — עדיין לא יצא מהמערכת",
+            "Queued — has not left the system yet",
+          )
+        : state === "accepted"
+          ? heEn(he, "בוצע — בדקו את המייל או רעננו", "Done — check inbox or refresh")
+          : busy
+            ? heEn(he, "שולח…", "Sending…")
+            : heEn(he, "שלח קישור אימות", "Send verification link");
 
   return (
     <div className="rounded-2xl border border-[rgba(62,198,255,0.4)] bg-[rgba(62,198,255,0.08)] px-5 py-4 mb-5">
@@ -46,17 +71,7 @@ export function EmailVerifyNudge() {
         className="!text-[13px] !py-2.5"
         onClick={() => void resend()}
       >
-        {done
-          ? he
-            ? "נשלח — בדקו את המייל"
-            : "Sent — check your inbox"
-          : busy
-            ? he
-              ? "שולח…"
-              : "Sending…"
-            : he
-              ? "שלח קישור אימות"
-              : "Send verification link"}
+        {label}
       </Button>
       {err ? (
         <p className="text-[12px] text-amber mt-2 mb-0">

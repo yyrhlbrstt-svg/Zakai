@@ -24,8 +24,10 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     ok: true,
     devHint: result.devHint,
     magicSent: result.magicSent,
+    magicDelivered: result.magicDelivered,
+    smsDelivered: result.smsDelivered,
     phoneMasked: maskPhone(kase.user.phone),
-    // User sees both paths: SMS code + email magic link (no callback phone).
+    // Channels accepted into Outbox — UI must not equate with "left the system".
     channels: ["sms", result.magicSent ? "email_magic" : null].filter(Boolean),
   });
 }

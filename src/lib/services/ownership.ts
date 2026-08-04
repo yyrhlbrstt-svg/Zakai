@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { generateNumericCode, hashCode, safeEqualHex } from "@/lib/codes";
 import { sendSms, sendEmail, smsConfigured } from "@/lib/messaging";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
+import { isOutboxAccepted, isOutboxDelivered } from "@/lib/outboxDeliveryState";
 
 const CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const MAGIC_TTL_SECONDS = 15 * 60; // 15 minutes
@@ -25,7 +26,17 @@ function ownershipSecret(): Uint8Array {
 }
 
 export type OwnershipSendResult =
-  | { ok: true; devHint: boolean; magicSent: boolean }
+  | {
+      ok: true;
+      /** SMS transport missing — show founder/dev note, never invent "SMS left". */
+      devHint: boolean;
+      /** Magic link accepted into Outbox (QUEUED or SENT). */
+      magicSent: boolean;
+      /** Magic email actually left (Outbox SENT). */
+      magicDelivered: boolean;
+      /** SMS actually left (Outbox SENT). */
+      smsDelivered: boolean;
+    }
   | { ok: false; error: "cooldown" };
 
 /**
@@ -33,6 +44,9 @@ export type OwnershipSendResult =
  * magic link to their email. Doctrine: never leave a phone for a callback —
  * the OTP goes to the phone already on the account; the magic link is the
  * zero-SMS path for users who prefer email.
+ *
+ * Never claim channels "sent" when Outbox is only QUEUED — UI reads
+ * magicDelivered / smsDelivered for "נשלח".
  */
 export async function sendOwnershipCode(
   userId: string,
@@ -58,24 +72,35 @@ export async function sendOwnershipCode(
     },
   });
 
-  await sendSms({
+  const sms = await sendSms({
     to: phone,
     body: `זכאי: קוד האימות שלך הוא ${code}. בתוקף ל-10 דקות. לא שיתפת בקשה זו? אפשר להתעלם.`,
     caseId,
   });
+  const smsDelivered = isOutboxDelivered(sms.status);
 
   // Parallel path: magic link by email (no SMS dependency).
   let magicSent = false;
+  let magicDelivered = false;
   if (caseId) {
     try {
-      await sendOwnershipMagicLink(userId, caseId);
-      magicSent = true;
+      const magic = await sendOwnershipMagicLink(userId, caseId);
+      if (magic.ok) {
+        magicSent = true;
+        magicDelivered = magic.delivered;
+      }
     } catch {
       /* SMS path still works */
     }
   }
 
-  return { ok: true, devHint: !smsConfigured(), magicSent };
+  return {
+    ok: true,
+    devHint: !smsConfigured(),
+    magicSent,
+    magicDelivered,
+    smsDelivered,
+  };
 }
 
 /**
@@ -85,7 +110,10 @@ export async function sendOwnershipCode(
 export async function sendOwnershipMagicLink(
   userId: string,
   caseId: string,
-): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; url: string; delivered: boolean; queued: boolean }
+  | { ok: false; error: string }
+> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { email: true, name: true, country: true },
@@ -113,7 +141,7 @@ export async function sendOwnershipMagicLink(
     `/ownership/confirm?token=${encodeURIComponent(token)}`,
   );
 
-  await sendEmail({
+  const email = await sendEmail({
     to: user.email,
     subject: "זכאי — אימות בעלות בלחיצה אחת",
     body: `שלום ${user.name},
@@ -130,7 +158,9 @@ ${url}
     caseId,
   });
 
-  return { ok: true, url };
+  const delivered = isOutboxDelivered(email.status);
+  const queued = isOutboxAccepted(email.status) && !delivered;
+  return { ok: true, url, delivered, queued };
 }
 
 export type MagicVerifyResult =

@@ -108,6 +108,9 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "קוד מ-6 ספרות (אם אין קישור)",
     verifyCode: "אמת קוד",
     magicHint: "בדקו את המייל — קישור קסם מאמת בעלות בלחיצה. הקוד למטה רק אם הקישור לא הגיע.",
+    magicQueuedHint:
+      "קישור האימות נשמר בתור שליחה (עדיין לא יצא מהמערכת). אפשר להזין קוד SMS למטה.",
+    ownDevHint: "SMS לא מוגדר בסביבה זו — השתמשו בקישור המייל או בדקו את ה-Outbox.",
     ownStartHint: "לפני שליחת Mandate — אימות בעלות בקישור מייל (מועדף) או בקוד.",
     dispatch: "שלח לספק (Mandate)",
     openDoc: "פתח מסמך הרשאה (הדפסה / PDF)",
@@ -220,6 +223,9 @@ const copy: Record<string, Record<string, string>> = {
     codePh: "6-digit code (if no link)",
     verifyCode: "Verify code",
     magicHint: "Check email — magic link verifies ownership in one tap. Code below only if the link did not arrive.",
+    magicQueuedHint:
+      "Ownership link is queued (has not left the system yet). You can enter the SMS code below.",
+    ownDevHint: "SMS is not configured here — use the email link or check the Outbox.",
     ownStartHint: "Before Mandate send — verify ownership via email link (preferred) or code.",
     dispatch: "Send to provider (Mandate)",
     openDoc: "Open authorization (print / PDF)",
@@ -372,6 +378,8 @@ export function CaseNextStep({
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
+  const [magicDelivered, setMagicDelivered] = useState(false);
+  const [ownDevHint, setOwnDevHint] = useState(false);
   const [newAmt, setNewAmt] = useState(
     proposedSaving?.newAmountShekels != null ? String(proposedSaving.newAmountShekels) : "",
   );
@@ -422,6 +430,8 @@ export function CaseNextStep({
       const data = await res.json().catch(() => ({}));
       setCodeSent(true);
       setMagicSent(Boolean(data.magicSent));
+      setMagicDelivered(Boolean(data.magicDelivered));
+      setOwnDevHint(Boolean(data.devHint));
     })().catch(() => {});
     return () => {
       cancelled = true;
@@ -1001,6 +1011,8 @@ export function CaseNextStep({
                     const data = await res.json().catch(() => ({}));
                     setCodeSent(true);
                     setMagicSent(Boolean(data.magicSent));
+                    setMagicDelivered(Boolean(data.magicDelivered));
+                    setOwnDevHint(Boolean(data.devHint));
                   })
                 }
               >
@@ -1009,8 +1021,15 @@ export function CaseNextStep({
             ) : (
               <>
                 <p className="text-[12.5px] text-emerald font-bold m-0">
-                  {magicSent ? t(locale, "magicHint") : t(locale, "ownStartHint")}
+                  {magicDelivered
+                    ? t(locale, "magicHint")
+                    : magicSent
+                      ? t(locale, "magicQueuedHint")
+                      : t(locale, "ownStartHint")}
                 </p>
+                {ownDevHint ? (
+                  <p className="text-[12px] text-amber m-0">{t(locale, "ownDevHint")}</p>
+                ) : null}
                 <div className="flex flex-wrap gap-2 items-center">
                   <Input
                     value={code}

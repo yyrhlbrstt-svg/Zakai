@@ -93,6 +93,8 @@ export function CheckFlow() {
   const [phoneMasked, setPhoneMasked] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [devHint, setDevHint] = useState(false);
+  const [magicDelivered, setMagicDelivered] = useState(false);
+  const [magicQueued, setMagicQueued] = useState(false);
   const [code, setCode] = useState("");
   const [ownershipOk, setOwnershipOk] = useState(false);
   const [ownErr, setOwnErr] = useState<string | null>(null);
@@ -264,6 +266,8 @@ export function CheckFlow() {
     }
     setCodeSent(true);
     setDevHint(Boolean(data.devHint));
+    setMagicDelivered(Boolean(data.magicDelivered));
+    setMagicQueued(Boolean(data.magicSent) && !data.magicDelivered);
     setPhoneMasked(data.phoneMasked || "");
   }
 
@@ -684,6 +688,15 @@ export function CheckFlow() {
                     <p className="text-[13.5px] text-ink-soft mb-2.5">
                       {tv("ownershipSub", { phone: phoneMasked })}
                     </p>
+                    {magicDelivered ? (
+                      <p className="text-[12.5px] text-emerald mb-2.5 font-bold">
+                        {tv("ownershipMagicSent")}
+                      </p>
+                    ) : magicQueued ? (
+                      <p className="text-[12.5px] text-amber mb-2.5 font-bold">
+                        {tv("ownershipMagicQueued")}
+                      </p>
+                    ) : null}
                     {devHint && (
                       <p className="text-[12px] text-amber mb-2.5">{tv("ownershipDevNote")}</p>
                     )}
