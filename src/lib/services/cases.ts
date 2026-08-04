@@ -37,6 +37,7 @@ import {
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
 import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
 import { mandateAttachClaimLine } from "@/lib/services/outreachAttachments";
+import { notifyUserProviderOutreachDelivered } from "@/lib/services/outreachDeliveredNotify";
 
 export class CaseError extends Error {}
 
@@ -350,54 +351,40 @@ ${institutionPipeMagnetLine(appUrl)}
   // Status was already claimed above, before the letter went out.
 
   // Closed-loop: tell the user where to forward the provider reply.
-  // Never claim "נשלח" when Outbox is only QUEUED (SMTP off / async drain).
+  // Never claim "נשלח" when Outbox is only QUEUED — async drain upgrades later.
   const proofsAddr = proofsInboundAddress();
   const delivered = email.status === "SENT";
   if (user?.email) {
-    const moneyUrl = absoluteLocaleUrl(
-      appUrl,
-      localeForCountry(user.country),
-      `/money?case=${caseId}`,
-    );
-    await sendEmail({
-      to: user.email,
-      subject: delivered
-        ? `זכאי — נשלח ל-${provider} | מה הלאה`
-        : `זכאי — הפנייה ל-${provider} בתור שליחה | מה הלאה`,
-      body: delivered
-        ? `שלום ${user.name},
-
-הסוכן שלח בשמך פנייה בכתב ל-${provider}, עם מסמך ההרשאה (ייפוי כוח) מצורף.
-
-מה אפשר לעשות עכשיו:
-• אם ענו — העבירו את המייל שלהם אל ${proofsAddr}
-  (הסוכן יזהה סכום ויציע רישום חיסכון בלחיצה אחת ב״הכסף שלי״).
-• אם לא ענו תוך כמה ימים — הסוכן ישלח סיבוב 2 אוטומטית.
-• לעצירה — בטלו את ההרשאה במסמך האימות.
-
-הכסף שלי: ${moneyUrl}
-
-הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
-
-זכאי — הסוכן שלך.`
-        : `שלום ${user.name},
+    if (delivered) {
+      await notifyUserProviderOutreachDelivered(caseId, email.subject, {
+        kind: "initial",
+      });
+    } else {
+      const moneyUrl = absoluteLocaleUrl(
+        appUrl,
+        localeForCountry(user.country),
+        `/money?case=${caseId}`,
+      );
+      await sendEmail({
+        to: user.email,
+        subject: `זכאי — הפנייה ל-${provider} בתור שליחה | מה הלאה`,
+        body: `שלום ${user.name},
 
 הפנייה ל-${provider} נשמרה בתור שליחה (עדיין לא יצאה מהמערכת). ברגע שתשלח — תוכלו להעביר תשובת ספק אל ${proofsAddr}.
 
 הכסף שלי: ${moneyUrl}
 
 זכאי — הסוכן שלך.`,
-      caseId,
-    });
+        caseId,
+      });
 
-    await pushToUser(userId, {
-      title: delivered ? "זכאי — נשלח לספק" : "זכאי — פנייה בתור שליחה",
-      body: delivered
-        ? `פנייה ל-${provider} יצאה. העבירו תשובה ל-${proofsAddr}`
-        : `פנייה ל-${provider} ממתינה לשליחה. בדקו ב״הכסף שלי״.`,
-      url: `/money?case=${caseId}`,
-      tag: `sent-${caseId}`,
-    }).catch(() => null);
+      await pushToUser(userId, {
+        title: "זכאי — פנייה בתור שליחה",
+        body: `פנייה ל-${provider} ממתינה לשליחה. בדקו ב״הכסף שלי״.`,
+        url: `/money?case=${caseId}`,
+        tag: `sent-queued-${caseId}`,
+      }).catch(() => null);
+    }
   }
 
   return email;

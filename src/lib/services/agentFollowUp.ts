@@ -12,8 +12,6 @@ import type { ProviderReplyKind } from "@/lib/negotiation";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
 import { agorotToShekels } from "@/lib/money";
-import { pushToUser } from "@/lib/push";
-import { proofsInboundAddress } from "@/lib/mandate/document";
 import { AGENT_SUBJECT_PREFIX, MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { emailConfigured } from "@/lib/messaging";
 import { followUpDispatchOutcome } from "@/lib/followUpSendUi";
@@ -21,6 +19,7 @@ import {
   mandateAttachClaimLine,
   rebuildMandateAttachmentsForCase,
 } from "@/lib/services/outreachAttachments";
+import { notifyUserProviderOutreachDelivered } from "@/lib/services/outreachDeliveredNotify";
 
 /**
  * The agent keeps working after the first send.
@@ -272,32 +271,12 @@ ${protocolFooter}`;
   const outcome = followUpDispatchOutcome(email.status);
 
   // Async QUEUED still returns sent:true (worker will attach Mandate + deliver).
-  // User notify only when the letter actually left (delivered).
+  // User notify only when the letter actually left — sync here, async in outbox drain.
   if (outcome.delivered && opts.notifyUser !== false && kase.user.email) {
-    const proofsAddr = proofsInboundAddress();
-    await sendEmail({
-      to: kase.user.email,
-      subject: `זכאי — הסוכן שלח פנייה חוזרת ל-${provider} (סיבוב ${round})`,
-      body: `שלום ${kase.user.name},
-
-הסוכן שלח בשמך פנייה חוזרת בכתב ל-${provider} (סיבוב ${round}), עם מסמך ההרשאה הפעיל מצורף.
-
-מה אפשר לעשות עכשיו:
-• אם ענו — העבירו את המייל שלהם אל ${proofsAddr} (או הזינו סכום חדש ב״הכסף שלי״).
-• אם רוצים לעצור — בטלו את ההרשאה במסמך האימות.
-
-הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
-
-זכאי — הסוכן שלך.`,
-      caseId,
+    await notifyUserProviderOutreachDelivered(caseId, email.subject, {
+      kind: "followup",
+      round,
     });
-
-    await pushToUser(kase.user.id, {
-      title: "זכאי — הסוכן פעל",
-      body: `סיבוב ${round}: נשלחה פנייה ל-${provider}. פתחו את ״הכסף שלי״ אם ענו.`,
-      url: `/money?case=${caseId}`,
-      tag: `followup-${caseId}-r${round}`,
-    }).catch(() => null);
   }
 
   return {

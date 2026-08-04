@@ -142,14 +142,25 @@ export interface OutboxWorkerResult {
   sent: number;
   failed: number;
   skipped: number;
+  /** Provider outreach that left — user notify upgrades attempted (best-effort). */
+  notifiedDelivered: number;
 }
 
 /**
  * Drain QUEUED and retry FAILED rows. Class D worker — /api/cron/outbox.
  * FAILED rows that hit MAX_OUTBOX_ATTEMPTS stay dead-lettered (no retry storm).
+ *
+ * When a provider Mandate letter finally SENT after async queue, upgrade the
+ * consumer from "בתור שליחה" / silence → honest "נשלח" (sync path already does).
  */
 export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): Promise<OutboxWorkerResult> {
-  const result: OutboxWorkerResult = { scanned: 0, sent: 0, failed: 0, skipped: 0 };
+  const result: OutboxWorkerResult = {
+    scanned: 0,
+    sent: 0,
+    failed: 0,
+    skipped: 0,
+    notifiedDelivered: 0,
+  };
   const smtpUp = emailConfigured();
 
   const rows = await prisma.outbox.findMany({
@@ -193,8 +204,24 @@ export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): P
     const fresh = await prisma.outbox.findUnique({ where: { id: row.id } });
     if (!fresh) continue;
     const outcome = await deliverOutboxRecord(fresh);
-    if (outcome === "sent") result.sent += 1;
-    else if (outcome === "failed") result.failed += 1;
+    if (outcome === "sent") {
+      result.sent += 1;
+      // Dynamic import: messaging → outboxDeliver; notify → messaging.
+      if (fresh.channel === "EMAIL" && fresh.caseId) {
+        try {
+          const { notifyUserProviderOutreachDelivered } = await import(
+            "@/lib/services/outreachDeliveredNotify"
+          );
+          const notified = await notifyUserProviderOutreachDelivered(
+            fresh.caseId,
+            fresh.subject,
+          );
+          if (notified) result.notifiedDelivered += 1;
+        } catch {
+          // Delivery already committed; notify is best-effort honesty upgrade.
+        }
+      }
+    } else if (outcome === "failed") result.failed += 1;
     else result.skipped += 1;
   }
 

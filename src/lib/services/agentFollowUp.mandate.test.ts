@@ -6,6 +6,7 @@ const rebuild = vi.fn();
 const sendEmail = vi.fn();
 const emailConfigured = vi.fn();
 const resolveOutreach = vi.fn();
+const notifyDelivered = vi.fn(async () => true);
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -60,13 +61,11 @@ vi.mock("@/lib/money", () => ({
   agorotToShekels: (n: number) => n / 100,
 }));
 
-vi.mock("@/lib/push", () => ({
-  pushToUser: vi.fn(async () => undefined),
+vi.mock("@/lib/services/outreachDeliveredNotify", () => ({
+  notifyUserProviderOutreachDelivered: (...args: unknown[]) => notifyDelivered(...args),
 }));
 
-vi.mock("@/lib/mandate/document", () => ({
-  proofsInboundAddress: () => "proofs@example.com",
-}));
+const notifyDelivered = vi.fn(async () => true);
 
 import { dispatchCaseFollowUp } from "./agentFollowUp";
 
@@ -78,6 +77,8 @@ describe("dispatchCaseFollowUp Mandate attach", () => {
     sendEmail.mockReset();
     emailConfigured.mockReset();
     resolveOutreach.mockReset();
+    notifyDelivered.mockReset();
+    notifyDelivered.mockResolvedValue(true);
     priorCount.mockResolvedValue(0);
     emailConfigured.mockReturnValue(true);
     resolveOutreach.mockReturnValue("provider@example.com");
@@ -115,7 +116,7 @@ describe("dispatchCaseFollowUp Mandate attach", () => {
       { filename: "mandate.html", content: "<html/>" },
       { filename: "inbound.json", content: "{}" },
     ]);
-    sendEmail.mockResolvedValue({ status: "SENT" });
+    sendEmail.mockResolvedValue({ status: "SENT", subject: "זכאי סיבוב 2 — x" });
     const result = await dispatchCaseFollowUp("c1", { replyKind: "delay" });
     expect(result.sent).toBe(true);
     expect(result.delivered).toBe(true);
@@ -127,5 +128,18 @@ describe("dispatchCaseFollowUp Mandate attach", () => {
         ]),
       }),
     );
+    expect(notifyDelivered).toHaveBeenCalledWith(
+      "c1",
+      "זכאי סיבוב 2 — x",
+      expect.objectContaining({ kind: "followup" }),
+    );
+  });
+
+  it("does not notify user when Outbox is only QUEUED", async () => {
+    rebuild.mockResolvedValue([{ filename: "mandate.html", content: "<html/>" }]);
+    sendEmail.mockResolvedValue({ status: "QUEUED", subject: "זכאי סיבוב 2 — x" });
+    const result = await dispatchCaseFollowUp("c1", { replyKind: "delay" });
+    expect(result).toMatchObject({ sent: true, delivered: false });
+    expect(notifyDelivered).not.toHaveBeenCalled();
   });
 });
