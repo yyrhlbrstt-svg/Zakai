@@ -447,10 +447,12 @@ export async function recordSaving(
     const saved = fee.savingMonthly > 0;
 
     // Self-reported / estimate shortcuts never produce a defendable success fee.
-    // Neither does a settle without a machine Mandate jti — 18% of a number with
-    // no signed authority is not a fee this company can defend.
+    // A chargeable settle without a machine Mandate jti must refuse — silently
+    // WAIVING looks like "no fee due" and hides that authority was never bound.
     let billableAmount = selfReported ? 0 : fee.amount;
-    if (billableAmount > 0 && !auth.mandateJti) billableAmount = 0;
+    if (billableAmount > 0 && !auth.mandateJti) {
+      throw new CaseError("MANDATE_REQUIRED");
+    }
     const credit = applyCredit(billableAmount, owner?.referralCreditAgorot ?? 0);
 
     await tx.savingsProof.create({

@@ -426,6 +426,8 @@ export function CheckFlow() {
       router.push(`/money?case=${rec.caseId}&payFee=1`);
     } else if (data.error === "AUTH_REVOKED") {
       setSaveErr("authRevoked");
+    } else if (data.error === "MANDATE_REQUIRED") {
+      setSaveErr("feeMandateRequired");
     } else {
       setSaveErr("genericError");
     }

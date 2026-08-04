@@ -501,6 +501,11 @@ export function CaseNextStep({
         setErr(t(locale, "authRevokedBanner"));
         return;
       }
+      if (data.error === "MANDATE_REQUIRED") {
+        setLocalAuth(false);
+        setErr(t(locale, "feeMandateRequired"));
+        return;
+      }
       throw new Error("save");
     }
     // Fee without Mandate bind: land on pay surface so FeePayButton shows the

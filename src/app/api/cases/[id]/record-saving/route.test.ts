@@ -74,4 +74,19 @@ describe("POST /api/cases/[id]/record-saving", () => {
     expect(body.checkoutError).toBe("MANDATE_REQUIRED");
     expect(body.checkoutUrl).toBeUndefined();
   });
+
+  it("surfaces settle-time MANDATE_REQUIRED from recordSaving", async () => {
+    recordSaving.mockRejectedValue(new CaseError("MANDATE_REQUIRED"));
+    const res = await POST(
+      new Request("http://localhost/api/cases/c1/record-saving", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newAmountShekels: 50 }),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await res.json();
+    expect(res.status).toBe(409);
+    expect(body.error).toBe("MANDATE_REQUIRED");
+  });
 });
