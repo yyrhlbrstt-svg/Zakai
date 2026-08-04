@@ -427,6 +427,13 @@ export async function recordSaving(
   const source = options.source ?? (selfReported ? "estimate" : "manual");
 
   const result = await prisma.$transaction(async (tx) => {
+    // Re-read auth inside the transaction so a concurrent revoke cannot race a fee.
+    const auth = await tx.authorization.findUnique({
+      where: { caseId },
+      select: { status: true, mandateJti: true },
+    });
+    if (!auth || auth.status !== "ACTIVE") throw new CaseError("AUTH_REVOKED");
+
     const owner = await tx.user.findUnique({
       where: { id: userId },
       select: { plan: true, referralCreditAgorot: true, referredById: true },
@@ -440,7 +447,10 @@ export async function recordSaving(
     const saved = fee.savingMonthly > 0;
 
     // Self-reported / estimate shortcuts never produce a defendable success fee.
-    const billableAmount = selfReported ? 0 : fee.amount;
+    // Neither does a settle without a machine Mandate jti — 18% of a number with
+    // no signed authority is not a fee this company can defend.
+    let billableAmount = selfReported ? 0 : fee.amount;
+    if (billableAmount > 0 && !auth.mandateJti) billableAmount = 0;
     const credit = applyCredit(billableAmount, owner?.referralCreditAgorot ?? 0);
 
     await tx.savingsProof.create({
@@ -461,6 +471,7 @@ export async function recordSaving(
         amount: credit.net,
         referralCreditApplied: credit.applied,
         status: credit.net > 0 ? "PENDING" : "WAIVED",
+        mandateJti: auth.mandateJti ?? null,
       },
     });
     if (credit.applied > 0) {

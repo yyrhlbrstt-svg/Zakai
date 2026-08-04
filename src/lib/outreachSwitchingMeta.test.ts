@@ -15,6 +15,7 @@ describe("outreachSwitchingMeta", () => {
       vertical: "telecom",
     });
     expect(block).toContain("mandate_jti: abc-123");
+    expect(block).toContain("mandate_status_list: https://example.test/api/mandate/revocations");
     expect(block).toContain("/api/mandate/status/abc-123");
     expect(block).toContain("pipe_accept:");
     expect(block).toContain("/api/pipe/accept");

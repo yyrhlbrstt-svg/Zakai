@@ -284,6 +284,16 @@ export async function revokeAuthorization(caseId: string, mandateJti?: string) {
     data: { status: "REVOKED", revokedAt: new Date() },
   });
 
+  // Pre-settle cases must not remain SENT after authority is withdrawn —
+  // otherwise recordSaving could still close the loop under a revoked mandate.
+  await prisma.case.updateMany({
+    where: {
+      id: caseId,
+      status: { in: ["ANALYZED", "APPROVED", "VERIFIED", "SENT"] },
+    },
+    data: { status: "REVOKED" },
+  });
+
   if (mandateJti) {
     try {
       await prisma.$transaction((tx) =>

@@ -100,7 +100,13 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
   const normalised = code.trim().toUpperCase();
   const auth = await prisma.authorization.findFirst({
     where: { code: normalised, case: { userId } },
-    select: { code: true, status: true, mandateJti: true, mandateStatusIndex: true },
+    select: {
+      code: true,
+      status: true,
+      mandateJti: true,
+      mandateStatusIndex: true,
+      caseId: true,
+    },
   });
   if (!auth) return { ok: false, reason: "not_found" };
 
@@ -130,6 +136,16 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
   await prisma.authorization.update({
     where: { code: auth.code },
     data: { status: "REVOKED", revokedAt: new Date() },
+  });
+
+  // Close the consumer loop: a pre-settle case under withdrawn authority must
+  // not stay SENT (recordSaving would otherwise still mint a fee).
+  await prisma.case.updateMany({
+    where: {
+      id: auth.caseId,
+      status: { in: ["ANALYZED", "APPROVED", "VERIFIED", "SENT"] },
+    },
+    data: { status: "REVOKED" },
   });
 
   if (auth.mandateJti) {

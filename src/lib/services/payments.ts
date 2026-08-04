@@ -24,6 +24,8 @@ export async function initiateFeePayment(
   const fee = kase.fee;
   if (fee.status === "PAID") throw new PaymentError("ALREADY_PAID");
   if (fee.status === "WAIVED" || fee.amount <= 0) throw new PaymentError("NOTHING_TO_COLLECT");
+  // Never collect a success fee that is not bound to the Mandate that authorized the act.
+  if (!fee.mandateJti) throw new PaymentError("MANDATE_REQUIRED");
 
   const provider = paymentProvider();
   const loc = encodeURIComponent(locale);

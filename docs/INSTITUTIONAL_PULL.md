@@ -15,7 +15,7 @@
 | נכס | למה בלי זה כואב |
 |-----|------------------|
 | JWKS + trust registry | אין מי מאמת את החתימה |
-| Revocation (`/api/mandate/status/{jti}`) | סיכון fail-open על מנדט שבוטל |
+| Revocation (signed `/api/mandate/revocations`; live `/status/{jti}` legacy) | סיכון fail-open על מנדט שבוטל |
 | `decide` + test vectors | כל בנק ממציא מדיניות scope אחרת → תאונות |
 | Settlement chain (`zks`) | ויכוח «מי אמר מה» בלי עדים חתומים |
 

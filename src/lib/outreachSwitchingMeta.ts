@@ -53,6 +53,7 @@ export function buildOutreachProtocolFooter(input: {
   ];
   if (input.mandateJti) {
     lines.push(`mandate_jti: ${input.mandateJti}`);
+    lines.push(`mandate_status_list: ${base}/api/mandate/revocations`);
     lines.push(`mandate_status: ${base}/api/mandate/status/${input.mandateJti}`);
   }
   lines.push(`mandate_jwks: ${base}/.well-known/zakai-jwks.json`);
