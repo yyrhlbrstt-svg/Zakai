@@ -8,9 +8,7 @@ import { CaseError } from "./cases";
 describe("recordSaving auth doctrine", () => {
   it("refuses when authorization is not ACTIVE", () => {
     const status: string = "REVOKED";
-    const mandateJti = "jti-1";
     expect(() => {
-      if (status !== "ACTIVE" || !mandateJti) throw new CaseError("AUTH_REVOKED");
       if (status !== "ACTIVE") throw new CaseError("AUTH_REVOKED");
     }).toThrow("AUTH_REVOKED");
   });
