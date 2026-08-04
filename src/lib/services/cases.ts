@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { shekelsToAgorot, formatAgorot } from "@/lib/money";
+import { shekelsToAgorot } from "@/lib/money";
 import { computeCaseSuccessFee, documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
@@ -21,7 +21,13 @@ import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
 import { pushToUser } from "@/lib/push";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
-import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
+import {
+  FEE_DISPUTE_WINDOW_DAYS,
+  feeConfirmAbsoluteUrl,
+  feeConfirmDashboardPath,
+  feeConfirmationBody,
+} from "@/lib/feeConfirmNotify";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { withFooter } from "@/lib/letterFooter";
 import {
   institutionPipeMagnetLine,
@@ -29,21 +35,15 @@ import {
   institutionSalesEmail,
 } from "@/lib/institutionPull";
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
-import { publicSupportEmail } from "@/lib/contact";
 import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
 import { mandateAttachClaimLine } from "@/lib/services/outreachAttachments";
 
 export class CaseError extends Error {}
 
-/** Days a customer has to dispute a success-fee charge (see Trust page). */
-export const FEE_DISPUTE_WINDOW_DAYS = 14;
+export { FEE_DISPUTE_WINDOW_DAYS };
 
 function marketForCase(vertical: string): string {
   return getRulePack(vertical)?.country ?? "IL";
-}
-
-function supportEmail(): string {
-  return publicSupportEmail();
 }
 
 function appBaseUrl(): string {
@@ -537,7 +537,13 @@ export async function recordSaving(
       select: { email: true, name: true, country: true },
     });
     if (user) {
-      const payUrl = feePayAbsoluteUrl(appBaseUrl(), user.country, caseId);
+      // Settle required ACTIVE Mandate + jti — still pass flags explicitly so
+      // mock PSP cannot invent payFee=1 / "מאובטח" (cron already gates this).
+      const paymentsLive = paymentsFullyLive();
+      const payUrl = feeConfirmAbsoluteUrl(appBaseUrl(), user.country, caseId, {
+        mandateActive: true,
+        paymentsLive,
+      });
       await sendEmail({
         to: user.email,
         subject: `זכאי — אישור חיסכון ועמלת הצלחה (${providerHebrewName(kase.provider)})`,
@@ -552,6 +558,7 @@ export async function recordSaving(
           creditAgorot: result.creditApplied,
           netFeeAgorot: result.feeNet,
           payUrl,
+          paymentsLive,
         }),
         caseId,
       });
@@ -564,12 +571,18 @@ export async function recordSaving(
       where: { id: userId },
       select: { country: true },
     });
-    const dashPay = feePayDashboardPath(localeForCountry(profile?.country), caseId);
+    const paymentsLive = paymentsFullyLive();
+    const dashPay = feeConfirmDashboardPath(localeForCountry(profile?.country), caseId, {
+      mandateActive: true,
+      paymentsLive,
+    });
     await pushToUser(userId, {
       title: "זכאי — חיסכון מתועד",
       body:
         result.feeNet > 0
-          ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת ב״הכסף שלי״.`
+          ? paymentsLive
+            ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת ב״הכסף שלי״.`
+            : `תועד חיסכון ₪${savingShekels}. המשיכו ב״הכסף שלי״ (גבייה חיה עדיין לא מוגדרת).`
           : `תועד חיסכון של ₪${savingShekels}. שתף או המשך ב״הכסף שלי״.`,
       url: result.feeNet > 0 ? dashPay : `/money?case=${caseId}`,
       tag: `saved-${caseId}`,
@@ -577,42 +590,4 @@ export async function recordSaving(
   }
 
   return result;
-}
-
-function feeConfirmationBody(p: {
-  name: string;
-  provider: string;
-  originalAgorot: number;
-  newAgorot: number;
-  savingAgorot: number;
-  rateBps: number;
-  grossFeeAgorot: number;
-  creditAgorot: number;
-  netFeeAgorot: number;
-  payUrl?: string;
-}): string {
-  const f = (a: number) => formatAgorot(a, "he-IL");
-  const pct = `${(p.rateBps / 100).toLocaleString("he-IL", { maximumFractionDigits: 2 })}%`;
-  const creditLines =
-    p.creditAgorot > 0
-      ? `• עמלת הצלחה (${pct}): ${f(p.grossFeeAgorot)}
-• זיכוי חבר מביא חבר: −${f(p.creditAgorot)}
-• סה"כ לחיוב: ${f(p.netFeeAgorot)}`
-      : `• עמלת הצלחה (${pct}): ${f(p.netFeeAgorot)}`;
-  return `שלום ${p.name},
-
-תיעדנו חיסכון בפנייה שביצע זכאי בשמך מול ${providerHebrewName(p.provider)}, ובהתאם למסלול שלך נגבית עמלת הצלחה של ${pct} מהחיסכון המתועד בלבד.
-
-פירוט:
-• סכום חודשי מקורי: ${f(p.originalAgorot)}
-• סכום חודשי חדש: ${f(p.newAgorot)}
-• חיסכון חודשי מתועד: ${f(p.savingAgorot)}
-${creditLines}
-
-ערעור על החיוב: אם לדעתך החיסכון לא מומש בפועל, יש לך ${FEE_DISPUTE_WINDOW_DAYS} ימים מתאריך הודעה זו לפנות אלינו לבדיקה, ואם יתברר שהחיסכון לא נכנס לתוקף — העמלה תבוטל או תוחזר. לפנייה: ${supportEmail()}
-${p.payUrl ? `\nלתשלום עמלת ההצלחה (חד-פעמי, מאובטח): ${p.payUrl}\n` : ""}
-זכאי הוא שירות סוכן דיגיטלי אוטומטי הפועל מטעמך בהרשאתך. אין באמור ייעוץ משפטי, פיננסי או ביטוחי.
-
-בברכה,
-צוות זכאי`;
 }
