@@ -6,7 +6,7 @@ const rebuild = vi.fn();
 const sendEmail = vi.fn();
 const emailConfigured = vi.fn();
 const resolveOutreach = vi.fn();
-const notifyDelivered = vi.fn(async () => true);
+const notifyDelivered = vi.fn();
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -64,8 +64,6 @@ vi.mock("@/lib/money", () => ({
 vi.mock("@/lib/services/outreachDeliveredNotify", () => ({
   notifyUserProviderOutreachDelivered: (...args: unknown[]) => notifyDelivered(...args),
 }));
-
-const notifyDelivered = vi.fn(async () => true);
 
 import { dispatchCaseFollowUp } from "./agentFollowUp";
 

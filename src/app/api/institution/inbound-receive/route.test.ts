@@ -53,6 +53,7 @@ describe("POST /api/institution/inbound-receive", () => {
         aud: "bank-demo",
         scopes: ["dispute:charge"],
       },
+      issuer: { iss: "https://issuer.example", jwksUri: "https://issuer.example/.well-known/zakai-jwks.json" },
     });
   });
 
