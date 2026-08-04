@@ -142,7 +142,7 @@ const rights: RightDef[] = [
     "eu_deposit_return",
     "housing",
     renting,
-    "National tenancy law implementing consumer / housing protections in the relevant Member State; deposit return on end of tenancy",
+    "No EU-harmonized deposit-protection rule exists — tenancy deposits remain Member State competence; enforceable under the relevant national tenancy law",
     {
       kind: "letter",
       recipient: "landlord",
@@ -168,7 +168,7 @@ const rights: RightDef[] = [
     "eu_student_mobility",
     "education",
     student,
-    "Relevant Member State student finance / EU mobility programmes — status confirmation only",
+    "No EU-harmonized student-finance right exists — student grants/loans remain Member State competence; Erasmus+ mobility grants are EU-administered but this entry is a status-confirmation request, not a legal claim",
     {
       kind: "letter",
       recipient: "trader",
@@ -181,7 +181,7 @@ const rights: RightDef[] = [
     "eu_disability_access",
     "health",
     disability,
-    "Directive (EU) 2019/882 (European Accessibility Act) / equal treatment frameworks as implemented nationally",
+    "Directive (EU) 2019/882 (European Accessibility Act) — accessibility requirements for products and services",
     {
       kind: "letter",
       recipient: "trader",

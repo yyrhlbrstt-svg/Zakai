@@ -47,7 +47,7 @@ const rights: RightDef[] = [
     "xx_refund_chase",
     "consumer",
     always,
-    "United Nations Guidelines for Consumer Protection (2015) — effective redress for defective goods/services",
+    "United Nations Guidelines for Consumer Protection (2015) — effective redress for defective goods/services; local consumer-protection law where enacted",
     { kind: "tool", tool: "/refund-chase" },
   ),
   right(
@@ -100,7 +100,7 @@ const rights: RightDef[] = [
     "xx_deposit_return",
     "housing",
     renting,
-    "Local residential tenancy law — return of security deposit at end of tenancy",
+    "Local residential tenancy law — return of security deposit at end of tenancy (jurisdiction-specific; no universal rule)",
     {
       kind: "letter",
       recipient: "landlord",

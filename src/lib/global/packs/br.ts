@@ -25,6 +25,9 @@ const RECIPIENTS: Record<string, string> = {
   banco: "{counterparty}\nOuvidoria / SAC",
   fornecedor: "{counterparty}\nSAC / Ouvidoria",
   locador: "{counterparty}",
+  // A CLT labor dispute goes to the employer's HR department, not a
+  // consumer-service/ombudsman channel (SAC/Ouvidoria is for suppliers).
+  empregador: "{counterparty}\nDepartamento de Pessoal / RH",
 };
 
 const IDENTITY = "Eu, {name}, CPF {id}.";
@@ -47,7 +50,7 @@ const rights: RightDef[] = [
     subject: "Bolsa Família — revisão de benefício",
     body: `${IDENTITY}\n\nSolicito revisão do meu benefício Bolsa Família e pagamento de valores eventualmente devidos.`,
   }),
-  right("br_bpc", "social_security", any(disability, all(senior, lowIncome)), "Lei Orgânica da Assistência Social — BPC/LOAS", {
+  right("br_bpc", "social_security", any(disability, all(senior, lowIncome)), "Lei Orgânica da Assistência Social (Lei nº 8.742/1993) — BPC/LOAS", {
     kind: "letter",
     recipient: "inss",
     fields: ["municipality", "details"],
@@ -65,7 +68,7 @@ const rights: RightDef[] = [
     kind: "tool",
     tool: "/cancel",
   }),
-  right("br_tarifas_bancarias", "banking", always, "CDC / normas do Banco Central — tarifas", {
+  right("br_tarifas_bancarias", "banking", always, "Resolução CMN nº 3.919/2010 (normas sobre cobrança de tarifas bancárias)", {
     kind: "letter",
     recipient: "banco",
     fields: ["counterparty", "accountNumber"],
@@ -74,7 +77,7 @@ const rights: RightDef[] = [
   }),
   right("br_trabalho", "work", working, "CLT — verbas e comprovantes", {
     kind: "letter",
-    recipient: "fornecedor",
+    recipient: "empregador",
     fields: ["counterparty", "details"],
     subject: "Documentação trabalhista / verbas",
     body: `${IDENTITY}\n\nSolicito documentação e esclarecimentos sobre verbas descritas abaixo.\n\n{details}`,

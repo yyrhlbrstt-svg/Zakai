@@ -24,6 +24,11 @@ const RECIPIENTS: Record<string, string> = {
   bank: "{counterparty}\nCustomer Care / Grievance",
   trader: "{counterparty}\nCustomer Care",
   landlord: "{counterparty}",
+  // NSAP, old-age pension, and family assistance schemes are centrally
+  // sponsored but administered by each state through its own Social Welfare
+  // Department / District Social Welfare Officer — not EPFO, which has no
+  // role here (EPFO only administers employer-linked provident fund/pension).
+  socialWelfare: "District Social Welfare Officer\n{municipality}",
 };
 
 const IDENTITY = "I am {name}. My PAN / Aadhaar reference (last four) is {id}.";
@@ -64,24 +69,24 @@ const rights: RightDef[] = [
     subject: "Refund of security deposit",
     body: `${IDENTITY}\n\nThe tenancy has ended. Please refund my security deposit or itemise lawful deductions.\n\n{details}`,
   }),
-  right("in_senior_pension_inquiry", "senior", senior, "National Social Assistance Programme / state old-age pension schemes", {
+  right("in_senior_pension_inquiry", "senior", senior, "National Social Assistance Programme (Indira Gandhi National Old Age Pension Scheme) / state old-age pension schemes", {
     kind: "letter",
-    recipient: "epfo",
+    recipient: "socialWelfare",
     fields: ["municipality", "details"],
     subject: "Old-age pension / NSAP — status",
     body: `${IDENTITY}\n\nPlease confirm the status of my old-age pension application/payment.\n\n{details}`,
   }),
   right("in_family_support", "family", any(parent, lowIncome), "State / central social assistance schemes for families", {
     kind: "letter",
-    recipient: "epfo",
+    recipient: "socialWelfare",
     fields: ["municipality", "details"],
     subject: "Family assistance — entitlement check",
     body: `${IDENTITY}\n\nPlease advise on applicable family assistance and any arrears.\n\n{details}`,
   }),
   right("in_disability", "health", disability, "Rights of Persons with Disabilities Act, 2016 — benefits inquiry", {
     kind: "letter",
-    recipient: "trader",
-    fields: ["counterparty", "details"],
+    recipient: "socialWelfare",
+    fields: ["municipality", "details"],
     subject: "Disability-related benefit / accommodation — written response",
     body: `${IDENTITY}\n\nPlease respond in writing regarding the disability-related matter below.\n\n{details}`,
   }),

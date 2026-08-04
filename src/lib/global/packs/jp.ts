@@ -46,7 +46,7 @@ const rights: RightDef[] = [
     subject: "口座手数料の明細請求（{accountNumber}）",
     body: `${IDENTITY}\n\n口座{accountNumber}の過去12か月の手数料明細を開示し、誤った引落しがあれば返還してください。`,
   }),
-  right("jp_deposit", "housing", renting, "民法 / 宅地建物取引業法実務 — 敷金精算", {
+  right("jp_deposit", "housing", renting, "民法第622条の2 — 敷金返還請求権", {
     kind: "letter",
     recipient: "landlord",
     fields: ["counterparty", "details"],
@@ -67,7 +67,7 @@ const rights: RightDef[] = [
     subject: "賃金・明細の確認請求",
     body: `${IDENTITY}\n\n下記事項について賃金明細の開示と是正を求めます。\n\n{details}`,
   }),
-  right("jp_warranty", "consumer", always, "消費者契約法 / 品確法 — 契約不適合", {
+  right("jp_warranty", "consumer", always, "民法第562条〜第564条（契約不適合責任）／ 消費者契約法", {
     kind: "tool",
     tool: "/warranty",
   }),

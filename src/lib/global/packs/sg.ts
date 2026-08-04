@@ -46,21 +46,21 @@ const rights: RightDef[] = [
     kind: "tool",
     tool: "/cancel",
   }),
-  right("sg_bank_fees", "banking", always, "Banking Act / MAS fair dealing — fee disputes", {
+  right("sg_bank_fees", "banking", always, "Banking Act 1970; unresolved disputes escalate to FIDReC (Financial Industry Disputes Resolution Centre)", {
     kind: "letter",
     recipient: "bank",
     fields: ["counterparty", "accountNumber"],
     subject: "Account fees — {accountNumber}",
     body: `${IDENTITY}\n\nPlease provide a fee breakdown for account {accountNumber} and reverse incorrect charges.`,
   }),
-  right("sg_deposit", "housing", renting, "Residential tenancy practice / contract — security deposit return", {
+  right("sg_deposit", "housing", renting, "No statutory deposit-protection scheme in Singapore — contractual claim, enforceable via the Small Claims Tribunals Act 1984 (claims up to S$20,000)", {
     kind: "letter",
     recipient: "landlord",
     fields: ["counterparty", "details"],
     subject: "Return of security deposit",
     body: `${IDENTITY}\n\nThe tenancy has ended. Please return my deposit or itemise lawful deductions.\n\n{details}`,
   }),
-  right("sg_cpf_retirement", "senior", senior, "Central Provident Fund Act — retirement-related withdrawals / payouts", {
+  right("sg_cpf_retirement", "senior", senior, "Central Provident Fund Act 1953 — retirement-related withdrawals / payouts", {
     kind: "letter",
     recipient: "cpf",
     fields: ["municipality"],

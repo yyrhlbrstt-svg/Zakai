@@ -23,6 +23,9 @@ const RECIPIENTS: Record<string, string> = {
   banco: "{counterparty}\nUNE / Atención a clientes",
   proveedor: "{counterparty}\nAtención a clientes",
   arrendador: "{counterparty}",
+  // Federal family/welfare programs are run by the Secretaría de Bienestar,
+  // not IMSS (which only administers employment-linked social security).
+  bienestar: "Secretaría de Bienestar\n{municipality}",
 };
 
 const IDENTITY = "Soy {name}. Mi CURP / referencia es {id}.";
@@ -70,9 +73,9 @@ const rights: RightDef[] = [
     subject: "Devolución de depósito en garantía",
     body: `${IDENTITY}\n\nEl arrendamiento terminó. Solicito la devolución del depósito o el desglose legal de retenciones.\n\n{details}`,
   }),
-  right("mx_familia", "family", any(parent, lowIncome), "Programas sociales federales / estatales — verificación de apoyo", {
+  right("mx_familia", "family", any(parent, lowIncome), "Ley General de Desarrollo Social — Programas para el Bienestar (Secretaría de Bienestar)", {
     kind: "letter",
-    recipient: "imss",
+    recipient: "bienestar",
     fields: ["municipality", "details"],
     subject: "Apoyo familiar — verificación",
     body: `${IDENTITY}\n\nSolicito verificación de apoyos familiares aplicables.\n\n{details}`,

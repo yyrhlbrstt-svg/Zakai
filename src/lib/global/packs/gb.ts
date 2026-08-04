@@ -98,7 +98,7 @@ Please apply the allowance for the current tax year and backdate the claim acros
     "employment_expenses_relief",
     "tax",
     employee,
-    "Income Tax (Earnings and Pensions) Act 2003, s. 336 and s. 367",
+    "Income Tax (Earnings and Pensions) Act 2003, s. 336 (deductions for expenses: the general rule)",
     {
       kind: "letter",
       recipient: "hmrc",
@@ -145,7 +145,7 @@ Please give the additional relief due at my marginal rate for the current and al
     "council_tax_single_person",
     "municipal",
     all(not(partnered), num("dependents", { lte: 0 })),
-    "Local Government Finance Act 1992, s. 11(2)(a)",
+    "Local Government Finance Act 1992, s. 11(1)",
     {
       kind: "letter",
       recipient: "council",
@@ -161,7 +161,7 @@ Please apply the 25% single person discount, backdate it to the date the sole oc
     "council_tax_reduction",
     "municipal",
     lowIncome,
-    "Local Government Finance Act 1992, s. 13A(1)(a) and local CTR scheme",
+    "Local Government Finance Act 1992, s. 13A(2) and Schedule 1A (local Council Tax Reduction scheme)",
     {
       kind: "letter",
       recipient: "council",
@@ -325,7 +325,7 @@ Please confirm whether the rebate has been applied for the current scheme year, 
     "energy_billing_review",
     "energy",
     always,
-    "Gas and Electricity (Consumer Protection) — Ofgem standard licence conditions; Limitation Act 1980, s. 5",
+    "Ofgem Standard Licence Conditions 21B (billing based on meter readings), 21BA (backbilling) and 4D (credit balance protection); Limitation Act 1980, s. 5",
     {
       kind: "letter",
       recipient: "energy_supplier",
@@ -349,7 +349,7 @@ Please refund any credit balance held, and correct any charge based on an estima
     "subscription_audit",
     "consumer",
     always,
-    "Consumer Rights Act 2015; Payment Services Regulations 2017, reg. 79 (cancelling a continuous payment authority)",
+    "Consumer Rights Act 2015; Payment Services Regulations 2017, reg. 67 (withdrawal of consent to a continuous payment authority)",
     { kind: "tool", tool: "/cancel" },
   ),
   right(
@@ -516,15 +516,15 @@ If the deposit was not protected within the statutory period, please confirm how
     "app_fraud_refund_claim",
     "banking",
     always,
-    "Payment Services Regulations 2017; Contingent Reimbursement Model Code for Authorised Push Payment scams (CRM Code) as adopted by participating PSP members",
+    "PSR Specific Direction 20 (Faster Payments) / 21 (CHAPS) — mandatory APP scam reimbursement, effective 7 October 2024 (supersedes the voluntary CRM Code for in-scope payments)",
     {
       kind: "letter",
       recipient: "bank",
       fields: ["counterparty", "accountNumber", "details"],
-      subject: "Authorised push payment scam — reimbursement request — account {accountNumber}",
+      subject: "Authorised push payment scam — mandatory reimbursement claim — account {accountNumber}",
       body: `${IDENTITY} I was deceived into authorising a payment from account {accountNumber}. Particulars: {details}
 
-Please confirm whether you participate in the Contingent Reimbursement Model Code, apply the relevant reimbursement assessment, and set out in writing the outcome and any refund timeline.`,
+This payment falls under the PSR's mandatory APP scam reimbursement requirement (in force since 7 October 2024). Please assess my claim under that scheme, confirm the outcome in writing, and set out any excess applied and the refund timeline.`,
     },
   ),
   right(
