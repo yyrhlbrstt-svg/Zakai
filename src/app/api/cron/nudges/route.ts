@@ -11,6 +11,7 @@ import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { localeForCountry } from "@/lib/localePath";
 import { isMandateBlockedFollowUpReason } from "@/lib/followUpSendUi";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import {
   cohortLearning,
   followUpAfterDays,
@@ -427,9 +428,22 @@ ${moneyUrl}
       if (recent) continue;
 
       const mandateActive = fee.case.authorization?.status === "ACTIVE";
-      const payUrl = feePayAbsoluteUrl(appUrl, u.country, fee.case.id, mandateActive);
-      const body = mandateActive
+      const paymentsLive = paymentsFullyLive();
+      const payUrl = feePayAbsoluteUrl(appUrl, u.country, fee.case.id, {
+        mandateActive,
+        paymentsLive,
+      });
+      const body = !mandateActive
         ? `שלום ${u.name},
+
+תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה, אבל אין Mandate פעיל על התיק.
+
+פתחו את ״הכסף שלי״, אשרו הרשאה מחדש ואז שלמו:
+${payUrl}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`
+        : paymentsLive
+          ? `שלום ${u.name},
 
 תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה (רק על מה שנחסך בפועל).
 
@@ -439,12 +453,14 @@ ${payUrl}
 שאלות או ערעור בתוך 14 יום — השב למייל זה.
 
 זכאי — הכסף שמגיע לך חוזר אליך.`
-        : `שלום ${u.name},
+          : `שלום ${u.name},
 
-תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה, אבל אין Mandate פעיל על התיק.
+תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה (רק על מה שנחסך בפועל).
 
-פתחו את ״הכסף שלי״, אשרו הרשאה מחדש ואז שלמו:
+לסיום ב״הכסף שלי״ (אין גבייה חיה עדיין — לא נגבה כרטיס אמיתי):
 ${payUrl}
+
+שאלות או ערעור בתוך 14 יום — השב למייל זה.
 
 זכאי — הכסף שמגיע לך חוזר אליך.`;
       await sendEmail({
@@ -455,10 +471,15 @@ ${payUrl}
       });
       await pushToUser(fee.case.userId, {
         title: mandateActive ? "עמלת הצלחה ממתינה" : "Mandate לא פעיל — עמלה ממתינה",
-        body: mandateActive
-          ? "תשלום בלחיצה אחת — רק על חיסכון מתועד."
-          : "אשרו הרשאה מחדש ב״הכסף שלי״ ואז שלמו.",
-        url: feePayDashboardPath(localeForCountry(u.country), fee.case.id, mandateActive),
+        body: !mandateActive
+          ? "אשרו הרשאה מחדש ב״הכסף שלי״ ואז שלמו."
+          : paymentsLive
+            ? "תשלום בלחיצה אחת — רק על חיסכון מתועד."
+            : "המשיכו ב״הכסף שלי״ — גבייה חיה עדיין לא מוגדרת.",
+        url: feePayDashboardPath(localeForCountry(u.country), fee.case.id, {
+          mandateActive,
+          paymentsLive,
+        }),
         tag: `fee-nudge-${fee.case.id}`,
       }).catch(() => null);
       seenFeeUser.add(fee.case.userId);

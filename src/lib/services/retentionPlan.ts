@@ -125,7 +125,8 @@ export async function loadRetentionPlan(userId: string) {
   const ranked = rankNextAction(await buildRankedCaseInputs(cases, agentRounds), proposedHints);
   if (ranked.kind === "start_money") return actions;
 
-  const deep = nextActionHref(ranked);
+  const { paymentsFullyLive } = await import("@/lib/deploy/releaseGate");
+  const deep = nextActionHref(ranked, { paymentsLive: paymentsFullyLive() });
   return actions.map((a) => {
     if (
       a.kind === "complete_send" ||

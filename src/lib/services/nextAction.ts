@@ -169,11 +169,16 @@ export function rankNextAction(
 }
 
 /** Path the assistant must end with (enforced in ask route). */
-export function nextActionHref(action: RankedNextAction): string {
+export function nextActionHref(
+  action: RankedNextAction,
+  opts?: { paymentsLive?: boolean },
+): string {
   switch (action.kind) {
     case "pending_fee":
-      // Checkout mounts on the /money finish surface (FeePayButton + payFee=1).
-      return `/money?case=${action.caseId}&payFee=1`;
+      // Invent payFee=1 only when a real PSP is live — mock must not auto-checkout.
+      return opts?.paymentsLive === true
+        ? `/money?case=${action.caseId}&payFee=1`
+        : `/money?case=${action.caseId}`;
     case "proposed_saving":
     case "sent_exhausted":
     case "needs_outreach":
@@ -198,10 +203,15 @@ export function ensureReplyEndsWithNextAction(answer: string, href: string): str
 }
 
 /** Human/agent snapshot line — assistant must end replies with that path. */
-export function nextActionInstruction(action: RankedNextAction): string {
+export function nextActionInstruction(
+  action: RankedNextAction,
+  opts?: { paymentsLive?: boolean },
+): string {
   switch (action.kind) {
-    case "pending_fee":
-      return `NEXT_ACTION: Collect success fee — /money?case=${action.caseId}&payFee=1 (₪${(action.feeAmountAgorot / 100).toFixed(2)} pending).`;
+    case "pending_fee": {
+      const href = nextActionHref(action, opts);
+      return `NEXT_ACTION: Collect success fee — ${href} (₪${(action.feeAmountAgorot / 100).toFixed(2)} pending).`;
+    }
     case "proposed_saving":
       return `NEXT_ACTION: One-tap record SavingsProof — /money?case=${action.caseId} (proposed ₪${action.newAmountShekels}). Do NOT invent amounts. Do NOT open a new case.`;
     case "sent_exhausted":

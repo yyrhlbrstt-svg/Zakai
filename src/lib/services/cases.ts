@@ -525,7 +525,7 @@ export async function recordSaving(
     });
     if (user) {
       // Settle required ACTIVE Mandate + jti — still pass flags explicitly so
-      // mock PSP cannot invent payFee=1 / "מאובטח" (cron already gates this).
+      // mock PSP cannot invent payFee=1 / "מאובטח" (same bar as cron fee nudges).
       const paymentsLive = paymentsFullyLive();
       const payUrl = feeConfirmAbsoluteUrl(appBaseUrl(), user.country, caseId, {
         mandateActive: true,

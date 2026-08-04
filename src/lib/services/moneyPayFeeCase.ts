@@ -1,9 +1,11 @@
+import { feeConfirmAutoCheckout } from "@/lib/feeConfirmNotify";
 import { isPendingSuccessFee } from "@/lib/pendingSuccessFee";
 
 /**
- * Which case's FeePayButton auto-starts / mounts on /money?payFee=1.
+ * Which case's FeePayButton mounts on /money.
  * Focus wins only when that case has a PENDING fee **and** ACTIVE Mandate —
- * otherwise checkout refuses (#88) and autoStart is a dead-end loop.
+ * otherwise checkout refuses (#88). Mock PSP may still mount for manual E2E;
+ * autoStart / payFee=1 is gated separately via paymentsLive.
  */
 export function resolveMoneyPayFeeCaseId(opts: {
   payFee: boolean;
@@ -26,14 +28,15 @@ export function resolveMoneyPayFeeCaseId(opts: {
 }
 
 /**
- * Strip / deep-link for a PENDING fee: checkout only when Mandate is ACTIVE.
- * Inactive → case finish surface (reissue) without inventing payFee=1.
+ * Strip / deep-link for a PENDING fee: invent payFee=1 only when Mandate is
+ * ACTIVE and a real PSP is configured. Otherwise land on the case surface.
  */
 export function moneyPendingFeeHref(opts: {
   caseId: string;
   mandateActive: boolean;
+  paymentsLive: boolean;
 }): string {
-  return opts.mandateActive
+  return feeConfirmAutoCheckout(opts)
     ? `/money?case=${opts.caseId}&payFee=1`
     : `/money?case=${opts.caseId}`;
 }

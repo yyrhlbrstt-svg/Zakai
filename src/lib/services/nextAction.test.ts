@@ -221,10 +221,16 @@ describe("nextActionHref", () => {
     );
   });
 
-  it("keeps fee collection on dashboard checkout", () => {
+  it("invents payFee=1 for fee collection only when payments are live", () => {
+    expect(
+      nextActionHref(
+        { kind: "pending_fee", caseId: "c1", feeAmountAgorot: 1800 },
+        { paymentsLive: true },
+      ),
+    ).toBe("/money?case=c1&payFee=1");
     expect(
       nextActionHref({ kind: "pending_fee", caseId: "c1", feeAmountAgorot: 1800 }),
-    ).toBe("/money?case=c1&payFee=1");
+    ).toBe("/money?case=c1");
   });
 });
 

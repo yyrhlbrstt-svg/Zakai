@@ -27,6 +27,12 @@ vi.mock("@/lib/money", () => ({
   agorotToShekels: (n: number) => n / 100,
 }));
 
+const paymentsFullyLive = vi.fn(() => false);
+
+vi.mock("@/lib/deploy/releaseGate", () => ({
+  paymentsFullyLive: () => paymentsFullyLive(),
+}));
+
 import { POST } from "./route";
 import { CaseError } from "@/lib/services/cases";
 import { PaymentError } from "@/lib/services/payments";
@@ -36,6 +42,8 @@ describe("POST /api/cases/[id]/record-saving", () => {
     requireUserId.mockReset();
     recordSaving.mockReset();
     initiateFeePayment.mockReset();
+    paymentsFullyLive.mockReset();
+    paymentsFullyLive.mockReturnValue(false);
     requireUserId.mockResolvedValue({ userId: "u1" });
   });
 
@@ -55,6 +63,7 @@ describe("POST /api/cases/[id]/record-saving", () => {
   });
 
   it("surfaces checkoutError MANDATE_REQUIRED without failing the settle", async () => {
+    paymentsFullyLive.mockReturnValue(true);
     recordSaving.mockResolvedValue({
       fee: { savingMonthly: 10000 },
       feeNet: 1800,
@@ -73,6 +82,28 @@ describe("POST /api/cases/[id]/record-saving", () => {
     expect(body.ok).toBe(true);
     expect(body.checkoutError).toBe("MANDATE_REQUIRED");
     expect(body.checkoutUrl).toBeUndefined();
+  });
+
+  it("does not mint mock checkoutUrl for auto-redirect when PSP is not live", async () => {
+    paymentsFullyLive.mockReturnValue(false);
+    recordSaving.mockResolvedValue({
+      fee: { savingMonthly: 10000 },
+      feeNet: 1800,
+    });
+    const res = await POST(
+      new Request("http://localhost/api/cases/c1/record-saving", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newAmountShekels: 50 }),
+      }),
+      { params: Promise.resolve({ id: "c1" }) },
+    );
+    const body = await res.json();
+    expect(res.status).toBe(200);
+    expect(body.chargeable).toBe(true);
+    expect(body.paymentsLive).toBe(false);
+    expect(body.checkoutUrl).toBeUndefined();
+    expect(initiateFeePayment).not.toHaveBeenCalled();
   });
 
   it("surfaces settle-time MANDATE_REQUIRED from recordSaving", async () => {

@@ -124,7 +124,9 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
     };
   });
   const ranked = rankNextAction(rankedInputs, proposedHints);
-  const href = nextActionHref(ranked);
+  const { paymentsFullyLive } = await import("@/lib/deploy/releaseGate");
+  const paymentsLive = paymentsFullyLive();
+  const href = nextActionHref(ranked, { paymentsLive });
 
   const openLoops = cases
     .filter((c) => ACTIVE.has(c.status))
@@ -274,7 +276,7 @@ export async function buildAssistantCasesSnapshot(userId: string): Promise<strin
 
   lines.push(
     "",
-    nextActionInstruction(ranked),
+    nextActionInstruction(ranked, { paymentsLive }),
     `NEXT_ACTION_HREF: ${href}`,
     "",
     "RULE: NEXT_ACTION wins over every other suggestion. End every reply with exactly that one link and nothing else after it. Match the on-screen next-action panel. Prefer LEARNING / BEST_STANCE when coaching written follow-ups — never invent savings.",

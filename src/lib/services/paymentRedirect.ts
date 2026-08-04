@@ -1,12 +1,13 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { localeForCountry, localePath, parseLocaleParam } from "@/lib/localePath";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 
 /**
  * Redirect after PSP return.
  * Paid → /money finish surface (share unlocks there).
  * Confirming → /money while webhook may still be in flight (never claim paid from GET).
- * Error → /money checkout retry (same surface).
+ * Error → /money checkout retry when a real PSP is live (never invent payFee under mock).
  */
 export async function dashboardFeeRedirectPath(
   feeParam: "paid" | "error" | "confirming",
@@ -47,10 +48,12 @@ export async function dashboardFeeRedirectPath(
   }
 
   if (caseId) {
-    return localePath(
-      locale,
-      `/money?case=${encodeURIComponent(caseId)}&payFee=1&fee=error`,
-    );
+    const q = new URLSearchParams({
+      case: caseId,
+      fee: "error",
+    });
+    if (paymentsFullyLive()) q.set("payFee", "1");
+    return localePath(locale, `/money?${q.toString()}`);
   }
   return localePath(locale, "/money?fee=error");
 }

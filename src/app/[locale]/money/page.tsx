@@ -35,6 +35,7 @@ import {
 } from "@/lib/services/moneyPayFeeCase";
 import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 
 export async function generateMetadata({
   params,
@@ -86,6 +87,7 @@ export default async function MoneyPage({
   /** Settled SAVED with proof — mount share finish even when openLoop is false. */
   let shareCaseId: string | null = null;
   let payFeeCaseId: string | null = null;
+  const paymentsLive = paymentsFullyLive();
   let personalDocumented = {
     count: 0,
     monthlyAgorot: 0,
@@ -136,7 +138,7 @@ export default async function MoneyPage({
     const action = rankNextAction(rankedCases, proposedHints);
     openLoop = action.kind !== "start_money";
     if (openLoop) {
-      openLoopHref = nextActionHref(action);
+      openLoopHref = nextActionHref(action, { paymentsLive });
       const focus =
         "caseId" in action ? cases.find((c) => c.id === action.caseId) : null;
       const provider = focus ? providerHebrewName(focus.provider) : "";
@@ -182,10 +184,9 @@ export default async function MoneyPage({
         return sum;
       }, 0),
     };
-    // Never invent payFee=1 when Mandate is inactive — ranker already routes
-    // that state to mandate_inactive /money?case= (reissue before checkout).
+    // Never invent payFee=1 when Mandate inactive or PSP is mock.
     if (action.kind === "pending_fee" || action.kind === "mandate_inactive") {
-      pendingFeeHref = nextActionHref(action);
+      pendingFeeHref = nextActionHref(action, { paymentsLive });
     } else {
       const pendingFeeCase = cases.find(
         (c) => c.fee?.status === "PENDING" && (c.fee?.amount ?? 0) > 0,
@@ -194,6 +195,7 @@ export default async function MoneyPage({
         pendingFeeHref = moneyPendingFeeHref({
           caseId: pendingFeeCase.id,
           mandateActive: pendingFeeCase.authorization?.status === "ACTIVE",
+          paymentsLive,
         });
       }
     }
@@ -295,8 +297,13 @@ export default async function MoneyPage({
               </div>
               <FeePayButton
                 caseId={payFeeCaseId}
-                // Never auto-restart checkout after a failed/confirming PSP bounce.
-                autoStart={payFee && feeStatus !== "error" && feeStatus !== "confirming"}
+                // Never auto-start under mock PSP, or after a failed/confirming bounce.
+                autoStart={
+                  paymentsLive &&
+                  payFee &&
+                  feeStatus !== "error" &&
+                  feeStatus !== "confirming"
+                }
               />
             </div>
           ) : null}

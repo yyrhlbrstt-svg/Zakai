@@ -87,12 +87,15 @@ describe("resolveMoneyPayFeeCaseId", () => {
 });
 
 describe("moneyPendingFeeHref", () => {
-  it("adds payFee only when Mandate is ACTIVE", () => {
-    expect(moneyPendingFeeHref({ caseId: "c1", mandateActive: true })).toBe(
-      "/money?case=c1&payFee=1",
-    );
-    expect(moneyPendingFeeHref({ caseId: "c1", mandateActive: false })).toBe(
-      "/money?case=c1",
-    );
+  it("adds payFee only when Mandate is ACTIVE and payments are live", () => {
+    expect(
+      moneyPendingFeeHref({ caseId: "c1", mandateActive: true, paymentsLive: true }),
+    ).toBe("/money?case=c1&payFee=1");
+    expect(
+      moneyPendingFeeHref({ caseId: "c1", mandateActive: true, paymentsLive: false }),
+    ).toBe("/money?case=c1");
+    expect(
+      moneyPendingFeeHref({ caseId: "c1", mandateActive: false, paymentsLive: true }),
+    ).toBe("/money?case=c1");
   });
 });

@@ -11,6 +11,7 @@ import { PROVIDER_KEYS } from "@/lib/providers";
 import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
 import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachEmail";
 import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
+import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
 
 type Stage =
   | "input"
@@ -109,6 +110,7 @@ export function CheckFlow() {
     chargeable: boolean;
     checkoutUrl?: string;
     checkoutError?: string;
+    paymentsLive?: boolean;
   } | null>(null);
   const [delivered, setDelivered] = useState(true);
   const [pasteText, setPasteText] = useState("");
@@ -419,11 +421,11 @@ export function CheckFlow() {
         checkoutUrl: data.checkoutUrl as string | undefined,
         checkoutError:
           typeof data.checkoutError === "string" ? data.checkoutError : undefined,
+        paymentsLive: data.paymentsLive === true,
       });
       setStage("result");
     } else if (data.error === "ALREADY_SETTLED" && rec.caseId) {
-      // Double-tap after settle — case finish surface; don't invent payFee=1
-      // (Mandate may be inactive; /money gates checkout).
+      // Double-tap after settle — case finish surface; don't invent payFee=1.
       router.push(`/money?case=${rec.caseId}`);
     } else if (data.error === "AUTH_REVOKED") {
       setSaveErr("authRevoked");
@@ -921,7 +923,15 @@ export function CheckFlow() {
               ) : rec ? (
                 <Button
                   className="w-full mt-4"
-                  onClick={() => router.push(`/money?case=${rec.caseId}&payFee=1`)}
+                  onClick={() =>
+                    router.push(
+                      moneyPendingFeeHref({
+                        caseId: rec.caseId,
+                        mandateActive: true,
+                        paymentsLive: outcome.paymentsLive === true,
+                      }),
+                    )
+                  }
                 >
                   {t("payFeeNow")}
                 </Button>
@@ -955,7 +965,11 @@ export function CheckFlow() {
                   rec
                     ? outcome.chargeable &&
                       outcome.checkoutError !== "MANDATE_REQUIRED"
-                      ? `/money?case=${rec.caseId}&payFee=1`
+                      ? moneyPendingFeeHref({
+                          caseId: rec.caseId,
+                          mandateActive: true,
+                          paymentsLive: outcome.paymentsLive === true,
+                        })
                       : `/money?case=${rec.caseId}`
                     : "/money",
                 )

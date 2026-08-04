@@ -89,6 +89,7 @@ export default async function DashboardPage({
   const t = await getTranslations();
   const loc = bcp47[locale as Locale];
   const proofsEmail = proofsInboundAddress();
+  const paymentsLive = paymentsFullyLive();
 
   const cases = await prisma.case.findMany({
     where: { userId: user!.id },
@@ -97,12 +98,13 @@ export default async function DashboardPage({
   });
 
   // Legacy ?case= / payFee deep links finish on /money (fee + share included).
+  // Never forward payFee=1 under mock PSP — autoStart would invent live checkout.
   const OPEN_FINISH = new Set(["ANALYZED", "APPROVED", "VERIFIED", "SENT", "SAVED"]);
   if (highlightCase) {
     const deep = cases.find((c) => c.id === highlightCase);
     if (deep && OPEN_FINISH.has(deep.status)) {
       const q = new URLSearchParams({ case: deep.id });
-      if (payFee === "1") q.set("payFee", "1");
+      if (payFee === "1" && paymentsLive) q.set("payFee", "1");
       if (feeStatus === "paid" || feeStatus === "error" || feeStatus === "confirming") {
         q.set("fee", feeStatus);
       }
@@ -210,7 +212,7 @@ export default async function DashboardPage({
       : null;
   const nextOpenCase = habitCase
     ? {
-        href: nextActionHref(rankedForHabit),
+        href: nextActionHref(rankedForHabit, { paymentsLive }),
         labelHe: `המשיכו את התיק מול ${providerHebrewName(habitCase.provider)}`,
         labelEn: `Continue the case with ${providerHebrewName(habitCase.provider)}`,
       }
@@ -243,11 +245,16 @@ export default async function DashboardPage({
   });
   const stripPendingFeeCase = pendingFeeCases[0];
   const pendingFeeHref = payFeeCaseId
-    ? moneyPendingFeeHref({ caseId: payFeeCaseId, mandateActive: true })
+    ? moneyPendingFeeHref({
+        caseId: payFeeCaseId,
+        mandateActive: true,
+        paymentsLive,
+      })
     : stripPendingFeeCase
       ? moneyPendingFeeHref({
           caseId: stripPendingFeeCase.id,
           mandateActive: stripPendingFeeCase.authorization?.status === "ACTIVE",
+          paymentsLive,
         })
       : "/money";
 
@@ -550,7 +557,12 @@ export default async function DashboardPage({
           {payFeeCaseId ? (
             <FeePayButton
               caseId={payFeeCaseId}
-              autoStart={feeStatus !== "error" && feeStatus !== "confirming"}
+              autoStart={
+                paymentsLive &&
+                payFee === "1" &&
+                feeStatus !== "error" &&
+                feeStatus !== "confirming"
+              }
             />
           ) : stripPendingFeeCase ? (
             <Link

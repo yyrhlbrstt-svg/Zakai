@@ -455,16 +455,26 @@ export function CaseNextStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseId, emailVerified, status]);
 
-  function finishSaving(opts?: { checkoutUrl?: string | null; chargeable?: boolean }) {
+  function finishSaving(opts?: {
+    checkoutUrl?: string | null;
+    chargeable?: boolean;
+    paymentsLive?: boolean;
+  }) {
     scheduleRecheckReminder(caseId);
     navigatedAfterSave = true;
-    // Prove → fee in one gesture when checkout is ready (same as CheckFlow).
+    // Prove → fee in one gesture only when a real PSP checkout URL exists.
     if (opts?.checkoutUrl) {
       window.location.href = opts.checkoutUrl;
       return;
     }
     if (opts?.chargeable) {
-      router.push(`/money?case=${caseId}&payFee=1`);
+      router.push(
+        moneyPendingFeeHref({
+          caseId,
+          mandateActive: localAuth,
+          paymentsLive: opts.paymentsLive === true,
+        }),
+      );
       return;
     }
     router.push(`/money?case=${caseId}`);
@@ -487,15 +497,22 @@ export function CaseNextStep({
     const data = (await res.json().catch(() => ({}))) as {
       checkoutUrl?: string;
       chargeable?: boolean;
+      paymentsLive?: boolean;
       error?: string;
       checkoutError?: string;
     };
     if (!res.ok) {
       // Double-tap / slow network after settle — land on SAVED finish surface.
-      // payFee=1 only when Mandate is still known-active (#91/#94 gates).
+      // payFee=1 only when Mandate active + real PSP (never invent under mock).
       if (data.error === "ALREADY_SETTLED") {
         router.refresh();
-        router.push(moneyPendingFeeHref({ caseId, mandateActive: localAuth }));
+        router.push(
+          moneyPendingFeeHref({
+            caseId,
+            mandateActive: localAuth,
+            paymentsLive: data.paymentsLive === true,
+          }),
+        );
         return;
       }
       if (data.error === "AUTH_REVOKED") {
@@ -517,7 +534,11 @@ export function CaseNextStep({
       finishSaving({ checkoutUrl: undefined, chargeable: false });
       return;
     }
-    finishSaving({ checkoutUrl: data.checkoutUrl, chargeable: data.chargeable === true });
+    finishSaving({
+      checkoutUrl: data.checkoutUrl,
+      chargeable: data.chargeable === true,
+      paymentsLive: data.paymentsLive === true,
+    });
   }
 
   /** Shared SENT follow-up send error + delivery UI (4 buttons share this). */

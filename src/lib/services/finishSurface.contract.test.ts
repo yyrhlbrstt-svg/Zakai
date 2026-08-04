@@ -29,12 +29,16 @@ describe("finish surface contract", () => {
     }
   });
 
-  it("routes success-fee collection to /money checkout", () => {
+  it("routes success-fee collection to /money checkout only when payments live", () => {
     const action = rankNextAction([
       { id: "c1", status: "SAVED", fee: { amount: 1800, status: "PENDING" } },
     ]);
     expect(action.kind).toBe("pending_fee");
-    expect(nextActionHref(action)).toBe("/money?case=c1&payFee=1");
+    expect(nextActionHref(action, { paymentsLive: true })).toBe(
+      "/money?case=c1&payFee=1",
+    );
+    expect(nextActionHref(action, { paymentsLive: false })).toBe("/money?case=c1");
+    expect(nextActionHref(action)).toBe("/money?case=c1");
   });
 
   it("dead ?case= pin never steals CaseNextStep from a live open loop", () => {
@@ -87,13 +91,16 @@ describe("finish surface contract", () => {
     ).toBeNull();
   });
 
-  it("post-settle href invents payFee only when Mandate is active", () => {
-    expect(moneyPendingFeeHref({ caseId: "c1", mandateActive: true })).toBe(
-      "/money?case=c1&payFee=1",
-    );
-    expect(moneyPendingFeeHref({ caseId: "c1", mandateActive: false })).toBe(
-      "/money?case=c1",
-    );
+  it("post-settle href invents payFee only when Mandate active and payments live", () => {
+    expect(
+      moneyPendingFeeHref({ caseId: "c1", mandateActive: true, paymentsLive: true }),
+    ).toBe("/money?case=c1&payFee=1");
+    expect(
+      moneyPendingFeeHref({ caseId: "c1", mandateActive: true, paymentsLive: false }),
+    ).toBe("/money?case=c1");
+    expect(
+      moneyPendingFeeHref({ caseId: "c1", mandateActive: false, paymentsLive: true }),
+    ).toBe("/money?case=c1");
   });
 
   it("sub-₪1 PENDING fee blocks share picker and stays collectible", () => {

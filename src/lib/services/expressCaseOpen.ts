@@ -112,9 +112,10 @@ export async function findOpenLoopBlock(userId: string): Promise<OpenLoopBlock |
     proposedHints,
   );
   if (ranked.kind === "start_money") return null;
+  const { paymentsFullyLive } = await import("@/lib/deploy/releaseGate");
   return {
     error: "OPEN_LOOP",
-    nextHref: nextActionHref(ranked),
+    nextHref: nextActionHref(ranked, { paymentsLive: paymentsFullyLive() }),
     caseId: "caseId" in ranked ? ranked.caseId : undefined,
   };
 }

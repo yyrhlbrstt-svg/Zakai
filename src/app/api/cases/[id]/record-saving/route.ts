@@ -4,6 +4,7 @@ import { requireUserId, badRequest } from "@/lib/api";
 import { recordSaving, CaseError } from "@/lib/services/cases";
 import { initiateFeePayment, PaymentError } from "@/lib/services/payments";
 import { agorotToShekels } from "@/lib/money";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 
 const schema = z.object({
   newAmountShekels: z.number().min(0).max(100000),
@@ -29,7 +30,10 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     const fee = result.fee;
     let checkoutUrl: string | undefined;
     let checkoutError: string | undefined;
-    if (result.feeNet > 0) {
+    const paymentsLive = paymentsFullyLive();
+    // Never mint a mock checkout URL for auto-redirect — that invents PAID theater.
+    // Manual FeePayButton still works under mock for founder E2E.
+    if (result.feeNet > 0 && paymentsLive) {
       const origin = new URL(request.url).origin;
       try {
         const checkout = await initiateFeePayment(
@@ -54,6 +58,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       feeShekels: agorotToShekels(result.feeNet),
       chargeable,
       selfReported: parsed.data.selfReported === true,
+      paymentsLive,
       checkoutUrl,
       checkoutError,
     });
