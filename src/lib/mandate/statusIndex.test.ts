@@ -3,6 +3,9 @@ import {
   allocateStatusIndex,
   nextStatusIndex,
   publishRevocation,
+  STATUS_LIST_CAPACITY,
+  StatusIndexUnknownError,
+  StatusListCapacityError,
   statusListUriForIssuer,
 } from "./statusIndex";
 
@@ -98,7 +101,7 @@ describe("publishRevocation", () => {
     );
   });
 
-  it("repairs a legacy row that was published without an index", async () => {
+  it("repairs a legacy row when the issue-time index is supplied", async () => {
     const update = vi.fn().mockResolvedValue({
       jti: "jti-legacy",
       statusIndex: 7,
@@ -113,15 +116,43 @@ describe("publishRevocation", () => {
           revokedAt,
           reason: "user_request",
         }),
-        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: 6 } }),
+        aggregate: vi.fn(),
         create: vi.fn(),
         update,
       },
     };
 
-    const row = await publishRevocation(db as never, { jti: "jti-legacy" });
+    const row = await publishRevocation(db as never, {
+      jti: "jti-legacy",
+      statusIndex: 7,
+    });
     expect(row.statusIndex).toBe(7);
     expect(update).toHaveBeenCalled();
+  });
+
+  it("refuses to invent a bit when no issue-time index exists", async () => {
+    const db = {
+      mandateRevocation: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        aggregate: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+      mandateStatusAllocation: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        aggregate: vi.fn(),
+        create: vi.fn(),
+      },
+      authorization: {
+        aggregate: vi.fn(),
+        findFirst: vi.fn().mockResolvedValue(null),
+      },
+    };
+
+    await expect(publishRevocation(db as never, { jti: "jti-orphan" })).rejects.toBeInstanceOf(
+      StatusIndexUnknownError,
+    );
+    expect(db.mandateRevocation.create).not.toHaveBeenCalled();
   });
 
   it("reuses Authorization.mandateStatusIndex before inventing a new bit", async () => {
@@ -176,6 +207,25 @@ describe("publishRevocation", () => {
     const row = await publishRevocation(db as never, { jti: "jti-ok", statusIndex: 99 });
     expect(row.statusIndex).toBe(3);
     expect(db.mandateRevocation.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("allocateStatusIndex capacity", () => {
+  it("refuses when the next index is at capacity", async () => {
+    const db = {
+      mandateRevocation: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: STATUS_LIST_CAPACITY - 1 } }),
+      },
+      mandateStatusAllocation: {
+        aggregate: vi.fn().mockResolvedValue({ _max: { statusIndex: null } }),
+        create: vi.fn(),
+        findUnique: vi.fn(),
+      },
+    };
+    await expect(allocateStatusIndex(db as never, "jti-full")).rejects.toBeInstanceOf(
+      StatusListCapacityError,
+    );
+    expect(db.mandateStatusAllocation.create).not.toHaveBeenCalled();
   });
 });
 

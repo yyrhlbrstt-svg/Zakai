@@ -97,10 +97,10 @@ describe("revocation works while we are down", () => {
     expect(readStatus(packed, -1)).toBe(false);
   });
 
-  it("drops an out-of-range revocation instead of refusing to build the list", () => {
-    // One malformed row must not mean nobody can check revocation at all.
-    expect(() => packStatusList([1, 99_999], 16)).not.toThrow();
-    expect(readStatus(packStatusList([1, 99_999], 16), 1)).toBe(true);
+  it("refuses out-of-range indices instead of silently dropping bits", () => {
+    // A dropped bit means offline verifiers keep treating a revoked mandate as active.
+    expect(() => packStatusList([1, 99_999], 16)).toThrow(StatusListError);
+    expect(readStatus(packStatusList([1], 16), 1)).toBe(true);
   });
 
   it("rejects a negative index outright, which can only be a bug", () => {

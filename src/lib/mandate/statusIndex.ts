@@ -7,6 +7,27 @@
  * revoke time would leave the token's claimed bit forever unset.
  */
 
+/** Shared capacity for allocate + publish + `/api/mandate/revocations`. */
+export const STATUS_LIST_CAPACITY = 1_000_000;
+
+export class StatusIndexUnknownError extends Error {
+  readonly code = "status_index_unknown" as const;
+  constructor(jti: string) {
+    super(
+      `no issue-time status index for jti ${jti} — refuse to invent a bit that would leave zkm.status.idx unset`,
+    );
+    this.name = "StatusIndexUnknownError";
+  }
+}
+
+export class StatusListCapacityError extends Error {
+  readonly code = "status_list_capacity" as const;
+  constructor(next: number) {
+    super(`status list capacity exhausted (next index ${next} >= ${STATUS_LIST_CAPACITY})`);
+    this.name = "StatusListCapacityError";
+  }
+}
+
 type StatusIndexDb = {
   mandateRevocation: {
     aggregate: (args: {
@@ -91,7 +112,7 @@ export async function nextStatusIndex(db: StatusIndexDb): Promise<number> {
 
 /**
  * Reserve a fresh bit for a mandate being issued and record the jti→idx map.
- * Retries once on unique conflict (concurrent issuers).
+ * Retries on unique conflict (concurrent issuers). Refuses past capacity.
  */
 export async function allocateStatusIndex(
   db: StatusIndexDb,
@@ -99,10 +120,15 @@ export async function allocateStatusIndex(
 ): Promise<number> {
   if (!db.mandateStatusAllocation) {
     // Unit tests that stub only revocation still get a monotonic index.
-    return nextStatusIndex(db);
+    const next = await nextStatusIndex(db);
+    if (next >= STATUS_LIST_CAPACITY) throw new StatusListCapacityError(next);
+    return next;
   }
   for (let attempt = 0; attempt < 3; attempt++) {
     const statusIndex = await nextStatusIndex(db);
+    if (statusIndex >= STATUS_LIST_CAPACITY) {
+      throw new StatusListCapacityError(statusIndex);
+    }
     try {
       await db.mandateStatusAllocation.create({
         data: { statusIndex, jti },
@@ -140,6 +166,9 @@ export async function statusIndexForJti(
 /**
  * Publish (or repair) a revocation so it appears on the signed status list.
  * Pass `statusIndex` from issue time so the token's `zkm.status.idx` flips.
+ *
+ * Never invents a fresh index — that would leave the token's claimed bit
+ * forever unset while live `/status/{jti}` says revoked.
  */
 export async function publishRevocation(
   db: StatusIndexDb,
@@ -171,18 +200,24 @@ export async function publishRevocation(
   }
 
   const reserved =
-    typeof input.statusIndex === "number" && Number.isInteger(input.statusIndex) && input.statusIndex >= 0
+    typeof input.statusIndex === "number" &&
+    Number.isInteger(input.statusIndex) &&
+    input.statusIndex >= 0
       ? input.statusIndex
       : await statusIndexForJti(db, input.jti);
 
-  const statusIndex =
-    typeof reserved === "number" ? reserved : await nextStatusIndex(db);
+  if (typeof reserved !== "number") {
+    throw new StatusIndexUnknownError(input.jti);
+  }
+  if (reserved >= STATUS_LIST_CAPACITY) {
+    throw new StatusListCapacityError(reserved);
+  }
 
   if (existing) {
     const repaired = await db.mandateRevocation.update({
       where: { jti: input.jti },
       data: {
-        statusIndex,
+        statusIndex: reserved,
         ...(input.reason ? { reason: input.reason } : {}),
       },
       select: { jti: true, statusIndex: true, revokedAt: true, reason: true },
@@ -198,7 +233,7 @@ export async function publishRevocation(
   const created = await db.mandateRevocation.create({
     data: {
       jti: input.jti,
-      statusIndex,
+      statusIndex: reserved,
       reason: input.reason,
       internalNote: input.internalNote,
     },

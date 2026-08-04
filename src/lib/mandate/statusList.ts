@@ -72,10 +72,11 @@ export function packStatusList(revokedIndices: readonly number[], size: number):
     if (!Number.isInteger(idx) || idx < 0) {
       throw new StatusListError(`invalid status index ${idx}`);
     }
-    // Out-of-range indices are dropped rather than throwing: a list that
-    // refuses to build because one row is malformed means nobody can check
-    // revocation at all, which is strictly worse than one uncovered mandate.
-    if (idx >= size) continue;
+    // Out-of-range must not be silent: a dropped bit means offline verifiers
+    // keep treating a revoked mandate as active. Callers filter/refuse first.
+    if (idx >= size) {
+      throw new StatusListError(`status index ${idx} exceeds list size ${size}`);
+    }
     bytes[idx >> 3] |= 1 << (idx & 7);
   }
   return Buffer.from(gzipSync(Buffer.from(bytes))).toString("base64url");

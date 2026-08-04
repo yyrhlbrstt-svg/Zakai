@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { publishRevocation } from "@/lib/mandate/statusIndex";
+import {
+  publishRevocation,
+  StatusIndexUnknownError,
+  StatusListCapacityError,
+} from "@/lib/mandate/statusIndex";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { secretsMatch } from "@/lib/security/timingSafe";
 
@@ -104,9 +108,8 @@ export async function POST(
   }
 
   try {
-    // Must allocate statusIndex — rows without an index never appear on the
-    // signed /revocations list, so offline verifiers would keep treating the
-    // mandate as active after an ops revoke.
+    // Reuse the issue-time statusIndex only — inventing a new bit would leave
+    // zkm.status.idx forever unset on the signed /revocations list.
     const row = await prisma.$transaction((tx) =>
       publishRevocation(tx, { jti: id, reason }),
     );
@@ -118,7 +121,16 @@ export async function POST(
       reason: row.reason,
       statusIndex: row.statusIndex,
     });
-  } catch {
+  } catch (err) {
+    if (err instanceof StatusIndexUnknownError) {
+      return NextResponse.json(
+        { error: "status_index_unknown", jti: id },
+        { status: 409 },
+      );
+    }
+    if (err instanceof StatusListCapacityError) {
+      return NextResponse.json({ error: "status_list_capacity" }, { status: 503 });
+    }
     return NextResponse.json({ error: "status_store_unavailable" }, { status: 503 });
   }
 }

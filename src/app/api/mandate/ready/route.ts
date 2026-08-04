@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { authorizationVectorsConformant } from "@/lib/referenceVerifier";
+import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
 import { verifyStatusListFromUrl } from "@/lib/mandate/statusList";
+import { selfCheckStatusListBit } from "@/lib/mandate/statusListSelfCheck";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,7 +32,9 @@ export async function OPTIONS() {
 
 /**
  * Machine readiness for institutions — same gate as Pioneer listing + status list.
- * GET → { ready, ready_for_pioneer, vectors, status_list }. Empty / false is honest.
+ * GET → { ready, ready_for_pioneer, vectors, status_list, status_list_bit }.
+ * Empty / false is honest. Bit self-check proves pack→sign→verify→isRevoked,
+ * not merely that an empty signed JWT verifies.
  */
 export async function GET() {
   const base = appOrigin();
@@ -52,7 +56,26 @@ export async function GET() {
     };
   }
 
-  const ready = vectors.ok && statusList.ok;
+  let statusListBit: { ok: boolean; detail: string } = { ok: false, detail: "unchecked" };
+  try {
+    const key = loadSigningKeyFromEnv();
+    const bit = await selfCheckStatusListBit(key, issuer);
+    statusListBit = bit.ok
+      ? { ok: true, detail: "sign_verify_bit_flip" }
+      : { ok: false, detail: bit.detail };
+  } catch (err) {
+    statusListBit = {
+      ok: false,
+      detail:
+        err instanceof MandateKeyUnavailableError
+          ? "signing_key_unavailable"
+          : err instanceof Error
+            ? err.message
+            : "bit_check_failed",
+    };
+  }
+
+  const ready = vectors.ok && statusList.ok && statusListBit.ok;
   return NextResponse.json(
     {
       ok: true,
@@ -64,6 +87,7 @@ export async function GET() {
         failed: vectors.failed.slice(0, 3),
       },
       status_list: statusList,
+      status_list_bit: statusListBit,
       next: ready
         ? `${base}/he/institutions/leader`
         : "Fix failures, then re-run. Client: npx zakai-mandate-ready",

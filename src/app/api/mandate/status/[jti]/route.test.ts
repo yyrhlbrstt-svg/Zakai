@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findUniqueMock = vi.fn();
+const allocFindUniqueMock = vi.fn();
+const authFindFirstMock = vi.fn();
 const aggregateMock = vi.fn();
 const createMock = vi.fn();
 const updateMock = vi.fn();
@@ -29,6 +31,8 @@ import { POST } from "./route";
 describe("POST /api/mandate/status/[jti]", () => {
   beforeEach(() => {
     findUniqueMock.mockReset();
+    allocFindUniqueMock.mockReset();
+    authFindFirstMock.mockReset();
     aggregateMock.mockReset();
     createMock.mockReset();
     updateMock.mockReset();
@@ -42,13 +46,22 @@ describe("POST /api/mandate/status/[jti]", () => {
         create: createMock,
         update: updateMock,
       },
+      mandateStatusAllocation: {
+        findUnique: allocFindUniqueMock,
+        aggregate: vi.fn(),
+        create: vi.fn(),
+      },
+      authorization: {
+        aggregate: vi.fn(),
+        findFirst: authFindFirstMock,
+      },
     };
     transactionMock.mockImplementation(async (fn: (t: typeof tx) => unknown) => fn(tx));
   });
 
-  it("allocates statusIndex on create so the signed list can flip the bit", async () => {
+  it("reuses the issue-time allocation so the signed list flips the claimed bit", async () => {
     findUniqueMock.mockResolvedValue(null);
-    aggregateMock.mockResolvedValue({ _max: { statusIndex: 4 } });
+    allocFindUniqueMock.mockResolvedValue({ statusIndex: 5 });
     createMock.mockResolvedValue({
       jti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       statusIndex: 5,
@@ -79,14 +92,14 @@ describe("POST /api/mandate/status/[jti]", () => {
     );
   });
 
-  it("repairs a null statusIndex on re-revoke", async () => {
+  it("repairs a null statusIndex when allocation is known", async () => {
     findUniqueMock.mockResolvedValue({
       jti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       statusIndex: null,
       revokedAt: new Date("2026-08-03T11:00:00.000Z"),
       reason: "user_request",
     });
-    aggregateMock.mockResolvedValue({ _max: { statusIndex: 9 } });
+    allocFindUniqueMock.mockResolvedValue({ statusIndex: 10 });
     updateMock.mockResolvedValue({
       jti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       statusIndex: 10,
@@ -107,5 +120,25 @@ describe("POST /api/mandate/status/[jti]", () => {
     expect(res.status).toBe(200);
     expect(body.statusIndex).toBe(10);
     expect(updateMock).toHaveBeenCalled();
+  });
+
+  it("fails closed with status_index_unknown when no issue-time bit exists", async () => {
+    findUniqueMock.mockResolvedValue(null);
+    allocFindUniqueMock.mockResolvedValue(null);
+    authFindFirstMock.mockResolvedValue(null);
+
+    const res = await POST(
+      new Request("http://localhost/api/mandate/status/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", {
+        method: "POST",
+        headers: { "x-zakai-revoke-key": "test-revoke-key" },
+        body: "{}",
+      }),
+      { params: Promise.resolve({ jti: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }) },
+    );
+
+    const body = await res.json();
+    expect(res.status).toBe(409);
+    expect(body.error).toBe("status_index_unknown");
+    expect(createMock).not.toHaveBeenCalled();
   });
 });

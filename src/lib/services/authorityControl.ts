@@ -1,6 +1,10 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { publishRevocation } from "@/lib/mandate/statusIndex";
+import {
+  publishRevocation,
+  StatusIndexUnknownError,
+  StatusListCapacityError,
+} from "@/lib/mandate/statusIndex";
 
 /**
  * The consumer's control plane over their own authority.
@@ -120,22 +124,32 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
     return { ok: true, code: auth.code, alreadyRevoked: true };
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.authorization.update({
-      where: { code: auth.code },
-      data: { status: "REVOKED", revokedAt: new Date() },
-    });
-
-    // Publish under the machine Mandate jti using the issue-time statusIndex
-    // so zkm.status.idx on the token flips on the signed list.
-    if (auth.mandateJti) {
-      await publishRevocation(tx, {
-        jti: auth.mandateJti,
-        reason: "user_request",
-        statusIndex: auth.mandateStatusIndex ?? undefined,
-      });
-    }
+  // Human revoke must not roll back if the status-list publish cannot resolve
+  // an issue-time bit — offline verifiers stay honest via fail-closed unknown,
+  // while the consumer's Authorization is still withdrawn.
+  await prisma.authorization.update({
+    where: { code: auth.code },
+    data: { status: "REVOKED", revokedAt: new Date() },
   });
+
+  if (auth.mandateJti) {
+    try {
+      await prisma.$transaction((tx) =>
+        publishRevocation(tx, {
+          jti: auth.mandateJti!,
+          reason: "user_request",
+          statusIndex: auth.mandateStatusIndex ?? undefined,
+        }),
+      );
+    } catch (err) {
+      if (
+        !(err instanceof StatusIndexUnknownError) &&
+        !(err instanceof StatusListCapacityError)
+      ) {
+        // Status store down — human revoke already stands.
+      }
+    }
+  }
 
   return { ok: true, code: auth.code, alreadyRevoked: false };
 }
