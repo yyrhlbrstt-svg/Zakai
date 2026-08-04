@@ -5,6 +5,14 @@
 
 import { variantById, VARIANTS } from "./variants";
 
+/**
+ * De-identified settle signal when Case.strategyVariant was never latched
+ * (stance no-op / legacy cases). Included in cohort win-rate / fairness /
+ * EV ranking; excluded from Thompson `chooseStance` via isCatalogVariantId.
+ * Safe for client + server (no server-only import).
+ */
+export const UNATTRIBUTED_VARIANT_ID = "baseline_unattributed";
+
 const VERTICAL_ALIASES: Record<string, string> = {
   transport_fine: "transport-fine",
   late_payment: "late-payment",

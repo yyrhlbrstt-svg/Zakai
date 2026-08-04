@@ -4,6 +4,9 @@ import { recordOutcome, daysBetween } from "@/lib/strategy/store";
 import type { StrategyContext } from "@/lib/strategy/types";
 import { documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack } from "@/lib/verticals";
+import { UNATTRIBUTED_VARIANT_ID } from "@/lib/strategy/normalizeKeys";
+
+export { UNATTRIBUTED_VARIANT_ID };
 
 /**
  * First outbound letter clock — send→settle, not approve→settle.
@@ -36,6 +39,10 @@ export async function daysToSettle(caseId: string, fallbackStart: Date): Promise
  *
  * Only call this when the case has settled (SAVED / NO_SAVING). Never write a
  * provisional loss for an open SENT case — that would block a later real win.
+ *
+ * Missing strategyVariant still records under UNATTRIBUTED_VARIANT_ID so the
+ * outcome graph is not starved on real settles (cohort learning still works;
+ * stance attribution stays clean).
  */
 export async function commitCaseLearningSignal(input: {
   caseId: string;
@@ -46,9 +53,7 @@ export async function commitCaseLearningSignal(input: {
   days: number;
   selfReported?: boolean;
 }): Promise<{ recorded: boolean; reason?: string }> {
-  if (!input.variantId) {
-    return { recorded: false, reason: "no_variant" };
-  }
+  const variantId = input.variantId?.trim() || UNATTRIBUTED_VARIANT_ID;
 
   try {
     const kase = await prisma.case.findUnique({
@@ -63,7 +68,7 @@ export async function commitCaseLearningSignal(input: {
 
     await recordOutcome({
       context: input.context,
-      variantId: input.variantId,
+      variantId,
       paid: input.paid,
       recoveredMinor: input.recoveredMinor,
       days: input.days,
@@ -84,6 +89,7 @@ export async function commitCaseLearningSignal(input: {
 /**
  * Backfill learning signals for settled cases that closed before the latch
  * existed, or where recordOutcome failed open. Idempotent.
+ * Includes null strategyVariant → UNATTRIBUTED_VARIANT_ID.
  */
 export async function backfillSettledLearningSignals(opts?: {
   take?: number;
@@ -92,7 +98,6 @@ export async function backfillSettledLearningSignals(opts?: {
   const rows = await prisma.case.findMany({
     where: {
       status: { in: ["SAVED", "NO_SAVING"] },
-      strategyVariant: { not: null },
       outcomeRecordedAt: null,
       savingsProof: { isNot: null },
     },
