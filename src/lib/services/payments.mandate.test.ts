@@ -79,4 +79,40 @@ describe("initiateFeePayment mandate binding", () => {
     ).rejects.toThrow("MANDATE_REQUIRED");
     expect(createCheckout).not.toHaveBeenCalled();
   });
+
+  it("refuses checkout when Fee.mandateJti is set but Authorization is REVOKED", async () => {
+    findFirst.mockResolvedValue({
+      id: "c1",
+      fee: { id: "f1", status: "PENDING", amount: 1800, mandateJti: "jti-bound" },
+    });
+    findUnique.mockResolvedValue({ mandateJti: "jti-bound", status: "REVOKED" });
+    await expect(
+      initiateFeePayment("c1", "u1", "https://zakai.test", "he"),
+    ).rejects.toThrow("MANDATE_REQUIRED");
+    expect(createCheckout).not.toHaveBeenCalled();
+  });
+
+  it("refuses when Fee.mandateJti does not match the ACTIVE Authorization jti", async () => {
+    findFirst.mockResolvedValue({
+      id: "c1",
+      fee: { id: "f1", status: "PENDING", amount: 1800, mandateJti: "jti-old" },
+    });
+    findUnique.mockResolvedValue({ mandateJti: "jti-new", status: "ACTIVE" });
+    await expect(
+      initiateFeePayment("c1", "u1", "https://zakai.test", "he"),
+    ).rejects.toThrow("MANDATE_REQUIRED");
+    expect(createCheckout).not.toHaveBeenCalled();
+  });
+
+  it("allows checkout when Fee.mandateJti matches ACTIVE Authorization", async () => {
+    findFirst.mockResolvedValue({
+      id: "c1",
+      fee: { id: "f1", status: "PENDING", amount: 1800, mandateJti: "jti-live" },
+    });
+    findUnique.mockResolvedValue({ mandateJti: "jti-live", status: "ACTIVE" });
+    feeUpdate.mockResolvedValue({ id: "f1" });
+    const result = await initiateFeePayment("c1", "u1", "https://zakai.test", "he");
+    expect(result.checkoutUrl).toBe("https://pay.example/checkout");
+    expect(createCheckout).toHaveBeenCalled();
+  });
 });

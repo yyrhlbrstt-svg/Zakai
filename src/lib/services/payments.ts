@@ -24,21 +24,24 @@ export async function initiateFeePayment(
   let fee = kase.fee;
   if (fee.status === "PAID") throw new PaymentError("ALREADY_PAID");
   if (fee.status === "WAIVED" || fee.amount <= 0) throw new PaymentError("NOTHING_TO_COLLECT");
-  // Never collect a success fee that is not bound to the Mandate that authorized the act.
-  // Legacy PENDING rows (pre Fee.mandateJti) may still have the jti on Authorization —
-  // heal from that, do not mint a new Mandate.
+  // Never collect under withdrawn / unbound authority — even when Fee.mandateJti
+  // was already set at settle (revoke-after-SAVED must still block checkout).
+  // Legacy PENDING rows may heal jti from ACTIVE Authorization; never mint here.
+  const auth = await prisma.authorization.findUnique({
+    where: { caseId },
+    select: { mandateJti: true, status: true },
+  });
+  if (!auth || auth.status !== "ACTIVE" || !auth.mandateJti) {
+    throw new PaymentError("MANDATE_REQUIRED");
+  }
   if (!fee.mandateJti) {
-    const auth = await prisma.authorization.findUnique({
-      where: { caseId },
-      select: { mandateJti: true, status: true },
-    });
-    if (!auth?.mandateJti || auth.status !== "ACTIVE") {
-      throw new PaymentError("MANDATE_REQUIRED");
-    }
     fee = await prisma.fee.update({
       where: { id: fee.id },
       data: { mandateJti: auth.mandateJti },
     });
+  } else if (fee.mandateJti !== auth.mandateJti) {
+    // Fee still points at a prior jti (e.g. after reissue) — do not collect.
+    throw new PaymentError("MANDATE_REQUIRED");
   }
 
   const provider = paymentProvider();
