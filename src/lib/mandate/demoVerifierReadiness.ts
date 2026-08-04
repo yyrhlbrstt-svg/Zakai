@@ -17,13 +17,16 @@ function mandateIssuer(): string {
 }
 
 /** Short-lived mandate for institutions to prove their verify client works. */
-export async function issueVerifierReadinessDemoToken(): Promise<string | null> {
+export async function issueVerifierReadinessDemoToken(): Promise<{
+  token: string;
+  jti: string;
+} | null> {
   try {
     const key = loadSigningKeyFromEnv();
     const issuer = mandateIssuer();
     const jti = `readiness_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
     const statusIndex = await allocateStatusIndex(prisma, jti);
-    return await issueMandate(
+    const token = await issueMandate(
       {
         jti,
         issuer,
@@ -41,6 +44,7 @@ export async function issueVerifierReadinessDemoToken(): Promise<string | null> 
       },
       key,
     );
+    return { token, jti };
   } catch {
     return null;
   }

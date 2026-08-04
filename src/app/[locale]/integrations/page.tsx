@@ -133,6 +133,13 @@ export default async function IntegrationsPage({
               </a>
             </li>
             <li>
+              <a className="text-emerald underline break-all" href={`${ORIGIN}/api/institution/verifier-readiness/demo-revoke`}>
+                POST /api/institution/verifier-readiness/demo-revoke
+              </a>
+              {" — "}
+              {t("demoRevokeLinkHint")}
+            </li>
+            <li>
               <a className="text-emerald underline break-all" href={`${ORIGIN}/api/network/opportunity-map`}>
                 /api/network/opportunity-map
               </a>

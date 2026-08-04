@@ -26,6 +26,7 @@ export function ReferenceVerifierWizard() {
   const [decideStep, setDecideStep] = useState<StepState>("idle");
   const [statusStep, setStatusStep] = useState<StepState>("idle");
   const [probeStep, setProbeStep] = useState<StepState>("idle");
+  const [revokeStep, setRevokeStep] = useState<StepState>("idle");
   const [inboundStep, setInboundStep] = useState<StepState>("idle");
   const [readyStep, setReadyStep] = useState<StepState>("idle");
   const [readyDetail, setReadyDetail] = useState<string | null>(null);
@@ -75,6 +76,9 @@ export function ReferenceVerifierWizard() {
         };
         sampleToken = body.token;
         sampleAudience = body.audience || VERIFIER_READINESS_AUDIENCE;
+        if (typeof body.jti === "string" && body.jti.startsWith("readiness_")) {
+          sampleJti = body.jti;
+        }
         const v = await fetch("/api/mandate/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -86,7 +90,9 @@ export function ReferenceVerifierWizard() {
           jti?: string;
         };
         verifyOk = v.ok && vBody.valid === true;
-        sampleJti = vBody.claims?.jti || vBody.jti || body.jti || "";
+        if (!sampleJti) {
+          sampleJti = vBody.claims?.jti || vBody.jti || "";
+        }
       }
     } catch {
       verifyOk = false;
@@ -144,7 +150,8 @@ export function ReferenceVerifierWizard() {
         const st = await fetch(`/api/mandate/status/${encodeURIComponent(sampleJti)}`, {
           cache: "no-store",
         });
-        statusOk = st.ok;
+        const stBody = (await st.json().catch(() => ({}))) as { status?: string };
+        statusOk = st.ok && stBody.status !== "revoked";
       }
     } catch {
       statusOk = false;
@@ -182,6 +189,30 @@ export function ReferenceVerifierWizard() {
     }
     setProbeStep(probeOk ? "ok" : "fail");
 
+    // Revoke after probe so the valid-token probe still has an active sample.
+    setRevokeStep("running");
+    let revokeOk = false;
+    try {
+      if (sampleJti.startsWith("readiness_")) {
+        const rev = await fetch("/api/institution/verifier-readiness/demo-revoke", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jti: sampleJti }),
+        });
+        const revBody = (await rev.json().catch(() => ({}))) as { status?: string };
+        if (rev.ok && revBody.status === "revoked") {
+          const st2 = await fetch(`/api/mandate/status/${encodeURIComponent(sampleJti)}`, {
+            cache: "no-store",
+          });
+          const st2Body = (await st2.json().catch(() => ({}))) as { status?: string };
+          revokeOk = st2.ok && st2Body.status === "revoked";
+        }
+      }
+    } catch {
+      revokeOk = false;
+    }
+    setRevokeStep(revokeOk ? "ok" : "fail");
+
     setInboundStep("running");
     let inboundOk = false;
     try {
@@ -218,13 +249,14 @@ export function ReferenceVerifierWizard() {
 
     const endpointsOk = Object.values(next).every((s) => s === "ok");
     // Registration form only opens when machine gate passes — UX matches server gate.
-    // Decide/status/probe are required for a bank-grade self-serve claim.
+    // Decide/status/probe/revoke are required for a bank-grade self-serve claim.
     setAllOk(
       endpointsOk &&
         verifyOk &&
         decideOk &&
         statusOk &&
         probeOk &&
+        revokeOk &&
         inboundOk &&
         readyOk,
     );
@@ -322,6 +354,10 @@ export function ReferenceVerifierWizard() {
         <li className="flex justify-between gap-3 font-bold">
           <span>{t("check_probe")}</span>
           <span aria-hidden>{stepLabel(probeStep)}</span>
+        </li>
+        <li className="flex justify-between gap-3 font-bold">
+          <span>{t("check_revoke")}</span>
+          <span aria-hidden>{stepLabel(revokeStep)}</span>
         </li>
         <li className="flex justify-between gap-3 font-bold">
           <span>{t("check_inbound")}</span>
