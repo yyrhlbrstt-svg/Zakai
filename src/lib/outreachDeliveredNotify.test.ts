@@ -46,7 +46,7 @@ describe("outreachDelivered copy", () => {
   it("tags push so retries do not invent a second device alert class", () => {
     expect(
       outreachDeliveredPush({
-        kind: "initial",
+        kind: { kind: "initial" },
         provider: "סלקום",
         proofsAddr: "proofs@x",
         caseId: "c1",
@@ -54,8 +54,7 @@ describe("outreachDelivered copy", () => {
     ).toBe("sent-c1");
     expect(
       outreachDeliveredPush({
-        kind: "followup",
-        round: 2,
+        kind: { kind: "followup", round: 2 },
         provider: "סלקום",
         proofsAddr: "proofs@x",
         caseId: "c1",
