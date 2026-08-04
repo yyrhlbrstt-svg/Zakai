@@ -23,6 +23,11 @@ export function classifyFollowUpSendError(error: unknown): FollowUpSendBlock {
   return "generic";
 }
 
+/** Cron + HITL: both reasons need reissue, not silent skip. */
+export function isMandateBlockedFollowUpReason(reason: string | undefined): boolean {
+  return reason === "NO_ACTIVE_MANDATE" || reason === "MANDATE_REQUIRED";
+}
+
 /** Green "sent to provider" only when SMTP actually accepted the message. */
 export type FollowUpDeliveryUi = "delivered" | "queued";
 

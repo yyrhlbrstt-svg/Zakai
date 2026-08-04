@@ -10,6 +10,7 @@ import { requireCronAuth } from "@/lib/security/cronAuth";
 import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { localeForCountry } from "@/lib/localePath";
+import { isMandateBlockedFollowUpReason } from "@/lib/followUpSendUi";
 import {
   cohortLearning,
   followUpAfterDays,
@@ -273,7 +274,8 @@ ${money}
           seenAgent.add(c.userId);
         }
         agentSkipped++;
-      } else if (result.reason === "NO_ACTIVE_MANDATE" && c.user.email) {
+      } else if (isMandateBlockedFollowUpReason(result.reason) && c.user.email) {
+        // NO_ACTIVE_MANDATE and MANDATE_REQUIRED (keys live, no JWS) — same reissue path.
         const money = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
         const sent = await nudgeOnce({
           caseId: c.id,
@@ -401,6 +403,7 @@ ${moneyUrl}
             id: true,
             userId: true,
             user: { select: { email: true, name: true, country: true } },
+            authorization: { select: { status: true } },
           },
         },
       },
@@ -423,11 +426,10 @@ ${moneyUrl}
       });
       if (recent) continue;
 
-      const payUrl = feePayAbsoluteUrl(appUrl, u.country, fee.case.id);
-      await sendEmail({
-        to: u.email,
-        subject: FEE_NUDGE_SUBJECT,
-        body: `שלום ${u.name},
+      const mandateActive = fee.case.authorization?.status === "ACTIVE";
+      const payUrl = feePayAbsoluteUrl(appUrl, u.country, fee.case.id, mandateActive);
+      const body = mandateActive
+        ? `שלום ${u.name},
 
 תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה (רק על מה שנחסך בפועל).
 
@@ -436,13 +438,27 @@ ${payUrl}
 
 שאלות או ערעור בתוך 14 יום — השב למייל זה.
 
-זכאי — הכסף שמגיע לך חוזר אליך.`,
+זכאי — הכסף שמגיע לך חוזר אליך.`
+        : `שלום ${u.name},
+
+תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה, אבל אין Mandate פעיל על התיק.
+
+פתחו את ״הכסף שלי״, אשרו הרשאה מחדש ואז שלמו:
+${payUrl}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`;
+      await sendEmail({
+        to: u.email,
+        subject: FEE_NUDGE_SUBJECT,
+        body,
         caseId: fee.case.id,
       });
       await pushToUser(fee.case.userId, {
-        title: "עמלת הצלחה ממתינה",
-        body: "תשלום בלחיצה אחת — רק על חיסכון מתועד.",
-        url: feePayDashboardPath(localeForCountry(u.country), fee.case.id),
+        title: mandateActive ? "עמלת הצלחה ממתינה" : "Mandate לא פעיל — עמלה ממתינה",
+        body: mandateActive
+          ? "תשלום בלחיצה אחת — רק על חיסכון מתועד."
+          : "אשרו הרשאה מחדש ב״הכסף שלי״ ואז שלמו.",
+        url: feePayDashboardPath(localeForCountry(u.country), fee.case.id, mandateActive),
         tag: `fee-nudge-${fee.case.id}`,
       }).catch(() => null);
       seenFeeUser.add(fee.case.userId);
