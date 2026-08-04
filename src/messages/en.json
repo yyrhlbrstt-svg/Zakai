@@ -912,6 +912,16 @@
     "creditNone": "No credit yet — invite a friend to start earning.",
     "note": "Credit only reduces a future fee; it is never paid out in cash."
   },
+  "trackRecord": {
+    "title": "Your track record",
+    "subtitle": "A digitally signed statement (verifiable against Zakai's public key) of how many cases you've resolved and your documented monthly saving — based only on verified savings, never self-reports. Share it with a new bank, landlord, or employer as evidence.",
+    "cta": "Download signed credential",
+    "loading": "Preparing…",
+    "empty": "Not enough documented history yet to issue a credential — resolve a case first.",
+    "error": "Couldn't prepare the credential right now. Try again later.",
+    "downloaded": "Credential downloaded: {cases} cases resolved, {amount} documented monthly saving.",
+    "note": "This is not a power of attorney — it only attests to the past and grants no authority to act on your behalf."
+  },
   "pricing": {
     "title": "Plans that only win when you save",
     "subtitle": "Free to start — a fee only on documented savings. A subscription turns Zakai into your always-on money guard: re-checks every month, catches price creep, covers the whole family — and lowers the fee, down to 0% on Max.",

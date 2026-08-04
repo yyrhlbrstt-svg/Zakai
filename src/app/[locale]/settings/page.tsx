@@ -6,6 +6,7 @@ import { Card, Button } from "@/components/ui";
 import { LogoutButton } from "@/components/LogoutButton";
 import { DeleteAccount } from "@/components/DeleteAccount";
 import { ReferralCard } from "@/components/ReferralCard";
+import { TrackRecordCard } from "@/components/TrackRecordCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -102,6 +103,10 @@ export default async function SettingsPage({
           rewardAgorot={REFERRAL_REWARD_AGOROT}
           bcp47={bcp47[locale as Locale]}
         />
+      </div>
+
+      <div className="mt-6">
+        <TrackRecordCard bcp47={bcp47[locale as Locale]} />
       </div>
 
       <div className="mt-6">

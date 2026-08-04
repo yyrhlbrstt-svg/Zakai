@@ -155,7 +155,9 @@ describe("zakai-mandate MCP server", () => {
       "check_revocation",
       "decide_action",
       "discover_pipe",
+      "get_right",
       "get_trust_registry",
+      "list_rights",
       "list_scopes",
       "pipe_accept",
       "pipe_handoff",
@@ -176,6 +178,86 @@ describe("zakai-mandate MCP server", () => {
     expect(payload.ok).toBe(true);
     expect(payload.scopes.map((s) => s.scope)).toContain("contract:cancel");
     expect(payload.forbidden).toContain("payment:initiate");
+  });
+
+  it("list_rights fetches the public catalog for a market", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string | URL) => {
+        expect(String(url)).toContain("/api/rights/catalog?market=IL");
+        return {
+          ok: true,
+          json: async () => ({
+            zml_version: "1.0.0",
+            api_version: "2026-08-01",
+            market: "IL",
+            total: 1,
+            rights: [
+              {
+                id: "il_bank_loan_opening_commission_il",
+                category: "banking",
+                market: "IL",
+                auto_eligible: false,
+                _links: {
+                  self: "/api/rights/catalog/il_bank_loan_opening_commission_il",
+                  full: "/api/rights/catalog/il_bank_loan_opening_commission_il?full=1",
+                  evaluate: "/api/rights/evaluate/il_bank_loan_opening_commission_il",
+                },
+              },
+            ],
+          }),
+        };
+      }),
+    );
+    const client = await connectedClient();
+    const payload = firstText(
+      await client.callTool({ name: "list_rights", arguments: { market: "IL" } }),
+    ) as { ok: boolean; catalog: { market: string; total: number; rights: { id: string }[] } };
+    expect(payload.ok).toBe(true);
+    expect(payload.catalog.market).toBe("IL");
+    expect(payload.catalog.rights[0]?.id).toBe("il_bank_loan_opening_commission_il");
+  });
+
+  it("get_right fetches the full ZML document for one right", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string | URL) => {
+        expect(String(url)).toContain("/api/rights/catalog/il_bank_loan_opening_commission_il?full=1");
+        return {
+          ok: true,
+          json: async () => ({
+            id: "il_bank_loan_opening_commission_il",
+            category: "banking",
+            market: "IL",
+            display_name: { en: "Loan opening fee", he: "עמלת פתיחת הלוואה" },
+            source: { reference: "Banking (Customer Service)(Fees) Regulations, 2008" },
+          }),
+        };
+      }),
+    );
+    const client = await connectedClient();
+    const payload = firstText(
+      await client.callTool({
+        name: "get_right",
+        arguments: { id: "il_bank_loan_opening_commission_il" },
+      }),
+    ) as { ok: boolean; right: { id: string; source: { reference: string } } };
+    expect(payload.ok).toBe(true);
+    expect(payload.right.id).toBe("il_bank_loan_opening_commission_il");
+    expect(payload.right.source.reference).toBeTruthy();
+  });
+
+  it("get_right surfaces a 404 as a structured error, not a crash", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 404, json: async () => ({ error: "not_found" }) })),
+    );
+    const client = await connectedClient();
+    const payload = firstText(
+      await client.callTool({ name: "get_right", arguments: { id: "does_not_exist" } }),
+    ) as { ok: boolean; code: string };
+    expect(payload.ok).toBe(false);
+    expect(payload.code).toBe("RIGHTS_HTTP_404");
   });
 
   it("verifies a genuinely issued mandate through the trust registry", async () => {

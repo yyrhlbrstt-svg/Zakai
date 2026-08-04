@@ -38,6 +38,7 @@ import {
   type RegistryIssuer,
 } from "./registry.js";
 import { statusListRevocationState } from "./statusList.js";
+import { fetchRightsCatalogPage, fetchRight, RightsApiError } from "./rights.js";
 
 export const DEFAULT_BASE_URL = "https://zakai-3uxj.vercel.app";
 
@@ -444,6 +445,56 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
         }
         return asText({ ok: true, accept: body });
       } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "list_rights",
+    {
+      title: "List a market's rights catalog",
+      description:
+        "GET /api/rights/catalog — the public ZML rights catalog for one market: statute citations, categories, and whether a right is auto-eligible. Read-only data, not user data or a filed claim; deciding whether a specific person qualifies is the caller's own logic against the returned predicate_summary/full document.",
+      inputSchema: {
+        market: z.string().length(2).describe("ISO country code, e.g. IL, GB, US"),
+        category: z.string().max(64).optional().describe("Filter to one right category"),
+        locale: z.string().max(8).optional().describe("BCP-47 locale for the `label` field"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ market, category, locale }) => {
+      try {
+        const page = await fetchRightsCatalogPage({ origin: baseUrl, market, category, locale });
+        return asText({ ok: true, catalog: page });
+      } catch (err) {
+        if (err instanceof RightsApiError) {
+          return asText({ ok: false, code: `RIGHTS_HTTP_${err.status ?? "UNKNOWN"}`, error: err.message });
+        }
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_right",
+    {
+      title: "Fetch one right in full",
+      description:
+        "GET /api/rights/catalog/{id}?full=1 — the complete ZML document for one right: citation (source.reference), eligibility predicate, and the recommended action. Use list_rights first to find an id.",
+      inputSchema: {
+        id: z.string().min(1).max(128).describe("Right id from list_rights, e.g. il_bank_loan_opening_commission_il"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ id }) => {
+      try {
+        const right = await fetchRight(baseUrl, id);
+        return asText({ ok: true, right });
+      } catch (err) {
+        if (err instanceof RightsApiError) {
+          return asText({ ok: false, code: `RIGHTS_HTTP_${err.status ?? "UNKNOWN"}`, error: err.message });
+        }
         return asText(errorPayload(err));
       }
     },

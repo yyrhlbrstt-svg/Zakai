@@ -19,9 +19,31 @@ use the monorepo path above.
 1. **Verify** — `verifyMandateFromUrl` against published JWKS (offline after fetch).
 2. **Decide** — `decide()` against [test vectors](https://zakai-3uxj.vercel.app/api/mandate/test-vectors).
 3. **Revocation** — `verifyStatusListFromUrl` (`statuslist+jwt`).
-4. **Ready gate** — `zakai-mandate-ready` → Pioneer wizard.
+4. **Rights catalog** — `listRights`/`fetchRight` against the public ZML catalog (read-only data, no Mandate needed).
+5. **Ready gate** — `zakai-mandate-ready` → Pioneer wizard.
 
 Same logic as production Zakai — the SDK cannot silently disagree with the issuer.
+
+## Rights-as-a-service: embed "what am I owed" in your own app
+
+Separate from Mandate verification — this is public, read-only catalog data
+(statute citations, eligibility predicates, action metadata), not user data,
+so it needs no key, no Mandate, no account:
+
+```ts
+import { listRights, fetchRight } from "@zakai-app/mandate-sdk/rights";
+// or, from the monorepo path: "../sdk/dist/rights.js"
+
+const rights = await listRights({ origin: "https://zakai-3uxj.vercel.app", market: "IL" });
+const full = await fetchRight("https://zakai-3uxj.vercel.app", rights[0].id);
+console.log(full.source.reference); // the real statute citation
+```
+
+This is the programmatic equivalent of the embeddable `zakai-widget.js`
+(`docs/WIDGET_EMBED.md`) for apps that want raw data instead of a rendered
+UI strip — deciding whether a specific person qualifies for a given right is
+still your own eligibility logic against the returned predicate, same as the
+widget.
 
 ## Install
 
@@ -53,9 +75,11 @@ If that's friction you don't want to impose on people evaluating the SDK, the
 
 The same verification surface, packaged for the protocol agent platforms are
 converging on. One command gives an MCP client (Claude, Cursor, or anything
-else that speaks MCP) six tools — `verify_mandate`, `decide_action`,
-`check_revocation`, `get_trust_registry`, `list_scopes`, and
-`predict_outcome` (Oracle; needs `ZAKAI_ORACLE_API_KEY`):
+else that speaks MCP) tools for verification (`verify_mandate`,
+`decide_action`, `check_revocation`, `get_trust_registry`, `list_scopes`,
+`predict_outcome` — Oracle, needs `ZAKAI_ORACLE_API_KEY`), the rights
+catalog (`list_rights`, `get_right` — no key needed), and the consumer pipe
+(`discover_pipe`, `pipe_handoff`, `pipe_accept`):
 
 ```bash
 npm run build && node dist/mcp-bin.js   # or, once published: npx zakai-mandate-mcp

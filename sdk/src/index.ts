@@ -23,3 +23,4 @@ export * from "./registry.js";
 export * from "./statusList.js";
 export * from "./protocol.js";
 export * from "./interop.js";
+export * from "./rights.js";
