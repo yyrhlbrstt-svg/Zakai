@@ -211,9 +211,34 @@ class UnconfiguredProvider implements PaymentProvider {
 
 export class PaymentUnavailableError extends Error {}
 
-/** Which PSP is active. Defaults to the mock until a real one is wired. */
+function envTrimmed(key: string): boolean {
+  return Boolean(process.env[key]?.trim());
+}
+
+/** All three PayPlus credentials present — ready to collect real fees. */
+export function payplusKeysComplete(): boolean {
+  return (
+    envTrimmed("PAYPLUS_API_KEY") &&
+    envTrimmed("PAYPLUS_SECRET_KEY") &&
+    envTrimmed("PAYPLUS_PAYMENT_PAGE_UID")
+  );
+}
+
+/**
+ * Which PSP is active.
+ *
+ * Trap we close: Vercel often has complete PayPlus keys while
+ * `PAYMENT_PROVIDER` is still unset/`mock` — the app then charges nobody forever.
+ * When keys are complete, Prefer PayPlus unless `FORCE_MOCK_PAYMENTS=true`
+ * (tests / intentional demo without real charges).
+ */
 export function paymentProviderName(): string {
-  return (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
+  if (process.env.FORCE_MOCK_PAYMENTS === "true") return "mock";
+  const raw = (process.env.PAYMENT_PROVIDER || "").toLowerCase().trim();
+  if (raw === "payplus") return "payplus";
+  if (payplusKeysComplete() && (!raw || raw === "mock")) return "payplus";
+  if (!raw) return "mock";
+  return raw;
 }
 
 /** True once a REAL psp is configured (i.e. not the mock). */

@@ -113,25 +113,33 @@ const results = CHECKS.map((c) => {
 });
 
 /**
- * Mirror src/lib/deploy/releaseGate.ts paymentsFullyLive().
- * PAYMENT_PROVIDER=mock used to show ✓ (key present) while collecting no money —
- * that greenwash is how the product can run for months charging nobody.
+ * Mirror src/lib/deploy/releaseGate.ts paymentsFullyLive() + paymentProviderName heal.
+ * Complete PayPlus keys with unset/mock PAYMENT_PROVIDER used to leave fees dead forever.
  */
 function paymentsFullyLive() {
-  const name = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
+  if (process.env.FORCE_MOCK_PAYMENTS === "true") return false;
+  const raw = (process.env.PAYMENT_PROVIDER || "").toLowerCase().trim();
+  const payplusKeys = Boolean(
+    process.env.PAYPLUS_API_KEY?.trim() &&
+      process.env.PAYPLUS_SECRET_KEY?.trim() &&
+      process.env.PAYPLUS_PAYMENT_PAGE_UID?.trim(),
+  );
+  const name =
+    raw === "payplus"
+      ? "payplus"
+      : payplusKeys && (!raw || raw === "mock")
+        ? "payplus"
+        : raw || "mock";
   if (!name || name === "mock") return false;
-  if (name === "payplus") {
-    return Boolean(
-      process.env.PAYPLUS_API_KEY?.trim() &&
-        process.env.PAYPLUS_SECRET_KEY?.trim() &&
-        process.env.PAYPLUS_PAYMENT_PAGE_UID?.trim(),
-    );
-  }
+  if (name === "payplus") return payplusKeys;
   return false;
 }
 
-const paymentProvider = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
-// PayPlus credential rows only apply when that PSP is selected.
+const paymentProviderRaw = (process.env.PAYMENT_PROVIDER || "").toLowerCase().trim();
+const paymentProvider = paymentsFullyLive()
+  ? "payplus"
+  : paymentProviderRaw || "mock";
+// PayPlus credential rows only apply when that PSP is selected (or auto-healed).
 if (paymentProvider !== "payplus") {
   for (const r of results) {
     if (r.key.startsWith("PAYPLUS_")) r.ok = true;
@@ -145,10 +153,23 @@ const payProv = results.find((r) => r.key === "PAYMENT_PROVIDER");
 if (payProv) {
   payProv.ok = paymentsFullyLive();
   if (!payProv.ok) {
+    const keysPresent = Boolean(
+      process.env.PAYPLUS_API_KEY?.trim() ||
+        process.env.PAYPLUS_SECRET_KEY?.trim() ||
+        process.env.PAYPLUS_PAYMENT_PAGE_UID?.trim(),
+    );
     payProv.cost =
-      paymentProvider === "payplus"
+      paymentProviderRaw === "payplus"
         ? "PAYMENT_PROVIDER=payplus but PayPlus keys are incomplete — fee checkout cannot collect real money."
-        : "Success-fee checkout runs on the mock provider — no real card charges until PayPlus is fully configured.";
+        : keysPresent
+          ? "PayPlus keys are incomplete — fill API_KEY + SECRET_KEY + PAYMENT_PAGE_UID (or set FORCE_MOCK_PAYMENTS=true for intentional mock)."
+          : "Success-fee checkout runs on the mock provider — no real card charges until PayPlus is fully configured.";
+  } else if (
+    (!paymentProviderRaw || paymentProviderRaw === "mock") &&
+    process.env.FORCE_MOCK_PAYMENTS !== "true"
+  ) {
+    payProv.cost =
+      "PayPlus keys complete — provider auto-healed to live (set FORCE_MOCK_PAYMENTS=true to force mock).";
   }
 }
 // SMTP_USER/PASS only matter once a host is configured.

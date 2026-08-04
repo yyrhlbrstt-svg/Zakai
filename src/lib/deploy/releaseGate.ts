@@ -19,15 +19,22 @@ function envSet(key: string, alts: string[] = []): boolean {
 
 /** Real PayPlus (or future PSP) — not mock, not half-configured. */
 export function paymentsFullyLive(): boolean {
-  const name = (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
+  // Keep selection logic identical to paymentProviderName (PayPlus keys heal mock).
+  // Inline to avoid importing server-only payments from shared gate paths.
+  if (process.env.FORCE_MOCK_PAYMENTS === "true") return false;
+  const raw = (process.env.PAYMENT_PROVIDER || "").toLowerCase().trim();
+  const payplusKeys =
+    Boolean(process.env.PAYPLUS_API_KEY?.trim()) &&
+    Boolean(process.env.PAYPLUS_SECRET_KEY?.trim()) &&
+    Boolean(process.env.PAYPLUS_PAYMENT_PAGE_UID?.trim());
+  const name =
+    raw === "payplus"
+      ? "payplus"
+      : payplusKeys && (!raw || raw === "mock")
+        ? "payplus"
+        : raw || "mock";
   if (name === "mock") return false;
-  if (name === "payplus") {
-    return (
-      envSet("PAYPLUS_API_KEY") &&
-      envSet("PAYPLUS_SECRET_KEY") &&
-      envSet("PAYPLUS_PAYMENT_PAGE_UID")
-    );
-  }
+  if (name === "payplus") return payplusKeys;
   return false;
 }
 

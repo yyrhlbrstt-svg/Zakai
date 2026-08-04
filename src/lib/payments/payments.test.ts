@@ -2,19 +2,45 @@ import { describe, it, expect, afterEach } from "vitest";
 import {
   paymentProvider,
   paymentProviderName,
+  payplusKeysComplete,
   realPaymentsConfigured,
   PaymentUnavailableError,
 } from "./index";
 
 const ORIG = process.env.PAYMENT_PROVIDER;
+const ORIG_FORCE = process.env.FORCE_MOCK_PAYMENTS;
+const ORIG_KEYS = {
+  PAYPLUS_API_KEY: process.env.PAYPLUS_API_KEY,
+  PAYPLUS_SECRET_KEY: process.env.PAYPLUS_SECRET_KEY,
+  PAYPLUS_PAYMENT_PAGE_UID: process.env.PAYPLUS_PAYMENT_PAGE_UID,
+};
+
+function clearPayplusKeys() {
+  delete process.env.PAYPLUS_API_KEY;
+  delete process.env.PAYPLUS_SECRET_KEY;
+  delete process.env.PAYPLUS_PAYMENT_PAGE_UID;
+}
+
+function restorePayplusKeys() {
+  for (const [k, v] of Object.entries(ORIG_KEYS)) {
+    if (v === undefined) delete process.env[k];
+    else process.env[k] = v;
+  }
+}
+
 afterEach(() => {
   if (ORIG === undefined) delete process.env.PAYMENT_PROVIDER;
   else process.env.PAYMENT_PROVIDER = ORIG;
+  if (ORIG_FORCE === undefined) delete process.env.FORCE_MOCK_PAYMENTS;
+  else process.env.FORCE_MOCK_PAYMENTS = ORIG_FORCE;
+  restorePayplusKeys();
 });
 
 describe("payment provider selection", () => {
   it("defaults to the mock provider when nothing is configured", () => {
     delete process.env.PAYMENT_PROVIDER;
+    delete process.env.FORCE_MOCK_PAYMENTS;
+    clearPayplusKeys();
     expect(paymentProviderName()).toBe("mock");
     expect(realPaymentsConfigured()).toBe(false);
     expect(paymentProvider().name).toBe("mock");
@@ -25,11 +51,34 @@ describe("payment provider selection", () => {
     expect(realPaymentsConfigured()).toBe(true);
     expect(paymentProvider().name).toBe("payplus");
   });
+
+  it("auto-heals mock/unset to PayPlus when all keys are present", () => {
+    delete process.env.FORCE_MOCK_PAYMENTS;
+    process.env.PAYMENT_PROVIDER = "mock";
+    process.env.PAYPLUS_API_KEY = "k";
+    process.env.PAYPLUS_SECRET_KEY = "s";
+    process.env.PAYPLUS_PAYMENT_PAGE_UID = "page";
+    expect(payplusKeysComplete()).toBe(true);
+    expect(paymentProviderName()).toBe("payplus");
+    expect(paymentProvider().name).toBe("payplus");
+  });
+
+  it("keeps mock when FORCE_MOCK_PAYMENTS=true even with keys", () => {
+    process.env.FORCE_MOCK_PAYMENTS = "true";
+    process.env.PAYMENT_PROVIDER = "mock";
+    process.env.PAYPLUS_API_KEY = "k";
+    process.env.PAYPLUS_SECRET_KEY = "s";
+    process.env.PAYPLUS_PAYMENT_PAGE_UID = "page";
+    expect(paymentProviderName()).toBe("mock");
+    expect(paymentProvider().name).toBe("mock");
+  });
 });
 
 describe("mock checkout", () => {
   it("returns a checkout URL carrying the fee id + a reference", async () => {
     delete process.env.PAYMENT_PROVIDER;
+    process.env.FORCE_MOCK_PAYMENTS = "true";
+    clearPayplusKeys();
     const res = await paymentProvider().createCheckout({
       feeId: "fee_123",
       amountAgorot: 5000,
