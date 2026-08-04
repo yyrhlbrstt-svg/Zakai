@@ -641,7 +641,10 @@
     "authVerifyLink": "Provider verification link",
     "authScope": "Scope of authorization",
     "proceed": "Continue to send the request",
-    "bothRequired": "Both verifications must be completed to continue."
+    "bothRequired": "Both verifications must be completed to continue.",
+    "authRevoked": "Authorization was revoked — cannot record a saving. Re-issue a Mandate or open a new case.",
+    "feeMandateRequired": "No Mandate bound to this fee — checkout refused. Re-issue authorization.",
+    "genericError": "Something went wrong. Try again."
   },
   "authorizationDoc": {
     "docTitle": "Power of Attorney for Action Toward a Provider",
@@ -707,6 +710,7 @@
     "feePaying": "Redirecting…",
     "feePayError": "Try again",
     "feePayUnavailable": "Checkout unavailable — configure PayPlus",
+    "feeMandateRequired": "No Mandate bound to this fee — checkout refused. Re-issue authorization.",
     "feePaid": "paid",
     "feePaidBanner": "Payment received — thank you! The fee was paid successfully.",
     "feeErrorBanner": "Payment did not complete. You can try again from the fee below.",
@@ -4962,7 +4966,7 @@
   "inline_components_FlightRightsChecker": {
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_b4c9b341": "Just generate letter to copy",
-    "t_eb212a88": "Demand ready and approved. On the dashboard: verify ownership → create Mandate → mark sent. The agent follows up and records the compensation when it lands.",
+    "t_eb212a88": "Demand ready and approved. On the dashboard: verify ownership → create Mandate → send to the provider. The agent follows up and records the compensation when it lands.",
     "t_4a0f7a8f": "Dashboard — continue now (verify + Mandate)"
   },
   "inline_components_EmptyDashboardActions": {
@@ -4985,7 +4989,7 @@
     "t_b4c9b341": "Just generate letter to copy",
     "t_360e126e": "✓ Agent opened a case — pre-approved",
     "t_8ae29d51": "Dashboard — continue now",
-    "t_5a0296a5": "Dispute ready. On the dashboard: verify ownership → Mandate → mark sent. When the fee is waived — record the saving.",
+    "t_5a0296a5": "Dispute ready. On the dashboard: verify ownership → Mandate → send to the provider. When the fee is waived — record the saving.",
     "bankLabel": "Choose bank",
     "agentOpening": "Agent opening case…",
     "agentSend": "Open case — continue on dashboard (verify & send)",

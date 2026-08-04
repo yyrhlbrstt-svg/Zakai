@@ -171,6 +171,10 @@ const copy: Record<string, Record<string, string>> = {
       "סיבובי המעקב בכתב מוצו. אל תשלחו עוד תזכורת — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר (ביטול / מתחרה).",
     mandateInactiveBanner:
       "אין Mandate פעיל על התיק — הסוכן לא יכול לשלוח המשך לספק עד שתאשרו הרשאה מחדש.",
+    authRevokedBanner:
+      "ההרשאה בוטלה — אי אפשר לרשום חיסכון או לגבות עמלה. הנפיקו Mandate מחדש או פתחו תיק חדש.",
+    feeMandateRequired:
+      "אין Mandate קשור לעמלה — לא נגבה תשלום. ודאו שיש Mandate פעיל לפני סגירת הלופ.",
     mandateReissue: "הנפק Mandate מחדש",
     mandateReissued: "Mandate פעיל שוב",
     proofsLabel: "העבירו תשובת ספק לכאן",
@@ -279,6 +283,10 @@ const copy: Record<string, Record<string, string>> = {
       "Written follow-up rounds are exhausted. Do not send another reminder — record an amount from a written reply, mark no change, or pivot (cancel / competitor).",
     mandateInactiveBanner:
       "No ACTIVE Mandate on this case — the agent cannot send a follow-up until you re-issue authorization.",
+    authRevokedBanner:
+      "Authorization was revoked — cannot record a saving or collect a fee. Re-issue a Mandate or open a new case.",
+    feeMandateRequired:
+      "No Mandate bound to this fee — checkout refused. Ensure an ACTIVE Mandate before closing the loop.",
     mandateReissue: "Re-issue Mandate",
     mandateReissued: "Mandate active again",
     proofsLabel: "Forward provider reply here",
@@ -479,6 +487,7 @@ export function CaseNextStep({
       checkoutUrl?: string;
       chargeable?: boolean;
       error?: string;
+      checkoutError?: string;
     };
     if (!res.ok) {
       // Double-tap / slow network after settle — land on SAVED → fee, don't generic-fail.
@@ -487,7 +496,18 @@ export function CaseNextStep({
         router.push(`/money?case=${caseId}&payFee=1`);
         return;
       }
+      if (data.error === "AUTH_REVOKED") {
+        setLocalAuth(false);
+        setErr(t(locale, "authRevokedBanner"));
+        return;
+      }
       throw new Error("save");
+    }
+    // Fee without Mandate bind: land on pay surface so FeePayButton shows the
+    // honest refusal — don't pretend checkout started.
+    if (data.checkoutError === "MANDATE_REQUIRED") {
+      finishSaving({ checkoutUrl: undefined, chargeable: true });
+      return;
     }
     finishSaving({ checkoutUrl: data.checkoutUrl, chargeable: data.chargeable === true });
   }
@@ -1141,9 +1161,11 @@ export function CaseNextStep({
               ? t(locale, "queuedBanner")
               : outreachDelivery === "failed"
                 ? t(locale, "failedBanner")
-                : emailConfigured
-                  ? t(locale, "sentBanner")
-                  : t(locale, "notDeliveredBanner")}
+                : outreachDelivery === "none"
+                  ? t(locale, "notDeliveredBanner")
+                  : emailConfigured
+                    ? t(locale, "queuedBanner")
+                    : t(locale, "notDeliveredBanner")}
           {roundHint && (
             <span className="block mt-1 text-emerald">
               {t(locale, "agentRoundLabel")}: {agentRound} · {roundHint}

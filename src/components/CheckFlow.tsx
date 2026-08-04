@@ -102,11 +102,13 @@ export function CheckFlow() {
 
   // outcome
   const [newAmount, setNewAmount] = useState("");
+  const [saveErr, setSaveErr] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<{
     saving: number;
     fee: number;
     chargeable: boolean;
     checkoutUrl?: string;
+    checkoutError?: string;
   } | null>(null);
   const [delivered, setDelivered] = useState(true);
   const [pasteText, setPasteText] = useState("");
@@ -401,6 +403,7 @@ export function CheckFlow() {
   async function recordSaving(amt: number) {
     if (!rec) return;
     setBusy(true);
+    setSaveErr(null);
     const res = await fetch(`/api/cases/${rec.caseId}/record-saving`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -414,13 +417,17 @@ export function CheckFlow() {
         fee: Number(data.feeShekels) || 0,
         chargeable: data.chargeable === true,
         checkoutUrl: data.checkoutUrl as string | undefined,
+        checkoutError:
+          typeof data.checkoutError === "string" ? data.checkoutError : undefined,
       });
       setStage("result");
     } else if (data.error === "ALREADY_SETTLED" && rec.caseId) {
       // Double-tap after settle — finish fee on /money, don't generic-fail.
       router.push(`/money?case=${rec.caseId}&payFee=1`);
+    } else if (data.error === "AUTH_REVOKED") {
+      setSaveErr("authRevoked");
     } else {
-      setOwnErr("genericError");
+      setSaveErr("genericError");
     }
   }
 
@@ -837,6 +844,7 @@ export function CheckFlow() {
                 {t("noChangeBtn")}
               </Button>
             </div>
+            {saveErr && <FieldError>{tvSafe(tv, saveErr)}</FieldError>}
           </Card>
         </div>
       )}
@@ -896,7 +904,9 @@ export function CheckFlow() {
                 <div className="font-display grad-text text-2xl">₪{nf.format(outcome.fee)}</div>
               </div>
               <div className="text-[13px] text-ink-soft mt-1.5">{t("feeExplain")}</div>
-              {outcome.checkoutUrl ? (
+              {outcome.checkoutError === "MANDATE_REQUIRED" ? (
+                <FieldError>{tv("feeMandateRequired")}</FieldError>
+              ) : outcome.checkoutUrl ? (
                 <Button
                   className="w-full mt-4"
                   onClick={() => {

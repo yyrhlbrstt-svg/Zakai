@@ -28,6 +28,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     });
     const fee = result.fee;
     let checkoutUrl: string | undefined;
+    let checkoutError: string | undefined;
     if (result.feeNet > 0) {
       const origin = new URL(request.url).origin;
       try {
@@ -40,6 +41,8 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
         checkoutUrl = checkout.checkoutUrl;
       } catch (err) {
         if (!(err instanceof PaymentError)) throw err;
+        // Surface to the client — especially MANDATE_REQUIRED (fee without Mandate bind).
+        checkoutError = err.message;
       }
     }
     // Wire contract must match what was actually persisted — estimate/selfReported
@@ -52,6 +55,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       chargeable,
       selfReported: parsed.data.selfReported === true,
       checkoutUrl,
+      checkoutError,
     });
   } catch (err) {
     if (err instanceof CaseError) {

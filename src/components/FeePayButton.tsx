@@ -78,7 +78,9 @@ export function FeePayButton({
         : error
           ? errorKind === "paymentUnavailable"
             ? t("feePayUnavailable")
-            : t("feePayError")
+            : errorKind === "MANDATE_REQUIRED"
+              ? t("feeMandateRequired")
+              : t("feePayError")
           : t("feePay")}
     </button>
   );
