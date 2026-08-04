@@ -13,6 +13,7 @@ import { resolveMandateAudience } from "@/lib/institutionAudience";
 import {
   allocateStatusIndex,
   publishRevocation,
+  statusIndexForJti,
   statusListUriForIssuer,
 } from "@/lib/mandate/statusIndex";
 
@@ -117,12 +118,30 @@ async function reissueAuthorization(
   });
   if (!kase) throw new Error("case not found");
 
+  // Prior machine Mandate must appear revoked before a replacement is minted —
+  // otherwise the old JWS stays offline-valid while product auth is ACTIVE again.
+  if (prior.mandateJti) {
+    try {
+      await prisma.$transaction((tx) =>
+        publishRevocation(tx, {
+          jti: prior.mandateJti!,
+          reason: "reissue",
+          statusIndex: prior.mandateStatusIndex ?? undefined,
+        }),
+      );
+    } catch {
+      /* status store down — still clear fields below so we do not re-attach it */
+    }
+  }
+
   const mandateAudience = resolveMandateAudience(kase.provider);
   let doc: Authorization | undefined;
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generateAuthorizationCode();
     const clash = await prisma.authorization.findUnique({ where: { code } });
     if (clash) continue;
+    // Clear Mandate fields on the ACTIVE flip so a failed mint cannot leave
+    // ACTIVE authority paired with a revoked (or missing) JWS.
     doc = await prisma.authorization.update({
       where: { id: prior.id },
       data: {
@@ -136,6 +155,9 @@ async function reissueAuthorization(
         scope: SCOPE,
         mandateAudience,
         issuedAt: new Date(),
+        mandateJti: null,
+        mandateJws: null,
+        mandateStatusIndex: null,
       },
     });
     break;
@@ -180,18 +202,42 @@ async function tryIssueCaseMandate(input: {
   country: string;
   authCode: string;
   mandateAudience: string;
+  /**
+   * Heal a missing JWS for an existing jti: resign with the same jti and the
+   * issue-time status bit. Never allocate a new UUID / bit — that orphans Fee
+   * binds and leaves any prior circulating token's idx forever unset on revoke.
+   */
+  reuse?: { jti: string; statusIndex?: number | null };
 }): Promise<{ mandateJti?: string; mandateToken?: string; mandateStatusIndex?: number }> {
   try {
     const key = loadSigningKeyFromEnv();
-    const jti = randomUUID();
+    const jti = input.reuse?.jti ?? randomUUID();
     const issuer =
       process.env.MANDATE_ISSUER ||
       process.env.NEXT_PUBLIC_APP_URL ||
       "https://zakai-3uxj.vercel.app";
 
-    // Allocate the status-list bit before signing so zkm.status.idx is stable
-    // for the life of the token — revoke flips this bit, never invents another.
-    const statusIndex = await allocateStatusIndex(prisma, jti);
+    let statusIndex: number;
+    if (input.reuse) {
+      const fromAuth =
+        typeof input.reuse.statusIndex === "number" &&
+        Number.isInteger(input.reuse.statusIndex) &&
+        input.reuse.statusIndex >= 0
+          ? input.reuse.statusIndex
+          : undefined;
+      const resolved = fromAuth ?? (await statusIndexForJti(prisma, jti));
+      if (typeof resolved !== "number") {
+        // Fail closed: inventing a bit for a jti that already left the building
+        // would make revoke flip the wrong index.
+        console.error("mandate_jws_heal_missing_status_index", { jti, caseId: input.caseId });
+        return {};
+      }
+      statusIndex = resolved;
+    } else {
+      // Fresh mint — allocate the status-list bit before signing so
+      // zkm.status.idx is stable for the life of the token.
+      statusIndex = await allocateStatusIndex(prisma, jti);
+    }
 
     const token = await issueMandate(
       {
@@ -248,6 +294,7 @@ export async function ensureMandateTokenForCase(
   });
   if (!kase) return undefined;
 
+  // jti without jws → resign the same credential. Fresh mint only when jti is absent.
   const mandate = await tryIssueCaseMandate({
     caseId,
     userId: kase.userId,
@@ -258,6 +305,9 @@ export async function ensureMandateTokenForCase(
     country: kase.user.country || "IL",
     authCode: auth.code,
     mandateAudience: auth.mandateAudience ?? resolveMandateAudience(kase.provider),
+    reuse: auth.mandateJti
+      ? { jti: auth.mandateJti, statusIndex: auth.mandateStatusIndex }
+      : undefined,
   });
   if (!mandate.mandateJti || !mandate.mandateToken) return undefined;
 
