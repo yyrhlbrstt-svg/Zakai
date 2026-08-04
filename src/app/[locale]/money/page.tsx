@@ -25,7 +25,9 @@ import { provenSavings } from "@/lib/services/selfReportedSaving";
 import { prisma } from "@/lib/prisma";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
+import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
 import { nextActionHref, rankNextAction } from "@/lib/services/nextAction";
+import { isOvernightFollowUpDue } from "@/lib/services/overnightFollowUpGate";
 import { pickShareableSavedCaseId } from "@/lib/services/shareableSavedCase";
 import {
   moneyPendingFeeHref,
@@ -108,6 +110,7 @@ export default async function MoneyPage({
       select: {
         id: true,
         status: true,
+        updatedAt: true,
         provider: true,
         vertical: true,
         amountOriginal: true,
@@ -145,8 +148,15 @@ export default async function MoneyPage({
         : provider
           ? `Your case with ${provider} needs the next step`
           : "An open case needs the next step";
-      // HITL follow-up draft lives on the finish surface — not only dashboard.
-      if (action.kind === "sent_wait" && focus) {
+      // HITL follow-up draft — same wait as cron/dashboard (no day-0 theater).
+      if (
+        action.kind === "sent_wait" &&
+        focus &&
+        isOvernightFollowUpDue({
+          updatedAt: focus.updatedAt,
+          waitDays: SENT_FOLLOWUP_AFTER_DAYS,
+        })
+      ) {
         overnightCases = [
           {
             id: focus.id,

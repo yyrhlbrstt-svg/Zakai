@@ -25,6 +25,7 @@ import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { getAgentRoundMap, MAX_AGENT_ROUNDS } from "@/lib/services/agentFollowUp";
 import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
+import { isOvernightFollowUpDue } from "@/lib/services/overnightFollowUpGate";
 import { followUpAfterDays } from "@/lib/strategy/learningInsights";
 import { CaseHighlightScroll } from "@/components/CaseHighlightScroll";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
@@ -278,11 +279,11 @@ export default async function DashboardPage({
         return false;
       }
       const tip = learningTips.get(`${c.vertical}::${c.provider}`);
-      const waitDays = tip?.medianDays != null
-        ? followUpAfterDays(tip.medianDays)
-        : SENT_FOLLOWUP_AFTER_DAYS;
-      const cutoff = Date.now() - waitDays * 86_400_000;
-      return c.updatedAt.getTime() <= cutoff;
+      const waitDays =
+        tip?.medianDays != null
+          ? followUpAfterDays(tip.medianDays)
+          : SENT_FOLLOWUP_AFTER_DAYS;
+      return isOvernightFollowUpDue({ updatedAt: c.updatedAt, waitDays });
     })
     .map((c) => ({
       id: c.id,
