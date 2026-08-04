@@ -2,6 +2,10 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { maskPhone } from "@/lib/phone";
 import { mandateEmailAttachment } from "@/lib/mandate/document";
+import {
+  loadSigningKeyFromEnv,
+  MandateKeyUnavailableError,
+} from "@/lib/mandate/mandate";
 import { ensureMandateTokenForCase } from "@/lib/services/authorization";
 import {
   buildInboundReceivePayload,
@@ -54,7 +58,20 @@ export async function rebuildMandateAttachmentsForCase(
   });
 
   const mandateTok = await ensureMandateTokenForCase(caseId);
-  if (!mandateTok) return [attachment];
+  if (!mandateTok) {
+    try {
+      loadSigningKeyFromEnv();
+      // Signing keys are live but no machine Mandate — fail closed. Returning
+      // HTML-only would let the async Outbox worker mark the letter "sent with
+      // Mandate" without a verifiable JWS / inbound JSON.
+      return [];
+    } catch (err) {
+      // Pre-key / local envs: human Authorization HTML still goes out (same
+      // soft path as sync send when MandateKeyUnavailableError).
+      if (err instanceof MandateKeyUnavailableError) return [attachment];
+      return [];
+    }
+  }
 
   const loc = localeForCountry(kase.user?.country);
   const inboundAtt = inboundReceiveEmailAttachment(
