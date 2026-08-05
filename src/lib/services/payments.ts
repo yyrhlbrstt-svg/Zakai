@@ -106,9 +106,20 @@ export async function confirmFeePayment(feeId: string, providerRef: string): Pro
   if (fee.status === "PAID") return true; // idempotent
   if (!fee.providerRef || fee.providerRef !== providerRef) return false;
 
-  await prisma.fee.update({
-    where: { id: feeId },
+  // A real PSP fires the GET browser bounce and the POST webhook for the
+  // same payment close together, both landing here with the same valid
+  // providerRef — same "read state, check condition, act" shape already
+  // fixed for initiateFeePayment/sendOutreach/outboxDeliver/
+  // verifyOwnershipCode. Both concurrent calls would otherwise pass the
+  // status/providerRef checks above and both reach an unconditional update.
+  // Today that happens to be harmless (same fields, same effective state),
+  // but the moment PENDING→PAID gains a one-time side effect (receipt
+  // email, referral payout, accounting entry), an unguarded double-fire
+  // becomes a real bug with no test to catch it. The where-clause re-checks
+  // status is still PENDING at write time, not read time.
+  const claimed = await prisma.fee.updateMany({
+    where: { id: feeId, status: "PENDING", providerRef },
     data: { status: "PAID", paidAt: new Date() },
   });
-  return true;
+  return claimed.count > 0;
 }

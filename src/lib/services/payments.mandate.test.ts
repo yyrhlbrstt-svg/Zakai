@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findFirst = vi.fn();
 const findUnique = vi.fn();
+const feeFindUnique = vi.fn();
 const feeUpdate = vi.fn();
 const feeUpdateMany = vi.fn();
 const createCheckout = vi.fn();
@@ -11,6 +12,7 @@ vi.mock("@/lib/prisma", () => ({
     case: { findFirst: (...args: unknown[]) => findFirst(...args) },
     authorization: { findUnique: (...args: unknown[]) => findUnique(...args) },
     fee: {
+      findUnique: (...args: unknown[]) => feeFindUnique(...args),
       update: (...args: unknown[]) => feeUpdate(...args),
       updateMany: (...args: unknown[]) => feeUpdateMany(...args),
     },
@@ -22,7 +24,7 @@ vi.mock("@/lib/payments", () => ({
   paymentProviderName: () => "mock",
 }));
 
-import { initiateFeePayment, PaymentError } from "./payments";
+import { initiateFeePayment, confirmFeePayment, PaymentError } from "./payments";
 
 describe("initiateFeePayment mandate binding", () => {
   beforeEach(() => {
@@ -196,5 +198,53 @@ describe("initiateFeePayment — claim before calling the PSP", () => {
       where: { id: "f1", providerRef: expect.stringMatching(/^pending:/) },
       data: { providerRef: null },
     });
+  });
+});
+
+describe("confirmFeePayment — claim before flipping to PAID", () => {
+  beforeEach(() => {
+    feeFindUnique.mockReset();
+    feeUpdateMany.mockReset();
+  });
+
+  it(
+    "never reports success from a losing concurrent confirm — the real-PSP shape: the GET " +
+      "browser bounce and the POST webhook for the same payment both read PENDING, both pass " +
+      "the providerRef check, and only the where-clause re-check at write time can tell them apart",
+    async () => {
+      feeFindUnique.mockResolvedValue({ id: "f1", status: "PENDING", providerRef: "ref-1" });
+      // Simulates the other concurrent call's updateMany having already flipped
+      // this fee to PAID between our read and our own claim attempt.
+      feeUpdateMany.mockResolvedValue({ count: 0 });
+
+      const result = await confirmFeePayment("f1", "ref-1");
+
+      expect(result).toBe(false);
+      expect(feeUpdateMany).toHaveBeenCalledWith({
+        where: { id: "f1", status: "PENDING", providerRef: "ref-1" },
+        data: { status: "PAID", paidAt: expect.any(Date) },
+      });
+    },
+  );
+
+  it("flips to PAID when the claim succeeds", async () => {
+    feeFindUnique.mockResolvedValue({ id: "f1", status: "PENDING", providerRef: "ref-1" });
+    feeUpdateMany.mockResolvedValue({ count: 1 });
+
+    expect(await confirmFeePayment("f1", "ref-1")).toBe(true);
+  });
+
+  it("stays idempotent for an already-PAID fee without attempting another claim", async () => {
+    feeFindUnique.mockResolvedValue({ id: "f1", status: "PAID", providerRef: "ref-1" });
+
+    expect(await confirmFeePayment("f1", "ref-1")).toBe(true);
+    expect(feeUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("rejects a mismatched providerRef without ever attempting a claim", async () => {
+    feeFindUnique.mockResolvedValue({ id: "f1", status: "PENDING", providerRef: "ref-1" });
+
+    expect(await confirmFeePayment("f1", "wrong-ref")).toBe(false);
+    expect(feeUpdateMany).not.toHaveBeenCalled();
   });
 });
