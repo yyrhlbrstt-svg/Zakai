@@ -785,7 +785,11 @@ export interface AssistantContext {
   locale: string;
 }
 
-export async function askZakai(question: string, ctx: AssistantContext): Promise<string> {
+export async function askZakai(
+  question: string,
+  ctx: AssistantContext,
+  image?: { base64: string; mediaType: string },
+): Promise<string> {
   const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
   const system = buildAssistantSystem();
 
@@ -796,6 +800,8 @@ export async function askZakai(question: string, ctx: AssistantContext): Promise
     return fallbackGenerate({
       system,
       userText,
+      imageBase64: image?.base64,
+      mediaType: image?.mediaType,
       maxTokens: 1024,
       temperature: 0.3,
       geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
@@ -808,7 +814,24 @@ export async function askZakai(question: string, ctx: AssistantContext): Promise
     max_tokens: 1024,
     temperature: 0.3,
     system: cachedSystem(system),
-    messages: [{ role: "user", content: userText }],
+    messages: [
+      {
+        role: "user",
+        content: image
+          ? [
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: image.mediaType as "image/jpeg",
+                  data: image.base64,
+                },
+              },
+              { type: "text", text: userText },
+            ]
+          : userText,
+      },
+    ],
   });
   return msg.content
     .map((b) => (b.type === "text" ? b.text : ""))

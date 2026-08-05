@@ -9,10 +9,20 @@ import { reportError } from "@/lib/report-error";
 import { buildAssistantCasesSnapshot } from "@/lib/services/assistantContext";
 import { ensureReplyEndsWithNextAction } from "@/lib/services/nextAction";
 
-const schema = z.object({
-  question: z.string().trim().min(2).max(1000),
-  locale: z.string().default("he"),
-});
+const ALLOWED_IMAGE_MEDIA = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
+/** Same cap as /api/scan/extract — a phone screenshot, not a dump. */
+const MAX_IMAGE_BASE64_CHARS = 5_500_000;
+
+const schema = z
+  .object({
+    question: z.string().trim().max(1000).default(""),
+    locale: z.string().default("he"),
+    imageBase64: z.string().min(10).max(MAX_IMAGE_BASE64_CHARS).optional(),
+    imageMediaType: z.string().optional(),
+  })
+  .refine((v) => v.question.length >= 2 || v.imageBase64, {
+    message: "question or image required",
+  });
 
 const QUOTA: Record<string, number> = { FREE: 5, PRO: 100, MAX: 300 };
 const WINDOW_SECONDS = 30 * 24 * 3600;
@@ -52,6 +62,13 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return badRequest("genericError");
 
+  let image: { base64: string; mediaType: string } | undefined;
+  if (parsed.data.imageBase64) {
+    const mediaType = (parsed.data.imageMediaType || "image/jpeg").toLowerCase().split(";")[0].trim();
+    if (!ALLOWED_IMAGE_MEDIA.has(mediaType)) return badRequest("genericError");
+    image = { base64: parsed.data.imageBase64, mediaType };
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: auth.userId },
     select: { plan: true },
@@ -67,12 +84,19 @@ export async function POST(request: Request) {
   const casesSummary = `${snapshot}\n\n${NEGOTIATION_COACH}`;
   const href = hrefFromSnapshot(snapshot);
 
+  const question =
+    parsed.data.question || (image ? "(No question — read the attached image and respond.)" : "");
+
   try {
-    const raw = await askZakai(parsed.data.question, {
-      plan,
-      casesSummary,
-      locale: parsed.data.locale,
-    });
+    const raw = await askZakai(
+      question,
+      {
+        plan,
+        casesSummary,
+        locale: parsed.data.locale,
+      },
+      image,
+    );
     const answer = href ? ensureReplyEndsWithNextAction(raw, href) : raw;
     return NextResponse.json({ answer });
   } catch (err) {

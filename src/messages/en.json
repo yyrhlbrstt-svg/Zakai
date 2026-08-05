@@ -1036,6 +1036,11 @@
     "chatGenericError": "Something went wrong. Try again in a moment.",
     "inputPlaceholder": "e.g.: How much have I saved so far? What should I check next?",
     "send": "Send",
+    "attachImage": "Attach a photo (bill, letter, provider reply)",
+    "imageAttached": "Image attached",
+    "removeImage": "Remove image",
+    "imageTooBig": "Image is too large (max 4MB) — try a screenshot instead.",
+    "imageOnlyLabel": "📎 Image",
     "disclaimer": "The agent answers from your own data only, never executes actions itself, and is not legal, financial, or insurance advice.",
     "insights": {
       "pendingCase": "{count, plural, one {You have a recommendation awaiting approval} other {You have # recommendations awaiting approval}} — {potential}/month in potential savings already identified, one confirmation away.",
