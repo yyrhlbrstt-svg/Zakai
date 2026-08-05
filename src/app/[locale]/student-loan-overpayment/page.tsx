@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { RightsChecker } from "@/components/RightsChecker";
+import { SlcOverpaymentTool } from "@/components/SlcOverpaymentTool";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
@@ -48,6 +49,7 @@ export default async function StudentLoanOverpaymentPage({
       }
     >
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="UK" />
+      <SlcOverpaymentTool />
     </VerticalPageShell>
   );
 }
