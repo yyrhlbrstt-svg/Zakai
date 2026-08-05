@@ -32,6 +32,7 @@ export async function GET(request: Request) {
       verify: {
         jwks: `${origin}/.well-known/zakai-jwks.json`,
         typ: "zakai-track-record+jwt",
+        verify_uri: `${origin}/api/authority/track-record/verify`,
       },
     });
   } catch (err) {
