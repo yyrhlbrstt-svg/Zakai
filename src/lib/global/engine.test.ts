@@ -195,6 +195,23 @@ describe("document rendering", () => {
   it("returns null for tool-backed rights, which have no letter", () => {
     expect(renderDocument(IL_PACK, "mobile_check", {})).toBeNull();
   });
+
+  it("appends the real legal citation to every letter, localized to the pack's document language", () => {
+    const he = renderDocument(IL_PACK, "arnona_senior", { name: "דנה", id: "123", municipality: "חיפה" });
+    expect(he?.body).toContain("בסיס משפטי");
+    const ilRight = IL_PACK.rights.find((r) => r.id === "arnona_senior");
+    expect(he?.body).toContain(ilRight!.source);
+
+    const en = renderDocument(GB_PACK, "council_tax_single_person", {
+      name: "Dana",
+      id: "QQ123456C",
+      municipality: "Camden",
+      accountNumber: "55512345",
+    });
+    expect(en?.body).toContain("Legal basis");
+    const gbRight = GB_PACK.rights.find((r) => r.id === "council_tax_single_person");
+    expect(en?.body).toContain(gbRight!.source);
+  });
 });
 
 describe("market registry", () => {
