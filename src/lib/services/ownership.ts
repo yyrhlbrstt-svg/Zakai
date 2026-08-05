@@ -232,16 +232,26 @@ export async function verifyOwnershipCode(
   if (record.expiresAt.getTime() < Date.now()) {
     return { ok: false, error: "expired" };
   }
-  if (record.attempts >= MAX_ATTEMPTS) {
+
+  // Claim one guess atomically before testing it — the previous shape here
+  // (read record.attempts, compare to MAX_ATTEMPTS, increment unconditionally
+  // afterward) let N concurrent verification requests submitted before any
+  // one increment commits all read the same stale attempts count and all
+  // get their guess tested against the true hash, so the enforced cap was
+  // really "N guesses within one race window", not a hard 5. The where-
+  // clause requires attempts to still be below MAX_ATTEMPTS at the moment of
+  // the write, not at the moment we read it — same claim shape as the fee-
+  // checkout and outbox-drain fixes elsewhere in this codebase.
+  const claimed = await prisma.phoneVerification.updateMany({
+    where: { id: record.id, attempts: { lt: MAX_ATTEMPTS } },
+    data: { attempts: { increment: 1 } },
+  });
+  if (claimed.count === 0) {
     return { ok: false, error: "too_many_attempts" };
   }
 
   const matches = safeEqualHex(record.codeHash, hashCode(code));
   if (!matches) {
-    await prisma.phoneVerification.update({
-      where: { id: record.id },
-      data: { attempts: { increment: 1 } },
-    });
     const remaining = MAX_ATTEMPTS - (record.attempts + 1);
     return { ok: false, error: remaining <= 0 ? "too_many_attempts" : "invalid" };
   }
