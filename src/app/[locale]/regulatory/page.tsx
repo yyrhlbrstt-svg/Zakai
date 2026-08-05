@@ -44,8 +44,11 @@ export default async function RegulatoryKitPage({
       </Card>
 
       <div className="flex flex-col gap-3">
+        <Link href="/regulatory/report" className="no-underline">
+          <Button className="w-full">{c.reportCta}</Button>
+        </Link>
         <a href={`${SITE_URL}/api/regulatory/snapshot?market=IL&format=brief`} className="no-underline">
-          <Button className="w-full">{c.briefCta}</Button>
+          <Button variant="ghost" className="w-full">{c.briefCta}</Button>
         </a>
         <a href={`${SITE_URL}/api/regulatory/snapshot?market=IL&format=md`} className="no-underline">
           <Button variant="ghost" className="w-full">

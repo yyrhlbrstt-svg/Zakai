@@ -9,6 +9,7 @@ export function regulatoryKitCopy(locale: string) {
       metaDesc: "אגרגטים מתועדים בלבד — לא סקרים ולא דיווח רשמי.",
       schemaNote: (schema: string, version: string) =>
         `סכימה ${schema} · גרסה ${version}. זה אינו דיווח רשמי לרגולטור ולא סטטיסטיקה ממשלתית.`,
+      reportCta: "דוח מודפס לציטוט",
       briefCta: "ייצוא טקסט (brief)",
       mdCta: "ייצוא Markdown",
       jsonCta: "JSON מלא",
@@ -27,6 +28,7 @@ export function regulatoryKitCopy(locale: string) {
     metaDesc: "Documented aggregates only — not surveys or official filings.",
     schemaNote: (schema: string, version: string) =>
       `Schema ${schema} · v${version}. Not an official regulatory filing or government statistic.`,
+    reportCta: "Printable citable report",
     briefCta: "Plain-text brief export",
     mdCta: "Markdown brief",
     jsonCta: "Full JSON snapshot",

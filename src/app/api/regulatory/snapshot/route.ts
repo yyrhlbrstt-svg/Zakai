@@ -1,19 +1,6 @@
 import { NextResponse } from "next/server";
-import { getOutcomeGraphPublicStats } from "@/lib/protocol/discovery";
-import { loadFairnessScores } from "@/lib/services/fairnessScores";
-import {
-  aggregateInboundPressure,
-  disclosedInboundPressure,
-  pressureRowsFromCases,
-  CASE_PRESSURE_SELECT,
-} from "@/lib/institutionInboundPressure";
-import { prisma } from "@/lib/prisma";
 import { MIN_SAMPLE } from "@/lib/companyScore";
-import {
-  REGULATORY_SNAPSHOT_CHANGELOG,
-  REGULATORY_SNAPSHOT_SCHEMA,
-  REGULATORY_SNAPSHOT_VERSION,
-} from "@/lib/regulatory/snapshotSchema";
+import { buildRegulatorySnapshot } from "@/lib/regulatory/buildSnapshot";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,56 +18,31 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const market = (url.searchParams.get("market") ?? "IL").toUpperCase();
 
-  const [outcome, fairness, cases] = await Promise.all([
-    getOutcomeGraphPublicStats(),
-    loadFairnessScores(market),
-    prisma.case
-      .findMany({
-        where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
-        select: CASE_PRESSURE_SELECT,
-      })
-      .catch(() => [] as Parameters<typeof pressureRowsFromCases>[0]),
-  ]);
-
-  let collectiveTotal = 0;
-  try {
-    const intentRows = await prisma.collectiveIntentSignal.groupBy({
-      by: ["vertical"],
-      where: { market },
-      _count: { _all: true },
-    });
-    collectiveTotal = intentRows.reduce((s, r) => s + r._count._all, 0);
-  } catch {
-    collectiveTotal = 0;
-  }
-
-  const pressure = disclosedInboundPressure(aggregateInboundPressure(pressureRowsFromCases(cases)));
-  const marketOutcomes = outcome.markets.filter((m) => m.market === market);
+  const snapshot = await buildRegulatorySnapshot(market);
 
   const payload = {
     ok: true,
-    schema: REGULATORY_SNAPSHOT_SCHEMA,
-    schema_version: REGULATORY_SNAPSHOT_VERSION,
-    changelog: REGULATORY_SNAPSHOT_CHANGELOG,
+    schema: snapshot.schema,
+    schema_version: snapshot.schemaVersion,
+    changelog: snapshot.changelog,
     market,
-    disclaimer:
-      "Aggregates from Zakai consumer activity and de-identified outcomes — not total market complaints or government statistics.",
+    disclaimer: snapshot.disclaimer,
     outcome_graph: {
-      total_outcomes_global: outcome.totalOutcomes,
-      market_slice: marketOutcomes,
-      updated_at: outcome.updatedAt,
+      total_outcomes_global: snapshot.outcomeGraph.totalOutcomesGlobal,
+      market_slice: snapshot.outcomeGraph.marketSlice,
+      updated_at: snapshot.outcomeGraph.updatedAt,
     },
     inbound_pressure: {
-      disclosed_institutions: pressure.length,
-      top: pressure.slice(0, 10),
+      disclosed_institutions: snapshot.inboundPressure.disclosedInstitutions,
+      top: snapshot.inboundPressure.top,
     },
     fairness_scores: {
-      providers_with_score: fairness.length,
+      providers_with_score: snapshot.fairnessScores.providersWithScore,
       min_observations: MIN_SAMPLE,
     },
     collective_intent: {
-      total_signals: collectiveTotal,
-      phase: "intent_only",
+      total_signals: snapshot.collectiveIntent.totalSignals,
+      phase: snapshot.collectiveIntent.phase,
     },
     links: {
       inbound_pressure: "/api/institution/inbound-pressure",
@@ -94,27 +56,26 @@ export async function GET(request: Request) {
 
   const format = url.searchParams.get("format");
   if (format === "brief" || format === "md") {
-    const emptyNote =
-      outcome.totalOutcomes === 0 && pressure.length === 0 && fairness.length === 0
-        ? "\nHonesty: all aggregates are zero/empty — do not cite as market statistics.\n"
-        : "";
+    const emptyNote = snapshot.isEmpty
+      ? "\nHonesty: all aggregates are zero/empty — do not cite as market statistics.\n"
+      : "";
     const top =
-      pressure.length === 0
+      snapshot.inboundPressure.top.length === 0
         ? ["  (none disclosed yet)"]
-        : pressure.slice(0, 5).map(
+        : snapshot.inboundPressure.top.slice(0, 5).map(
             (p) =>
               `  - ${p.institutionId}: dispatched=${p.dispatchedCases} saved=${p.savedCases}`,
           );
     const lines = [
       format === "md" ? `# Zakai regulatory snapshot — ${market}` : `Zakai regulatory snapshot — ${market}`,
-      `Schema: ${REGULATORY_SNAPSHOT_SCHEMA} @ ${REGULATORY_SNAPSHOT_VERSION}`,
+      `Schema: ${snapshot.schema} @ ${snapshot.schemaVersion}`,
       "",
-      payload.disclaimer,
+      snapshot.disclaimer,
       emptyNote,
-      `Outcome graph (global): ${outcome.totalOutcomes}`,
-      `Inbound pressure (disclosed institutions): ${pressure.length}`,
-      `Fairness scores (providers): ${fairness.length} (min n=${MIN_SAMPLE})`,
-      `Collective intent signals: ${collectiveTotal}`,
+      `Outcome graph (global): ${snapshot.outcomeGraph.totalOutcomesGlobal}`,
+      `Inbound pressure (disclosed institutions): ${snapshot.inboundPressure.disclosedInstitutions}`,
+      `Fairness scores (providers): ${snapshot.fairnessScores.providersWithScore} (min n=${MIN_SAMPLE})`,
+      `Collective intent signals: ${snapshot.collectiveIntent.totalSignals}`,
       "",
       "Top inbound pressure (disclosed only):",
       ...top,
