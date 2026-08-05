@@ -196,15 +196,31 @@ export async function processOutboxBatch(limit = OUTBOX_WORKER_BATCH_DEFAULT): P
         result.skipped += 1;
         continue;
       }
-      // Preserve attempt marker while re-queuing (do not wipe error to null).
-      await prisma.outbox.update({
-        where: { id: row.id },
-        data: {
-          status: "QUEUED",
-          error: `[attempts=${parseOutboxAttempts(row.error)}]`,
-        },
-      });
     }
+
+    // Claim the row before sending anything, with a conditional update — the
+    // previous version read rows with a plain findMany and only wrote after
+    // actually calling sendMail/the SMS POST, so two overlapping cron runs
+    // (a Vercel retry, or a manual drain landing next to the scheduled one)
+    // could both pass the read and both send the same letter/OTP/fee-confirm
+    // twice. Same fix shape as sendOutreach's claimed updateMany in cases.ts.
+    // No schema migration: the where-clause pins both status AND the exact
+    // error string we just read as an optimistic-concurrency version check —
+    // only one concurrent claim can match it.
+    const attemptsSoFar = parseOutboxAttempts(row.error);
+    const claimed = await prisma.outbox.updateMany({
+      where: { id: row.id, status: row.status, error: row.error },
+      data: {
+        status: "QUEUED",
+        error: attemptsSoFar > 0 ? `[attempts=${attemptsSoFar}]` : null,
+      },
+    });
+    if (claimed.count === 0) {
+      // Another invocation already claimed this row between our read and now.
+      result.skipped += 1;
+      continue;
+    }
+
     const fresh = await prisma.outbox.findUnique({ where: { id: row.id } });
     if (!fresh) continue;
     const outcome = await deliverOutboxRecord(fresh);
