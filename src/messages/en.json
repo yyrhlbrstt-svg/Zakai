@@ -3357,7 +3357,25 @@
       "primary": "Check flight compensation",
       "secondary": "FAQ"
     },
-    "disclaimer": "Zakai is a self-help tool, not legal advice. Compensation depends on circumstances, route and carrier policy, and is not guaranteed. The Montreal Convention applies to most international flights; check your flight details."
+    "disclaimer": "Zakai is a self-help tool, not legal advice. Compensation depends on circumstances, route and carrier policy, and is not guaranteed. The Montreal Convention applies to most international flights; check your flight details.",
+    "agent": {
+      "title": "The agent opens a claim case for you",
+      "sub": "Fill in the details and Zakai drafts a Montreal Convention compensation demand and sends it under a signed Mandate — not just a copy-paste letter.",
+      "disruptionQ": "What happened to your baggage?",
+      "delayed": "Delayed",
+      "lost": "Lost",
+      "name": "Full name",
+      "airline": "Airline",
+      "airlineEmail": "Customer service email (if known)",
+      "pir": "PIR number",
+      "flightDate": "Flight date",
+      "purchases": "Essential expenses you paid (₪, if any)",
+      "description": "Additional detail",
+      "needsEmail": "We need the airline's email to send the demand — we couldn't resolve one automatically, you can enter it manually.",
+      "openedTitle": "Case opened",
+      "openedSub": "The demand was sent under a signed Mandate. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "bankFees": {
     "metaTitle": "Bank fees & late charges — how to get them waived | Zakai",

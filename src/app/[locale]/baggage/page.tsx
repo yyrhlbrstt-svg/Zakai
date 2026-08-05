@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
+import { BaggageClaimAgent } from "@/components/BaggageClaimAgent";
 
 export async function generateMetadata({
   params,
@@ -101,6 +102,8 @@ export default async function BaggagePage({
           </ul>
         </div>
       </Reveal>
+
+      <BaggageClaimAgent />
 
       <Reveal>
         <GradientCtaCard><div className="font-display text-xl">{t("cta.title")}</div>
