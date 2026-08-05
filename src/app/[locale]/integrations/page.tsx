@@ -56,7 +56,7 @@ export default async function IntegrationsPage({
         <SpotlightCard className="p-5 mt-8 border-[rgba(63,203,155,0.4)]">
           <SectionHeading title={t("readyTitle")} className="mt-0 mb-2" as="h2" />
           <p className="text-[14px] text-ink-soft leading-relaxed m-0 mb-3">{t("readyBody")}</p>
-          <CodeBlock>{`npx zakai-mandate-ready --origin ${ORIGIN}\n# or\ncurl -s ${ORIGIN}/api/mandate/ready`}</CodeBlock>
+          <CodeBlock>{`npm install github:yyrhlbrstt-svg/Zakai#path:sdk\nnpx zakai-mandate-ready --origin ${ORIGIN}\n# or, no install at all:\ncurl -s ${ORIGIN}/api/mandate/ready`}</CodeBlock>
           <div className="flex flex-wrap gap-3 mt-4">
             <Link href="/institutions/quickstart" className="text-emerald font-bold underline">
               {t("readyQuickstart")}

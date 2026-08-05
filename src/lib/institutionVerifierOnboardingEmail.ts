@@ -30,7 +30,9 @@ Independent conformance (no SSRF — paste JWKS inline):
 Join kit (all audiences): ${base}/api/network/join-kit
 Test vectors: ${base}/api/mandate/test-vectors
 JWKS: ${base}/.well-known/zakai-jwks.json
-MCP (verification-only): npx zakai-mandate-mcp — see docs/INSTITUTION_QUICKSTART.md
+MCP (verification-only): not yet on the public npm registry — clone, then
+  npm ci --prefix sdk && npm run build --prefix sdk && node sdk/dist/mcp-bin.js
+  (full instructions: sdk/README.md, "MCP server" section)
 `.trim();
 }
 

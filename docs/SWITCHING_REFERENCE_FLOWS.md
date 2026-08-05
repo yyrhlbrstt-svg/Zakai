@@ -23,7 +23,7 @@ Every provider email from `sendOutreach` appends a machine-readable footer:
 
 Institutions can parse this block without scraping consumer UI.
 
-**Agents / MCP:** `npx zakai-mandate-mcp` — see `docs/INSTITUTION_QUICKSTART.md`.
+**Agents / MCP:** not yet on the public npm registry — see `sdk/README.md` ("MCP server" section) for the zero-setup install.
 
 ## Conformance checklist
 

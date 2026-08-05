@@ -60,12 +60,14 @@ export function buildAgentsIndexDocument(origin: string) {
         method: "GET",
         path: "/api/mandate/ready",
         curl: `curl -sS ${base}/api/mandate/ready`,
-        cli: "npx zakai-mandate-ready",
+        // Not on the public npm registry — install from the monorepo first
+        // (zero-setup, no npm account or token; see sdk/README.md).
+        cli: `npm install github:yyrhlbrstt-svg/Zakai#path:sdk && npx zakai-mandate-ready --origin ${base}`,
       },
       {
         id: "mcp",
         why: "verify_mandate / decide_action / pipe tools for MCP hosts",
-        path: "zakai-mandate-mcp (sdk/)",
+        path: "zakai-mandate-mcp (sdk/) — npm install github:yyrhlbrstt-svg/Zakai#path:sdk, then run dist/mcp-bin.js (see sdk/README.md)",
       },
     ],
     doors: pipe.doors,

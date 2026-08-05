@@ -80,7 +80,8 @@ is always free).
 - Verify a mandate: `POST /api/mandate/verify` (CORS-enabled) · status by id:
   `GET /api/mandate/status/{jti}`
 - Machine readiness gate (vectors + Status List → `ready_for_pioneer`):
-  `GET /api/mandate/ready` · CLI: `npx zakai-mandate-ready`
+  `GET /api/mandate/ready` · CLI (zero-setup, no npm account needed):
+  `npm install github:yyrhlbrstt-svg/Zakai#path:sdk && npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app`
 - Institutions overview: [/en/institutions](https://zakai-3uxj.vercel.app/en/institutions)
 
 ## For banks & institutions (inbound only)

@@ -83,4 +83,4 @@ Full agent flows use `embed.js` + `#zakai-embed` — see `/he/partners` and `doc
 
 Widget copy must not promise outcomes. Protocol laws: `/.well-known/zakai-protocol.json`.
 
-Program spec: `docs/FAIRNESS_CERTIFIED_PROGRAM.md`. Mandate verification for agents: `npx zakai-mandate-mcp` — see `docs/INSTITUTION_QUICKSTART.md`.
+Program spec: `docs/FAIRNESS_CERTIFIED_PROGRAM.md`. Mandate verification for agents: MCP server, not yet on the public npm registry — see `sdk/README.md` ("MCP server" section) for the zero-setup install.

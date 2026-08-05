@@ -68,7 +68,12 @@ export async function GET(request: Request) {
     // Machine readiness: pass published authorization vectors + verify the signed
     // Status List. Same gate as Pioneer listing — not regulatory certification.
     ready_uri: `${origin}/api/mandate/ready`,
-    ready_cli: "npx zakai-mandate-ready",
+    // The SDK is not on the public npm registry (see sdk/README.md) — a bare
+    // `npx zakai-mandate-ready` resolves nothing and fails. This install step
+    // works today with no npm account or token.
+    ready_cli:
+      "npm install github:yyrhlbrstt-svg/Zakai#path:sdk && npx zakai-mandate-ready --origin " +
+      origin,
     // The second layer. Authorization answers who may act; settlement answers
     // what was agreed, what happened, and who is right when those disagree.
     // Each link is an ordinary JWT signed by the party making the claim and
@@ -164,6 +169,11 @@ export async function GET(request: Request) {
           "get_trust_registry",
           "list_scopes",
           "predict_outcome",
+          "list_rights",
+          "get_right",
+          "discover_pipe",
+          "pipe_handoff",
+          "pipe_accept",
         ],
       },
       oracle_predict_uri: `${origin}/api/oracle/predict`,
