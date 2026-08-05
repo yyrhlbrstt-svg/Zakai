@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { RightsChecker } from "@/components/RightsChecker";
+import { VaadBaitAgent } from "@/components/VaadBaitAgent";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
@@ -27,6 +28,7 @@ export default async function VaadBaitPage({ params }: { params: Promise<{ local
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")} cite={t("cite")}>
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
+      <VaadBaitAgent />
     </VerticalPageShell>
   );
 }

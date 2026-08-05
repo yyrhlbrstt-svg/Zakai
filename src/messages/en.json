@@ -6054,7 +6054,20 @@
     "kicker": "Housing · HOA",
     "title": "HOA charge you cannot explain?",
     "sub": "A letter demanding financial reports and expense detail before you keep paying.",
-    "cite": "No guaranteed refund — only documented transparency."
+    "cite": "No guaranteed refund — only documented transparency.",
+    "agent": {
+      "title": "Open a committee-transparency case",
+      "sub": "The agent drafts a letter to the building committee demanding financial reports and an itemized charge breakdown, and asks that collection pause until they're provided.",
+      "name": "Full name",
+      "buildingAddress": "Building address",
+      "contactEmail": "Committee email",
+      "unexplainedCharge": "What charge wasn't explained?",
+      "chargeAmount": "Charge amount (optional)",
+      "needsEmail": "A valid committee email is needed to send the request.",
+      "openedTitle": "Case opened",
+      "openedSub": "The reports-and-breakdown request was sent. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "waterBill": {
     "metaTitle": "High water bill — concealed leak credit | Zakai",
