@@ -5959,7 +5959,28 @@
     "kicker": "Road 6",
     "title": "Charged on Highway 6 unfairly?",
     "sub": "Appeal under Cross-Israel Highway legislation — including when you are no longer the registered owner.",
-    "cite": "There is a time window from the notice — keep documents."
+    "cite": "There is a time window from the notice — keep documents.",
+    "agent": {
+      "title": "The agent sends a signed appeal",
+      "sub": "Fill in the details and Zakai sends an appeal to the statutory committee under a signed Mandate.",
+      "reasonQ": "What's the reason for the appeal?",
+      "reasons": {
+        "wrong_vehicle": "Wrong vehicle",
+        "vehicle_sold": "Vehicle sold",
+        "duplicate": "Duplicate charge",
+        "technical_fault": "Technical fault",
+        "other": "Other"
+      },
+      "name": "Full name",
+      "invoiceNumber": "Invoice/notice number",
+      "contactEmail": "Route 6 customer service email",
+      "amount": "Charge amount (₪, if known)",
+      "details": "Additional detail",
+      "needsEmail": "We need customer service's email to send the appeal.",
+      "openedTitle": "Case opened",
+      "openedSub": "The appeal was sent under a signed Mandate. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "vehicleLicenseRefund": {
     "metaTitle": "Vehicle licence fee refund — Zakai",
