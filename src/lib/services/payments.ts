@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { paymentProvider, paymentProviderName } from "@/lib/payments";
 
@@ -44,17 +45,46 @@ export async function initiateFeePayment(
     throw new PaymentError("MANDATE_REQUIRED");
   }
 
+  // Claim the fee before minting a live checkout link. Without this, two
+  // overlapping requests (a double-click on "pay now", or the same fee open
+  // in two tabs) both pass the PENDING check above and both call the PSP —
+  // each mints its own real, independently-payable hosted checkout, and the
+  // second prisma.fee.update below silently overwrites the first checkout's
+  // providerRef. If the payer completes the checkout that lost that race,
+  // confirmFeePayment's exact-match check on providerRef then fails and a
+  // real captured payment can never be reconciled to PAID. The where-clause
+  // pins the exact providerRef we just read as an optimistic-concurrency
+  // check — matches the claim shape already used for sendOutreach and the
+  // Outbox drain worker — so a losing concurrent call fails fast instead of
+  // reaching the PSP at all.
+  const claimMarker = `pending:${randomUUID()}`;
+  const claimed = await prisma.fee.updateMany({
+    where: { id: fee.id, status: "PENDING", providerRef: fee.providerRef },
+    data: { providerRef: claimMarker },
+  });
+  if (claimed.count === 0) throw new PaymentError("CHECKOUT_IN_PROGRESS");
+
   const provider = paymentProvider();
   const loc = encodeURIComponent(locale);
   // feeId must survive the PayPlus browser bounce — GET verify is fail-closed,
   // so the callback needs feeId to deep-link /money?case=&payFee=1 on error/confirming.
   const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}&feeId=${encodeURIComponent(fee.id)}`;
-  const checkout = await provider.createCheckout({
-    feeId: fee.id,
-    amountAgorot: fee.amount,
-    description: `Zakai success fee — case ${kase.id}`,
-    returnUrl,
-  });
+  let checkout: { checkoutUrl: string; providerRef: string };
+  try {
+    checkout = await provider.createCheckout({
+      feeId: fee.id,
+      amountAgorot: fee.amount,
+      description: `Zakai success fee — case ${kase.id}`,
+      returnUrl,
+    });
+  } catch (err) {
+    // Release the claim so a retry isn't permanently stuck matching a stale marker.
+    await prisma.fee.updateMany({
+      where: { id: fee.id, providerRef: claimMarker },
+      data: { providerRef: null },
+    });
+    throw err;
+  }
 
   await prisma.fee.update({
     where: { id: fee.id },
