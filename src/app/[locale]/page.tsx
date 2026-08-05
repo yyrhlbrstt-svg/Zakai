@@ -297,7 +297,10 @@ export default async function HomePage({
             (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
           ).map((s, i) => (
             <div key={s.label} className="text-center">
-              <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
+              <div
+                dir="ltr"
+                className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums"
+              >
                 {i === 1 ? ilRightsCount : s.n}
               </div>
               <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
