@@ -84,7 +84,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/car-insurance-refund", key: "carInsuranceRefund", category: "agent", agentic: true },
   { href: "/vaad-bait", key: "vaadBait", category: "rights" },
   { href: "/water-bill", key: "waterBill", category: "rights" },
-  { href: "/landlord-repairs", key: "landlordRepairs", category: "rights" },
+  { href: "/landlord-repairs", key: "landlordRepairs", category: "agent", agentic: true },
   { href: "/duplicate-charge", key: "duplicateCharge", category: "agent", agentic: true },
   // Quiz/letter page — Mandate loop is /check (do not label as agentic).
   { href: "/telecom-exit", key: "telecomExit", category: "selfHelp", agentic: false },

@@ -6011,7 +6011,22 @@
     "kicker": "Renting",
     "title": "Landlord not fixing a serious defect?",
     "sub": "A written demand to schedule repairs under tenancy law.",
-    "cite": "Zakai is not a law firm and does not represent you in court."
+    "cite": "Zakai is not a law firm and does not represent you in court.",
+    "agent": {
+      "title": "The agent sends a signed demand to your landlord",
+      "sub": "Fill in the details and Zakai sends a repair demand under a signed Mandate — not just a copy-paste letter.",
+      "name": "Full name",
+      "landlordName": "Landlord's name",
+      "landlordEmail": "Landlord's email",
+      "address": "Property address",
+      "daysSinceReported": "Days since you reported it",
+      "repairCost": "Estimated repair cost if you paid yourself (₪, if any)",
+      "defect": "Defect description",
+      "needsEmail": "We need the landlord's email to send the demand.",
+      "openedTitle": "Case opened",
+      "openedSub": "The demand was sent under a signed Mandate. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "duplicateCharge": {
     "metaTitle": "Duplicate card or bank charge — Zakai",

@@ -88,6 +88,7 @@ const ICONS: Record<string, LucideIcon> = {
   bankfees: Building2,
   priceprotection: Tag,
   warranty: Wrench,
+  landlordRepairs: Hammer,
   miluim: Medal,
   rights: BookOpen,
   electricity: Zap,
