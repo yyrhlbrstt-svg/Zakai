@@ -473,7 +473,16 @@ export async function recordSaving(
       });
     }
 
-    if (saved && owner?.referredById) {
+    // Self-reported saves never trigger a referral reward — same discipline as
+    // billableAmount above. A self-report is somebody's word, not a documented
+    // outcome (see selfReportedSaving.ts), and a referral reward pays out real
+    // credit to a THIRD PARTY (the referrer) against that unverified number.
+    // Without this guard, a burner account could self-report a fake saving on
+    // a case its own referrer opened it for and mint real, uncapped credit
+    // toward the referrer's own future fees — exactly the class of number
+    // this codebase already decided can't support a charge, just paid to a
+    // different person.
+    if (saved && !selfReported && owner?.referredById) {
       const already = await tx.referralReward.findUnique({
         where: { referredUserId: userId },
       });

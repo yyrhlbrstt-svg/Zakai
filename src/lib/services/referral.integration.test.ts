@@ -121,4 +121,39 @@ suite("referral rewards (integration)", () => {
     const referrer = await prisma.user.findUnique({ where: { id: referrerId } });
     expect(referrer!.referralCreditAgorot).toBe(REFERRAL_REWARD_AGOROT - gross);
   });
+
+  it(
+    "never grants a referral reward for a self-reported save — the exact farming path: a burner " +
+      "account referred by an attacker, self-reporting a fake saving, must not mint real credit " +
+      "toward the referrer's future fees off a number nobody verified",
+    async () => {
+      const burner = await prisma.user.create({
+        data: {
+          email: `${tag}-burner@zakai.test`,
+          name: "בורנר",
+          phone: "+972500000012",
+          passwordHash: "x",
+          referredById: referrerId,
+        },
+      });
+      try {
+        const creditBefore = (await prisma.user.findUnique({ where: { id: referrerId } }))!
+          .referralCreditAgorot;
+
+        const kase = await sentCase(burner.id, 10000, 5000);
+        await recordSaving(kase.id, burner.id, 50, { selfReported: true });
+
+        const reward = await prisma.referralReward.findUnique({
+          where: { referredUserId: burner.id },
+        });
+        expect(reward).toBeNull();
+
+        const referrerAfter = await prisma.user.findUnique({ where: { id: referrerId } });
+        expect(referrerAfter!.referralCreditAgorot).toBe(creditBefore);
+      } finally {
+        await prisma.case.deleteMany({ where: { userId: burner.id } });
+        await prisma.user.delete({ where: { id: burner.id } });
+      }
+    },
+  );
 });

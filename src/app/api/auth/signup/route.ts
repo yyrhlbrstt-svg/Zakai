@@ -8,6 +8,7 @@ import { normalizePhone } from "@/lib/phone";
 import { generateReferralCode } from "@/lib/codes";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { sendEmail } from "@/lib/messaging";
 import { sendVerificationEmail } from "@/lib/services/emailVerification";
 import { CONSUMER_REF_COOKIE } from "@/lib/consumerReferralAttribution";
 
@@ -26,9 +27,35 @@ export async function POST(request: Request) {
   const normalizedPhone = normalizePhone(phone)!;
 
   try {
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, name: true, email: true },
+    });
     if (existing) {
-      return NextResponse.json({ error: "emailTaken" }, { status: 409 });
+      // Same non-enumeration doctrine as requestPasswordReset (see
+      // passwordReset.ts): whether a given email already has a Zakai account
+      // is itself sensitive for a product like this one, so a duplicate-email
+      // signup must be indistinguishable from the outside from a fresh one —
+      // never a distinguishable 409/"emailTaken". No session is created for
+      // this request (that would log an unverified requester into a
+      // stranger's real account); the real owner is emailed instead, so a
+      // genuine repeat attempt still gets a useful next step.
+      try {
+        const origin = new URL(request.url).origin;
+        const locale = country === "IL" ? "he" : "en";
+        await sendEmail({
+          to: existing.email,
+          subject:
+            locale === "he" ? "זכאי — ניסיון הרשמה עם כתובת זו" : "Zakai — a signup attempt with this address",
+          body:
+            locale === "he"
+              ? `שלום ${existing.name},\n\nמישהו ניסה להירשם לזכאי עם כתובת האימייל הזו — יש לך כבר חשבון.\n\nאם זה היית אתה: התחבר כאן: ${origin}/he/login\nשכחת סיסמה? איפוס: ${origin}/he/forgot\n\nאם זה לא היית אתה, אין צורך לעשות כלום.`
+              : `Hi ${existing.name},\n\nSomeone tried to sign up for Zakai using this email address — you already have an account.\n\nIf that was you: log in here: ${origin}/en/login\nForgot your password? Reset it: ${origin}/en/forgot\n\nIf it wasn't you, there's nothing you need to do.`,
+        });
+      } catch (mailErr) {
+        await reportError(mailErr, { route: "signup-duplicate-notify" });
+      }
+      return NextResponse.json({ ok: true });
     }
 
     const cookieStore = await cookies();
