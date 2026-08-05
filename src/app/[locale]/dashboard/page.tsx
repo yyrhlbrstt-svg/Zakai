@@ -459,7 +459,8 @@ export default async function DashboardPage({
                   emailVerified={Boolean(user!.emailVerifiedAt)}
                   learningTip={learningTips.get(`${c.vertical}::${c.provider}`) ?? null}
                   nextOpenCase={
-                    c.status === "SAVED" || c.status === "NO_SAVING" || c.status === "REVOKED"
+                    (c.status === "SAVED" || c.status === "NO_SAVING" || c.status === "REVOKED") &&
+                    habitCase?.id !== c.id
                       ? nextOpenCase
                       : null
                   }
