@@ -5988,7 +5988,25 @@
     "kicker": "Licence fee",
     "title": "Took the car off the road?",
     "sub": "Annual licence fee may be refunded pro-rata on deregistration or total write-off — not on a sale to a third party.",
-    "cite": "Selling the car does not trigger a refund — only leaving the road or total loss."
+    "cite": "Selling the car does not trigger a refund — only leaving the road or total loss.",
+    "agent": {
+      "title": "Open a licence-fee refund case",
+      "sub": "The agent drafts a letter to the Licensing Bureau requesting the pro-rated refund be calculated and paid.",
+      "reasonQ": "What happened to the vehicle?",
+      "reasons": {
+        "cancelled": "Registration cancelled",
+        "total_loss": "Total loss (write-off)"
+      },
+      "name": "Full name",
+      "licensePlate": "Licence plate",
+      "contactEmail": "Licensing Bureau email",
+      "cancellationDate": "Cancellation / loss date",
+      "annualFee": "Annual fee paid (optional)",
+      "needsEmail": "A valid Licensing Bureau email is needed to send the request.",
+      "openedTitle": "Case opened",
+      "openedSub": "The refund request was sent. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "collectionComplaint": {
     "metaTitle": "Debt collector complaint — Zakai",

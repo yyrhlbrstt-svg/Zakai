@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { RightsChecker } from "@/components/RightsChecker";
+import { VehicleLicenseRefundAgent } from "@/components/VehicleLicenseRefundAgent";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
@@ -31,6 +32,7 @@ export default async function VehicleLicenseRefundPage({
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")} cite={t("cite")}>
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
+      <VehicleLicenseRefundAgent />
     </VerticalPageShell>
   );
 }
