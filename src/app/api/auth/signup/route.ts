@@ -40,6 +40,15 @@ export async function POST(request: Request) {
       // this request (that would log an unverified requester into a
       // stranger's real account); the real owner is emailed instead, so a
       // genuine repeat attempt still gets a useful next step.
+      //
+      // The fresh-signup branch below always pays a real bcrypt round
+      // (~100ms at ROUNDS=10, see password.ts) hashing the submitted
+      // password before it can return. Skipping that here — the same shape
+      // of bug burnPasswordComparison exists to prevent on login — would
+      // make the two branches distinguishable by response time even with an
+      // identical body and status, turning latency into the same membership
+      // oracle the response body was just fixed to stop being.
+      await hashPassword(password);
       try {
         const origin = new URL(request.url).origin;
         const locale = country === "IL" ? "he" : "en";

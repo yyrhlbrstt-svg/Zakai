@@ -98,6 +98,24 @@ describe("POST /api/auth/signup", () => {
     },
   );
 
+  it(
+    "pays the same bcrypt hash cost on the duplicate-email path as a fresh signup — " +
+      "otherwise the two branches are distinguishable by response latency alone, the " +
+      "same membership-oracle class of bug burnPasswordComparison exists to prevent on login",
+    async () => {
+      findUnique.mockResolvedValueOnce({
+        id: "user_existing",
+        name: "Existing User",
+        email: "ada@example.com",
+      });
+
+      await POST(req(VALID_BODY));
+
+      expect(hashPassword).toHaveBeenCalledTimes(1);
+      expect(hashPassword).toHaveBeenCalledWith(VALID_BODY.password);
+    },
+  );
+
   it("never creates a session for a duplicate-email request — that would log the requester into a stranger's account", async () => {
     findUnique.mockResolvedValueOnce({
       id: "user_existing",
