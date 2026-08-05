@@ -154,7 +154,14 @@ export default async function HomePage({
     const i = doorOrder.indexOf(doorKey(href));
     return i === -1 ? Number.MAX_SAFE_INTEGER : i;
   };
-  const doors = [...doorsByKey].sort((a, b) => rank(a.href) - rank(b.href));
+  const sortedDoors = [...doorsByKey].sort((a, b) => rank(a.href) - rank(b.href));
+  // Cap simultaneous choices on the very first screen a visitor sees: research
+  // on decision-time cost (Hick's law) and fintech-conversion practice both
+  // land on roughly 3-4 equally-weighted options, not 7 — the rest stay one
+  // click away via /tools rather than competing for the same fold.
+  const VISIBLE_DOOR_COUNT = 4;
+  const doors = sortedDoors.slice(0, VISIBLE_DOOR_COUNT);
+  const moreDoorsCount = sortedDoors.length - doors.length;
 
   const accentBorder: Record<string, string> = {
     emerald: "border-[rgba(63,203,155,0.45)]",
@@ -235,7 +242,12 @@ export default async function HomePage({
 
       <DoorTracker experimentId="home_door_order" armId={doorArm?.id ?? "money_first"} />
 
-      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] mb-14">
+      <div
+        className={
+          "grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] " +
+          (moreDoorsCount > 0 ? "mb-4" : "mb-14")
+        }
+      >
         {doors.map((d, i) => {
           const Icon = d.icon;
           const featured = i === 0;
@@ -290,6 +302,17 @@ export default async function HomePage({
           );
         })}
       </div>
+
+      {moreDoorsCount > 0 && (
+        <Reveal delay={sortedDoors.length * 40}>
+          <Link
+            href="/tools"
+            className="no-underline block text-center text-[13px] text-ink-soft mb-14 hover:text-emerald transition-colors"
+          >
+            {t("home.moreDoors", { count: moreDoorsCount })}
+          </Link>
+        </Reveal>
+      )}
 
       <Reveal delay={80}>
         <div className="grid grid-cols-3 gap-3 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">

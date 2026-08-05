@@ -291,6 +291,7 @@
     "sub": "Zakai is an AI agent that finds and gets back money you're already owed — bank fees, a forgotten subscription, a right you never claimed. That is the whole start: screenshot → case with a Mandate → send → documented saving. Do not pick from a toolbox — go to My money.",
     "cta": "Start in My money",
     "heroLeaks": "Money leak map",
+    "moreDoors": "{count} more ways to save →",
     "howTitle": "How it works",
     "trust": [
       "One agent closes the loop — in-app, under your Mandate",
