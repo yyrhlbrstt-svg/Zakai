@@ -757,3 +757,24 @@ model WidgetKey {
   @@index([domain])
   @@index([revokedAt])
 }
+
+/**
+ * Oracle API keys — per-customer credentials for /api/oracle/predict, the
+ * outcome-graph pricing API sold to institutions (underwriters, insurers,
+ * litigation-finance funds). Before this table the endpoint had exactly one
+ * shared secret (ORACLE_API_KEY): fine for a single pilot, unusable once a
+ * second paying customer needs their own key, their own usage visibility,
+ * and the ability to be revoked without breaking everyone else. Mirrors
+ * WidgetKey's shape and durability guarantee; ORACLE_API_KEY keeps working
+ * as a "master" key for backward compatibility.
+ */
+model OracleKey {
+  /// Opaque secret key, e.g. ok_live_…
+  key       String   @id
+  /// Customer/institution label — never a domain, this is a server-to-server key.
+  label     String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([revokedAt])
+}

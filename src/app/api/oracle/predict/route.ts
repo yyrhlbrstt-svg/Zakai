@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { predict } from "@/lib/oracle/store";
 import { assessOracleCalibration } from "@/lib/oracle/store";
-import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { rateLimit } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { secretsMatch } from "@/lib/security/timingSafe";
+import { resolveOracleKey } from "@/lib/oracle/keys";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,25 +35,42 @@ const schema = z.object({
  *   not seen. Anyone can serve a probability; what makes one worth paying for
  *   is a standing, measured claim that it means what it says. Publishing it
  *   alongside every answer means we cannot quietly drift.
+ *
+ * Auth: a per-customer key from OracleKey (mint one at POST /api/oracle/keys,
+ * admin-only), or the legacy single-tenant ORACLE_API_KEY env var.
  */
 export async function POST(request: Request) {
   const key = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
-  const expected = process.env.ORACLE_API_KEY;
+  const masterKey = process.env.ORACLE_API_KEY;
 
-  // No key configured means the endpoint is closed, not open. A pricing API
-  // that defaults to public because someone forgot an environment variable is
-  // a data leak with a countdown on it.
-  if (!expected) {
+  // No credential presented and no master key configured at all means the
+  // endpoint is closed, not open. A pricing API that defaults to public
+  // because someone forgot an environment variable is a data leak with a
+  // countdown on it. (Per-customer OracleKey rows can still make the
+  // endpoint reachable with zero env config — that's the point of them.)
+  if (!key && !masterKey) {
     return NextResponse.json({ error: "not_enabled" }, { status: 503 });
   }
-  // Hashed first, so a length mismatch takes the same path as a content
-  // mismatch: comparing raw-buffer lengths before the constant-time check (the
-  // previous form of this check) is itself a timing oracle on the key's length.
-  if (!secretsMatch(key, expected)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  // ORACLE_API_KEY remains a "master" key for backward compatibility, but
+  // the real multi-tenant path is a per-customer OracleKey: one shared
+  // secret can't be sold to more than one paying institution at a time —
+  // there's no way to revoke customer A without breaking customer B, and no
+  // way to see whose traffic is whose. Hashed comparison first so a length
+  // mismatch takes the same path as a content mismatch (a timing oracle on
+  // the key's length otherwise).
+  let identity = "master";
+  if (!masterKey || !secretsMatch(key, masterKey)) {
+    const resolved = await resolveOracleKey(key || null);
+    if (!resolved) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    identity = `key:${resolved.label}`;
   }
 
-  const limited = await rateLimit("oracle_predict", clientIp(request), 600, 60);
+  // Rate-limited by resolved customer identity, not raw IP — the correct
+  // axis for a server-to-server B2B API, where one customer's traffic can
+  // legitimately share an exit IP with other callers, and IP alone gives no
+  // way to grant one paying customer a larger quota than another.
+  const limited = await rateLimit("oracle_predict", identity, 600, 60);
   if (!limited.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
 
   const body = await request.json().catch(() => null);
