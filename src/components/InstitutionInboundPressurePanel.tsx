@@ -9,20 +9,25 @@ import {
   CASE_PRESSURE_SELECT,
 } from "@/lib/institutionInboundPressure";
 import { institutionPilotMailto } from "@/lib/institutionPull";
+import { loadInstitutionRiskTrend } from "@/lib/services/institutionRiskTrend";
 
 export async function InstitutionInboundPressurePanel({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "institutions" });
 
-  const rows = await prisma.case
-    .findMany({
-      where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
-      select: CASE_PRESSURE_SELECT,
-    })
-    .catch(() => [] as Parameters<typeof pressureRowsFromCases>[0]);
+  const [rows, trends] = await Promise.all([
+    prisma.case
+      .findMany({
+        where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
+        select: CASE_PRESSURE_SELECT,
+      })
+      .catch(() => [] as Parameters<typeof pressureRowsFromCases>[0]),
+    loadInstitutionRiskTrend(),
+  ]);
 
   const all = aggregateInboundPressure(pressureRowsFromCases(rows));
   const disclosed = disclosedInboundPressure(all);
   const mappedTotal = all.reduce((s, r) => s + r.dispatchedCases, 0);
+  const trendByInstitution = new Map(trends.map((tr) => [tr.institutionId, tr]));
 
   return (
     <Card className="p-6 mb-4 border-[rgba(255,200,80,0.25)]">
@@ -37,17 +42,31 @@ export async function InstitutionInboundPressurePanel({ locale }: { locale: stri
         <p className="text-[13px] text-ink-soft m-0 mb-4">{t("inboundPressureEmpty")}</p>
       ) : (
         <ul className="list-none p-0 m-0 mb-4 flex flex-col gap-2 text-[13px]">
-          {disclosed.slice(0, 5).map((row) => (
-            <li key={row.institutionId} className="flex justify-between gap-3 font-mono" dir="ltr">
-              <span>{row.institutionId}</span>
-              <span>
-                {t("inboundPressureRow", {
-                  dispatched: row.dispatchedCases,
-                  saved: row.savedCases,
-                })}
-              </span>
-            </li>
-          ))}
+          {disclosed.slice(0, 5).map((row) => {
+            const trend = trendByInstitution.get(row.institutionId);
+            return (
+              <li key={row.institutionId} className="flex justify-between gap-3 font-mono" dir="ltr">
+                <span>{row.institutionId}</span>
+                <span className="flex items-center gap-2">
+                  {t("inboundPressureRow", {
+                    dispatched: row.dispatchedCases,
+                    saved: row.savedCases,
+                  })}
+                  {trend && trend.changePct !== null && trend.changePct !== 0 && (
+                    <span
+                      className={
+                        trend.changePct > 0 ? "text-danger font-extrabold" : "text-emerald font-extrabold"
+                      }
+                    >
+                      {t(trend.changePct > 0 ? "inboundPressureTrendUp" : "inboundPressureTrendDown", {
+                        pct: Math.abs(trend.changePct),
+                      })}
+                    </span>
+                  )}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       )}
 

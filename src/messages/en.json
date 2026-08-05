@@ -5491,6 +5491,8 @@
     "inboundPressureDeskStep2": "Reference Verifier wizard — no sales call",
     "inboundPressureDeskStep3": "Email us only when you want a pilot",
     "inboundPressureRow": "{dispatched} dispatched · {saved} with documented savings",
+    "inboundPressureTrendUp": "↑{pct}% in 30d",
+    "inboundPressureTrendDown": "↓{pct}% in 30d",
     "inboundPressureDisclaimer": "Aggregate counts only, no customer identities. Excludes letters prepared outside Zakai.",
     "inboundPressureApi": "JSON: inbound-pressure",
     "ignoreCostApi": "JSON: ignore-cost (ops math)",

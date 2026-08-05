@@ -5491,6 +5491,8 @@
     "inboundPressureDeskStep2": "אשף Reference Verifier — בלי שיחת מכירות",
     "inboundPressureDeskStep3": "כתבו אלינו רק כשאתם מוכנים לפיילוט",
     "inboundPressureRow": "{dispatched} יוצאים · {saved} עם חיסכון מתועד",
+    "inboundPressureTrendUp": "↑{pct}% ב-30 יום",
+    "inboundPressureTrendDown": "↓{pct}% ב-30 יום",
     "inboundPressureDisclaimer": "מספרים אגרגטיביים בלבד, ללא זיהוי לקוחות. לא כולל מכתבים שהוכנו מחוץ לזכאי.",
     "inboundPressureApi": "JSON: inbound-pressure",
     "ignoreCostApi": "JSON: עלות התעלמות (ignore-cost)",
