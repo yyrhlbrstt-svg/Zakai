@@ -922,6 +922,12 @@
     "downloaded": "Credential downloaded: {cases} cases resolved, {amount} documented monthly saving.",
     "note": "This is not a power of attorney — it only attests to the past and grants no authority to act on your behalf."
   },
+  "recap": {
+    "title": "What Zakai got back for you",
+    "subtitle": "{cases} cases resolved, {amount} documented monthly saving — based only on verified savings.",
+    "shareKicker": "What I got back through Zakai",
+    "shareMessage": "Zakai found me {amount}/month I was missing without knowing it. Worth checking for yourself too."
+  },
   "pricing": {
     "title": "Plans that only win when you save",
     "subtitle": "Free to start — a fee only on documented savings. A subscription turns Zakai into your always-on money guard: re-checks every month, catches price creep, covers the whole family — and lowers the fee, down to 0% on Max.",

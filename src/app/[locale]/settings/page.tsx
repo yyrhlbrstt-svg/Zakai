@@ -7,6 +7,7 @@ import { LogoutButton } from "@/components/LogoutButton";
 import { DeleteAccount } from "@/components/DeleteAccount";
 import { ReferralCard } from "@/components/ReferralCard";
 import { TrackRecordCard } from "@/components/TrackRecordCard";
+import { RecapCard } from "@/components/RecapCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -93,6 +94,10 @@ export default async function SettingsPage({
             {tIapp_locale_settings_page("t_bd4c0905")}
           </Button>
         </Link>
+      </div>
+
+      <div className="mt-6">
+        <RecapCard referralCode={referral?.referralCode} bcp47={bcp47[locale as Locale]} />
       </div>
 
       <div className="mt-6">
