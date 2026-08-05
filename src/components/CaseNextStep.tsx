@@ -25,6 +25,7 @@ import { pendingFeeDisplayShekels } from "@/lib/pendingSuccessFee";
 import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { UNATTRIBUTED_VARIANT_ID } from "@/lib/strategy/normalizeKeys";
+import { complaintCategoryForVertical } from "@/lib/complaintEscalation";
 
 type Status =
   | "ANALYZED"
@@ -181,6 +182,7 @@ const copy: Record<string, Record<string, string>> = {
       "זו הערכה עצמית — בלי תיעוד מספק אין שיתוף ויראלי. הדביקו תשובה בכתב בתיק הבא לחיסכון מתועד.",
     exhaustedBanner:
       "סיבובי המעקב בכתב מוצו. אל תשלחו עוד תזכורת — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר (ביטול / מתחרה).",
+    exhaustedEscalate: "הספק לא ענה — הגישו תלונה לגורם המפקח",
     mandateInactiveBanner:
       "אין Mandate פעיל על התיק — הסוכן לא יכול לשלוח המשך לספק עד שתאשרו הרשאה מחדש.",
     authRevokedBanner:
@@ -296,6 +298,7 @@ const copy: Record<string, Record<string, string>> = {
       "This is a self-reported estimate — no viral share without provider documentation. Paste a written reply on the next case for a documented saving.",
     exhaustedBanner:
       "Written follow-up rounds are exhausted. Do not send another reminder — record an amount from a written reply, mark no change, or pivot (cancel / competitor).",
+    exhaustedEscalate: "Provider went silent — file a complaint with the regulator",
     mandateInactiveBanner:
       "No ACTIVE Mandate on this case — the agent cannot send a follow-up until you re-issue authorization.",
     authRevokedBanner:
@@ -1261,6 +1264,12 @@ export function CaseNextStep({
         {agentRound >= MAX_AGENT_ROUNDS && !proposed && (
           <div className="rounded-xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-3 py-2.5 text-[12.5px] font-extrabold text-[#f08a6b] leading-relaxed">
             {t(locale, "exhaustedBanner")}
+            <Link
+              href={`/complaint-escalation?company=${encodeURIComponent(providerHebrewName(provider || ""))}&category=${complaintCategoryForVertical(vertical)}`}
+              className="block mt-2 text-[#3EC6FF] underline"
+            >
+              {t(locale, "exhaustedEscalate")} →
+            </Link>
           </div>
         )}
 

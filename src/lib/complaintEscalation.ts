@@ -69,6 +69,23 @@ export const ESCALATION_BODIES: Record<ComplaintCategory, EscalationBody> = {
   },
 };
 
+/**
+ * Case.vertical → the regulator this tool should point at. Only bank and
+ * telecom have a dedicated public-inquiries unit in ESCALATION_BODIES above;
+ * every other vertical (subscriptions, parking, insurance, electricity,
+ * warranty, arnona…) falls through to the general Consumer Protection and
+ * Fair Trade Authority, which is correct, not a fallback of convenience —
+ * that body's real mandate covers exactly these categories.
+ */
+const BANK_VERTICALS = new Set(["bank-fees", "deposit", "late-payment", "refund-chase"]);
+const TELECOM_VERTICALS = new Set(["telecom"]);
+
+export function complaintCategoryForVertical(vertical?: string | null): ComplaintCategory {
+  if (vertical && TELECOM_VERTICALS.has(vertical)) return "telecom";
+  if (vertical && BANK_VERTICALS.has(vertical)) return "bank";
+  return "consumer";
+}
+
 import { withFooter } from "./letterFooter";
 
 export interface EscalationLetterInput {
