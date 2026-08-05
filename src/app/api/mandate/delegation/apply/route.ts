@@ -70,10 +70,12 @@ export async function POST(request: Request) {
     );
   }
 
+  let applicationId: string;
   try {
-    await prisma.delegationApplication.create({
+    const created = await prisma.delegationApplication.create({
       data: { slug, name, contactEmail, useCase, requestedScopes },
     });
+    applicationId = created.id;
   } catch (err) {
     await reportError(err, { route: "delegation-apply-persist" });
     return NextResponse.json({ ok: false }, { status: 500 });
@@ -94,7 +96,9 @@ Use case:
 ${useCase}
 
 —
-Review by inserting a DelegatedIssuer row once approved. See src/lib/mandate/delegation.ts.`,
+If approved: POST /api/mandate/delegation/issuers (Authorization: Bearer $ZAKAI_ADMIN_TOKEN)
+  {"applicationId":"${applicationId}","slug":"${slug}","name":"${name}","allowedScopes":${JSON.stringify(requestedScopes)}}
+Returns the real key once — store it before closing the response. See src/lib/mandate/delegation.ts.`,
     });
   } catch (err) {
     // The application row is already saved; a failed notification is our
