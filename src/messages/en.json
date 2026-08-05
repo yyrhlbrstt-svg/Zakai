@@ -5805,7 +5805,18 @@
     "cite": "Based on the Education (Student Loans) Regulations 1998 and SLC guidance — not a promise of eligibility or amount.",
     "ilTitle": "Based in Israel?",
     "ilSub": "We run full agent loops for mobile, electricity, cancellations and more — success fee only on documented savings.",
-    "ilCta": "Take the entitlements quiz"
+    "ilCta": "Take the entitlements quiz",
+    "tool": {
+      "title": "Draft your refund letter",
+      "sub": "Fill in your plan and repayment account details. The letter cites the 1998 regulations and is addressed to the SLC — it never asks for your National Insurance number.",
+      "nameQ": "Your name",
+      "referenceQ": "Your SLC customer reference (optional)",
+      "detailsQ": "Plan type and what happened (e.g. plan number, when the balance cleared)",
+      "generateCta": "Draft the letter",
+      "copy": "Copy letter",
+      "copied": "Copied",
+      "sendHint": "Post or email it to the SLC yourself — Zakai doesn't send this one."
+    }
   },
   "wageStatementAudit": {
     "metaTitle": "US wage statement audit — Zakai",
