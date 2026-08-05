@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { badRequest } from "@/lib/api";
 import { registerFullIssuer } from "@/lib/mandate/trustRegistry";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,7 +10,8 @@ export const dynamic = "force-dynamic";
 function adminOk(request: Request): boolean {
   const token = process.env.ZAKAI_ADMIN_TOKEN?.trim();
   if (!token) return false;
-  return request.headers.get("Authorization") === `Bearer ${token}`;
+  const auth = request.headers.get("Authorization") || "";
+  return secretsMatch(auth, `Bearer ${token}`);
 }
 
 const schema = z.object({

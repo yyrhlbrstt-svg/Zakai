@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { registerOracleKey } from "@/lib/oracle/keys";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 export const runtime = "nodejs";
 
 function adminOk(request: Request): boolean {
   const token = process.env.ZAKAI_ADMIN_TOKEN?.trim();
   if (!token) return false;
-  return request.headers.get("Authorization") === `Bearer ${token}`;
+  const auth = request.headers.get("Authorization") || "";
+  return secretsMatch(auth, `Bearer ${token}`);
 }
 
 /** Mint a per-customer Oracle API key. Founder/ops only — see docs/WIDGET_EMBED.md's sibling flow. */

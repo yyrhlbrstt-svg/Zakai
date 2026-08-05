@@ -5,6 +5,7 @@ import { badRequest } from "@/lib/api";
 import { generateIssuerKey, hashIssuerKey } from "@/lib/mandate/delegation";
 import { FORBIDDEN_SCOPES, isKnownScope, SCOPES } from "@/lib/mandate/scopes";
 import { isForbiddenAnywhere } from "@/lib/mandate/domains";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +57,8 @@ export async function GET() {
 function adminOk(request: Request): boolean {
   const token = process.env.ZAKAI_ADMIN_TOKEN?.trim();
   if (!token) return false;
-  return request.headers.get("Authorization") === `Bearer ${token}`;
+  const auth = request.headers.get("Authorization") || "";
+  return secretsMatch(auth, `Bearer ${token}`);
 }
 
 const admitSchema = z.object({
