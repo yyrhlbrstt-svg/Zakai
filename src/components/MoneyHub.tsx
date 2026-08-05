@@ -130,6 +130,8 @@ const copy: Record<string, Record<string, string>> = {
     pasteTitle: "أو الصق / ارفع ملفاً",
     pastePh: "الصق CSV…",
     scanBtn: "فحص",
+    loadDemo: "جرّب مثالاً (Cellcom + Netflix)",
+    tooShort: "الصق على الأقل بضعة أسطر من الكشف — أو اضغط «جرّب مثالاً».",
     uploadBtn: "رفع ملف",
     total: "مدفوعات متكررة",
     perMonth: "شهرياً",
@@ -149,6 +151,11 @@ const copy: Record<string, Record<string, string>> = {
     errGeneric: "حدث خطأ.",
     errLimit: "وصلت للحد.",
     errNeedsEmail: "لا يوجد بريد للمزود.",
+    outreachPh: "بريد خدمة العملاء / الإلغاء لدى المزود",
+    outreachContinue: "متابعة بالبريد الإلكتروني",
+    outreachCancel: "إلغاء",
+    universalCancelCta: "خطابات إلغاء للنسخ فقط (بدون إرسال من زكاي)",
+    altLetter: "بدائل (ليس مسار الوكيل)",
     batchOpen: "الوكيل يفتح كل الملفات الموصى بها",
     batchOpening: "جارٍ الفتح…",
     batchDone: "✓ فُتح {n} ملفات",
@@ -165,6 +172,8 @@ const copy: Record<string, Record<string, string>> = {
     pasteTitle: "Или вставьте / загрузите файл",
     pastePh: "Вставьте CSV…",
     scanBtn: "Сканировать",
+    loadDemo: "Попробовать пример (Cellcom + Netflix)",
+    tooShort: "Вставьте хотя бы несколько строк из выписки — или нажмите «Попробовать пример».",
     uploadBtn: "Файл",
     total: "Регулярные платежи",
     perMonth: "в месяц",
@@ -182,9 +191,13 @@ const copy: Record<string, Record<string, string>> = {
     occurrences: "Раз: {n}",
     nextStep: "Нажмите — агент откроет дело",
     universalCancelCta: "Письма для отмены — только копирование",
+    altLetter: "Альтернативы (не путь агента)",
     errGeneric: "Ошибка.",
     errLimit: "Лимит дел.",
     errNeedsEmail: "Нет email поставщика.",
+    outreachPh: "Email поддержки / отмены у поставщика",
+    outreachContinue: "Продолжить с email",
+    outreachCancel: "Отмена",
     batchOpen: "Агент открывает все рекомендованные дела",
     batchOpening: "Открываем…",
     batchDone: "✓ Открыто {n} дел",
@@ -195,7 +208,12 @@ const copy: Record<string, Record<string, string>> = {
 };
 
 function tx(locale: string, key: string): string {
-  return (copy[locale] || copy.he)[key] || copy.he[key] || key;
+  // Any future gap in ar/ru must fall back to English, not Hebrew — Hebrew
+  // is unreadable to a Russian visitor (see src/i18n/request.ts's fallback
+  // policy, and the CaseNextStep.tsx bug this mirrors and fixes the same way).
+  const familyDefault = locale === "he" || locale === "ar" ? copy.he : copy.en;
+  const table = copy[locale] || familyDefault;
+  return table[key] || familyDefault[key] || key;
 }
 
 interface SavedSummary {
