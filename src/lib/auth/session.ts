@@ -44,10 +44,27 @@ function secretKey(): Uint8Array {
 
 export interface SessionPayload {
   userId: string;
+  purpose: "session";
 }
 
+/**
+ * Every purpose-scoped JWT this app mints — ownership magic links
+ * (ownership.ts), proposed-saving confirm links (confirmProposedSaving.ts) —
+ * is signed with this same AUTH_SECRET and also carries a bare `userId`
+ * claim, because that's what those flows need to act on. Without a `purpose`
+ * check here, any one of those tokens verifies as a *full login session*:
+ * paste an ownership magic-link token (15 min TTL, but routinely forwarded
+ * by email) or a proposed-saving confirm token (48 hour TTL, same channel)
+ * into the zakai_session cookie and you're logged in as that user against
+ * every requireUserId()-gated route, not just the one case the link was
+ * scoped to. Each of those flows already checks its own purpose on the way
+ * in (ownership.ts, confirmProposedSaving.ts) — this was the one direction
+ * that didn't check back.
+ */
+const SESSION_PURPOSE = "session" as const;
+
 export async function createSession(userId: string): Promise<void> {
-  const token = await new SignJWT({ userId })
+  const token = await new SignJWT({ userId, purpose: SESSION_PURPOSE })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE_SECONDS}s`)
@@ -75,6 +92,7 @@ export async function getSessionUserId(): Promise<string | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify<SessionPayload>(token, secretKey());
+    if (payload.purpose !== SESSION_PURPOSE) return null;
     return payload.userId ?? null;
   } catch {
     return null;
