@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { applyCredit, REFERRAL_REWARD_AGOROT } from "./referral";
+import {
+  applyCredit,
+  REFERRAL_REWARD_AGOROT,
+  REFERRAL_MILESTONE_BONUS_AGOROT,
+  nextReferralMilestone,
+  referralRewardForCount,
+} from "./referral";
 
 describe("applyCredit", () => {
   it("applies nothing when there is no credit", () => {
@@ -32,5 +38,40 @@ describe("applyCredit", () => {
   it("uses a positive, whole-agora reward constant", () => {
     expect(Number.isInteger(REFERRAL_REWARD_AGOROT)).toBe(true);
     expect(REFERRAL_REWARD_AGOROT).toBeGreaterThan(0);
+  });
+});
+
+describe("referralRewardForCount", () => {
+  it("pays the flat reward on a non-milestone referral", () => {
+    expect(referralRewardForCount(1)).toBe(REFERRAL_REWARD_AGOROT);
+    expect(referralRewardForCount(2)).toBe(REFERRAL_REWARD_AGOROT);
+    expect(referralRewardForCount(4)).toBe(REFERRAL_REWARD_AGOROT);
+  });
+
+  it("stacks the milestone bonus on top of the flat reward", () => {
+    for (const [count, bonus] of Object.entries(REFERRAL_MILESTONE_BONUS_AGOROT)) {
+      expect(referralRewardForCount(Number(count))).toBe(REFERRAL_REWARD_AGOROT + bonus);
+    }
+  });
+
+  it("every milestone bonus is a positive, whole-agora amount", () => {
+    for (const bonus of Object.values(REFERRAL_MILESTONE_BONUS_AGOROT)) {
+      expect(Number.isInteger(bonus)).toBe(true);
+      expect(bonus).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("nextReferralMilestone", () => {
+  it("finds the next milestone strictly above the current count", () => {
+    expect(nextReferralMilestone(0)).toEqual({ count: 3, bonusAgorot: 5000 });
+    expect(nextReferralMilestone(2)).toEqual({ count: 3, bonusAgorot: 5000 });
+    expect(nextReferralMilestone(3)).toEqual({ count: 5, bonusAgorot: 10000 });
+    expect(nextReferralMilestone(9)).toEqual({ count: 10, bonusAgorot: 25000 });
+  });
+
+  it("returns null once every milestone has been passed", () => {
+    expect(nextReferralMilestone(10)).toBeNull();
+    expect(nextReferralMilestone(50)).toBeNull();
   });
 });

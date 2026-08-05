@@ -910,7 +910,9 @@
     "creditLabel": "Credit earned",
     "creditValue": "{amount} off your next success fee",
     "creditNone": "No credit yet — invite a friend to start earning.",
-    "note": "Credit only reduces a future fee; it is never paid out in cash."
+    "note": "Credit only reduces a future fee; it is never paid out in cash.",
+    "milestoneProgress": "{count, plural, one {One more friend} other {# more friends}} and you'll earn an extra {bonus} bonus.",
+    "shareInvite": "Share — every friend who joins through you earns you {amount} credit once their first check documents a saving."
   },
   "trackRecord": {
     "title": "Your track record",

@@ -111,6 +111,7 @@ const copy: Record<string, Record<string, string>> = {
     sentShareTitle: "שתפו — כל Mandate שמגיע דרככם מגדיל את הצינור",
     sentShareDefault:
       "שלחתי לספק בקשה עם Mandate של זכאי — הרשאה חתומה בכתב, בלי מוקד. בדקו מה מגיע לכם:",
+    shareInviteHeadline: "שתפו — כל חבר שמצטרף דרככם מקבל עזרה, ואתם מקבלים זיכוי לעמלה הבאה",
     mailtoFallback: "SMTP לא פעיל כאן — פתח במייל שלך ושלח את המכתב",
     mailtoOpened: "נפתח המייל — שלחו משם",
     sendCode: "שלח קישור למייל / קוד לאימות בעלות",
@@ -227,6 +228,7 @@ const copy: Record<string, Record<string, string>> = {
     sentShareTitle: "Share — every Mandate through you grows the pipe",
     sentShareDefault:
       "I sent my provider a Zakai Mandate request — signed written authority, no call center. See what you're owed:",
+    shareInviteHeadline: "Share — every friend who joins through you gets help, and you earn credit toward your next fee",
     mailtoFallback: "SMTP off here — open your mail and send the letter",
     mailtoOpened: "Mail opened — send from there",
     sendCode: "Send email magic link / ownership code",
@@ -814,6 +816,10 @@ export function CaseNextStep({
             {t(locale, "estimateNoShare")}
           </p>
         ) : (
+          <>
+          <div className="mb-2.5 text-[13px] font-bold text-emerald leading-snug">
+            {t(locale, "shareInviteHeadline")}
+          </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -859,6 +865,7 @@ export function CaseNextStep({
               {linkCopied ? t(locale, "linkCopied") : t(locale, "copyLink")}
             </Button>
           </div>
+          </>
         )}
         {!proofSelfReported && showUpgradeNudge && (
           <div className="mt-3.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] px-3.5 py-2.5 flex items-center justify-between gap-3 flex-wrap">

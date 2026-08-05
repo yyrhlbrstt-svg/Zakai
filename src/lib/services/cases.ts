@@ -4,7 +4,7 @@ import { shekelsToAgorot } from "@/lib/money";
 import { computeCaseSuccessFee, documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
-import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
+import { applyCredit, referralRewardForCount } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
@@ -478,17 +478,25 @@ export async function recordSaving(
         where: { referredUserId: userId },
       });
       if (!already) {
+        // Count this referrer's successful referrals so far (this one is the
+        // count-th) so a milestone bonus can stack on top of the flat reward —
+        // rewarding a 3rd/5th/10th referral more than the first makes sharing
+        // repeatedly worth more than sharing once.
+        const priorCount = await tx.referralReward.count({
+          where: { referrerId: owner.referredById },
+        });
+        const amountAgorot = referralRewardForCount(priorCount + 1);
         await tx.referralReward.create({
           data: {
             referrerId: owner.referredById,
             referredUserId: userId,
             triggeringCaseId: caseId,
-            amountAgorot: REFERRAL_REWARD_AGOROT,
+            amountAgorot,
           },
         });
         await tx.user.update({
           where: { id: owner.referredById },
-          data: { referralCreditAgorot: { increment: REFERRAL_REWARD_AGOROT } },
+          data: { referralCreditAgorot: { increment: amountAgorot } },
         });
       }
     }

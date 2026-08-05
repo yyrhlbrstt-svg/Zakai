@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
+import { nextReferralMilestone } from "@/lib/referral";
 
 /**
  * "Refer a friend" card for the settings screen. Shows the user's invite link
@@ -16,6 +17,7 @@ export function ReferralCard({
   fallbackLink,
   creditAgorot,
   rewardAgorot,
+  referralCount = 0,
   bcp47,
 }: {
   /** Locale + code path, e.g. "/he/signup?ref=ABCD". */
@@ -24,6 +26,8 @@ export function ReferralCard({
   fallbackLink: string;
   creditAgorot: number;
   rewardAgorot: number;
+  /** How many successful referrals this user already has — drives the milestone line. */
+  referralCount?: number;
   bcp47: string;
 }) {
   const t = useTranslations("referral");
@@ -35,6 +39,8 @@ export function ReferralCard({
     setLink(window.location.origin + path);
   }, [path]);
   const reward = formatAgorot(rewardAgorot, bcp47);
+  const milestone = nextReferralMilestone(referralCount);
+  const remaining = milestone ? milestone.count - referralCount : 0;
 
   async function copy() {
     try {
@@ -86,6 +92,17 @@ export function ReferralCard({
       </div>
 
       <p className="text-[11.5px] text-ink-soft mt-3 leading-snug">{t("note")}</p>
+
+      {milestone && (
+        <div className="mt-3 rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.07)] px-3.5 py-2.5">
+          <p className="text-[12.5px] font-bold text-emerald m-0 leading-snug">
+            {t("milestoneProgress", {
+              count: remaining,
+              bonus: formatAgorot(milestone.bonusAgorot, bcp47),
+            })}
+          </p>
+        </div>
+      )}
     </Card>
   );
 }

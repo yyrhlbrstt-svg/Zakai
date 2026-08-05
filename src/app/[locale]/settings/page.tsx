@@ -29,6 +29,7 @@ export default async function SettingsPage({
     where: { id: user!.id },
     select: { referralCode: true, referralCreditAgorot: true },
   });
+  const referralCount = await prisma.referralReward.count({ where: { referrerId: user!.id } });
   const consent = await prisma.consent.findFirst({
     where: { userId: user!.id, purpose: "terms_privacy_v1", revokedAt: null },
     orderBy: { grantedAt: "desc" },
@@ -106,6 +107,7 @@ export default async function SettingsPage({
           fallbackLink={`${appUrl}${invitePath}`}
           creditAgorot={referral?.referralCreditAgorot ?? 0}
           rewardAgorot={REFERRAL_REWARD_AGOROT}
+          referralCount={referralCount}
           bcp47={bcp47[locale as Locale]}
         />
       </div>
