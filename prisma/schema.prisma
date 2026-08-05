@@ -778,3 +778,35 @@ model OracleKey {
 
   @@index([revokedAt])
 }
+
+/**
+ * Full trust-registry issuers — an independent party that runs its own
+ * Ed25519 keys and signs its own mandates, verified by institutions against
+ * this registry (the "Visa doesn't issue cards, banks do" layer; see
+ * src/lib/mandate/trustRegistry.ts). Before this table the entire durable
+ * admission path for a party with its own keys was ZAKAI_EXTRA_ISSUERS_JSON
+ * — a single hand-edited env var holding every non-Zakai issuer as one JSON
+ * blob: no way to admit or suspend one issuer without touching the whole
+ * blob, no error surfaced when an entry is silently dropped for failing
+ * validation, no row for G5 (`countActiveNetworkIssuers`) to read that isn't
+ * "however the env var currently parses." Same durability upgrade WidgetKey/
+ * OracleKey/DelegatedIssuer already got; ZAKAI_EXTRA_ISSUERS_JSON remains a
+ * bootstrap/override layer, not the only copy.
+ */
+model RegisteredIssuerRow {
+  /// The exact `iss` claim its mandates carry — the natural key.
+  iss           String    @id
+  name          String
+  /// Where its public keys live. Institutions fetch and cache this.
+  jwksUri       String
+  /// Where its signed revocation list lives.
+  statusListUri String
+  /// Always a subset of the protocol's scopes — enforced at admission via validateIssuer().
+  allowedScopes String[]
+  /// active | suspended | withdrawn — never "sandbox" (that stays env/fixture-only).
+  status        String    @default("active")
+  admittedAt    DateTime  @default(now())
+  note          String    @default("")
+
+  @@index([status])
+}

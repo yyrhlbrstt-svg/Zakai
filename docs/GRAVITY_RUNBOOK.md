@@ -51,7 +51,9 @@ See `/api/institution/outreach-kit` (pull kit) and `docs/INSTITUTIONAL_PULL.md`.
 
 1. Candidate: `POST /api/mandate/delegation/evidence` with their issuer JSON.
 2. Or delegated: `POST /api/mandate/delegation/apply`.
-3. Founder admits with `npm run delegation:admit-pilot` or `ZAKAI_EXTRA_ISSUERS_JSON`.
+3. Founder admits: `POST /api/mandate/delegation/issuers` (delegated) or
+   `POST /api/mandate/registry/issuers` (full JWKS issuer) — both admin
+   token, after review.
 
 ## 4) Volume (G4 / G6 / G7 / G8)
 

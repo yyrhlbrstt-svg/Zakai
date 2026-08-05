@@ -45,7 +45,7 @@ async function loadSevenRailsInputsRaw(): Promise<SevenRailsInputs> {
     savedCases,
     casesSent,
     activeAuthorizations,
-    registryIssuersActive: countActiveNetworkIssuers(),
+    registryIssuersActive: await countActiveNetworkIssuers(),
     delegatedIssuersActive,
     collectiveIntentSignals,
     marketsWithPacks,

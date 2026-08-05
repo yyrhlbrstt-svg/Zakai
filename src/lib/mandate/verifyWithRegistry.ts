@@ -41,9 +41,9 @@ export class RegistryVerifyError extends Error {
 }
 
 /** Map this deployment's MANDATE_ISSUER onto the primary registry row when needed. */
-export function resolveRegisteredIssuer(iss: string): RegisteredIssuer | undefined {
+export async function resolveRegisteredIssuer(iss: string): Promise<RegisteredIssuer | undefined> {
   const normalized = iss.replace(/\/+$/, "");
-  const direct = findIssuer(iss) ?? findIssuer(normalized);
+  const direct = (await findIssuer(iss)) ?? (await findIssuer(normalized));
   if (direct) return direct;
 
   const envIss = (process.env.MANDATE_ISSUER || "").replace(/\/+$/, "");
@@ -113,7 +113,7 @@ export async function verifyMandateWithTrustRegistry(
     throw new MandateError("token is not a JWT", "MALFORMED");
   }
 
-  const issuer = resolveRegisteredIssuer(iss);
+  const issuer = await resolveRegisteredIssuer(iss);
   if (!issuer) {
     throw new RegistryVerifyError(
       `issuer not in trust registry: ${iss || "(missing iss)"}`,
@@ -121,7 +121,7 @@ export async function verifyMandateWithTrustRegistry(
     );
   }
 
-  const preTrust = decideTrust(issuer.iss, []);
+  const preTrust = await decideTrust(issuer.iss, []);
   // Env-aliased issuer may not match findIssuer inside decideTrust — use row status.
   if (issuer.status === "sandbox" || issuer.status === "suspended") {
     throw new RegistryVerifyError(`issuer ${issuer.iss} is suspended`, "ISSUER_SUSPENDED");
@@ -129,7 +129,7 @@ export async function verifyMandateWithTrustRegistry(
   if (issuer.status === "withdrawn") {
     throw new RegistryVerifyError(`issuer ${issuer.iss} is withdrawn`, "ISSUER_WITHDRAWN");
   }
-  if (!preTrust.trusted && findIssuer(issuer.iss)) {
+  if (!preTrust.trusted && (await findIssuer(issuer.iss))) {
     if (preTrust.reason === "suspended") {
       throw new RegistryVerifyError(`issuer ${issuer.iss} is suspended`, "ISSUER_SUSPENDED");
     }

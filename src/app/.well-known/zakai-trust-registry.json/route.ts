@@ -14,7 +14,7 @@ export const revalidate = 300;
  * those is more useful the more widely it is copied.
  */
 export async function GET() {
-  return NextResponse.json(registryDocument(), {
+  return NextResponse.json(await registryDocument(), {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",

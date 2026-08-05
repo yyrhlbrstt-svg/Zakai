@@ -46,7 +46,7 @@ Machine map: `/.well-known/zakai-domains.json` + `/he/domains`.
 - [x] Institution leader page: conformance panel + test vectors in readiness wizard
 - [x] `POST /api/mandate/conformance/probe` in institution onboarding email template (welcome + outbound notices + weekly inbound cron)
 - [x] Publish `zakai-mandate-mcp` discoverability in integration docs (`WIDGET_EMBED`, `SWITCHING_REFERENCE_FLOWS`, `INSTITUTION_QUICKSTART`)
-- [x] Third-party agent issues via **delegated issuance** — public roster + `scripts/admit-delegated-pilot.mjs` (founder admits one pilot)
+- [x] Third-party agent issues via **delegated issuance** — public roster + `POST /api/mandate/delegation/issuers` (admin token; founder admits one pilot)
 
 ### Track 1 — ZML
 

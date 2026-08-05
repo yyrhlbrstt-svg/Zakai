@@ -13,6 +13,8 @@ Some endpoints were too chatty for anonymous reconnaissance. Policy:
 | `POST /api/oracle/keys` | Admin only — `Authorization: Bearer $ZAKAI_ADMIN_TOKEN` | — |
 | `GET /api/mandate/delegation/issuers` | Public roster (slugs, scopes — no key material) | — |
 | `POST /api/mandate/delegation/issuers` | Admin only — `Authorization: Bearer $ZAKAI_ADMIN_TOKEN`; admits a delegated issuer and returns its key once | — |
+| `GET /.well-known/zakai-trust-registry.json` | Public roster of full JWKS issuers (no key material — public keys only, by design) | — |
+| `POST /api/mandate/registry/issuers` | Admin only — `Authorization: Bearer $ZAKAI_ADMIN_TOKEN`; admits a full trust-registry issuer (own JWKS) | — |
 | Cron routes | `CRON_SECRET` / Vercel cron auth | — |
 | `GET /api/release-gate` | Scores + failing check **ids** only | `?internal=1` + admin token — includes `envKeys` per check |
 | `GET /api/network/readiness` | Layer booleans, `paymentsMode: live\|demo` | — |

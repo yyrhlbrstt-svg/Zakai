@@ -37,6 +37,8 @@
  * every issuer, permanently, with no override path in the type.
  */
 
+import "server-only";
+import { prisma } from "@/lib/prisma";
 import { FORBIDDEN_SCOPES, isKnownScope } from "./scopes";
 
 /**
@@ -112,9 +114,39 @@ function extraIssuersFromEnv(): RegisteredIssuer[] {
   }
 }
 
-/** Core issuers plus validated entries from `ZAKAI_EXTRA_ISSUERS_JSON` (federation). */
-export function listRegisteredIssuers(): RegisteredIssuer[] {
+/**
+ * Durable, per-row admissions from RegisteredIssuerRow. Fails to an empty
+ * list on any DB error — the same "an outage denies rather than permits"
+ * posture the revocation check already uses: an unreachable issuer row
+ * simply doesn't resolve, which is the correct, safe outcome for a party
+ * this registry can no longer confirm the status of. It never affects
+ * Zakai's own first-party ISSUERS[0] entry, which carries no DB dependency.
+ */
+async function dbIssuers(): Promise<RegisteredIssuer[]> {
+  try {
+    const rows = await prisma.registeredIssuerRow.findMany();
+    return rows.map((r) => ({
+      iss: r.iss,
+      name: r.name,
+      jwksUri: r.jwksUri,
+      statusListUri: r.statusListUri,
+      allowedScopes: r.allowedScopes,
+      status: r.status as IssuerStatus,
+      admittedAt: r.admittedAt.toISOString().slice(0, 10),
+      ...(r.note ? { note: r.note } : {}),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** Core issuers, plus DB admissions, plus validated entries from `ZAKAI_EXTRA_ISSUERS_JSON` (bootstrap/override). */
+export async function listRegisteredIssuers(): Promise<RegisteredIssuer[]> {
   const merged: RegisteredIssuer[] = [...ISSUERS];
+  for (const candidate of await dbIssuers()) {
+    if (merged.some((i) => i.iss === candidate.iss)) continue;
+    merged.push(candidate);
+  }
   for (const candidate of extraIssuersFromEnv()) {
     // Sandbox rows skip strict admission (duplicate/unknown checks still run for active).
     if (candidate.status === "sandbox") {
@@ -128,8 +160,45 @@ export function listRegisteredIssuers(): RegisteredIssuer[] {
 }
 
 /** Issuers that count for network control (G5) — never sandbox. */
-export function countActiveNetworkIssuers(): number {
-  return listRegisteredIssuers().filter((i) => i.status === "active").length;
+export async function countActiveNetworkIssuers(): Promise<number> {
+  return (await listRegisteredIssuers()).filter((i) => i.status === "active").length;
+}
+
+export type RegisterIssuerResult =
+  | { ok: true; issuer: RegisteredIssuer }
+  | { ok: false; problems: AdmissionProblem[] };
+
+/**
+ * Admit a full issuer — the durable counterpart to hand-editing
+ * ZAKAI_EXTRA_ISSUERS_JSON. Runs the exact same validateIssuer() checks the
+ * env path already ran silently (a malformed env entry was just dropped with
+ * no error surfaced to whoever edited it); here a rejection is returned, not
+ * swallowed. The trust *decision* is unchanged — this only replaces the
+ * error-prone mechanical step of hand-crafting the JSON blob entry.
+ */
+export async function registerFullIssuer(
+  candidate: Omit<RegisteredIssuer, "admittedAt"> & { admittedAt?: string },
+): Promise<RegisterIssuerResult> {
+  const existing = await listRegisteredIssuers();
+  const withDate: RegisteredIssuer = {
+    ...candidate,
+    admittedAt: candidate.admittedAt ?? new Date().toISOString().slice(0, 10),
+  };
+  const problems = validateIssuer(withDate, existing);
+  if (problems.length > 0) return { ok: false, problems };
+
+  await prisma.registeredIssuerRow.create({
+    data: {
+      iss: withDate.iss,
+      name: withDate.name,
+      jwksUri: withDate.jwksUri,
+      statusListUri: withDate.statusListUri,
+      allowedScopes: withDate.allowedScopes,
+      status: withDate.status,
+      note: withDate.note ?? "",
+    },
+  });
+  return { ok: true, issuer: withDate };
 }
 
 export type AdmissionProblem =
@@ -189,14 +258,14 @@ export function validateIssuer(
  * or withdrawn issuer has no key location, which is the correct answer and not
  * an error to work around.
  */
-export function resolveIssuerKeysUri(iss: string): string | null {
-  const issuer = findIssuer(iss);
+export async function resolveIssuerKeysUri(iss: string): Promise<string | null> {
+  const issuer = await findIssuer(iss);
   if (!issuer || issuer.status !== "active") return null;
   return issuer.jwksUri;
 }
 
-export function findIssuer(iss: string): RegisteredIssuer | undefined {
-  return listRegisteredIssuers().find((i) => i.iss === iss);
+export async function findIssuer(iss: string): Promise<RegisteredIssuer | undefined> {
+  return (await listRegisteredIssuers()).find((i) => i.iss === iss);
 }
 
 export type TrustDecision =
@@ -211,8 +280,8 @@ export type TrustDecision =
  * it. The two questions get confused constantly, and conflating them is how a
  * withdrawn issuer's perfectly-signed credentials keep working.
  */
-export function decideTrust(iss: string, scopes: readonly string[]): TrustDecision {
-  const issuer = findIssuer(iss);
+export async function decideTrust(iss: string, scopes: readonly string[]): Promise<TrustDecision> {
+  const issuer = await findIssuer(iss);
   if (!issuer) return { trusted: false, reason: "unknown_issuer" };
   // Sandbox is for offline evaluation fixtures — production trust refuses it.
   if (issuer.status === "sandbox") return { trusted: false, reason: "suspended" };
@@ -230,7 +299,7 @@ export function decideTrust(iss: string, scopes: readonly string[]): TrustDecisi
 }
 
 /** The published registry, as institutions fetch it. */
-export function registryDocument() {
+export async function registryDocument() {
   return {
     version: 1,
     updated: new Date().toISOString().slice(0, 10),
@@ -258,14 +327,15 @@ export function registryDocument() {
     admission: {
       delegated_apply: "POST /api/mandate/delegation/apply",
       delegated_roster: "GET /api/mandate/delegation/issuers",
+      delegated_admit: "POST /api/mandate/delegation/issuers (admin token)",
       evidence_package: "GET /api/mandate/delegation/evidence",
       evidence_dry_run: "POST /api/mandate/delegation/evidence",
-      admit_pilot_script: "scripts/admit-delegated-pilot.mjs",
       full_issuer_note:
-        "Full issuers with their own JWKS submit via ZAKAI_EXTRA_ISSUERS_JSON after conformance review, or run their own registry fork. Dry-run a candidate row against validateIssuer via POST /api/mandate/delegation/evidence before asking for admission.",
-      env_extra_issuers: "ZAKAI_EXTRA_ISSUERS_JSON",
+        "Full issuers with their own JWKS: dry-run a candidate row against validateIssuer via POST /api/mandate/delegation/evidence, then admission is POST /api/mandate/registry/issuers (admin token, after conformance review) or run your own registry fork.",
+      full_issuer_admit: "POST /api/mandate/registry/issuers (admin token)",
+      env_extra_issuers: "ZAKAI_EXTRA_ISSUERS_JSON (bootstrap/override layer only)",
     },
-    issuers: listRegisteredIssuers().map((i) => ({
+    issuers: (await listRegisteredIssuers()).map((i) => ({
       iss: i.iss,
       name: i.name,
       jwks_uri: i.jwksUri,

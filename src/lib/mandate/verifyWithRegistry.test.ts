@@ -11,21 +11,21 @@ describe("resolveRegisteredIssuer", () => {
     else process.env.MANDATE_ISSUER = prev;
   });
 
-  it("resolves the canonical Zakai iss", () => {
-    const row = resolveRegisteredIssuer("https://zakai-3uxj.vercel.app");
+  it("resolves the canonical Zakai iss", async () => {
+    const row = await resolveRegisteredIssuer("https://zakai-3uxj.vercel.app");
     expect(row?.name).toBe("Zakai");
     expect(row?.status).toBe("active");
   });
 
-  it("aliases MANDATE_ISSUER onto the primary row", () => {
+  it("aliases MANDATE_ISSUER onto the primary row", async () => {
     process.env.MANDATE_ISSUER = "https://preview.example";
-    const row = resolveRegisteredIssuer("https://preview.example");
+    const row = await resolveRegisteredIssuer("https://preview.example");
     expect(row?.iss).toBe("https://preview.example");
     expect(row?.allowedScopes.length).toBeGreaterThan(0);
   });
 
-  it("rejects unknown issuers", () => {
-    expect(resolveRegisteredIssuer("https://evil.example")).toBeUndefined();
+  it("rejects unknown issuers", async () => {
+    expect(await resolveRegisteredIssuer("https://evil.example")).toBeUndefined();
   });
 });
 
@@ -54,7 +54,7 @@ describe("issueMandate iss shape (sanity for registry path)", () => {
       },
       key,
     );
-    expect(resolveRegisteredIssuer("https://zakai-3uxj.vercel.app")).toBeTruthy();
+    expect(await resolveRegisteredIssuer("https://zakai-3uxj.vercel.app")).toBeTruthy();
     expect(token.split(".")).toHaveLength(3);
   });
 });

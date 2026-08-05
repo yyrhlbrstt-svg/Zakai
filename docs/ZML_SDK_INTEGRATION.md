@@ -38,16 +38,20 @@ Read `sdk/README.md` for verify, decide, settlement, and `probeIssuer()`.
 4. Cross-check live catalog: `GET /api/rights/catalog?market=US`.
 5. Mandate verify stays separate: `sdk/` + `POST /api/mandate/verify`.
 
-## Delegated issuance (one pilot at a time)
+## Delegated issuance
 
 Agents without their own JWKS:
 
 1. Apply: `POST /api/mandate/delegation/apply`
-2. Founder admits: `node scripts/admit-delegated-pilot.mjs` (see env vars in script header)
+2. Founder admits: `POST /api/mandate/delegation/issuers` (admin token) — a real per-issuer key, durable in Postgres
 3. Public roster: `GET /api/mandate/delegation/issuers`
 4. Issue: `POST /api/mandate/issue` with `X-Zakai-Issue-Key` — mandates carry `zkm.onBehalfOf`
 
-Full issuers with own keys belong in the trust registry (`ZAKAI_EXTRA_ISSUERS_JSON` after conformance).
+Full issuers with their own keys belong in the trust registry: dry-run via
+`POST /api/mandate/delegation/evidence`, then admit via
+`POST /api/mandate/registry/issuers` (admin token, after conformance review).
+`ZAKAI_EXTRA_ISSUERS_JSON` remains a bootstrap/override layer, not the
+durable admission path.
 
 ## Institution onboarding email
 

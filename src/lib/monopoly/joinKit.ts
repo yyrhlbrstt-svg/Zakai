@@ -49,7 +49,7 @@ export function buildJoinKitDocument(origin: string) {
           "Dry-run candidate row: POST /api/mandate/delegation/evidence",
           "Or apply delegated path: POST /api/mandate/delegation/apply",
           "Pass decide + settle vectors (reference/go|python)",
-          "Human admission: scripts/admit-delegated-pilot.mjs or ZAKAI_EXTRA_ISSUERS_JSON",
+          "Human admission: POST /api/mandate/delegation/issuers (delegated) or POST /api/mandate/registry/issuers (full JWKS issuer) — both admin token, after review",
           "Sandbox demos: GET /api/mandate/sandbox-issuer (never greens G5)",
         ],
         urls: {

@@ -28,7 +28,7 @@ export default async function RegistryPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const doc = registryDocument();
+  const doc = await registryDocument();
 
   return (
     <VerticalPageShell

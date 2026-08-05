@@ -82,17 +82,18 @@ export type DryRunResult = {
   against_issuer_count: number;
 };
 
-export function dryRunIssuerAdmission(
+export async function dryRunIssuerAdmission(
   candidate: RegisteredIssuer,
-  existing: readonly RegisteredIssuer[] = listRegisteredIssuers(),
-): DryRunResult {
-  const problems = validateIssuer(candidate, existing);
+  existing?: readonly RegisteredIssuer[],
+): Promise<DryRunResult> {
+  const against = existing ?? (await listRegisteredIssuers());
+  const problems = validateIssuer(candidate, against);
   return {
     ok: problems.length === 0,
     problems,
     would_join_registry: problems.length === 0,
     note:
-      "Dry-run only. Passing does not admit the issuer. Full JWKS issuers still need a reviewed ZAKAI_EXTRA_ISSUERS_JSON publish; delegated pilots use scripts/admit-delegated-pilot.mjs after application review.",
+      "Dry-run only. Passing does not admit the issuer. Full JWKS issuers: admission is POST /api/mandate/registry/issuers after conformance review; delegated pilots: POST /api/mandate/delegation/issuers after application review.",
     candidate: {
       iss: candidate.iss,
       name: candidate.name,
@@ -101,11 +102,11 @@ export function dryRunIssuerAdmission(
       allowedScopes: candidate.allowedScopes,
       status: candidate.status,
     },
-    against_issuer_count: existing.length,
+    against_issuer_count: against.length,
   };
 }
 
-export function issuerEvidencePackage() {
+export async function issuerEvidencePackage() {
   return {
     version: 1,
     purpose:
@@ -115,15 +116,16 @@ export function issuerEvidencePackage() {
       dry_run: "POST /api/mandate/delegation/evidence",
       package: "GET /api/mandate/delegation/evidence",
       apply_delegated: "POST /api/mandate/delegation/apply",
+      admit_delegated: "POST /api/mandate/delegation/issuers (admin token)",
+      admit_full_issuer: "POST /api/mandate/registry/issuers (admin token)",
       trust_registry: "GET /.well-known/zakai-trust-registry.json",
       decide_vectors: "GET /api/mandate/test-vectors",
       settle_vectors: "GET /api/settlement/test-vectors",
-      admit_pilot_script: "scripts/admit-delegated-pilot.mjs",
     },
     forbidden_scopes: FORBIDDEN_SCOPES,
     known_scopes: SCOPES.map((s) => s.scope),
     core_issuers: ISSUERS.map((i) => ({ iss: i.iss, status: i.status })),
-    registered_issuer_count: listRegisteredIssuers().length,
+    registered_issuer_count: (await listRegisteredIssuers()).length,
     example_candidate: {
       iss: "https://issuer.example",
       name: "Example Issuer",

@@ -212,22 +212,22 @@ describe("the registry makes it a protocol, not our API", () => {
 });
 
 describe("deciding whether to honour a mandate", () => {
-  it("trusts a listed, active issuer within its grant", () => {
-    const d = decideTrust(ISSUERS[0].iss, ["read:transactions", "dispute:charge"]);
+  it("trusts a listed, active issuer within its grant", async () => {
+    const d = await decideTrust(ISSUERS[0].iss, ["read:transactions", "dispute:charge"]);
     expect(d.trusted).toBe(true);
   });
 
-  it("refuses an issuer nobody has admitted", () => {
-    expect(decideTrust("https://not-in-registry.example", ["read:transactions"])).toEqual({
+  it("refuses an issuer nobody has admitted", async () => {
+    expect(await decideTrust("https://not-in-registry.example", ["read:transactions"])).toEqual({
       trusted: false,
       reason: "unknown_issuer",
     });
   });
 
-  it("refuses a mandate that exceeds the issuer's grant, in full", () => {
+  it("refuses a mandate that exceeds the issuer's grant, in full", async () => {
     // Not partially honoured: the credential as presented is not one the
     // issuer was entitled to write.
-    const d = decideTrust(ISSUERS[0].iss, ["read:transactions", "payment:initiate"]);
+    const d = await decideTrust(ISSUERS[0].iss, ["read:transactions", "payment:initiate"]);
     expect(d).toEqual({ trusted: false, reason: "scope_not_granted", scope: "payment:initiate" });
   });
 
@@ -236,7 +236,7 @@ describe("deciding whether to honour a mandate", () => {
     const original = ISSUERS[0];
     ISSUERS[0] = suspended;
     try {
-      expect(decideTrust(suspended.iss, ["read:transactions"])).toEqual({
+      expect(await decideTrust(suspended.iss, ["read:transactions"])).toEqual({
         trusted: false,
         reason: "suspended",
       });
@@ -265,14 +265,14 @@ describe("deciding whether to honour a mandate", () => {
 });
 
 describe("the published registry document", () => {
-  it("states the permanently forbidden scopes, so nobody has to audit us", () => {
-    const doc = registryDocument();
+  it("states the permanently forbidden scopes, so nobody has to audit us", async () => {
+    const doc = await registryDocument();
     expect(doc.forbiddenScopes).toEqual(FORBIDDEN_SCOPES);
     expect(doc.forbiddenScopes).toContain("payment:initiate");
   });
 
-  it("publishes the discovery URIs an institution needs and nothing personal", () => {
-    const doc = registryDocument();
+  it("publishes the discovery URIs an institution needs and nothing personal", async () => {
+    const doc = await registryDocument();
     for (const i of doc.issuers) {
       expect(i.jwks_uri).toMatch(/^https:\/\//);
       expect(i.status_list_uri).toMatch(/^https:\/\//);

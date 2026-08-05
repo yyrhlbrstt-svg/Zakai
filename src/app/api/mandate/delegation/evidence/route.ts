@@ -23,7 +23,7 @@ const candidateSchema = z.object({
 
 /** Public conformance package — cloneable checklist for issuer #2. */
 export async function GET() {
-  return NextResponse.json(issuerEvidencePackage(), {
+  return NextResponse.json(await issuerEvidencePackage(), {
     headers: {
       "Cache-Control": "public, max-age=60",
       "Access-Control-Allow-Origin": "*",
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     ...(parsed.data.note ? { note: parsed.data.note } : {}),
   };
 
-  const result = dryRunIssuerAdmission(candidate);
+  const result = await dryRunIssuerAdmission(candidate);
   return NextResponse.json(
     {
       ...result,

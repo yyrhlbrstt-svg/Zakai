@@ -7,15 +7,15 @@ import {
 import { ISSUERS } from "./trustRegistry";
 
 describe("issuerEvidence", () => {
-  it("exposes a non-empty conformance checklist", () => {
+  it("exposes a non-empty conformance checklist", async () => {
     const items = issuerEvidenceChecklist();
     expect(items.length).toBeGreaterThanOrEqual(5);
     expect(items.every((i) => i.id && i.probe)).toBe(true);
-    expect(issuerEvidencePackage().endpoints.dry_run).toContain("/evidence");
+    expect((await issuerEvidencePackage()).endpoints.dry_run).toContain("/evidence");
   });
 
-  it("dry-runs a well-formed candidate as ok", () => {
-    const result = dryRunIssuerAdmission({
+  it("dry-runs a well-formed candidate as ok", async () => {
+    const result = await dryRunIssuerAdmission({
       iss: "https://second-issuer.example",
       name: "Second Issuer",
       jwksUri: "https://second-issuer.example/.well-known/jwks.json",
@@ -29,9 +29,9 @@ describe("issuerEvidence", () => {
     expect(result.would_join_registry).toBe(true);
   });
 
-  it("rejects forbidden scopes and duplicate iss without mutating registry", () => {
+  it("rejects forbidden scopes and duplicate iss without mutating registry", async () => {
     const before = ISSUERS.length;
-    const forbidden = dryRunIssuerAdmission({
+    const forbidden = await dryRunIssuerAdmission({
       iss: "https://bad.example",
       name: "Bad",
       jwksUri: "https://bad.example/jwks",
@@ -43,7 +43,7 @@ describe("issuerEvidence", () => {
     expect(forbidden.ok).toBe(false);
     expect(forbidden.problems.some((p) => p.kind === "forbidden_scope")).toBe(true);
 
-    const dup = dryRunIssuerAdmission({
+    const dup = await dryRunIssuerAdmission({
       ...ISSUERS[0],
       name: "Clone",
     });

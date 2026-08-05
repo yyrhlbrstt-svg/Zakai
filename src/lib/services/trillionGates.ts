@@ -76,7 +76,7 @@ async function loadGateInputs(origin: string) {
 
   const multiMarketOutcomes = marketOutcomes.filter((m) => m._count._all > 0).length >= 2;
 
-  const registryIssuers = countActiveNetworkIssuers();
+  const registryIssuers = await countActiveNetworkIssuers();
   const issuersTotal = registryIssuers + delegatedIssuersActive;
 
   // Prefer live HTTP probes; local packsRoot only for offline CI — not a prod green.

@@ -34,7 +34,8 @@ export async function GET(request: Request) {
       production_path: {
         evidence_dry_run: `${origin}/api/mandate/delegation/evidence`,
         apply_delegated: `${origin}/api/mandate/delegation/apply`,
-        admit_script: "npm run delegation:admit-pilot",
+        admit_delegated: "POST /api/mandate/delegation/issuers (admin token, after review)",
+        admit_full_issuer: "POST /api/mandate/registry/issuers (admin token, after review)",
         gate: "G5_second_issuer on /api/network/trillion-gates",
       },
       vectors: {
