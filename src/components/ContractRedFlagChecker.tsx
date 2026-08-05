@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import type { ContractAnalysis } from "@/lib/contractAnalysis";
+
+/** Enough lead time to actually cancel or renegotiate before the renewal hits. */
+const REMIND_DAYS_BEFORE = 30;
 
 /**
  * Paste a contract, see which clauses favour you and which should give you
@@ -18,10 +22,39 @@ export function ContractRedFlagChecker() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [result, setResult] = useState<ContractAnalysis | null>(null);
+  const [reminderBusy, setReminderBusy] = useState(false);
+  const [reminderAdded, setReminderAdded] = useState(false);
+  const [needsLogin, setNeedsLogin] = useState(false);
+
+  async function addRenewalReminder() {
+    if (!result?.renewalDate) return;
+    setReminderBusy(true);
+    setNeedsLogin(false);
+    try {
+      const res = await fetch("/api/deadlines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          label: t("renewalCta"),
+          dueDate: result.renewalDate,
+          remindDaysBefore: REMIND_DAYS_BEFORE,
+        }),
+      });
+      if (res.status === 401) {
+        setNeedsLogin(true);
+        return;
+      }
+      if (res.ok) setReminderAdded(true);
+    } finally {
+      setReminderBusy(false);
+    }
+  }
 
   async function check() {
     setErr(null);
     setResult(null);
+    setReminderAdded(false);
+    setNeedsLogin(false);
     setBusy(true);
     try {
       const res = await fetch("/api/contract/analyze", {
@@ -75,6 +108,38 @@ export function ContractRedFlagChecker() {
 
       {result && !result.readable && result.clauses.length === 0 && (
         <p className="text-ink-soft text-[13.5px] mt-5 leading-relaxed">{t("notReadable")}</p>
+      )}
+
+      {result?.renewalDate && (
+        <div className="rounded-xl border border-[rgba(240,180,92,0.4)] bg-[rgba(240,180,92,0.08)] p-4 mt-5">
+          <p className="text-[13.5px] font-bold m-0">
+            {t("renewalFound", { date: result.renewalDate })}
+          </p>
+          {result.autoRenews && (
+            <p className="text-ink-soft text-[12.5px] mt-1 mb-0">{t("renewalAutoRenewNote")}</p>
+          )}
+          {reminderAdded ? (
+            <p className="text-emerald text-[13px] font-bold mt-3 mb-0">{t("renewalAdded")}</p>
+          ) : needsLogin ? (
+            <div className="mt-3">
+              <p className="text-ink-soft text-[12.5px] mb-2">{t("renewalLoginNote")}</p>
+              <Link href={`/login?return=/contract-check`} className="no-underline">
+                <Button variant="ghost" className="!text-[13px]">
+                  {t("renewalCta")}
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              className="mt-3 !text-[13px]"
+              disabled={reminderBusy}
+              onClick={addRenewalReminder}
+            >
+              {t("renewalCta")}
+            </Button>
+          )}
+        </div>
       )}
 
       {result && result.clauses.length > 0 && (

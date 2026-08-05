@@ -802,15 +802,17 @@ export async function extractSavingsFromEmail(
 
 // ---------- Contract red-flag summary ----------
 
-const CONTRACT_ANALYSIS_SYSTEM = `You review consumer contracts in Hebrew or English (lease, gym membership, phone/internet plan, employment offer, terms of service) and flag clauses in plain language for a non-lawyer.
+const CONTRACT_ANALYSIS_SYSTEM = `You review consumer and small-business contracts in Hebrew or English (lease, gym membership, phone/internet plan, employment offer, vendor/service agreement, terms of service) and flag clauses in plain language for a non-lawyer.
 
 Extract up to 20 clauses that actually matter to a consumer signing this — skip boilerplate (definitions, notices addresses, governing law) unless it's genuinely consequential.
 
 For each clause: quote or closely paraphrase it (short), classify it "green" (favours the reader: fixed price, free exit, reasonable notice) or "red" (should give the reader pause: penalty fees, automatic price increases, auto-renewal, long lock-in, one-sided termination rights, hidden costs), and give one short sentence explaining why in the SAME LANGUAGE as the contract.
 
+Also look specifically for an automatic-renewal clause: set autoRenews=true if the contract renews itself unless cancelled. If — and ONLY if — the contract states an actual renewal, expiry, or notice-deadline DATE in a form you can resolve to a real calendar date, set renewalDate to that date as yyyy-mm-dd. If the contract only gives a duration ("renews annually", "12-month term") with no anchor date to compute from, or you are not confident, leave renewalDate null — never guess or compute a date from "today" or from your own sense of the current date.
+
 If the input is not readable as a contract at all (random text, a shopping list, gibberish), set readable=false and return an empty clauses array — do not force clauses onto unrelated text.
 
-Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
+Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"autoRenews":boolean,"renewalDate":"yyyy-mm-dd"_or_null,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
 
 /**
  * Read a contract's text and flag clauses for a non-lawyer — bounded output,
@@ -841,7 +843,7 @@ export async function analyzeContractText(text: string): Promise<ContractAnalysi
   try {
     return normalizeContractAnalysis(extractJson(raw));
   } catch {
-    return { clauses: [], readable: false };
+    return { clauses: [], readable: false, autoRenews: false, renewalDate: null };
   }
 }
 

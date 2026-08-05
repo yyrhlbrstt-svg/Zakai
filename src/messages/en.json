@@ -2857,7 +2857,12 @@
     "aiUnavailable": "This check isn't available right now — try again shortly.",
     "tooManyRequests": "Too many checks from this device recently — try again in a bit.",
     "genericError": "Something went wrong reading this — try again.",
-    "disclaimer": "An automatic reading of the text you pasted, meant to help you notice what to ask about before you sign — not legal advice, and not a substitute for reading the actual document yourself."
+    "disclaimer": "An automatic reading of the text you pasted, meant to help you notice what to ask about before you sign — not legal advice, and not a substitute for reading the actual document yourself.",
+    "renewalFound": "Renewal date found: {date}",
+    "renewalAutoRenewNote": "This contract renews automatically unless cancelled in time.",
+    "renewalCta": "Add a reminder 30 days before",
+    "renewalAdded": "Reminder added — we'll notify you in time.",
+    "renewalLoginNote": "Log in to save a reminder."
   },
   "scamCheck": {
     "metaTitle": "Is this a scam? Check a suspicious SMS/WhatsApp message | Zakai",
