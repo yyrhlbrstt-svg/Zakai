@@ -6068,7 +6068,23 @@
     "cite": "Compensation depends on operator policy and circumstances — not a guarantee.",
     "euTitle": "EU or UK flight instead?",
     "euSub": "EU261 and passenger rights — separate checker.",
-    "euCta": "Flight compensation checker"
+    "euCta": "Flight compensation checker",
+    "agent": {
+      "title": "The agent sends a signed demand to Israel Railways",
+      "sub": "Fill in the details and Zakai sends a demand under a signed Mandate. We don't promise an amount — compensation follows the operator's own policy.",
+      "name": "Full name",
+      "line": "Train line",
+      "contactEmail": "Israel Railways customer service email",
+      "travelDate": "Travel date",
+      "delayMinutes": "Delay (minutes)",
+      "ticketPrice": "Ticket price (₪, if known)",
+      "claimedAmount": "Compensation amount you're claiming (₪, if you have an estimate)",
+      "description": "Additional detail",
+      "needsEmail": "We need customer service's email to send the demand.",
+      "openedTitle": "Case opened",
+      "openedSub": "The demand was sent under a signed Mandate. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "olimPage": {
     "metaTitle": "New to Israel? The money you're owed — Zakai",
