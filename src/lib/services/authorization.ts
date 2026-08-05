@@ -331,11 +331,20 @@ export async function ensureMandateTokenForCase(
   return { jti: mandate.mandateJti, jws: mandate.mandateToken };
 }
 
-/** Public lookup for the provider-facing verification page. Masks PII. */
+/**
+ * Public lookup for the provider-facing verification page. Masks PII.
+ * No auth gate — reachable by anyone with a code. A DB blip must degrade to
+ * "can't verify right now" (the page 404s on null), never an unhandled 500.
+ */
 export async function getPublicAuthorization(code: string) {
-  const auth = await prisma.authorization.findUnique({
-    where: { code: code.trim().toUpperCase() },
-  });
+  let auth;
+  try {
+    auth = await prisma.authorization.findUnique({
+      where: { code: code.trim().toUpperCase() },
+    });
+  } catch {
+    return null;
+  }
   if (!auth) return null;
 
   const mandateAudience = auth.mandateAudience ?? resolveMandateAudience(auth.provider);

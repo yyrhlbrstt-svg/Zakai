@@ -16,22 +16,29 @@ export async function OpenLoopResumeBar({ locale }: { locale: string }) {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const cases = await prisma.case.findMany({
-    where: { userId: user.id },
-    select: {
-      id: true,
-      status: true,
-      provider: true,
-      vertical: true,
-      amountOriginal: true,
-      targetAmount: true,
-      counterpartyEmail: true,
-      fee: { select: { amount: true, status: true } },
-      authorization: { select: { status: true } },
-    },
-    orderBy: { updatedAt: "desc" },
-    take: 40,
-  });
+  let cases;
+  try {
+    cases = await prisma.case.findMany({
+      where: { userId: user.id },
+      select: {
+        id: true,
+        status: true,
+        provider: true,
+        vertical: true,
+        amountOriginal: true,
+        targetAmount: true,
+        counterpartyEmail: true,
+        fee: { select: { amount: true, status: true } },
+        authorization: { select: { status: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 40,
+    });
+  } catch {
+    // Renders inside the root layout on every page — a DB blip here must
+    // hide the resume bar, not take down the whole site.
+    return null;
+  }
   if (cases.length === 0) return null;
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
