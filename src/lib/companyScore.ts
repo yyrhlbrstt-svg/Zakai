@@ -167,3 +167,65 @@ export function aggregateActivePressure(rows: readonly ActivePressureRow[]): Act
   stats.sort((a, b) => b.activeCases - a.activeCases);
   return stats;
 }
+
+export interface SystemicPatternRow {
+  paid: boolean;
+  recoveredMinor: number;
+  days: number;
+  createdAt: Date;
+}
+
+export interface SystemicPatternReport {
+  documentedCases: number;
+  paidCases: number;
+  paidRatePct: number;
+  totalRecoveredMinor: number;
+  avgRecoveredMinor: number;
+  medianDays: number | null;
+  /** ISO date of the oldest documented case in the sample. */
+  firstDocumentedAt: string;
+  /** ISO date of the most recent documented case in the sample. */
+  lastDocumentedAt: string;
+}
+
+/**
+ * Aggregate documented settlement outcomes against one named provider into
+ * neutral facts, for a licensed evidence-package consumer (a plaintiff firm
+ * building a systemic-pattern filing, a regulator's own case file). Same
+ * MIN_SAMPLE gate and same discipline as every other function in this file:
+ * this reports what was documented — how many claims, how many paid, the
+ * distribution of amounts and resolution time — and states no legal
+ * conclusion. It is not evidence of wrongdoing and does not claim to be;
+ * it is a count of what real, documented settlements actually looked like.
+ * Only verified (non-self-reported) outcomes belong in the input — the
+ * caller is responsible for that filter, same as loadFairnessScores.
+ */
+export function aggregateSystemicPatternReport(
+  rows: readonly SystemicPatternRow[],
+): SystemicPatternReport | null {
+  if (rows.length < MIN_SAMPLE) return null;
+
+  const paidRows = rows.filter((r) => r.paid && r.recoveredMinor > 0);
+  const totalRecoveredMinor = paidRows.reduce((s, r) => s + r.recoveredMinor, 0);
+  const sortedDays = paidRows.map((r) => r.days).sort((a, b) => a - b);
+  const mid = Math.floor(sortedDays.length / 2);
+  const medianDays =
+    sortedDays.length === 0
+      ? null
+      : sortedDays.length % 2 === 0
+        ? Math.round((sortedDays[mid - 1] + sortedDays[mid]) / 2)
+        : sortedDays[mid];
+
+  const sortedByDate = [...rows].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
+  return {
+    documentedCases: rows.length,
+    paidCases: paidRows.length,
+    paidRatePct: Math.round((paidRows.length / rows.length) * 100),
+    totalRecoveredMinor,
+    avgRecoveredMinor: paidRows.length > 0 ? Math.round(totalRecoveredMinor / paidRows.length) : 0,
+    medianDays,
+    firstDocumentedAt: sortedByDate[0].createdAt.toISOString().slice(0, 10),
+    lastDocumentedAt: sortedByDate[sortedByDate.length - 1].createdAt.toISOString().slice(0, 10),
+  };
+}

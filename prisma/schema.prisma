@@ -810,3 +810,22 @@ model RegisteredIssuerRow {
 
   @@index([status])
 }
+
+/**
+ * Per-customer keys for the licensed evidence API (POST
+ * /api/evidence/systemic-pattern) — aggregated, de-identified, sample-gated
+ * settlement-pattern reports sold to plaintiff firms and regulators building
+ * a systemic-pattern case file against a named provider. Same shape as
+ * OracleKey: one credential per paying customer, durable in Postgres,
+ * individually revocable.
+ */
+model EvidenceKey {
+  /// Opaque secret key, e.g. ev_live_…
+  key       String   @id
+  /// Customer/institution label — never a domain, this is a server-to-server key.
+  label     String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([revokedAt])
+}

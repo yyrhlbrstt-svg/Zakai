@@ -3,10 +3,12 @@ import {
   aggregateCompanyStats,
   aggregateProviderVerticalStats,
   aggregateActivePressure,
+  aggregateSystemicPatternReport,
   MIN_SAMPLE,
   type CaseOutcome,
   type VerticalCaseOutcome,
   type ActivePressureRow,
+  type SystemicPatternRow,
 } from "./companyScore";
 
 function make(provider: string, n: number, savedEach: number, savingAgorot: number): CaseOutcome[] {
@@ -178,5 +180,68 @@ describe("aggregateActivePressure", () => {
 
   it("returns empty for no input", () => {
     expect(aggregateActivePressure([])).toEqual([]);
+  });
+});
+
+function makeOutcome(
+  paid: boolean,
+  recoveredMinor: number,
+  days: number,
+  createdAt: string,
+): SystemicPatternRow {
+  return { paid, recoveredMinor, days, createdAt: new Date(createdAt) };
+}
+
+describe("aggregateSystemicPatternReport", () => {
+  it("returns null below MIN_SAMPLE — same defamation gate as every other report here", () => {
+    const rows = Array.from({ length: MIN_SAMPLE - 1 }, () =>
+      makeOutcome(true, 5000, 10, "2026-01-01"),
+    );
+    expect(aggregateSystemicPatternReport(rows)).toBeNull();
+  });
+
+  it("computes neutral facts at or above MIN_SAMPLE", () => {
+    const rows = [
+      makeOutcome(true, 4000, 10, "2026-01-05"),
+      makeOutcome(true, 6000, 20, "2026-01-10"),
+      makeOutcome(false, 0, 30, "2026-01-15"),
+      makeOutcome(true, 5000, 15, "2026-01-01"),
+      makeOutcome(false, 0, 5, "2026-02-01"),
+    ];
+    const report = aggregateSystemicPatternReport(rows);
+    expect(report).not.toBeNull();
+    expect(report!.documentedCases).toBe(5);
+    expect(report!.paidCases).toBe(3);
+    expect(report!.paidRatePct).toBe(60);
+    expect(report!.totalRecoveredMinor).toBe(15000);
+    expect(report!.avgRecoveredMinor).toBe(5000);
+    expect(report!.firstDocumentedAt).toBe("2026-01-01");
+    expect(report!.lastDocumentedAt).toBe("2026-02-01");
+  });
+
+  it("computes the median resolution time across paid cases only", () => {
+    const rows = [
+      makeOutcome(true, 1000, 10, "2026-01-01"),
+      makeOutcome(true, 1000, 20, "2026-01-02"),
+      makeOutcome(true, 1000, 30, "2026-01-03"),
+      makeOutcome(false, 0, 1000, "2026-01-04"),
+      makeOutcome(false, 0, 2000, "2026-01-05"),
+    ];
+    const report = aggregateSystemicPatternReport(rows);
+    expect(report!.medianDays).toBe(20);
+  });
+
+  it("reports null median (not zero) when nothing has paid yet", () => {
+    const rows = Array.from({ length: MIN_SAMPLE }, (_, i) =>
+      makeOutcome(false, 0, 10, `2026-01-0${i + 1}`),
+    );
+    const report = aggregateSystemicPatternReport(rows);
+    expect(report!.medianDays).toBeNull();
+    expect(report!.paidRatePct).toBe(0);
+    expect(report!.avgRecoveredMinor).toBe(0);
+  });
+
+  it("returns null for no input", () => {
+    expect(aggregateSystemicPatternReport([])).toBeNull();
   });
 });
