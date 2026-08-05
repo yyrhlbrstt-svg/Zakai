@@ -5942,7 +5942,19 @@
     "cite": "Based on 15 U.S.C. § 1692g — not a promise of outcome or non-payment.",
     "ilTitle": "Based in Israel?",
     "ilSub": "For Israeli collectors — complaint and verify debt before paying.",
-    "ilCta": "IL collector complaint"
+    "ilCta": "IL collector complaint",
+    "tool": {
+      "title": "Draft your validation letter",
+      "sub": "Fill in the collector's name and, if you have one, their reference number. The letter cites 15 U.S.C. § 1692g and never asks for your Social Security number.",
+      "nameQ": "Your name",
+      "collectorQ": "Collector's name",
+      "referenceQ": "Their reference/account number (optional)",
+      "detailsQ": "Anything specific to add (optional)",
+      "generateCta": "Draft the letter",
+      "copy": "Copy letter",
+      "copied": "Copied",
+      "sendHint": "Mail or email it to the collector yourself — Zakai doesn't send this one."
+    }
   },
   "consumerCancelDoor": {
     "metaTitle": "14-day remote cancellation — Zakai",
