@@ -82,6 +82,8 @@ model User {
   vigilProfile       UserProfile?
   vigilAlerts        VigilAlert[]
   deadlines          Deadline[]
+  receipts           Receipt[]
+  inboxInterests     ConnectedInboxInterest[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -828,4 +830,58 @@ model EvidenceKey {
   revokedAt DateTime?
 
   @@index([revokedAt])
+}
+
+// Receipt collector: a document (photo today; email/WhatsApp are transport
+// options the same row shape already supports) the user submitted so Zakai
+// can find money hiding in it — a duplicate charge, an unclaimed VAT-eligible
+// expense — the same detect step every other vertical here runs, just fed by
+// receipts instead of a bank/credit export. Never the image itself: only the
+// numbers the model extracted from it, same privacy posture as the rest of
+// the scan pipeline (StatementScan parses in the browser; this parses
+// server-side because OCR needs the model, but nothing beyond the extracted
+// fields is persisted).
+model Receipt {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  vendor       String
+  amountAgorot Int
+  currency     String @default("ILS")
+  // The date printed on the receipt, if the model could read one — not when
+  // the row was created. Null when unreadable; duplicate detection falls back
+  // to createdAt for those.
+  occurredAt   DateTime?
+  category     String // "business_deductible" | "recurring" | "personal" | "other"
+  hasVat       Boolean @default(false)
+  source       String  @default("photo") // "photo" | "email" | "whatsapp"
+
+  // Set when detectDuplicateReceipt (src/lib/receipts.ts) flags this receipt
+  // against an earlier one for the same user — same vendor, same amount,
+  // within the detection window. Never auto-opens a Case: the user still
+  // approves before anything is sent, same as every other vertical.
+  duplicateOfId String?
+  flaggedAt     DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, vendor, amountAgorot])
+}
+
+// A user's stated interest in automatic inbox scanning (Gmail/Outlook) for
+// receipts and recurring charges — not a live connection. Real OAuth needs a
+// verified app registration with each provider (a business step, not a code
+// change); this table exists so that work starts from a real interest
+// signal instead of a guess, and so the settings UI has something honest to
+// show ("on the list") instead of a fake "connected" state.
+model ConnectedInboxInterest {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider  String // "gmail" | "outlook"
+  createdAt DateTime @default(now())
+
+  @@unique([userId, provider])
 }

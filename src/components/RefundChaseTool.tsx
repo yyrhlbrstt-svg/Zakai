@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
@@ -15,12 +16,20 @@ export function RefundChaseTool() {
   const t = useTranslations("inline_components_RefundChaseTool");
   const tFlow = useTranslations("agentFlow");
   const router = useRouter();
+  // Prefilled when arriving from the receipt collector's flagged duplicate
+  // charge (/receipts): ?company=...&amount=... — the user still reviews
+  // and edits every field before anything is sent, same as a blank form.
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
+  const [company, setCompany] = useState(() => searchParams.get("company")?.slice(0, 120) ?? "");
   const [contactEmail, setContactEmail] = useState("");
   const [orderId, setOrderId] = useState("");
   const [product, setProduct] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(() => {
+    const raw = searchParams.get("amount");
+    const n = raw ? Number(raw) : NaN;
+    return Number.isFinite(n) && n > 0 ? String(n) : "";
+  });
   const [days, setDays] = useState("14");
   const [out, setOut] = useState<{ subject: string; body: string } | null>(null);
   const [copied, setCopied] = useState(false);

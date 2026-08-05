@@ -75,6 +75,7 @@ const ICONS: Record<string, LucideIcon> = {
   deals: TicketPercent,
   entitlements: Target,
   payslip: ReceiptText,
+  receipts: ReceiptText,
   severance: FileText,
   maternity: Baby,
   taxrefund: Banknote,

@@ -76,6 +76,7 @@
     "signup": "Sign up",
     "settings": "My account",
     "scan": "Scan charges",
+    "receipts": "Receipts",
     "pricing": "Plans",
     "assistant": "My agent",
     "electricity": "Electricity",
@@ -1025,6 +1026,35 @@
       "Hapoalim/Leumi/Discount: account → transactions → export/print → Excel.",
       "Or just select rows on the site, copy, and paste here — the parser is forgiving."
     ]
+  },
+  "receipts": {
+    "title": "Zakai finds the money hiding in your receipts",
+    "subtitle": "Photograph a receipt or invoice — Zakai reads it, checks whether you were charged twice, and opens a case to claim the refund. Not filing, not a spreadsheet nobody looks at again — money back.",
+    "uploadLabel": "Photo of a receipt or invoice",
+    "uploadBtn": "Photograph / upload a receipt",
+    "scanning": "Reading the receipt…",
+    "unreadable": "We couldn't read that receipt. Try a clearer, straighter photo with the total amount visible.",
+    "duplicateTitle": "This looks like a duplicate charge",
+    "duplicateBody": "We found another receipt from {vendor} for the same amount ({amount}) within a few weeks. This is exactly the case worth a refund claim.",
+    "openCaseCta": "Open a case to claim the refund",
+    "recentTitle": "Collected receipts",
+    "empty": "No receipts collected yet. Start by photographing your first one.",
+    "flaggedBadge": "Duplicate charge",
+    "exportTitle": "Export for your accountant",
+    "exportBody": "A clean CSV sorted by vendor, amount and date — opens directly in Excel, ready to share.",
+    "exportCta": "Download file",
+    "inboxTitle": "Automatic inbox scanning (coming soon)",
+    "inboxBody": "In the future Zakai will be able to scan your email inbox and collect receipts and recurring charges automatically, with no manual photo needed. This isn't live yet: connecting Gmail or Outlook requires their formal app approval, and we're not pretending it already exists. You can join the waitlist now.",
+    "inboxGmail": "Notify me — Gmail",
+    "inboxOutlook": "Notify me — Outlook",
+    "inboxJoined": "You're on the list! We'll email you when this is available.",
+    "categories": {
+      "business_deductible": "Business expense",
+      "recurring": "Subscription / recurring charge",
+      "personal": "Personal",
+      "other": "Other"
+    },
+    "vatBadge": "VAT included"
   },
   "assistant": {
     "title": "My agent",

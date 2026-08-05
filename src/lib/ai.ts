@@ -441,6 +441,86 @@ export async function analyzeBillImage(
   };
 }
 
+// ---------- Receipt / invoice extraction (receipt collector) ----------
+
+export type ReceiptCategory = "business_deductible" | "recurring" | "personal" | "other";
+
+export interface ReceiptAnalysis {
+  vendor: string;
+  amountShekels: number;
+  currency: string;
+  /** ISO date (yyyy-mm-dd) if the receipt shows one, else null. */
+  date: string | null;
+  category: ReceiptCategory;
+  /** True when VAT is itemized on the receipt — relevant for the business export. */
+  hasVat: boolean;
+  readable: boolean;
+}
+
+const RECEIPT_EXTRACT_SYSTEM = `You extract data from a photo of ANY receipt or invoice (paper or digital, any vendor — retail, restaurant, service, subscription, professional). Extract: the vendor/merchant name, the total amount charged as a plain number, the currency (ISO code, default ILS if a shekel symbol or Israeli vendor), the date if visible (yyyy-mm-dd), whether VAT/tax is itemized as a separate line, and a category guess: "business_deductible" (a plausible tax-deductible business expense — office supplies, professional services, business travel), "recurring" (a subscription or membership renewal), "personal" (an ordinary personal purchase), or "other" if unclear. If the image is not a readable receipt, set readable=false. Respond ONLY with JSON: {"vendor":"...","amount":number_or_null,"currency":"ILS","date":"yyyy-mm-dd"_or_null,"category":"business_deductible"|"recurring"|"personal"|"other","hasVat":boolean,"readable":boolean}`;
+
+export async function analyzeReceiptImage(
+  base64: string,
+  mediaType: string,
+): Promise<ReceiptAnalysis> {
+  let text: string;
+  if (aiProvider() !== "anthropic") {
+    text = await fallbackGenerate({
+      system: RECEIPT_EXTRACT_SYSTEM,
+      userText: "Extract this receipt.",
+      imageBase64: base64,
+      mediaType,
+      maxTokens: 400,
+      temperature: 0,
+    });
+  } else {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: EXTRACT_MODEL,
+      max_tokens: 400,
+      temperature: 0,
+      system: cachedSystem(RECEIPT_EXTRACT_SYSTEM),
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
+            },
+            { type: "text", text: "Extract this receipt." },
+          ],
+        },
+      ],
+    });
+    text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+  }
+  const parsed = extractJson(text) as {
+    vendor?: string;
+    amount?: number | null;
+    currency?: string;
+    date?: string | null;
+    category?: string;
+    hasVat?: boolean;
+    readable?: boolean;
+  };
+  const category: ReceiptCategory =
+    parsed.category === "business_deductible" ||
+    parsed.category === "recurring" ||
+    parsed.category === "personal"
+      ? parsed.category
+      : "other";
+  return {
+    vendor: (parsed.vendor ?? "").trim().slice(0, 120),
+    amountShekels: parsed.amount ?? 0,
+    currency: (parsed.currency ?? "ILS").trim().slice(0, 8) || "ILS",
+    date: parsed.date ?? null,
+    category,
+    hasVat: Boolean(parsed.hasVat),
+    readable: Boolean(parsed.readable) && Boolean(parsed.amount) && Boolean(parsed.vendor?.trim()),
+  };
+}
+
 // ---------- Recommendation + outreach draft ----------
 
 export interface Recommendation {

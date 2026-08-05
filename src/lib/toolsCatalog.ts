@@ -41,6 +41,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/credit-card", key: "creditcard", category: "selfHelp" },
   { href: "/score", key: "score", category: "selfHelp" },
   { href: "/scan", key: "scan", category: "agent", agentic: true },
+  { href: "/receipts", key: "receipts", category: "agent", agentic: true },
   { href: "/spending", key: "spending", category: "selfHelp" },
   { href: "/vat", key: "vat", category: "selfHelp" },
   { href: "/insurance-compare", key: "insurancecompare", category: "selfHelp" },
