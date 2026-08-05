@@ -77,6 +77,7 @@
     "settings": "My account",
     "scan": "Scan charges",
     "receipts": "Receipts",
+    "smallBusiness": "For your business",
     "pricing": "Plans",
     "assistant": "My agent",
     "electricity": "Electricity",
@@ -2463,7 +2464,7 @@
       },
       {
         "h": "Intellectual property",
-        "p": "All rights in the service, code, design and content belong to Zakai."
+        "p": "All rights in the service, code, design, content, the \"Zakai\" mark and logo belong solely to Zakai. You may not copy, distribute, reverse-engineer, scrape by automated means, systematically extract data from, or use the service, its outputs, or data obtained through it to build, train, or operate a competing service — all without express written permission. Express carve-out: this does not restrict use of the publicly published Mandate protocol specification, JWKS keys, and documented APIs under /.well-known/ and /api/mandate/, which are intentionally published for institutions and partners under their own stated terms. Breach of this clause may entitle Zakai to the full remedies available at law, including interim and permanent injunctive relief."
       },
       {
         "h": "Changes",
@@ -2784,7 +2785,47 @@
     },
     "metaTitle": "Zakai for Business — Employee benefits + Mandate infrastructure",
     "metaDesc": "Employee money-rights benefit + verifiable Mandate API for banks, insurers and fintechs. No outbound payments. Success fee only on documented savings.",
-    "networkProofLink": "Live network proof"
+    "networkProofLink": "Live network proof",
+    "smallBusinessNote": "Looking for tools to recover money for your own business, not as an employee benefit? ",
+    "smallBusinessLink": "Zakai for your business →"
+  },
+  "smallBusiness": {
+    "metaTitle": "Zakai for your business — money it's losing without noticing | Zakai",
+    "metaDesc": "Tools for small businesses and the self-employed: duplicate vendor charges, unclaimed deductible expenses, excess bank fees, and forgotten business subscriptions — the same agent that closes the loop through to a real refund.",
+    "kicker": "Zakai for your business 💼",
+    "title": "Not an employee benefit — tools that find money your business is already losing",
+    "sub": "Excess bank fees, a vendor that billed you twice, a business subscription nobody remembered to cancel, a deductible expense never claimed — the same agent that checks, drafts, sends, and follows up, just pointed at your business's cash flow instead of a personal account.",
+    "notEmployeeBenefitNote": "Looking to offer Zakai as an employee benefit, or compare Mandate infrastructure as an institution? That's on",
+    "notEmployeeBenefitLink": "Zakai for Business (benefits & institutions) →",
+    "toolsTitle": "Tools relevant to your business",
+    "tools": [
+      {
+        "href": "/receipts",
+        "title": "Receipt collector — duplicate charges & deductible expenses",
+        "sub": "Photograph a receipt or invoice; Zakai flags a duplicate charge and opens a refund case. Clean CSV export for your accountant."
+      },
+      {
+        "href": "/bank-fees",
+        "title": "Business bank fees",
+        "sub": "Account-management fees, credit-line charges and excess interest worth disputing."
+      },
+      {
+        "href": "/duplicate-charge",
+        "title": "Duplicate charge check",
+        "sub": "A focused check for whether a vendor billed you twice for the same transaction."
+      },
+      {
+        "href": "/cancel",
+        "title": "Cancel unused business subscriptions",
+        "sub": "Software, cloud services, and subscriptions the business keeps paying for without using."
+      },
+      {
+        "href": "/business-compensation",
+        "title": "Indirect war-damage compensation",
+        "sub": "Businesses with reduced revenue may be entitled to compensation from the Tax Authority."
+      }
+    ],
+    "cta": "Start by scanning a receipt"
   },
   "contractCheck": {
     "metaTitle": "Contract red flags — what's in the fine print? | Zakai",
