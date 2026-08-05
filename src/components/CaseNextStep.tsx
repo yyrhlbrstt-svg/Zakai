@@ -340,8 +340,15 @@ const copy: Record<string, Record<string, string>> = {
 };
 
 function t(locale: string, key: string): string {
-  const table = copy[locale] || copy.he;
-  return table[key] || copy.he[key] || key;
+  // Only he/en are translated here. Falling back to Hebrew for every other
+  // locale (the old behavior) put unreadable Hebrew script in front of
+  // Russian users on the core Mandate-dispatch panel — exactly what
+  // src/i18n/request.ts's own fallback policy says never to do. Route
+  // through the RTL family (he/ar) or English, matching the heEn()
+  // convention used everywhere else in this file's sibling components.
+  const familyDefault = locale === "he" || locale === "ar" ? copy.he : copy.en;
+  const table = copy[locale] || familyDefault;
+  return table[key] || familyDefault[key] || key;
 }
 
 export function CaseNextStep({
