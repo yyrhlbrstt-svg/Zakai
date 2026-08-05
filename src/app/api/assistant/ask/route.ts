@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserId, badRequest } from "@/lib/api";
 import { askZakai, aiAvailable } from "@/lib/ai";
-import { planConfig } from "@/lib/plans";
+import { planConfig, type PlanId } from "@/lib/plans";
 import { rateLimit, refundRateLimit } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { buildAssistantCasesSnapshot } from "@/lib/services/assistantContext";
@@ -24,7 +24,10 @@ const schema = z
     message: "question or image required",
   });
 
-const QUOTA: Record<string, number> = { FREE: 5, PRO: 100, MAX: 300 };
+// Record<PlanId, ...> (not Record<string, ...>) so a new tier that forgets a
+// quota is a compile error, not a QUOTA[plan] === undefined rate-limit call
+// at runtime — exactly the gap that existed here for BUSINESS until this typing.
+const QUOTA: Record<PlanId, number> = { FREE: 5, PRO: 100, MAX: 300, BUSINESS: 500 };
 const WINDOW_SECONDS = 30 * 24 * 3600;
 
 const NEGOTIATION_COACH = `

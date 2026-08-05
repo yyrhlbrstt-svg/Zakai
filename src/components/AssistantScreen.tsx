@@ -7,6 +7,7 @@ import { Card, Button, Input } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import type { Insight } from "@/lib/insights";
 import { FAQ } from "@/lib/faq";
+import type { PlanId } from "@/lib/plans";
 
 // A few high-signal starter questions surfaced as chips under the chat.
 const SUGGESTED_IDS = ["fee", "taxrefund", "payslip", "family"] as const;
@@ -35,7 +36,7 @@ export function AssistantScreen({
 }: {
   insights: Insight[];
   chatEnabled: boolean;
-  plan: "FREE" | "PRO" | "MAX";
+  plan: PlanId;
   bcp47: string;
   /**
    * Arrives from /assistant?ask=... — a button elsewhere (LeadForm.tsx) that

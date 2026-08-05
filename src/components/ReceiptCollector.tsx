@@ -3,9 +3,10 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { Card, Button } from "@/components/ui";
+import { Card, Button, Textarea } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import type { ReceiptCategory } from "@/lib/receipts";
+import type { PlanId } from "@/lib/plans";
 
 export interface ReceiptRow {
   id: string;
@@ -26,12 +27,19 @@ async function fileToBase64(file: File): Promise<string> {
   return btoa(bin);
 }
 
+interface BulkFlaggedRow {
+  vendor: string;
+  amountAgorot: number;
+}
+
 export function ReceiptCollector({
   bcp47,
   initialReceipts,
+  plan,
 }: {
   bcp47: string;
   initialReceipts: ReceiptRow[];
+  plan: PlanId;
 }) {
   const t = useTranslations("receipts");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -39,6 +47,13 @@ export function ReceiptCollector({
   const [busy, setBusy] = useState(false);
   const [unreadable, setUnreadable] = useState(false);
   const [inboxJoined, setInboxJoined] = useState<Record<string, boolean>>({});
+  const [bulkCsv, setBulkCsv] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{
+    imported: number;
+    skipped: number;
+    flagged: BulkFlaggedRow[];
+  } | null>(null);
 
   async function onUpload(file?: File | null) {
     if (!file) return;
@@ -73,6 +88,26 @@ export function ReceiptCollector({
       setUnreadable(true);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function bulkImport() {
+    if (bulkCsv.trim().length < 12) return;
+    setBulkBusy(true);
+    setBulkResult(null);
+    try {
+      const res = await fetch("/api/receipts/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csv: bulkCsv }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setBulkResult(data);
+        setBulkCsv("");
+      }
+    } finally {
+      setBulkBusy(false);
     }
   }
 
@@ -134,6 +169,62 @@ export function ReceiptCollector({
           </Link>
         </Card>
       )}
+
+      <Card className="mt-4 p-5">
+        <div className="font-extrabold text-[15px]">{t("bulkTitle")}</div>
+        {plan === "BUSINESS" ? (
+          <>
+            <p className="text-ink-soft text-[13px] mt-1.5 mb-3 leading-relaxed">{t("bulkBody")}</p>
+            <Textarea
+              rows={6}
+              dir="ltr"
+              className="font-mono text-[12.5px]"
+              placeholder={t("bulkPlaceholder")}
+              value={bulkCsv}
+              onChange={(e) => setBulkCsv(e.target.value)}
+            />
+            <Button
+              className="mt-3"
+              disabled={bulkBusy || bulkCsv.trim().length < 12}
+              onClick={bulkImport}
+            >
+              {bulkBusy ? t("scanning") : t("bulkCta")}
+            </Button>
+            {bulkResult && (
+              <div className="mt-4">
+                <p className="text-[13px] text-ink-soft m-0">
+                  {t("bulkResult", { imported: bulkResult.imported, skipped: bulkResult.skipped })}
+                </p>
+                {bulkResult.flagged.map((f, i) => (
+                  <div
+                    key={`${f.vendor}-${i}`}
+                    className="flex items-center justify-between gap-3 mt-2 rounded-xl border border-[rgba(240,138,107,0.35)] bg-[rgba(240,138,107,0.08)] px-4 py-2.5"
+                  >
+                    <span className="text-[13px] font-bold">
+                      {f.vendor} · {formatAgorot(f.amountAgorot, bcp47)}
+                    </span>
+                    <Link
+                      href={`/refund-chase?company=${encodeURIComponent(f.vendor)}&amount=${Math.round(f.amountAgorot / 100)}`}
+                      className="no-underline"
+                    >
+                      <Button variant="ghost" className="!px-3 !py-1.5 !text-[12.5px]">
+                        {t("openCaseCta")}
+                      </Button>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="text-ink-soft text-[13px] mt-1.5 mb-3 leading-relaxed">{t("bulkUpsell")}</p>
+            <Link href="/pricing" className="no-underline">
+              <Button variant="ghost">{t("bulkUpsellCta")}</Button>
+            </Link>
+          </>
+        )}
+      </Card>
 
       <h2 className="text-[15px] font-extrabold mt-8 mb-3 text-ink-soft">{t("recentTitle")}</h2>
       {receipts.length === 0 ? (

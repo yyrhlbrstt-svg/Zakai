@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { listReceipts } from "@/lib/services/receipts";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { ReceiptCollector } from "@/components/ReceiptCollector";
+import { planConfig } from "@/lib/plans";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 
@@ -48,6 +49,7 @@ export default async function ReceiptsPage({ params }: { params: Promise<{ local
           hasVat: r.hasVat,
           flagged: r.flagged,
         }))}
+        plan={planConfig(user!.plan).id}
       />
     </VerticalPageShell>
   );

@@ -974,6 +974,16 @@
           "Everything in Pro",
           "Full priority + first access to new features"
         ]
+      },
+      "BUSINESS": {
+        "name": "For your business",
+        "fee": "0% fee — for businesses & the self-employed",
+        "features": [
+          "Unlimited checks — every vendor, every case",
+          "Bulk receipt sweep (CSV) — a full year of invoices at once, not one at a time",
+          "Automatic monthly digest for your accountant — every deductible expense collected, in one file",
+          "Everything in Max"
+        ]
       }
     },
     "paymentComing": "Paid plans open the moment we connect billing. Leave it with us — you will be first to upgrade. (Downgrading to Free works now.)",
@@ -1055,7 +1065,14 @@
       "personal": "Personal",
       "other": "Other"
     },
-    "vatBadge": "VAT included"
+    "vatBadge": "VAT included",
+    "bulkTitle": "Bulk receipt sweep (CSV)",
+    "bulkBody": "Paste a vendor-invoice export — a full year at once. Zakai checks every row for a duplicate charge, including between rows in the same file.",
+    "bulkPlaceholder": "03/01/2026, Vendor Ltd, 450.00 ILS ...",
+    "bulkCta": "Import & scan",
+    "bulkResult": "Imported {imported} rows ({skipped} skipped). Flagged duplicate charges below:",
+    "bulkUpsell": "Bulk receipt sweep is available on the Business plan — a full invoice file at once, not one receipt at a time.",
+    "bulkUpsellCta": "See the Business plan"
   },
   "assistant": {
     "title": "My agent",

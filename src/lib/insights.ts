@@ -8,6 +8,8 @@
  * existing gated flows execute.
  */
 
+import type { PlanId } from "@/lib/plans";
+
 export interface CaseLite {
   status: string;
   amountOriginal: number; // agorot
@@ -22,7 +24,7 @@ export interface CaseLite {
 export const RECHECK_AFTER_DAYS = 180;
 
 export interface InsightInput {
-  plan: "FREE" | "PRO" | "MAX";
+  plan: PlanId;
   referralCreditAgorot: number;
   proPriceAgorot: number;
   cases: CaseLite[];

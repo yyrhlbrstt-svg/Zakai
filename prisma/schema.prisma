@@ -24,6 +24,7 @@ enum Plan {
   FREE
   PRO
   MAX
+  BUSINESS
 }
 
 model User {

@@ -1,8 +1,10 @@
 import "server-only";
+import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { shekelsToAgorot } from "@/lib/money";
 import { findDuplicateReceipt, receiptsToCsv, type ReceiptLike } from "@/lib/receipts";
 import type { ReceiptAnalysis } from "@/lib/ai";
+import type { StatementTxn } from "@/lib/subscriptions";
 
 export interface RecordedReceipt {
   id: string;
@@ -78,6 +80,94 @@ export async function recordReceipt(
     duplicateOfId: created.duplicateOfId,
     createdAt: created.createdAt,
   };
+}
+
+export interface BulkImportResult {
+  imported: number;
+  skipped: number;
+  flagged: Array<{ vendor: string; amountAgorot: number; occurredAt: Date }>;
+}
+
+/** A single import can't sink the whole request behind an unbounded scan/insert. */
+const MAX_BULK_ROWS = 1000;
+
+/**
+ * Bulk vendor-CSV sweep for the Business plan: a full year of invoices in
+ * one upload instead of one photo at a time. Reuses subscriptions.ts's
+ * general-purpose statement parser (already handles delimiter detection,
+ * quoted fields, and Israeli date/amount formats) — a CSV row is a CSV row
+ * whether it came from a bank export or a bookkeeping export.
+ *
+ * Flags duplicates against BOTH the user's previously stored receipts and
+ * earlier rows in the same upload — two rows in one CSV for the same
+ * vendor/amount a few days apart is exactly the shape a vendor billing
+ * error produces.
+ */
+export async function recordReceiptsBulk(
+  userId: string,
+  txns: readonly StatementTxn[],
+): Promise<BulkImportResult> {
+  const capped = txns.slice(0, MAX_BULK_ROWS);
+
+  const existing = await prisma.receipt.findMany({
+    where: { userId },
+    select: { id: true, vendor: true, amountAgorot: true, occurredAt: true, createdAt: true },
+  });
+  const pool: ReceiptLike[] = existing.map((r) => ({
+    id: r.id,
+    vendor: r.vendor,
+    amountAgorot: r.amountAgorot,
+    occurredAt: r.occurredAt ?? r.createdAt,
+  }));
+
+  const rows: {
+    id: string;
+    userId: string;
+    vendor: string;
+    amountAgorot: number;
+    occurredAt: Date;
+    category: string;
+    source: string;
+    duplicateOfId: string | null;
+    flaggedAt: Date | null;
+  }[] = [];
+  const flagged: BulkImportResult["flagged"] = [];
+  let skipped = 0;
+
+  for (const txn of capped) {
+    if (txn.amountAgorot <= 0 || !txn.merchant.trim()) {
+      skipped += 1;
+      continue;
+    }
+    const duplicate = findDuplicateReceipt(
+      { vendor: txn.merchant, amountAgorot: txn.amountAgorot, occurredAt: txn.date },
+      pool,
+    );
+    const id = randomUUID();
+    rows.push({
+      id,
+      userId,
+      vendor: txn.merchant,
+      amountAgorot: txn.amountAgorot,
+      occurredAt: txn.date,
+      category: "other",
+      source: "csv",
+      duplicateOfId: duplicate?.id ?? null,
+      flaggedAt: duplicate ? new Date() : null,
+    });
+    // Add to the pool so a later row in this same upload can be flagged
+    // against this one too, not just against previously stored receipts.
+    pool.push({ id, vendor: txn.merchant, amountAgorot: txn.amountAgorot, occurredAt: txn.date });
+    if (duplicate) {
+      flagged.push({ vendor: txn.merchant, amountAgorot: txn.amountAgorot, occurredAt: txn.date });
+    }
+  }
+
+  if (rows.length > 0) {
+    await prisma.receipt.createMany({ data: rows });
+  }
+
+  return { imported: rows.length, skipped, flagged };
 }
 
 export async function listReceipts(userId: string, take = 100): Promise<RecordedReceipt[]> {
