@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { aiAvailable, aiProvider, askZakai } from "@/lib/ai";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
-import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
+import { loadSigningKeyFromEnv } from "@/lib/mandate/mandate";
 import { allMarkets } from "@/lib/global/registry";
 import { activeLocales } from "@/i18n/config";
+import { isInternalOpsRequest } from "@/lib/ops/internalAdminGate";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
+async function buildInternalHealth(request: Request) {
   let db = false;
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -50,6 +51,7 @@ export async function GET(request: Request) {
       scopes: "/api/mandate/scopes",
       openapi: "/api/mandate/openapi.json",
       institutions: "/en/institutions",
+      readiness: "/api/network/readiness",
     },
     time: new Date().toISOString(),
   };
@@ -74,4 +76,32 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(base);
+}
+
+/**
+ * Public liveness for load balancers — no infra fingerprinting.
+ * Full diagnostics: GET ?internal=1 with header X-Zakai-Admin-Token (founder only).
+ */
+export async function GET(request: Request) {
+  if (isInternalOpsRequest(request)) {
+    return buildInternalHealth(request);
+  }
+
+  const limited = await rateLimit("health-public", clientIp(request), 120, 60);
+  if (!limited.ok) {
+    return NextResponse.json({ ok: true, time: new Date().toISOString() });
+  }
+
+  let db = false;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    db = true;
+  } catch {
+    db = false;
+  }
+
+  return NextResponse.json(
+    { ok: db, time: new Date().toISOString() },
+    { status: db ? 200 : 503 },
+  );
 }

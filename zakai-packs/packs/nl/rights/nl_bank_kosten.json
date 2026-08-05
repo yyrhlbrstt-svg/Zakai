@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "nl_bank_kosten",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Bank Kosten",
+    "he": "עמלות בנק"
+  },
+  "market": "NL",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/nl_bank_kosten",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Wet op het financieel toezicht — bankkosten (AFM/DNB klachtenroute)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -28,16 +28,20 @@ export const INSTITUTION_PROVIDER_MAP: Readonly<Record<string, readonly string[]
   "bank-mizrahi": ["mizrahi"],
   "bank-fibi": ["fibi"],
   "one-zero": ["onezero"],
-  // Telecom — phase 2 after banks (NORTH_STAR_100)
+  // Telecom — phase 2 after banks (NORTH_STAR_100) + ISP aliases
   cellcom: ["cellcom"],
   partner: ["partner"],
   pelephone: ["pelephone"],
   hotspot: ["hot", "hotspot", "hot-mobile"],
   "012mobile": ["012", "012mobile"],
-  // Electricity
+  bezeq: ["bezeq"],
+  yes: ["yes"],
+  // Electricity / gas — one institution id per provider key (no reverse-map overwrite)
   iec: ["iec", "חברת החשמל", "electricity"],
   pazgas: ["pazgas"],
   amisor: ["amisor"],
+  "am-isragas": ["am-isragas", "isragas"],
+
 };
 
 const OUTBOUND_STATUSES = new Set(["SENT", "SAVED", "NO_SAVING"]);
@@ -123,3 +127,70 @@ export function pressureRowsFromCases(cases: readonly CasePressureDbRow[]): Prov
 }
 
 export { CASE_PRESSURE_SELECT };
+
+export interface InboundPressureDatedRow extends ProviderCaseRow {
+  createdAt: Date;
+}
+
+export interface InboundPressureTrend {
+  institutionId: string;
+  /** Dispatched cases in the most recent TREND_WINDOW_DAYS. */
+  recentWindowCases: number;
+  /** Dispatched cases in the TREND_WINDOW_DAYS immediately before that. */
+  priorWindowCases: number;
+  /** (recent - prior) / prior, as a percentage. Null when priorWindowCases is 0 — no ratio is honest to report against zero. */
+  changePct: number | null;
+}
+
+/** Both windows compared, in days. 30 is short enough to be an early-warning signal, long enough not to be noise. */
+export const TREND_WINDOW_DAYS = 30;
+
+/**
+ * The same disclosed volume the free /api/institution/inbound-pressure
+ * publishes as one current snapshot, split into two consecutive windows so a
+ * paid consumer sees direction, not just level — a regulator's own risk team
+ * cares whether inbound pressure against an institution is accelerating, not
+ * only how much there is today. Deliberately simple (a two-window delta, not
+ * a fitted trendline): claiming more statistical sophistication than the
+ * sample supports is the same honesty failure the Oracle's `confident` flag
+ * and the evidence API's MIN_SAMPLE gate both exist to prevent.
+ */
+export function aggregateInboundPressureTrend(
+  rows: readonly InboundPressureDatedRow[],
+  now: Date = new Date(),
+): InboundPressureTrend[] {
+  const windowMs = TREND_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  const recentStart = now.getTime() - windowMs;
+  const priorStart = recentStart - windowMs;
+
+  const byInst = new Map<string, { recent: number; prior: number; total: number }>();
+  for (const row of rows) {
+    const institutionId = institutionIdFromOutboundRow(row);
+    if (!institutionId) continue;
+    const t = row.createdAt.getTime();
+    if (t < priorStart || t > now.getTime()) continue;
+
+    const cur = byInst.get(institutionId) ?? { recent: 0, prior: 0, total: 0 };
+    cur.total += 1;
+    if (t >= recentStart) cur.recent += 1;
+    else cur.prior += 1;
+    byInst.set(institutionId, cur);
+  }
+
+  const trends: InboundPressureTrend[] = [];
+  for (const [institutionId, { recent, prior, total }] of byInst) {
+    // Same MIN_SAMPLE defamation/statistics gate as every other disclosed
+    // aggregate — a thin two-window sample is exactly the kind of thing that
+    // gate exists to keep off a report someone else relies on.
+    if (total < MIN_SAMPLE) continue;
+    trends.push({
+      institutionId,
+      recentWindowCases: recent,
+      priorWindowCases: prior,
+      changePct: prior === 0 ? null : Math.round(((recent - prior) / prior) * 100),
+    });
+  }
+
+  trends.sort((a, b) => b.recentWindowCases - a.recentWindowCases);
+  return trends;
+}

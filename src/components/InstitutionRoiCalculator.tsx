@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Input } from "@/components/ui";
+import { useLocale, useTranslations } from "next-intl";
+import { Card, Input, Button } from "@/components/ui";
+import { roiMailto } from "@/lib/institutionPull";
 
 /**
  * A business case an institution's own team computes from its own numbers —
- * not an invented industry benchmark. It answers exactly one question,
- * narrowly and honestly: what does automated authorization verification save
- * on the single step Mandate actually replaces (a human confirming that a
- * scanned power of attorney is real and current)? It does not estimate
- * savings on the rest of case handling, because Mandate does not touch that.
+ * not an invented industry benchmark. Ends with mailto so they email Zakai
+ * with their math (pull), not a cold sales script.
  */
 export function InstitutionRoiCalculator() {
+  const t = useTranslations("institutionRoi");
+  const locale = useLocale();
   const [volume, setVolume] = useState("200");
   const [minutes, setMinutes] = useState("12");
   const [hourlyCost, setHourlyCost] = useState("120");
@@ -25,21 +26,25 @@ export function InstitutionRoiCalculator() {
   const costSavedPerYear = costSavedPerMonth * 12;
 
   const fmt = (n: number) =>
-    n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    n.toLocaleString(locale === "he" || locale === "ar" ? "he-IL" : "en-US", {
+      maximumFractionDigits: 0,
+    });
+
+  const mailto = roiMailto({
+    volume: v,
+    minutes: m,
+    hourlyCost: c,
+    hoursPerMonth: hoursSavedPerMonth,
+    costPerYear: costSavedPerYear,
+  });
 
   return (
     <Card className="p-6">
-      <p className="text-[13.5px] leading-relaxed text-ink-soft mb-4">
-        Three numbers your own ops team already knows. This computes only the
-        time your staff spends confirming that a submitted authorization is
-        real and current — the specific step a signed, offline-verifiable
-        Mandate replaces with a JWT check. It says nothing about the rest of
-        how you handle a case, because Mandate does not touch that either.
-      </p>
+      <p className="text-[13.5px] leading-relaxed text-ink-soft mb-4">{t("intro")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         <label className="text-[13px] font-bold text-ink-soft">
-          Requests needing authority verification / month
+          {t("volumeLabel")}
           <Input
             type="number"
             min={0}
@@ -50,7 +55,7 @@ export function InstitutionRoiCalculator() {
           />
         </label>
         <label className="text-[13px] font-bold text-ink-soft">
-          Minutes per manual verification, today
+          {t("minutesLabel")}
           <Input
             type="number"
             min={0}
@@ -61,7 +66,7 @@ export function InstitutionRoiCalculator() {
           />
         </label>
         <label className="text-[13px] font-bold text-ink-soft">
-          Fully loaded staff cost / hour
+          {t("hourlyLabel")}
           <Input
             type="number"
             min={0}
@@ -74,19 +79,17 @@ export function InstitutionRoiCalculator() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Stat label="Staff hours / month" value={fmt(hoursSavedPerMonth)} />
-        <Stat label="Cost / month" value={fmt(costSavedPerMonth)} />
-        <Stat label="Cost / year" value={fmt(costSavedPerYear)} />
+        <Stat label={t("hoursMonth")} value={fmt(hoursSavedPerMonth)} />
+        <Stat label={t("costMonth")} value={fmt(costSavedPerMonth)} />
+        <Stat label={t("costYear")} value={fmt(costSavedPerYear)} />
       </div>
 
-      <p className="text-[12px] leading-relaxed text-ink-soft mt-4">
-        Formula, in full: (requests × minutes ÷ 60) × hourly cost. No number
-        above comes from us — change any input and the result changes with
-        it. What this leaves out on purpose: reduced dispute/compliance
-        exposure from a cryptographically bounded credential instead of a
-        scanned document, and any change in resolution speed — both real, but
-        neither is a number we&apos;d compute for you without your own data.
-      </p>
+      <p className="text-[12px] leading-relaxed text-ink-soft mt-4 mb-4">{t("formula")}</p>
+
+      <a href={mailto} className="no-underline inline-block">
+        <Button className="w-full sm:w-auto">{t("mailtoCta")}</Button>
+      </a>
+      <p className="text-[11px] text-ink-soft mt-2 mb-0">{t("mailtoHint")}</p>
     </Card>
   );
 }

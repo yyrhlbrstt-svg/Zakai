@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { paymentProvider, paymentProviderName } from "@/lib/payments";
 
@@ -21,19 +22,69 @@ export async function initiateFeePayment(
     include: { fee: true },
   });
   if (!kase || !kase.fee) throw new PaymentError("NO_FEE");
-  const fee = kase.fee;
+  let fee = kase.fee;
   if (fee.status === "PAID") throw new PaymentError("ALREADY_PAID");
   if (fee.status === "WAIVED" || fee.amount <= 0) throw new PaymentError("NOTHING_TO_COLLECT");
+  // Never collect under withdrawn / unbound authority — even when Fee.mandateJti
+  // was already set at settle (revoke-after-SAVED must still block checkout).
+  // Legacy PENDING rows may heal jti from ACTIVE Authorization; never mint here.
+  const auth = await prisma.authorization.findUnique({
+    where: { caseId },
+    select: { mandateJti: true, status: true },
+  });
+  if (!auth || auth.status !== "ACTIVE" || !auth.mandateJti) {
+    throw new PaymentError("MANDATE_REQUIRED");
+  }
+  if (!fee.mandateJti) {
+    fee = await prisma.fee.update({
+      where: { id: fee.id },
+      data: { mandateJti: auth.mandateJti },
+    });
+  } else if (fee.mandateJti !== auth.mandateJti) {
+    // Fee still points at a prior jti (e.g. after reissue) — do not collect.
+    throw new PaymentError("MANDATE_REQUIRED");
+  }
+
+  // Claim the fee before minting a live checkout link. Without this, two
+  // overlapping requests (a double-click on "pay now", or the same fee open
+  // in two tabs) both pass the PENDING check above and both call the PSP —
+  // each mints its own real, independently-payable hosted checkout, and the
+  // second prisma.fee.update below silently overwrites the first checkout's
+  // providerRef. If the payer completes the checkout that lost that race,
+  // confirmFeePayment's exact-match check on providerRef then fails and a
+  // real captured payment can never be reconciled to PAID. The where-clause
+  // pins the exact providerRef we just read as an optimistic-concurrency
+  // check — matches the claim shape already used for sendOutreach and the
+  // Outbox drain worker — so a losing concurrent call fails fast instead of
+  // reaching the PSP at all.
+  const claimMarker = `pending:${randomUUID()}`;
+  const claimed = await prisma.fee.updateMany({
+    where: { id: fee.id, status: "PENDING", providerRef: fee.providerRef },
+    data: { providerRef: claimMarker },
+  });
+  if (claimed.count === 0) throw new PaymentError("CHECKOUT_IN_PROGRESS");
 
   const provider = paymentProvider();
   const loc = encodeURIComponent(locale);
-  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}`;
-  const checkout = await provider.createCheckout({
-    feeId: fee.id,
-    amountAgorot: fee.amount,
-    description: `Zakai success fee — case ${kase.id}`,
-    returnUrl,
-  });
+  // feeId must survive the PayPlus browser bounce — GET verify is fail-closed,
+  // so the callback needs feeId to deep-link /money?case=&payFee=1 on error/confirming.
+  const returnUrl = `${origin.replace(/\/+$/, "")}/api/payments/callback?loc=${loc}&feeId=${encodeURIComponent(fee.id)}`;
+  let checkout: { checkoutUrl: string; providerRef: string };
+  try {
+    checkout = await provider.createCheckout({
+      feeId: fee.id,
+      amountAgorot: fee.amount,
+      description: `Zakai success fee — case ${kase.id}`,
+      returnUrl,
+    });
+  } catch (err) {
+    // Release the claim so a retry isn't permanently stuck matching a stale marker.
+    await prisma.fee.updateMany({
+      where: { id: fee.id, providerRef: claimMarker },
+      data: { providerRef: null },
+    });
+    throw err;
+  }
 
   await prisma.fee.update({
     where: { id: fee.id },
@@ -55,9 +106,20 @@ export async function confirmFeePayment(feeId: string, providerRef: string): Pro
   if (fee.status === "PAID") return true; // idempotent
   if (!fee.providerRef || fee.providerRef !== providerRef) return false;
 
-  await prisma.fee.update({
-    where: { id: feeId },
+  // A real PSP fires the GET browser bounce and the POST webhook for the
+  // same payment close together, both landing here with the same valid
+  // providerRef — same "read state, check condition, act" shape already
+  // fixed for initiateFeePayment/sendOutreach/outboxDeliver/
+  // verifyOwnershipCode. Both concurrent calls would otherwise pass the
+  // status/providerRef checks above and both reach an unconditional update.
+  // Today that happens to be harmless (same fields, same effective state),
+  // but the moment PENDING→PAID gains a one-time side effect (receipt
+  // email, referral payout, accounting entry), an unguarded double-fire
+  // becomes a real bug with no test to catch it. The where-clause re-checks
+  // status is still PENDING at write time, not read time.
+  const claimed = await prisma.fee.updateMany({
+    where: { id: feeId, status: "PENDING", providerRef },
     data: { status: "PAID", paidAt: new Date() },
   });
-  return true;
+  return claimed.count > 0;
 }

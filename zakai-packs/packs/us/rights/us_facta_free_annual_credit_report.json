@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_facta_free_annual_credit_report",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Facta Free Annual Credit Report",
+    "he": "חינם · זיכוי · דוח"
+  },
+  "market": "US",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_facta_free_annual_credit_report",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Fair and Accurate Credit Transactions Act; 15 U.S.C. § 1681j; Free annual disclosures"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

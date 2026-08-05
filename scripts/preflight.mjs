@@ -38,6 +38,16 @@ const CHECKS = [
   // very nearly an enquiry that never came.
   { key: "SMTP_HOST", level: "degrading",
     cost: "No mail transport. Lead notifications and case correspondence are held in the Outbox and delivered nowhere." },
+  { key: "SMTP_USER", level: "degrading",
+    cost: "SMTP host without credentials — Outbox stays QUEUED the same as a missing host." },
+  { key: "SMTP_PASS", level: "degrading",
+    cost: "SMTP host without credentials — Outbox stays QUEUED the same as a missing host." },
+  { key: "INBOUND_EMAIL_SECRET", level: "degrading",
+    cost: "Inbound provider replies are ungated — proposed→SAVED path is ops-blind." },
+  { key: "MANDATE_ISSUE_KEY", level: "degrading",
+    cost: "Institutional Mandate issue API stays closed." },
+  { key: "MANDATE_REVOKE_KEY", level: "degrading",
+    cost: "Mandate revoke/status ops API stays closed." },
   { key: "SALES_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
     cost: "Institutional enquiries fall back to the founder address. Fine to launch on; set it once there is a shared inbox." },
   { key: "LEADS_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
@@ -50,8 +60,12 @@ const CHECKS = [
     cost: "The founder dashboard at /he/founder is closed to everyone, including you. Nothing else is affected." },
   { key: "PAYMENT_PROVIDER", level: "degrading",
     cost: "Success-fee checkout runs on the mock provider — no real card charges until PayPlus (or another PSP) is configured." },
-  { key: "PAYPLUS_API_KEY", level: "degrading", alt: ["PAYPLUS_SECRET_KEY"],
-    cost: "PayPlus is selected but credentials are missing — fee collection stays mock." },
+  { key: "PAYPLUS_API_KEY", level: "degrading",
+    cost: "PayPlus API key missing — fee collection stays mock when PAYMENT_PROVIDER=payplus." },
+  { key: "PAYPLUS_SECRET_KEY", level: "degrading",
+    cost: "PayPlus secret missing — fee collection stays mock when PAYMENT_PROVIDER=payplus." },
+  { key: "PAYPLUS_PAYMENT_PAGE_UID", level: "degrading",
+    cost: "PayPlus payment page UID missing — hosted checkout cannot open." },
   // A From address on a domain the sending server has no authority over fails
   // SPF and DKIM, and Gmail responds by warning the recipient that the message
   // may not be genuine — which reads to them as "this account is not secure".
@@ -66,6 +80,8 @@ const CHECKS = [
     cost: "Web Push disabled — inbound/saved nudges reach users by email only; PWA re-engagement drops." },
   { key: "VAPID_PRIVATE_KEY", level: "degrading",
     cost: "Web Push disabled — same as missing public VAPID key." },
+  { key: "AUTOPILOT_GITHUB_REPO", level: "optional", alt: ["GITHUB_TOKEN"],
+    cost: "Law Watcher and Market Expander will not open maintainer GitHub issues." },
 ];
 
 // A configured address on a reserved domain is worse than an absent one: the
@@ -96,6 +112,73 @@ const results = CHECKS.map((c) => {
   return { ...c, ok: has || viaAlt, viaAlt };
 });
 
+/**
+ * Mirror src/lib/deploy/releaseGate.ts paymentsFullyLive() + paymentProviderName heal.
+ * Complete PayPlus keys with unset/mock PAYMENT_PROVIDER used to leave fees dead forever.
+ */
+function paymentsFullyLive() {
+  if (process.env.FORCE_MOCK_PAYMENTS === "true") return false;
+  const raw = (process.env.PAYMENT_PROVIDER || "").toLowerCase().trim();
+  const payplusKeys = Boolean(
+    process.env.PAYPLUS_API_KEY?.trim() &&
+      process.env.PAYPLUS_SECRET_KEY?.trim() &&
+      process.env.PAYPLUS_PAYMENT_PAGE_UID?.trim(),
+  );
+  const name =
+    raw === "payplus"
+      ? "payplus"
+      : payplusKeys && (!raw || raw === "mock")
+        ? "payplus"
+        : raw || "mock";
+  if (!name || name === "mock") return false;
+  if (name === "payplus") return payplusKeys;
+  return false;
+}
+
+const paymentProviderRaw = (process.env.PAYMENT_PROVIDER || "").toLowerCase().trim();
+const paymentProvider = paymentsFullyLive()
+  ? "payplus"
+  : paymentProviderRaw || "mock";
+// PayPlus credential rows only apply when that PSP is selected (or auto-healed).
+if (paymentProvider !== "payplus") {
+  for (const r of results) {
+    if (r.key.startsWith("PAYPLUS_")) r.ok = true;
+  }
+} else {
+  for (const r of results) {
+    if (r.key.startsWith("PAYPLUS_") && !process.env[r.key]?.trim()) r.ok = false;
+  }
+}
+const payProv = results.find((r) => r.key === "PAYMENT_PROVIDER");
+if (payProv) {
+  payProv.ok = paymentsFullyLive();
+  if (!payProv.ok) {
+    const keysPresent = Boolean(
+      process.env.PAYPLUS_API_KEY?.trim() ||
+        process.env.PAYPLUS_SECRET_KEY?.trim() ||
+        process.env.PAYPLUS_PAYMENT_PAGE_UID?.trim(),
+    );
+    payProv.cost =
+      paymentProviderRaw === "payplus"
+        ? "PAYMENT_PROVIDER=payplus but PayPlus keys are incomplete — fee checkout cannot collect real money."
+        : keysPresent
+          ? "PayPlus keys are incomplete — fill API_KEY + SECRET_KEY + PAYMENT_PAGE_UID (or set FORCE_MOCK_PAYMENTS=true for intentional mock)."
+          : "Success-fee checkout runs on the mock provider — no real card charges until PayPlus is fully configured.";
+  } else if (
+    (!paymentProviderRaw || paymentProviderRaw === "mock") &&
+    process.env.FORCE_MOCK_PAYMENTS !== "true"
+  ) {
+    payProv.cost =
+      "PayPlus keys complete — provider auto-healed to live (set FORCE_MOCK_PAYMENTS=true to force mock).";
+  }
+}
+// SMTP_USER/PASS only matter once a host is configured.
+if (!process.env.SMTP_HOST?.trim()) {
+  for (const r of results) {
+    if (r.key === "SMTP_USER" || r.key === "SMTP_PASS") r.ok = true;
+  }
+}
+
 const blocking = results.filter((r) => !r.ok && r.level === "blocking");
 const degrading = results.filter((r) => !r.ok && r.level === "degrading");
 
@@ -106,6 +189,16 @@ for (const r of results) {
 }
 
 console.log("");
+if (!paymentsFullyLive()) {
+  console.log(
+    "FEES: MOCK — set PAYMENT_PROVIDER=payplus and PAYPLUS_API_KEY / PAYPLUS_SECRET_KEY / PAYPLUS_PAYMENT_PAGE_UID or success fees never collect real money.\n",
+  );
+}
+if (!process.env.SMTP_HOST?.trim() || !process.env.SMTP_USER?.trim() || !process.env.SMTP_PASS?.trim()) {
+  console.log(
+    "MAIL: OFF — set SMTP_HOST / SMTP_USER / SMTP_PASS or Mandates stay in the Outbox and providers never see them.\n",
+  );
+}
 if (blocking.length) {
   console.log(`BLOCKED — ${blocking.length} required setting(s) missing: ${blocking.map((b) => b.key).join(", ")}`);
   console.log("The app will build and serve pages, and every path that touches money or authority will fail.\n");

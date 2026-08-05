@@ -3,8 +3,8 @@
   "id": "il_arnona_area_correction",
   "version": "2026-07-26",
   "display_name": {
-    "en": "arnona area correction",
-    "he": "arnona area correction"
+    "en": "Arnona area correction",
+    "he": "תיקון שטח נכס שגוי בארנונה"
   },
   "market": "IL",
   "category": "housing",
@@ -24,7 +24,7 @@
     "reference": "חוק הרשויות המקומיות (ערר על קביעת ארנונה כללית), התשל״ו-1976"
   },
   "metadata": {
-    "maintainer": "yyrhlbrstt@gmail.com",
+    "maintainer": "il-maintainer@zakai.io",
     "last_verified": "2026-07-26",
     "confidence": "high",
     "evaluation_engine": "zakai_predicate_v1"

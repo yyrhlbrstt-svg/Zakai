@@ -7,7 +7,7 @@ import { badRequest } from "@/lib/api";
 import { reportError } from "@/lib/report-error";
 import { FORBIDDEN_SCOPES, isKnownScope, SCOPES } from "@/lib/mandate/scopes";
 import { isForbiddenAnywhere } from "@/lib/mandate/domains";
-import { FOUNDER_EMAIL } from "@/lib/contact";
+import { salesInboundEmail } from "@/lib/contact";
 
 /**
  * The self-serve front door to becoming a delegated issuer.
@@ -26,8 +26,7 @@ import { FOUNDER_EMAIL } from "@/lib/contact";
  * human should still look before that starts happening.
  */
 
-const SALES_EMAIL =
-  process.env.SALES_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || FOUNDER_EMAIL;
+const SALES_EMAIL = salesInboundEmail();
 
 const schema = z.object({
   slug: z
@@ -71,10 +70,12 @@ export async function POST(request: Request) {
     );
   }
 
+  let applicationId: string;
   try {
-    await prisma.delegationApplication.create({
+    const created = await prisma.delegationApplication.create({
       data: { slug, name, contactEmail, useCase, requestedScopes },
     });
+    applicationId = created.id;
   } catch (err) {
     await reportError(err, { route: "delegation-apply-persist" });
     return NextResponse.json({ ok: false }, { status: 500 });
@@ -95,7 +96,9 @@ Use case:
 ${useCase}
 
 —
-Review by inserting a DelegatedIssuer row once approved. See src/lib/mandate/delegation.ts.`,
+If approved: POST /api/mandate/delegation/issuers (Authorization: Bearer $ZAKAI_ADMIN_TOKEN)
+  {"applicationId":"${applicationId}","slug":"${slug}","name":"${name}","allowedScopes":${JSON.stringify(requestedScopes)}}
+Returns the real key once — store it before closing the response. See src/lib/mandate/delegation.ts.`,
     });
   } catch (err) {
     // The application row is already saved; a failed notification is our

@@ -42,6 +42,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    id: "must-have",
+    href: "/must-have",
+    titleHe: "חבילת חובה — כלים שכולם חייבים",
+    titleEn: "Must-have kit — tools everyone needs",
+    whyHe: "8 דלתות ראשונות לפי מצב חיים — בלי לנחש בתפריט",
+    whyEn: "Eight first doors by life situation — no menu guessing",
+    potentialShekels: 140,
+    cadence: "monthly",
+    effort: "low",
+    agentic: true,
+  },
+  {
     // Ranked high on potential and low on effort because the money per event is
     // an order of magnitude above anything else in this list, and the first
     // step is one tap. This fires once and pays once — cadence says so
@@ -179,12 +191,12 @@ export const CATALOG: PriorityAction[] = [
     href: "/car-insurance-refund",
     titleHe: "ביטלת ביטוח רכב?",
     titleEn: "Cancelled car insurance?",
-    whyHe: "החזר פרמיה יחסי — חוק חוזי הביטוח",
-    whyEn: "Pro-rata premium — Insurance Contracts Law",
+    whyHe: "החזר פרמיה יחסי — הסוכן שולח עם Mandate",
+    whyEn: "Pro-rata premium — agent sends with Mandate",
     potentialShekels: 150,
     cadence: "oneTime",
     effort: "low",
-    agentic: false,
+    agentic: true,
   },
   {
     id: "toll-dispute",
@@ -317,15 +329,19 @@ export const CATALOG: PriorityAction[] = [
     effort: "low",
   },
   {
+    // Letter quiz page still exists at /telecom-exit, but the Mandate loop
+    // for post-promo mobile is /check — keep this entry off the ranked strip
+    // so it cannot steal traffic from the agent door.
     id: "telecom-exit",
-    href: "/telecom-exit",
-    titleHe: "ניתוק תקשורת והחזרים",
-    titleEn: "Telecom exit + refunds",
-    whyHe: "מכתב לפי חוק התקשורת",
-    whyEn: "Disconnect letter under comms law",
-    potentialShekels: 60,
-    cadence: "oneTime",
+    href: "/check",
+    titleHe: "סלולר אחרי מבצע — משא ומתן בכתב",
+    titleEn: "Post-promo mobile — written negotiate",
+    whyHe: "הלולאה המלאה ב-/check",
+    whyEn: "Full loop on /check",
+    potentialShekels: 55,
+    cadence: "hidden",
     effort: "medium",
+    agentic: true,
   },
   {
     id: "electricity",
@@ -778,19 +794,59 @@ export const CATALOG: PriorityAction[] = [
   },
 ];
 
-/** Rank: agentic boost, then potential / effort. Optional catalog boosts from StrategyOutcome. */
+/**
+ * Ranking weight for next-best-action.
+ *
+ * Monthly agent doors (bank / telecom / cancel) compound every month — a ₪70/mo
+ * cancel beats a ₪400 one-time warranty calculator for product volume, even though
+ * raw potentialShekels looked smaller. Non-agentic monthly calculators (mortgage,
+ * disability quiz) get a mild annualization only; they must not bury Mandate loops.
+ * Display copy still uses the per-period figure via formatPotential*.
+ */
+export function priorityWeight(
+  a: PriorityAction,
+  catalogBoosts: Record<string, number> = {},
+): number {
+  const effortDiv = a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2;
+  const base = a.potentialShekels / effortDiv;
+  const withAgent = base * (a.agentic ? 1.35 : 1);
+  // Annualize recurring agent loops; mild factor for non-agent monthly tools.
+  const cadenceFactor =
+    a.cadence === "monthly" ? (a.agentic ? 12 : 2) : a.cadence === "hidden" ? 0.25 : 1;
+  const boost = catalogBoosts[a.id] ?? 0;
+  return withAgent * cadenceFactor * (1 + boost);
+}
+
+export type RankPriorityOpts = {
+  /** Force these catalog ids to the front (e.g. monthly-leak doors on /money). */
+  pinIds?: string[];
+  /** Drop from the result (e.g. exclude /money on the /money page itself). */
+  excludeIds?: string[];
+};
+
+/** Rank: monthly+agentic first, then potential / effort. Optional StrategyOutcome boosts. */
 export function rankPriorityActions(
   limit = 5,
   catalogBoosts: Record<string, number> = {},
+  opts: RankPriorityOpts = {},
 ): PriorityAction[] {
-  const weight = (a: PriorityAction) => {
-    const base = a.potentialShekels / (a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2);
-    const agentic = base * (a.agentic ? 1.35 : 1);
-    const boost = catalogBoosts[a.id] ?? 0;
-    return agentic * (1 + boost);
-  };
-  return [...CATALOG].sort((a, b) => weight(b) - weight(a)).slice(0, limit);
+  const exclude = new Set(opts.excludeIds ?? []);
+  const pinned: PriorityAction[] = [];
+  for (const id of opts.pinIds ?? []) {
+    const row = CATALOG.find((a) => a.id === id);
+    if (row && !exclude.has(row.id)) {
+      pinned.push(row);
+      exclude.add(row.id);
+    }
+  }
+  const rest = [...CATALOG]
+    .filter((a) => !exclude.has(a.id))
+    .sort((a, b) => priorityWeight(b, catalogBoosts) - priorityWeight(a, catalogBoosts));
+  return [...pinned, ...rest].slice(0, limit);
 }
+
+/** The three IL monthly-leak agent doors — bank + telecom + cancel. */
+export const MONTHLY_LEAK_PIN_IDS = ["cancel", "check", "bank-fees"] as const;
 
 /** The one place cadence turns into words — kept in one function so the
  * assistant's own system prompt and the dashboard card can never render the
@@ -807,11 +863,15 @@ export function formatPotentialEn(a: PriorityAction): string {
   return a.cadence === "monthly" ? `${amount}/mo` : `${amount} one-time`;
 }
 
-export function priorityDigestHe(): string {
-  return rankPriorityActions(6)
+export function priorityDigestHe(catalogBoosts?: Record<string, number>): string {
+  return rankPriorityActions(6, catalogBoosts)
     .map((a) => {
       const potential = formatPotentialHe(a);
-      return `- ${a.titleHe} (${a.href})${a.agentic ? " [AGENT]" : ""}${potential ? `: ${potential}` : ""} · ${a.whyHe}`;
+      const boost =
+        catalogBoosts && catalogBoosts[a.id] != null
+          ? ` · learn+${(catalogBoosts[a.id]! * 100).toFixed(0)}%`
+          : "";
+      return `- ${a.titleHe} (${a.href})${a.agentic ? " [AGENT]" : ""}${potential ? `: ${potential}` : ""}${boost} · ${a.whyHe}`;
     })
     .join("\n");
 }

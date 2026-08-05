@@ -1,23 +1,37 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { ESCALATION_BODIES, buildEscalationLetter, type ComplaintCategory } from "@/lib/complaintEscalation";
 
 const CATEGORIES: ComplaintCategory[] = ["bank", "telecom", "consumer"];
 
+function isComplaintCategory(v: string | null): v is ComplaintCategory {
+  return v === "bank" || v === "telecom" || v === "consumer";
+}
+
 /**
  * "I complained and nobody answered" — names the real regulator/public-
  * inquiries unit for the category, and drafts the escalation letter. No
  * money, no Case, no fee: purely informational + a letter the person sends
  * themselves, like contract-check and scam-check.
+ *
+ * `company`/`category` query params let a stuck case (its follow-up rounds
+ * exhausted, see CaseNextStep's exhaustedBanner) arrive here pre-filled —
+ * the exact moment this tool is useful is also the moment retyping the
+ * provider name is the last thing someone wants to do.
  */
 export function ComplaintEscalationTool() {
   const t = useTranslations("complaintEscalation");
-  const [category, setCategory] = useState<ComplaintCategory>("consumer");
+  const search = useSearchParams();
+  const initialCategory = search.get("category");
+  const [category, setCategory] = useState<ComplaintCategory>(
+    isComplaintCategory(initialCategory) ? initialCategory : "consumer",
+  );
   const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
+  const [company, setCompany] = useState(search.get("company") ?? "");
   const [summary, setSummary] = useState("");
   const [complaintDate, setComplaintDate] = useState("");
   const [letter, setLetter] = useState("");

@@ -1,4 +1,5 @@
 import { providerHebrewName } from "@/lib/providers";
+import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
 
 /**
  * Single source of truth for the printable Mandate document (HTML).
@@ -177,7 +178,9 @@ export function renderMandateHtml(auth: MandateDocInput): string {
     </div>
 
     <div class="footer">
-      מסמך זה הופק אוטומטית על ידי זכאי · ${esc(appUrl)}
+      מסמך זה הופק אוטומטית על ידי זכאי · ${esc(appUrl)}<br/>
+      ${esc(institutionPullFooterLine("he", appUrl))}<br/>
+      ${esc(institutionSalesEmail())}
     </div>
   </div>
 </body>

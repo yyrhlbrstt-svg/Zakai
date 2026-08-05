@@ -18,6 +18,7 @@ import { withFooter } from "@/lib/letterFooter";
 import { footerLocaleForCountry } from "@/lib/caseDraft";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
 import { resolveTelecomContactEmail } from "@/lib/telecomContacts";
+import { openLoopConflictIfAny } from "@/lib/services/expressCaseOpen";
 
 const MAX_IMAGE_B64 = 5_500_000;
 const ALLOWED_MEDIA = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
@@ -45,6 +46,9 @@ const schema = z.union([
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
 
   const limited = await rateLimit("cases-analyze", auth.userId, 40, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });

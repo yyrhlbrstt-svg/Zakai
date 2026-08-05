@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { confirmFeePayment } from "@/lib/services/payments";
 import { dashboardFeeRedirectPath } from "@/lib/services/paymentRedirect";
+import { browserFeeReturnWhenUnverified } from "@/lib/services/browserFeeReturn";
 import { paymentProvider, type CallbackContext } from "@/lib/payments";
+import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 
@@ -28,7 +30,26 @@ async function handle(ctx: CallbackContext, redirect: boolean, origin: string) {
     const verified = await paymentProvider().verifyCallback(ctx);
     if (!verified) {
       if (redirect) {
-        const path = await dashboardFeeRedirectPath("error", feeIdFromQuery, localeHint);
+        // PayPlus GET is fail-closed by design. Never claim paid from the bounce —
+        // if webhook already flipped PAID, land on share; if outcome=success, show
+        // confirming; otherwise retry checkout with case deep-link.
+        let feeStatus: string | null = null;
+        if (feeIdFromQuery) {
+          const fee = await prisma.fee.findUnique({
+            where: { id: feeIdFromQuery },
+            select: { status: true },
+          });
+          feeStatus = fee?.status ?? null;
+        }
+        const disposition = browserFeeReturnWhenUnverified({
+          feeStatus,
+          outcomeHint: ctx.query.outcome ?? null,
+        });
+        const path = await dashboardFeeRedirectPath(
+          disposition,
+          feeIdFromQuery,
+          localeHint,
+        );
         return NextResponse.redirect(new URL(path, origin));
       }
       return NextResponse.json({ ok: false, error: "unverified" }, { status: 400 });

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { GET as catalogGet } from "@/app/api/rights/catalog/route";
 import { GET as itemGet } from "@/app/api/rights/catalog/[id]/route";
 import { clearZmlCatalogCache } from "@/lib/protocol/zml/catalog";
+import { registerWidgetKey } from "@/lib/widget/keys";
 
 describe("GET /api/rights/catalog", () => {
   beforeEach(() => {
@@ -19,9 +20,56 @@ describe("GET /api/rights/catalog", () => {
     expect(body.rights[0]._links.self).toMatch(/^\/api\/rights\/catalog\//);
   });
 
+  it("includes Hebrew label when locale=he", async () => {
+    const res = await catalogGet(
+      new Request("https://zakai.test/api/rights/catalog?market=IL&locale=he"),
+    );
+    const body = await res.json();
+    const arnona = body.rights.find(
+      (r: { id: string }) => r.id === "il_arnona_area_correction",
+    );
+    expect(arnona?.label).toBe("תיקון שטח נכס שגוי בארנונה");
+    expect(arnona?.display_name.he).toBe("תיקון שטח נכס שגוי בארנונה");
+  });
+
   it("returns 404 for unknown market", async () => {
     const res = await catalogGet(new Request("https://zakai.test/api/rights/catalog?market=ZZ"));
     expect(res.status).toBe(404);
+  });
+
+  it("rejects a cross-origin browser call with no widget key", async () => {
+    const res = await catalogGet(
+      new Request("https://zakai.test/api/rights/catalog?market=IL", {
+        headers: { Origin: "https://random-site.example" },
+      }),
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it("rejects a cross-origin call with a key registered for a different domain", async () => {
+    const key = await registerWidgetKey("partner-a.example");
+    const res = await catalogGet(
+      new Request("https://zakai.test/api/rights/catalog?market=IL", {
+        headers: { Origin: "https://partner-b.example", "X-Zakai-Widget-Key": key },
+      }),
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it("allows a cross-origin call with a domain-matched widget key", async () => {
+    const key = await registerWidgetKey("partner-c.example");
+    const res = await catalogGet(
+      new Request("https://zakai.test/api/rights/catalog?market=IL", {
+        headers: { Origin: "https://partner-c.example", "X-Zakai-Widget-Key": key },
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("https://partner-c.example");
+  });
+
+  it("stays open for non-browser callers with no Origin header", async () => {
+    const res = await catalogGet(new Request("https://zakai.test/api/rights/catalog?market=IL"));
+    expect(res.status).toBe(200);
   });
 });
 

@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { ARNONA_AGENT_RIGHTS } from "@/lib/arnonaAppeal";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function ArnonaAgent() {
   const t = useTranslations("arnonaAgent");
@@ -24,8 +26,8 @@ export function ArnonaAgent() {
 
   const canSend =
     municipalityName.trim().length > 0 &&
-    municipalityEmail.trim().length > 0 &&
-    monthlyArnona > 0;
+    monthlyArnona > 0 &&
+    hasOutreachEmail(municipalityEmail);
 
   async function sendWithAgent() {
     if (!canSend) return;
@@ -53,10 +55,20 @@ export function ArnonaAgent() {
         return;
       }
       if (!res.ok) {
-        setAgentError(data.error === "caseLimit" ? t("caseLimitError") : t("genericError"));
+        if (redirectIfOpenLoop(data, router.push)) return;
+        setAgentError(
+          data.error === "needsOutreachEmail"
+            ? t("emailQ")
+            : data.error === "caseLimit"
+              ? t("caseLimitError")
+              : t("genericError"),
+        );
         return;
       }
       setCaseId(data.caseId);
+      router.push(
+        moneyCaseHref(data.caseId, { delivered: data.delivered }),
+      );
     } catch {
       setAgentError(t("genericError"));
     } finally {
@@ -69,7 +81,7 @@ export function ArnonaAgent() {
       <Card className="mt-10 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
         <div className="text-emerald font-extrabold text-[15px]">{t("caseOpenedTitle")}</div>
         <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("caseOpenedBody")}</p>
-        <Link href="/dashboard">
+        <Link href={`/money?case=${caseId}`}>
           <Button className="w-full">{t("dashboard")}</Button>
         </Link>
       </Card>

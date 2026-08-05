@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ESCALATION_BODIES, buildEscalationLetter } from "./complaintEscalation";
+import { ESCALATION_BODIES, buildEscalationLetter, complaintCategoryForVertical } from "./complaintEscalation";
 
 describe("ESCALATION_BODIES", () => {
   it("has all three categories with a real name and description", () => {
@@ -59,5 +59,25 @@ describe("buildEscalationLetter", () => {
     });
     expect(letter).not.toMatch(/\d+%/);
     expect(letter).not.toMatch(/תוך \d+ ימים ת(?:קבל|יפתר)/);
+  });
+});
+
+describe("complaintCategoryForVertical", () => {
+  it("routes telecom cases to the Ministry of Communications", () => {
+    expect(complaintCategoryForVertical("telecom")).toBe("telecom");
+  });
+
+  it("routes bank/deposit/late-payment/refund-chase cases to Banking Supervision", () => {
+    expect(complaintCategoryForVertical("bank-fees")).toBe("bank");
+    expect(complaintCategoryForVertical("deposit")).toBe("bank");
+    expect(complaintCategoryForVertical("late-payment")).toBe("bank");
+    expect(complaintCategoryForVertical("refund-chase")).toBe("bank");
+  });
+
+  it("falls back to the general consumer authority for everything else, including missing data", () => {
+    expect(complaintCategoryForVertical("subscription")).toBe("consumer");
+    expect(complaintCategoryForVertical("parking")).toBe("consumer");
+    expect(complaintCategoryForVertical(undefined)).toBe("consumer");
+    expect(complaintCategoryForVertical(null)).toBe("consumer");
   });
 });

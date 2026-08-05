@@ -1,36 +1,50 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { shekelsToAgorot, formatAgorot } from "@/lib/money";
+import { shekelsToAgorot } from "@/lib/money";
 import { computeCaseSuccessFee, documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
 import { planConfig, canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
-import { applyCredit, REFERRAL_REWARD_AGOROT } from "@/lib/referral";
+import { applyCredit, referralRewardForCount } from "@/lib/referral";
 import { sendEmail } from "@/lib/messaging";
 import { providerHebrewName } from "@/lib/providers";
 import { resolveCaseOutreachTo } from "@/lib/caseOutreach";
-import { createAuthorization } from "./authorization";
-import { recordOutcome, daysBetween } from "@/lib/strategy/store";
+import { createAuthorization, ensureMandateTokenForCase } from "./authorization";
+import { stampOwnershipFromVerifiedEmail } from "./ownership";
+import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
+import {
+  buildInboundReceivePayload,
+  inboundReceiveEmailAttachment,
+} from "@/lib/protocol/inboundPayload";
+import { commitCaseLearningSignal, daysToSettle } from "@/lib/strategy/learningSignal";
 import { mandateEmailAttachment, proofsInboundAddress } from "@/lib/mandate/document";
 import { maskPhone } from "@/lib/phone";
 import { outreachSubjectForVertical } from "@/lib/outreachSubject";
 import { pushToUser } from "@/lib/push";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
-import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
+import {
+  FEE_DISPUTE_WINDOW_DAYS,
+  feeConfirmAbsoluteUrl,
+  feeConfirmDashboardPath,
+  feeConfirmationBody,
+} from "@/lib/feeConfirmNotify";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { withFooter } from "@/lib/letterFooter";
+import {
+  institutionPipeMagnetLine,
+  institutionPullFooterLine,
+  institutionSalesEmail,
+} from "@/lib/institutionPull";
 import { notifyInstitutionOnOutboundSend } from "@/lib/institutionOutboundNotify";
-import { publicSupportEmail } from "@/lib/contact";
+import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
+import { mandateAttachClaimLine } from "@/lib/services/outreachAttachments";
+import { notifyUserProviderOutreachDelivered } from "@/lib/services/outreachDeliveredNotify";
 
 export class CaseError extends Error {}
 
-/** Days a customer has to dispute a success-fee charge (see Trust page). */
-export const FEE_DISPUTE_WINDOW_DAYS = 14;
+export { FEE_DISPUTE_WINDOW_DAYS };
 
 function marketForCase(vertical: string): string {
   return getRulePack(vertical)?.country ?? "IL";
-}
-
-function supportEmail(): string {
-  return publicSupportEmail();
 }
 
 function appBaseUrl(): string {
@@ -56,6 +70,26 @@ interface CreateCaseInput {
   autoApprove?: boolean;
 }
 
+/**
+ * Collapse APPROVED → VERIFIED when the account already proved email control.
+ * Visa rule: every consented case should be one tap from a machine Mandate send.
+ */
+export async function primeCaseForFastSend(
+  userId: string,
+  caseId: string,
+): Promise<{ ownershipViaEmail: boolean }> {
+  const ownershipViaEmail = await stampOwnershipFromVerifiedEmail(userId, caseId);
+  if (ownershipViaEmail) {
+    try {
+      await createAuthorization(caseId);
+    } catch {
+      /* may already exist */
+    }
+  }
+  await refreshVerifiedStatus(caseId);
+  return { ownershipViaEmail };
+}
+
 export async function createCase(input: CreateCaseInput) {
   const user = await prisma.user.findUnique({
     where: { id: input.userId },
@@ -67,7 +101,7 @@ export async function createCase(input: CreateCaseInput) {
   if (!canOpenCase(user?.plan, activeCount)) throw new CaseError("CASE_LIMIT");
 
   const now = new Date();
-  return prisma.case.create({
+  const created = await prisma.case.create({
     data: {
       userId: input.userId,
       vertical: input.vertical ?? "telecom",
@@ -87,6 +121,15 @@ export async function createCase(input: CreateCaseInput) {
       approvedAt: input.autoApprove ? now : null,
     },
   });
+
+  // Every auto-approved vertical (cancel, bank-fees, scan batch, …) enters the
+  // fast Mandate path — one network of rails, not one-off UX per door.
+  if (input.autoApprove) {
+    await primeCaseForFastSend(input.userId, created.id);
+    const refreshed = await prisma.case.findUnique({ where: { id: created.id } });
+    if (refreshed) return refreshed;
+  }
+  return created;
 }
 
 async function ownedCase(caseId: string, userId: string) {
@@ -119,14 +162,26 @@ export async function approveCase(
 ) {
   const kase = await ownedCase(caseId, userId);
 
-  if (kase.status !== "ANALYZED" && kase.status !== "APPROVED") {
-    throw new CaseError("ALREADY_SENT");
-  }
-
   const outreach =
     counterpartyEmail?.trim() && /@/.test(counterpartyEmail)
       ? counterpartyEmail.trim().toLowerCase()
       : undefined;
+
+  // VERIFIED: allow draft / outreach email tweaks before dispatch — not after SENT.
+  if (kase.status === "VERIFIED") {
+    if (!editedMessage && !outreach) throw new CaseError("ALREADY_SENT");
+    return prisma.case.update({
+      where: { id: kase.id },
+      data: {
+        ...(editedMessage ? { draftMessage: editedMessage } : {}),
+        ...(outreach ? { counterpartyEmail: outreach } : {}),
+      },
+    });
+  }
+
+  if (kase.status !== "ANALYZED" && kase.status !== "APPROVED") {
+    throw new CaseError("ALREADY_SENT");
+  }
 
   return prisma.case.update({
     where: { id: kase.id },
@@ -178,6 +233,15 @@ export async function sendOutreach(caseId: string, userId: string) {
     throw new CaseError("NEEDS_OUTREACH_EMAIL");
   }
 
+  // Persist resolved inbox so later follow-ups / cron don't re-hit NEEDS_OUTREACH_EMAIL
+  // after a registry match that was never written to Case.counterpartyEmail.
+  if (to !== (kase.counterpartyEmail ?? "").toLowerCase()) {
+    await prisma.case.update({
+      where: { id: caseId },
+      data: { counterpartyEmail: to },
+    });
+  }
+
   // Claim the send before making it, with a conditional update.
   //
   // The previous version read the status, checked it, then sent, then wrote —
@@ -197,15 +261,32 @@ export async function sendOutreach(caseId: string, userId: string) {
 
   const appUrl = appBaseUrl();
   const provider = providerHebrewName(kase.provider);
-  const footer = `
-
-————————————————————————
-מסמך הרשאה (ייפוי כוח) — שירות זכאי
-מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
-קוד אימות ההרשאה: ${auth.code}
-לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
-מצורף: מסמך הרשאה מלא (HTML) להדפסה/שמירה.
-גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.`;
+  const mandateTok = await ensureMandateTokenForCase(caseId);
+  // When signing keys are live, the pipe requires a machine Mandate on every SENT.
+  // If we cannot issue one, unclaim SENT → VERIFIED so FREE maxActiveCases is not
+  // frozen on a ghost send (same recovery path as OUTREACH_DELIVERY_FAILED).
+  if (!mandateTok) {
+    try {
+      loadSigningKeyFromEnv();
+      await prisma.case.update({ where: { id: caseId }, data: { status: "VERIFIED" } });
+      throw new CaseError("MANDATE_REQUIRED");
+    } catch (err) {
+      if (err instanceof CaseError) throw err;
+      if (!(err instanceof MandateKeyUnavailableError)) {
+        await prisma.case.update({ where: { id: caseId }, data: { status: "VERIFIED" } });
+        throw new CaseError("MANDATE_REQUIRED");
+      }
+      // Keys unavailable — human Authorization still goes out (dev / pre-key envs).
+    }
+  }
+  const mandateJti = mandateTok?.jti;
+  const protocolFooter = buildOutreachProtocolFooter({
+    appUrl,
+    authCode: auth.code,
+    mandateJti,
+    vertical: kase.vertical,
+    market: user?.country ?? "IL",
+  });
 
   const attachment = mandateEmailAttachment({
     code: auth.code,
@@ -221,12 +302,41 @@ export async function sendOutreach(caseId: string, userId: string) {
   const footerLocale = loc === "he" || loc === "ar" ? "he" : "en";
   const messageBody = withFooter(kase.draftMessage, footerLocale);
 
+  const inboundAtt = mandateTok
+    ? inboundReceiveEmailAttachment(
+        buildInboundReceivePayload({
+          mandateJws: mandateTok.jws,
+          mandateJti: mandateTok.jti,
+          authorizationCode: auth.code,
+          caseId,
+          vertical: kase.vertical,
+          strategyHint: kase.strategy,
+          locale: loc === "he" ? "he-IL" : "en",
+          market: user?.country ?? "IL",
+        }),
+      )
+    : null;
+
+  // Claim only what was attached — pre-key soft path may send HTML-only.
+  const footer = `
+
+————————————————————————
+מסמך הרשאה (ייפוי כוח) — שירות זכאי
+מיופה כוח: זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם הלקוח/ה ${auth.principalName} בהרשאתו/ה.
+קוד אימות ההרשאה: ${auth.code}
+לאימות ההרשאה: ${appUrl}/verify?code=${auth.code}
+${mandateAttachClaimLine(Boolean(inboundAtt))}
+גילוי: זכאי אינו הלקוח/ה. ניתן ליצור קשר עם הלקוח/ה ישירות.
+${institutionPullFooterLine("he", appUrl)}
+${institutionPipeMagnetLine(appUrl)}
+לאוטומציה: ${institutionSalesEmail()}${protocolFooter}`;
+
   const email = await sendEmail({
     to,
     subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
     body: messageBody + footer,
     caseId,
-    attachments: [attachment],
+    attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
   });
 
   if (email.status === "FAILED") {
@@ -241,46 +351,61 @@ export async function sendOutreach(caseId: string, userId: string) {
   // Status was already claimed above, before the letter went out.
 
   // Closed-loop: tell the user where to forward the provider reply.
+  // Never claim "נשלח" when Outbox is only QUEUED — async drain upgrades later.
   const proofsAddr = proofsInboundAddress();
+  const delivered = email.status === "SENT";
   if (user?.email) {
-    const dashUrl = absoluteLocaleUrl(
-      appUrl,
-      localeForCountry(user.country),
-      "/dashboard",
-    );
-    await sendEmail({
-      to: user.email,
-      subject: `זכאי — נשלח ל-${provider} | מה הלאה`,
-      body: `שלום ${user.name},
+    if (delivered) {
+      await notifyUserProviderOutreachDelivered(caseId, email.subject, {
+        kind: "initial",
+      });
+    } else {
+      const moneyUrl = absoluteLocaleUrl(
+        appUrl,
+        localeForCountry(user.country),
+        `/money?case=${caseId}`,
+      );
+      await sendEmail({
+        to: user.email,
+        subject: `זכאי — הפנייה ל-${provider} בתור שליחה | מה הלאה`,
+        body: `שלום ${user.name},
 
-הסוכן שלח בשמך פנייה בכתב ל-${provider}, עם מסמך ההרשאה (ייפוי כוח) מצורף.
+הפנייה ל-${provider} נשמרה בתור שליחה (עדיין לא יצאה מהמערכת). ברגע שתשלח — תוכלו להעביר תשובת ספק אל ${proofsAddr}.
 
-מה אפשר לעשות עכשיו:
-• אם ענו — העבירו את המייל שלהם אל ${proofsAddr}
-  (הסוכן יזהה סכום ויציע רישום חיסכון בלחיצה אחת בדשבורד).
-• אם לא ענו תוך כמה ימים — הסוכן ישלח סיבוב 2 אוטומטית.
-• לעצירה — בטלו את ההרשאה במסמך האימות.
-
-דשבורד: ${dashUrl}
-
-הכול בתוך זכאי. עמלה רק על חיסכון מתועד.
+הכסף שלי: ${moneyUrl}
 
 זכאי — הסוכן שלך.`,
-      caseId,
-    });
+        caseId,
+      });
 
-    await pushToUser(userId, {
-      title: "זכאי — נשלח לספק",
-      body: `פנייה ל-${provider} יצאה. העבירו תשובה ל-${proofsAddr}`,
-      url: "/dashboard",
-      tag: `sent-${caseId}`,
-    }).catch(() => null);
+      await pushToUser(userId, {
+        title: "זכאי — פנייה בתור שליחה",
+        body: `פנייה ל-${provider} ממתינה לשליחה. בדקו ב״הכסף שלי״.`,
+        url: `/money?case=${caseId}`,
+        tag: `sent-queued-${caseId}`,
+      }).catch(() => null);
+    }
   }
 
   return email;
 }
 
-export async function recordSaving(caseId: string, userId: string, newAmountShekels: number) {
+export type RecordSavingOptions = {
+  /** How the new amount was obtained — inbound email parse vs typed vs estimate shortcut. */
+  source?: "manual" | "inbound" | "estimate";
+  /**
+   * True for guessed shortcuts (~20%/50%). Counts on the person's record but
+   * must never mint a chargeable success fee (schema doctrine).
+   */
+  selfReported?: boolean;
+};
+
+export async function recordSaving(
+  caseId: string,
+  userId: string,
+  newAmountShekels: number,
+  options: RecordSavingOptions = {},
+) {
   const kase = await ownedCase(caseId, userId);
   if (kase.status !== "SENT") throw new CaseError("NOT_SENT");
 
@@ -288,8 +413,17 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   if (existing) throw new CaseError("ALREADY_SETTLED");
 
   const newAmount = shekelsToAgorot(newAmountShekels);
+  const selfReported = options.selfReported === true;
+  const source = options.source ?? (selfReported ? "estimate" : "manual");
 
   const result = await prisma.$transaction(async (tx) => {
+    // Re-read auth inside the transaction so a concurrent revoke cannot race a fee.
+    const auth = await tx.authorization.findUnique({
+      where: { caseId },
+      select: { status: true, mandateJti: true },
+    });
+    if (!auth || auth.status !== "ACTIVE") throw new CaseError("AUTH_REVOKED");
+
     const owner = await tx.user.findUnique({
       where: { id: userId },
       select: { plan: true, referralCreditAgorot: true, referredById: true },
@@ -302,7 +436,14 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     const fee = computeCaseSuccessFee(kase.amountOriginal, newAmount, feeBasis, rateBps);
     const saved = fee.savingMonthly > 0;
 
-    const credit = applyCredit(fee.amount, owner?.referralCreditAgorot ?? 0);
+    // Self-reported / estimate shortcuts never produce a defendable success fee.
+    // A chargeable settle without a machine Mandate jti must refuse — silently
+    // WAIVING looks like "no fee due" and hides that authority was never bound.
+    let billableAmount = selfReported ? 0 : fee.amount;
+    if (billableAmount > 0 && !auth.mandateJti) {
+      throw new CaseError("MANDATE_REQUIRED");
+    }
+    const credit = applyCredit(billableAmount, owner?.referralCreditAgorot ?? 0);
 
     await tx.savingsProof.create({
       data: {
@@ -310,7 +451,8 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
         originalAmount: kase.amountOriginal,
         newAmount,
         savingMonthly: fee.savingMonthly,
-        source: "manual",
+        source,
+        selfReported,
       },
     });
     await tx.fee.create({
@@ -321,6 +463,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
         amount: credit.net,
         referralCreditApplied: credit.applied,
         status: credit.net > 0 ? "PENDING" : "WAIVED",
+        mandateJti: auth.mandateJti ?? null,
       },
     });
     if (credit.applied > 0) {
@@ -330,22 +473,39 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
       });
     }
 
-    if (saved && owner?.referredById) {
+    // Self-reported saves never trigger a referral reward — same discipline as
+    // billableAmount above. A self-report is somebody's word, not a documented
+    // outcome (see selfReportedSaving.ts), and a referral reward pays out real
+    // credit to a THIRD PARTY (the referrer) against that unverified number.
+    // Without this guard, a burner account could self-report a fake saving on
+    // a case its own referrer opened it for and mint real, uncapped credit
+    // toward the referrer's own future fees — exactly the class of number
+    // this codebase already decided can't support a charge, just paid to a
+    // different person.
+    if (saved && !selfReported && owner?.referredById) {
       const already = await tx.referralReward.findUnique({
         where: { referredUserId: userId },
       });
       if (!already) {
+        // Count this referrer's successful referrals so far (this one is the
+        // count-th) so a milestone bonus can stack on top of the flat reward —
+        // rewarding a 3rd/5th/10th referral more than the first makes sharing
+        // repeatedly worth more than sharing once.
+        const priorCount = await tx.referralReward.count({
+          where: { referrerId: owner.referredById },
+        });
+        const amountAgorot = referralRewardForCount(priorCount + 1);
         await tx.referralReward.create({
           data: {
             referrerId: owner.referredById,
             referredUserId: userId,
             triggeringCaseId: caseId,
-            amountAgorot: REFERRAL_REWARD_AGOROT,
+            amountAgorot,
           },
         });
         await tx.user.update({
           where: { id: owner.referredById },
-          data: { referralCreditAgorot: { increment: REFERRAL_REWARD_AGOROT } },
+          data: { referralCreditAgorot: { increment: amountAgorot } },
         });
       }
     }
@@ -360,7 +520,9 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
   const fee = result.fee;
   const outcomeBasis = getRulePack(kase.vertical)?.feeBasis ?? "monthly";
 
-  await recordOutcome({
+  // Learning signal: documented settle → StrategyOutcome (de-identified). Background, fail-open.
+  await commitCaseLearningSignal({
+    caseId,
     context: {
       market: marketForCase(kase.vertical),
       vertical: kase.vertical,
@@ -369,7 +531,8 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
     variantId: kase.strategyVariant,
     paid: fee.savingMonthly > 0,
     recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
-    days: daysBetween(kase.approvedAt ?? kase.createdAt, new Date()),
+    days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),
+    selfReported,
   });
 
   if (result.feeNet > 0) {
@@ -378,7 +541,13 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
       select: { email: true, name: true, country: true },
     });
     if (user) {
-      const payUrl = feePayAbsoluteUrl(appBaseUrl(), user.country, caseId);
+      // Settle required ACTIVE Mandate + jti — still pass flags explicitly so
+      // mock PSP cannot invent payFee=1 / "מאובטח" (same bar as cron fee nudges).
+      const paymentsLive = paymentsFullyLive();
+      const payUrl = feeConfirmAbsoluteUrl(appBaseUrl(), user.country, caseId, {
+        mandateActive: true,
+        paymentsLive,
+      });
       await sendEmail({
         to: user.email,
         subject: `זכאי — אישור חיסכון ועמלת הצלחה (${providerHebrewName(kase.provider)})`,
@@ -393,6 +562,7 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
           creditAgorot: result.creditApplied,
           netFeeAgorot: result.feeNet,
           payUrl,
+          paymentsLive,
         }),
         caseId,
       });
@@ -405,55 +575,23 @@ export async function recordSaving(caseId: string, userId: string, newAmountShek
       where: { id: userId },
       select: { country: true },
     });
-    const dashPay = feePayDashboardPath(localeForCountry(profile?.country), caseId);
+    const paymentsLive = paymentsFullyLive();
+    const dashPay = feeConfirmDashboardPath(localeForCountry(profile?.country), caseId, {
+      mandateActive: true,
+      paymentsLive,
+    });
     await pushToUser(userId, {
       title: "זכאי — חיסכון מתועד",
       body:
         result.feeNet > 0
-          ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת בדשבורד.`
-          : `תועד חיסכון של ₪${savingShekels}. שתף או המשך בדשבורד.`,
-      url: result.feeNet > 0 ? dashPay : `/dashboard?saved=1&case=${caseId}`,
+          ? paymentsLive
+            ? `תועד חיסכון ₪${savingShekels}. שלם עמלה בלחיצה אחת ב״הכסף שלי״.`
+            : `תועד חיסכון ₪${savingShekels}. המשיכו ב״הכסף שלי״ (גבייה חיה עדיין לא מוגדרת).`
+          : `תועד חיסכון של ₪${savingShekels}. שתף או המשך ב״הכסף שלי״.`,
+      url: result.feeNet > 0 ? dashPay : `/money?case=${caseId}`,
       tag: `saved-${caseId}`,
     }).catch(() => null);
   }
 
   return result;
-}
-
-function feeConfirmationBody(p: {
-  name: string;
-  provider: string;
-  originalAgorot: number;
-  newAgorot: number;
-  savingAgorot: number;
-  rateBps: number;
-  grossFeeAgorot: number;
-  creditAgorot: number;
-  netFeeAgorot: number;
-  payUrl?: string;
-}): string {
-  const f = (a: number) => formatAgorot(a, "he-IL");
-  const pct = `${(p.rateBps / 100).toLocaleString("he-IL", { maximumFractionDigits: 2 })}%`;
-  const creditLines =
-    p.creditAgorot > 0
-      ? `• עמלת הצלחה (${pct}): ${f(p.grossFeeAgorot)}
-• זיכוי חבר מביא חבר: −${f(p.creditAgorot)}
-• סה"כ לחיוב: ${f(p.netFeeAgorot)}`
-      : `• עמלת הצלחה (${pct}): ${f(p.netFeeAgorot)}`;
-  return `שלום ${p.name},
-
-תיעדנו חיסכון בפנייה שביצע זכאי בשמך מול ${providerHebrewName(p.provider)}, ובהתאם למסלול שלך נגבית עמלת הצלחה של ${pct} מהחיסכון המתועד בלבד.
-
-פירוט:
-• סכום חודשי מקורי: ${f(p.originalAgorot)}
-• סכום חודשי חדש: ${f(p.newAgorot)}
-• חיסכון חודשי מתועד: ${f(p.savingAgorot)}
-${creditLines}
-
-ערעור על החיוב: אם לדעתך החיסכון לא מומש בפועל, יש לך ${FEE_DISPUTE_WINDOW_DAYS} ימים מתאריך הודעה זו לפנות אלינו לבדיקה, ואם יתברר שהחיסכון לא נכנס לתוקף — העמלה תבוטל או תוחזר. לפנייה: ${supportEmail()}
-${p.payUrl ? `\nלתשלום עמלת ההצלחה (חד-פעמי, מאובטח): ${p.payUrl}\n` : ""}
-זכאי הוא שירות סוכן דיגיטלי אוטומטי הפועל מטעמך בהרשאתך. אין באמור ייעוץ משפטי, פיננסי או ביטוחי.
-
-בברכה,
-צוות זכאי`;
 }

@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_subscription_audit",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Recurring charge scan",
+    "he": "סריקת חיובים"
+  },
+  "market": "US",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/scan",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Electronic Fund Transfer Act; Regulation E; state automatic-renewal laws"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

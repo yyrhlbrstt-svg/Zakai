@@ -2,6 +2,16 @@ import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
 import { partnerRefFromSearchParams } from "./lib/partnerAttribution";
+import {
+  CONSUMER_REF_COOKIE,
+  CONSUMER_REF_MAX_AGE_SECONDS,
+  consumerReferralFromSearchParams,
+} from "./lib/consumerReferralAttribution";
+import {
+  MARKET_COOKIE,
+  MARKET_COOKIE_MAX_AGE_SEC,
+  marketFromGeoCountry,
+} from "./lib/global/marketGeo";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -27,13 +37,16 @@ function makeNonce(): string {
  * and tracking are deliberately absent (see the privacy policy).
  */
 function cspHeader(nonce: string): string {
+  const plausible = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN?.trim();
+  const scriptExtra = plausible ? " https://plausible.io" : "";
+  const connectExtra = plausible ? " https://plausible.io" : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
+    `script-src 'self' 'nonce-${nonce}'${scriptExtra}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    `connect-src 'self'${connectExtra}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -45,8 +58,18 @@ function cspHeader(nonce: string): string {
 const PARTNER_REF_COOKIE = "zakai_partner_ref";
 const PARTNER_REF_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
-/**
- * Every embed.js click (public/embed.js) lands on a page like
+function captureConsumerRef(request: NextRequest, res: NextResponse): void {
+  if (request.cookies.get(CONSUMER_REF_COOKIE)) return;
+  const ref = consumerReferralFromSearchParams(request.nextUrl.searchParams);
+  if (!ref) return;
+  res.cookies.set(CONSUMER_REF_COOKIE, ref, {
+    maxAge: CONSUMER_REF_MAX_AGE_SECONDS,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
+/** (public/embed.js) lands on a page like
  * /he/money?utm_source=embed&utm_campaign=<partner-ref> — but a visitor
  * rarely signs up on that exact page, and nothing was ever carrying the ref
  * forward to the eventual /signup. The result: the entire "Partners · Embed"
@@ -76,6 +99,25 @@ function capturePartnerRef(request: NextRequest, res: NextResponse): void {
   });
 }
 
+function geoCountry(request: NextRequest): string {
+  return (
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("cf-ipcountry") ||
+    ""
+  ).toUpperCase();
+}
+
+/** First visit: remember inferred market for rights catalog + checker defaults. */
+function ensureMarketCookie(request: NextRequest, res: NextResponse): void {
+  if (request.cookies.get(MARKET_COOKIE)) return;
+  const market = marketFromGeoCountry(geoCountry(request) || null);
+  res.cookies.set(MARKET_COOKIE, market, {
+    maxAge: MARKET_COOKIE_MAX_AGE_SEC,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
 /**
  * Geo-aware locale routing. next-intl handles all locale-prefixed paths; we
  * only override the bare-root redirect ("/") to pick the language by the
@@ -92,15 +134,13 @@ export default function middleware(request: NextRequest) {
   request.headers.set("x-nonce", nonce);
 
   if (request.nextUrl.pathname === "/") {
-    const country = (
-      request.headers.get("x-vercel-ip-country") ||
-      request.headers.get("cf-ipcountry") ||
-      ""
-    ).toUpperCase();
+    const country = geoCountry(request);
     const target = country && country !== "IL" ? "/en" : "/he";
     const res = NextResponse.redirect(new URL(target, request.url));
     res.headers.set("Content-Security-Policy", policy);
     capturePartnerRef(request, res);
+    captureConsumerRef(request, res);
+    ensureMarketCookie(request, res);
     return res;
   }
 
@@ -108,6 +148,8 @@ export default function middleware(request: NextRequest) {
   res.headers.set("Content-Security-Policy", policy);
   res.headers.set("x-nonce", nonce);
   capturePartnerRef(request, res);
+  captureConsumerRef(request, res);
+  ensureMarketCookie(request, res);
   return res;
 }
 

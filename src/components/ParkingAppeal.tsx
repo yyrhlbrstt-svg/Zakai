@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
+import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const REASONS = ["signage", "machine", "loading", "disabled", "details", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -33,9 +35,7 @@ export function ParkingAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: str
   const [error, setError] = useState<string | null>(null);
 
   const agentReady =
-    ticket.trim().length > 0 &&
-    city.trim().length > 0 &&
-    normalizeOutreachEmail(authorityEmail) !== null;
+    ticket.trim().length > 0 && city.trim().length > 0 && hasOutreachEmail(authorityEmail);
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);
@@ -44,7 +44,8 @@ export function ParkingAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47?: str
 
 הנדון: ערעור על דוח חניה מספר ${ticket || "____"}
 
-שמי ${name || "____"}, ואני מבקש/ת לערער על דוח החניה שבנדון.
+שמי זכאי, סוכן דיגיטלי הפועל מטעם ${name || "____"} (Mandate). אינני הלקוח/ה עצמו/ה.
+בשם הלקוח/ה אני מערער על דוח החניה שבנדון.
 
 ${reasonText}${details ? `\n\nפירוט נוסף: ${details}` : ""}
 
@@ -58,6 +59,10 @@ ${name || "____"}
 
   async function sendWithAgent() {
     setError(null);
+    if (!hasOutreachEmail(authorityEmail)) {
+      setError(tFlow("errorNeedsEmail"));
+      return;
+    }
     setBusy(true);
     try {
       const res = await fetch("/api/cases/parking", {
@@ -79,6 +84,7 @@ ${name || "____"}
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;
@@ -90,7 +96,9 @@ ${name || "____"}
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(
+        moneyCaseHref(data.caseId, { delivered: data.delivered }),
+      );
     } catch {
       setError(tFlow("errorGeneric"));
     } finally {
@@ -153,9 +161,19 @@ ${name || "____"}
           <Button onClick={sendWithAgent} disabled={!agentReady || busy}>
             {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>
-          <Button variant="ghost" onClick={generate} disabled={!ticket.trim() || !city.trim() || busy}>
-            {tIcomponents_ParkingAppeal("t_b4c9b341")}
-          </Button>
+          <details className="text-[13px] text-ink-soft">
+            <summary className="cursor-pointer font-bold select-none">
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
+            </summary>
+            <Button
+              variant="ghost"
+              className="mt-2 w-full"
+              onClick={generate}
+              disabled={!ticket.trim() || !city.trim() || busy}
+            >
+              {tIcomponents_ParkingAppeal("t_b4c9b341")}
+            </Button>
+          </details>
         </div>
         {error && <p className="text-[13px] text-amber m-0">{error}</p>}
       </Card>
@@ -168,7 +186,7 @@ ${name || "____"}
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {tIcomponents_ParkingAppeal("t_d489aedc")}
           </p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{tIcomponents_ParkingAppeal("t_8ae29d51")}</Button>
           </Link>
         </Card>
@@ -200,7 +218,7 @@ ${name || "____"}
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
-          <OutcomeReport vertical="parking" counterparty="municipality" variantId={reason} />
+          <OutcomeReport vertical="parking" counterparty="municipality" variantId="firm_statutory" />
           <p className="text-[11.5px] text-ink-soft mt-3 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">
             {t("legal")}
           </p>

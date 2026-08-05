@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_child_tax_credit",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Child Tax Credit",
+    "he": "ילדים · מס · זיכוי"
+  },
+  "market": "US",
+  "category": "tax",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "dependents",
+        "operator": "gte",
+        "value": 1,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_child_tax_credit",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "IRC §24 (Child Tax Credit)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

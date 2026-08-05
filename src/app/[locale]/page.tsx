@@ -210,7 +210,7 @@ export default async function HomePage({
               {t("home.sub")}
             </p>
             <div className="flex flex-wrap gap-3 mb-2">
-              <Link href="/money">
+              <Link href="/money#zakai-money-scan">
                 <Button className="!text-[15px] !px-7 !py-3.5">{t("home.cta")}</Button>
               </Link>
               <Link href="/leaks">
@@ -297,7 +297,10 @@ export default async function HomePage({
             (t.raw("home.stats") as Array<{ n: string; label: string }>) || []
           ).map((s, i) => (
             <div key={s.label} className="text-center">
-              <div className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums">
+              <div
+                dir="ltr"
+                className="font-display grad-text text-[clamp(24px,6vw,34px)] leading-none tabular-nums"
+              >
                 {i === 1 ? ilRightsCount : s.n}
               </div>
               <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
@@ -450,7 +453,7 @@ export default async function HomePage({
             {t("home.closingSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
-            <Link href="/money">
+            <Link href="/money#zakai-money-scan">
               <Button className="!text-[15px] !px-7 !py-3.5">{t("home.closingCta")}</Button>
             </Link>
             <Link href="/business">

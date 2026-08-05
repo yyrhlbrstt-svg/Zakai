@@ -23,6 +23,9 @@ describe("evaluateConsumerReleaseGate", () => {
       SMTP_USER: "u",
       SMTP_PASS: "p",
       SMTP_FROM: "Zakai <no-reply@zakai.example>",
+      INBOUND_EMAIL_SECRET: "inbound",
+      MANDATE_ISSUE_KEY: "issue",
+      MANDATE_REVOKE_KEY: "revoke",
       PAYMENT_PROVIDER: "payplus",
       PAYPLUS_API_KEY: "k",
       PAYPLUS_SECRET_KEY: "s",
@@ -42,8 +45,21 @@ describe("evaluateConsumerReleaseGate", () => {
 
   it("fails closed on mock payments", () => {
     delete process.env.PAYMENT_PROVIDER;
+    delete process.env.PAYPLUS_API_KEY;
+    delete process.env.PAYPLUS_SECRET_KEY;
+    delete process.env.PAYPLUS_PAYMENT_PAGE_UID;
+    process.env.FORCE_MOCK_PAYMENTS = "true";
     expect(paymentsFullyLive()).toBe(false);
     const r = evaluateConsumerReleaseGate();
     expect(r.failingIds).toContain("payments_live");
+  });
+
+  it("auto-heals payments_live when PayPlus keys are complete under mock", () => {
+    process.env.PAYMENT_PROVIDER = "mock";
+    delete process.env.FORCE_MOCK_PAYMENTS;
+    process.env.PAYPLUS_API_KEY = "k";
+    process.env.PAYPLUS_SECRET_KEY = "s";
+    process.env.PAYPLUS_PAYMENT_PAGE_UID = "page";
+    expect(paymentsFullyLive()).toBe(true);
   });
 });

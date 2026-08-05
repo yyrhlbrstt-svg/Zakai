@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import {
   aggregateCompanyStats,
   aggregateProviderVerticalStats,
+  aggregateActivePressure,
   listKnownProviders,
   type VerticalCaseOutcome,
 } from "@/lib/companyScore";
@@ -45,6 +46,15 @@ async function loadOutcomes(): Promise<VerticalCaseOutcome[]> {
       saved: c.status === "SAVED" && (c.savingsProof?.savingMonthly ?? 0) > 0,
       savingAgorot: c.savingsProof?.savingMonthly ?? 0,
     }));
+  } catch {
+    return [];
+  }
+}
+
+/** How many cases are currently open against each provider — separate query, cheap (status only). */
+async function loadActivePressure(): Promise<{ provider: string; status: string }[]> {
+  try {
+    return await prisma.case.findMany({ select: { provider: true, status: true } });
   } catch {
     return [];
   }
@@ -98,6 +108,9 @@ export default async function CompanyDetailPage({
   // provider below the sample threshold still gets a real, indexable, purely
   // factual page instead of a 404 — the whole point of listing it here.
   const overall = aggregateCompanyStats(outcomes).find((s) => s.provider === provider);
+  const activePressure = aggregateActivePressure(await loadActivePressure()).find(
+    (s) => s.provider === provider,
+  );
   const byVertical = aggregateProviderVerticalStats(provider, outcomes);
   const name = displayName(tp, provider);
   const verticalsForProvider = RULE_PACKS.filter((p) => p.counterparties.includes(provider));
@@ -129,6 +142,14 @@ export default async function CompanyDetailPage({
         <p className="text-ink-soft text-[15px] leading-relaxed mb-6">
           {t("companies.noDataYet", { name })}
         </p>
+      )}
+
+      {activePressure && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 mb-6 text-[13.5px]">
+          <span className="font-extrabold text-emerald">
+            {t("companies.activePressure", { count: activePressure.activeCases })}
+          </span>
+        </div>
       )}
 
       {!overall && verticalsForProvider.length > 0 && (

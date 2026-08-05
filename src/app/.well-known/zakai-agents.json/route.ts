@@ -1,0 +1,16 @@
+import { NextResponse } from "next/server";
+import { buildAgentsIndexDocument } from "@/lib/monopoly/agentsIndex";
+import { cacheControlHeader } from "@/lib/scale/publicCache";
+
+export const runtime = "nodejs";
+export const revalidate = 300;
+
+export async function GET(request: Request) {
+  const origin = new URL(request.url).origin;
+  return NextResponse.json(buildAgentsIndexDocument(origin), {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": cacheControlHeader("catalog"),
+    },
+  });
+}

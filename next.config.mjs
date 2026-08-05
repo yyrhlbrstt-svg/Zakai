@@ -8,6 +8,12 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "8mb" },
   },
+  // Serverless NFT otherwise omits the packs tree → /api/cdn/packs 404 in prod.
+  outputFileTracingIncludes: {
+    "/api/cdn/packs/**/*": ["./zakai-packs/**/*"],
+    "/api/cdn/packs": ["./zakai-packs/**/*"],
+    "/api/rights/catalog": ["./zakai-packs/**/*"],
+  },
   async rewrites() {
     return [
       { source: "/widget/v1.js", destination: "/widget/zakai-widget.js" },

@@ -38,6 +38,12 @@ describe("openapi.json documents every institutional endpoint it grants", () => 
     expect(source).toContain("x-zakai-issue-key");
   });
 
+  it("documents fail-closed revoke (no invent) and status-list preference", () => {
+    expect(source).not.toContain("Always allocates a statusIndex");
+    expect(source).toContain("status_index_unknown");
+    expect(source).toContain("zkm.status");
+  });
+
   it("never references a tag it did not declare", () => {
     // A tag used on an operation but missing from the top-level `tags` array
     // is still valid OpenAPI — Swagger UI just renders it with no

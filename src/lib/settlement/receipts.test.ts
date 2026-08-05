@@ -88,15 +88,15 @@ describe("nobody can sign somebody else's statement", () => {
     ).rejects.toThrow(MandateError);
   });
 
-  it("has one place to resolve a party's keys from, so the safe path is the easy one", () => {
+  it("has one place to resolve a party's keys from, so the safe path is the easy one", async () => {
     // The one property this file cannot provide for itself, and the one an
     // integrator will assume it does: a caller who resolves the bank's JWKS and
     // then claims to be checking the victim has told the verifier a falsehood
     // about the world, and it will believe them. Key-to-identity binding lives
     // in the registry, and an unregistered party has no key location at all —
     // which is the correct answer, not an error to route around.
-    expect(resolveIssuerKeysUri("https://zakai-3uxj.vercel.app")).toMatch(/^https:\/\//);
-    expect(resolveIssuerKeysUri("https://victim.example")).toBeNull();
+    expect(await resolveIssuerKeysUri("https://zakai-3uxj.vercel.app")).toMatch(/^https:\/\//);
+    expect(await resolveIssuerKeysUri("https://victim.example")).toBeNull();
   });
 
   it("refuses to verify without being told whose key it is", async () => {

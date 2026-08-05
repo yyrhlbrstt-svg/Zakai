@@ -1,0 +1,60 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_student_loan_forgiveness_inquiry",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Student Loan Forgiveness Inquiry",
+    "he": "סטודנט · הלוואה · מחילה · בירור"
+  },
+  "market": "US",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "OR",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "employment",
+            "operator": "in",
+            "value": [
+              "student"
+            ],
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "employment",
+            "operator": "in",
+            "value": [
+              "employee",
+              "self_employed"
+            ],
+            "source": "user_input"
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_student_loan_forgiveness_inquiry",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Higher Education Act; Federal Student Aid forgiveness and discharge programs"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

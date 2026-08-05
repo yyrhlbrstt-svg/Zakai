@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_mortgage_refinance",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Mortgage Refinance",
+    "he": "משכנתא · מיחזור"
+  },
+  "market": "GB",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "housing",
+        "operator": "in",
+        "value": [
+          "owner"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_mortgage_refinance",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "FCA Handbook, MCOB 7 and MCOB 11"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

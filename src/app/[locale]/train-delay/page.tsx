@@ -6,6 +6,7 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
+import { TrainDelayAgent } from "@/components/TrainDelayAgent";
 
 export async function generateMetadata({
   params,
@@ -48,6 +49,7 @@ export default async function TrainDelayPage({
       }
     >
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
+      <TrainDelayAgent />
     </VerticalPageShell>
   );
 }

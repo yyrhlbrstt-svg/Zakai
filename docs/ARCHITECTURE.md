@@ -110,12 +110,21 @@ UX law: every dead-end "we'll call you" is a bug.
 
 ## 8. Scalability path
 
+Full billions-scale doctrine: `docs/BILLIONS_SCALE_ARCHITECTURE.md`.
+
 | Stage | Trigger | Move |
 |-------|---------|------|
 | Solo | <1k active cases | Vercel + Neon free/pro |
 | Growth | fee volume | dedicated worker for Outbox; queue |
 | Institution | banks verify JWKS | status SLA, key rotation, SOC2-ready logs |
 | Multi-market | pack demand | edge config per market; no code forks |
+| Planetary read load | fairness/gravity/JWKS hot | CDN + read replicas; Class A cache profiles (`src/lib/scale/publicCache.ts`) |
+| Planetary write load | mobile retries / batch scan | `IdempotencyRecord` on case-open APIs (`src/lib/scale/idempotency.ts`) |
+
+Public flywheel index (real counters): `GET /api/network/gravity`.  
+Seven rails status: `GET /api/network/monopoly`.  
+Institution inbound format: `/.well-known/zakai-inbound-receive.json`.  
+Doctrine: `docs/GLOBAL_MONOPOLY_PLAYBOOK.md`.
 
 ## 9. What is NOT done (do not claim)
 

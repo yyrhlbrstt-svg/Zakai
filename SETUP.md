@@ -7,7 +7,7 @@
 **מסלול מהיר בלי כרטיס אשראי — Gemini (נתמך):**
 1. aistudio.google.com → Get API Key → Create API Key → מעתיקים את ה-`AIza...`.
 2. Vercel → Settings → Environment Variables → Key: `GEMINI_API_KEY`, Value: המפתח → Save → Redeploy.
-3. `/api/health` יראה `"ai": true, "aiProvider": "gemini"`.
+3. אבחון מלא (AI, מפתחות Mandate): `GET /api/health?internal=1` עם `X-Zakai-Admin-Token` — ראה `docs/SECURITY_SURFACE.md`. בלי token תקבל רק `{ ok, time }`.
 הערה: למפתח החינמי יש מגבלות קצב; לשדרוג איכות ויציבות עוברים ל-Anthropic בהמשך.
 
 **המסלול המומלץ לפרודקשן — Anthropic (Claude):** דורש כרטיס אשראי (משימת "המבוגר").
@@ -17,18 +17,18 @@
 4. vercel.com → פרויקט zakai → Settings → Environment Variables → Add:
    Key: `ANTHROPIC_API_KEY` | Value: המפתח → Save (Production + Preview).
 5. Deployments → ⋯ → Redeploy → לחכות ל-Ready.
-6. בדיקה: `/api/health` מציג `"ai": true`.
+6. בדיקה: `/api/health` מציג `"ok": true` (ציבורי). פרטי ספק AI רק ב-`?internal=1` + admin token.
 
 **מסלול מקומי בלי מפתח ובלי עלות — Ollama (נתמך):** להרצה על מחשב שלך (ה"מחשב שתביא").
 1. מתקינים Ollama מ-ollama.com, ואז בטרמינל: `ollama pull llama3.1` (לניתוח תמונות: `ollama pull llama3.2-vision`).
 2. מריצים `ollama serve` (רץ על `http://localhost:11434`).
 3. מגדירים משתני סביבה: `OLLAMA_BASE_URL=http://localhost:11434` ו-`OLLAMA_MODEL=llama3.1`.
-4. אם אין `ANTHROPIC_API_KEY`/`GEMINI_API_KEY` — זכאי ישתמש אוטומטית ב-Ollama. `/api/health` יראה `"aiProvider": "ollama"`.
+4. אם אין `ANTHROPIC_API_KEY`/`GEMINI_API_KEY` — זכאי ישתמש אוטומטית ב-Ollama. אימות דרך health פנימי (`?internal=1`).
 **מסלול "חכם וזול" — DeepSeek (מומלץ לשדרוג הצ'אט):** מודל חזק בהרבה מ-Gemini החינמי, בפרוטות.
 1. נרשמים ב-platform.deepseek.com → API Keys → Create → מעתיקים את המפתח.
 2. טוענים קרדיט קטן (בדרך כלל $2 מספיקים להמון שימוש — DeepSeek זול מאוד).
 3. Vercel → Environment Variables → Key: `DEEPSEEK_API_KEY`, Value: המפתח → Save → Redeploy.
-4. `/api/health` יראה `"aiProvider": "openai"`. הצ'אט יהיה חכם משמעותית.
+4. אימות: health פנימי או ניסיון צ'אט במוצר.
 > אפשר גם כל endpoint תואם-OpenAI (OpenRouter, Together, Groq) עם `OPENAI_COMPAT_API_KEY` + `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_MODEL`.
 
 **מסלול חינמי לגמרי — OpenRouter (מודלים חכמים בחינם):**

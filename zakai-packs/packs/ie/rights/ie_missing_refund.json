@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ie_missing_refund",
+  "version": "2026-07-31",
+  "display_name": {
+    "en": "Missing refund — agent",
+    "he": "החזר שלא הגיע — סוכן"
+  },
+  "market": "IE",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/refund-chase",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Consumer Rights Act 2022; European Union (Payment Services) Regulations 2018 (S.I. No. 6 of 2018)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-31",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

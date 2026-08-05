@@ -1,14 +1,14 @@
 "use client";
 
-import { useLocale , useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 
-/** Shown when the user has zero cases — problem doors first, then ranked actions. */
+/** Shown when the user has zero cases — /money is the only primary door. */
 export function EmptyDashboardActions() {
-  const locale = useLocale();
-  const he = locale === "he" || locale === "ar";
-  const tIcomponents_EmptyDashboardActions = useTranslations("inline_components_EmptyDashboardActions");
+  const tIcomponents_EmptyDashboardActions = useTranslations(
+    "inline_components_EmptyDashboardActions",
+  );
 
   return (
     <div className="mt-8 text-start">
@@ -19,33 +19,39 @@ export function EmptyDashboardActions() {
         <p className="text-ink-soft text-[13px] mt-1.5 mb-4 leading-relaxed">
           {tIcomponents_EmptyDashboardActions("t_0536a00e")}
         </p>
-        <div className="flex flex-wrap gap-2.5">
-          <Link href="/money">
-            <Button className="!text-[13.5px] !py-2.5">
-              {tIcomponents_EmptyDashboardActions("t_12298790")}
-            </Button>
-          </Link>
-          <Link href="/cancel">
-            <Button variant="ghost" className="!text-[13.5px] !py-2.5">
-              {tIcomponents_EmptyDashboardActions("t_1e2507e3")}
-            </Button>
-          </Link>
-          <Link href="/what-am-i-owed">
-            <Button variant="ghost" className="!text-[13.5px] !py-2.5">
-              {tIcomponents_EmptyDashboardActions("t_cb700000")}
-            </Button>
-          </Link>
-          <Link href="/electricity">
-            <Button variant="ghost" className="!text-[13.5px] !py-2.5">
-              {tIcomponents_EmptyDashboardActions("t_0ea869b4")}
-            </Button>
-          </Link>
-          <Link href="/leaks">
-            <Button variant="ghost" className="!text-[13.5px] !py-2.5">
-              {tIcomponents_EmptyDashboardActions("t_16c6cdf1")}
-            </Button>
-          </Link>
-        </div>
+        <Link href="/money#zakai-money-scan">
+          <Button className="!text-[13.5px] !py-2.5 w-full sm:w-auto">
+            {tIcomponents_EmptyDashboardActions("t_12298790")}
+          </Button>
+        </Link>
+        <details className="mt-4">
+          <summary className="cursor-pointer text-[12.5px] font-bold text-ink-soft list-none [&::-webkit-details-marker]:hidden">
+            {tIcomponents_EmptyDashboardActions("t_1e2507e3")} ·{" "}
+            {tIcomponents_EmptyDashboardActions("t_0ea869b4")} · …
+          </summary>
+          <div className="flex flex-wrap gap-2.5 mt-3">
+            <Link href="/cancel">
+              <Button variant="ghost" className="!text-[13.5px] !py-2.5">
+                {tIcomponents_EmptyDashboardActions("t_1e2507e3")}
+              </Button>
+            </Link>
+            <Link href="/electricity">
+              <Button variant="ghost" className="!text-[13.5px] !py-2.5">
+                {tIcomponents_EmptyDashboardActions("t_0ea869b4")}
+              </Button>
+            </Link>
+            <Link href="/what-am-i-owed">
+              <Button variant="ghost" className="!text-[13.5px] !py-2.5">
+                {tIcomponents_EmptyDashboardActions("t_cb700000")}
+              </Button>
+            </Link>
+            <Link href="/leaks">
+              <Button variant="ghost" className="!text-[13.5px] !py-2.5">
+                {tIcomponents_EmptyDashboardActions("t_16c6cdf1")}
+              </Button>
+            </Link>
+          </div>
+        </details>
       </div>
     </div>
   );

@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "au_lost_unclaimed_super",
+  "version": "2026-07-30",
+  "display_name": {
+    "en": "Lost Unclaimed Super",
+    "he": "אבוד · לא מומש · פנסיה (אוסטרליה)"
+  },
+  "market": "AU",
+  "category": "finance",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/au_lost_unclaimed_super",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Superannuation (Unclaimed Money and Lost Members) Act 1999 (Cth)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-30",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

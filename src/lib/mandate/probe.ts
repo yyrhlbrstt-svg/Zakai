@@ -9,17 +9,17 @@
  * `probeIssuer` closes part of that gap. Given a candidate's public JWKS and
  * one sample mandate they issue, it runs `verifyMandate` — this codebase's own
  * reference verifier, not the candidate's code — against every check that is
- * genuinely settleable from those artifacts alone. Three of the ten checks
- * cannot be verified this way in a single pass (expiry needs a sample already
- * expired; status-list freshness and revocation propagation need monitoring
- * over time) and are left absent from the result rather than assumed to pass
- * — the same "absence of evidence is not evidence" rule `assessConformance`
- * already applies to a check nobody ran.
+ * genuinely settleable from those artifacts alone. `publishes_status_list` is
+ * settled from the sample embedding `zkm.status`. Expiry needs an already-
+ * expired sample. `revocation_takes_effect` settles when the candidate submits
+ * a signed statuslist+jwt where the sample's `zkm.status.idx` bit is set —
+ * never assumed to pass when the list token is absent.
  */
 
 import type { JWK } from "jose";
 import { FORBIDDEN_SCOPES } from "./scopes";
 import { verifyMandate, MandateError } from "./mandate";
+import { verifyStatusList } from "./statusList";
 import type { CheckResult } from "./conformance";
 
 export interface ProbeInput {
@@ -31,6 +31,12 @@ export interface ProbeInput {
   sampleValidToken: string;
   /** Optional: an already-expired sample, needed to test expiry enforcement independently. */
   sampleExpiredToken?: string;
+  /**
+   * Optional: a signed statuslist+jwt from the candidate where the sample
+   * mandate's status index is revoked. Settles `revocation_takes_effect`
+   * without a live fetch (no SSRF).
+   */
+  sampleStatusListToken?: string;
   now?: Date;
 }
 
@@ -147,6 +153,55 @@ export async function probeIssuer(input: ProbeInput): Promise<CheckResult[]> {
   }
   // If no expired sample was supplied, "enforces_expiry" is simply absent —
   // assessConformance() reports it as missing, not passed.
+
+  // publishes_status_list: settleable from the sample advertising zkm.status
+  // (idx + https uri). Hourly refresh / propagation stays for monitoring.
+  const zkm = payload?.zkm;
+  const rawStatus =
+    zkm && typeof zkm === "object" ? (zkm as { status?: { idx?: unknown; uri?: unknown } }).status : undefined;
+  const idx = typeof rawStatus?.idx === "number" ? rawStatus.idx : Number.NaN;
+  const uri = typeof rawStatus?.uri === "string" ? rawStatus.uri.trim() : "";
+  const statusPointerOk =
+    Number.isInteger(idx) && idx >= 0 && /^https:\/\//i.test(uri) && !uri.includes(" ");
+  results.push({
+    id: "publishes_status_list",
+    passed: statusPointerOk,
+    detail: statusPointerOk
+      ? `zkm.status.idx=${idx}`
+      : "sample mandate missing zkm.status { idx, uri } — offline revoke unavailable",
+  });
+
+  // revocation_takes_effect: candidate submits a signed status list that
+  // already marks the sample's idx as revoked. Absent → missing, never a pass.
+  if (input.sampleStatusListToken) {
+    let takesEffect = false;
+    let detail: string | undefined;
+    const iss = typeof payload?.iss === "string" ? payload.iss : "";
+    if (!statusPointerOk) {
+      detail = "sample mandate missing zkm.status.idx — cannot bind list bit";
+    } else if (!iss) {
+      detail = "sample mandate missing iss";
+    } else {
+      try {
+        const list = await verifyStatusList(input.sampleStatusListToken, {
+          issuer: iss,
+          publicJwks: input.jwks,
+          now,
+        });
+        takesEffect = list.isRevoked(idx) === true;
+        detail = takesEffect
+          ? undefined
+          : `idx=${idx} still active in submitted status list`;
+      } catch (err) {
+        detail = err instanceof Error ? err.message : "status list verification failed";
+      }
+    }
+    results.push({
+      id: "revocation_takes_effect",
+      passed: takesEffect,
+      detail,
+    });
+  }
 
   return results;
 }

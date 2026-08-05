@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ca_disability_tax_credit",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Disability Tax Credit",
+    "he": "נכות · מס · זיכוי"
+  },
+  "market": "CA",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "hasDisability",
+        "operator": "eq",
+        "value": true,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/ca_disability_tax_credit",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Income Tax Act — Disability Tax Credit"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

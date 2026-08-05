@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Button, Input, Textarea, FieldError } from "@/components/ui";
+import { Link } from "@/i18n/routing";
 
 /** B2B lead form — dual-track: employees welfare and/or Mandate infrastructure. */
 export function BusinessLeadForm() {
@@ -42,7 +43,18 @@ export function BusinessLeadForm() {
       <div className="rounded-2xl border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.07)] p-8 text-center">
         <div className="text-[40px] mb-2" aria-hidden>✓</div>
         <div className="font-display text-2xl">{t("form.doneTitle")}</div>
-        <div className="text-ink-soft text-[14px] mt-2">{t("form.doneSub")}</div>
+        <div className="text-ink-soft text-[14px] mt-2 mb-4">{t("form.doneSub")}</div>
+        <div className="flex flex-col gap-2 items-center">
+          <Link href="/institutions/quickstart" className="text-emerald font-extrabold no-underline">
+            {t("form.doneQuickstart")}
+          </Link>
+          <Link href="/institutions/leader" className="text-emerald font-extrabold no-underline">
+            {t("form.doneLeader")}
+          </Link>
+          <Link href="/integrations" className="text-emerald font-extrabold no-underline">
+            {t("form.doneIntegrations")}
+          </Link>
+        </div>
       </div>
     );
   }

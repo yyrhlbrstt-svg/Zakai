@@ -1,0 +1,73 @@
+{
+  "zml_version": "1.0.0",
+  "id": "ca_benefits_check",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "What am I owed — rights check",
+    "he": "מה מגיע לי — בדיקת זכויות"
+  },
+  "market": "CA",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "OR",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "dependents",
+            "operator": "gte",
+            "value": 1,
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "OR",
+        "conditions": [
+          {
+            "operator": "AND",
+            "conditions": [
+              {
+                "field": "ageYears",
+                "operator": "gte",
+                "value": 65,
+                "source": "user_input"
+              }
+            ]
+          },
+          {
+            "operator": "AND",
+            "conditions": [
+              {
+                "field": "employment",
+                "operator": "in",
+                "value": [
+                  "retired"
+                ],
+                "source": "user_input"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/what-am-i-owed",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Government of Canada benefits"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

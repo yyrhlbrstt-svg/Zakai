@@ -1,6 +1,6 @@
-# Fairness widget embed (ZML catalog)
+# Rights-check widget embed (ZML catalog)
 
-Partner sites load `zakai-widget.js` to show a **rights orientation** strip. No PII leaves the partner page until the user clicks through to Zakai.
+Partner sites load `zakai-widget.js` to show a **rights orientation** strip. No PII leaves the partner page until the user clicks through to Zakai. This is not the fairness-score program (`docs/FAIRNESS_CERTIFIED_PROGRAM.md`) — it surfaces one relevant entitlement from the public rights catalog, not a per-company score.
 
 ## 1. Register a domain (admin)
 
@@ -17,14 +17,14 @@ Response includes `api_key`. **Persist it** in Vercel env:
 ZAKAI_WIDGET_KEYS_JSON='{"pk_live_...":{"domain":"yourbank.co.il","created":"2026-08-02T00:00:00.000Z"}}'
 ```
 
-Redeploy after updating env. Keys registered only in memory (same process) are lost on cold start.
+Keys are persisted in Postgres (`WidgetKey` table) as soon as they're registered — `ZAKAI_WIDGET_KEYS_JSON` remains a bootstrap/override layer, not the only copy.
 
 ## 2. Snippet
 
 ```html
 <link rel="stylesheet" href="https://zakai-3uxj.vercel.app/widget/zakai-widget.css" />
 <div
-  id="zakai-fairness"
+  id="zakai-rights-check"
   data-api-key="pk_live_YOUR_KEY"
   data-provider="Cellcom"
   data-market="IL"
@@ -42,7 +42,7 @@ The script auto-mounts on `[data-api-key]`, `[data-zakai-widget]`, or `[data-zak
 
 | Attribute | Purpose |
 |-----------|---------|
-| `data-brand-name` | Badge text instead of "Zakai Fairness Check" |
+| `data-brand-name` | Badge text instead of "Zakai Rights Check" |
 | `data-hide-badge="true"` | Hide badge entirely |
 | `data-accent="#005EB8"` | Bank brand color (CSS variable) |
 | `data-cta-url` | Override CTA link |
@@ -82,3 +82,5 @@ Full agent flows use `embed.js` + `#zakai-embed` — see `/he/partners` and `doc
 ## Laws
 
 Widget copy must not promise outcomes. Protocol laws: `/.well-known/zakai-protocol.json`.
+
+Program spec: `docs/FAIRNESS_CERTIFIED_PROGRAM.md`. Mandate verification for agents: MCP server, not yet on the public npm registry — see `sdk/README.md` ("MCP server" section) for the zero-setup install.

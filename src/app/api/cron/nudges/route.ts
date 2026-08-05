@@ -5,18 +5,25 @@ import { pushToUser } from "@/lib/push";
 import { RECHECK_AFTER_DAYS } from "@/lib/insights";
 import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
+import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
 import { requireCronAuth } from "@/lib/security/cronAuth";
 import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { localeForCountry } from "@/lib/localePath";
+import { isMandateBlockedFollowUpReason } from "@/lib/followUpSendUi";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
+import {
+  cohortLearning,
+  followUpAfterDays,
+  FOLLOWUP_AFTER_DAYS_MIN,
+  type LearningOutcomeRow,
+} from "@/lib/strategy/learningInsights";
 
 export const dynamic = "force-dynamic";
 
 const NUDGE_SUBJECT = "זכאי — המבצע שלך כנראה נגמר, שווה לבדוק שוב";
 /** Don't nudge the same user more often than this for SAVED recheck. */
 const NUDGE_COOLDOWN_DAYS = 60;
-/** SENT cases older than this get an agent auto-follow-up (round 2+ to provider). */
-const SENT_AFTER_DAYS = 5;
 const SENT_COOLDOWN_DAYS = 12;
 const FEE_NUDGE_SUBJECT = "זכאי — עמלת הצלחה ממתינה לתשלום";
 const FEE_NUDGE_AFTER_DAYS = 3;
@@ -32,10 +39,41 @@ export async function GET(request: Request) {
   const unauthorized = requireCronAuth(request);
   if (unauthorized) return unauthorized;
 
+  // Cohort timing from StrategyOutcome (send→settle medians). Query at the
+  // minimum wait; per-case filter applies followUpAfterDays(median).
   const cutoff = new Date(Date.now() - RECHECK_AFTER_DAYS * 86_400_000);
   const cooldown = new Date(Date.now() - NUDGE_COOLDOWN_DAYS * 86_400_000);
-  const sentCutoff = new Date(Date.now() - SENT_AFTER_DAYS * 86_400_000);
+  const sentCutoff = new Date(Date.now() - FOLLOWUP_AFTER_DAYS_MIN * 86_400_000);
   const sentCooldown = new Date(Date.now() - SENT_COOLDOWN_DAYS * 86_400_000);
+
+  const outcomeRows = (await prisma.strategyOutcome
+    .findMany({
+      where: { market: "IL" },
+      orderBy: { createdAt: "desc" },
+      take: 5000,
+      select: {
+        market: true,
+        vertical: true,
+        counterparty: true,
+        variantId: true,
+        paid: true,
+        recoveredMinor: true,
+        days: true,
+        selfReported: true,
+      },
+    })
+    .catch(() => [])) as LearningOutcomeRow[];
+  const cohortCache = new Map<string, ReturnType<typeof cohortLearning>>();
+  function waitDaysFor(vertical: string, provider: string): number {
+    const key = `${vertical}::${provider}`;
+    if (!cohortCache.has(key)) {
+      cohortCache.set(key, cohortLearning(outcomeRows, "IL", vertical, provider));
+    }
+    const cohort = cohortCache.get(key);
+    return cohort?.medianDaysToWin != null
+      ? followUpAfterDays(cohort.medianDaysToWin)
+      : SENT_FOLLOWUP_AFTER_DAYS;
+  }
 
   try {
     let savedSent = 0;
@@ -74,7 +112,7 @@ export async function GET(request: Request) {
 
 בדיקה חוזרת לוקחת דקה: מעלים צילום מסך עדכני ב"הכסף שלי", וזכאי בודק אם המחיר זחל למעלה ופועל אם צריך. כרגיל — עמלה רק אם יש חיסכון מתועד.
 
-לבדיקה: היכנסו ל"הכסף שלי" או לדשבורד.
+לבדיקה: היכנסו ל"הכסף שלי" — ${appUrl}/he/money#zakai-money-scan
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
       });
@@ -89,26 +127,81 @@ export async function GET(request: Request) {
       await pushToUser(c.userId, {
         title: "המבצע שלך כנראה נגמר",
         body: "שווה לבדוק שוב אם המחיר עלה — לוקח דקה.",
-        url: "/dashboard",
+        url: "/money#zakai-money-scan",
         tag: "recheck-nudge",
       });
       savedSent++;
     }
 
     // —— 2. AGENT auto-follow-up on SENT cases ——
-    const waiting = await prisma.case.findMany({
+    // Do NOT require ACTIVE Mandate here: autoFollowUpCase returns
+    // NO_ACTIVE_MANDATE and the branch below nudges the user to re-issue.
+    // Filtering ACTIVE made that branch unreachable.
+    const waitingRaw = await prisma.case.findMany({
       where: {
         status: "SENT",
         updatedAt: { lt: sentCutoff },
-        authorization: { status: "ACTIVE" },
         ownershipVerifiedAt: { not: null },
       },
-      select: { id: true, userId: true },
-      take: 80,
+      select: {
+        id: true,
+        userId: true,
+        vertical: true,
+        provider: true,
+        updatedAt: true,
+        user: { select: { email: true, name: true, country: true } },
+      },
+      take: 120,
       orderBy: { updatedAt: "asc" },
     });
+    const nowMs = Date.now();
+    const waiting = waitingRaw.filter((c) => {
+      const wait = waitDaysFor(c.vertical, c.provider);
+      return c.updatedAt.getTime() <= nowMs - wait * 86_400_000;
+    }).slice(0, 80);
 
+    const OUTREACH_NEEDED_SUBJECT = "זכאי — חסר אימייל לספק כדי להמשיך";
+    const MAX_ROUNDS_SUBJECT = "זכאי — סיבובי המעקב מוצו, רשמו תוצאה";
+    const MANDATE_INACTIVE_SUBJECT = "זכאי — ה-Mandate לא פעיל, צריך לאשר מחדש";
+    let outreachNudges = 0;
+    let stuckNudges = 0;
     const seenAgent = new Set<string>();
+
+    async function nudgeOnce(opts: {
+      caseId: string;
+      userId: string;
+      email: string;
+      subject: string;
+      body: string;
+      pushTitle: string;
+      pushBody: string;
+      tag: string;
+    }): Promise<boolean> {
+      const recentNudge = await prisma.outbox.findFirst({
+        where: {
+          caseId: opts.caseId,
+          channel: "EMAIL",
+          subject: opts.subject,
+          createdAt: { gt: sentCooldown },
+        },
+        select: { id: true },
+      });
+      if (recentNudge) return false;
+      await sendEmail({
+        to: opts.email,
+        subject: opts.subject,
+        body: opts.body,
+        caseId: opts.caseId,
+      });
+      await pushToUser(opts.userId, {
+        title: opts.pushTitle,
+        body: opts.pushBody,
+        url: `/money?case=${opts.caseId}`,
+        tag: opts.tag,
+      }).catch(() => null);
+      return true;
+    }
+
     for (const c of waiting) {
       if (seenAgent.has(c.userId)) continue;
 
@@ -133,9 +226,138 @@ export async function GET(request: Request) {
       if (result.sent) {
         seenAgent.add(c.userId);
         agentFollowUps++;
+      } else if (result.reason === "NEEDS_OUTREACH_EMAIL" && c.user.email) {
+        const money = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
+        const sent = await nudgeOnce({
+          caseId: c.id,
+          userId: c.userId,
+          email: c.user.email,
+          subject: OUTREACH_NEEDED_SUBJECT,
+          body: `שלום ${c.user.name},
+
+הסוכן מוכן לשלוח המשך בכתב עם Mandate — אבל חסר אימייל של הספק בתיק.
+
+הזינו כתובת שירות/ביטולים ב״הכסף שלי״ ואשרו שליחה:
+${money}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+          pushTitle: "חסר אימייל לספק",
+          pushBody: "הזינו כתובת ב״הכסף שלי״ כדי שהסוכן יוכל להמשיך.",
+          tag: `outreach-needed-${c.id}`,
+        });
+        if (sent) {
+          outreachNudges++;
+          seenAgent.add(c.userId);
+        }
+        agentSkipped++;
+      } else if (result.reason === "MAX_ROUNDS" && c.user.email) {
+        // FREE maxActiveCases:1 stays frozen on SENT until user records/closes.
+        const money = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
+        const sent = await nudgeOnce({
+          caseId: c.id,
+          userId: c.userId,
+          email: c.user.email,
+          subject: MAX_ROUNDS_SUBJECT,
+          body: `שלום ${c.user.name},
+
+סיבובי המעקב בכתב לתיק הזה מוצו. אל תשלחו עוד תזכורת אוטומטית.
+
+ב״הכסף שלי״ — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר:
+${money}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+          pushTitle: "סיבובי המעקב מוצו",
+          pushBody: "רשמו תוצאה או סגרו את התיק ב״הכסף שלי״.",
+          tag: `max-rounds-${c.id}`,
+        });
+        if (sent) {
+          stuckNudges++;
+          seenAgent.add(c.userId);
+        }
+        agentSkipped++;
+      } else if (isMandateBlockedFollowUpReason(result.reason) && c.user.email) {
+        // NO_ACTIVE_MANDATE and MANDATE_REQUIRED (keys live, no JWS) — same reissue path.
+        const money = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
+        const sent = await nudgeOnce({
+          caseId: c.id,
+          userId: c.userId,
+          email: c.user.email,
+          subject: MANDATE_INACTIVE_SUBJECT,
+          body: `שלום ${c.user.name},
+
+הסוכן לא יכול להמשיך מול הספק — אין Mandate פעיל על התיק.
+
+פתחו את ״הכסף שלי״, אשרו הרשאה מחדש ושלחו:
+${money}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+          pushTitle: "Mandate לא פעיל",
+          pushBody: "אשרו הרשאה מחדש ב״הכסף שלי״ כדי להמשיך.",
+          tag: `mandate-inactive-${c.id}`,
+        });
+        if (sent) {
+          stuckNudges++;
+          seenAgent.add(c.userId);
+        }
+        agentSkipped++;
       } else {
         agentSkipped++;
       }
+    }
+
+    // —— 2b. Pre-send rot — APPROVED/VERIFIED waiting without Mandate leave ——
+    const PRE_SEND_SUBJECT = "זכאי — תיק ממתין לשליחת Mandate";
+    const PRE_SEND_AFTER_DAYS = 1;
+    const preSendCutoff = new Date(Date.now() - PRE_SEND_AFTER_DAYS * 86_400_000);
+    let preSendNudges = 0;
+    const preSendWaiting = await prisma.case.findMany({
+      where: {
+        status: { in: ["APPROVED", "VERIFIED", "ANALYZED"] },
+        updatedAt: { lt: preSendCutoff },
+      },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        user: { select: { email: true, name: true, country: true } },
+      },
+      take: 60,
+      orderBy: { updatedAt: "asc" },
+    });
+    const seenPreSend = new Set<string>();
+    for (const c of preSendWaiting) {
+      if (seenPreSend.has(c.userId) || !c.user.email) continue;
+      seenPreSend.add(c.userId);
+      const moneyUrl = `${appUrl}/${localeForCountry(c.user.country)}/money?case=${c.id}`;
+      const recent = await prisma.outbox.findFirst({
+        where: {
+          caseId: c.id,
+          channel: "EMAIL",
+          subject: PRE_SEND_SUBJECT,
+          createdAt: { gt: sentCooldown },
+        },
+        select: { id: true },
+      });
+      if (recent) continue;
+      await sendEmail({
+        to: c.user.email,
+        subject: PRE_SEND_SUBJECT,
+        body: `שלום ${c.user.name},
+
+יש תיק פתוח שעדיין לא נשלח לספק עם Mandate. דקה אחת ב"הכסף שלי" סוגרת את השלב הזה.
+
+${moneyUrl}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`,
+        caseId: c.id,
+      });
+      await pushToUser(c.userId, {
+        title: "תיק ממתין לשליחה",
+        body: "המשיכו ב\"הכסף שלי\" — Mandate בכתב, בלי שיחה.",
+        url: `/money?case=${c.id}`,
+        tag: `pre-send-${c.id}`,
+      }).catch(() => null);
+      preSendNudges++;
     }
 
     // —— 3. Personal deadline reminders ——
@@ -182,6 +404,7 @@ export async function GET(request: Request) {
             id: true,
             userId: true,
             user: { select: { email: true, name: true, country: true } },
+            authorization: { select: { status: true } },
           },
         },
       },
@@ -204,11 +427,23 @@ export async function GET(request: Request) {
       });
       if (recent) continue;
 
-      const payUrl = feePayAbsoluteUrl(appUrl, u.country, fee.case.id);
-      await sendEmail({
-        to: u.email,
-        subject: FEE_NUDGE_SUBJECT,
-        body: `שלום ${u.name},
+      const mandateActive = fee.case.authorization?.status === "ACTIVE";
+      const paymentsLive = paymentsFullyLive();
+      const payUrl = feePayAbsoluteUrl(appUrl, u.country, fee.case.id, {
+        mandateActive,
+        paymentsLive,
+      });
+      const body = !mandateActive
+        ? `שלום ${u.name},
+
+תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה, אבל אין Mandate פעיל על התיק.
+
+פתחו את ״הכסף שלי״, אשרו הרשאה מחדש ואז שלמו:
+${payUrl}
+
+זכאי — הכסף שמגיע לך חוזר אליך.`
+        : paymentsLive
+          ? `שלום ${u.name},
 
 תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה (רק על מה שנחסך בפועל).
 
@@ -217,13 +452,34 @@ ${payUrl}
 
 שאלות או ערעור בתוך 14 יום — השב למייל זה.
 
-זכאי — הכסף שמגיע לך חוזר אליך.`,
+זכאי — הכסף שמגיע לך חוזר אליך.`
+          : `שלום ${u.name},
+
+תיעדת חיסכון עם זכאי — תודה! נשאר לשלם עמלת הצלחה (רק על מה שנחסך בפועל).
+
+לסיום ב״הכסף שלי״ (אין גבייה חיה עדיין — לא נגבה כרטיס אמיתי):
+${payUrl}
+
+שאלות או ערעור בתוך 14 יום — השב למייל זה.
+
+זכאי — הכסף שמגיע לך חוזר אליך.`;
+      await sendEmail({
+        to: u.email,
+        subject: FEE_NUDGE_SUBJECT,
+        body,
         caseId: fee.case.id,
       });
       await pushToUser(fee.case.userId, {
-        title: "עמלת הצלחה ממתינה",
-        body: "תשלום בלחיצה אחת — רק על חיסכון מתועד.",
-        url: feePayDashboardPath(localeForCountry(u.country), fee.case.id),
+        title: mandateActive ? "עמלת הצלחה ממתינה" : "Mandate לא פעיל — עמלה ממתינה",
+        body: !mandateActive
+          ? "אשרו הרשאה מחדש ב״הכסף שלי״ ואז שלמו."
+          : paymentsLive
+            ? "תשלום בלחיצה אחת — רק על חיסכון מתועד."
+            : "המשיכו ב״הכסף שלי״ — גבייה חיה עדיין לא מוגדרת.",
+        url: feePayDashboardPath(localeForCountry(u.country), fee.case.id, {
+          mandateActive,
+          paymentsLive,
+        }),
         tag: `fee-nudge-${fee.case.id}`,
       }).catch(() => null);
       seenFeeUser.add(fee.case.userId);
@@ -237,7 +493,10 @@ ${payUrl}
         candidates: waiting.length,
         sent: agentFollowUps,
         skipped: agentSkipped,
+        outreachEmailNudges: outreachNudges,
+        stuckLoopNudges: stuckNudges,
       },
+      preSendNudges: { candidates: preSendWaiting.length, sent: preSendNudges },
       deadlineReminders: { candidates: pendingDeadlines.length, sent: deadlineNudges },
       pendingFeeNudges: { candidates: pendingFees.length, sent: feeNudges },
     });

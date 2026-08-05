@@ -59,9 +59,10 @@ describe("normalizeContractAnalysis", () => {
   });
 
   it("reports not readable, empty clauses, for a non-object response", () => {
-    expect(normalizeContractAnalysis(null)).toEqual({ clauses: [], readable: false });
-    expect(normalizeContractAnalysis("a string")).toEqual({ clauses: [], readable: false });
-    expect(normalizeContractAnalysis(42)).toEqual({ clauses: [], readable: false });
+    const empty = { clauses: [], readable: false, autoRenews: false, renewalDate: null };
+    expect(normalizeContractAnalysis(null)).toEqual(empty);
+    expect(normalizeContractAnalysis("a string")).toEqual(empty);
+    expect(normalizeContractAnalysis(42)).toEqual(empty);
   });
 
   it("reports not readable when the model says so, even with no clauses", () => {
@@ -73,5 +74,35 @@ describe("normalizeContractAnalysis", () => {
   it("tolerates clauses not being an array at all", () => {
     const result = normalizeContractAnalysis({ readable: true, clauses: "not an array" });
     expect(result.clauses).toEqual([]);
+  });
+
+  it("passes through a well-formed renewal date", () => {
+    const result = normalizeContractAnalysis({
+      readable: true,
+      clauses: [],
+      autoRenews: true,
+      renewalDate: "2027-03-15",
+    });
+    expect(result.autoRenews).toBe(true);
+    expect(result.renewalDate).toBe("2027-03-15");
+  });
+
+  it("rejects a renewal date in the wrong shape", () => {
+    for (const bad of ["15/03/2027", "next month", "2027-3-15", "", 20270315]) {
+      expect(normalizeContractAnalysis({ readable: true, clauses: [], renewalDate: bad }).renewalDate).toBeNull();
+    }
+  });
+
+  it("rejects a calendar date that doesn't actually exist (Date silently rolls it over)", () => {
+    // Feb 30 rolls into March — must not hand a reminder-scheduler a lie.
+    expect(
+      normalizeContractAnalysis({ readable: true, clauses: [], renewalDate: "2026-02-30" }).renewalDate,
+    ).toBeNull();
+  });
+
+  it("defaults autoRenews/renewalDate absent from the model response", () => {
+    const result = normalizeContractAnalysis({ readable: true, clauses: [] });
+    expect(result.autoRenews).toBe(false);
+    expect(result.renewalDate).toBeNull();
   });
 });

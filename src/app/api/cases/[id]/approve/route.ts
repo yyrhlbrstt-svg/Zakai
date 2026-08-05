@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
-import { approveCase, refreshVerifiedStatus, CaseError } from "@/lib/services/cases";
+import { approveCase, primeCaseForFastSend, CaseError } from "@/lib/services/cases";
 import { clientIp } from "@/lib/ratelimit";
 
 const schema = z.object({
@@ -25,8 +25,8 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
       clientIp(request),
       parsed.success ? parsed.data.counterpartyEmail : undefined,
     );
-    await refreshVerifiedStatus(id);
-    return NextResponse.json({ ok: true });
+    const { ownershipViaEmail } = await primeCaseForFastSend(auth.userId, id);
+    return NextResponse.json({ ok: true, ownershipViaEmail });
   } catch (err) {
     if (err instanceof CaseError) {
       const status =

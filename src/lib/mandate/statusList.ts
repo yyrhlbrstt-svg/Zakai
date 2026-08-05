@@ -72,10 +72,11 @@ export function packStatusList(revokedIndices: readonly number[], size: number):
     if (!Number.isInteger(idx) || idx < 0) {
       throw new StatusListError(`invalid status index ${idx}`);
     }
-    // Out-of-range indices are dropped rather than throwing: a list that
-    // refuses to build because one row is malformed means nobody can check
-    // revocation at all, which is strictly worse than one uncovered mandate.
-    if (idx >= size) continue;
+    // Out-of-range must not be silent: a dropped bit means offline verifiers
+    // keep treating a revoked mandate as active. Callers filter/refuse first.
+    if (idx >= size) {
+      throw new StatusListError(`status index ${idx} exceeds list size ${size}`);
+    }
     bytes[idx >> 3] |= 1 << (idx & 7);
   }
   return Buffer.from(gzipSync(Buffer.from(bytes))).toString("base64url");
@@ -166,4 +167,32 @@ export async function verifyStatusList(
   }
 
   return { claims, isRevoked: (index: number) => readStatus(claims.status_list.lst, index) };
+}
+
+/**
+ * Fetch + verify the issuer's published status list in one call.
+ * Same contract as the SDK — institutions hit this path via /api/mandate/ready.
+ */
+export async function verifyStatusListFromUrl(options: {
+  statusListUri: string;
+  issuer: string;
+  jwksUri: string;
+  now?: Date;
+}): Promise<VerifiedStatusList> {
+  const [listRes, jwksRes] = await Promise.all([
+    fetch(options.statusListUri, { cache: "no-store" }),
+    fetch(options.jwksUri, { cache: "no-store" }),
+  ]);
+  if (!listRes.ok) throw new StatusListError(`status list HTTP ${listRes.status}`);
+  if (!jwksRes.ok) throw new StatusListError(`jwks HTTP ${jwksRes.status}`);
+  const token = await listRes.text();
+  const jwks = (await jwksRes.json()) as { keys?: JWK[] };
+  if (!Array.isArray(jwks.keys) || jwks.keys.length === 0) {
+    throw new StatusListError("jwks has no keys");
+  }
+  return verifyStatusList(token, {
+    issuer: options.issuer,
+    publicJwks: jwks.keys,
+    now: options.now,
+  });
 }

@@ -12,7 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description:
       "סוכן דיגיטלי שבודק את החשבונות שלך, פועל בשמך מול הספקים, וגובה עמלה רק על חיסכון מתועד.",
     id: "/he",
-    start_url: "/he",
+    // Installed app opens on the finish surface — open loop / scan / share.
+    start_url: "/he/money",
     display: "standalone",
     dir: "rtl",
     lang: "he",
@@ -24,20 +25,18 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
-    // Long-press the home-screen icon for the two actions worth skipping the
-    // door grid for. Both routes already exist; this just gives Android/iOS a
-    // shortcut into them.
+    // Long-press shortcuts: Money OS first. Portfolio is not a finish path.
     shortcuts: [
       {
-        name: "בדיקה חדשה",
-        short_name: "בדיקה",
-        url: "/he/check",
+        name: "כסף שלי",
+        short_name: "כסף",
+        url: "/he/money",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
       },
       {
-        name: "לוח הבקרה שלי",
-        short_name: "לוח בקרה",
-        url: "/he/dashboard",
+        name: "בדיקת סלולר",
+        short_name: "סלולר",
+        url: "/he/check",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
       },
     ],

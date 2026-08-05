@@ -12,10 +12,13 @@ const suite = hasDb ? describe : describe.skip;
 // and failed with a unique-constraint violation on every run after the first.
 const createdUserIds: string[] = [];
 const createdCodes: string[] = [];
+const createdMandateJtis: string[] = [];
 
 afterAll(async () => {
   if (!hasDb) return;
-  await prisma.mandateRevocation.deleteMany({ where: { jti: { in: createdCodes } } });
+  await prisma.mandateRevocation.deleteMany({
+    where: { jti: { in: [...createdCodes, ...createdMandateJtis] } },
+  });
   // Cases and authorizations cascade from the user.
   await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
   await prisma.$disconnect();
@@ -43,7 +46,12 @@ async function makeActiveAuthority(userId: string, tag: string) {
     .toString(36)
     .slice(2, 9)
     .toUpperCase()}-TEST`;
+  // Machine jti institutions verify — distinct from the human ZK code.
+  const mandateJti = crypto.randomUUID();
+  // Unique status bit — parallel suite runs must not collide on the unique index.
+  const mandateStatusIndex = Date.now() % 1_000_000_000 + Math.floor(Math.random() * 1000);
   createdCodes.push(code);
+  createdMandateJtis.push(mandateJti);
   await prisma.authorization.create({
     data: {
       caseId: kase.id,
@@ -53,19 +61,22 @@ async function makeActiveAuthority(userId: string, tag: string) {
       principalEmail: "authority-test@zakai.test",
       provider: `provider-${tag}`,
       scope: "test scope",
+      mandateJti,
+      mandateStatusIndex,
     },
   });
-  return code;
+  return { code, mandateJti, mandateStatusIndex };
 }
 
 suite("revokeAllAuthorities", () => {
   it("revokes every active authority for the user in one call", async () => {
     const user = await makeUser("all");
-    const codes = await Promise.all([
+    const auths = await Promise.all([
       makeActiveAuthority(user.id, `a${Date.now()}`),
       makeActiveAuthority(user.id, `b${Date.now()}`),
       makeActiveAuthority(user.id, `c${Date.now()}`),
     ]);
+    const codes = auths.map((a) => a.code);
 
     const result = await revokeAllAuthorities(user.id);
     expect(result.revoked.sort()).toEqual([...codes].sort());
@@ -75,19 +86,24 @@ suite("revokeAllAuthorities", () => {
     expect(all.every((a) => a.status === "REVOKED")).toBe(true);
   });
 
-  it("publishes a revocation for every one, not just the first", async () => {
-    // The whole point: an institution's cached status list must reflect all
-    // of them, not just whichever one the loop happened to process first.
+  it("publishes a revocation under each Mandate jti, not the human ZK code", async () => {
+    // Institutions verify the JWT jti / status-list bit — publishing under
+    // the ZK-… code left every machine token valid after a consumer revoke.
     const user = await makeUser("publish");
-    const codes = await Promise.all([
+    const auths = await Promise.all([
       makeActiveAuthority(user.id, `x${Date.now()}`),
       makeActiveAuthority(user.id, `y${Date.now()}`),
     ]);
     await revokeAllAuthorities(user.id);
 
-    for (const code of codes) {
-      const revocation = await prisma.mandateRevocation.findUnique({ where: { jti: code } });
-      expect(revocation).not.toBeNull();
+    for (const auth of auths) {
+      const byJti = await prisma.mandateRevocation.findUnique({
+        where: { jti: auth.mandateJti },
+      });
+      expect(byJti).not.toBeNull();
+      expect(byJti?.statusIndex).not.toBeNull();
+      const byCode = await prisma.mandateRevocation.findUnique({ where: { jti: auth.code } });
+      expect(byCode).toBeNull();
     }
   });
 
@@ -99,8 +115,8 @@ suite("revokeAllAuthorities", () => {
 
   it("leaves an already-revoked authority alone rather than erroring", async () => {
     const user = await makeUser("mixed");
-    const code = await makeActiveAuthority(user.id, `already${Date.now()}`);
-    await revokeAuthority(user.id, code);
+    const auth = await makeActiveAuthority(user.id, `already${Date.now()}`);
+    await revokeAuthority(user.id, auth.code);
 
     const result = await revokeAllAuthorities(user.id);
     // Nothing was active, so there was nothing for the bulk call to touch —
@@ -112,11 +128,11 @@ suite("revokeAllAuthorities", () => {
   it("never touches another user's authority", async () => {
     const mine = await makeUser("mine");
     const theirs = await makeUser("theirs");
-    const theirCode = await makeActiveAuthority(theirs.id, `theirs${Date.now()}`);
+    const theirAuth = await makeActiveAuthority(theirs.id, `theirs${Date.now()}`);
 
     await revokeAllAuthorities(mine.id);
 
-    const untouched = await prisma.authorization.findUnique({ where: { code: theirCode } });
+    const untouched = await prisma.authorization.findUnique({ where: { code: theirAuth.code } });
     expect(untouched?.status).toBe("ACTIVE");
   });
 });

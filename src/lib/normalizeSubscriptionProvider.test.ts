@@ -18,6 +18,12 @@ describe("resolveSubscriptionCompany", () => {
     expect(r.defaultContactEmail).toBe("support@spotify.com");
   });
 
+  it("maps Cellcom with public support inbox", () => {
+    const r = resolveSubscriptionCompany("סלקום", "מנוי");
+    expect(r.providerKey).toBe("cellcom");
+    expect(r.defaultContactEmail).toMatch(/@cellcom/);
+  });
+
   it("falls back to display name for unknown merchant", () => {
     const r = resolveSubscriptionCompany("חדר כושר XYZ", "מנוי");
     expect(r.providerKey).toBe("חדר כושר XYZ");
@@ -44,6 +50,10 @@ describe("pickOutreachEmail", () => {
 describe("subscriptionOutreachReady", () => {
   it("ready for Netflix without user email", () => {
     expect(subscriptionOutreachReady("Netflix", "plan")).toBe(true);
+  });
+
+  it("ready for Cellcom without user email", () => {
+    expect(subscriptionOutreachReady("סלקום", "מנוי")).toBe(true);
   });
 
   it("not ready for unknown without contact", () => {

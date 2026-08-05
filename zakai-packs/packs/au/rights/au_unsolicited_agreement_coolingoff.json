@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "au_unsolicited_agreement_coolingoff",
+  "version": "2026-07-30",
+  "display_name": {
+    "en": "Unsolicited Agreement Coolingoff",
+    "he": "ללא הסכמה · הסכם · קירור"
+  },
+  "market": "AU",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/au_unsolicited_agreement_coolingoff",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Australian Consumer Law (Schedule 2, Competition and Consumer Act 2010 (Cth)), Div 2 of Part 3-2 (unsolicited consumer agreements)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-30",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
@@ -14,7 +15,9 @@ import {
   type EuDistanceTier,
 } from "@/lib/flightRights";
 import { buildFlightDemandLetter } from "@/lib/flightLetter";
+import { resolveAirlineContactEmail } from "@/lib/airlineContacts";
 import { formatAgorot } from "@/lib/money";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const IL_TIERS: DistanceTier[] = ["short", "medium", "long"];
 const EU_TIERS: EuDistanceTier[] = ["short", "medium", "long"];
@@ -51,6 +54,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
     flightDate: "",
     route: "",
   });
+  const [airlineEmail, setAirlineEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +111,10 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
     </div>
   );
 
-  const formComplete = Object.values(form).every((v) => v.trim().length > 0);
+  const knownAirlineInbox = resolveAirlineContactEmail(form.airline);
+  const formComplete =
+    Object.values(form).every((v) => v.trim().length > 0) &&
+    (Boolean(knownAirlineInbox) || hasOutreachEmail(airlineEmail));
 
   async function sendWithAgent() {
     setError(null);
@@ -122,6 +129,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
           flightNumber: form.flightNumber,
           flightDate: form.flightDate,
           route: form.route,
+          airlineContactEmail: airlineEmail.trim() || undefined,
           jurisdiction,
           kind,
           tier,
@@ -135,6 +143,11 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
+        if (data.error === "needsOutreachEmail") {
+          setError(tFlow("errorNeedsEmail"));
+          return;
+        }
         setError(
           data.error === "caseLimit"
             ? he
@@ -148,7 +161,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(he ? "משהו השתבש. נסה שוב." : "Something went wrong.");
     } finally {
@@ -266,7 +279,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
               <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
                 {tIcomponents_FlightRightsChecker("t_eb212a88")}
               </p>
-              <Link href={`/dashboard?case=${caseId}`}>
+              <Link href={`/money?case=${caseId}`}>
                 <Button className="w-full">
                   {tIcomponents_FlightRightsChecker("t_4a0f7a8f")}
                 </Button>
@@ -289,12 +302,31 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                     <span className="text-[12.5px] text-ink-soft">{t(key)}</span>
                     <Input
                       value={form[field]}
-                      onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm({ ...form, [field]: value });
+                        if (field === "airline") {
+                          const known = resolveAirlineContactEmail(value);
+                          if (known) setAirlineEmail(known);
+                        }
+                      }}
                       className="mt-1 !py-2.5 !text-[14px]"
                     />
                   </label>
                 ))}
+                <label className="block">
+                  <span className="text-[12.5px] text-ink-soft">{tFlow("contactEmail")}</span>
+                  <Input
+                    type="email"
+                    dir="ltr"
+                    value={airlineEmail}
+                    onChange={(e) => setAirlineEmail(e.target.value)}
+                    placeholder={tFlow("contactEmailHint")}
+                    className="mt-1 !py-2.5 !text-[14px]"
+                  />
+                </label>
               </div>
+              <p className="text-[12px] text-ink-soft mt-2 mb-0 leading-snug">{tFlow("honestNote")}</p>
 
               <div className="flex flex-col gap-2 mt-4">
                 <Button

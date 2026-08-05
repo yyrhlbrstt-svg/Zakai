@@ -24,6 +24,7 @@ enum Plan {
   FREE
   PRO
   MAX
+  BUSINESS
 }
 
 model User {
@@ -82,6 +83,8 @@ model User {
   vigilProfile       UserProfile?
   vigilAlerts        VigilAlert[]
   deadlines          Deadline[]
+  receipts           Receipt[]
+  inboxInterests     ConnectedInboxInterest[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -178,6 +181,9 @@ model Case {
   // stance when the case closes. Null on cases opened before the engine.
   strategyVariant String?
   strategySeed    Int?
+  // When a de-identified StrategyOutcome row was written for this case.
+  // Idempotency only — the Outcome table itself never stores caseId.
+  outcomeRecordedAt DateTime?
 
   status CaseStatus @default(ANALYZED)
 
@@ -240,6 +246,12 @@ model Authorization {
   scope          String
   /// JWT `aud` at mandate issue time (institution slug for banks).
   mandateAudience String?
+  /// Ed25519 mandate `jti` when machine mandate was issued at authorization time.
+  mandateJti      String? @unique
+  /// Compact JWS for institution inbound JSON attachment (same token as jti).
+  mandateJws      String? @db.Text
+  /// Bit position in the signed status list — allocated at issue, flipped on revoke.
+  mandateStatusIndex Int? @unique
 
   status    AuthorizationStatus @default(ACTIVE)
   issuedAt  DateTime            @default(now())
@@ -322,6 +334,10 @@ model Fee {
   status                FeeStatus @default(PENDING)
   createdAt             DateTime  @default(now())
 
+  /// Machine Mandate jti that authorized the outreach this fee settles.
+  /// Null only for legacy / pre-key envs; checkout refuses PENDING fees without it.
+  mandateJti String?
+
   // Fee collection. `provider` is which PSP handled it (or "mock" until a real
   // one is configured); `providerRef` is the payment/transaction id it returned;
   // `paidAt` is when the fee was confirmed collected. All null until a payment
@@ -329,6 +345,8 @@ model Fee {
   provider    String? // e.g. "mock" | "payplus" | "tranzila"
   providerRef String?
   paidAt      DateTime?
+
+  @@index([mandateJti])
 }
 
 // Durable fixed-window rate limiting for auth/OTP endpoints. Serverless
@@ -339,6 +357,22 @@ model RateLimit {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
+  @@index([expiresAt])
+}
+
+/// Idempotent mutation replay store (Class C traffic). Prevents duplicate cases
+/// when clients retry POST on flaky mobile networks at scale.
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  scope        String
+  actorId      String
+  key          String
+  statusCode   Int
+  responseJson String   @db.Text
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@unique([scope, actorId, key])
   @@index([expiresAt])
 }
 
@@ -411,6 +445,41 @@ model StrategyOutcome {
   @@index([market, vertical, counterparty])
   @@index([market, vertical])
   @@index([selfReported, createdAt])
+}
+
+/**
+ * Anonymous collective-buying intent — no User/Case FK (publishable aggregates only).
+ */
+model CollectiveIntentSignal {
+  id        String   @id @default(cuid())
+  market    String
+  vertical  String
+  createdAt DateTime @default(now())
+
+  @@index([market, vertical])
+  @@index([createdAt])
+}
+
+model AutopilotSourceSnapshot {
+  sourceUrl   String   @id
+  market      String
+  rightId     String
+  contentHash String
+  lastSnippet String?  @db.Text
+  lastChangedAt DateTime?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model AutopilotRun {
+  id        String   @id @default(cuid())
+  jobId     String
+  ok        Boolean
+  summary   String
+  findings  Json
+  createdAt DateTime @default(now())
+
+  @@index([jobId, createdAt])
 }
 
 /**
@@ -540,6 +609,13 @@ model MandateRevocation {
   @@index([revokedAt])
 }
 
+/// Reserves a status-list bit at Mandate issue (before any revocation row exists).
+model MandateStatusAllocation {
+  statusIndex Int      @id
+  jti         String   @unique
+  issuedAt    DateTime @default(now())
+}
+
 /**
  * Web Push subscription for the installed PWA.
  * endpoint is unique across the table so a device re-subscribe upserts cleanly.
@@ -666,4 +742,147 @@ model ReferenceVerifier {
   listedAt      DateTime @default(now())
 
   @@index([listedAt])
+}
+
+/**
+ * Partner embed API keys. Previously ephemeral in-memory (lost on every deploy)
+ * or hand-edited into ZAKAI_WIDGET_KEYS_JSON — neither is a distribution rail.
+ * Env JSON remains a bootstrap/override; the durable source of truth is this table.
+ */
+model WidgetKey {
+  /// Opaque public key, e.g. pk_live_…
+  key       String   @id
+  /// Allowed Origin hostname (exact or subdomain of this apex).
+  domain    String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([domain])
+  @@index([revokedAt])
+}
+
+/**
+ * Oracle API keys — per-customer credentials for /api/oracle/predict, the
+ * outcome-graph pricing API sold to institutions (underwriters, insurers,
+ * litigation-finance funds). Before this table the endpoint had exactly one
+ * shared secret (ORACLE_API_KEY): fine for a single pilot, unusable once a
+ * second paying customer needs their own key, their own usage visibility,
+ * and the ability to be revoked without breaking everyone else. Mirrors
+ * WidgetKey's shape and durability guarantee; ORACLE_API_KEY keeps working
+ * as a "master" key for backward compatibility.
+ */
+model OracleKey {
+  /// Opaque secret key, e.g. ok_live_…
+  key       String   @id
+  /// Customer/institution label — never a domain, this is a server-to-server key.
+  label     String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([revokedAt])
+}
+
+/**
+ * Full trust-registry issuers — an independent party that runs its own
+ * Ed25519 keys and signs its own mandates, verified by institutions against
+ * this registry (the "Visa doesn't issue cards, banks do" layer; see
+ * src/lib/mandate/trustRegistry.ts). Before this table the entire durable
+ * admission path for a party with its own keys was ZAKAI_EXTRA_ISSUERS_JSON
+ * — a single hand-edited env var holding every non-Zakai issuer as one JSON
+ * blob: no way to admit or suspend one issuer without touching the whole
+ * blob, no error surfaced when an entry is silently dropped for failing
+ * validation, no row for G5 (`countActiveNetworkIssuers`) to read that isn't
+ * "however the env var currently parses." Same durability upgrade WidgetKey/
+ * OracleKey/DelegatedIssuer already got; ZAKAI_EXTRA_ISSUERS_JSON remains a
+ * bootstrap/override layer, not the only copy.
+ */
+model RegisteredIssuerRow {
+  /// The exact `iss` claim its mandates carry — the natural key.
+  iss           String    @id
+  name          String
+  /// Where its public keys live. Institutions fetch and cache this.
+  jwksUri       String
+  /// Where its signed revocation list lives.
+  statusListUri String
+  /// Always a subset of the protocol's scopes — enforced at admission via validateIssuer().
+  allowedScopes String[]
+  /// active | suspended | withdrawn — never "sandbox" (that stays env/fixture-only).
+  status        String    @default("active")
+  admittedAt    DateTime  @default(now())
+  note          String    @default("")
+
+  @@index([status])
+}
+
+/**
+ * Per-customer keys for the licensed evidence API (POST
+ * /api/evidence/systemic-pattern) — aggregated, de-identified, sample-gated
+ * settlement-pattern reports sold to plaintiff firms and regulators building
+ * a systemic-pattern case file against a named provider. Same shape as
+ * OracleKey: one credential per paying customer, durable in Postgres,
+ * individually revocable.
+ */
+model EvidenceKey {
+  /// Opaque secret key, e.g. ev_live_…
+  key       String   @id
+  /// Customer/institution label — never a domain, this is a server-to-server key.
+  label     String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([revokedAt])
+}
+
+// Receipt collector: a document (photo today; email/WhatsApp are transport
+// options the same row shape already supports) the user submitted so Zakai
+// can find money hiding in it — a duplicate charge, an unclaimed VAT-eligible
+// expense — the same detect step every other vertical here runs, just fed by
+// receipts instead of a bank/credit export. Never the image itself: only the
+// numbers the model extracted from it, same privacy posture as the rest of
+// the scan pipeline (StatementScan parses in the browser; this parses
+// server-side because OCR needs the model, but nothing beyond the extracted
+// fields is persisted).
+model Receipt {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  vendor       String
+  amountAgorot Int
+  currency     String @default("ILS")
+  // The date printed on the receipt, if the model could read one — not when
+  // the row was created. Null when unreadable; duplicate detection falls back
+  // to createdAt for those.
+  occurredAt   DateTime?
+  category     String // "business_deductible" | "recurring" | "personal" | "other"
+  hasVat       Boolean @default(false)
+  source       String  @default("photo") // "photo" | "email" | "whatsapp"
+
+  // Set when detectDuplicateReceipt (src/lib/receipts.ts) flags this receipt
+  // against an earlier one for the same user — same vendor, same amount,
+  // within the detection window. Never auto-opens a Case: the user still
+  // approves before anything is sent, same as every other vertical.
+  duplicateOfId String?
+  flaggedAt     DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, vendor, amountAgorot])
+}
+
+// A user's stated interest in automatic inbox scanning (Gmail/Outlook) for
+// receipts and recurring charges — not a live connection. Real OAuth needs a
+// verified app registration with each provider (a business step, not a code
+// change); this table exists so that work starts from a real interest
+// signal instead of a guess, and so the settings UI has something honest to
+// show ("on the list") instead of a fake "connected" state.
+model ConnectedInboxInterest {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider  String // "gmail" | "outlook"
+  createdAt DateTime @default(now())
+
+  @@unique([userId, provider])
 }

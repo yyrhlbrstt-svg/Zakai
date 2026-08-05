@@ -29,10 +29,30 @@ export interface ContractAnalysis {
   clauses: ContractClause[];
   /** False when the input didn't look like a contract at all. */
   readable: boolean;
+  /** True when the model found an auto-renewal clause, regardless of whether a date was extractable. */
+  autoRenews: boolean;
+  /** ISO yyyy-mm-dd renewal/expiry date, only when the model found one AND it parses as a real date. Never invented. */
+  renewalDate: string | null;
 }
 
 function truncate(s: string): string {
   return s.length > MAX_FIELD_CHARS ? s.slice(0, MAX_FIELD_CHARS) : s;
+}
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * The model is asked for yyyy-mm-dd but nothing stops it from returning
+ * "next month" or a malformed string — validate the shape AND that it's a
+ * real calendar date (Date silently rolls "2026-02-30" into March) before
+ * ever letting a caller build a Deadline reminder from it.
+ */
+function normalizeRenewalDate(raw: unknown): string | null {
+  if (typeof raw !== "string" || !ISO_DATE_RE.test(raw)) return null;
+  const d = new Date(`${raw}T00:00:00Z`);
+  if (isNaN(d.getTime())) return null;
+  // Reject a date that round-trips to a different day (e.g. Feb 30 -> Mar 2).
+  return d.toISOString().slice(0, 10) === raw ? raw : null;
 }
 
 function normalizeClause(raw: unknown): ContractClause | null {
@@ -55,7 +75,8 @@ function normalizeClause(raw: unknown): ContractClause | null {
  * about either: try again.
  */
 export function normalizeContractAnalysis(parsed: unknown): ContractAnalysis {
-  if (!parsed || typeof parsed !== "object") return { clauses: [], readable: false };
+  if (!parsed || typeof parsed !== "object")
+    return { clauses: [], readable: false, autoRenews: false, renewalDate: null };
   const p = parsed as Record<string, unknown>;
   const clauses = Array.isArray(p.clauses)
     ? p.clauses
@@ -63,5 +84,10 @@ export function normalizeContractAnalysis(parsed: unknown): ContractAnalysis {
         .filter((c): c is ContractClause => c !== null)
         .slice(0, MAX_CLAUSES)
     : [];
-  return { clauses, readable: Boolean(p.readable) };
+  return {
+    clauses,
+    readable: Boolean(p.readable),
+    autoRenews: Boolean(p.autoRenews),
+    renewalDate: normalizeRenewalDate(p.renewalDate),
+  };
 }

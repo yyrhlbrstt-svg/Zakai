@@ -14,7 +14,7 @@ describe("GET /api/widget/validate", () => {
   });
 
   it("reflects origin when key matches domain", async () => {
-    const key = registerWidgetKey("partner.example.com");
+    const key = await registerWidgetKey("partner.example.com");
     const res = await GET(
       new Request("http://localhost/api/widget/validate", {
         headers: {

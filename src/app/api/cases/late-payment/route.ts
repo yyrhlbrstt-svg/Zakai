@@ -10,11 +10,13 @@ import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { assessLatePayment, buildLatePaymentDemandLetter } from "@/lib/latePaymentClaim";
 import { shekelsToAgorot } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
+import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 
 const schema = z.object({
   supplierName: z.string().max(80).default(""),
   clientName: z.string().min(1).max(120),
-  clientEmail: z.string().email().max(200),
+  clientEmail: z.string().max(200).optional(),
   invoiceNumber: z.string().max(80).default(""),
   invoiceDate: z.string().min(1).max(40),
   agreedTermDays: z.number().min(1).max(365).optional(),
@@ -24,6 +26,10 @@ const schema = z.object({
 export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
+
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
 
   const limited = await rateLimit("cases-late-payment", auth.userId, 20, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
@@ -68,12 +74,17 @@ export async function POST(request: Request) {
   const staged = variant ? applyStance(drafted, variant) : drafted;
   const stanceApplied = variant !== undefined && stanceAffects(drafted, variant);
 
+  const outreachTo = firstOutreachEmail(data.clientEmail) || undefined;
+  if (!outreachTo) {
+    return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
+  }
+
   let kase;
   try {
     kase = await createCase({
       userId: auth.userId,
       provider: data.clientName.slice(0, 80),
-      counterpartyEmail: data.clientEmail,
+      counterpartyEmail: outreachTo,
       amountShekels: data.invoiceAmountShekels,
       plan: data.invoiceNumber || "חוב לקוח",
       strategy: "דרישת תשלום חשבונית באיחור עם Mandate",
@@ -94,11 +105,16 @@ export async function POST(request: Request) {
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    body: staged.body,
-    status: kase.status,
-    daysLate: status.daysLate,
-    message: "case_opened",
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+        daysLate: status.daysLate,
+      },
+    }),
+  );
 }

@@ -441,6 +441,86 @@ export async function analyzeBillImage(
   };
 }
 
+// ---------- Receipt / invoice extraction (receipt collector) ----------
+
+export type ReceiptCategory = "business_deductible" | "recurring" | "personal" | "other";
+
+export interface ReceiptAnalysis {
+  vendor: string;
+  amountShekels: number;
+  currency: string;
+  /** ISO date (yyyy-mm-dd) if the receipt shows one, else null. */
+  date: string | null;
+  category: ReceiptCategory;
+  /** True when VAT is itemized on the receipt — relevant for the business export. */
+  hasVat: boolean;
+  readable: boolean;
+}
+
+const RECEIPT_EXTRACT_SYSTEM = `You extract data from a photo of ANY receipt or invoice (paper or digital, any vendor — retail, restaurant, service, subscription, professional). Extract: the vendor/merchant name, the total amount charged as a plain number, the currency (ISO code, default ILS if a shekel symbol or Israeli vendor), the date if visible (yyyy-mm-dd), whether VAT/tax is itemized as a separate line, and a category guess: "business_deductible" (a plausible tax-deductible business expense — office supplies, professional services, business travel), "recurring" (a subscription or membership renewal), "personal" (an ordinary personal purchase), or "other" if unclear. If the image is not a readable receipt, set readable=false. Respond ONLY with JSON: {"vendor":"...","amount":number_or_null,"currency":"ILS","date":"yyyy-mm-dd"_or_null,"category":"business_deductible"|"recurring"|"personal"|"other","hasVat":boolean,"readable":boolean}`;
+
+export async function analyzeReceiptImage(
+  base64: string,
+  mediaType: string,
+): Promise<ReceiptAnalysis> {
+  let text: string;
+  if (aiProvider() !== "anthropic") {
+    text = await fallbackGenerate({
+      system: RECEIPT_EXTRACT_SYSTEM,
+      userText: "Extract this receipt.",
+      imageBase64: base64,
+      mediaType,
+      maxTokens: 400,
+      temperature: 0,
+    });
+  } else {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: EXTRACT_MODEL,
+      max_tokens: 400,
+      temperature: 0,
+      system: cachedSystem(RECEIPT_EXTRACT_SYSTEM),
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
+            },
+            { type: "text", text: "Extract this receipt." },
+          ],
+        },
+      ],
+    });
+    text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+  }
+  const parsed = extractJson(text) as {
+    vendor?: string;
+    amount?: number | null;
+    currency?: string;
+    date?: string | null;
+    category?: string;
+    hasVat?: boolean;
+    readable?: boolean;
+  };
+  const category: ReceiptCategory =
+    parsed.category === "business_deductible" ||
+    parsed.category === "recurring" ||
+    parsed.category === "personal"
+      ? parsed.category
+      : "other";
+  return {
+    vendor: (parsed.vendor ?? "").trim().slice(0, 120),
+    amountShekels: parsed.amount ?? 0,
+    currency: (parsed.currency ?? "ILS").trim().slice(0, 8) || "ILS",
+    date: parsed.date ?? null,
+    category,
+    hasVat: Boolean(parsed.hasVat),
+    readable: Boolean(parsed.readable) && Boolean(parsed.amount) && Boolean(parsed.vendor?.trim()),
+  };
+}
+
 // ---------- Recommendation + outreach draft ----------
 
 export interface Recommendation {
@@ -722,15 +802,17 @@ export async function extractSavingsFromEmail(
 
 // ---------- Contract red-flag summary ----------
 
-const CONTRACT_ANALYSIS_SYSTEM = `You review consumer contracts in Hebrew or English (lease, gym membership, phone/internet plan, employment offer, terms of service) and flag clauses in plain language for a non-lawyer.
+const CONTRACT_ANALYSIS_SYSTEM = `You review consumer and small-business contracts in Hebrew or English (lease, gym membership, phone/internet plan, employment offer, vendor/service agreement, terms of service) and flag clauses in plain language for a non-lawyer.
 
 Extract up to 20 clauses that actually matter to a consumer signing this — skip boilerplate (definitions, notices addresses, governing law) unless it's genuinely consequential.
 
 For each clause: quote or closely paraphrase it (short), classify it "green" (favours the reader: fixed price, free exit, reasonable notice) or "red" (should give the reader pause: penalty fees, automatic price increases, auto-renewal, long lock-in, one-sided termination rights, hidden costs), and give one short sentence explaining why in the SAME LANGUAGE as the contract.
 
+Also look specifically for an automatic-renewal clause: set autoRenews=true if the contract renews itself unless cancelled. If — and ONLY if — the contract states an actual renewal, expiry, or notice-deadline DATE in a form you can resolve to a real calendar date, set renewalDate to that date as yyyy-mm-dd. If the contract only gives a duration ("renews annually", "12-month term") with no anchor date to compute from, or you are not confident, leave renewalDate null — never guess or compute a date from "today" or from your own sense of the current date.
+
 If the input is not readable as a contract at all (random text, a shopping list, gibberish), set readable=false and return an empty clauses array — do not force clauses onto unrelated text.
 
-Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
+Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"autoRenews":boolean,"renewalDate":"yyyy-mm-dd"_or_null,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
 
 /**
  * Read a contract's text and flag clauses for a non-lawyer — bounded output,
@@ -761,7 +843,7 @@ export async function analyzeContractText(text: string): Promise<ContractAnalysi
   try {
     return normalizeContractAnalysis(extractJson(raw));
   } catch {
-    return { clauses: [], readable: false };
+    return { clauses: [], readable: false, autoRenews: false, renewalDate: null };
   }
 }
 
@@ -785,7 +867,11 @@ export interface AssistantContext {
   locale: string;
 }
 
-export async function askZakai(question: string, ctx: AssistantContext): Promise<string> {
+export async function askZakai(
+  question: string,
+  ctx: AssistantContext,
+  image?: { base64: string; mediaType: string },
+): Promise<string> {
   const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
   const system = buildAssistantSystem();
 
@@ -796,6 +882,8 @@ export async function askZakai(question: string, ctx: AssistantContext): Promise
     return fallbackGenerate({
       system,
       userText,
+      imageBase64: image?.base64,
+      mediaType: image?.mediaType,
       maxTokens: 1024,
       temperature: 0.3,
       geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
@@ -808,7 +896,24 @@ export async function askZakai(question: string, ctx: AssistantContext): Promise
     max_tokens: 1024,
     temperature: 0.3,
     system: cachedSystem(system),
-    messages: [{ role: "user", content: userText }],
+    messages: [
+      {
+        role: "user",
+        content: image
+          ? [
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: image.mediaType as "image/jpeg",
+                  data: image.base64,
+                },
+              },
+              { type: "text", text: userText },
+            ]
+          : userText,
+      },
+    ],
   });
   return msg.content
     .map((b) => (b.type === "text" ? b.text : ""))

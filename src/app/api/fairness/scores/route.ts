@@ -32,17 +32,34 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const market = (url.searchParams.get("market") ?? "IL").toUpperCase();
-  const scores = await loadFairnessScores(market);
 
-  return NextResponse.json(
-    {
-      market,
-      min_observations: MIN_SAMPLE,
-      disclaimer:
-        "Scores are documented win rates from de-identified outcomes, not legal findings or consumer reviews.",
-      providers: scores,
-      updated_at: new Date().toISOString(),
-    },
-    { headers: CORS },
-  );
+  try {
+    const scores = await loadFairnessScores(market);
+    return NextResponse.json(
+      {
+        market,
+        min_observations: MIN_SAMPLE,
+        disclaimer:
+          "Scores are documented win rates from de-identified outcomes, not legal findings or consumer reviews.",
+        providers: scores,
+        updated_at: new Date().toISOString(),
+      },
+      { headers: CORS },
+    );
+  } catch {
+    // Public integrators should get an empty catalog + 503, not an opaque 500
+    // when the database is briefly unavailable or migrations are mid-deploy.
+    return NextResponse.json(
+      {
+        market,
+        min_observations: MIN_SAMPLE,
+        disclaimer:
+          "Scores are documented win rates from de-identified outcomes, not legal findings or consumer reviews.",
+        providers: [],
+        unavailable: true,
+        updated_at: new Date().toISOString(),
+      },
+      { status: 503, headers: CORS },
+    );
+  }
 }

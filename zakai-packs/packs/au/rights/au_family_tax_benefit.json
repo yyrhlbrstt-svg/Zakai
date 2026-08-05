@@ -1,0 +1,39 @@
+{
+  "zml_version": "1.0.0",
+  "id": "au_family_tax_benefit",
+  "version": "2026-07-30",
+  "display_name": {
+    "en": "Family Tax Benefit",
+    "he": "משפחה · מס · קצבה"
+  },
+  "market": "AU",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "dependents",
+        "operator": "gte",
+        "value": 1,
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/au_family_tax_benefit",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "A New Tax System (Family Assistance) Act 1999 (Cth)"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-30",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

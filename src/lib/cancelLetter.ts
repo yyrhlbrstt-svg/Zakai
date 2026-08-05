@@ -1,4 +1,6 @@
-/** Deterministic cancel / retention letters — no AI required. */
+/** Deterministic cancel / retention letters — Mandate agent voice, no AI required. */
+
+import { agentLetterCloseHe, agentLetterOpenHe } from "@/lib/agentLetterVoice";
 
 export type CancelIntent = "cancel" | "pause" | "downgrade" | "retention";
 
@@ -17,22 +19,27 @@ export function buildCancelLetter(input: CancelInput): { subject: string; body: 
   const company = input.company.trim() || "החברה";
   const product = input.product.trim() || "השירות";
   const acct = input.accountOrEmail?.trim();
-  const amt = input.monthlyShekels && input.monthlyShekels > 0 ? ` (כ-₪${Math.round(input.monthlyShekels)} לחודש)` : "";
+  const amt =
+    input.monthlyShekels && input.monthlyShekels > 0
+      ? ` (כ-₪${Math.round(input.monthlyShekels)} לחודש)`
+      : "";
   const reason = input.reason?.trim();
-  const idLine = acct ? `\nמזהה חשבון / אימייל: ${acct}` : "";
+  const idLine = acct ? `\nמזהה חשבון / אימייל של הלקוח/ה: ${acct}` : "";
+  const open = agentLetterOpenHe(name);
+  const close = agentLetterCloseHe(name);
 
   if (input.intent === "retention") {
     return {
       subject: `בקשת התאמת מחיר / שימור — ${product}`,
       body: `לכבוד ${company},
 
-שמי ${name}.${idLine}
+${open}${idLine}
 
-אני לקוח/ה משלם/ת על ${product}${amt}. מבקש/ת הצעת שימור או התאמת מחיר בכתב — אחרת אשקול ביטול.
+הלקוח/ה משלם/ת על ${product}${amt}. בשם הלקוח/ה אני מבקש הצעת שימור או התאמת מחיר בכתב — אחרת ייבחן ביטול.
 ${reason ? `\nפירוט: ${reason}\n` : ""}
-נא מענה בכתב עם המחיר החדש ותנאי ההתחייבות אם יש.
+בקשה אחת: מענה בכתב עם המחיר החדש ותנאי ההתחייבות אם יש.
 
-בברכה,\n${name}`,
+${close}`,
     };
   }
 
@@ -41,13 +48,13 @@ ${reason ? `\nפירוט: ${reason}\n` : ""}
       subject: `בקשה להורדת מסלול — ${product}`,
       body: `לכבוד ${company},
 
-שמי ${name}.${idLine}
+${open}${idLine}
 
-מבקש/ת לעבור למסלול זול יותר עבור ${product}${amt}, בהתאם לשימוש בפועל.
+בשם הלקוח/ה אני מבקש מעבר למסלול זול יותר עבור ${product}${amt}, בהתאם לשימוש בפועל.
 ${reason ? `\nסיבה: ${reason}\n` : ""}
-נא לאשר בכתב את המסלול החדש ואת המחיר החודשי.
+בקשה אחת: אישור בכתב של המסלול החדש והמחיר החודשי.
 
-בברכה,\n${name}`,
+${close}`,
     };
   }
 
@@ -56,13 +63,13 @@ ${reason ? `\nסיבה: ${reason}\n` : ""}
       subject: `בקשה להקפאת מנוי — ${product}`,
       body: `לכבוד ${company},
 
-שמי ${name}.${idLine}
+${open}${idLine}
 
-מבקש/ת להקפיא את המנוי ל-${product}${amt} החל מהמחזור הבא, ללא חיוב בתקופת ההקפאה.
+בשם הלקוח/ה אני מבקש להקפיא את המנוי ל-${product}${amt} החל מהמחזור הבא, ללא חיוב בתקופת ההקפאה.
 ${reason ? `\nסיבה: ${reason}\n` : ""}
-נא לאשר בכתב.
+בקשה אחת: אישור בכתב של ההקפאה.
 
-בברכה,\n${name}`,
+${close}`,
     };
   }
 
@@ -70,12 +77,12 @@ ${reason ? `\nסיבה: ${reason}\n` : ""}
     subject: `בקשת ביטול מנוי — ${product}`,
     body: `לכבוד ${company},
 
-שמי ${name}.${idLine}
+${open}${idLine}
 
-מבקש/ת לבטל לאלתר את המנוי/השירות: ${product}${amt}, ללא חיובים נוספים מעבר לתקופה שכבר שולמה.
+בשם הלקוח/ה אני מבקש לבטל לאלתר את המנוי/השירות: ${product}${amt}, ללא חיובים נוספים מעבר לתקופה שכבר שולמה.
 ${reason ? `\nסיבה: ${reason}\n` : ""}
-נא לאשר בכתב את מועד הביטול ואת העדר חיובים עתידיים.
+בקשה אחת: אישור בכתב של מועד הביטול והעדר חיובים עתידיים.
 
-בברכה,\n${name}`,
+${close}`,
   };
 }

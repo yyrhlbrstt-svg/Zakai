@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "gb_council_tax_student_exemption",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Council Tax Student Exemption",
+    "he": "ארנונה (UK) · מס · סטודנט · פטור"
+  },
+  "market": "GB",
+  "category": "housing",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "employment",
+        "operator": "in",
+        "value": [
+          "student"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/gb_council_tax_student_exemption",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "statute",
+    "reference": "Local Government Finance Act 1992, Sch. 1 para. 4"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

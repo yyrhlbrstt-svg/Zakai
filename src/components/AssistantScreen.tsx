@@ -7,6 +7,7 @@ import { Card, Button, Input } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import type { Insight } from "@/lib/insights";
 import { FAQ } from "@/lib/faq";
+import type { PlanId } from "@/lib/plans";
 
 // A few high-signal starter questions surfaced as chips under the chat.
 const SUGGESTED_IDS = ["fee", "taxrefund", "payslip", "family"] as const;
@@ -15,6 +16,8 @@ interface ChatMsg {
   role: "user" | "assistant";
   text: string;
 }
+
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // ~4MB — a phone screenshot, not a dump
 
 /**
  * The assistant screen = two layers:
@@ -33,7 +36,7 @@ export function AssistantScreen({
 }: {
   insights: Insight[];
   chatEnabled: boolean;
-  plan: "FREE" | "PRO" | "MAX";
+  plan: PlanId;
   bcp47: string;
   /**
    * Arrives from /assistant?ask=... — a button elsewhere (LeadForm.tsx) that
@@ -50,9 +53,32 @@ export function AssistantScreen({
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [pendingImage, setPendingImage] = useState<{ base64: string; mediaType: string } | null>(
+    null,
+  );
+  const [imageError, setImageError] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const money = (a: number) => formatAgorot(a, bcp47);
+
+  async function onAttach(file?: File | null) {
+    if (!file) return;
+    setImageError(false);
+    if (file.size > MAX_IMAGE_BYTES) {
+      setImageError(true);
+      return;
+    }
+    try {
+      const buf = await file.arrayBuffer();
+      let bin = "";
+      const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      setPendingImage({ base64: btoa(bin), mediaType: file.type || "image/jpeg" });
+    } catch {
+      setImageError(true);
+    }
+  }
 
   function insightText(i: Insight): string {
     const p: Record<string, string | number> = { ...i.params };
@@ -63,16 +89,26 @@ export function AssistantScreen({
   }
 
   async function sendText(question: string) {
-    if (!question || busy) return;
+    if (busy) return;
+    const image = pendingImage;
+    if (!question && !image) return;
     setChatError(null);
-    setMessages((m) => [...m, { role: "user", text: question }]);
+    setMessages((m) => [
+      ...m,
+      { role: "user", text: question || t("imageOnlyLabel") },
+    ]);
     setInput("");
+    setPendingImage(null);
     setBusy(true);
     try {
       const res = await fetch("/api/assistant/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, locale }),
+        body: JSON.stringify({
+          question,
+          locale,
+          ...(image ? { imageBase64: image.base64, imageMediaType: image.mediaType } : {}),
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -194,7 +230,44 @@ export function AssistantScreen({
                 {chatError === "quota" ? t("quotaError") : t("chatGenericError")}
               </p>
             )}
+            {imageError && (
+              <p className="text-danger text-[13px] font-semibold">{t("imageTooBig")}</p>
+            )}
+            {pendingImage && (
+              <div className="flex items-center gap-2 mb-2.5 text-[12.5px] font-semibold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.25)] rounded-full px-3 py-1.5 w-fit">
+                <span>{t("imageAttached")}</span>
+                <button
+                  type="button"
+                  onClick={() => setPendingImage(null)}
+                  className="text-ink-soft hover:text-danger font-black"
+                  aria-label={t("removeImage")}
+                >
+                  ×
+                </button>
+              </div>
+            )}
             <form onSubmit={send} className="flex gap-2.5">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={busy}
+                title={t("attachImage")}
+                aria-label={t("attachImage")}
+                className="shrink-0 rounded-xl border border-[rgba(255,255,255,0.12)] px-3.5 py-3 text-[15px] text-ink-soft hover:border-[rgba(63,203,155,0.5)] hover:text-emerald transition-colors"
+              >
+                📎
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => {
+                  void onAttach(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -203,7 +276,7 @@ export function AssistantScreen({
               />
               <Button
                 type="submit"
-                disabled={busy || input.trim().length < 2}
+                disabled={busy || (input.trim().length < 2 && !pendingImage)}
                 className="!px-5 !py-3 !text-[14.5px] shrink-0"
               >
                 {t("send")}

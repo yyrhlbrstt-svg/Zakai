@@ -2,6 +2,10 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
 import { isTrackedInstitutionAudience } from "@/lib/institutionAudience";
+import {
+  appOriginForInstitutionEmails,
+  conformanceProbeEmailSection,
+} from "@/lib/institutionVerifierOnboardingEmail";
 
 const SUBJECT = "Zakai — new documented consumer outreach (aggregate notice)";
 
@@ -25,20 +29,20 @@ export async function notifyInstitutionOnOutboundSend(mandateAudience: string | 
   }
   if (!verifier) return;
 
-  const origin =
-    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-    process.env.MANDATE_ISSUER?.trim() ||
-    "https://zakai-3uxj.vercel.app";
+  const origin = appOriginForInstitutionEmails();
+
+  const probeSection = conformanceProbeEmailSection(origin, aud);
 
   await sendEmail({
     to: verifier.contactEmail,
     subject: SUBJECT,
     body: `Hello ${verifier.displayNameEn} team,
 
-A Zakai consumer case with Mandate audience \`${aud}\` reached outbound dispatch (email sent or queued per environment).
+A Zakai consumer case with Mandate audience \`${aud}\` reached outbound dispatch (Outbox SENT — the letter left the system).
 
-This notice has no customer identity. Verify mandates via JWKS: ${origin}/.well-known/zakai-jwks.json
-Readiness wizard: ${origin}/en/institutions/leader
+This notice has no customer identity.
+
+${probeSection}
 
 — Zakai network`,
   });

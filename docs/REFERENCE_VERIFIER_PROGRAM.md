@@ -12,7 +12,11 @@ Institutional **pull** without a sales team: banks prove they can verify Mandate
 
 - Not regulatory certification or supervisory approval.
 - Not a list of “signed customers” — empty wall until real opt-ins.
-- Registration requires `clientCompletedChecks: true` (honor system on the client); server also checks platform endpoints via `serverSideReadinessOk`.
+- Registration requires `clientCompletedChecks: true` on the client, but the
+  server hard-gates on `authorizationVectorsConformant()` (same decide() as the
+  SDK) plus platform endpoints via `serverSideReadinessOk`. Honor-system
+  checkboxes alone cannot list a Pioneer. Machine twin: `GET /api/mandate/ready`
+  / `npx zakai-mandate-ready`.
 
 ## Data model
 

@@ -37,6 +37,8 @@ import {
   verifyMandateWithRegistry,
   type RegistryIssuer,
 } from "./registry.js";
+import { statusListRevocationState } from "./statusList.js";
+import { fetchRightsCatalogPage, fetchRight, RightsApiError } from "./rights.js";
 
 export const DEFAULT_BASE_URL = "https://zakai-3uxj.vercel.app";
 
@@ -80,6 +82,34 @@ export async function fetchRevocationState(
   }
 }
 
+/**
+ * When the token embeds `zkm.status`, the signed status list is authoritative
+ * (including unknown — never fall back to live and mint active). Live
+ * `/status/{jti}` is only for legacy tokens without the claim.
+ */
+export async function resolveRevocation(
+  claims: MandateClaims,
+  issuer: Pick<RegistryIssuer, "iss" | "jwksUri" | "statusListUri">,
+): Promise<{ state: RevocationState; revokedAt?: string; via: "status_list" | "live_status" }> {
+  if (claims.status) {
+    const listState = await statusListRevocationState(claims.status, {
+      issuer: issuer.iss,
+      jwksUri: issuer.jwksUri,
+    });
+    return { state: listState, via: "status_list" };
+  }
+
+  const issuerOrigin = (() => {
+    try {
+      return new URL(issuer.iss).origin;
+    } catch {
+      return issuer.iss.replace(/\/+$/, "");
+    }
+  })();
+  const live = await fetchRevocationState(claims.jti, issuerOrigin);
+  return { ...live, via: "live_status" };
+}
+
 export interface MandateMcpOptions {
   /** Registry operator base URL. Defaults to production Zakai. */
   baseUrl?: string;
@@ -105,7 +135,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "Verify a Zakai-format Mandate",
       description:
-        "Full network verification of a Mandate token (Ed25519 JWS): resolve its issuer through the published trust registry (unknown, suspended or withdrawn issuers are rejected before any cryptography), verify the signature against that issuer's registered JWKS, and confirm every granted scope is within the issuer's registry entry. Returns the claims and the issuer's registry identity. Does not check revocation — use decide_action for a full permit/deny answer.",
+        "Full network verification of a Mandate token (Ed25519 JWS): resolve its issuer through the published trust registry (unknown, suspended or withdrawn issuers are rejected before any cryptography), verify the signature against that issuer's registered JWKS, confirm every granted scope is within the issuer's registry entry, and check revocation — preferring the signed status list at zkm.status.uri when the token embeds zkm.status.idx, else live GET /api/mandate/status/{jti}. Returns ok:true only when status is active — revoked → REVOKED, unreachable/unknown → STATUS_UNKNOWN (same fail-closed doctrine as POST /api/mandate/verify). For permit/deny on a concrete act, use decide_action.",
       inputSchema: {
         token: z.string().min(20).describe("The compact JWS mandate token presented to you"),
         audience: z
@@ -117,8 +147,40 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ token, audience }) => {
       try {
-        const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
-        return asText({ ok: true, claims, issuer: issuerSummary(issuer) });
+        // checkStatusList:false — resolveRevocation covers list + live legacy.
+        const { claims, issuer } = await verifyMandateWithRegistry(token, {
+          audience,
+          registryUri,
+          checkStatusList: false,
+        });
+        const revocation = await resolveRevocation(claims, issuer);
+        if (revocation.state === "revoked") {
+          return asText({
+            ok: false,
+            code: "REVOKED",
+            error: "mandate_revoked",
+            jti: claims.jti,
+            revokedAt: revocation.revokedAt,
+            via: revocation.via,
+            issuer: issuerSummary(issuer),
+          });
+        }
+        if (revocation.state !== "active") {
+          return asText({
+            ok: false,
+            code: "STATUS_UNKNOWN",
+            error: "revocation_unknown",
+            jti: claims.jti,
+            via: revocation.via,
+            issuer: issuerSummary(issuer),
+          });
+        }
+        return asText({
+          ok: true,
+          claims,
+          issuer: issuerSummary(issuer),
+          revocation: { state: "active", via: revocation.via },
+        });
       } catch (err) {
         return asText(errorPayload(err));
       }
@@ -130,7 +192,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "May this agent do this, now?",
       description:
-        "The full authorisation decision for one concrete action under a Mandate: trust-registry resolution of the issuer, signature verification, audience/subject/market checks, scope grant + forbidden-scope registry, validity window, live revocation status from the issuer's status route, and per-act confirmation where the scope requires it. Returns permit with obligations, or deny with a machine-stable reason. Fail-closed: unknown revocation status is a deny, not a warning.",
+        "The full authorisation decision for one concrete action under a Mandate: trust-registry resolution of the issuer, signature verification, audience/subject/market checks, scope grant + forbidden-scope registry, validity window, revocation (signed status list when zkm.status is present, else live status route), and per-act confirmation where the scope requires it. Returns permit with obligations, or deny with a machine-stable reason. Fail-closed: unknown revocation status is a deny, not a warning.",
       inputSchema: {
         token: z.string().min(20).describe("The compact JWS mandate token"),
         audience: z.string().min(1).describe("Your own institution id"),
@@ -151,9 +213,12 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ token, audience, action, actConfirmation, subject, market }) => {
       try {
-        const { claims, issuer } = await verifyMandateWithRegistry(token, { audience, registryUri });
-        const issuerOrigin = new URL(issuer.iss).origin;
-        const revocation = await fetchRevocationState(claims.jti, issuerOrigin);
+        const { claims, issuer } = await verifyMandateWithRegistry(token, {
+          audience,
+          registryUri,
+          checkStatusList: false,
+        });
+        const revocation = await resolveRevocation(claims, issuer);
         const decision = decide({
           claims,
           action,
@@ -175,7 +240,7 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     {
       title: "Check mandate revocation status",
       description:
-        "Live revocation status for a mandate id (jti) from an issuer's public status route: active, revoked (with timestamp), or unknown. Treat unknown as not-authorised. issuerOrigin defaults to the registry operator.",
+        "Live revocation status for a mandate id (jti) from an issuer's public status route. Returns ok:true only for a definite answer (active or revoked). Unreachable or ambiguous status → ok:false code STATUS_UNKNOWN — treat as not-authorised (never ok:true with state unknown). issuerOrigin defaults to the registry operator.",
       inputSchema: {
         jti: z.string().min(8).max(128).describe("The mandate's jti claim"),
         issuerOrigin: z
@@ -188,6 +253,15 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
     },
     async ({ jti, issuerOrigin }) => {
       const revocation = await fetchRevocationState(jti, issuerOrigin ?? baseUrl);
+      if (revocation.state !== "active" && revocation.state !== "revoked") {
+        return asText({
+          ok: false,
+          code: "STATUS_UNKNOWN",
+          error: "revocation_unknown",
+          jti,
+          state: "unknown",
+        });
+      }
       return asText({ ok: true, jti, ...revocation });
     },
   );
@@ -268,6 +342,159 @@ export function createMandateMcpServer(options: MandateMcpOptions = {}): McpServ
         }
         return asText({ ok: true, prediction: body });
       } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "discover_pipe",
+    {
+      title: "Discover the Zakai Pipe",
+      description:
+        "Fetch the live pipe manifest (/.well-known/zakai-pipe.json or /api/pipe): authority accept, agent handoff, savings ledger, and consumer doors. Use this before inventing URLs.",
+      inputSchema: {},
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async () => {
+      try {
+        const res = await fetch(`${baseUrl}/api/pipe`, { headers: { accept: "application/json" } });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (!res.ok) {
+          return asText({ ok: false, code: `PIPE_HTTP_${res.status}`, error: body ?? "pipe error" });
+        }
+        return asText({ ok: true, pipe: body });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "pipe_handoff",
+    {
+      title: "Hand a user into the Zakai closed loop",
+      description:
+        "PRIMARY distribution tool: POST /api/pipe/handoff and return an attributed consumer URL. LLM proposes; the user must still approve and send the Mandate on Zakai. Never claim a filing from this call alone.",
+      inputSchema: {
+        agent: z.string().min(1).max(64).describe("Your agent name for attribution"),
+        door: z
+          .string()
+          .min(1)
+          .max(64)
+          .default("money")
+          .describe("Consumer door, e.g. money, cancel, bank-fees, flights"),
+        locale: z.enum(["he", "en"]).default("he"),
+        campaign: z.string().max(80).optional(),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ agent, door, locale, campaign }) => {
+      try {
+        const res = await fetch(`${baseUrl}/api/pipe/handoff`, {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({ agent, door, locale, campaign }),
+        });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (!res.ok) {
+          return asText({ ok: false, code: `HANDOFF_HTTP_${res.status}`, error: body ?? "handoff error" });
+        }
+        return asText({
+          ok: true,
+          handoff: body,
+          law: "Open the returned url for the user. Do not claim you filed anything.",
+        });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "pipe_accept",
+    {
+      title: "Institution one-shot Mandate accept on the pipe",
+      description:
+        "POST /api/pipe/accept — extract audience from the JWS, verify via trust registry, check revocation, decide permit/deny for one action. For institution/desk agents, not for inventing consumer filings.",
+      inputSchema: {
+        mandate_jws: z.string().min(20).describe("Compact JWS Mandate token"),
+        action: z.string().min(1).describe("Scope being exercised, e.g. contract:cancel"),
+        subject: z.string().optional(),
+        market: z.string().optional(),
+        actConfirmation: z.string().optional(),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ mandate_jws, action, subject, market, actConfirmation }) => {
+      try {
+        const res = await fetch(`${baseUrl}/api/pipe/accept`, {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({
+            mandate_jws,
+            action,
+            subject,
+            market,
+            actConfirmation,
+          }),
+        });
+        const body = (await res.json().catch(() => null)) as unknown;
+        if (!res.ok) {
+          return asText({ ok: false, code: `ACCEPT_HTTP_${res.status}`, error: body ?? "accept error" });
+        }
+        return asText({ ok: true, accept: body });
+      } catch (err) {
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "list_rights",
+    {
+      title: "List a market's rights catalog",
+      description:
+        "GET /api/rights/catalog — the public ZML rights catalog for one market: statute citations, categories, and whether a right is auto-eligible. Read-only data, not user data or a filed claim; deciding whether a specific person qualifies is the caller's own logic against the returned predicate_summary/full document.",
+      inputSchema: {
+        market: z.string().length(2).describe("ISO country code, e.g. IL, GB, US"),
+        category: z.string().max(64).optional().describe("Filter to one right category"),
+        locale: z.string().max(8).optional().describe("BCP-47 locale for the `label` field"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ market, category, locale }) => {
+      try {
+        const page = await fetchRightsCatalogPage({ origin: baseUrl, market, category, locale });
+        return asText({ ok: true, catalog: page });
+      } catch (err) {
+        if (err instanceof RightsApiError) {
+          return asText({ ok: false, code: `RIGHTS_HTTP_${err.status ?? "UNKNOWN"}`, error: err.message });
+        }
+        return asText(errorPayload(err));
+      }
+    },
+  );
+
+  server.registerTool(
+    "get_right",
+    {
+      title: "Fetch one right in full",
+      description:
+        "GET /api/rights/catalog/{id}?full=1 — the complete ZML document for one right: citation (source.reference), eligibility predicate, and the recommended action. Use list_rights first to find an id.",
+      inputSchema: {
+        id: z.string().min(1).max(128).describe("Right id from list_rights, e.g. il_bank_loan_opening_commission_il"),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: true },
+    },
+    async ({ id }) => {
+      try {
+        const right = await fetchRight(baseUrl, id);
+        return asText({ ok: true, right });
+      } catch (err) {
+        if (err instanceof RightsApiError) {
+          return asText({ ok: false, code: `RIGHTS_HTTP_${err.status ?? "UNKNOWN"}`, error: err.message });
+        }
         return asText(errorPayload(err));
       }
     },

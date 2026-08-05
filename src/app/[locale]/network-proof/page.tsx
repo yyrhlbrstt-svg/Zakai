@@ -47,7 +47,15 @@ export default async function NetworkProofPage({
 
   const [proof, savedCases, mandateCount] = await Promise.all([
     provenSavings(),
-    prisma.case.count({ where: { status: "SAVED" } }).catch(() => 0),
+    // Only cases with a non-self-reported SavingsProof — estimate shortcuts must not pad this tile.
+    prisma.case
+      .count({
+        where: {
+          status: "SAVED",
+          savingsProof: { is: { selfReported: false, savingMonthly: { gt: 0 } } },
+        },
+      })
+      .catch(() => 0),
     prisma.authorization.count({ where: { status: "ACTIVE" } }).catch(() => 0),
   ]);
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { FOUNDER_EMAIL, publicSupportEmail, publicSecurityEmail } from "./contact";
+import { FOUNDER_EMAIL, publicSupportEmail, publicSecurityEmail, leadsInboundEmail } from "./contact";
 
 describe("contact", () => {
   const env = process.env;
@@ -27,5 +27,11 @@ describe("contact", () => {
   it("security email follows the same floor", () => {
     delete process.env.NEXT_PUBLIC_SECURITY_EMAIL;
     expect(publicSecurityEmail()).toBe(FOUNDER_EMAIL);
+  });
+
+  it("leads email ignores .example support env", () => {
+    delete process.env.LEADS_EMAIL;
+    process.env.NEXT_PUBLIC_SUPPORT_EMAIL = "support@zakai.example";
+    expect(leadsInboundEmail()).toBe(FOUNDER_EMAIL);
   });
 });

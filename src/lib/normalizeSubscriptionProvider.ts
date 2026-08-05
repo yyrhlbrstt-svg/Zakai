@@ -1,4 +1,5 @@
 /** Map subscription merchant names to stable provider keys + optional outreach email. */
+import { PROVIDERS } from "@/lib/providers";
 
 export interface SubscriptionProviderResolved {
   providerKey: string;
@@ -29,16 +30,31 @@ const BRANDS: {
     key: "yes",
     displayHe: "YES",
     patterns: [/^yes$/i, /יס\b/, /yes streaming/i],
+    contactEmail: PROVIDERS.yes.contactEmail || undefined,
   },
   {
     key: "hot",
     displayHe: "HOT",
-    patterns: [/^hot$/i, /הוט\b/],
+    patterns: [/^hot$/i, /הוט\b/, /hot mobile/i, /הוט מובייל/],
+    contactEmail: PROVIDERS.hot.contactEmail || undefined,
   },
   {
     key: "cellcom",
     displayHe: "סלקום",
     patterns: [/cellcom/i, /סלקום/],
+    contactEmail: PROVIDERS.cellcom.contactEmail || undefined,
+  },
+  {
+    key: "partner",
+    displayHe: "פרטנר",
+    patterns: [/partner/i, /פרטנר/, /אורנג/i, /orange/i],
+    contactEmail: PROVIDERS.partner.contactEmail || undefined,
+  },
+  {
+    key: "bezeq",
+    displayHe: "בזק",
+    patterns: [/bezeq/i, /בזק/],
+    contactEmail: PROVIDERS.bezeq.contactEmail || undefined,
   },
 ];
 

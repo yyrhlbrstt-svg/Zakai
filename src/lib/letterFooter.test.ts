@@ -22,15 +22,20 @@ describe("the footer says only what is true without any record on our side", () 
 
   it("points at the page an institution needs, in every language", () => {
     for (const locale of ["he", "en", "ar", "ru"] as const) {
-      expect(letterFooter(locale)).toMatch(/\/(he|en)\/institutions$/m);
+      expect(letterFooter(locale)).toMatch(/\/(he|en)\/institutions/);
     }
+    expect(letterFooter("he")).toContain("/api/pipe/accept");
+    expect(letterFooter("en")).toContain("/api/pipe/accept");
   });
 
   it("addresses the institution rather than the reader of the claim", () => {
     // The footer's audience is a service desk drowning in manual work, not the
-    // person who just wrote the letter.
-    expect(letterFooter("he")).toMatch(/פניות רבות/);
-    expect(letterFooter("en")).toMatch(/many of these/);
+    // person who just wrote the letter. Copy points at Quickstart + decide —
+    // the machine gate — not a brochure.
+    expect(letterFooter("he")).toMatch(/לגוף שמקבל פניות/);
+    expect(letterFooter("he")).toMatch(/Quickstart/);
+    expect(letterFooter("en")).toMatch(/Institutions:/);
+    expect(letterFooter("en")).toMatch(/Quickstart/);
   });
 
   it("stays short enough to survive being sent", () => {

@@ -103,7 +103,12 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
 
           <nav className="hidden md:flex gap-1 items-center flex-wrap justify-end">
             <NavLink href="/" pathname={pathname}>{t("nav.home")}</NavLink>
-            <NavLink href="/money" pathname={pathname}>{tIcomponents_Header("t_bd4c0905")}</NavLink>
+            <Link
+              href="/money#zakai-money-scan"
+              className="no-underline rounded-full px-4 py-2 text-[13.5px] font-extrabold text-[#06121A] bg-emerald hover:opacity-90 transition-opacity"
+            >
+              {tIcomponents_Header("t_bd4c0905")}
+            </Link>
             <NavLink href="/cancel" pathname={pathname}>{tIcomponents_Header("t_a7c55a8d")}</NavLink>
             <NavLink href="/what-am-i-owed" pathname={pathname}>{tIcomponents_Header("t_81a5a2c8")}</NavLink>
             <NavLink href="/leaks" pathname={pathname}>{tIcomponents_Header("t_5fcd3b9b")}</NavLink>

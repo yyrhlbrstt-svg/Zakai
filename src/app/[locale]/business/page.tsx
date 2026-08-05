@@ -68,6 +68,14 @@ export default async function BusinessPage({
             </a>
           </div>
         </Reveal>
+        <Reveal delay={280}>
+          <p className="text-ink-soft text-[12.5px] mt-4">
+            {t("smallBusinessNote")}
+            <Link href="/small-business" className="text-emerald font-bold no-underline">
+              {t("smallBusinessLink")}
+            </Link>
+          </p>
+        </Reveal>
       </div>
 
       {/* Track A — Employees */}

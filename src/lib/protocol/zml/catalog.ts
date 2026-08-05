@@ -1,9 +1,11 @@
-import { MARKETS, isSupportedMarket } from "@/lib/global/registry";
+import { MARKETS } from "@/lib/global/registry";
+import { isCatalogMarket } from "@/lib/global/marketGeo";
 import type { JurisdictionPack } from "@/lib/global/types";
 import { loadZmlRightsForMarket } from "@/lib/protocol/packs/loader";
 import { predicateSummaryForRight } from "./legacy-adapter";
 import type { ZmlCatalogEntry, ZmlCatalogResponse, ZmlRight } from "./types";
 import { ZML_VERSION } from "./constants";
+import { resolveZmlDisplayName } from "./localize";
 
 export const RIGHTS_CATALOG_API_VERSION = "2026-08-01";
 
@@ -12,8 +14,8 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 
 function getPack(market: string): JurisdictionPack | null {
   const code = market.toUpperCase();
-  if (!isSupportedMarket(code)) return null;
-  return MARKETS[code].pack;
+  if (!isCatalogMarket(code)) return null;
+  return MARKETS[code]?.pack ?? null;
 }
 
 export async function buildZmlCatalogForMarket(
@@ -35,8 +37,8 @@ export async function findZmlRight(origin: string, idOrKey: string): Promise<Zml
   return findZmlRightById(origin, idOrKey);
 }
 
-function toCatalogEntry(right: ZmlRight): ZmlCatalogEntry {
-  return {
+function toCatalogEntry(right: ZmlRight, locale?: string): ZmlCatalogEntry {
+  const entry: ZmlCatalogEntry = {
     id: right.id,
     display_name: right.display_name,
     category: right.category,
@@ -50,14 +52,19 @@ function toCatalogEntry(right: ZmlRight): ZmlCatalogEntry {
       evaluate: `/api/rights/evaluate/${right.id}`,
     },
   };
+  if (locale && locale !== "raw") {
+    entry.label = resolveZmlDisplayName(right, locale);
+  }
+  return entry;
 }
 
 export async function buildCatalogResponse(
   origin: string,
   market: string,
-  opts?: { category?: string; cursor?: string; limit?: number },
+  opts?: { category?: string; cursor?: string; limit?: number; locale?: string },
 ): Promise<ZmlCatalogResponse | null> {
   const code = market.toUpperCase();
+  if (!isCatalogMarket(code)) return null;
   const pack = getPack(code);
 
   let rights = await buildZmlCatalogForMarket(origin, code);
@@ -82,7 +89,7 @@ export async function buildCatalogResponse(
 
   const limit = Math.min(opts?.limit ?? 50, 100);
   const slice = rights.slice(start, start + limit);
-  const entries = slice.map((r) => toCatalogEntry(r));
+  const entries = slice.map((r) => toCatalogEntry(r, opts?.locale));
 
   const next =
     start + limit < rights.length

@@ -1,0 +1,28 @@
+import { NextResponse } from "next/server";
+import { registerOracleKey } from "@/lib/oracle/keys";
+
+export const runtime = "nodejs";
+
+function adminOk(request: Request): boolean {
+  const token = process.env.ZAKAI_ADMIN_TOKEN?.trim();
+  if (!token) return false;
+  return request.headers.get("Authorization") === `Bearer ${token}`;
+}
+
+/** Mint a per-customer Oracle API key. Founder/ops only — see docs/WIDGET_EMBED.md's sibling flow. */
+export async function POST(request: Request) {
+  if (!adminOk(request)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  const body = (await request.json().catch(() => ({}))) as { label?: string };
+  if (!body.label?.trim()) {
+    return NextResponse.json({ error: "label_required" }, { status: 400 });
+  }
+  const api_key = await registerOracleKey(body.label.trim());
+  return NextResponse.json({
+    api_key,
+    label: body.label.trim(),
+    durable: true,
+    note: "Key is stored in OracleKey (Postgres). Send it as: Authorization: Bearer <api_key>.",
+  });
+}

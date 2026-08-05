@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { reportError } from "@/lib/report-error";
 import { requireCronAuth } from "@/lib/security/cronAuth";
+import { receiptsToCsv } from "@/lib/receipts";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,13 @@ const DIGEST_COOLDOWN_DAYS = 25;
  * recovery becomes an ongoing relationship. Every number comes from that user's
  * own real cases; nothing is invented.
  *
+ * Also the Business plan's deductible-expense digest (GROWTH.md pricing:
+ * "automatic monthly digest for your accountant" is a listed Business
+ * feature): a user with any business_deductible receipts collected in the
+ * cooldown window gets a summary line and a CSV attachment of exactly those
+ * receipts, in the SAME email rather than a second cron — one retention
+ * heartbeat per user, not one per feature.
+ *
  * Runs via Vercel Cron (monthly). Guarded by requireCronAuth (fail-closed).
  */
 export async function GET(request: Request) {
@@ -28,7 +36,7 @@ export async function GET(request: Request) {
 
   try {
     const users = await prisma.user.findMany({
-      where: { cases: { some: {} } },
+      where: { OR: [{ cases: { some: {} } }, { receipts: { some: {} } }] },
       select: {
         id: true,
         email: true,
@@ -76,6 +84,16 @@ export async function GET(request: Request) {
           ? `יש ${openSent} פנייה${openSent > 1 ? "ות" : ""} ממתינות לתשובת ספק — הסוכן ממשיך לעקוב אוטומטית. אם ענו, העבירו את המייל ל-proofs@.`
           : "";
 
+      const deductibleReceipts = await prisma.receipt.findMany({
+        where: { userId: u.id, category: "business_deductible", createdAt: { gt: cooldown } },
+        orderBy: { createdAt: "desc" },
+      });
+      const receiptsTotal = deductibleReceipts.reduce((sum, r) => sum + r.amountAgorot, 0);
+      const receiptsLine =
+        deductibleReceipts.length > 0
+          ? `נאספו ${deductibleReceipts.length} הוצאות מוכרות החודש, בסך ${formatAgorot(receiptsTotal)} — קובץ מסודר מצורף לרואה החשבון.`
+          : "";
+
       await sendEmail({
         to: u.email,
         subject: DIGEST_SUBJECT,
@@ -84,12 +102,32 @@ export async function GET(request: Request) {
 הנה מצב הכסף שלך בזכאי החודש:
 
 • ${savedLine}
-${potentialLine ? `• ${potentialLine}\n` : ""}${sentLine ? `• ${sentLine}\n` : ""}
+${potentialLine ? `• ${potentialLine}\n` : ""}${sentLine ? `• ${sentLine}\n` : ""}${receiptsLine ? `• ${receiptsLine}\n` : ""}
 בישראל מחירים זוחלים למעלה בשקט — דקה של בדיקה חוזרת שווה לפעמים מאות שקלים בשנה. כרגיל, עמלה רק אם יש חיסכון מתועד.
 
 לבדיקה מהירה: היכנסו ל"הכסף שלי" או לדשבורד.
 
 זכאי — הכסף שמגיע לך חוזר אליך.`,
+        attachments:
+          deductibleReceipts.length > 0
+            ? [
+                {
+                  filename: "zakai-deductible-expenses.csv",
+                  content: receiptsToCsv(
+                    deductibleReceipts.map((r) => ({
+                      vendor: r.vendor,
+                      amountAgorot: r.amountAgorot,
+                      currency: r.currency,
+                      occurredAt: r.occurredAt,
+                      category: r.category,
+                      hasVat: r.hasVat,
+                      flaggedAt: r.flaggedAt,
+                    })),
+                  ),
+                  contentType: "text/csv",
+                },
+              ]
+            : undefined,
       });
       sent++;
     }

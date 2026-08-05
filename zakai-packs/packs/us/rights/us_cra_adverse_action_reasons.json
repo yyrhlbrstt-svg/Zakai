@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "us_cra_adverse_action_reasons",
+  "version": "2026-08-03",
+  "display_name": {
+    "en": "Cra Adverse Action Reasons",
+    "he": "זכות בינלאומית"
+  },
+  "market": "US",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/us_cra_adverse_action_reasons",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "regulation",
+    "reference": "Equal Credit Opportunity Act; 15 U.S.C. § 1691(d); Regulation B adverse action"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-03",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

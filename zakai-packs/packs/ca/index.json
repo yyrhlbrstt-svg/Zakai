@@ -1,0 +1,33 @@
+{
+  "pack_version": "2026.07.3",
+  "market": "CA",
+  "language": "en-CA",
+  "maintainer": "ca-maintainer@zakai.io",
+  "rights_count": 15,
+  "rights": [
+    "ca_tax_review",
+    "ca_gst_hst_credit",
+    "ca_canada_child_benefit",
+    "ca_bank_fees",
+    "ca_deposit_return",
+    "ca_energy_bill",
+    "ca_cpp_oas_check",
+    "ca_ei_review",
+    "ca_wage_statement",
+    "ca_disability_tax_credit",
+    "ca_student_loan_overpay",
+    "ca_mortgage_prepay",
+    "ca_benefits_check",
+    "ca_subs",
+    "ca_bank_fees_tool"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:17:41.522Z",
+    "source": "src/lib/global/registry"
+  }
+}

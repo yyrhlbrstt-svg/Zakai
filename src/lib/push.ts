@@ -81,7 +81,7 @@ export async function pushToUser(userId: string, payload: PushPayload): Promise<
   const body = JSON.stringify({
     title: payload.title,
     body: payload.body,
-    url: await resolvePushUrl(userId, payload.url || "/dashboard"),
+    url: await resolvePushUrl(userId, payload.url || "/money"),
     tag: payload.tag || "zakai",
   });
 

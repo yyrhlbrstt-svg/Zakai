@@ -1,5 +1,9 @@
 /**
- * Zakai Fairness Widget v1.0 — no data leaves the browser until the user clicks through.
+ * Zakai Rights-Check Widget v1.0 — surfaces one relevant entitlement from the
+ * public rights catalog (GET /api/rights/catalog); no per-company fairness
+ * score here (that's a separate, MIN_SAMPLE-gated program — see
+ * src/lib/fairnessScore.ts / /api/fairness/scores). No data leaves the
+ * browser until the user clicks through.
  */
 (function () {
   "use strict";
@@ -25,13 +29,19 @@
     document.head.appendChild(link);
   }
 
+  function readMarketCookie() {
+    const m = document.cookie.match(/(?:^|;\s*)zakai_market=([^;]+)/);
+    return m ? decodeURIComponent(m[1]).toUpperCase() : null;
+  }
+
   class ZakaiWidget {
     constructor(container, options) {
       options = options || {};
       this.container = container;
       this.apiKey = options.apiKey || container.dataset.apiKey;
       this.provider = options.provider || container.dataset.provider;
-      this.market = options.market || container.dataset.market || "IL";
+      this.market =
+        options.market || container.dataset.market || readMarketCookie() || "IL";
       if (!this.apiKey) {
         console.error("[Zakai] data-api-key required");
         return;
@@ -80,7 +90,7 @@
       const ctaUrl =
         this.container.dataset.ctaUrl ||
         CONFIG.appOrigin + "/he/money";
-      const brand = this.container.dataset.brandName || "Zakai Fairness Check";
+      const brand = this.container.dataset.brandName || "Zakai Rights Check";
       const hideBadge = this.container.dataset.hideBadge === "true";
       const badge = hideBadge
         ? ""

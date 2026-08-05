@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
-
-import { normalizeOutreachEmail } from "@/lib/outreachEmail";
+import { resolveTransportContactEmail } from "@/lib/utilityContacts";
+import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 const REASONS = ["validator", "balance", "notime", "details", "student", "other"] as const;
 type Reason = (typeof REASONS)[number];
@@ -33,10 +35,11 @@ export function TransportFineAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const knownInbox = resolveTransportContactEmail(operator);
   const agentReady =
     report.trim().length > 0 &&
     operator.trim().length > 0 &&
-    normalizeOutreachEmail(operatorEmail) !== null;
+    (Boolean(knownInbox) || hasOutreachEmail(operatorEmail));
 
   function generate() {
     const reasonText = t(`reasons.${reason}.body`);
@@ -45,7 +48,8 @@ export function TransportFineAppeal({ stat, bcp47 }: { stat?: Stat | null; bcp47
 
 הנדון: ערעור על דו"ח קנס מספר ${report || "____"}
 
-שמי ${name || "____"}, ואני מבקש/ת לערער על דו"ח הקנס שבנדון שניתן לי בגין נסיעה ללא כרטיס/תיקוף תקף.
+שמי זכאי, סוכן דיגיטלי הפועל מטעם ${name || "____"} (Mandate). אינני הלקוח/ה עצמו/ה.
+בשם הלקוח/ה אני מערער על דו"ח הקנס שבנדון בגין נסיעה ללא כרטיס/תיקוף תקף.
 
 ${reasonText}${details ? `\n\nפירוט נוסף: ${details}` : ""}
 
@@ -80,6 +84,7 @@ ${name || "____"}
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         if (data.error === "needsOutreachEmail") {
           setError(tFlow("errorNeedsEmail"));
           return;
@@ -91,7 +96,7 @@ ${name || "____"}
       }
       setLetter(data.body || "");
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setError(tFlow("errorGeneric"));
     } finally {
@@ -154,13 +159,19 @@ ${name || "____"}
           <Button onClick={sendWithAgent} disabled={!agentReady || busy}>
             {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>
-          <Button
-            variant="ghost"
-            onClick={generate}
-            disabled={!report.trim() || !operator.trim() || busy}
-          >
-            {tIcomponents_TransportFineAppeal("t_b4c9b341")}
-          </Button>
+          <details className="text-[13px] text-ink-soft">
+            <summary className="cursor-pointer font-bold select-none">
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
+            </summary>
+            <Button
+              variant="ghost"
+              className="mt-2 w-full"
+              onClick={generate}
+              disabled={!report.trim() || !operator.trim() || busy}
+            >
+              {tIcomponents_TransportFineAppeal("t_b4c9b341")}
+            </Button>
+          </details>
         </div>
         {error && <p className="text-[13px] text-amber m-0">{error}</p>}
       </Card>
@@ -173,7 +184,7 @@ ${name || "____"}
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">
             {tIcomponents_TransportFineAppeal("t_013fe61d")}
           </p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{tIcomponents_TransportFineAppeal("t_8ae29d51")}</Button>
           </Link>
         </Card>
@@ -205,7 +216,7 @@ ${name || "____"}
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
-          <OutcomeReport vertical="transport_fine" counterparty="transport_operator" variantId={reason} />
+          <OutcomeReport vertical="transport-fine" counterparty="transport_operator" variantId="firm_statutory" />
           <p className="text-[11.5px] text-ink-soft mt-3 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">
             {t("legal")}
           </p>

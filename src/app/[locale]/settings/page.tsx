@@ -6,6 +6,8 @@ import { Card, Button } from "@/components/ui";
 import { LogoutButton } from "@/components/LogoutButton";
 import { DeleteAccount } from "@/components/DeleteAccount";
 import { ReferralCard } from "@/components/ReferralCard";
+import { TrackRecordCard } from "@/components/TrackRecordCard";
+import { RecapCard } from "@/components/RecapCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -27,6 +29,7 @@ export default async function SettingsPage({
     where: { id: user!.id },
     select: { referralCode: true, referralCreditAgorot: true },
   });
+  const referralCount = await prisma.referralReward.count({ where: { referrerId: user!.id } });
   const consent = await prisma.consent.findFirst({
     where: { userId: user!.id, purpose: "terms_privacy_v1", revokedAt: null },
     orderBy: { grantedAt: "desc" },
@@ -95,13 +98,22 @@ export default async function SettingsPage({
       </div>
 
       <div className="mt-6">
+        <RecapCard referralCode={referral?.referralCode} bcp47={bcp47[locale as Locale]} />
+      </div>
+
+      <div className="mt-6">
         <ReferralCard
           path={invitePath}
           fallbackLink={`${appUrl}${invitePath}`}
           creditAgorot={referral?.referralCreditAgorot ?? 0}
           rewardAgorot={REFERRAL_REWARD_AGOROT}
+          referralCount={referralCount}
           bcp47={bcp47[locale as Locale]}
         />
+      </div>
+
+      <div className="mt-6">
+        <TrackRecordCard bcp47={bcp47[locale as Locale]} />
       </div>
 
       <div className="mt-6">

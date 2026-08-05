@@ -1,0 +1,29 @@
+{
+  "pack_version": "2026.08.1",
+  "market": "PL",
+  "language": "pl-PL",
+  "maintainer": "pl-maintainer@zakai.io",
+  "rights_count": 11,
+  "rights": [
+    "pl_rodzina_800",
+    "pl_zasilek_bezrobotny",
+    "pl_emerytura",
+    "pl_dodatek_mieszkaniowy",
+    "pl_swiadczenie_pielegnacyjne",
+    "pl_stypendium",
+    "pl_kaucja",
+    "pl_bank_oplaty",
+    "pl_dodatek_oslonowy",
+    "pl_lot",
+    "pl_subskrypcje"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:17:41.528Z",
+    "source": "src/lib/global/registry"
+  }
+}

@@ -31,8 +31,30 @@ export async function POST(request: Request) {
 
   const result = await verifyOwnershipMagic(parsed.data.token);
   if (!result.ok) {
-    const status =
-      result.error === "expired" ? 410 : result.error === "already" ? 200 : 400;
+    if (result.error === "already") {
+      let authCode: string | null = null;
+      try {
+        const existing = await prisma.authorization.findUnique({
+          where: { caseId: result.caseId },
+        });
+        if (!existing || existing.status !== "ACTIVE") {
+          const created = await createAuthorization(result.caseId);
+          authCode = created.code;
+        } else {
+          authCode = existing.code;
+        }
+      } catch {
+        /* non-fatal */
+      }
+      await refreshVerifiedStatus(result.caseId).catch(() => null);
+      return NextResponse.json({
+        ok: true,
+        already: true,
+        caseId: result.caseId,
+        authCode,
+      });
+    }
+    const status = result.error === "expired" ? 410 : 400;
     return NextResponse.json({ ok: false, error: result.error }, { status });
   }
 

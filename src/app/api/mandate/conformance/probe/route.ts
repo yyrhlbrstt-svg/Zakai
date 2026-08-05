@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
  * sample mandate token or two — and this endpoint runs Zakai's own reference
  * verifier against them as a neutral judge, rather than trusting a
  * self-reported CheckResult[]. See lib/mandate/probe.ts for exactly which of
- * the ten published checks this can honestly settle in one pass.
+ * the ten published checks this can honestly settle from submitted artifacts.
  *
  * The JWKS is submitted inline, not fetched from a candidate-supplied URL —
  * fetching an arbitrary caller-controlled URL server-side would make this
@@ -37,6 +37,8 @@ const schema = z.object({
   audience: z.string().trim().min(1).max(200),
   sampleValidToken: z.string().trim().min(1).max(16_384),
   sampleExpiredToken: z.string().trim().min(1).max(16_384).optional(),
+  /** Signed statuslist+jwt with the sample's idx revoked — settles revocation_takes_effect. */
+  sampleStatusListToken: z.string().trim().min(1).max(65_536).optional(),
 });
 
 export async function OPTIONS() {
@@ -55,13 +57,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_input", issues: parsed.error.issues }, { status: 400, headers: CORS });
   }
 
-  const { jwks, audience, sampleValidToken, sampleExpiredToken } = parsed.data;
+  const { jwks, audience, sampleValidToken, sampleExpiredToken, sampleStatusListToken } =
+    parsed.data;
 
   const results = await probeIssuer({
     jwks: jwks as JWK[],
     audience,
     sampleValidToken,
     sampleExpiredToken,
+    sampleStatusListToken,
   });
   const report = assessConformance(results);
 

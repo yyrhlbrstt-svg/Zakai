@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { generateNumericCode, hashCode, safeEqualHex } from "@/lib/codes";
 import { sendSms, sendEmail, smsConfigured } from "@/lib/messaging";
 import { absoluteLocaleUrl, localeForCountry } from "@/lib/localePath";
+import { isOutboxAccepted, isOutboxDelivered } from "@/lib/outboxDeliveryState";
 
 const CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const MAGIC_TTL_SECONDS = 15 * 60; // 15 minutes
@@ -25,7 +26,17 @@ function ownershipSecret(): Uint8Array {
 }
 
 export type OwnershipSendResult =
-  | { ok: true; devHint: boolean; magicSent: boolean }
+  | {
+      ok: true;
+      /** SMS transport missing — show founder/dev note, never invent "SMS left". */
+      devHint: boolean;
+      /** Magic link accepted into Outbox (QUEUED or SENT). */
+      magicSent: boolean;
+      /** Magic email actually left (Outbox SENT). */
+      magicDelivered: boolean;
+      /** SMS actually left (Outbox SENT). */
+      smsDelivered: boolean;
+    }
   | { ok: false; error: "cooldown" };
 
 /**
@@ -33,6 +44,9 @@ export type OwnershipSendResult =
  * magic link to their email. Doctrine: never leave a phone for a callback —
  * the OTP goes to the phone already on the account; the magic link is the
  * zero-SMS path for users who prefer email.
+ *
+ * Never claim channels "sent" when Outbox is only QUEUED — UI reads
+ * magicDelivered / smsDelivered for "נשלח".
  */
 export async function sendOwnershipCode(
   userId: string,
@@ -58,24 +72,35 @@ export async function sendOwnershipCode(
     },
   });
 
-  await sendSms({
+  const sms = await sendSms({
     to: phone,
     body: `זכאי: קוד האימות שלך הוא ${code}. בתוקף ל-10 דקות. לא שיתפת בקשה זו? אפשר להתעלם.`,
     caseId,
   });
+  const smsDelivered = isOutboxDelivered(sms.status);
 
   // Parallel path: magic link by email (no SMS dependency).
   let magicSent = false;
+  let magicDelivered = false;
   if (caseId) {
     try {
-      await sendOwnershipMagicLink(userId, caseId);
-      magicSent = true;
+      const magic = await sendOwnershipMagicLink(userId, caseId);
+      if (magic.ok) {
+        magicSent = true;
+        magicDelivered = magic.delivered;
+      }
     } catch {
       /* SMS path still works */
     }
   }
 
-  return { ok: true, devHint: !smsConfigured(), magicSent };
+  return {
+    ok: true,
+    devHint: !smsConfigured(),
+    magicSent,
+    magicDelivered,
+    smsDelivered,
+  };
 }
 
 /**
@@ -85,7 +110,10 @@ export async function sendOwnershipCode(
 export async function sendOwnershipMagicLink(
   userId: string,
   caseId: string,
-): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; url: string; delivered: boolean; queued: boolean }
+  | { ok: false; error: string }
+> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { email: true, name: true, country: true },
@@ -113,7 +141,7 @@ export async function sendOwnershipMagicLink(
     `/ownership/confirm?token=${encodeURIComponent(token)}`,
   );
 
-  await sendEmail({
+  const email = await sendEmail({
     to: user.email,
     subject: "זכאי — אימות בעלות בלחיצה אחת",
     body: `שלום ${user.name},
@@ -130,12 +158,15 @@ ${url}
     caseId,
   });
 
-  return { ok: true, url };
+  const delivered = isOutboxDelivered(email.status);
+  const queued = isOutboxAccepted(email.status) && !delivered;
+  return { ok: true, url, delivered, queued };
 }
 
 export type MagicVerifyResult =
   | { ok: true; caseId: string }
-  | { ok: false; error: "invalid" | "expired" | "already" | "not_found" };
+  | { ok: false; error: "invalid" | "expired" | "not_found" }
+  | { ok: false; error: "already"; caseId: string };
 
 /** Consume a magic-link token and stamp ownershipVerifiedAt. */
 export async function verifyOwnershipMagic(token: string): Promise<MagicVerifyResult> {
@@ -153,7 +184,7 @@ export async function verifyOwnershipMagic(token: string): Promise<MagicVerifyRe
 
   const kase = await prisma.case.findUnique({ where: { id: payload.caseId } });
   if (!kase || kase.userId !== payload.userId) return { ok: false, error: "not_found" };
-  if (kase.ownershipVerifiedAt) return { ok: false, error: "already" };
+  if (kase.ownershipVerifiedAt) return { ok: false, error: "already", caseId: payload.caseId };
 
   await prisma.case.update({
     where: { id: payload.caseId },
@@ -201,16 +232,26 @@ export async function verifyOwnershipCode(
   if (record.expiresAt.getTime() < Date.now()) {
     return { ok: false, error: "expired" };
   }
-  if (record.attempts >= MAX_ATTEMPTS) {
+
+  // Claim one guess atomically before testing it — the previous shape here
+  // (read record.attempts, compare to MAX_ATTEMPTS, increment unconditionally
+  // afterward) let N concurrent verification requests submitted before any
+  // one increment commits all read the same stale attempts count and all
+  // get their guess tested against the true hash, so the enforced cap was
+  // really "N guesses within one race window", not a hard 5. The where-
+  // clause requires attempts to still be below MAX_ATTEMPTS at the moment of
+  // the write, not at the moment we read it — same claim shape as the fee-
+  // checkout and outbox-drain fixes elsewhere in this codebase.
+  const claimed = await prisma.phoneVerification.updateMany({
+    where: { id: record.id, attempts: { lt: MAX_ATTEMPTS } },
+    data: { attempts: { increment: 1 } },
+  });
+  if (claimed.count === 0) {
     return { ok: false, error: "too_many_attempts" };
   }
 
   const matches = safeEqualHex(record.codeHash, hashCode(code));
   if (!matches) {
-    await prisma.phoneVerification.update({
-      where: { id: record.id },
-      data: { attempts: { increment: 1 } },
-    });
     const remaining = MAX_ATTEMPTS - (record.attempts + 1);
     return { ok: false, error: remaining <= 0 ? "too_many_attempts" : "invalid" };
   }
@@ -228,4 +269,39 @@ export async function verifyOwnershipCode(
   }
 
   return { ok: true };
+}
+
+/**
+ * Fast path to SENT Mandate: if the account already proved email control
+ * (`emailVerifiedAt`), stamp case ownership without a second OTP round-trip.
+ *
+ * This is not a privilege escalation to admin — it is proof that the same
+ * person who signed up controls the inbox that will receive provider replies
+ * and proofs@. Phone OTP / magic-link remain for unverified accounts.
+ *
+ * Returns true when this call newly stamped ownership.
+ */
+export async function stampOwnershipFromVerifiedEmail(
+  userId: string,
+  caseId: string,
+): Promise<boolean> {
+  const [user, kase] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { emailVerifiedAt: true },
+    }),
+    prisma.case.findUnique({
+      where: { id: caseId },
+      select: { userId: true, ownershipVerifiedAt: true },
+    }),
+  ]);
+  if (!user?.emailVerifiedAt) return false;
+  if (!kase || kase.userId !== userId) return false;
+  if (kase.ownershipVerifiedAt) return false;
+
+  await prisma.case.update({
+    where: { id: caseId },
+    data: { ownershipVerifiedAt: new Date() },
+  });
+  return true;
 }

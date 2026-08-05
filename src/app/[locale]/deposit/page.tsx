@@ -67,6 +67,14 @@ export default async function DepositPage({
 
       <Reveal>
         <SectionHeading title={t("templateTitle")} description={t("templateSub")} className="mt-12 mb-3" />
+        <p className="mb-4 text-[13.5px] text-ink-soft leading-relaxed border border-[rgba(63,203,155,0.28)] rounded-xl px-4 py-3 bg-[rgba(63,203,155,0.06)]">
+          {locale === "he" || locale === "ar"
+            ? "אחרי 60 יום: דרישה → תיק → Mandate → שליחה → מעקב. אותו מסלול כמו בכסף שלי."
+            : "After 60 days: demand → case → Mandate → send → track. Same loop as My money."}{" "}
+          <Link href="/money" className="text-emerald font-extrabold no-underline hover:underline">
+            {locale === "he" || locale === "ar" ? "לכסף שלי" : "My money"}
+          </Link>
+        </p>
         <DepositReturnClaim bcp47={bcp47[locale as Locale]} />
       </Reveal>
 
@@ -77,11 +85,13 @@ export default async function DepositPage({
             {t("cta.body")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-5">
-            <Link href="/what-am-i-owed">
-              <Button>{t("cta.primary")}</Button>
+            <Link href="/money">
+              <Button>{locale === "he" || locale === "ar" ? "לכסף שלי — התחלה" : "My money — start"}</Button>
             </Link>
-            <Link href="/rights">
-              <Button variant="ghost">{t("cta.secondary")}</Button>
+            <Link href="/money">
+              <Button variant="ghost">
+                {locale === "he" || locale === "ar" ? "לדשבורד — המשך תיק" : "Dashboard — continue case"}
+              </Button>
             </Link>
           </div>
         </GradientCtaCard>

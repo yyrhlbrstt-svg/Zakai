@@ -143,8 +143,8 @@ describe("the published test key cannot become a real one", () => {
     expect(TEST_ISSUER).toMatch(/\.invalid$/);
   });
 
-  it("has no trust-registry entry, so nothing will fetch its keys", () => {
-    expect(resolveIssuerKeysUri(TEST_ISSUER)).toBeNull();
+  it("has no trust-registry entry, so nothing will fetch its keys", async () => {
+    expect(await resolveIssuerKeysUri(TEST_ISSUER)).toBeNull();
   });
 
   it("says plainly in the published document that the key is not an issuer key", () => {

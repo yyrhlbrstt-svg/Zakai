@@ -21,6 +21,13 @@ describe("plans", () => {
     expect(PLANS.MAX.priceAgorot).toBeGreaterThan(PLANS.PRO.priceAgorot);
   });
 
+  it("Business is priced for a business budget, not a fee discount nobody needs at 0%", () => {
+    expect(PLANS.BUSINESS.feeRateBps).toBe(0);
+    expect(PLANS.BUSINESS.maxActiveCases).toBeNull();
+    expect(PLANS.BUSINESS.fullScan).toBe(true);
+    expect(PLANS.BUSINESS.priceAgorot).toBeGreaterThan(PLANS.MAX.priceAgorot);
+  });
+
   it("falls back to FREE for unknown/null plans", () => {
     expect(planConfig(null).id).toBe("FREE");
     expect(planConfig("BOGUS").id).toBe("FREE");
@@ -29,6 +36,7 @@ describe("plans", () => {
 
   it("validates plan ids", () => {
     expect(isPlanId("PRO")).toBe(true);
+    expect(isPlanId("BUSINESS")).toBe(true);
     expect(isPlanId("pro")).toBe(false);
     expect(isPlanId("")).toBe(false);
   });
@@ -39,6 +47,7 @@ describe("plans", () => {
     expect(canOpenCase("PRO", 4)).toBe(true);
     expect(canOpenCase("PRO", 5)).toBe(false);
     expect(canOpenCase("MAX", 500)).toBe(true); // unlimited
+    expect(canOpenCase("BUSINESS", 500)).toBe(true); // unlimited
     expect(canOpenCase(undefined, 1)).toBe(false); // unknown → FREE limits
   });
 
@@ -60,6 +69,7 @@ describe("plans", () => {
     expect(upgradeRequiresPayment("FREE", "PRO")).toBe(true);
     expect(upgradeRequiresPayment("FREE", "MAX")).toBe(true);
     expect(upgradeRequiresPayment("PRO", "MAX")).toBe(true);
+    expect(upgradeRequiresPayment("MAX", "BUSINESS")).toBe(true);
     expect(upgradeRequiresPayment(null, "MAX")).toBe(true); // unknown → FREE-priced
     // Downgrades and no-ops are free and immediate.
     expect(upgradeRequiresPayment("MAX", "FREE")).toBe(false);
@@ -82,7 +92,7 @@ describe("plans", () => {
     // /pricing instead, so there is nothing left to drift. Guard both halves
     // of that: the number's absence, and the live screen's presence.
     const source = readFileSync("src/lib/assistantSystem.ts", "utf8");
-    for (const id of ["PRO", "MAX"] as const) {
+    for (const id of ["PRO", "MAX", "BUSINESS"] as const) {
       const shekels = (PLANS[id].priceAgorot / 100).toFixed(2);
       expect(source.includes(`₪${shekels}`), `assistantSystem.ts hardcodes a ${id} price again`).toBe(
         false,

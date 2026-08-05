@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { hashCode } from "@/lib/codes";
 import { sendEmail } from "@/lib/messaging";
+import { isOutboxAccepted, isOutboxDelivered } from "@/lib/outboxDeliveryState";
 
 /**
  * Proving somebody controls the address they registered with.
@@ -69,20 +70,24 @@ export type VerifyOutcome = "ok" | "invalid" | "expired" | "used" | "already_ver
  *
  * Returns the token only so tests and local development can assert on it. It is
  * never returned to a client.
+ *
+ * `sent` = token minted and handed to messaging (QUEUED or SENT).
+ * `delivered` = Outbox SENT — only then may UI claim "נשלח".
+ * `queued` = accepted into Outbox but has not left yet.
  */
 export async function sendVerificationEmail(
   userId: string,
   origin: string,
   locale = "he",
-): Promise<{ sent: boolean; devToken?: string }> {
+): Promise<{ sent: boolean; delivered: boolean; queued: boolean; devToken?: string }> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { id: true, name: true, email: true, emailVerifiedAt: true },
   });
-  if (!user) return { sent: false };
+  if (!user) return { sent: false, delivered: false, queued: false };
   // Already proven. Re-sending would be a link that does nothing, which teaches
   // people that our mail is noise.
-  if (user.emailVerifiedAt) return { sent: false };
+  if (user.emailVerifiedAt) return { sent: false, delivered: false, queued: false };
 
   const token = generateToken();
   await prisma.emailVerification.create({
@@ -90,7 +95,7 @@ export async function sendVerificationEmail(
   });
 
   const link = `${origin.replace(/\/$/, "")}/${locale}/verify-email?token=${encodeURIComponent(token)}`;
-  await sendEmail({
+  const email = await sendEmail({
     to: user.email,
     subject: "זכאי — אישור כתובת האימייל",
     body: [
@@ -108,7 +113,9 @@ export async function sendVerificationEmail(
     ].join("\n"),
   });
 
-  return { sent: true, devToken: token };
+  const delivered = isOutboxDelivered(email.status);
+  const queued = isOutboxAccepted(email.status) && !delivered;
+  return { sent: true, delivered, queued, devToken: token };
 }
 
 /**

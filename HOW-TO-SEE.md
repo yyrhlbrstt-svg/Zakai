@@ -19,6 +19,8 @@ https://zakai-3uxj.vercel.app/api/version
 
 אם הגרסה ישנה — ה-deploy עדיין רץ. חכה דקה ורענן.
 
+**אבחון פנימי (מייסד בלבד):** `ZAKAI_ADMIN_TOKEN` + `GET /api/version?internal=1` או `/api/health?internal=1` עם כותרת `X-Zakai-Admin-Token`. פרטים: `docs/SECURITY_SURFACE.md`. תגובת `/api/health` הציבורית היא רק `{ ok, time }` — בלי ספק AI או מפת endpoints.
+
 ---
 
 ## 1. מסלול צרכני (Consumer) — למה אנשים נכנסים
@@ -68,6 +70,7 @@ https://zakai-3uxj.vercel.app/api/version
 | Embed script | `/embed.js` |
 | Fairness widget | `/widget/zakai-widget.js` · `docs/WIDGET_EMBED.md` |
 | פרוטוקול (JSON) | `/.well-known/zakai-protocol.json` |
+| **תקן Interop (התחילו כאן)** | `/.well-known/zakai-interop.json` · `GET /api/interop?probe=1` · `/he/standard` |
 | ZML schema | `/.well-known/zakai-rights-schema.json` |
 | OpenAPI (ZML + APIs) | `/.well-known/zakai-openapi.json` |
 | קטלוג זכויות | `GET /api/rights/catalog?market=IL` |
@@ -116,6 +119,8 @@ telecom · bank-fees · subscription · airline · refund-chase · parking · tr
 
 ```bash
 node scripts/verify-production-urls.mjs https://zakai-3uxj.vercel.app
+node scripts/verify-public-surface.mjs https://zakai-3uxj.vercel.app
+npm run verify:monopoly
 ```
 
 (פרוטוקול / ZML / ווידג'ט ייכשלו עד שה-deploy החדש עלה.)

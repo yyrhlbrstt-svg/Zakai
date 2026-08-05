@@ -3,6 +3,21 @@
 This file is the **only** architectural source of truth for autonomous development.
 Read it before every non-trivial change.
 
+**Cursor operating law:** `docs/INFRASTRUCTURE_DOCTRINE.md` — Zakai is rails (Mandate + SavingsProof), not “another consumer app.” Every change must tighten the IL closed loop, raise Mandate/SavingsProof volume, or make institutions/agents adopt the open format. If it does none of those, do not ship it.
+
+### Decisive filter (final operating rule)
+
+Do **not** make Zakai impressive in many small ways. Make it **decisive** in a few critical ways.
+
+At every decision, all four must be asked — if the honest answer is no to all, **do not ship**:
+
+1. Does this help more users **finish the loop**?
+2. Does this create more **documented SavingsProofs**?
+3. Does this make Zakai **harder to replace**?
+4. Does this increase **real pressure on institutions** over time?
+
+Zakai wins by becoming the **default system for getting money back** — not a large collection of tools. Prefer depth on the closed loop over feature count.
+
 ## Product thesis
 
 Zakai recovers money people are already losing or owed, and finishes the path **in-app** without a human callback team.
@@ -139,6 +154,12 @@ FEEDBACK_EMAIL=     # falls back to the founder address
 # controls that address (see email verification below), so an attacker who
 # registered it first still gets nothing.
 ADMIN_EMAIL=
+
+# Optional read replica for fairness / gravity / oracle aggregates (Neon read-only URL).
+# NEON_DATABASE_URL_READ_REPLICA=
+
+# When true, email/SMS stay QUEUED until GET /api/cron/outbox drains them.
+# OUTBOX_ASYNC=true
 ```
 
 Email verification gates **privilege, never basic use**. A person can sign up,
@@ -177,13 +198,16 @@ discards the message silently.
 - Agent that claims it already filed with a government body when it only drafted text
 - Fake traction metrics in UI
 - Rewriting the whole app when a module fix suffices
+- Many small “impressive” features that do not finish loops or write SavingsProofs
+- Tool sprawl that dilutes `/money` → Case → Mandate → proof as the default path
 
 ## Autonomous agent workflow
 
 When asked to "build everything":
 
-1. Read this file + `docs/ARCHITECTURE.md`.
+1. Read this file + `docs/ARCHITECTURE.md` + the decisive filter above.
 2. Inspect existing modules; extend, don't duplicate.
 3. Ship vertical slices (one closed path) over sprawling unfinished pages.
 4. Keep production deployable after every merge.
 5. Prefer deterministic playbooks (`negotiation.ts`) alongside LLM drafts.
+6. Ruthlessly cut anything that fails the four decisive questions.

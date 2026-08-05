@@ -227,6 +227,23 @@ export const warrantyIL: VerticalRulePack = {
   counterparties: ["other"],
 };
 
+/** Car insurance pro-rata premium refund after mid-term cancel — lump recovery. */
+export const carInsuranceRefundIL: VerticalRulePack = {
+  key: "car-insurance-refund",
+  country: "IL",
+  label: "החזר פרמיה — ביטול ביטוח רכב",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "אישור כתוב מהמבטח על סכום החזר פרמיה יחסי / זיכוי",
+  },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -241,4 +258,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   duplicateInsuranceIL,
   arnonaIL,
   warrantyIL,
+  carInsuranceRefundIL,
 ];

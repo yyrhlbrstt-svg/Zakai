@@ -18,12 +18,20 @@
  *    ₪59.90, still at the top of RiseUp's ₪45–55 band rather than above it —
  *    Max's job is the trust anchor ("all your savings, no cut"), not the
  *    main revenue line; Pro is expected to carry most of that.
+ *  - Business (₪200/mo) is priced for a different budget line entirely — a
+ *    small business or self-employed person's own accounting/bookkeeping
+ *    spend, not a personal finance app. Same "no cut" trust anchor as Max
+ *    (0% fee): the case FOR paying ₪200/mo has to be the tools themselves
+ *    (unlimited receipt scans, bulk vendor sweeps, the monthly deductible-
+ *    expense digest to the accountant) actually saving more than that in
+ *    duplicate charges and unclaimed VAT-eligible spend, not a fee discount
+ *    nobody on a business tier is paying anyway.
  *
  * Billing collection (PSP) is a later stage; the entitlements are enforced in
  * code NOW so tiers are real product behavior, not marketing copy.
  */
 
-export type PlanId = "FREE" | "PRO" | "MAX";
+export type PlanId = "FREE" | "PRO" | "MAX" | "BUSINESS";
 
 export interface PlanConfig {
   id: PlanId;
@@ -41,12 +49,19 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   FREE: { id: "FREE", priceAgorot: 0, feeRateBps: 1800, maxActiveCases: 1, fullScan: false },
   PRO: { id: "PRO", priceAgorot: 1990, feeRateBps: 900, maxActiveCases: 5, fullScan: true },
   MAX: { id: "MAX", priceAgorot: 5990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
+  BUSINESS: {
+    id: "BUSINESS",
+    priceAgorot: 20000,
+    feeRateBps: 0,
+    maxActiveCases: null,
+    fullScan: true,
+  },
 };
 
-export const PLAN_IDS: PlanId[] = ["FREE", "PRO", "MAX"];
+export const PLAN_IDS: PlanId[] = ["FREE", "PRO", "MAX", "BUSINESS"];
 
 export function isPlanId(v: string): v is PlanId {
-  return v === "FREE" || v === "PRO" || v === "MAX";
+  return v === "FREE" || v === "PRO" || v === "MAX" || v === "BUSINESS";
 }
 
 export function planConfig(plan: string | null | undefined): PlanConfig {

@@ -20,6 +20,8 @@ tar -C "$SRC" \
 cd "$DEST"
 if [[ ! -d .git ]]; then
   git init -b main
+  git config user.email "packs-ci@zakai.app"
+  git config user.name "Zakai Packs CI"
   git add .
   git commit -m "Initial zakai-packs export from Zakai monorepo"
 fi

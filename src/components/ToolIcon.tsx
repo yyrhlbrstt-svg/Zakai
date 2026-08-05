@@ -39,6 +39,8 @@ import {
   Repeat,
   Calculator,
   Sparkles,
+  TrainTrack,
+  Globe,
   Clock,
   ShieldX,
   Megaphone,
@@ -74,6 +76,8 @@ const ICONS: Record<string, LucideIcon> = {
   deals: TicketPercent,
   entitlements: Target,
   payslip: ReceiptText,
+  receipts: ReceiptText,
+  smallBusiness: Briefcase,
   severance: FileText,
   maternity: Baby,
   taxrefund: Banknote,
@@ -85,6 +89,8 @@ const ICONS: Record<string, LucideIcon> = {
   bankfees: Building2,
   priceprotection: Tag,
   warranty: Wrench,
+  landlordRepairs: Hammer,
+  trainDelay: TrainTrack,
   miluim: Medal,
   rights: BookOpen,
   electricity: Zap,
@@ -103,6 +109,7 @@ const ICONS: Record<string, LucideIcon> = {
   deadlines: CalendarClock,
   advanceTax: Briefcase,
   schoolPayments: School,
+  globalMarkets: Globe,
 };
 
 export function ToolIcon({

@@ -61,6 +61,11 @@ export interface MandateClaims {
     name: string;
     note: string;
   };
+  /** Offline revocation pointer — bit index + status-list URI. */
+  status?: {
+    idx: number;
+    uri: string;
+  };
 }
 
 export interface IssueMandateInput {
@@ -74,6 +79,7 @@ export interface IssueMandateInput {
   statement: string;
   ttlSeconds?: number;
   onBehalfOf?: MandateClaims["onBehalfOf"];
+  status?: MandateClaims["status"];
   now?: Date;
 }
 
@@ -92,6 +98,15 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
   if (!input.audience.trim()) throw new MandateError("audience is required", "MALFORMED");
   if (!input.jti.trim()) throw new MandateError("jti is required", "MALFORMED");
 
+  if (input.status) {
+    if (!Number.isInteger(input.status.idx) || input.status.idx < 0) {
+      throw new MandateError("status.idx must be a non-negative integer", "MALFORMED");
+    }
+    if (!input.status.uri.trim()) {
+      throw new MandateError("status.uri is required when status is set", "MALFORMED");
+    }
+  }
+
   const nowSec = Math.floor((input.now?.getTime() ?? Date.now()) / 1000);
   const claims: MandateClaims = {
     v: MANDATE_VERSION,
@@ -107,6 +122,9 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
     exp: nowSec + (input.ttlSeconds ?? DEFAULT_TTL_SECONDS),
     statement: input.statement,
     onBehalfOf: input.onBehalfOf,
+    status: input.status
+      ? { idx: input.status.idx, uri: input.status.uri.trim() }
+      : undefined,
   };
 
   const privateKey = await importJWK(key.privateJwk, "EdDSA");
@@ -118,6 +136,7 @@ export async function issueMandate(input: IssueMandateInput, key: SigningKey): P
       market: claims.market,
       statement: claims.statement,
       ...(claims.onBehalfOf ? { onBehalfOf: claims.onBehalfOf } : {}),
+      ...(claims.status ? { status: claims.status } : {}),
     },
   })
     .setProtectedHeader({ alg: "EdDSA", kid: key.kid, typ: MANDATE_TYPE })
@@ -199,10 +218,8 @@ export async function verifyMandate(token: string, options: VerifyOptions): Prom
 }
 
 /**
- * Fetch a JWKS document and return its keys. No caching here on purpose —
- * this SDK does not want to own a cache-invalidation policy for you. For
- * production traffic, wrap this (or use `jose`'s `createRemoteJWKSet`
- * directly) behind whatever TTL cache your runtime already has.
+ * Fetch a JWKS document and return its keys (no cache). Prefer
+ * `fetchJwksCached` / `verifyMandateFromUrl` for production traffic.
  */
 export async function fetchJwks(jwksUri: string): Promise<JWK[]> {
   const res = await fetch(jwksUri);
@@ -211,11 +228,40 @@ export async function fetchJwks(jwksUri: string): Promise<JWK[]> {
   return data.keys ?? [];
 }
 
+type CachedJwks = { keys: JWK[]; expiresAt: number };
+const jwksCache = new Map<string, CachedJwks>();
+
+/** Default TTL — short enough that key rotation lands quickly. */
+export const DEFAULT_JWKS_CACHE_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * JWKS fetch with a process-local TTL cache. Safe default for institutional
+ * verifiers that call `verifyMandateFromUrl` on every inbound Mandate.
+ */
+export async function fetchJwksCached(
+  jwksUri: string,
+  ttlMs: number = DEFAULT_JWKS_CACHE_TTL_MS,
+  nowMs: number = Date.now(),
+): Promise<JWK[]> {
+  const hit = jwksCache.get(jwksUri);
+  if (hit && hit.expiresAt > nowMs) return hit.keys;
+  const keys = await fetchJwks(jwksUri);
+  jwksCache.set(jwksUri, { keys, expiresAt: nowMs + Math.max(0, ttlMs) });
+  return keys;
+}
+
+/** Test helper — clears the process-local JWKS cache. */
+export function clearJwksCache(): void {
+  jwksCache.clear();
+}
+
 export interface VerifyFromUrlOptions {
   audience: string;
   jwksUri: string;
   toleranceSeconds?: number;
   now?: Date;
+  /** JWKS cache TTL in ms (default 5 minutes). Set 0 to bypass cache. */
+  jwksCacheTtlMs?: number;
 }
 
 /**
@@ -227,7 +273,9 @@ export async function verifyMandateFromUrl(
   token: string,
   options: VerifyFromUrlOptions,
 ): Promise<MandateClaims> {
-  const publicJwks = await fetchJwks(options.jwksUri);
+  const ttl = options.jwksCacheTtlMs ?? DEFAULT_JWKS_CACHE_TTL_MS;
+  const publicJwks =
+    ttl <= 0 ? await fetchJwks(options.jwksUri) : await fetchJwksCached(options.jwksUri, ttl);
   return verifyMandate(token, {
     audience: options.audience,
     publicJwks,
@@ -261,6 +309,16 @@ function normaliseClaims(raw: Record<string, unknown>): MandateClaims {
     exp: Number(raw.exp),
     statement: String(isJwtShape ? ns.statement : raw.statement),
     onBehalfOf: isJwtShape ? (ns.onBehalfOf as MandateClaims["onBehalfOf"] | undefined) : undefined,
+    status: (() => {
+      const rawStatus = (isJwtShape ? ns.status : raw.status) as
+        | { idx?: unknown; uri?: unknown }
+        | undefined;
+      if (!rawStatus || typeof rawStatus !== "object") return undefined;
+      const idx = Number(rawStatus.idx);
+      const uri = typeof rawStatus.uri === "string" ? rawStatus.uri : "";
+      if (!Number.isInteger(idx) || idx < 0 || !uri) return undefined;
+      return { idx, uri };
+    })(),
   };
 }
 

@@ -23,6 +23,7 @@
 
 import { decodeJwt } from "jose";
 import { verifyMandateFromUrl, type MandateClaims } from "./mandate.js";
+import { statusListRevocationState } from "./statusList.js";
 
 export const REGISTRY_PATH = "/.well-known/zakai-trust-registry.json";
 
@@ -55,7 +56,9 @@ export class RegistryError extends Error {
       | "UNKNOWN_ISSUER"
       | "ISSUER_SUSPENDED"
       | "ISSUER_WITHDRAWN"
-      | "ISSUER_SCOPE_EXCEEDED",
+      | "ISSUER_SCOPE_EXCEEDED"
+      | "REVOKED"
+      | "STATUS_UNKNOWN",
     readonly scope?: string,
   ) {
     super(message);
@@ -151,13 +154,20 @@ export interface VerifyWithRegistryOptions {
   registryUri: string;
   toleranceSeconds?: number;
   now?: Date;
+  /**
+   * When the token embeds `zkm.status`, check the signed status list (default
+   * true). Set false only if the caller will run its own revocation resolve
+   * (e.g. MCP, which also covers legacy live `/status/{jti}`).
+   */
+  checkStatusList?: boolean;
 }
 
 /**
  * The full network verification: read the token's `iss`, resolve the issuer
  * through the trust registry, verify the signature against *that issuer's*
- * registered JWKS (never a caller-supplied one), then confirm every granted
- * scope is within the issuer's registry entry.
+ * registered JWKS (never a caller-supplied one), confirm every granted scope
+ * is within the issuer's registry entry, and — when `zkm.status` is present —
+ * check the signed status-list bit (fail-closed).
  *
  * The unverified `iss` read is safe by construction — it only selects which
  * registered key set the signature must then survive. A forged `iss` either
@@ -198,6 +208,20 @@ export async function verifyMandateWithRegistry(
       "ISSUER_SCOPE_EXCEEDED",
       trust.scope,
     );
+  }
+
+  if (options.checkStatusList !== false && claims.status) {
+    const state = await statusListRevocationState(claims.status, {
+      issuer: trust.issuer.iss,
+      jwksUri: trust.issuer.jwksUri,
+      now: options.now,
+    });
+    if (state === "revoked") {
+      throw new RegistryError("mandate revoked on signed status list", "REVOKED");
+    }
+    if (state === "unknown") {
+      throw new RegistryError("status list unavailable", "STATUS_UNKNOWN");
+    }
   }
 
   return { claims, issuer: trust.issuer };

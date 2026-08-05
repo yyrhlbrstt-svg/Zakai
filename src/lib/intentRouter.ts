@@ -35,6 +35,11 @@ const KEYWORDS: IntentKeywords[] = [
     en: ["recurring charges", "what am i paying", "scan my bank", "screenshot my statement"],
   },
   {
+    id: "must-have",
+    he: ["מה חובה לעשות", "חבילת חובה", "מה כולם צריכים", "מאיפה מתחילים", "כל הכלים החשובים"],
+    en: ["must have", "where do i start", "essential tools", "starter pack", "what should everyone do"],
+  },
+  {
     id: "cancel",
     he: ["בטל מנוי", "לבטל מנוי", "להוריד לי מחיר", "מנוי שלא רוצה", "נטפליקס", "ספוטיפיי", "חדר כושר"],
     en: ["cancel subscription", "cancel my", "lower my bill", "gym membership", "streaming"],

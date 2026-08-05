@@ -20,8 +20,14 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const widgetKey = request.headers.get("X-Zakai-Widget-Key");
   const requestOrigin = request.headers.get("Origin");
-  if (widgetKey) {
-    const ok = validateWidgetKey(widgetKey, requestOrigin);
+  // A cross-origin browser call (Origin header present — that's how the
+  // embeddable widget calls this from a partner's site) must carry a valid,
+  // domain-matched widget key; that's the "partner API key (domain
+  // allowlist)" this endpoint advertises on /partners. Non-browser callers
+  // (AI agents, curl, server-to-server per the public protocol doc) send no
+  // Origin header and are unaffected — this endpoint stays open for them.
+  if (requestOrigin) {
+    const ok = await validateWidgetKey(widgetKey, requestOrigin);
     if (!ok) {
       return NextResponse.json(
         { error: "invalid_widget_key" },
@@ -56,7 +62,14 @@ export async function GET(request: Request) {
     );
   }
 
-  const catalog = await buildCatalogResponse(url.origin, market, { category, cursor });
+  const locale =
+    url.searchParams.get("locale") ??
+    request.headers.get("Accept-Language")?.split(",")[0]?.trim().split(";")[0];
+  const catalog = await buildCatalogResponse(url.origin, market, {
+    category,
+    cursor,
+    locale: locale || undefined,
+  });
   if (!catalog) {
     return NextResponse.json(
       { error: "unknown_market", market },
@@ -66,6 +79,6 @@ export async function GET(request: Request) {
 
   const cache = "public, max-age=300, stale-while-revalidate=3600";
   return NextResponse.json(catalog, {
-    headers: { ...catalogCors(request), "Cache-Control": cache },
+    headers: { ...catalogCors(request, requestOrigin), "Cache-Control": cache },
   });
 }

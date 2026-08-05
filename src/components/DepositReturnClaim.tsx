@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
+import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import {
@@ -12,6 +13,8 @@ import {
   DEPOSIT_RETURN_DEADLINE_DAYS,
 } from "@/lib/depositReturn";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { heEn } from "@/lib/heEn";
+import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 /**
  * Live deposit-return calculator + demand letter, alongside the static
@@ -22,6 +25,8 @@ import { formatAgorot, shekelsToAgorot } from "@/lib/money";
  */
 export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("depositClaim");
+  const locale = useLocale();
+  const he = locale === "he" || locale === "ar";
   const router = useRouter();
   const [vacateDate, setVacateDate] = useState("");
   const [depositAmount, setDepositAmount] = useState(5000);
@@ -62,8 +67,12 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
     );
   }
 
+  // Destination inbox required — express Mandate cannot dispatch without it.
   const canSendWithAgent =
-    !!status?.isLate && landlordName.trim().length > 0 && landlordEmail.trim().length > 0 && propertyAddress.trim().length > 0;
+    !!status?.isLate &&
+    landlordName.trim().length > 0 &&
+    propertyAddress.trim().length > 0 &&
+    hasOutreachEmail(landlordEmail);
 
   async function sendWithAgent() {
     if (!canSendWithAgent) return;
@@ -76,7 +85,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         body: JSON.stringify({
           tenantName: tenantName.trim(),
           landlordName: landlordName.trim(),
-          landlordEmail: landlordEmail.trim(),
+          landlordEmail: landlordEmail.trim() || undefined,
           propertyAddress: propertyAddress.trim(),
           vacateDate,
           depositAmountShekels: depositAmount,
@@ -88,17 +97,20 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         return;
       }
       if (!res.ok) {
+        if (redirectIfOpenLoop(data, router.push)) return;
         setAgentError(
-          data.error === "caseLimit"
-            ? t("caseLimitError")
-            : data.error === "notLateYet"
-              ? t("notLateYetError")
-              : t("genericError"),
+          data.error === "needsOutreachEmail"
+            ? t("landlordEmailQ")
+            : data.error === "caseLimit"
+              ? t("caseLimitError")
+              : data.error === "notLateYet"
+                ? t("notLateYetError")
+                : t("genericError"),
         );
         return;
       }
       setCaseId(data.caseId);
-      router.push(`/dashboard?case=${data.caseId}`);
+      router.push(moneyCaseHref(data.caseId, { delivered: data.delivered }));
     } catch {
       setAgentError(t("genericError"));
     } finally {
@@ -194,12 +206,29 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
           <Button onClick={sendWithAgent} disabled={!canSendWithAgent || busy}>
             {busy ? t("agentBusy") : t("agentSendCta")}
           </Button>
-          <Button variant="ghost" onClick={generateLetter} disabled={!status}>
-            {t("generateCta")}
-          </Button>
+          <details className="text-[13px] text-ink-soft">
+            <summary className="cursor-pointer font-bold select-none">
+              {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
+            </summary>
+            <Button
+              variant="ghost"
+              className="mt-2 w-full"
+              onClick={generateLetter}
+              disabled={!status}
+            >
+              {t("generateCta")}
+            </Button>
+          </details>
         </div>
-        {!status?.isLate && landlordName.trim() && landlordEmail.trim() && (
+        {!status?.isLate && (
           <p className="text-[12px] text-ink-soft">{t("agentNeedsLate")}</p>
+        )}
+        {status?.isLate && !hasOutreachEmail(landlordEmail) && (
+          <p className="text-[12px] text-amber mb-0">
+            {he
+              ? "נדרש אימייל משכיר — בלי יעד אי אפשר לשלוח Mandate."
+              : "Landlord email is required — Mandate cannot send without a destination."}
+          </p>
         )}
         {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
       </Card>
@@ -208,7 +237,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         <Card className="mt-5 p-5 border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.08)]">
           <div className="text-emerald font-extrabold text-[15px]">{t("caseOpenedTitle")}</div>
           <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed mb-3">{t("caseOpenedBody")}</p>
-          <Link href={`/dashboard?case=${caseId}`}>
+          <Link href={`/money?case=${caseId}`}>
             <Button className="w-full">{t("goToDashboard")}</Button>
           </Link>
         </Card>
@@ -240,7 +269,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
-          <OutcomeReport vertical="deposit" counterparty="landlord" variantId="standard" />
+          <OutcomeReport vertical="deposit" counterparty="landlord" variantId="firm_statutory" />
         </Card>
       )}
     </div>

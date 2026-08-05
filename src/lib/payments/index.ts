@@ -1,5 +1,6 @@
 import "server-only";
 import crypto from "node:crypto";
+import { withReturnQuery } from "@/lib/services/browserFeeReturn";
 
 /**
  * PSP-agnostic fee collection. Like the AI hub, the concrete provider is chosen
@@ -119,8 +120,11 @@ class PayPlusProvider implements PaymentProvider {
       /\/+$/,
       "",
     );
-    // The webhook route reconciles by this fee id echoed in more_info.
+    // Browser returns carry outcome= so GET can show confirming vs retry without
+    // trusting the bounce as payment proof. Webhook stays on the bare return URL.
     const returnBase = input.returnUrl;
+    const successUrl = withReturnQuery(returnBase, { outcome: "success" });
+    const failureUrl = withReturnQuery(returnBase, { outcome: "failure" });
     const res = await fetch(`${base}/PaymentPages/generateLink`, {
       method: "POST",
       headers: {
@@ -134,8 +138,8 @@ class PayPlusProvider implements PaymentProvider {
         amount: input.amountAgorot / 100, // PayPlus expects major units (₪)
         currency_code: "ILS",
         more_info: input.feeId, // echoed back on the callback for reconciliation
-        refURL_success: returnBase,
-        refURL_failure: returnBase,
+        refURL_success: successUrl,
+        refURL_failure: failureUrl,
         refURL_callback: returnBase, // server-to-server webhook
       }),
     });
@@ -164,11 +168,20 @@ class PayPlusProvider implements PaymentProvider {
     if (!secret) return null;
     if (ctx.method !== "POST" || !ctx.rawBody) return null;
 
-    // PayPlus signs the webhook body; the signature arrives in a header. The
-    // exact header name/algorithm MUST be confirmed against your PayPlus
-    // sandbox before going live — until then this verifier fails closed and no
-    // real payment is ever confirmed. (Common shape: base64 HMAC-SHA256.)
-    const provided = ctx.headers["hash"] || ctx.headers["user-agent-hash"] || "";
+    // PayPlus sends the webhook signature in a header literally named `hash`
+    // (base64 HMAC-SHA256 of the raw body, keyed with the secret key) —
+    // confirmed against PayPlus's published docs and an independent
+    // open-source SDK's actual verification code, not guessed. PayPlus also
+    // sends a separate `user-agent` header (not part of the signature — do
+    // not concatenate it into the header name).
+    //
+    // That confirmation is second-hand (no live PayPlus sandbox account was
+    // available to test against directly) — before ever flipping
+    // PAYMENT_PROVIDER=payplus on with real card charges, send one real
+    // transaction through the PayPlus SANDBOX and confirm this header/algorithm
+    // against the actual webhook payload PayPlus delivers. Until that's done,
+    // this stays a well-evidenced assumption, not a proven fact.
+    const provided = ctx.headers["hash"] || "";
     if (!provided) return null;
     const expected = crypto.createHmac("sha256", secret).update(ctx.rawBody).digest("base64");
     const a = Buffer.from(provided);
@@ -207,9 +220,34 @@ class UnconfiguredProvider implements PaymentProvider {
 
 export class PaymentUnavailableError extends Error {}
 
-/** Which PSP is active. Defaults to the mock until a real one is wired. */
+function envTrimmed(key: string): boolean {
+  return Boolean(process.env[key]?.trim());
+}
+
+/** All three PayPlus credentials present — ready to collect real fees. */
+export function payplusKeysComplete(): boolean {
+  return (
+    envTrimmed("PAYPLUS_API_KEY") &&
+    envTrimmed("PAYPLUS_SECRET_KEY") &&
+    envTrimmed("PAYPLUS_PAYMENT_PAGE_UID")
+  );
+}
+
+/**
+ * Which PSP is active.
+ *
+ * Trap we close: Vercel often has complete PayPlus keys while
+ * `PAYMENT_PROVIDER` is still unset/`mock` — the app then charges nobody forever.
+ * When keys are complete, Prefer PayPlus unless `FORCE_MOCK_PAYMENTS=true`
+ * (tests / intentional demo without real charges).
+ */
 export function paymentProviderName(): string {
-  return (process.env.PAYMENT_PROVIDER || "mock").toLowerCase();
+  if (process.env.FORCE_MOCK_PAYMENTS === "true") return "mock";
+  const raw = (process.env.PAYMENT_PROVIDER || "").toLowerCase().trim();
+  if (raw === "payplus") return "payplus";
+  if (payplusKeysComplete() && (!raw || raw === "mock")) return "payplus";
+  if (!raw) return "mock";
+  return raw;
 }
 
 /** True once a REAL psp is configured (i.e. not the mock). */

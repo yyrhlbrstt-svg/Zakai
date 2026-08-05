@@ -1,5 +1,5 @@
 /**
- * @zakai/mandate-sdk — the reference client for the Zakai Mandate protocol.
+ * @zakai-app/mandate-sdk — the reference client for the Zakai Mandate protocol.
  *
  * Three things, in the order you probably need them:
  *   1. Verify a mandate someone presented to you: `verifyMandateFromUrl`.
@@ -20,4 +20,7 @@ export * from "./decision.js";
 export * from "./settlement.js";
 export * from "./conformance.js";
 export * from "./registry.js";
+export * from "./statusList.js";
 export * from "./protocol.js";
+export * from "./interop.js";
+export * from "./rights.js";

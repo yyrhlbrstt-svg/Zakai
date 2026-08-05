@@ -97,6 +97,31 @@ export function evaluatePack(
  * silently dropped — a letter that quietly omits an account number reads as
  * complete and gets rejected; a visible `____` gets filled in.
  */
+/**
+ * "Legal basis:" in each pack's own document language — keyed by the base
+ * language of `docLocale` (the region suffix doesn't change the label), not
+ * one entry per pack. Falls back to English for any language not yet listed
+ * here rather than silently omitting the label.
+ */
+const LEGAL_BASIS_LABEL: Record<string, string> = {
+  he: "בסיס משפטי",
+  en: "Legal basis",
+  es: "Base legal",
+  fr: "Base légale",
+  it: "Base giuridica",
+  de: "Rechtsgrundlage",
+  nl: "Wettelijke grondslag",
+  pl: "Podstawa prawna",
+  sv: "Rättslig grund",
+  ja: "法的根拠",
+  pt: "Base legal",
+};
+
+function legalBasisLabel(docLocale: string): string {
+  const base = docLocale.split("-")[0]?.toLowerCase() ?? "en";
+  return LEGAL_BASIS_LABEL[base] ?? LEGAL_BASIS_LABEL.en;
+}
+
 export function renderDocument(
   pack: JurisdictionPack,
   rightId: string,
@@ -115,7 +140,14 @@ export function renderDocument(
       return value && value.trim() ? value.trim() : "____";
     });
 
-  const parts = [fill(recipientBlock), fill(right.action.body)].filter(Boolean);
+  // The citation was already real, verified data (`right.source`) sitting
+  // unused — it never reached the actual letter or the reader. Appending it
+  // both strengthens the letter itself (a cited claim is harder to dismiss)
+  // and makes "we never invent the legal basis" a visible fact in every
+  // document produced, not just an internal property of the data.
+  const citation = right.source.trim() ? `${legalBasisLabel(pack.docLocale)}: ${right.source.trim()}` : "";
+
+  const parts = [fill(recipientBlock), fill(right.action.body), citation].filter(Boolean);
   return { subject: fill(right.action.subject), body: parts.join("\n\n") };
 }
 

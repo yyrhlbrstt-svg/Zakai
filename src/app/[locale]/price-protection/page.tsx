@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
-import { GradientCtaCard } from "@/components/GradientCtaCard";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Reveal } from "@/components/Reveal";
+import { RefundChaseTool } from "@/components/RefundChaseTool";
 
 export async function generateMetadata({
   params,
@@ -79,20 +79,15 @@ export default async function PriceProtectionPage({
       </ol>
 
       <Reveal>
-        <GradientCtaCard><div className="font-display text-xl">{t("cta.title")}</div>
-            <p className="text-ink-soft text-[14px] mt-2 max-w-[520px] mx-auto leading-relaxed">
-              {t("cta.body")}
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center mt-5">
-              <Link href="/deals">
-                <Button>{t("cta.primary")}</Button>
-              </Link>
-              <Link href="/faq">
-                <Button variant="ghost">{t("cta.secondary")}</Button>
-              </Link>
-            </div>
-        </GradientCtaCard>
+        <h2 className="font-display text-2xl mt-12 mb-2">{t("cta.title")}</h2>
+        <p className="text-ink-soft text-[14px] mb-5 max-w-[520px] leading-relaxed">{t("cta.body")}</p>
       </Reveal>
+      <RefundChaseTool />
+      <div className="mt-4">
+        <Link href="/faq">
+          <Button variant="ghost">{t("cta.secondary")}</Button>
+        </Link>
+      </div>
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}

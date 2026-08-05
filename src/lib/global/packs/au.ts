@@ -155,10 +155,16 @@ Under the unsolicited consumer agreement provisions of the Australian Consumer L
       body: `${IDENTITY} Please confirm the status of my JobSeeker Payment claim and review my assessed rate for correctness.`,
     },
   ),
-  right("recurring_charges_scan", "consumer", always, "Contract cancellation", {
-    kind: "tool",
-    tool: "/scan",
-  }),
+  right(
+    "recurring_charges_scan",
+    "consumer",
+    always,
+    "Competition and Consumer Act 2010 (Cth), Sch 2 (Australian Consumer Law) ss.23-25 — unfair contract terms",
+    {
+      kind: "tool",
+      tool: "/scan",
+    },
+  ),
 ];
 
 export const AU_PACK: JurisdictionPack = {

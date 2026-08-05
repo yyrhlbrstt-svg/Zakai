@@ -53,11 +53,14 @@ export async function PUT(request: Request) {
   try {
     const origin = new URL(request.url).origin;
     const locale = new URL(request.url).searchParams.get("locale") || "he";
-    await sendVerificationEmail(userId, origin, locale);
-    // The same answer whether a link was sent or the address was already
-    // verified — there is nothing useful to learn from the difference and one
-    // less thing to reason about.
-    return NextResponse.json({ ok: true });
+    const result = await sendVerificationEmail(userId, origin, locale);
+    // Always ok for the signed-in resend path. Delivery truth is separate so UI
+    // never invents "נשלח" for a still-queued (or no-op already-verified) row.
+    return NextResponse.json({
+      ok: true,
+      delivered: result.delivered === true,
+      queued: result.queued === true,
+    });
   } catch (err) {
     await reportError(err, { route: "verify-email-resend" });
     return NextResponse.json({ error: "genericError" }, { status: 500 });

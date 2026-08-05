@@ -42,7 +42,7 @@ export async function dispatchAgent(
   if (!kase.authorization || kase.authorization.status !== "ACTIVE") {
     const auth = await createAuthorization(caseId);
     authCode = auth.code;
-    mandateJti = auth.mandateJti;
+    mandateJti = auth.mandateJti ?? undefined;
   }
 
   await refreshVerifiedStatus(caseId);

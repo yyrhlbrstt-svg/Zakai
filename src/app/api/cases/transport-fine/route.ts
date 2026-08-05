@@ -9,7 +9,9 @@ import { variantById } from "@/lib/strategy/variants";
 import { canOpenCase, ACTIVE_CASE_STATUSES } from "@/lib/plans";
 import { rateLimit } from "@/lib/ratelimit";
 import { firstOutreachEmail } from "@/lib/outreachEmail";
+import { expressOpenBody, openLoopConflictIfAny, tryExpressMandateSend } from "@/lib/services/expressCaseOpen";
 import { formatCaseDraft } from "@/lib/caseDraft";
+import { resolveTransportContactEmail } from "@/lib/utilityContacts";
 
 const REASON_BODY: Record<string, string> = {
   validator: "ניסיתי לתקף / לרכוש כרטיס אך המאמת/האפליקציה לא פעלו.",
@@ -34,6 +36,10 @@ export async function POST(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
 
+  const openLoopRes = await openLoopConflictIfAny(auth.userId);
+  if (openLoopRes) return openLoopRes;
+
+
   const limited = await rateLimit("cases-transport-fine", auth.userId, 15, 24 * 3600);
   if (!limited.ok) return NextResponse.json({ error: "tooManyRequests" }, { status: 429 });
 
@@ -42,7 +48,10 @@ export async function POST(request: Request) {
   if (!parsed.success) return badRequest("genericError");
   const data = parsed.data;
 
-  const outreachTo = firstOutreachEmail(data.operatorEmail);
+  // Known operators resolve; unknown operators must supply an inbox — else never SENT.
+  const outreachTo =
+    firstOutreachEmail(data.operatorEmail, resolveTransportContactEmail(data.operator) ?? undefined) ||
+    undefined;
   if (!outreachTo) {
     return NextResponse.json({ error: "needsOutreachEmail" }, { status: 400 });
   }
@@ -62,15 +71,18 @@ export async function POST(request: Request) {
 
 הנדון: ערעור על דו"ח קנס מספר ${data.report}
 
-שמי ${name}, ואני מבקש/ת לערער על דו"ח הקנס שבנדון שניתן לי בגין נסיעה ללא כרטיס/תיקוף תקף.
+שמי זכאי, סוכן דיגיטלי אוטומטי הפועל מטעם ${name} ובהרשאתו/ה המפורשת (Mandate). אינני הלקוח/ה עצמו/ה.
+
+בשם הלקוח/ה אני מערער על דו"ח הקנס שבנדון בגין נסיעה ללא כרטיס/תיקוף תקף.
 
 ${reasonText}${data.details ? `\n\nפירוט נוסף: ${data.details}` : ""}
 
-לאור האמור, אבקש לבטל את הדו"ח. אם הבקשה תידחה, אבקש לקבל הנמקה מפורטת ואת פירוט זכותי להישפט או לפנות לוועדת הערר.
+בקשה אחת: ביטול הדו"ח בכתב. אם הבקשה תידחה — הנמקה מפורטת ופירוט זכות ההישפטות / ועדת ערר.
+
+נא מענה בכתב בלבד.
 
 בכבוד רב,
-${name}
-(המכתב נוסח בסיוע זכאי — zakai)`;
+זכאי — סוכן דיגיטלי בשם ${name}`;
 
   const subject = `ערעור על קנס תחבורה ${data.report} — ${data.operator}`;
   const amount = data.amountShekels && data.amountShekels > 0 ? data.amountShekels : 180;
@@ -111,11 +123,16 @@ ${name}
     throw err;
   }
 
-  return NextResponse.json({
-    caseId: kase.id,
-    subject: staged.subject,
-    body: staged.body,
-    status: kase.status,
-    message: "case_opened",
-  });
+  const express = await tryExpressMandateSend(kase.id, auth.userId, user.emailVerifiedAt);
+  return NextResponse.json(
+    expressOpenBody({
+      caseId: kase.id,
+      ...express,
+      extra: {
+        subject: staged.subject,
+        body: staged.body,
+        status: express.dispatched ? "SENT" : kase.status,
+      },
+    }),
+  );
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadSigningKeyFromEnv, MandateKeyUnavailableError } from "@/lib/mandate/mandate";
+import { STATUS_LIST_CAPACITY } from "@/lib/mandate/statusIndex";
 import { signStatusList } from "@/lib/mandate/statusList";
 import { reportError } from "@/lib/report-error";
 
@@ -9,8 +10,6 @@ export const dynamic = "force-dynamic";
 
 /** How long a cached copy stays authoritative. */
 const TTL_SECONDS = 900;
-/** Bitstring capacity. Cheap to oversize; expensive to run out of. */
-const LIST_SIZE = 1_000_000;
 
 /**
  * The signed revocation list.
@@ -27,17 +26,25 @@ const LIST_SIZE = 1_000_000;
 export async function GET() {
   try {
     const key = loadSigningKeyFromEnv();
+    // Never `take: N` by row count — that truncates arbitrary revocations.
+    // Capacity is an index bound; refuse to publish if any bit is out of range.
     const revoked = await prisma.mandateRevocation.findMany({
       select: { statusIndex: true },
       where: { statusIndex: { not: null } },
-      take: LIST_SIZE,
     });
+    const indices = revoked.map((r) => r.statusIndex as number);
+    if (indices.some((idx) => idx < 0 || idx >= STATUS_LIST_CAPACITY)) {
+      return NextResponse.json(
+        { error: "status_list_capacity", capacity: STATUS_LIST_CAPACITY },
+        { status: 503 },
+      );
+    }
 
     const token = await signStatusList(
       {
         issuer: process.env.MANDATE_ISSUER ?? "https://zakai-3uxj.vercel.app",
-        revokedIndices: revoked.map((r) => r.statusIndex as number),
-        size: LIST_SIZE,
+        revokedIndices: indices,
+        size: STATUS_LIST_CAPACITY,
         ttlSeconds: TTL_SECONDS,
       },
       key,

@@ -1,13 +1,20 @@
 import { setRequestLocale } from "next-intl/server";
-import { redirect } from "@/i18n/routing";
+import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { isEmailVerified } from "@/lib/services/emailVerification";
 import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
 import { computeRecoveryGraph } from "@/lib/recoveryGraph";
-import { evaluateConsumerReleaseGate } from "@/lib/deploy/releaseGate";
-import type { Locale } from "@/i18n/config";
+import { evaluateConsumerReleaseGate, paymentsFullyLive } from "@/lib/deploy/releaseGate";
+import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
+import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
+import { ControlGatesStrip } from "@/components/ControlGatesStrip";
+import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
+import { PipeNetworkLive } from "@/components/PipeNetworkLive";
+import { LoopVolumePanel } from "@/components/LoopVolumePanel";
+import { loadLoopVolume } from "@/lib/services/loopVolume";
+import { bcp47, type Locale } from "@/i18n/config";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
   database: "מסד נתונים",
@@ -19,6 +26,9 @@ const RELEASE_LABEL_HE: Record<string, string> = {
   app_url: "NEXT_PUBLIC_APP_URL",
   smtp: "דואר יוצא (SMTP)",
   smtp_from: "SMTP_FROM",
+  inbound_email_secret: "INBOUND_EMAIL_SECRET",
+  mandate_issue_key: "MANDATE_ISSUE_KEY",
+  mandate_revoke_key: "MANDATE_REVOKE_KEY",
   payments_live: "סליקה אמיתית (PayPlus)",
   admin_email: "ADMIN_EMAIL + אימות",
   ai: "מפתח AI",
@@ -60,11 +70,16 @@ export default async function FounderPage({
   if (!(await isEmailVerified(user!.id))) redirect({ href: "/dashboard", locale });
 
   const releaseGate = evaluateConsumerReleaseGate();
+  const smtpOk = emailConfigured();
+  const paymentsOk = paymentsFullyLive();
+  const loopVolume = await loadLoopVolume(smtpOk);
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const [
     byStatus,
     savedAgg,
+    estimateProofs,
+    documentedSaved,
     feeAgg,
     paidAgg,
     pendingFeeAgg,
@@ -79,9 +94,28 @@ export default async function FounderPage({
     partnerSignups,
     outboxQueued,
     outboxFailed,
+    mandatesActive,
+    mandatesOnSentPlus,
+    mandatesIssued7d,
+    proofsDocumented7d,
+    stuckNoMandate,
+    stuckNoOutreach,
+    sentOpenIds,
   ] = await Promise.all([
     prisma.case.groupBy({ by: ["status"], _count: { _all: true } }),
-    prisma.savingsProof.aggregate({ _sum: { savingMonthly: true }, _count: { _all: true } }),
+    // Documented pipeline only — estimate shortcuts must not inflate the founder instrument.
+    prisma.savingsProof.aggregate({
+      where: { selfReported: false, savingMonthly: { gt: 0 } },
+      _sum: { savingMonthly: true },
+      _count: { _all: true },
+    }),
+    prisma.savingsProof.count({ where: { selfReported: true } }),
+    prisma.case.count({
+      where: {
+        status: "SAVED",
+        savingsProof: { is: { selfReported: false, savingMonthly: { gt: 0 } } },
+      },
+    }),
     prisma.fee.aggregate({ _sum: { amount: true }, _count: { _all: true } }),
     prisma.fee.aggregate({ where: { status: "PAID" }, _sum: { amount: true }, _count: { _all: true } }),
     prisma.fee.aggregate({
@@ -115,16 +149,50 @@ export default async function FounderPage({
     }),
     prisma.outbox.count({ where: { status: "QUEUED" } }),
     prisma.outbox.count({ where: { status: "FAILED" } }),
+    prisma.authorization.count({ where: { status: "ACTIVE", revokedAt: null } }),
+    // Mandates that actually left the building (case reached SENT+).
+    prisma.authorization.count({
+      where: { case: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } } },
+    }),
+    prisma.authorization.count({ where: { issuedAt: { gte: weekAgo } } }),
+    prisma.savingsProof.count({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: weekAgo } },
+    }),
+    // SENT stuck: no ACTIVE Mandate (missing or REVOKED) — cron/follow-up blocked.
+    prisma.case.count({
+      where: {
+        status: "SENT",
+        NOT: { authorization: { is: { status: "ACTIVE" } } },
+      },
+    }),
+    // SENT stuck: no provider inbox to write to.
+    prisma.case.count({
+      where: {
+        status: "SENT",
+        OR: [{ counterpartyEmail: null }, { counterpartyEmail: "" }],
+      },
+    }),
+    prisma.case.findMany({
+      where: { status: "SENT" },
+      select: { id: true },
+      take: 2000,
+    }),
   ]);
+
+  const agentRounds = await getAgentRoundMap(sentOpenIds.map((c) => c.id));
+  const stuckMaxRounds = [...agentRounds.values()].filter((n) => n >= MAX_AGENT_ROUNDS).length;
 
   const count = (s: string) => byStatus.find((r) => r.status === s)?._count._all ?? 0;
   const sent = count("SENT") + count("SAVED") + count("NO_SAVING");
-  const saved = count("SAVED");
   const noSaving = count("NO_SAVING");
-  const settled = saved + noSaving;
-  // The number that validates the whole model: of outreach that got a reply,
-  // what share produced a real, documented saving?
-  const winRate = settled > 0 ? Math.round((saved / settled) * 100) : null;
+  // Win rate uses documented SavingsProof only — estimate SAVED must not count as a win.
+  const settled = documentedSaved + noSaving;
+  const winRate = settled > 0 ? Math.round((documentedSaved / settled) * 100) : null;
+  const analyzed = count("ANALYZED");
+  const approved = count("APPROVED");
+  const verified = count("VERIFIED");
+  const sentOnly = count("SENT");
+  const preSendOpen = analyzed + approved + verified;
 
   const money = (a: number) => formatAgorot(a, "he-IL");
 
@@ -141,15 +209,25 @@ export default async function FounderPage({
     ["משתמשים", String(users)],
     ["— משתמשים חדשים (7 ימים) —", String(newUsers7d)],
     ["בדיקות שנפתחו", String(checks)],
+    ["— Mandates פעילים (ACTIVE) —", String(mandatesActive)],
+    ["— Mandates על תיקים SENT+ (נשלחו באמת) —", String(mandatesOnSentPlus)],
+    ["— Mandates שהונפקו (7 ימים) —", String(mandatesIssued7d)],
+    ["— SavingsProof מתועד (7 ימים) —", String(proofsDocumented7d)],
+    ["— משפך: לפני שליחה (ANALYZED+APPROVED+VERIFIED) —", String(preSendOpen)],
+    ["— משפך: SENT פתוח (ממתין ל־Proof) —", String(sentOnly)],
+    ["— תקוע: SENT בלי Mandate פעיל —", String(stuckNoMandate)],
+    ["— תקוע: SENT בלי אימייל ספק —", String(stuckNoOutreach)],
+    [`— תקוע: SENT ב־${MAX_AGENT_ROUNDS}+ סיבובי מעקב —`, String(stuckMaxRounds)],
     ["לידים לעמלה (ביטוח/וורטיקלים)", leadsValue],
     ["משובים שהתקבלו", String(feedbackCount)],
     ["נשלחו לספק (SENT+)", String(sent)],
     ["הגיעו לתוצאה (נענו)", String(settled)],
-    ["חיסכון תועד (SAVED)", String(saved)],
+    ["חיסכון מתועד (SAVED, לא הערכה)", String(documentedSaved)],
+    ["הערכות selfReported (בלי עמלה)", String(estimateProofs)],
     ["ללא חיסכון (NO_SAVING)", String(noSaving)],
-    ["— אחוז הצלחה (SAVED מהנענים) —", winRate === null ? "אין עדיין נתונים" : `${winRate}%`],
+    ["— אחוז הצלחה (מתועד מהנענים) —", winRate === null ? "אין עדיין נתונים" : `${winRate}%`],
     ["סה״כ חיסכון חודשי מתועד", money(savedAgg._sum.savingMonthly ?? 0)],
-    ["הוכחות חיסכון", String(savedAgg._count._all)],
+    ["הוכחות חיסכון מתועדות", String(savedAgg._count._all)],
     ["עמלות שנוצרו", `${feeAgg._count._all} · ${money(feeAgg._sum.amount ?? 0)}`],
     ["עמלות ממתינות לגבייה", `${pendingFeeAgg._count._all} · ${money(pendingFeeAgg._sum.amount ?? 0)}`],
     ["עמלות ששולמו", `${paidAgg._count._all} · ${money(paidAgg._sum.amount ?? 0)}`],
@@ -158,12 +236,13 @@ export default async function FounderPage({
   ];
 
   return (
-    <main className="max-w-[680px] mx-auto px-5 pb-24 pt-8" dir="rtl">
+    <main className="max-w-[920px] mx-auto px-5 pb-24 pt-8" dir="rtl">
       <h1 className="font-display text-3xl mb-1.5">מדדי מייסד</h1>
-      <p className="text-ink-soft text-[14px] mb-7">
-        המספר שמאמת את המודל: <b className="text-emerald">אחוז ההצלחה</b> — מתוך הפניות שנענו, כמה
-        הניבו חיסכון אמיתי ומתועד. הרץ 20–30 תיקי סלולר אמיתיים וצפה כאן שהלופ באמת סוגר כסף.
+      <p className="text-ink-soft text-[14px] mb-5">
+        המספרים היחידים: Mandates שנשלחו, SavingsProof מתועד, השלמה לפי וורטיקל. בלי vanity.
       </p>
+
+      <LoopVolumePanel snap={loopVolume} locale={locale} />
 
       <div
         className={`rounded-2xl border px-5 py-4 mb-6 ${
@@ -185,8 +264,9 @@ export default async function FounderPage({
         {!releaseGate.canReleaseConsumerApp && (
           <>
             <p className="text-[13px] text-ink-soft mt-2 mb-3 leading-relaxed m-0">
-              לא משחררים את האפליקציה עד שהציון 100. תקן ב־Vercel, Redeploy, ובדוק שוב:{" "}
-              <code className="text-[12px]">/api/release-gate</code> · מדריך:{" "}
+              ציון תצורה — לא ציון ערך ולא סיבה להתבייש. חסרים למטה חוסמים מייל/סליקה אמיתיים;
+              עדיין רצים על נפח Mandate ברגע שיש SMTP. תקן ב־Vercel, Redeploy:{" "}
+              <code className="text-[12px]">/api/release-gate</code> ·{" "}
               <code className="text-[12px]">docs/RELEASE_100_HE.md</code>
             </p>
             <ul className="list-none p-0 m-0 flex flex-col gap-1.5">
@@ -214,27 +294,91 @@ export default async function FounderPage({
         )}
       </div>
 
-      {!emailConfigured() && (
+      {!smtpOk && (
         <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">
-          ⚠ SMTP_HOST לא מוגדר בסביבה הזו. "נשלחו לספק (SENT+)" למטה סופר תיקים שסומנו SENT
-          באפליקציה — לא מיילים שבאמת יצאו. עד שיוגדר SMTP אמיתי, שום פנייה לא הגיעה בפועל לאף ספק,
-          ואחוז ההצלחה למטה לא אומר כלום על העולם האמיתי. הרץ <code>node scripts/preflight.mjs</code>{" "}
-          לפני שמריצים תיק אמיתי.
+          ⚠ SMTP לא מלא (צריך HOST + USER + PASS). "נשלחו לספק (SENT+)" למטה סופר תיקים שסומנו SENT
+          באפליקציה — לא מיילים שבאמת יצאו. HOST לבד לא מספיק. עד שיוגדר SMTP מלא, שום פנייה לא
+          הגיעה בפועל לאף ספק, ואחוז ההצלחה למטה לא אומר כלום על העולם האמיתי. הרץ{" "}
+          <code>node scripts/preflight.mjs</code> — חייב בלי <code>MAIL: OFF</code> — לפני תיק אמיתי.
         </div>
       )}
 
-      <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
-        <div className="font-extrabold text-[#3EC6FF] mb-2">שכבות רשת (בלי סודות)</div>
-        <p className="m-0 mb-2 text-ink-soft">
-          <code>/api/network/readiness</code> · <code>/api/network/opportunity-map</code> ·{" "}
-          <a className="text-emerald underline" href="/he/integrations">
-            /integrations
-          </a>
+      {!paymentsOk && (
+        <div className="rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 mb-6 text-[13.5px] font-bold leading-relaxed">
+          ⚠ סליקה במצב mock — <code>PAYMENT_PROVIDER</code> לא PayPlus מלא. עמלת הצלחה רצה מקצה לקצה
+          בלי לגבות כרטיס אמיתי. עד{" "}
+          <code>PAYMENT_PROVIDER=payplus</code> +{" "}
+          <code>PAYPLUS_API_KEY</code> / <code>PAYPLUS_SECRET_KEY</code> /{" "}
+          <code>PAYPLUS_PAYMENT_PAGE_UID</code>, הכנסות הצלחה על הנייר בלבד.{" "}
+          <code>node scripts/preflight.mjs</code> חייב להראות FEES בלי MOCK.
+        </div>
+      )}
+
+      <div className="mb-2">
+        <h2 className="font-display text-xl m-0 mb-1">P0 מנכ״ל — מונופול על הצינור</h2>
+        <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">
+          מונופול = כל מוסד וסוכן חייב לדבר Mandate→SavingsProof. השערים למטה הם מדד אימוץ — לא
+          שווי. עד ש־gravity_tier≥gravity ו־G3/G5 ירוקים, PayPlus לא מקים מונופול. אל תחבר שלב D
+          לפני זה.
         </p>
-        <p className="m-0 text-ink-soft">
-          תבנית תשובה כש**פונים אלינו** (לא שיחות יזומות): <code>docs/BANK_OUTREACH.md</code> ·{" "}
-          <code>docs/INBOUND_INSTITUTIONS.md</code>
-        </p>
+        <MonopolyMissionControl locale={locale} />
+        <PipeNetworkLive locale={locale} bcp47={bcp47[locale as Locale] ?? "he-IL"} />
+        <ControlGatesStrip locale={locale} />
+        <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
+          <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו (סדר חובה)</div>
+          <ul className="m-0 ps-5 flex flex-col gap-1.5 text-ink-soft">
+            <li>
+              <b className="text-ink">1. SMTP_HOST</b> (+ USER/PASS/FROM) בפרוד — בלי זה אין מכתב
+              אמיתי לספק. אחרי הגדרה: Redeploy + תיק ניסיון אחד עד SENT (לא QUEUED ב-Outbox).
+            </li>
+            <li>
+              <b className="text-ink">2. PayPlus</b> —{" "}
+              <code>PAYMENT_PROVIDER=payplus</code> + שלושת מפתחות PAYPLUS. בלי זה עמלת הצלחה נשארת
+              mock אחרי SavingsProof.
+            </li>
+            <li>
+              <b className="text-ink">3. Merge</b> את PR הלולאה ל־main + Redeploy — אחרת הפרוד נשאר
+              מאחור על finish surface ישן.
+            </li>
+            <li>
+              <b className="text-ink">4. נפח</b> — תיקי סלולר/ביטול/עמלות אמיתיים עד{" "}
+              <code>gravity_tier=network</code>. לא מייל קר לבנקים.
+            </li>
+            <li>
+              מגנט משיכה (הם כותבים אלינו אחרי נפח):{" "}
+              <a className="text-emerald underline" href="/he/pipe">
+                /he/pipe
+              </a>{" "}
+              ·{" "}
+              <a className="text-emerald underline" href="/he/join-network">
+                /he/join-network
+              </a>{" "}
+              ·{" "}
+              <a className="text-emerald underline" href="/api/institution/pilot-package">
+                pilot-package
+              </a>
+            </li>
+            <li>
+              מנפיק שני:{" "}
+              <a className="text-emerald underline" href="/api/mandate/delegation/evidence">
+                evidence dry-run
+              </a>{" "}
+              → <code>npm run delegation:admit-pilot</code>
+            </li>
+            <li>
+              בדיקת מכונה: <code>npm run gravity:checklist</code> ·{" "}
+              <a className="text-emerald underline" href="/api/network/trillion-gates">
+                trillion-gates
+              </a>
+            </li>
+            <li>
+              תבנית תשובה למי שפונה: <code>docs/BANK_OUTREACH.md</code> ·{" "}
+              <Link className="text-emerald underline" href="/institutions">
+                /institutions
+              </Link>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">

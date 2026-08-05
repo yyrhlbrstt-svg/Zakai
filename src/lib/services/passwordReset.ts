@@ -72,7 +72,19 @@ export async function requestPasswordReset(
   });
 
   // No account: stop here, but return the same shape, at roughly the same cost.
-  if (!user) return { accepted: true };
+  //
+  // "Same shape" alone isn't enough — the known-user branch below pays two real
+  // DB writes (passwordReset.create, sendEmail's Outbox insert) plus an
+  // awaited send attempt, so returning immediately here makes the two cases
+  // trivially distinguishable by response latency even with an identical
+  // body. hashPassword() is the same bcrypt-cost burn signup's duplicate-email
+  // branch uses for exactly this reason (see signup/route.ts) — a real,
+  // non-trivial, reproducible cost instead of writing a garbage DB row or
+  // emailing an address nobody on this account controls.
+  if (!user) {
+    await hashPassword(email);
+    return { accepted: true };
+  }
 
   const token = generateResetToken();
   await prisma.passwordReset.create({

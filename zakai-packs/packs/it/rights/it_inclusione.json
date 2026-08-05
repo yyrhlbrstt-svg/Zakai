@@ -1,0 +1,41 @@
+{
+  "zml_version": "1.0.0",
+  "id": "it_inclusione",
+  "version": "2026-08-02",
+  "display_name": {
+    "en": "Inclusione",
+    "he": "הכנסת הכלה"
+  },
+  "market": "IT",
+  "category": "health",
+  "predicate": {
+    "operator": "AND",
+    "conditions": [
+      {
+        "field": "incomeBand",
+        "operator": "in",
+        "value": [
+          "low"
+        ],
+        "source": "user_input"
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/it_inclusione",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "Decreto Legislativo 147/2017 — reddito di inclusione / SFL"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-08-02",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

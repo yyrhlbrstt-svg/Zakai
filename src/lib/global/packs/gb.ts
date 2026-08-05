@@ -98,7 +98,7 @@ Please apply the allowance for the current tax year and backdate the claim acros
     "employment_expenses_relief",
     "tax",
     employee,
-    "Income Tax (Earnings and Pensions) Act 2003, s. 336 and s. 367",
+    "Income Tax (Earnings and Pensions) Act 2003, s. 336 (deductions for expenses: the general rule)",
     {
       kind: "letter",
       recipient: "hmrc",
@@ -145,7 +145,7 @@ Please give the additional relief due at my marginal rate for the current and al
     "council_tax_single_person",
     "municipal",
     all(not(partnered), num("dependents", { lte: 0 })),
-    "Local Government Finance Act 1992, s. 11(2)(a)",
+    "Local Government Finance Act 1992, s. 11(1)",
     {
       kind: "letter",
       recipient: "council",
@@ -161,7 +161,7 @@ Please apply the 25% single person discount, backdate it to the date the sole oc
     "council_tax_reduction",
     "municipal",
     lowIncome,
-    "Local Government Finance Act 1992, s. 13A(1)(a) and local CTR scheme",
+    "Local Government Finance Act 1992, s. 13A(2) and Schedule 1A (local Council Tax Reduction scheme)",
     {
       kind: "letter",
       recipient: "council",
@@ -325,7 +325,7 @@ Please confirm whether the rebate has been applied for the current scheme year, 
     "energy_billing_review",
     "energy",
     always,
-    "Gas and Electricity (Consumer Protection) — Ofgem standard licence conditions; Limitation Act 1980, s. 5",
+    "Ofgem Standard Licence Conditions 21B (billing based on meter readings), 21BA (backbilling) and 4D (credit balance protection); Limitation Act 1980, s. 5",
     {
       kind: "letter",
       recipient: "energy_supplier",
@@ -349,7 +349,7 @@ Please refund any credit balance held, and correct any charge based on an estima
     "subscription_audit",
     "consumer",
     always,
-    "Consumer Rights Act 2015; Payment Services Regulations 2017, reg. 79 (cancelling a continuous payment authority)",
+    "Consumer Rights Act 2015; Payment Services Regulations 2017, reg. 67 (withdrawal of consent to a continuous payment authority)",
     { kind: "tool", tool: "/cancel" },
   ),
   right(
@@ -511,12 +511,72 @@ Please confirm the current balance, any credit balance on the account, and repay
 If the deposit was not protected within the statutory period, please confirm how you propose to remedy that.`,
     },
   ),
+  // ---- Banking depth (institutional surface for UK bank pilots) ------------
+  right(
+    "app_fraud_refund_claim",
+    "banking",
+    always,
+    "PSR Specific Direction 20 (Faster Payments) / 21 (CHAPS) — mandatory APP scam reimbursement, effective 7 October 2024 (supersedes the voluntary CRM Code for in-scope payments)",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber", "details"],
+      subject: "Authorised push payment scam — mandatory reimbursement claim — account {accountNumber}",
+      body: `${IDENTITY} I was deceived into authorising a payment from account {accountNumber}. Particulars: {details}
+
+This payment falls under the PSR's mandatory APP scam reimbursement requirement (in force since 7 October 2024). Please assess my claim under that scheme, confirm the outcome in writing, and set out any excess applied and the refund timeline.`,
+    },
+  ),
+  right(
+    "basic_bank_account_access",
+    "banking",
+    always,
+    "Payment Accounts Regulations 2015, Part 4 (access to a payment account with basic features)",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty"],
+      subject: "Request for a payment account with basic features",
+      body: `${IDENTITY} Please confirm whether you offer a payment account with basic features under the Payment Accounts Regulations 2015 and, if so, the eligibility criteria, fees, and how I may open one.
+
+If you refuse, please state the lawful ground for refusal in writing.`,
+    },
+  ),
+  right(
+    "dormant_account_unclaimed",
+    "banking",
+    always,
+    "Dormant Bank and Building Society Accounts Act 2008; reclaim process administered via reclaim funds / participating institutions",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber", "details"],
+      subject: "Reclaim enquiry — possible dormant account balance",
+      body: `${IDENTITY} I believe funds belonging to me (or to a person for whom I am a lawful claimant) may be held in a dormant account with you. Account or identifying details: {accountNumber}. Further particulars: {details}
+
+Please search your records, confirm any reclaimable balance, and provide the forms required to complete repayment.`,
+    },
+  ),
+  right(
+    "persistent_overdraft_review",
+    "banking",
+    always,
+    "FCA Handbook, CONC 5D (persistent debt) and BCOBS (overdraft charges and communications)",
+    {
+      kind: "letter",
+      recipient: "bank",
+      fields: ["counterparty", "accountNumber"],
+      subject: "Persistent overdraft / arranged overdraft review — account {accountNumber}",
+      body: `${IDENTITY} Please provide a schedule of overdraft interest and charges on account {accountNumber} for the last 12 months, confirm whether I have been treated under the persistent debt rules in CONC 5D, and set out cheaper alternatives or forbearance options available to me.`,
+    },
+  ),
+
 ];
 
 export const GB_PACK: JurisdictionPack = {
   market: "GB",
-  version: "2026.08.1",
-  reviewed: "2026-08-02",
+  version: "2026.08.2",
+  reviewed: "2026-08-03",
   docLocale: "en-GB",
   currency: "GBP",
   minorUnits: 100,

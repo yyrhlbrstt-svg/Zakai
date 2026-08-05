@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button, Card } from "@/components/ui";
-import { alternateLanguages, SITE_URL } from "@/lib/seo";
+import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 import { entitlementIdFromSlug, IL_RIGHT_SLUGS } from "@/lib/rightsSeo";
 import { actionFor } from "@/lib/rightsActions";
+import { ZmlOpenStandardFooter } from "@/components/ZmlOpenStandardFooter";
 import { activeLocales, type Locale } from "@/i18n/config";
 
 type ItemCopy = { title: string; desc: string; how: string };
@@ -33,14 +34,13 @@ export async function generateMetadata({
   const title = item?.title ?? id;
   const description = item?.desc ?? "";
   const path = `/rights/${slug}`;
+  const pageTitle = `${title} — Zakai`;
   return {
-    title: `${title} — Zakai`,
+    title: pageTitle,
     description,
     alternates: { languages: alternateLanguages(path) },
     openGraph: {
-      title,
-      description,
-      url: `${SITE_URL}/${locale}${path}`,
+      ...defaultOpenGraph(locale, { title: pageTitle, description, path }),
       type: "article",
     },
   };
@@ -98,6 +98,7 @@ export default async function RightLandingPage({
           {zmlId}
         </a>
       </p>
+      <ZmlOpenStandardFooter locale={locale} />
     </main>
   );
 }

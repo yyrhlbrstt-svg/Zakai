@@ -1,0 +1,87 @@
+{
+  "zml_version": "1.0.0",
+  "id": "de_pflege_kranken_beitrag",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Pflege Kranken Beitrag",
+    "he": "סיעוד · בריאות · תשלום"
+  },
+  "market": "DE",
+  "category": "health",
+  "predicate": {
+    "operator": "OR",
+    "conditions": [
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "employment",
+            "operator": "in",
+            "value": [
+              "employee",
+              "self_employed"
+            ],
+            "source": "user_input"
+          }
+        ]
+      },
+      {
+        "operator": "OR",
+        "conditions": [
+          {
+            "operator": "AND",
+            "conditions": [
+              {
+                "field": "ageYears",
+                "operator": "gte",
+                "value": 66,
+                "source": "user_input"
+              }
+            ]
+          },
+          {
+            "operator": "AND",
+            "conditions": [
+              {
+                "field": "employment",
+                "operator": "in",
+                "value": [
+                  "retired"
+                ],
+                "source": "user_input"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "operator": "AND",
+        "conditions": [
+          {
+            "field": "hasDisability",
+            "operator": "eq",
+            "value": true,
+            "source": "user_input"
+          }
+        ]
+      }
+    ]
+  },
+  "action": {
+    "kind": "letter",
+    "template_ref": "https://zakai-3uxj.vercel.app/api/rights/catalog/de_pflege_kranken_beitrag",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "email"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "SGB V — Beitrags- und Erstattungsfragen"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

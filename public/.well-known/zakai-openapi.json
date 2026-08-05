@@ -8,6 +8,29 @@
   },
   "servers": [{ "url": "/api", "description": "Same origin as the Zakai deployment" }],
   "paths": {
+    "/markets": {
+      "get": {
+        "operationId": "listMarkets",
+        "summary": "Supported Zakai markets (engine + ZML catalog)",
+        "tags": ["Discovery"],
+        "responses": {
+          "200": {
+            "description": "Market list with catalog links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean" },
+                    "markets": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/rights/catalog": {
       "get": {
         "operationId": "listRightsCatalog",

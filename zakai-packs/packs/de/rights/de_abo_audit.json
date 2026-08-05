@@ -1,0 +1,32 @@
+{
+  "zml_version": "1.0.0",
+  "id": "de_abo_audit",
+  "version": "2026-07-28",
+  "display_name": {
+    "en": "Recurring charge scan",
+    "he": "סריקת חיובים"
+  },
+  "market": "DE",
+  "category": "consumer_protection",
+  "predicate": {
+    "operator": "AND",
+    "conditions": []
+  },
+  "action": {
+    "kind": "calculation",
+    "internal_tool": "/scan",
+    "auto_eligible": false,
+    "requires_human_gate": true,
+    "output_format": "json"
+  },
+  "source": {
+    "type": "guideline",
+    "reference": "BGB Widerruf / Kündigung von Dauerschuldverhältnissen"
+  },
+  "metadata": {
+    "maintainer": "yyrhlbrstt@gmail.com",
+    "last_verified": "2026-07-28",
+    "confidence": "high",
+    "evaluation_engine": "zakai_predicate_v1"
+  }
+}

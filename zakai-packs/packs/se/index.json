@@ -1,0 +1,29 @@
+{
+  "pack_version": "2026.08.1",
+  "market": "SE",
+  "language": "sv-SE",
+  "maintainer": "se-maintainer@zakai.io",
+  "rights_count": 11,
+  "rights": [
+    "se_barnbidrag",
+    "se_akassa",
+    "se_garantipension",
+    "se_bostadsbidrag",
+    "se_sjukersattning",
+    "se_forsorjningsstod",
+    "se_studiemedel",
+    "se_hyresdeposit",
+    "se_bankavgifter",
+    "se_flyg",
+    "se_prenumerationer"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:17:41.527Z",
+    "source": "src/lib/global/registry"
+  }
+}

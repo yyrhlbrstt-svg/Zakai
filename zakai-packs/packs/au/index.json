@@ -1,0 +1,26 @@
+{
+  "pack_version": "2026.07.1",
+  "market": "AU",
+  "language": "en-AU",
+  "maintainer": "au-maintainer@zakai.io",
+  "rights_count": 8,
+  "rights": [
+    "au_super_guarantee_shortfall",
+    "au_lost_unclaimed_super",
+    "au_consumer_guarantee_remedy",
+    "au_unsolicited_agreement_coolingoff",
+    "au_family_tax_benefit",
+    "au_paid_parental_leave",
+    "au_jobseeker_payment",
+    "au_recurring_charges_scan"
+  ],
+  "engine_requirements": {
+    "zml_version": ">=1.0.0 <2.0.0",
+    "extensions": []
+  },
+  "_meta": {
+    "schema_url": "https://packs.zakai.io/schema/zakai-rights-schema.json",
+    "last_updated": "2026-08-03T15:17:41.523Z",
+    "source": "src/lib/global/registry"
+  }
+}

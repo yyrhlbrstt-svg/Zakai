@@ -1,16 +1,67 @@
 import { NextResponse } from "next/server";
 import { aiAvailable, aiProvider } from "@/lib/ai";
-import { version as pkgVersion } from "../../../../package.json";
+import pkg from "../../../../package.json";
+import { allMarkets } from "@/lib/global/registry";
+import { CATALOG_ONLY_MARKETS } from "@/lib/global/marketGeo";
+import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
+import { emailConfigured } from "@/lib/messaging";
+import { isInternalOpsRequest } from "@/lib/ops/internalAdminGate";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  return NextResponse.json({
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
+
+/** Public version probe — no AI provider, ops flags, or market inventory (see internal). */
+export async function GET(request: Request) {
+  const marketCodes = [
+    ...allMarkets().map((m) => m.code),
+    ...Object.keys(CATALOG_ONLY_MARKETS),
+  ].sort();
+
+  const internal = isInternalOpsRequest(request);
+
+  const publicBase = {
     ok: true,
     name: "zakai",
-    version: pkgVersion,
+    version: pkg.version,
     buildMarker: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? "local",
+    see: {
+      app: APP_URL,
+      protocol: "/.well-known/zakai-protocol.json",
+      interop: "/.well-known/zakai-interop.json",
+      mandate: "/.well-known/zakai-mandate.json",
+      markets: "/api/markets",
+      domains: "/.well-known/zakai-domains.json",
+      howTo: "HOW-TO-SEE.md (repo root)",
+    },
+    time: new Date().toISOString(),
+  };
+
+  if (!internal) {
+    return NextResponse.json(publicBase);
+  }
+
+  return NextResponse.json({
+    ...publicBase,
     positioning: "standard consumer money agent + Mandate infrastructure",
+    operations: {
+      payments_live: paymentsFullyLive(),
+      email_delivery: emailConfigured(),
+    },
+    ai: { available: aiAvailable(), provider: aiProvider() },
+    markets: marketCodes,
+    see: {
+      ...publicBase.see,
+      version: "/api/version",
+      zml_schema: "/.well-known/zakai-rights-schema.json",
+      rights_catalog: "/api/rights/catalog?market={market}",
+      global_hub: "/en/global",
+      interop_probe: "/api/interop?probe=1",
+      network: "/api/network",
+      jwks: "/.well-known/zakai-jwks.json",
+      openapi: "/api/mandate/openapi.json",
+      health_internal: "/api/health?internal=1",
+    },
     tracks: {
       consumer:
         "problem doors · Money OS · electricity/bank/cancel/airline full agent · household · viral SAVED · persistence recheck",
@@ -40,8 +91,6 @@ export async function GET() {
       inboundProofsLoop: true,
       webPush: true,
     },
-    ai: { available: aiAvailable(), provider: aiProvider() },
-    markets: ["IL", "GB", "US", "DE", "FR", "CA"],
     fullVerticalsIL: [
       "telecom",
       "bank-fees",
@@ -56,18 +105,5 @@ export async function GET() {
       "duplicate-insurance",
       "arnona",
     ],
-    see: {
-      app: process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app",
-      version: "/api/version",
-      protocol: "/.well-known/zakai-protocol.json",
-      zml_schema: "/.well-known/zakai-rights-schema.json",
-      rights_catalog: "/api/rights/catalog?market=IL",
-      network: "/api/network",
-      mandate: "/.well-known/zakai-mandate.json",
-      jwks: "/.well-known/zakai-jwks.json",
-      openapi: "/api/mandate/openapi.json",
-      howTo: "HOW-TO-SEE.md (repo root)",
-    },
-    time: new Date().toISOString(),
   });
 }

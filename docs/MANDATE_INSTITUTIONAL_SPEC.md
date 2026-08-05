@@ -69,9 +69,12 @@ issuer can never obtain a scope forbidden to anyone, and can never exceed the
 specific subset it was admitted for.
 
 Applying is self-service (`POST /api/mandate/delegation/apply`, or the form at
-`/en/institutions`) — no email thread required to start. Turning an approved
-application into a real key stays a manual, human-reviewed step: admission to
-a trust boundary should never be fully automatic.
+`/en/institutions`) — no email thread required to start. The *decision* to
+admit an applicant stays a manual, human-reviewed step: admission to a trust
+boundary should never be fully automatic. Executing an approved decision is
+`POST /api/mandate/delegation/issuers` (admin token) — it generates and
+correctly hashes the key rather than that being a hand-written INSERT, but
+the human judgment call happens before that call is ever made.
 
 ## Forbidden scopes
 
