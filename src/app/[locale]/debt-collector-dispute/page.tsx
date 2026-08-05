@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { FdcpaValidationTool } from "@/components/FdcpaValidationTool";
 import { RightsChecker } from "@/components/RightsChecker";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -48,6 +49,7 @@ export default async function DebtCollectorDisputePage({
       }
     >
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="US" />
+      <FdcpaValidationTool />
     </VerticalPageShell>
   );
 }
