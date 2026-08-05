@@ -53,6 +53,28 @@ Rate limit: 120 requests / 60s, keyed by the resolved customer identity.
   so there is nothing in the underlying table to link a row to a person even
   with database access.
 
+## Second report: institution risk trend
+
+`POST /api/evidence/institution-risk-trend` — same `EvidenceKey`/
+`EVIDENCE_API_KEY` auth, same rate limiting, different question. The free
+public `GET /api/institution/inbound-pressure` publishes one current
+snapshot of documented outbound case volume per institution; this splits
+that same volume into two consecutive 30-day windows so a regulator's own
+risk team or an institution's own compliance desk sees *direction* —
+whether pressure is accelerating — not just today's level.
+
+```bash
+curl -sS -X POST "https://zakai-3uxj.vercel.app/api/evidence/institution-risk-trend" \
+  -H "Authorization: Bearer ev_live_..."
+```
+
+Same discipline as the systemic-pattern report: gated by `MIN_SAMPLE` total
+across both windows, and `change_pct` is `null` — never a fabricated ratio —
+when the prior window had zero cases. Deliberately a two-window delta, not a
+fitted trendline: claiming more statistical sophistication than a sample
+supports is the same honesty failure `MIN_SAMPLE` and the Oracle's
+`confident` flag both exist to prevent.
+
 ## Laws
 
 Same non-negotiables as everywhere else in this codebase: never fabricate a

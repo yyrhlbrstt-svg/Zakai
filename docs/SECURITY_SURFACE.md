@@ -17,6 +17,8 @@ Some endpoints were too chatty for anonymous reconnaissance. Policy:
 | `POST /api/mandate/registry/issuers` | Admin only — `Authorization: Bearer $ZAKAI_ADMIN_TOKEN`; admits a full trust-registry issuer (own JWKS) | — |
 | `POST /api/evidence/systemic-pattern` | Closed unless a credential resolves — legacy `EVIDENCE_API_KEY` env var, or a per-customer `EvidenceKey` (mint via `POST /api/evidence/keys`, admin token); Bearer required | — |
 | `POST /api/evidence/keys` | Admin only — `Authorization: Bearer $ZAKAI_ADMIN_TOKEN` | — |
+| `POST /api/evidence/institution-risk-trend` | Same `EvidenceKey`/`EVIDENCE_API_KEY` auth as systemic-pattern | — |
+| `POST /api/authority/track-record/verify` | Public — verifies a track-record credential someone hands you, no auth needed | — |
 | Cron routes | `CRON_SECRET` / Vercel cron auth | — |
 | `GET /api/release-gate` | Scores + failing check **ids** only | `?internal=1` + admin token — includes `envKeys` per check |
 | `GET /api/network/readiness` | Layer booleans, `paymentsMode: live\|demo` | — |
