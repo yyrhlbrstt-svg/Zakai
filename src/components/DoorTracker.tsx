@@ -3,6 +3,20 @@
 import { useEffect } from "react";
 
 /**
+ * Doors whose click counts as a conversion. Must cover every href in the
+ * home.tsx `doorsByKey` list — a door missing here is an experiment arm that
+ * can never accumulate conversions and can never be promoted, no matter how
+ * well it actually performs.
+ */
+const CONVERSION_HREF_RE =
+  /\/(money|cancel|what-am-i-owed|entitlements|electricity|incident|dormant|vehicle-check)(\/|$|\?)/;
+
+/** Pure so the door→conversion mapping is testable without a DOM. */
+export function isConversionHref(href: string): boolean {
+  return CONVERSION_HREF_RE.test(href);
+}
+
+/**
  * Reports what the visitor did with the doors, so the engine has something to
  * learn from.
  *
@@ -40,7 +54,7 @@ export function DoorTracker({
       const link = (e.target as HTMLElement | null)?.closest?.("a[href]");
       if (!link) return;
       const href = link.getAttribute("href") ?? "";
-      if (/\/(money|cancel|what-am-i-owed|electricity)(\/|$|\?)/.test(href)) {
+      if (isConversionHref(href)) {
         report(true, true);
       }
     };
