@@ -6042,7 +6042,23 @@
     "kicker": "Water",
     "title": "Water bill spiked suddenly?",
     "sub": "Letter to the water utility for a concealed-leak adjustment per their rules.",
-    "cite": "Repair proof required; no guaranteed amount."
+    "cite": "Repair proof required; no guaranteed amount.",
+    "agent": {
+      "title": "Open a leak-credit case",
+      "sub": "The agent drafts a letter to the water corporation requesting review of a concealed-leak credit for a repaired leak.",
+      "proofQ": "Do you have a plumber's repair confirmation?",
+      "proofYes": "Yes, I have it",
+      "proofNo": "Not yet",
+      "name": "Full name",
+      "accountNumber": "Account number",
+      "contactEmail": "Water corporation email",
+      "repairDate": "Leak repair date",
+      "billAmount": "Spiked bill amount (optional)",
+      "needsEmail": "A valid water corporation email is needed to send the request.",
+      "openedTitle": "Case opened",
+      "openedSub": "The leak-credit request was sent. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "landlordRepairs": {
     "metaTitle": "Rental repairs — demand letter to landlord | Zakai",
