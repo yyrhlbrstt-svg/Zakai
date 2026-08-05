@@ -6017,7 +6017,26 @@
     "cite": "No promise to erase valid debt — only fair-process rights.",
     "usTitle": "US debt?",
     "usSub": "FDCPA validation before you pay.",
-    "usCta": "FDCPA letter"
+    "usCta": "FDCPA letter",
+    "agent": {
+      "title": "Open a debt-verification case",
+      "sub": "The agent drafts a letter to the collector demanding written debt verification and a stop to harassment until you get one.",
+      "reasonQ": "What's the problem?",
+      "reasons": {
+        "harassment": "Repeated, harassing calls",
+        "no_written_notice": "Never got written notice",
+        "disputed_amount": "I dispute the amount",
+        "other": "Other"
+      },
+      "name": "Full name",
+      "collectorName": "Collector's name",
+      "contactEmail": "Collector's email",
+      "claimedAmount": "Claimed amount (optional)",
+      "needsEmail": "A valid collector email is needed to send the request.",
+      "openedTitle": "Case opened",
+      "openedSub": "The debt-verification demand was sent. Track its status on your dashboard.",
+      "dashboard": "Go to dashboard"
+    }
   },
   "carInsuranceRefund": {
     "metaTitle": "Car insurance refund — Zakai",
