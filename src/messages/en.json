@@ -5827,7 +5827,19 @@
     "cite": "Based on the FLSA and applicable state wage laws — not legal advice and not a promise of recovery.",
     "ilTitle": "Working in Israel?",
     "ilSub": "Use our overtime calculator and full agent loops for mobile, electricity, and more.",
-    "ilCta": "Israel overtime calculator"
+    "ilCta": "Israel overtime calculator",
+    "tool": {
+      "title": "Draft your wage-statement request",
+      "sub": "Fill in your employer's name and the pay period in question. The letter cites the FLSA and applicable state wage-and-hour law.",
+      "nameQ": "Your name",
+      "employerQ": "Employer's name",
+      "periodQ": "Pay period (e.g. March 2026)",
+      "detailsQ": "Anything specific to add (optional)",
+      "generateCta": "Draft the letter",
+      "copy": "Copy letter",
+      "copied": "Copied",
+      "sendHint": "Send it to your employer yourself — Zakai doesn't send this one."
+    }
   },
   "toolsPage": {
     "metaTitle": "All tools — Zakai",
