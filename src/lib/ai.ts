@@ -399,6 +399,71 @@ function extractJson(text: string): unknown {
   return JSON.parse(cleaned);
 }
 
+/**
+ * Single entry point for every "generate text, maybe with an image" call in
+ * this file. When Anthropic is configured but fails at call time (bad key,
+ * no credits, transient outage), retries via the next configured provider
+ * instead of throwing — same resilience as askZakai's assistant chat, now
+ * shared by every AI feature that has no other fallback of its own (bill
+ * OCR, receipt OCR, statement extraction, contract analysis). Callers that
+ * already degrade to a non-AI fallback (generateRecommendation → template,
+ * extractSavingsFromEmail → regex) keep their own try/catch and don't need
+ * this — a second AI attempt there would just delay reaching a fallback
+ * that's already correct.
+ */
+async function generateText(opts: {
+  system: string;
+  userText: string;
+  imageBase64?: string;
+  mediaType?: string;
+  model: string;
+  maxTokens: number;
+  temperature?: number;
+  geminiPreferModel?: string;
+}): Promise<string> {
+  if (aiProvider() !== "anthropic") return fallbackGenerate(opts);
+
+  async function callAnthropic(): Promise<string> {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: opts.model,
+      max_tokens: opts.maxTokens,
+      temperature: opts.temperature ?? 0,
+      system: cachedSystem(opts.system),
+      messages: [
+        {
+          role: "user",
+          content: opts.imageBase64
+            ? [
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: (opts.mediaType ?? "image/jpeg") as "image/jpeg",
+                    data: opts.imageBase64,
+                  },
+                },
+                { type: "text", text: opts.userText },
+              ]
+            : opts.userText,
+        },
+      ],
+    });
+    return msg.content
+      .map((b) => (b.type === "text" ? b.text : ""))
+      .join("\n")
+      .trim();
+  }
+
+  try {
+    return await callAnthropic();
+  } catch (err) {
+    const secondary = secondaryProvider();
+    if (!secondary) throw err;
+    return fallbackGenerate(opts, secondary);
+  }
+}
+
 // ---------- Bill image analysis (OCR) ----------
 
 export interface BillAnalysis {
@@ -414,39 +479,15 @@ export async function analyzeBillImage(
   base64: string,
   mediaType: string,
 ): Promise<BillAnalysis> {
-  let text: string;
-  if (aiProvider() !== "anthropic") {
-    text = await fallbackGenerate({
-      system: BILL_EXTRACT_SYSTEM,
-      userText: "Extract this bill.",
-      imageBase64: base64,
-      mediaType,
-      maxTokens: 400,
-      temperature: 0,
-    });
-  } else {
-    const anthropic = client();
-    const msg = await anthropic.messages.create({
-      model: EXTRACT_MODEL,
-      max_tokens: 400,
-      temperature: 0,
-      // Stable instructions in a cached system block; only the image is dynamic.
-      system: cachedSystem(BILL_EXTRACT_SYSTEM),
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
-            },
-            { type: "text", text: "Extract this bill." },
-          ],
-        },
-      ],
-    });
-    text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
-  }
+  const text = await generateText({
+    system: BILL_EXTRACT_SYSTEM,
+    userText: "Extract this bill.",
+    imageBase64: base64,
+    mediaType,
+    model: EXTRACT_MODEL,
+    maxTokens: 400,
+    temperature: 0,
+  });
   const parsed = extractJson(text) as {
     provider?: string;
     amount?: number | null;
@@ -483,38 +524,15 @@ export async function analyzeReceiptImage(
   base64: string,
   mediaType: string,
 ): Promise<ReceiptAnalysis> {
-  let text: string;
-  if (aiProvider() !== "anthropic") {
-    text = await fallbackGenerate({
-      system: RECEIPT_EXTRACT_SYSTEM,
-      userText: "Extract this receipt.",
-      imageBase64: base64,
-      mediaType,
-      maxTokens: 400,
-      temperature: 0,
-    });
-  } else {
-    const anthropic = client();
-    const msg = await anthropic.messages.create({
-      model: EXTRACT_MODEL,
-      max_tokens: 400,
-      temperature: 0,
-      system: cachedSystem(RECEIPT_EXTRACT_SYSTEM),
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
-            },
-            { type: "text", text: "Extract this receipt." },
-          ],
-        },
-      ],
-    });
-    text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
-  }
+  const text = await generateText({
+    system: RECEIPT_EXTRACT_SYSTEM,
+    userText: "Extract this receipt.",
+    imageBase64: base64,
+    mediaType,
+    model: EXTRACT_MODEL,
+    maxTokens: 400,
+    temperature: 0,
+  });
   const parsed = extractJson(text) as {
     vendor?: string;
     amount?: number | null;
@@ -645,42 +663,15 @@ export async function extractStatementImage(
   base64: string,
   mediaType: string,
 ): Promise<string> {
-  let text: string;
-  if (aiProvider() !== "anthropic") {
-    text = await fallbackGenerate({
-      system: STATEMENT_EXTRACT_SYSTEM,
-      userText: "Extract the transactions.",
-      imageBase64: base64,
-      mediaType,
-      maxTokens: 1500,
-      temperature: 0,
-    });
-  } else {
-    const anthropic = client();
-    const msg = await anthropic.messages.create({
-      model: EXTRACT_MODEL,
-      max_tokens: 1500,
-      temperature: 0,
-      system: cachedSystem(STATEMENT_EXTRACT_SYSTEM),
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image",
-              source: { type: "base64", media_type: mediaType as "image/jpeg", data: base64 },
-            },
-            { type: "text", text: "Extract the transactions." },
-          ],
-        },
-      ],
-    });
-    text = msg.content
-      .map((b) => (b.type === "text" ? b.text : ""))
-      .join("\n")
-      .trim();
-  }
-  text = text.trim();
+  const text = await generateText({
+    system: STATEMENT_EXTRACT_SYSTEM,
+    userText: "Extract the transactions.",
+    imageBase64: base64,
+    mediaType,
+    model: EXTRACT_MODEL,
+    maxTokens: 1500,
+    temperature: 0,
+  });
   return text === "NONE" ? "" : text;
 }
 
@@ -841,25 +832,13 @@ Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {
  */
 export async function analyzeContractText(text: string): Promise<ContractAnalysis> {
   const input = text.slice(0, 20_000);
-  let raw: string;
-  if (aiProvider() !== "anthropic") {
-    raw = await fallbackGenerate({
-      system: CONTRACT_ANALYSIS_SYSTEM,
-      userText: input,
-      maxTokens: 2000,
-      temperature: 0,
-    });
-  } else {
-    const anthropic = client();
-    const msg = await anthropic.messages.create({
-      model: DRAFT_MODEL,
-      max_tokens: 2000,
-      temperature: 0,
-      system: cachedSystem(CONTRACT_ANALYSIS_SYSTEM),
-      messages: [{ role: "user", content: input }],
-    });
-    raw = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
-  }
+  const raw = await generateText({
+    system: CONTRACT_ANALYSIS_SYSTEM,
+    userText: input,
+    model: DRAFT_MODEL,
+    maxTokens: 2000,
+    temperature: 0,
+  });
   try {
     return normalizeContractAnalysis(extractJson(raw));
   } catch {
@@ -895,70 +874,19 @@ export async function askZakai(
   const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
   const system = buildAssistantSystem();
 
-  if (aiProvider() !== "anthropic") {
-    // The assistant is the most reasoning-heavy call in the app, so on Gemini
-    // we reach for the smarter "pro" model first (still cheap against a prepaid
-    // credit) and fall back to flash automatically if it's unavailable.
-    return fallbackGenerate({
-      system,
-      userText,
-      imageBase64: image?.base64,
-      mediaType: image?.mediaType,
-      maxTokens: 1024,
-      temperature: 0.3,
-      geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
-    });
-  }
-
-  try {
-    const anthropic = client();
-    const msg = await anthropic.messages.create({
-      model: DRAFT_MODEL,
-      max_tokens: 1024,
-      temperature: 0.3,
-      system: cachedSystem(system),
-      messages: [
-        {
-          role: "user",
-          content: image
-            ? [
-                {
-                  type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: image.mediaType as "image/jpeg",
-                    data: image.base64,
-                  },
-                },
-                { type: "text", text: userText },
-              ]
-            : userText,
-        },
-      ],
-    });
-    return msg.content
-      .map((b) => (b.type === "text" ? b.text : ""))
-      .join("\n")
-      .trim();
-  } catch (err) {
-    // A configured-but-broken Anthropic key (expired, no credits, transient
-    // outage) must not take the assistant down when a working secondary key
-    // is sitting right there unused — try it before giving up.
-    const secondary = secondaryProvider();
-    if (!secondary) throw err;
-    return fallbackGenerate(
-      {
-        system,
-        userText,
-        imageBase64: image?.base64,
-        mediaType: image?.mediaType,
-        maxTokens: 1024,
-        temperature: 0.3,
-        geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
-      },
-      secondary,
-    );
-  }
+  // The assistant is the most reasoning-heavy call in the app, so on Gemini
+  // we reach for the smarter "pro" model first (still cheap against a
+  // prepaid credit) and fall back to flash automatically if unavailable.
+  return generateText({
+    system,
+    userText,
+    imageBase64: image?.base64,
+    mediaType: image?.mediaType,
+    model: DRAFT_MODEL,
+    maxTokens: 1024,
+    temperature: 0.3,
+    geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
+  });
 }
 
 /**
