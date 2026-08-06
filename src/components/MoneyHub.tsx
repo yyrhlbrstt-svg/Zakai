@@ -646,7 +646,12 @@ export function MoneyHub({
             onChange={(e) => onFile(e.target.files?.[0])}
           />
         </div>
-        {!canScan && text.trim().length > 0 && (
+        {/* Shown whenever the scan button is blocked, including on an empty
+            box. Requiring text before explaining meant the primary CTA of the
+            main entry page sat disabled and silent on first load — the exact
+            "I press it and nothing happens" people reported. The copy already
+            names both ways forward (paste lines, or load the demo). */}
+        {!canScan && (
           <p className="text-[12px] text-ink-soft mt-2 mb-0">{tx(locale, "tooShort")}</p>
         )}
       </Card>

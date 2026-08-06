@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { buildRefundLetter } from "@/lib/refundChase";
 import { withFooter } from "@/lib/letterFooter";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
@@ -114,6 +115,12 @@ export function RefundChaseTool() {
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
 
         <div className="flex flex-col gap-2 mt-1">
+          <MissingFields
+            items={[
+              { ok: company.trim().length > 0, label: t("company") },
+              { ok: hasOutreachEmail(contactEmail), label: t("contactEmailPlaceholder") },
+            ]}
+          />
           <Button onClick={sendWithAgent} disabled={!agentReady || busy} className="w-full">
             {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>

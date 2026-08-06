@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import {
   assessDepositReturn,
@@ -223,12 +224,17 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         {!status?.isLate && (
           <p className="text-[12px] text-ink-soft">{t("agentNeedsLate")}</p>
         )}
-        {status?.isLate && !hasOutreachEmail(landlordEmail) && (
-          <p className="text-[12px] text-amber mb-0">
-            {he
-              ? "נדרש אימייל משכיר — בלי יעד אי אפשר לשלוח Mandate."
-              : "Landlord email is required — Mandate cannot send without a destination."}
-          </p>
+        {/* Once the deposit is actually late, the only thing left between the
+            tenant and a case is the fields — so name every one that is still
+            missing, not just the email. */}
+        {status?.isLate && (
+          <MissingFields
+            items={[
+              { ok: landlordName.trim().length > 0, label: t("landlordQ") },
+              { ok: propertyAddress.trim().length > 0, label: t("addressQ") },
+              { ok: hasOutreachEmail(landlordEmail), label: t("landlordEmailQ") },
+            ]}
+          />
         )}
         {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
       </Card>

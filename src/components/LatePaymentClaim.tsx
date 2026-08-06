@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import {
   assessLatePayment,
@@ -210,12 +211,16 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         {!status?.isLate && (
           <p className="text-[12px] text-ink-soft">{t("agentNeedsLate")}</p>
         )}
-        {status?.isLate && !hasOutreachEmail(clientEmail) && (
-          <p className="text-[12px] text-amber mb-0">
-            {he
-              ? "נדרש אימייל לקוח — בלי יעד אי אפשר לשלוח Mandate."
-              : "Client email is required — Mandate cannot send without a destination."}
-          </p>
+        {/* Once the invoice is actually late, the fields are all that stand
+            between the freelancer and a case — so name every missing one,
+            not just the email. */}
+        {status?.isLate && (
+          <MissingFields
+            items={[
+              { ok: clientName.trim().length > 0, label: t("clientQ") },
+              { ok: hasOutreachEmail(clientEmail), label: t("clientEmailQ") },
+            ]}
+          />
         )}
         {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
       </Card>

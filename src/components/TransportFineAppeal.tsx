@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
@@ -156,6 +157,16 @@ ${name || "____"}
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
 
         <div className="flex flex-col gap-2">
+          <MissingFields
+            items={[
+              { ok: report.trim().length > 0, label: t("report") },
+              { ok: operator.trim().length > 0, label: t("operator") },
+              {
+                ok: Boolean(knownInbox) || hasOutreachEmail(operatorEmail),
+                label: tIcomponents_TransportFineAppeal("operatorEmail"),
+              },
+            ]}
+          />
           <Button onClick={sendWithAgent} disabled={!agentReady || busy}>
             {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>

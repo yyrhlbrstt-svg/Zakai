@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { buildCarInsuranceRefundLetter } from "@/lib/carInsuranceRefund";
 import { withFooter } from "@/lib/letterFooter";
 import { resolveInsuranceContactEmail } from "@/lib/utilityContacts";
@@ -147,6 +148,15 @@ export function CarInsuranceRefundTool() {
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
 
         <div className="flex flex-col gap-2 mt-1">
+          <MissingFields
+            items={[
+              { ok: insurer.trim().length > 0, label: heEn(he, "שם המבטח", "Insurer name") },
+              {
+                ok: Boolean(knownInbox) || hasOutreachEmail(contactEmail),
+                label: heEn(he, "אימייל שירות", "Support email"),
+              },
+            ]}
+          />
           <Button onClick={sendWithAgent} disabled={!agentReady || busy} className="w-full">
             {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>

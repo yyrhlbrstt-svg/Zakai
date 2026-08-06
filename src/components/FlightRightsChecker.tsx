@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
 import type { VerticalOutcomeStat as Stat } from "@/lib/strategy/insights";
@@ -23,6 +24,18 @@ const IL_TIERS: DistanceTier[] = ["short", "medium", "long"];
 const EU_TIERS: EuDistanceTier[] = ["short", "medium", "long"];
 const IL_DELAYS = [1, 3, 6, 9] as const;
 const EU_DELAYS = [1, 2.5, 4, 6] as const;
+
+/**
+ * The claim form's fields and their labels, in one place so the inputs and
+ * the "still missing" hint cannot disagree about what the form asks for.
+ */
+const CLAIM_FIELDS = [
+  ["name", "letter.name"],
+  ["airline", "letter.airline"],
+  ["flightNumber", "letter.flightNumber"],
+  ["flightDate", "letter.flightDate"],
+  ["route", "letter.route"],
+] as const;
 
 /**
  * Statutory flight-rights checker + agent path.
@@ -289,15 +302,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
             <>
               <div className="font-extrabold text-[15px] mb-3">{t("letter.title")}</div>
               <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-                {(
-                  [
-                    ["name", "letter.name"],
-                    ["airline", "letter.airline"],
-                    ["flightNumber", "letter.flightNumber"],
-                    ["flightDate", "letter.flightDate"],
-                    ["route", "letter.route"],
-                  ] as const
-                ).map(([field, key]) => (
+                {CLAIM_FIELDS.map(([field, key]) => (
                   <label key={field} className="block">
                     <span className="text-[12.5px] text-ink-soft">{t(key)}</span>
                     <Input
@@ -329,6 +334,18 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
               <p className="text-[12px] text-ink-soft mt-2 mb-0 leading-snug">{tFlow("honestNote")}</p>
 
               <div className="flex flex-col gap-2 mt-4">
+                <MissingFields
+                  items={[
+                    ...CLAIM_FIELDS.map(([field, key]) => ({
+                      ok: form[field].trim().length > 0,
+                      label: t(key),
+                    })),
+                    {
+                      ok: Boolean(knownAirlineInbox) || hasOutreachEmail(airlineEmail),
+                      label: tFlow("contactEmail"),
+                    },
+                  ]}
+                />
                 <Button
                   className="!px-5 !py-3 !text-[14.5px]"
                   disabled={!formComplete || busy}
