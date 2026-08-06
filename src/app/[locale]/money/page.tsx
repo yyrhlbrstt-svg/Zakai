@@ -95,37 +95,40 @@ export default async function MoneyPage({
     pendingFeeAgorot: 0,
   };
   if (user) {
-    if (sp.sent === "1" && focusCaseId) {
-      const deliveredRow = await prisma.outbox
-        .findFirst({
-          where: {
-            caseId: focusCaseId,
-            status: "SENT",
-            case: { userId: user.id },
-          },
-          select: { id: true },
-        })
-        .catch(() => null);
-      justSent = Boolean(deliveredRow);
-    }
-    const cases = await prisma.case.findMany({
-      where: { userId: user.id },
-      select: {
-        id: true,
-        status: true,
-        updatedAt: true,
-        provider: true,
-        vertical: true,
-        amountOriginal: true,
-        targetAmount: true,
-        counterpartyEmail: true,
-        fee: { select: { amount: true, status: true } },
-        authorization: { select: { status: true } },
-        savingsProof: { select: { savingMonthly: true, selfReported: true } },
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 40,
-    });
+    // Independent of each other — same user.id, no shared dependency.
+    const [deliveredRow, cases] = await Promise.all([
+      sp.sent === "1" && focusCaseId
+        ? prisma.outbox
+            .findFirst({
+              where: {
+                caseId: focusCaseId,
+                status: "SENT",
+                case: { userId: user.id },
+              },
+              select: { id: true },
+            })
+            .catch(() => null)
+        : Promise.resolve(null),
+      prisma.case.findMany({
+        where: { userId: user.id },
+        select: {
+          id: true,
+          status: true,
+          updatedAt: true,
+          provider: true,
+          vertical: true,
+          amountOriginal: true,
+          targetAmount: true,
+          counterpartyEmail: true,
+          fee: { select: { amount: true, status: true } },
+          authorization: { select: { status: true } },
+          savingsProof: { select: { savingMonthly: true, selfReported: true } },
+        },
+        orderBy: { updatedAt: "desc" },
+        take: 40,
+      }),
+    ]);
+    justSent = Boolean(deliveredRow);
     const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
     const [proposedMap, agentRounds] = await Promise.all([
       sentIds.length > 0 ? getProposedSavingsMap(sentIds) : Promise.resolve(new Map()),

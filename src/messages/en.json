@@ -290,6 +290,7 @@
     "heroLeaks": "Money leak map",
     "moreDoors": "{count} more ways to save →",
     "howTitle": "How it works",
+    "fullGuideLink": "The full guide — every step, every word →",
     "trust": [
       "One agent closes the loop — in-app, under your Mandate",
       "Success fee only — 18% of documented savings",
@@ -823,7 +824,8 @@
     "allTools": "All tools",
     "networkProof": "Network proof",
     "about": "Why Zakai",
-    "global": "World · Markets"
+    "global": "World · Markets",
+    "howItWorks": "How it works"
   },
   "global": {
     "metaTitle": "Zakai worldwide — pick your market",
@@ -3273,6 +3275,51 @@
       "askBtn": "Ask the assistant",
       "checkBtn": "Free check"
     }
+  },
+  "howItWorks": {
+    "metaTitle": "How Zakai works — the full guide",
+    "metaDesc": "No jargon: what Zakai actually does, step by step, and what every word in the app means.",
+    "kicker": "The full guide",
+    "title": "How Zakai works — no jargon",
+    "sub": "No big words. Here's exactly what Zakai does, step by step, and what every word you see in the app means.",
+    "whatTitle": "What Zakai actually is",
+    "whatBody": "Zakai helps you get back money you're already owed — a subscription you forgot to cancel, a wrong bank fee, a flight refund, a government credit. Instead of calling and waiting on hold, Zakai drafts an official letter and sends it on your behalf — and you approve every step before it happens.",
+    "stepsTitle": "Five steps",
+    "steps": [
+      {
+        "title": "1. Scan",
+        "body": "Upload a screenshot of your bank charges, or a statement file. Zakai spots recurring charges, fees, and rights you're owed — in seconds, with nobody but you seeing the data."
+      },
+      {
+        "title": "2. Open a case",
+        "body": "Pick what to act on — say, \"duplicate charge from a mobile provider.\" That's called a \"case\" in the app: just the record of this one specific problem, with every detail in one place."
+      },
+      {
+        "title": "3. Grant a Mandate",
+        "body": "For the agent to send a letter on your behalf, you have to explicitly approve it — that's called a \"Mandate\": a signed digital power of attorney you can revoke any time. Nothing gets sent without it."
+      },
+      {
+        "title": "4. The agent sends and follows up",
+        "body": "Once approved, Zakai sends an official, precise letter to the provider — and tracks the reply. No answer after a few days? A follow-up goes out automatically."
+      },
+      {
+        "title": "5. Document the saving — pay only if it worked",
+        "body": "If money comes back to you, it's recorded as a \"SavingsProof.\" Zakai charges a small success fee only on what was actually saved. Nothing saved — nothing charged."
+      }
+    ],
+    "glossaryTitle": "Words you'll see in the app",
+    "glossary": [
+      { "term": "Case", "def": "The record of one specific problem you opened — its status, amount, and correspondence." },
+      { "term": "Mandate", "def": "A digital power of attorney you sign that authorizes the agent to send a letter on your behalf. Revoke it any time from your authority list." },
+      { "term": "Authorization code", "def": "A code that verifies it's really you — like an SMS code, but for a letter sent in your name." },
+      { "term": "SavingsProof", "def": "The record that money actually came back to you. It's what the fee is based on — nothing else." },
+      { "term": "Success fee", "def": "A small percentage of what was actually saved. Nothing saved means no fee, and there's never an upfront charge." }
+    ],
+    "safeTitle": "Is this safe?",
+    "safeBody": "We never ask for your bank password. You see and approve every letter before it's sent, and you can revoke any authorization at any time from your \"authority wallet\".",
+    "ctaTitle": "Ready to try it?",
+    "ctaBtn": "Start with a scan",
+    "faqLink": "More questions? See the FAQ →"
   },
   "lostMoney": {
     "metaTitle": "Lost money — dormant pensions & insurance | Zakai",
