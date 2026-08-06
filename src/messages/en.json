@@ -20,9 +20,6 @@
     "sent": "Sent",
     "dashboard": "Dashboard"
   },
-  "opsBanner": {
-    "preBilling": "Transparency: real card billing is not connected yet — success-fee checkout runs in demo mode (no real charge), and Pro/Max subscriptions are not billed. Nothing is charged automatically without an explicit action from you."
-  },
   "about": {
     "metaTitle": "Why Zakai",
     "metaDesc": "How Zakai differs from DIY or traditional bill-negotiation services — no fake testimonials, only documented proof.",
@@ -941,7 +938,7 @@
     "perMonth": "/month",
     "choose": "Choose plan",
     "currentPlan": "Your current plan",
-    "billingNote": "Plan changes take effect immediately. Subscription billing starts once payments are connected — until then plans are active with no subscription charge, and success fees are recorded per the selected plan.",
+    "billingNote": "No plan is charged right now. Once payments are connected you'll be able to choose whether to move to a paid plan — until then plans are active for free, and success fees are recorded per the selected plan.",
     "plans": {
       "FREE": {
         "name": "Free",
@@ -3585,7 +3582,7 @@
     "dashboard": "Go to dashboard",
     "caseLimitError": "You've reached the active-case limit on your plan.",
     "genericError": "Couldn't open a case. Try again or sign in again.",
-    "disclaimer": "Not legal advice. You send after verification; documents and decisions remain your responsibility.",
+    "disclaimer": "Not legal advice. After verification, Zakai sends on your behalf under a signed Mandate; documents and decisions remain your responsibility.",
     "rights": {
       "arnona_income": "Income-test discount",
       "arnona_oleh": "New immigrant discount",
@@ -3897,7 +3894,7 @@
     "dashboard": "Go to dashboard",
     "caseLimitError": "You've reached the active-case limit on your plan.",
     "genericError": "Couldn't open a case. Try again or sign in again.",
-    "disclaimer": "Not insurance advice. You send after verification; the decision to cancel stays yours."
+    "disclaimer": "Not insurance advice. After verification, Zakai sends on your behalf under a signed Mandate; the decision to cancel stays yours."
   },
   "constructionDefects": {
     "metaTitle": "Construction defects — up to tens of thousands ₪ from the developer | Zakai",
@@ -4889,7 +4886,7 @@
     }
   },
   "door": {
-    "title": "Continue after My money",
+    "title": "Or start from here",
     "money": {
       "title": "I'm paying too much",
       "sub": "Photograph a bill — open a case, verify on the dashboard, then Mandate send and follow-up.",

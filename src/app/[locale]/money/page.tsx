@@ -306,6 +306,13 @@ export default async function MoneyPage({
                   feeStatus !== "confirming"
                 }
               />
+              {!paymentsLive ? (
+                <p className="w-full m-0 text-[11.5px] text-amber leading-relaxed">
+                  {locale === "he" || locale === "ar"
+                    ? "סליקה אמיתית עדיין לא מחוברת — זה רץ במצב הדגמה, לא נגבה כסף אמיתי."
+                    : "Real payment processing isn't connected yet — this runs in demo mode, no real money is charged."}
+                </p>
+              ) : null}
             </div>
           ) : null}
           <PersonalProofStrip
