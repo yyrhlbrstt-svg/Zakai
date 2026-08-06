@@ -376,8 +376,12 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
 
           {/* Captive pricing. Below the entitlements because it needs a number
               from them, and above nothing else because it is the largest recurring
-              money in the product. */}
-          <CaptiveCard profile={profile} bcp47={bcp47} />
+              money in the product. id="captive": NextActionCard's captive
+              candidates link to /score#captive — this is where that action
+              actually lives (the switch-letter generator), not a separate page. */}
+          <div id="captive">
+            <CaptiveCard profile={profile} bcp47={bcp47} />
+          </div>
         </>
       )}
 

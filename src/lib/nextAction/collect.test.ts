@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { collectCandidates } from "./collect";
 import { pickNext } from "./pick";
+import { entitlementIdFromSlug } from "../rightsSeo";
 import type { RightsProfile } from "../rights";
 
 const NOW = new Date("2026-07-29T00:00:00Z");
@@ -38,6 +39,27 @@ describe("all five categories arrive in one comparable list", () => {
       now: NOW,
     });
     for (const c of list) expect(c.href.startsWith("/")).toBe(true);
+  });
+
+  it("never sends a deadline or one_off candidate back to the page it's shown on", () => {
+    // /score renders NextActionCard — a CTA whose href is /score just reloads
+    // the same page with nothing to do, which reads as a dead/misleading
+    // button. Each entitlement has its own /rights/<slug> landing page with
+    // the real "how" and a working CTA; that's what these must point to.
+    const list = collectCandidates({
+      profile: { ...EMPLOYEE, hasMortgage: true, pastEmployers: 3 },
+      now: NOW,
+    });
+    const entitlementCandidates = list.filter((c) => c.kind === "deadline" || c.kind === "one_off");
+    expect(entitlementCandidates.length).toBeGreaterThan(0);
+    for (const c of entitlementCandidates) {
+      expect(c.href).not.toBe("/score");
+      expect(c.href.startsWith("/rights/")).toBe(true);
+      // Round-trips back to a real entitlement id — i.e. /rights/[slug] will
+      // actually render this, not 404.
+      const slug = c.href.replace("/rights/", "");
+      expect(entitlementIdFromSlug(slug)).not.toBeNull();
+    }
   });
 
   it("does not list the same right twice under two framings", () => {

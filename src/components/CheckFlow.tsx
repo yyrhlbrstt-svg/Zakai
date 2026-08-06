@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
-import { redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
@@ -17,6 +16,7 @@ import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 type Stage =
   | "input"
   | "analyzing"
+  | "open_loop_redirect"
   | "recommend"
   | "verify"
   | "sending"
@@ -47,6 +47,7 @@ interface AuthDoc {
 const STEP_OF: Record<Stage, number> = {
   input: 0,
   analyzing: 1,
+  open_loop_redirect: 1,
   recommend: 2,
   verify: 3,
   sending: 4,
@@ -149,7 +150,14 @@ export function CheckFlow() {
         return;
       }
       if (!res.ok) {
-        if (redirectIfOpenLoop(data, router.push)) return;
+        if (data.error === "OPEN_LOOP" && typeof data.nextHref === "string" && data.nextHref) {
+          // A silent router.push here is exactly the "I clicked a button and
+          // something unexplained happened" complaint — show why for a beat
+          // before leaving, instead of yanking the screen away mid-"analyzing".
+          setStage("open_loop_redirect");
+          setTimeout(() => router.push(data.nextHref), 1600);
+          return;
+        }
         setError(data.error || "genericError");
         setStage("input");
         if (data.error === "aiUnavailable") setManualOpen(true);
@@ -598,6 +606,9 @@ export function CheckFlow() {
       )}
 
       {stage === "analyzing" && <Spinner label={t("analyzing")} sub={t("analyzingSub")} />}
+      {stage === "open_loop_redirect" && (
+        <Spinner label={t("openLoopRedirect")} sub={t("openLoopRedirectSub")} />
+      )}
       {stage === "sending" && <Spinner label={t("sending")} sub={t("sendingSub")} />}
 
       {stage === "recommend" && rec && (

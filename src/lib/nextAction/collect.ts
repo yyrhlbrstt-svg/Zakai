@@ -20,6 +20,7 @@ import { evaluateRights, type RightsProfile } from "../rights";
 import { summariseWatch } from "../vigil/watch";
 import { captiveFor } from "../captive/products";
 import { traceDormant } from "../dormant/trace";
+import { entitlementSlug } from "../rightsSeo";
 import type { Candidate } from "./pick";
 
 export interface CollectInput {
@@ -74,7 +75,7 @@ export function collectCandidates(input: CollectInput): Candidate[] {
     out.push({
       id: item.taxYear ? `${item.rightId}:${item.taxYear}` : item.rightId,
       kind: "deadline",
-      href: "/score",
+      href: `/rights/${entitlementSlug(item.rightId)}`,
       valueMinor: item.valueAtRiskMinor,
       daysLeft: item.daysLeft,
       absolute: item.absolute,
@@ -90,7 +91,7 @@ export function collectCandidates(input: CollectInput): Candidate[] {
     out.push({
       id: r.id,
       kind: "one_off",
-      href: "/score",
+      href: `/rights/${entitlementSlug(r.id)}`,
       valueMinor: valueOf(r),
       daysLeft: null,
       absolute: false,
@@ -111,7 +112,7 @@ export function collectCandidates(input: CollectInput): Candidate[] {
     out.push({
       id: `captive:${p.id}`,
       kind: "recurring",
-      href: "/score",
+      href: "/score#captive",
       // A monthly overpay compounds, so it must not sit at the bottom for
       // want of a figure. It is admitted on kind, and the ranker's `bleeding`
       // reason is what the person is shown instead of a fabricated amount.
