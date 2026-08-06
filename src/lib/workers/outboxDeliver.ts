@@ -15,6 +15,7 @@ import {
 } from "@/lib/workers/outboxRetry";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
+import { buildBrandedEmailHtml } from "@/lib/emailTemplate";
 
 export const OUTBOX_WORKER_BATCH_DEFAULT = 25;
 
@@ -77,6 +78,7 @@ async function deliverEmailRecord(record: Outbox): Promise<"sent" | "failed" | "
       to: record.toAddress,
       subject: record.subject,
       text: record.body,
+      html: buildBrandedEmailHtml(record.subject, record.body),
       replyTo: proofsReply.includes("@") ? proofsReply : undefined,
       attachments,
     });
