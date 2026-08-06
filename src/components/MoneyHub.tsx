@@ -249,6 +249,7 @@ export function MoneyHub({
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
+  const [shotNeedsLogin, setShotNeedsLogin] = useState(false);
   const [saved, setSaved] = useState<SavedSummary | null>(null);
   const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
   const [batchBusy, setBatchBusy] = useState(false);
@@ -319,6 +320,7 @@ export function MoneyHub({
   async function onScreenshot(file?: File | null) {
     if (!file) return;
     setShotError(false);
+    setShotNeedsLogin(false);
     setShotBusy(true);
     try {
       const buf = await file.arrayBuffer();
@@ -330,6 +332,12 @@ export function MoneyHub({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64: btoa(bin), mediaType: file.type || "image/jpeg" }),
       });
+      // Not logged in: the read is a real 401, not a blurry photo — say so,
+      // or the CSV/paste path below (which needs no login) looks broken too.
+      if (res.status === 401) {
+        setShotNeedsLogin(true);
+        return;
+      }
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.csv) {
         setShotError(true);
@@ -576,6 +584,15 @@ export function MoneyHub({
           className="hidden"
           onChange={(e) => onScreenshot(e.target.files?.[0])}
         />
+        {shotNeedsLogin && (
+          <p className="text-[13px] font-semibold mt-3 mb-0">
+            {tIcomponents_MoneyHub("shotNeedsLoginPrefix")}
+            <Link href="/login?return=/money" className="text-emerald underline">
+              {tIcomponents_MoneyHub("shotNeedsLoginLink")}
+            </Link>
+            {tIcomponents_MoneyHub("shotNeedsLoginSuffix")}
+          </p>
+        )}
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("t_da95e09c")}
