@@ -7,7 +7,7 @@ import { Button, Input, FieldError } from "@/components/ui";
 import { REPLY_KIND_OPTIONS, type ProviderReplyKind } from "@/lib/negotiation";
 import { scheduleFollowUpReminder, scheduleRecheckReminder } from "@/lib/reminders";
 import { rankPriorityActions } from "@/lib/priority";
-import { proBreakevenSavingAgorot } from "@/lib/plans";
+import { proBreakevenSavingAgorot, planConfig } from "@/lib/plans";
 import type { FeeBasis } from "@/lib/verticals/types";
 import { VERTICAL_TO_CATALOG_ID } from "@/lib/priorityCatalogMap";
 import { providerContactEmail, providerHebrewName } from "@/lib/providers";
@@ -491,7 +491,9 @@ export function CaseNextStep({
     chargeable?: boolean;
     paymentsLive?: boolean;
   }) {
-    scheduleRecheckReminder(caseId);
+    // Pro/Max/Business: real backing for the pricing page's "monthly
+    // recheck" promise — Free keeps the previous ~180-day default.
+    scheduleRecheckReminder(caseId, undefined, planConfig(currentPlan).recheckDays);
     navigatedAfterSave = true;
     // Prove → fee in one gesture only when a real PSP checkout URL exists.
     if (opts?.checkoutUrl) {
