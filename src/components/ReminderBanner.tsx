@@ -38,8 +38,8 @@ export function ReminderBanner() {
         <div className="rounded-2xl border border-[rgba(240,180,92,0.4)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 text-[14px]">
           <div className="font-bold">
             {he
-              ? `עברו ~6 חודשים — שווה לבדוק אם המחיר חזר למעלה (${recheck.length})`
-              : `~6 months later — check if the price crept back (${recheck.length})`}
+              ? `הגיע הזמן לבדוק אם המחיר חזר למעלה (${recheck.length})`
+              : `Time to check if the price crept back up (${recheck.length})`}
           </div>
           <Link href="/money" className="text-emerald font-bold no-underline text-[13px]">
             {tIcomponents_ReminderBanner("t_86e4f4c1")}

@@ -21,6 +21,14 @@ describe("plans", () => {
     expect(PLANS.MAX.priceAgorot).toBeGreaterThan(PLANS.PRO.priceAgorot);
   });
 
+  it("paid tiers get a shorter price-recheck cadence than Free — real backing for the pricing page's monthly-recheck promise", () => {
+    expect(PLANS.FREE.recheckDays).toBe(180);
+    expect(PLANS.PRO.recheckDays).toBe(30);
+    expect(PLANS.MAX.recheckDays).toBe(30);
+    expect(PLANS.BUSINESS.recheckDays).toBe(30);
+    expect(PLANS.PRO.recheckDays).toBeLessThan(PLANS.FREE.recheckDays);
+  });
+
   it("Business is priced for a business budget, not a fee discount nobody needs at 0%", () => {
     expect(PLANS.BUSINESS.feeRateBps).toBe(0);
     expect(PLANS.BUSINESS.maxActiveCases).toBeNull();

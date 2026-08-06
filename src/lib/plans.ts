@@ -43,18 +43,28 @@ export interface PlanConfig {
   maxActiveCases: number | null;
   /** Full recurring-charges scan results (Free sees a top-3 preview). */
   fullScan: boolean;
+  /**
+   * Days after a SAVED case before scheduleRecheckReminder() nudges the user
+   * to check whether the provider quietly raised the price back up (most
+   * promo/negotiated rates are time-limited). This is the real mechanism
+   * behind the pricing page's "monthly recheck" line for Pro/Max/Business —
+   * previously that copy had no backing implementation at all; every plan
+   * silently got the same 180-day default regardless of what was promised.
+   */
+  recheckDays: number;
 }
 
 export const PLANS: Record<PlanId, PlanConfig> = {
-  FREE: { id: "FREE", priceAgorot: 0, feeRateBps: 1800, maxActiveCases: 1, fullScan: false },
-  PRO: { id: "PRO", priceAgorot: 1990, feeRateBps: 900, maxActiveCases: 5, fullScan: true },
-  MAX: { id: "MAX", priceAgorot: 5990, feeRateBps: 0, maxActiveCases: null, fullScan: true },
+  FREE: { id: "FREE", priceAgorot: 0, feeRateBps: 1800, maxActiveCases: 1, fullScan: false, recheckDays: 180 },
+  PRO: { id: "PRO", priceAgorot: 1990, feeRateBps: 900, maxActiveCases: 5, fullScan: true, recheckDays: 30 },
+  MAX: { id: "MAX", priceAgorot: 5990, feeRateBps: 0, maxActiveCases: null, fullScan: true, recheckDays: 30 },
   BUSINESS: {
     id: "BUSINESS",
     priceAgorot: 20000,
     feeRateBps: 0,
     maxActiveCases: null,
     fullScan: true,
+    recheckDays: 30,
   },
 };
 
