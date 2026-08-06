@@ -14,6 +14,7 @@
     "verify:pack-labels": "tsx scripts/generate-pack-labels.mjs && git diff --exit-code src/lib/global/packLabels.generated.ts",
     "release-gate": "tsx scripts/release-gate.ts",
     "preflight": "node scripts/preflight.mjs",
+    "verify:loop": "node scripts/verify-loop.mjs",
     "verify:interop": "node scripts/verify-interop.mjs",
     "verify:interop-external": "node scripts/verify-interop-external.mjs",
     "verify:packs-cdn": "node scripts/verify-packs-cdn.mjs",
