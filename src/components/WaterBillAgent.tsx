@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function WaterBillAgent() {
@@ -107,6 +108,12 @@ export function WaterBillAgent() {
             <Input type="number" value={billAmount} onChange={(e) => setBillAmount(e.target.value)} />
           </label>
         </div>
+        <MissingFields
+          items={[
+            { ok: Boolean(repairDate.trim()), label: t("agent.repairDate") },
+            { ok: hasOutreachEmail(contactEmail), label: tFlow("contactEmail") },
+          ]}
+        />
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, RadioChips } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 import type { CollectionComplaintReason } from "@/lib/collectionComplaintLetter";
 
@@ -104,6 +105,12 @@ export function CollectionComplaintAgent() {
             <Input type="number" value={claimedAmount} onChange={(e) => setClaimedAmount(e.target.value)} />
           </label>
         </div>
+        <MissingFields
+          items={[
+            { ok: Boolean(collectorName.trim()), label: t("agent.collectorName") },
+            { ok: hasOutreachEmail(contactEmail), label: tFlow("contactEmail") },
+          ]}
+        />
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>

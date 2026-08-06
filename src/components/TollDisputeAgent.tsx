@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, Textarea, RadioChips } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 import type { TollDisputeReason } from "@/lib/tollDisputeLetter";
 
@@ -107,6 +108,11 @@ export function TollDisputeAgent() {
           <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.details")}</span>
           <Textarea rows={3} value={details} onChange={(e) => setDetails(e.target.value)} maxLength={500} />
         </label>
+        <MissingFields
+          items={[
+            { ok: hasOutreachEmail(contactEmail), label: tFlow("contactEmail") },
+          ]}
+        />
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>

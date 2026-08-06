@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, Textarea } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function LandlordRepairAgent() {
@@ -105,6 +106,13 @@ export function LandlordRepairAgent() {
           <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.defect")}</span>
           <Textarea rows={4} value={defect} onChange={(e) => setDefect(e.target.value)} maxLength={500} />
         </label>
+        <MissingFields
+          items={[
+            { ok: Boolean(landlordName.trim()), label: t("agent.landlordName") },
+            { ok: Boolean(address.trim()), label: t("agent.address") },
+            { ok: defect.trim().length >= 3, label: t("agent.defect") },
+          ]}
+        />
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
