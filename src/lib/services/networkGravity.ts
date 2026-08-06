@@ -17,16 +17,20 @@ export async function loadNetworkGravityInputs() {
     delegatedIssuersActive,
     collectiveIntentSignals,
   ] = await Promise.all([
-    prismaRead.strategyOutcome.count({ where: { selfReported: false } }),
-    prismaRead.case.count({ where: { status: "SAVED" } }),
-    prismaRead.authorization.count({
-      where: {
-        mandateJti: { not: null },
-        revokedAt: null,
-      },
-    }),
-    prismaRead.delegatedIssuer.count({ where: { status: "active" } }),
-    prismaRead.collectiveIntentSignal.count(),
+    // Same rule as monopolyRails.ts: a public read-only counter degrades to
+    // 0 on a DB hiccup, it does not take the whole page down with it.
+    prismaRead.strategyOutcome.count({ where: { selfReported: false } }).catch(() => 0),
+    prismaRead.case.count({ where: { status: "SAVED" } }).catch(() => 0),
+    prismaRead.authorization
+      .count({
+        where: {
+          mandateJti: { not: null },
+          revokedAt: null,
+        },
+      })
+      .catch(() => 0),
+    prismaRead.delegatedIssuer.count({ where: { status: "active" } }).catch(() => 0),
+    prismaRead.collectiveIntentSignal.count().catch(() => 0),
   ]);
 
   const registryIssuersActive = ISSUERS.filter((i) => i.status === "active").length;

@@ -14,7 +14,7 @@ export default async function ScanPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login", locale });
+  if (!user) redirect({ href: "/login?return=/scan", locale });
 
   const t = await getTranslations("scan");
 

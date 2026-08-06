@@ -18,7 +18,7 @@ export default async function AssistantPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login", locale });
+  if (!user) redirect({ href: "/login?return=/assistant", locale });
 
   const t = await getTranslations("assistant");
   const insights = await buildInsights(user!.id);

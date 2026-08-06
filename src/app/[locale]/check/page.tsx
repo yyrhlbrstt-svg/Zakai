@@ -7,6 +7,6 @@ export default async function CheckPage({ params }: { params: Promise<{ locale: 
   const { locale } = await params;
   setRequestLocale(locale);
   const user = await getCurrentUser();
-  if (!user) redirect({ href: "/login", locale });
+  if (!user) redirect({ href: "/login?return=/check", locale });
   return <CheckFlow />;
 }
