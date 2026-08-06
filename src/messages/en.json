@@ -2838,6 +2838,11 @@
         "href": "/business-compensation",
         "title": "Indirect war-damage compensation",
         "sub": "Businesses with reduced revenue may be entitled to compensation from the Tax Authority."
+      },
+      {
+        "href": "/duplicate-insurance",
+        "title": "Duplicate business insurance",
+        "sub": "Property, equipment, or liability policies covering the same risk twice — common after switching brokers or an uncoordinated renewal."
       }
     ],
     "cta": "Start by scanning a receipt"
@@ -4999,7 +5004,10 @@
     "t_38d0577a": "My dashboard",
     "t_c4584cd0": "Manual cancel",
     "t_292af8ba": "Screenshot extract needs AI configured on the server.",
-    "t_da95e09c": "Could not read screenshot. Try a clearer image or a CSV."
+    "t_da95e09c": "Could not read screenshot. Try a clearer image or a CSV.",
+    "shotNeedsLoginPrefix": "AI photo scan needs an account — ",
+    "shotNeedsLoginLink": "quick sign in",
+    "shotNeedsLoginSuffix": ". Or paste/upload a statement file below — no account needed."
   },
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "Overnight agent — follow-up for all",

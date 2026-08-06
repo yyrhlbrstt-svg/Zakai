@@ -1,5 +1,6 @@
 import { providerHebrewName } from "@/lib/providers";
 import { institutionPullFooterLine, institutionSalesEmail } from "@/lib/institutionPull";
+import { FOUNDER_EMAIL } from "@/lib/contact";
 
 /**
  * Single source of truth for the printable Mandate document (HTML).
@@ -196,11 +197,16 @@ export function mandateEmailAttachment(auth: MandateDocInput) {
   };
 }
 
-/** Public address users forward provider replies to (closed-loop SavingsProof). */
+/**
+ * Public address users forward provider replies to (closed-loop SavingsProof).
+ * The fallback must be a real, controlled inbox — "proofs@zakai.app" was a
+ * domain a different company owns, so forwarded provider correspondence
+ * (proof of a saving) could silently reach a stranger instead of Zakai.
+ */
 export function proofsInboundAddress(): string {
   return (
     process.env.NEXT_PUBLIC_PROOFS_EMAIL ||
     process.env.PROOFS_INBOUND_EMAIL ||
-    "proofs@zakai.app"
+    FOUNDER_EMAIL
   );
 }
