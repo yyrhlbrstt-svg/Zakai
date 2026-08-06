@@ -28,7 +28,47 @@ export interface ElectricityPlan {
   requiresSmartMeter: boolean;
 }
 
-/** Rates snapshot — July 2026, from public supplier price lists. Verify before switching. */
+/**
+ * When the rates below were last read off the suppliers' public price lists.
+ *
+ * THE DRIFT THIS CLOSES
+ *
+ * This date used to exist only as prose — a code comment here, plus the words
+ * "July 2026" hardcoded into four separate locale strings. Nothing connected
+ * any of them to the table they described, so updating the discounts without
+ * touching all five left the product stating a freshness it no longer had.
+ * A stale discount is not a cosmetic problem in a money app: it is Zakai
+ * quoting a saving that no longer exists, which is the one thing the
+ * product's own rules forbid outright.
+ *
+ * So the date is data now, not commentary: the UI renders THIS constant, and
+ * `electricity.staleness.test.ts` fails the build once it ages past
+ * ELECTRICITY_RATES_MAX_AGE_MONTHS. Staleness becomes a broken build somebody
+ * has to answer for, rather than a quiet wrong number nobody notices.
+ *
+ * Format is YYYY-MM; bump it in the same commit that revises the table.
+ */
+export const ELECTRICITY_RATES_SNAPSHOT = "2026-07";
+
+/**
+ * How long a rates snapshot may go unrefreshed before CI refuses it. Israeli
+ * suppliers revise these lists a few times a year, so nine months is well past
+ * "probably fine" while still leaving a comfortable window to act.
+ */
+export const ELECTRICITY_RATES_MAX_AGE_MONTHS = 9;
+
+/** Whole months elapsed since the snapshot. Negative is impossible in practice. */
+export function electricityRatesAgeMonths(now: Date = new Date()): number {
+  const [y, m] = ELECTRICITY_RATES_SNAPSHOT.split("-").map(Number);
+  return (now.getUTCFullYear() - y) * 12 + (now.getUTCMonth() + 1 - m);
+}
+
+/** True once the snapshot is older than the product is willing to vouch for. */
+export function electricityRatesAreStale(now: Date = new Date()): boolean {
+  return electricityRatesAgeMonths(now) > ELECTRICITY_RATES_MAX_AGE_MONTHS;
+}
+
+/** Rates snapshot — see ELECTRICITY_RATES_SNAPSHOT. Verify before switching. */
 export const ELECTRICITY_PLANS: ElectricityPlan[] = [
   { id: "electra-night", providerKey: "electra", nameKey: "nightPlus", discountPct: 21, window: "night", requiresSmartMeter: true },
   { id: "electra-day", providerKey: "electra", nameKey: "day", discountPct: 21, window: "day", requiresSmartMeter: true },
