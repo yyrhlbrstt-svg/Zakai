@@ -226,12 +226,18 @@ export function AuthForm({
                 <p className="mt-2 text-amber font-semibold">{tl("termsNote")}</p>
               </details>
               <label className="flex gap-2.5 items-start mt-2.5 text-[13px] leading-snug cursor-pointer">
+                {/* Deliberately NOT `required`. Native constraint validation
+                    aborts submission before onSubmit runs, so the handler's
+                    translated "tick the terms" error never fired and the
+                    browser's own bubble showed instead — in the browser's
+                    language, not the user's, and easy to miss on a phone.
+                    Letting the form submit and failing it in our own code is
+                    what puts the reason on screen in Hebrew. */}
                 <input
                   type="checkbox"
                   checked={termsOk}
                   onChange={(e) => setTermsOk(e.target.checked)}
                   className="mt-0.5 w-[18px] h-[18px] shrink-0"
-                  required
                 />
                 <span>{tl("agree")}</span>
               </label>
