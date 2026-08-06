@@ -624,7 +624,7 @@
     "sub": "Before Zakai acts for you, we confirm two things — that the account is really yours, and that there's a documented authorization the provider can check. This is what makes a rep take the request seriously.",
     "ownershipTitle": "1. Account ownership verification",
     "ownershipSub": "A 6-digit code was prepared for {phone}. Enter it to confirm the account is yours.",
-    "ownershipDevNote": "SMS is not configured: the code is parked in Outbox and has not left the system. Use the email link if shown.",
+    "ownershipBothStuck": "We couldn't send you a verification code right now — the email link hasn't gone out yet, and SMS isn't available at this stage either. This is a problem on our end, not something a retry from you will fix. Try \"Resend code\" in a few minutes, and if it keeps happening, let us know on the feedback page.",
     "ownershipMagicSent": "Ownership magic link was emailed — you can confirm in one tap without the code.",
     "ownershipMagicQueued": "Ownership magic link is queued (has not left the system yet). You can enter the SMS code.",
     "codeLabel": "Verification code",

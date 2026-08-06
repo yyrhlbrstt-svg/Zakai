@@ -685,32 +685,43 @@ export function CheckFlow() {
                   <Button onClick={sendCode}>{tv("sendCode")}</Button>
                 ) : (
                   <>
-                    <p className="text-[13.5px] text-ink-soft mb-2.5">
-                      {tv("ownershipSub", { phone: phoneMasked })}
-                    </p>
-                    {magicDelivered ? (
-                      <p className="text-[12.5px] text-emerald mb-2.5 font-bold">
-                        {tv("ownershipMagicSent")}
+                    {devHint && !magicDelivered ? (
+                      // Neither channel can currently reach this person: SMS was
+                      // never configured (devHint) and the email link is still
+                      // sitting unsent (not magicDelivered) — showing a code input
+                      // next to "SMS not configured, check the Outbox" told a real
+                      // visitor to do something that cannot work. One honest
+                      // message instead of three contradictory ones.
+                      <p className="text-[13.5px] text-amber mb-2.5 leading-relaxed">
+                        {tv("ownershipBothStuck")}
                       </p>
-                    ) : magicQueued ? (
-                      <p className="text-[12.5px] text-amber mb-2.5 font-bold">
-                        {tv("ownershipMagicQueued")}
-                      </p>
-                    ) : null}
-                    {devHint && (
-                      <p className="text-[12px] text-amber mb-2.5">{tv("ownershipDevNote")}</p>
+                    ) : (
+                      <>
+                        <p className="text-[13.5px] text-ink-soft mb-2.5">
+                          {tv("ownershipSub", { phone: phoneMasked })}
+                        </p>
+                        {magicDelivered ? (
+                          <p className="text-[12.5px] text-emerald mb-2.5 font-bold">
+                            {tv("ownershipMagicSent")}
+                          </p>
+                        ) : magicQueued ? (
+                          <p className="text-[12.5px] text-amber mb-2.5 font-bold">
+                            {tv("ownershipMagicQueued")}
+                          </p>
+                        ) : null}
+                        <div className="flex gap-2.5">
+                          <Input
+                            value={code}
+                            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                            inputMode="numeric"
+                            maxLength={6}
+                            placeholder={tv("codeLabel")}
+                            aria-label={tv("codeLabel")}
+                          />
+                          <Button onClick={verifyCode}>{tv("verifyCode")}</Button>
+                        </div>
+                      </>
                     )}
-                    <div className="flex gap-2.5">
-                      <Input
-                        value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                        inputMode="numeric"
-                        maxLength={6}
-                        placeholder={tv("codeLabel")}
-                        aria-label={tv("codeLabel")}
-                      />
-                      <Button onClick={verifyCode}>{tv("verifyCode")}</Button>
-                    </div>
                     <button
                       onClick={sendCode}
                       className="bg-transparent border-0 text-emerald text-[13px] font-bold cursor-pointer mt-2"

@@ -66,15 +66,15 @@ export default async function BusinessPage({
                 {tIapp_locale_business_page("t_dd7efdcb")}
               </span>
             </a>
+            <Link href="/small-business" className="inline-block no-underline">
+              <span className="border border-[rgba(255,255,255,0.14)] text-ink-soft font-extrabold rounded-[14px] px-6 py-3.5 text-[15px] inline-block">
+                {t("smallBusinessLink")}
+              </span>
+            </Link>
           </div>
         </Reveal>
         <Reveal delay={280}>
-          <p className="text-ink-soft text-[12.5px] mt-4">
-            {t("smallBusinessNote")}
-            <Link href="/small-business" className="text-emerald font-bold no-underline">
-              {t("smallBusinessLink")}
-            </Link>
-          </p>
+          <p className="text-ink-soft text-[12.5px] mt-4 mb-0">{t("smallBusinessNote")}</p>
         </Reveal>
       </div>
 
