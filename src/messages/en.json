@@ -560,6 +560,8 @@
     "analyzingSub": "Detecting provider, amount and savings opportunity",
     "readError": "Couldn't read the image. Try a clearer one or enter manually.",
     "imageTooBig": "Image is too large (max 3MB) — try a regular screenshot, compress the file, or enter manually.",
+    "openLoopRedirect": "You have an open case waiting for action",
+    "openLoopRedirectSub": "Taking you there to finish it first — this tool will wait right here.",
     "aiUnavailable": "The analysis service is currently unavailable. You can enter the details manually and continue.",
     "providerLabel": "Provider",
     "amountLabel": "Monthly amount (₪)",
@@ -4633,7 +4635,9 @@
       "amount": "Amount",
       "details": "Details",
       "state": "State"
-    }
+    },
+    "invalidId": "That ID number doesn't look valid — check the 9 digits.",
+    "invalidPeriod": "That year doesn't look right — enter a 4-digit year (e.g. 2025)."
   },
   "reset": {
     "requestTitle": "Forgot your password?",

@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
-import { Input, Button } from "@/components/ui";
+import { Input, Button, FieldError } from "@/components/ui";
 import { buildClaimDraft, resolveAction, type ClaimFields } from "@/lib/claimDraft";
 import { RIGHT_ACTIONS } from "@/lib/rightsActions";
 import { OutcomeReport } from "@/components/OutcomeReport";
+import { isPlausibleTaxYear, isValidIsraeliId } from "@/lib/claimFieldValidation";
 
 /**
  * The fulfilment surface for a single entitlement — expanded in place, inside
@@ -52,6 +53,16 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
     setDraft(null);
   };
 
+  // Both go straight into an official letter unedited — a value that's
+  // present but malformed must block "generate", not just look wrong. Empty
+  // is left alone here (no separate required-field pass); this only stops
+  // obvious garbage like a 10-digit ID or "6289" as a tax year.
+  const idValue = (fields.id ?? "").trim();
+  const idInvalid = idValue.length > 0 && !isValidIsraeliId(idValue);
+  const periodValue = (fields.period ?? "").trim();
+  const periodInvalid =
+    action.fields.includes("period") && periodValue.length > 0 && !isPlausibleTaxYear(periodValue);
+
   const text = (key: string, maxLength = 60, dir?: "ltr") => (
     <label key={key} className="block">
       <span className="text-[12px] text-ink-soft block mb-1">{t(`fields.${key}`)}</span>
@@ -61,6 +72,8 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
         maxLength={maxLength}
         dir={dir}
       />
+      {key === "id" && idInvalid && <FieldError>{t("invalidId")}</FieldError>}
+      {key === "period" && periodInvalid && <FieldError>{t("invalidPeriod")}</FieldError>}
     </label>
   );
 
@@ -89,6 +102,7 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
 
       <Button
         className="mt-3.5"
+        disabled={idInvalid || periodInvalid}
         onClick={() => setDraft(buildClaimDraft(rightId, fields))}
       >
         {t("generate")}

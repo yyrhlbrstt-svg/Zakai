@@ -57,13 +57,23 @@ export default async function MoneyPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ case?: string; sent?: string; fee?: string; payFee?: string }>;
+  searchParams?: Promise<{
+    case?: string;
+    sent?: string;
+    fee?: string;
+    payFee?: string;
+    openLoop?: string;
+  }>;
 }) {
   const { locale } = await params;
   const sp = searchParams ? await searchParams : {};
   const focusCaseId = typeof sp.case === "string" ? sp.case : null;
   const feeStatus = typeof sp.fee === "string" ? sp.fee : null;
   const payFee = sp.payFee === "1";
+  // A vertical tool (parking, arnona, bank fees, ...) redirected here because
+  // an existing open case had to be finished first — say so, or the jump away
+  // from whatever the person was filling in reads as an unexplained glitch.
+  const openLoopRedirect = sp.openLoop === "1";
   // URL ?sent=1 is a hint only — never show “delivered” without a SENT Outbox row.
   let justSent = false;
   setRequestLocale(locale);
@@ -243,6 +253,13 @@ export default async function MoneyPage({
       {user ? (
         <div className="mb-6">
           {!user.emailVerifiedAt ? <EmailVerifyNudge /> : null}
+          {openLoopRedirect && openLoop ? (
+            <p className="text-[12.5px] text-ink-soft mb-2 leading-relaxed">
+              {locale === "he" || locale === "ar"
+                ? "הועברתם לכאן כי יש לכם תיק פתוח שצריך לסיים קודם — הכלי שפתחתם יחכה."
+                : "Brought you here because you have an open case to finish first — the tool you opened will wait."}
+            </p>
+          ) : null}
           {openLoop ? (
             <OpenLoopFocusBanner locale={locale} href={openLoopHref} label={openLoopLabel} />
           ) : null}
