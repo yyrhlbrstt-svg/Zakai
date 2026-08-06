@@ -34,3 +34,17 @@ export function isPlausibleTaxYear(raw: string, now: Date = new Date()): boolean
   const current = now.getFullYear();
   return year >= current - 10 && year <= current + 1;
 }
+
+/**
+ * A plausible shekel amount for a claim letter ("...בסכום כולל של כ-{amount}").
+ * Accepts plain digits with an optional thousands-comma and up to 2 decimal
+ * places; rejects non-numeric text and absurd values (a stray extra digit or
+ * a pasted phone number) while staying generous enough for a real severance
+ * or property-transaction sum.
+ */
+export function isPlausibleAmount(raw: string): boolean {
+  const value = raw.trim();
+  if (!/^\d{1,3}(,\d{3})*(\.\d{1,2})?$|^\d+(\.\d{1,2})?$/.test(value)) return false;
+  const num = Number(value.replace(/,/g, ""));
+  return num > 0 && num <= 50_000_000;
+}
