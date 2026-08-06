@@ -9,6 +9,7 @@ import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
 import { VigilWatchCard } from "@/components/VigilWatchCard";
 import { ShareResult } from "@/components/ShareResult";
+import { SavingRevealCard } from "@/components/SavingRevealCard";
 import { ReferralCard } from "@/components/ReferralCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { FeePayButton } from "@/components/FeePayButton";
@@ -650,27 +651,23 @@ export default async function DashboardPage({
         </div>
       )}
       {justDocumentedSaving && (
-        <div className="rounded-2xl border border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.14)] px-5 py-4 mb-5">
-          <div className="font-display text-2xl grad-text m-0">{t("dashboard.savedCelebrateTitle")}</div>
-          {celebrateSavingAgorot > 0 ? (
-            <div className="font-display text-3xl font-black text-emerald mt-2">
-              {formatAgorot(celebrateSavingAgorot, loc)}
-              {celebrateFeeBasis === "monthly" ? t("common.perMonthTag") : null}
-            </div>
-          ) : null}
-          <p className="text-[13.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{t("dashboard.savedCelebrateSub")}</p>
-          {celebrateCase?.fee &&
+        <SavingRevealCard
+          title={t("dashboard.savedCelebrateTitle")}
+          amountAgorot={celebrateSavingAgorot}
+          perMonthTag={celebrateFeeBasis === "monthly" ? t("common.perMonthTag") : null}
+          sub={t("dashboard.savedCelebrateSub")}
+          bcp47={loc}
+          feeTag={
+            celebrateCase?.fee &&
             celebrateCase.fee.status === "PENDING" &&
             celebrateCase.fee.amount > 0 &&
-            payFeeCaseId !== celebrateCase.id && (
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className="text-[13px] font-bold text-ink-soft">
-                  {t("dashboard.feeTag")}: {formatAgorot(celebrateCase.fee.amount, loc)}
-                </span>
-                <FeePayButton caseId={celebrateCase.id} />
-              </div>
-            )}
-        </div>
+            payFeeCaseId !== celebrateCase.id
+              ? t("dashboard.feeTag")
+              : undefined
+          }
+          feeAmountAgorot={celebrateCase?.fee?.amount}
+          feeCaseId={celebrateCase?.id}
+        />
       )}
       {(user!.plan === "PRO" || user!.plan === "MAX") && (
         <div
