@@ -7,8 +7,13 @@ import { reportError } from "@/lib/report-error";
 
 const ALLOWED_MEDIA = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
 
-/** ~4MB base64 ≈ 3MB binary — enough for a phone screenshot, not a dump. */
-const MAX_BASE64_CHARS = 5_500_000;
+/**
+ * Matches MAX_UPLOAD_IMAGE_BYTES (3MB raw) on the client, plus base64/JSON
+ * overhead — was 5.5M, which is silently unreachable in production: Vercel's
+ * ~4.5MB serverless request-body ceiling rejects anything that large before
+ * this validation ever runs.
+ */
+const MAX_BASE64_CHARS = 4_200_000;
 
 const schema = z.object({
   imageBase64: z.string().min(10).max(MAX_BASE64_CHARS),

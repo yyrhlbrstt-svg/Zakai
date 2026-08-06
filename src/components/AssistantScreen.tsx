@@ -8,6 +8,7 @@ import { formatAgorot } from "@/lib/money";
 import type { Insight } from "@/lib/insights";
 import { FAQ } from "@/lib/faq";
 import type { PlanId } from "@/lib/plans";
+import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 
 // A few high-signal starter questions surfaced as chips under the chat.
 const SUGGESTED_IDS = ["fee", "taxrefund", "payslip", "family"] as const;
@@ -16,8 +17,6 @@ interface ChatMsg {
   role: "user" | "assistant";
   text: string;
 }
-
-const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // ~4MB — a phone screenshot, not a dump
 
 /**
  * The assistant screen = two layers:
@@ -65,7 +64,7 @@ export function AssistantScreen({
   async function onAttach(file?: File | null) {
     if (!file) return;
     setImageError(false);
-    if (file.size > MAX_IMAGE_BYTES) {
+    if (file.size > MAX_UPLOAD_IMAGE_BYTES) {
       setImageError(true);
       return;
     }

@@ -20,6 +20,7 @@ import {
   scanShareKicker,
   scanShareLandingPath,
 } from "@/lib/monopoly/scanShare";
+import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -250,6 +251,7 @@ export function MoneyHub({
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
   const [shotNeedsLogin, setShotNeedsLogin] = useState(false);
+  const [shotTooBig, setShotTooBig] = useState(false);
   const [saved, setSaved] = useState<SavedSummary | null>(null);
   const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
   const [batchBusy, setBatchBusy] = useState(false);
@@ -321,6 +323,14 @@ export function MoneyHub({
     if (!file) return;
     setShotError(false);
     setShotNeedsLogin(false);
+    setShotTooBig(false);
+    // Checked before any upload attempt: base64 inflates size ~4/3, and a
+    // request near Vercel's ~4.5MB serverless body limit fails at the
+    // platform level with an opaque error — indistinguishable from "broken".
+    if (file.size > MAX_UPLOAD_IMAGE_BYTES) {
+      setShotTooBig(true);
+      return;
+    }
     setShotBusy(true);
     try {
       const buf = await file.arrayBuffer();
@@ -591,6 +601,11 @@ export function MoneyHub({
               {tIcomponents_MoneyHub("shotNeedsLoginLink")}
             </Link>
             {tIcomponents_MoneyHub("shotNeedsLoginSuffix")}
+          </p>
+        )}
+        {shotTooBig && (
+          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
+            {tIcomponents_MoneyHub("shotTooBig")}
           </p>
         )}
         {shotError && (
