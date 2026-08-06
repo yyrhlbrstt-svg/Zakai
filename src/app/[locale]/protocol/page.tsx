@@ -177,16 +177,16 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-4">
-          <a href={`${origin}/.well-known/zakai-protocol.json`} target="_blank" rel="noopener noreferrer">
+          <Link href="/protocol/manifest">
             <Button variant="ghost" className="!text-[12.5px]">
               {c.manifest}
             </Button>
-          </a>
-          <a href={`${origin}/api/network`} target="_blank" rel="noopener noreferrer">
+          </Link>
+          <Link href="/protocol/network">
             <Button variant="ghost" className="!text-[12.5px]">
               {c.network}
             </Button>
-          </a>
+          </Link>
           <Link href="/institutions">
             <Button variant="ghost" className="!text-[12.5px]">
               {c.institutions}
