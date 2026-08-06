@@ -194,14 +194,6 @@ export default async function BusinessPage({
             >
               {t("networkProofLink")}
             </Link>
-            <a
-              href={`${ORIGIN}/api/mandate/openapi.json`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-ink-soft font-bold text-[14px] no-underline border border-[rgba(255,255,255,0.12)] rounded-xl px-5 py-2.5"
-            >
-              OpenAPI
-            </a>
           </div>
         </Reveal>
       </div>
