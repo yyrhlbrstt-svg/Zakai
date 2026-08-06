@@ -1,27 +1,19 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/Logo";
 import { FooterAppVersion } from "@/components/FooterAppVersion";
 
 export function Footer() {
   const t = useTranslations();
-  const locale = useLocale();
-  const moneyLabel =
-    locale === "he" ? "הכסף שלי" : locale === "ar" ? "أموالي" : locale === "ru" ? "Мои деньги" : "My money";
-  const cancelLabel =
-    locale === "he" ? "ביטול מנוי" : locale === "ar" ? "إلغاء اشتراك" : locale === "ru" ? "Отмена подписки" : "Cancel sub";
-  const owedLabel =
-    locale === "he" ? "מה מגיע לי" : locale === "ar" ? "ما يحق لي" : locale === "ru" ? "Что мне должны" : "What am I owed";
-  const elecLabel =
-    locale === "he" ? "חשמל" : locale === "ar" ? "كهرباء" : locale === "ru" ? "Электричество" : "Electricity";
-  const instLabel =
-    locale === "he" ? "למוסדות · Mandate" : locale === "ar" ? "للمؤسسات" : locale === "ru" ? "Для учреждений" : "Institutions · Mandate";
-  const partnersLabel =
-    locale === "he" ? "שותפים · Embed" : locale === "ar" ? "شركاء" : locale === "ru" ? "Партнёры" : "Partners · Embed";
-  const bizLabel =
-    locale === "he" ? "B2B · עובדים + API" : locale === "ar" ? "B2B" : locale === "ru" ? "B2B" : "B2B · employees + API";
+  const moneyLabel = t("footer.nav.money");
+  const cancelLabel = t("footer.nav.cancel");
+  const owedLabel = t("footer.nav.owed");
+  const elecLabel = t("footer.nav.electricity");
+  const instLabel = t("footer.nav.institutions");
+  const partnersLabel = t("footer.nav.partners");
+  const bizLabel = t("footer.nav.business");
 
   return (
     <footer className="max-w-[1080px] mx-auto px-5 py-10 mt-10 border-t border-[rgba(255,255,255,0.08)] flex flex-col gap-6">

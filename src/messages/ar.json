@@ -273,7 +273,16 @@
     "whatAmIOwed": "كم يستحقه؟",
     "companies": "تقييم زكاي",
     "allTools": "كل الأدوات",
-    "networkProof": "إثبات الشبكة"
+    "networkProof": "إثبات الشبكة",
+    "nav": {
+      "money": "أموالي",
+      "cancel": "إلغاء اشتراك",
+      "owed": "ما يحق لي",
+      "electricity": "كهرباء",
+      "institutions": "للمؤسسات",
+      "partners": "شركاء",
+      "business": "B2B"
+    }
   },
   "install": {
     "title": "ثبّت زكاي",

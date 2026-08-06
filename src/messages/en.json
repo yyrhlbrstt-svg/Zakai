@@ -828,7 +828,16 @@
     "networkProof": "Network proof",
     "about": "Why Zakai",
     "global": "World · Markets",
-    "howItWorks": "How it works"
+    "howItWorks": "How it works",
+    "nav": {
+      "money": "My money",
+      "cancel": "Cancel sub",
+      "owed": "What am I owed",
+      "electricity": "Electricity",
+      "institutions": "Institutions · Mandate",
+      "partners": "Partners · Embed",
+      "business": "B2B · employees + API"
+    }
   },
   "global": {
     "metaTitle": "Zakai worldwide — pick your market",

@@ -828,7 +828,16 @@
     "networkProof": "הוכחת רשת",
     "about": "למה זכאי",
     "global": "עולם · שווקים",
-    "howItWorks": "איך זה עובד"
+    "howItWorks": "איך זה עובד",
+    "nav": {
+      "money": "הכסף שלי",
+      "cancel": "ביטול מנוי",
+      "owed": "מה מגיע לי",
+      "electricity": "חשמל",
+      "institutions": "למוסדות · Mandate",
+      "partners": "שותפים · Embed",
+      "business": "B2B · עובדים + API"
+    }
   },
   "global": {
     "metaTitle": "זכאי בעולם — בחירת שוק",

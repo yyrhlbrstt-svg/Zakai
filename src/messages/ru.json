@@ -273,7 +273,16 @@
     "whatAmIOwed": "Сколько мне положено?",
     "companies": "Рейтинг Zakai",
     "allTools": "Все инструменты",
-    "networkProof": "Доказательство сети"
+    "networkProof": "Доказательство сети",
+    "nav": {
+      "money": "Мои деньги",
+      "cancel": "Отмена подписки",
+      "owed": "Что мне должны",
+      "electricity": "Электричество",
+      "institutions": "Для учреждений",
+      "partners": "Партнёры",
+      "business": "B2B"
+    }
   },
   "install": {
     "title": "Установите Zakai",
