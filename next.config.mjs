@@ -32,8 +32,10 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           {
+            // Receipt/statement scanning uses the camera in-page (ReceiptCollector,
+            // AssistantScreen, MoneyHub) — camera=() blocked that origin entirely.
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            value: "camera=(self), microphone=(), geolocation=()",
           },
           {
             key: "X-DNS-Prefetch-Control",

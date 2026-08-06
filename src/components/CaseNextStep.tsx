@@ -16,6 +16,7 @@ import { isOutreachEmailApiError } from "@/lib/outreachEmail";
 import { openMailto } from "@/lib/mailto";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { previewSuccessFeeShekels } from "@/lib/fee";
+import { proofsInboundAddress } from "@/lib/mandate/document";
 import { heEn } from "@/lib/heEn";
 import { FeePayButton } from "@/components/FeePayButton";
 import { classifyFollowUpSendError, followUpDeliveryState } from "@/lib/followUpSendUi";
@@ -426,10 +427,7 @@ export function CaseNextStep({
   const [pasteTip, setPasteTip] = useState<string | null>(null);
   let navigatedAfterSave = false;
 
-  const proofsAddr =
-    proofsEmail ||
-    (typeof process !== "undefined" && process.env.NEXT_PUBLIC_PROOFS_EMAIL) ||
-    "proofs@zakai.app";
+  const proofsAddr = proofsEmail || proofsInboundAddress();
 
   // Keep local flags in sync after router.refresh() from parent.
   useEffect(() => {
