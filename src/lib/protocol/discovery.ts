@@ -142,6 +142,7 @@ export function buildZakaiProtocolDocument(origin: string) {
       version: `${origin}/api/version`,
       institutions: `${origin}/he/institutions`,
       agents: `${origin}/he/agents`,
+      mcp_server: `${origin}/api/mcp`,
     },
     license: "Specifications and public endpoints are open for verification; Zakai consumer app is proprietary.",
     zml: {
