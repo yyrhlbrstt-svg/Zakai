@@ -46,46 +46,88 @@ try {
   process.exit(0);
 }
 
-/** Public pages a visitor can reach without an account. */
-const PAGES = [
-  "/he",
-  "/he/money",
-  "/he/cancel",
-  "/he/what-am-i-owed",
-  "/he/leaks",
-  "/he/score",
-  "/he/small-business",
-  "/he/merchant-fees",
-  "/he/bank-fees",
-  "/he/late-payment",
-  "/he/advance-tax",
-  "/he/deposit",
-  "/he/warranty",
-  "/he/flights",
-  "/he/electricity",
-  "/he/pricing",
-  "/he/business",
-  "/he/tools",
-];
+/**
+ * Every public page, discovered from the routes on disk rather than a list
+ * kept by hand — a hardcoded list silently stops covering each new vertical
+ * the moment someone forgets to add it, which is the same drift the hub and
+ * assistant guards exist to prevent.
+ *
+ * Dynamic segments are skipped (no real id to substitute), as are the
+ * screens that only exist behind a session.
+ */
+const AUTHED_ONLY = new Set([
+  "dashboard",
+  "settings",
+  "assistant",
+  "check",
+  "founder",
+  "authority",
+  "receipts",
+]);
+
+async function discoverPages() {
+  const { readdirSync, existsSync } = await import("node:fs");
+  return readdirSync("src/app/[locale]", { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .filter((n) => !n.startsWith("[") && !n.startsWith("_") && !AUTHED_ONLY.has(n))
+    .filter((n) => existsSync(`src/app/[locale]/${n}/page.tsx`))
+    .map((n) => `/he/${n}`)
+    .concat(["/he"])
+    .sort();
+}
+
+/**
+ * ZAKAI_PAGES=/he/money,/he/cancel narrows the run to specific screens —
+ * useful when checking one vertical you just changed, and when a dev server
+ * would otherwise have to compile a hundred routes on demand.
+ */
+const PAGES = process.env.ZAKAI_PAGES
+  ? process.env.ZAKAI_PAGES.split(",").map((p) => p.trim()).filter(Boolean)
+  : await discoverPages();
 
 const findings = [];
+let serverDroppedOut = false;
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ ...devices["iPhone 13"], locale: "he-IL" });
 const page = await ctx.newPage();
 
-/** Cache of route -> reachable, so a shared footer link is fetched once. */
+/**
+ * Cache of route -> "ok" | "dead" | "unknown", so a shared footer link is
+ * fetched once.
+ *
+ * The three-way answer is the important part. An earlier version returned a
+ * boolean and treated any failed fetch as a dead link, so when a dev server
+ * fell behind compiling 114 routes on demand it reported fifty perfectly
+ * healthy pages as broken. Every one of those was wrong, and a tool that
+ * cries wolf at that volume is worse than no tool: the real findings were
+ * buried under noise nobody would dig through.
+ *
+ * So a transport failure now means "I could not tell", never "it is broken",
+ * and only a real HTTP 4xx/5xx counts against a link. Retries absorb a slow
+ * first compile rather than misreading it as absence.
+ */
 const reachable = new Map();
 async function isReachable(href) {
   if (reachable.has(href)) return reachable.get(href);
-  let ok = true;
-  try {
-    const res = await fetch(base + href, { redirect: "follow" });
-    ok = res.status < 400;
-  } catch {
-    ok = false;
+
+  let verdict = "unknown";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(base + href, {
+        redirect: "follow",
+        signal: AbortSignal.timeout(45000),
+      });
+      verdict = res.status < 400 ? "ok" : "dead";
+      break;
+    } catch {
+      // Connection refused / timed out — the server, not the route. Back off
+      // and try again before drawing any conclusion.
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+    }
   }
-  reachable.set(href, ok);
-  return ok;
+  reachable.set(href, verdict);
+  return verdict;
 }
 
 for (const path of PAGES) {
@@ -93,7 +135,17 @@ for (const path of PAGES) {
     await page.goto(base + path, { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(900);
   } catch (e) {
-    findings.push({ kind: "PAGE_ERROR", path, detail: String(e.message).slice(0, 90) });
+    const msg = String(e.message);
+    // The server going away is a fact about the run, not about the page.
+    // Calling it a page fault is how a dead server turned into a list of
+    // "broken" screens that were all fine.
+    const serverGone = /ECONNREFUSED|CONNECTION_REFUSED|socket hang up/i.test(msg);
+    findings.push({
+      kind: serverGone ? "UNCHECKED" : "PAGE_ERROR",
+      path,
+      detail: serverGone ? "server stopped answering (not a verdict)" : msg.slice(0, 90),
+    });
+    if (serverGone) serverDroppedOut = true;
     continue;
   }
 
@@ -128,8 +180,15 @@ for (const path of PAGES) {
       findings.push({ kind: "SELF_LINK", path, detail: `"${link.text}" → ${link.href}` });
       continue;
     }
-    if (!(await isReachable(target || "/"))) {
+    const verdict = await isReachable(target || "/");
+    if (verdict === "dead") {
       findings.push({ kind: "DEAD_LINK", path, detail: `"${link.text}" → ${link.href}` });
+    } else if (verdict === "unknown") {
+      findings.push({
+        kind: "UNCHECKED",
+        path,
+        detail: `"${link.text}" → ${link.href} (server did not answer; not a verdict)`,
+      });
     }
   }
 
@@ -172,6 +231,19 @@ console.log(
   `\n${PAGES.length} pages checked. ${findings.length} finding(s)` +
     (findings.length ? `: ${JSON.stringify(byKind)}` : "."),
 );
+
+// A run that lost its server saw nothing it can vouch for. Reporting its
+// partial results as findings is how fifty healthy pages got called broken,
+// so refuse to give a verdict at all and say why.
+if (serverDroppedOut) {
+  console.log(
+    "\nThe server stopped answering part-way through, so this run proves nothing.\n" +
+      "Everything after that point is UNCHECKED, not passing and not failing.\n" +
+      "Run against a production build (npm run build && npx next start) — a dev\n" +
+      "server compiling ~100 routes on demand is what usually falls over here.",
+  );
+  process.exit(2);
+}
 
 // Dead links and page errors are unambiguous breakage. Self-links and inert
 // buttons are judgement calls that deserve eyes, so they report without
