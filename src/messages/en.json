@@ -582,6 +582,7 @@
     "consentLabel": "I authorize Zakai to act on my behalf with",
     "consentLabel2": "regarding this matter, as described above. This authorization is recorded with a timestamp.",
     "approveBtn": "Approve & continue",
+    "consentShort": "tick the approval box above",
     "copySelfBtn": "Copy — I'll send from my email",
     "copySelfDone": "Copied. Send from your inbox — no send from Zakai servers.",
     "sendViaZakai": "Send via Zakai (Mandate)",
