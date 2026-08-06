@@ -577,7 +577,10 @@ export default async function DashboardPage({
         </div>
       ) : null}
 
-      {!emailConfigured() && (
+      {/* Both notes only matter once there is a case they could affect — a
+          zero-case dashboard showing two config warnings before any content
+          is the "looks unfinished" clutter this was flagged for. */}
+      {cases.length > 0 && !emailConfigured() && (
         <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed font-bold">
           {locale === "he"
             ? "שליחת מייל מהשרת לא מוגדרת (SMTP) — אפשר עדיין לפתוח תיק + Mandate ולשלוח מהמייל שלכם. ברגע שיוגדר SMTP, הסוכן ישלח ישירות לספק."
@@ -585,7 +588,7 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {!paymentsFullyLive() && (
+      {pendingFeeAgorot > 0 && !paymentsFullyLive() && (
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed">
           {locale === "he"
             ? "סליקה במצב דמו — עמלת הצלחה לא גובה כסף אמיתי עד PayPlus מלא (בדיקה: /api/release-gate)."
