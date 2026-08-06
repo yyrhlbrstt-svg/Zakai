@@ -2838,6 +2838,11 @@
         "href": "/business-compensation",
         "title": "Indirect war-damage compensation",
         "sub": "Businesses with reduced revenue may be entitled to compensation from the Tax Authority."
+      },
+      {
+        "href": "/duplicate-insurance",
+        "title": "Duplicate business insurance",
+        "sub": "Property, equipment, or liability policies covering the same risk twice — common after switching brokers or an uncoordinated renewal."
       }
     ],
     "cta": "Start by scanning a receipt"
