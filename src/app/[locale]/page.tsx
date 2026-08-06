@@ -390,6 +390,14 @@ export default async function HomePage({
           </Reveal>
         ))}
       </div>
+      <Reveal>
+        <Link
+          href="/how-it-works"
+          className="inline-block mt-4 text-[13px] font-bold text-emerald no-underline hover:underline"
+        >
+          {t("home.fullGuideLink")}
+        </Link>
+      </Reveal>
 
       <Reveal>
         <h2 className="text-[17px] font-extrabold mt-16 mb-4">

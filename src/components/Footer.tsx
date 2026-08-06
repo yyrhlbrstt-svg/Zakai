@@ -77,6 +77,7 @@ export function Footer() {
           {(
             [
               { href: "/about", key: "footer.about" as const },
+              { href: "/how-it-works", key: "footer.howItWorks" as const },
               { href: "/feedback", key: "footer.feedback" as const },
               { href: "/faq", key: "footer.faq" as const },
               { href: "/results", key: "footer.results" as const },

@@ -9,6 +9,7 @@ import { PlanBadge } from "@/components/PlanBadge";
 import { MoneyScoreCard } from "@/components/MoneyScoreCard";
 import { VigilWatchCard } from "@/components/VigilWatchCard";
 import { ShareResult } from "@/components/ShareResult";
+import { SavingRevealCard } from "@/components/SavingRevealCard";
 import { ReferralCard } from "@/components/ReferralCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { FeePayButton } from "@/components/FeePayButton";
@@ -113,8 +114,6 @@ export default async function DashboardPage({
   }
 
   const sentIds = cases.filter((c) => c.status === "SENT").map((c) => c.id);
-  const proposedMap = await getProposedSavingsMap(sentIds);
-  const proposedCount = proposedMap.size;
 
   const celebrateCase =
     (highlightCase
@@ -122,46 +121,50 @@ export default async function DashboardPage({
       : undefined) ??
     cases.find((c) => c.status === "SAVED" && (c.savingsProof?.savingMonthly ?? 0) > 0);
 
-  const agentRoundMap =
-    sentIds.length > 0 ? await getAgentRoundMap(sentIds) : new Map<string, number>();
+  // Four independent reads (none depends on another's result) that used to
+  // run as four sequential DB round-trips on every dashboard load.
+  const [proposedMap, agentRoundMap, outRows, outcomeRows] = await Promise.all([
+    getProposedSavingsMap(sentIds),
+    sentIds.length > 0 ? getAgentRoundMap(sentIds) : Promise.resolve(new Map<string, number>()),
+    sentIds.length > 0
+      ? prisma.outbox.findMany({
+          where: {
+            caseId: { in: sentIds },
+            channel: "EMAIL",
+            OR: [{ providerMessageId: null }, { providerMessageId: { not: "inbound" } }],
+          },
+          orderBy: { createdAt: "desc" },
+          select: { caseId: true, status: true, providerMessageId: true },
+        })
+      : Promise.resolve([]),
+    prisma.strategyOutcome
+      .findMany({
+        where: { market: "IL", createdAt: { gte: new Date(Date.now() - 540 * 86_400_000) } },
+        select: {
+          market: true,
+          vertical: true,
+          counterparty: true,
+          variantId: true,
+          paid: true,
+          recoveredMinor: true,
+          days: true,
+          selfReported: true,
+        },
+        take: 8_000,
+        orderBy: { createdAt: "desc" },
+      })
+      .catch(() => []) as Promise<LearningOutcomeRow[]>,
+  ]);
+  const proposedCount = proposedMap.size;
 
   const outreachDeliveryMap = new Map<
     string,
     ReturnType<typeof mapOutboxToOutreachDelivery>
   >();
-  if (sentIds.length > 0) {
-    const outRows = await prisma.outbox.findMany({
-      where: {
-        caseId: { in: sentIds },
-        channel: "EMAIL",
-        OR: [{ providerMessageId: null }, { providerMessageId: { not: "inbound" } }],
-      },
-      orderBy: { createdAt: "desc" },
-      select: { caseId: true, status: true, providerMessageId: true },
-    });
-    for (const row of outRows) {
-      if (!row.caseId || outreachDeliveryMap.has(row.caseId)) continue;
-      outreachDeliveryMap.set(row.caseId, mapOutboxToOutreachDelivery(row));
-    }
+  for (const row of outRows) {
+    if (!row.caseId || outreachDeliveryMap.has(row.caseId)) continue;
+    outreachDeliveryMap.set(row.caseId, mapOutboxToOutreachDelivery(row));
   }
-
-  const outcomeRows = (await prisma.strategyOutcome
-    .findMany({
-      where: { market: "IL", createdAt: { gte: new Date(Date.now() - 540 * 86_400_000) } },
-      select: {
-        market: true,
-        vertical: true,
-        counterparty: true,
-        variantId: true,
-        paid: true,
-        recoveredMinor: true,
-        days: true,
-        selfReported: true,
-      },
-      take: 8_000,
-      orderBy: { createdAt: "desc" },
-    })
-    .catch(() => [])) as LearningOutcomeRow[];
 
   const learningTips = new Map<
     string,
@@ -314,15 +317,19 @@ export default async function DashboardPage({
     count: list.length,
   }));
 
-  const referredCount = await prisma.user.count({ where: { referredById: user!.id } });
-  const referralRow = await prisma.user.findUnique({
-    where: { id: user!.id },
-    select: { referralCode: true, referralCreditAgorot: true },
-  });
+  // Independent of each other and of `cases` above — three sequential
+  // round-trips here were pure added latency on every dashboard load.
+  const [referredCount, referralRow, retentionActions] = await Promise.all([
+    prisma.user.count({ where: { referredById: user!.id } }),
+    prisma.user.findUnique({
+      where: { id: user!.id },
+      select: { referralCode: true, referralCreditAgorot: true },
+    }),
+    loadRetentionPlan(user!.id),
+  ]);
   const referralCode = referralRow?.referralCode ?? "";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const invitePath = `/${locale}/signup?ref=${referralCode}`;
-  const retentionActions = await loadRetentionPlan(user!.id);
 
   // One operating system: expand only the ranked next action (or deep-linked case).
   const nbaCaseId =
@@ -577,7 +584,10 @@ export default async function DashboardPage({
         </div>
       ) : null}
 
-      {!emailConfigured() && (
+      {/* Both notes only matter once there is a case they could affect — a
+          zero-case dashboard showing two config warnings before any content
+          is the "looks unfinished" clutter this was flagged for. */}
+      {cases.length > 0 && !emailConfigured() && (
         <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed font-bold">
           {locale === "he"
             ? "שליחת מייל מהשרת לא מוגדרת (SMTP) — אפשר עדיין לפתוח תיק + Mandate ולשלוח מהמייל שלכם. ברגע שיוגדר SMTP, הסוכן ישלח ישירות לספק."
@@ -585,7 +595,7 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {!paymentsFullyLive() && (
+      {pendingFeeAgorot > 0 && !paymentsFullyLive() && (
         <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed">
           {locale === "he"
             ? "סליקה במצב דמו — עמלת הצלחה לא גובה כסף אמיתי עד PayPlus מלא (בדיקה: /api/release-gate)."
@@ -647,27 +657,23 @@ export default async function DashboardPage({
         </div>
       )}
       {justDocumentedSaving && (
-        <div className="rounded-2xl border border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.14)] px-5 py-4 mb-5">
-          <div className="font-display text-2xl grad-text m-0">{t("dashboard.savedCelebrateTitle")}</div>
-          {celebrateSavingAgorot > 0 ? (
-            <div className="font-display text-3xl font-black text-emerald mt-2">
-              {formatAgorot(celebrateSavingAgorot, loc)}
-              {celebrateFeeBasis === "monthly" ? t("common.perMonthTag") : null}
-            </div>
-          ) : null}
-          <p className="text-[13.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{t("dashboard.savedCelebrateSub")}</p>
-          {celebrateCase?.fee &&
+        <SavingRevealCard
+          title={t("dashboard.savedCelebrateTitle")}
+          amountAgorot={celebrateSavingAgorot}
+          perMonthTag={celebrateFeeBasis === "monthly" ? t("common.perMonthTag") : null}
+          sub={t("dashboard.savedCelebrateSub")}
+          bcp47={loc}
+          feeTag={
+            celebrateCase?.fee &&
             celebrateCase.fee.status === "PENDING" &&
             celebrateCase.fee.amount > 0 &&
-            payFeeCaseId !== celebrateCase.id && (
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className="text-[13px] font-bold text-ink-soft">
-                  {t("dashboard.feeTag")}: {formatAgorot(celebrateCase.fee.amount, loc)}
-                </span>
-                <FeePayButton caseId={celebrateCase.id} />
-              </div>
-            )}
-        </div>
+            payFeeCaseId !== celebrateCase.id
+              ? t("dashboard.feeTag")
+              : undefined
+          }
+          feeAmountAgorot={celebrateCase?.fee?.amount}
+          feeCaseId={celebrateCase?.id}
+        />
       )}
       {(user!.plan === "PRO" || user!.plan === "MAX") && (
         <div

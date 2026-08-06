@@ -40,6 +40,7 @@ const PATHS = [
   "/pipe",
   "/registry",
   "/faq",
+  "/how-it-works",
   "/signup",
   "/login",
   "/electricity",
