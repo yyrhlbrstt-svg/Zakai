@@ -4,7 +4,7 @@ import { Link } from "@/i18n/routing";
 import { PotentialTotal } from "@/components/PotentialTotal";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
-import { isIsrael } from "@/lib/geo";
+import { isIsraeliMarket } from "@/lib/geo";
 
 export async function generateMetadata({
   params,
@@ -25,20 +25,24 @@ export default async function WhatAmIOwedPage({
   setRequestLocale(locale);
   const t = await getTranslations("potential");
   const tEnt = await getTranslations("entitlements");
-  const israeliVisitor = await isIsrael();
+  const israeliVisitor = await isIsraeliMarket(locale);
   const he = locale === "he" || locale === "ar";
   const tIapp_locale_what_am_i_owed_page = await getTranslations({ locale, namespace: "inline_app_locale_what_am_i_owed_page" });
 
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
-      <div className="flex flex-wrap gap-2.5 mb-8">
+      {/* The quiz itself is the primary content — it answers on this page with
+          no click required to "start." Other tools are secondary, below it. */}
+      <PotentialTotal isIsraeli={israeliVisitor} />
+
+      <div className="flex flex-wrap gap-2.5 mt-8 mb-8">
         <Link href="/entitlements">
-          <Button className="!text-[13.5px] !px-4 !py-2.5">
+          <Button variant="ghost" className="!text-[13.5px]">
             {tEnt("start")}
           </Button>
         </Link>
         <Link href="/money">
-          <Button className="!text-[13.5px] !px-4 !py-2.5">
+          <Button variant="ghost" className="!text-[13.5px]">
             {tIapp_locale_what_am_i_owed_page("t_13fc32c9")}
           </Button>
         </Link>
@@ -63,8 +67,6 @@ export default async function WhatAmIOwedPage({
           </Button>
         </Link>
       </div>
-
-      <PotentialTotal isIsraeli={israeliVisitor} />
 
       <div className="mt-10 rounded-2xl border border-[rgba(63,203,155,0.28)] bg-[rgba(63,203,155,0.06)] px-5 py-5 text-center">
         <div className="font-extrabold text-[15px]">

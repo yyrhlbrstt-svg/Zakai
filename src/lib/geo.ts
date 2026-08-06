@@ -37,3 +37,19 @@ export async function isIsrael(): Promise<boolean> {
   // Israel — the home market — so nothing regresses without geo data.
   return c === "" || c === "IL";
 }
+
+/**
+ * Whether to treat this visitor as being in the Israeli market for UX-gating
+ * purposes (which tools/copy to show) — not for anything that needs the
+ * visitor's actual legal jurisdiction.
+ *
+ * Navigating to /he is itself a manual choice of the Israeli market: a
+ * VPN, a corporate proxy, or a mobile carrier's NAT can make geo-IP say
+ * "outside Israel" for someone who is demonstrably here (they are reading
+ * Hebrew), and gating a whole feature on raw IP alone — as opposed to just
+ * clarifying copy — turned a network quirk into a missing quiz.
+ */
+export async function isIsraeliMarket(locale: string): Promise<boolean> {
+  if (locale === "he") return true;
+  return isIsrael();
+}

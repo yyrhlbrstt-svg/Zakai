@@ -8,7 +8,7 @@ import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
-import { isIsrael, getCountry } from "@/lib/geo";
+import { isIsraeliMarket, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
 import { currentArm } from "@/lib/evolve/store";
 import { ENTITLEMENTS } from "@/lib/rights";
@@ -68,7 +68,7 @@ export default async function HomePage({
 
   const steps = ["upload", "act", "pay"] as const;
   const trust = (t.raw("home.trust") as string[]) || [];
-  const israeliVisitor = await isIsrael();
+  const israeliVisitor = await isIsraeliMarket(locale);
   const visitorCountry = await getCountry();
 
   let countryTag = "";

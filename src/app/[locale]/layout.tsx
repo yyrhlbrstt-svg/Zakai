@@ -10,7 +10,6 @@ import { ogImageUrl } from "@/lib/seo";
 import { Background } from "@/components/Background";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { ConsumerHonestyBanner } from "@/components/ConsumerHonestyBanner";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { EnablePush } from "@/components/EnablePush";
 import { PlausibleScript } from "@/components/PlausibleScript";
@@ -192,7 +191,6 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <Background />
           <Header user={user ? { name: user.name, plan: user.plan } : null} />
-          <ConsumerHonestyBanner />
           <LangSuggest />
           {children}
           {user ? (

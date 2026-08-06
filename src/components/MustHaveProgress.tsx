@@ -34,11 +34,9 @@ function saveDone(set: Set<string>) {
 export function MustHaveProgress({ locale }: { locale: string }) {
   const c = mustHavePageCopy(locale);
   const [done, setDone] = useState<Set<string>>(new Set());
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setDone(loadDone());
-    setReady(true);
   }, []);
 
   function toggle(tool: MustHaveTool) {
@@ -56,7 +54,7 @@ export function MustHaveProgress({ locale }: { locale: string }) {
   return (
     <Card className="p-5 mb-10 border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)]">
       <div className="font-extrabold text-[15px] mb-1">
-        {c.progressTitle(ready ? String(n) : "—", STARTER_PACK.length)}
+        {c.progressTitle(String(n), STARTER_PACK.length)}
       </div>
       <p className="text-[12.5px] text-ink-soft m-0 mb-4 leading-relaxed">{c.progressSub}</p>
       <ul className="m-0 p-0 list-none flex flex-col gap-2">
