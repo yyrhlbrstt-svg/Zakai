@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { deliverOutboxRecord, outboxAsyncMode } from "@/lib/workers/outboxDeliver";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
+import { buildBrandedEmailHtml } from "@/lib/emailTemplate";
 
 /**
  * Outbound messaging. Every message — email or SMS — is recorded in the Outbox
@@ -62,6 +63,7 @@ async function sendEmailWithAttachments(
     to,
     subject,
     text: body,
+    html: buildBrandedEmailHtml(subject, body),
     replyTo: replyTo === null ? undefined : replyTo || defaultProofsReplyTo(),
     attachments: attachments?.map((a) => ({
       filename: a.filename,
