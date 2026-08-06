@@ -4637,7 +4637,8 @@
       "state": "State"
     },
     "invalidId": "That ID number doesn't look valid — check the 9 digits.",
-    "invalidPeriod": "That year doesn't look right — enter a 4-digit year (e.g. 2025)."
+    "invalidPeriod": "That year doesn't look right — enter a 4-digit year (e.g. 2025).",
+    "invalidAmount": "That amount doesn't look right — enter numbers only (e.g. 1,250)."
   },
   "reset": {
     "requestTitle": "Forgot your password?",

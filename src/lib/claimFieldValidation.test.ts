@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isPlausibleTaxYear, isValidIsraeliId } from "./claimFieldValidation";
+import { isPlausibleAmount, isPlausibleTaxYear, isValidIsraeliId } from "./claimFieldValidation";
 
 /** Computes the correct check digit for an 8-digit prefix, mirroring the
  * production checksum so tests aren't hostage to one hardcoded "real" ID. */
@@ -62,5 +62,25 @@ describe("isPlausibleTaxYear", () => {
     expect(isPlausibleTaxYear("26", NOW)).toBe(false);
     expect(isPlausibleTaxYear("", NOW)).toBe(false);
     expect(isPlausibleTaxYear("abcd", NOW)).toBe(false);
+  });
+});
+
+describe("isPlausibleAmount", () => {
+  it("accepts plain and comma-formatted amounts", () => {
+    expect(isPlausibleAmount("400")).toBe(true);
+    expect(isPlausibleAmount("12,500")).toBe(true);
+    expect(isPlausibleAmount("1234.56")).toBe(true);
+  });
+
+  it("rejects non-numeric text", () => {
+    expect(isPlausibleAmount("abc")).toBe(false);
+    expect(isPlausibleAmount("")).toBe(false);
+    expect(isPlausibleAmount("400 ILS")).toBe(false);
+  });
+
+  it("rejects zero, negative, and absurdly large values", () => {
+    expect(isPlausibleAmount("0")).toBe(false);
+    expect(isPlausibleAmount("-50")).toBe(false);
+    expect(isPlausibleAmount("999999999999")).toBe(false);
   });
 });

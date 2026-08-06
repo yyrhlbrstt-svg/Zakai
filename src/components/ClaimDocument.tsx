@@ -8,7 +8,7 @@ import { Input, Button, FieldError } from "@/components/ui";
 import { buildClaimDraft, resolveAction, type ClaimFields } from "@/lib/claimDraft";
 import { RIGHT_ACTIONS } from "@/lib/rightsActions";
 import { OutcomeReport } from "@/components/OutcomeReport";
-import { isPlausibleTaxYear, isValidIsraeliId } from "@/lib/claimFieldValidation";
+import { isPlausibleAmount, isPlausibleTaxYear, isValidIsraeliId } from "@/lib/claimFieldValidation";
 
 /**
  * The fulfilment surface for a single entitlement — expanded in place, inside
@@ -62,6 +62,9 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
   const periodValue = (fields.period ?? "").trim();
   const periodInvalid =
     action.fields.includes("period") && periodValue.length > 0 && !isPlausibleTaxYear(periodValue);
+  const amountValue = (fields.amount ?? "").trim();
+  const amountInvalid =
+    action.fields.includes("amount") && amountValue.length > 0 && !isPlausibleAmount(amountValue);
 
   const text = (key: string, maxLength = 60, dir?: "ltr") => (
     <label key={key} className="block">
@@ -74,6 +77,7 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
       />
       {key === "id" && idInvalid && <FieldError>{t("invalidId")}</FieldError>}
       {key === "period" && periodInvalid && <FieldError>{t("invalidPeriod")}</FieldError>}
+      {key === "amount" && amountInvalid && <FieldError>{t("invalidAmount")}</FieldError>}
     </label>
   );
 
@@ -102,7 +106,7 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
 
       <Button
         className="mt-3.5"
-        disabled={idInvalid || periodInvalid}
+        disabled={idInvalid || periodInvalid || amountInvalid}
         onClick={() => setDraft(buildClaimDraft(rightId, fields))}
       >
         {t("generate")}
