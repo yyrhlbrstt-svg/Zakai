@@ -1,4 +1,5 @@
 import "server-only";
+import { secretsMatch } from "@/lib/security/timingSafe";
 
 /** Founder/ops diagnostics — never expose env values in JSON. */
 export function isInternalOpsRequest(request: Request): boolean {
@@ -6,5 +7,6 @@ export function isInternalOpsRequest(request: Request): boolean {
   if (!adminToken) return false;
   const url = new URL(request.url);
   if (url.searchParams.get("internal") !== "1") return false;
-  return request.headers.get("x-zakai-admin-token") === adminToken;
+  const provided = request.headers.get("x-zakai-admin-token") || "";
+  return secretsMatch(provided, adminToken);
 }
