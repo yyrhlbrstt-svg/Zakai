@@ -1,12 +1,60 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { Logo } from "@/components/Logo";
 import { FooterAppVersion } from "@/components/FooterAppVersion";
 
+/**
+ * A footer link that stops being a link once you are already there.
+ *
+ * Offering someone a link to the page they are standing on is the single
+ * most common way an app feels broken without anything actually failing:
+ * they tap it, the page does not change, and the reasonable conclusion is
+ * that the button is dead. Marking the current entry instead — greyed, not
+ * clickable, aria-current for screen readers — answers "where am I" rather
+ * than inviting a tap that cannot do anything.
+ */
+function FooterLink({
+  href,
+  pathname,
+  primary = false,
+  children,
+}: {
+  href: string;
+  pathname: string;
+  primary?: boolean;
+  children: React.ReactNode;
+}) {
+  // Compare paths only: /money#zakai-money-scan from /money is a jump to a
+  // section, which genuinely does something.
+  const target = href.split("#")[0].split("?")[0];
+  const isCurrent = pathname === target && !href.includes("#");
+
+  if (isCurrent) {
+    return (
+      <span aria-current="page" className="text-ink-soft/50 cursor-default">
+        {children}
+      </span>
+    );
+  }
+  return (
+    <Link
+      href={href}
+      className={
+        primary
+          ? "text-[#06121A] no-underline rounded-full px-3.5 py-1.5 bg-emerald hover:opacity-90"
+          : "text-ink-soft no-underline hover:text-emerald transition-colors"
+      }
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function Footer() {
   const t = useTranslations();
+  const pathname = usePathname();
   const moneyLabel = t("footer.nav.money");
   const cancelLabel = t("footer.nav.cancel");
   const owedLabel = t("footer.nav.owed");
@@ -27,36 +75,22 @@ export function Footer() {
       </ul>
 
       <div className="flex flex-wrap gap-x-4 gap-y-2.5 justify-center text-[13px] font-bold">
-        <Link href="/money#zakai-money-scan" className="text-[#06121A] no-underline rounded-full px-3.5 py-1.5 bg-emerald hover:opacity-90">
+        <FooterLink href="/money#zakai-money-scan" pathname={pathname} primary>
           {moneyLabel}
-        </Link>
-        <Link href="/cancel" className="text-ink-soft no-underline hover:text-emerald transition-colors">
-          {cancelLabel}
-        </Link>
-        <Link href="/what-am-i-owed" className="text-ink-soft no-underline hover:text-emerald transition-colors">
-          {owedLabel}
-        </Link>
-        <Link href="/electricity" className="text-ink-soft no-underline hover:text-emerald transition-colors">
-          {elecLabel}
-        </Link>
+        </FooterLink>
+        <FooterLink href="/cancel" pathname={pathname}>{cancelLabel}</FooterLink>
+        <FooterLink href="/what-am-i-owed" pathname={pathname}>{owedLabel}</FooterLink>
+        <FooterLink href="/electricity" pathname={pathname}>{elecLabel}</FooterLink>
         <span className="text-[rgba(147,166,165,0.35)]" aria-hidden>
           |
         </span>
-        <Link href="/business" className="text-ink-soft no-underline hover:text-emerald transition-colors">
-          {bizLabel}
-        </Link>
-        <Link href="/partners" className="text-ink-soft no-underline hover:text-emerald transition-colors">
-          {partnersLabel}
-        </Link>
-        <Link href="/institutions" className="text-ink-soft no-underline hover:text-emerald transition-colors">
-          {instLabel}
-        </Link>
-        <Link href="/tools" className="text-ink-soft no-underline hover:text-emerald transition-colors">
-          {t("footer.allTools")}
-        </Link>
-        <Link href="/network-proof" className="text-ink-soft no-underline hover:text-emerald transition-colors">
+        <FooterLink href="/business" pathname={pathname}>{bizLabel}</FooterLink>
+        <FooterLink href="/partners" pathname={pathname}>{partnersLabel}</FooterLink>
+        <FooterLink href="/institutions" pathname={pathname}>{instLabel}</FooterLink>
+        <FooterLink href="/tools" pathname={pathname}>{t("footer.allTools")}</FooterLink>
+        <FooterLink href="/network-proof" pathname={pathname}>
           {t("footer.networkProof")}
-        </Link>
+        </FooterLink>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">

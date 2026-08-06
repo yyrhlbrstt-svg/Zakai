@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { Card, Button, Input, Textarea } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import {
   ADVANCE_TAX_FORM_URL,
   advanceTaxReductionDeadline,
@@ -128,6 +129,13 @@ export function AdvanceTaxReductionTool() {
           />
         </label>
 
+        <MissingFields
+          items={[
+            { ok: name.trim().length > 0, label: t("nameQ") },
+            { ok: taxFileNumber.trim().length > 0, label: t("fileNumberQ") },
+            { ok: reason.trim().length > 0, label: t("reasonQ") },
+          ]}
+        />
         <Button onClick={generate} disabled={!canGenerate}>
           {t("generateCta")}
         </Button>

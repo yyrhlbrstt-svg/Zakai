@@ -226,9 +226,9 @@ export function StatementScan({
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotError")}</p>
         )}
-        {!canScan && text.trim().length > 0 && (
-          <p className="text-[12px] text-ink-soft mt-2 mb-0">{t("tooShort")}</p>
-        )}
+        {/* Also shown on an empty box — see MoneyHub for why silence here is
+            indistinguishable from a broken button. */}
+        {!canScan && <p className="text-[12px] text-ink-soft mt-2 mb-0">{t("tooShort")}</p>}
 
         <details className="mt-5 text-[13px] text-ink-soft">
           <summary className="cursor-pointer font-bold text-emerald">{t("exportGuideTitle")}</summary>
