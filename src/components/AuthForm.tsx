@@ -34,6 +34,7 @@ const AUTH_ERROR_KEYS = new Set([
   "nameRequired",
   "mustLogin",
   "tooManyRequests",
+  "termsRequired",
 ]);
 
 export function AuthForm({
@@ -59,7 +60,14 @@ export function AuthForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (mode === "signup" && !termsOk) return;
+    if (mode === "signup" && !termsOk) {
+      // The button used to just be disabled here with no explanation — someone
+      // who missed the checkbox above (easy to, it's under a collapsed
+      // disclosure) got a click that visibly did nothing. Now it's always
+      // clickable and says exactly what's missing.
+      setError("termsRequired");
+      return;
+    }
     setError(null);
     setPending(true);
     try {
@@ -232,11 +240,7 @@ export function AuthForm({
 
           <FieldError>{tErr(error)}</FieldError>
 
-          <Button
-            type="submit"
-            disabled={pending || (mode === "signup" && !termsOk)}
-            className="w-full mt-1"
-          >
+          <Button type="submit" disabled={pending} className="w-full mt-1">
             {mode === "login" ? t("loginBtn") : t("signupBtn")}
           </Button>
         </form>

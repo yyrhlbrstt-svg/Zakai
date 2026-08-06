@@ -255,6 +255,7 @@
     "invalidEmail": "Invalid email address.",
     "invalidPhone": "Invalid Israeli phone number (e.g. 0501234567).",
     "nameRequired": "Please enter your full name.",
+    "termsRequired": "Please accept the terms above to continue.",
     "mustLogin": "Please log in to continue.",
     "tooManyRequests": "Too many attempts. Try again in a few minutes.",
     "invitedNote": "You were invited by a friend 🎁",
