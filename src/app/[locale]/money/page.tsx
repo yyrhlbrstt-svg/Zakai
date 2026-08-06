@@ -240,7 +240,7 @@ export default async function MoneyPage({
             title: tHome("home.gravityTitle"),
             sent: tHome("home.gravitySent"),
             mandates: tHome("home.gravityMandates"),
-            proofs: tHome("home.gravityProofs"),
+            proofs: tHome("home.gravityProofs", { count: proof.verifiedCount }),
             empty: tHome("home.gravityEmpty"),
             ledger: tHome("home.gravityLedger"),
           }}
