@@ -57,7 +57,11 @@ export function LiveGravityStrip({
             {hasProof ? formatAgorot(verifiedMinor, localeBcp47) : "0"}
           </div>
           <div className="text-[11px] text-ink-soft mt-1.5 leading-tight">
-            {hasProof ? labels.proofs.replace("{count}", String(verifiedCount)) : labels.empty}
+            {/* Already interpolated by next-intl at the call site. Doing it
+                here with a manual replace left the {count} placeholder
+                unfilled at t(), which next-intl reported as a FORMATTING_ERROR
+                on every render in all six locales. */}
+            {hasProof ? labels.proofs : labels.empty}
           </div>
         </div>
       </div>
