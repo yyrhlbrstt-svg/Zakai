@@ -160,6 +160,14 @@ export const FAQ: FaqEntry[] = [
     a_en: "Yes. At /bank-fees: fee dispute case — after verification, send to the bank with Mandate and track.",
   },
   {
+    id: "merchant-fees",
+    category: "bills",
+    q_he: "יש לי עסק שסולק כרטיסים — אפשר להוזיל את עמלת הסליקה?",
+    a_he: "ב-/merchant-fees: הסוכן מבקש מחברת הסליקה פירוט מלא בכתב של כל החיובים והצעה מעודכנת. זכאי לא מבטיח שיעור מסוים — השיעור תלוי במחזור ובתמהיל הכרטיסים, ורק חברת הסליקה יודעת אותו.",
+    q_en: "My business takes card payments — can the clearing fee be reduced?",
+    a_en: "At /merchant-fees: the agent asks your acquirer for a full written breakdown of every charge plus an updated offer. Zakai promises no particular rate — it depends on turnover and card mix, and only the acquirer knows it.",
+  },
+  {
     id: "electricity",
     category: "bills",
     q_he: "אפשר להוזיל את חשבון החשמל?",

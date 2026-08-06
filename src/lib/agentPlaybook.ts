@@ -114,7 +114,8 @@ NETWORK & INSTITUTIONS (AI must know these exist):
 HIGH-VALUE SCREENS:
 - /money — primary entry AND finish (Money Hub + CaseNextStep + fee + share)
 - /scan — logged-in scan with same one-click Case
-- /cancel /bank-fees /electricity /flights /refund-chase /parking /warranty /transport-fine /late-payment /deposit /duplicate-insurance /arnona /car-insurance-refund — agent paths (Case + Mandate + send + SavingsProof)
+- /cancel /bank-fees /merchant-fees /electricity /flights /refund-chase /parking /warranty /transport-fine /late-payment /deposit /duplicate-insurance /arnona /car-insurance-refund — agent paths (Case + Mandate + send + SavingsProof)
+- /merchant-fees: business card-clearing (סליקה) terms. Business-only. Never state a target rate — ask the acquirer for every charge in writing plus their best offer; the saving is a lower rate on the next merchant statement.
 - /check — telecom negotiation
 - /leaks /proofs /partners /assistant /companies — company scores
 - /dashboard — portfolio/history only; not the finish path
