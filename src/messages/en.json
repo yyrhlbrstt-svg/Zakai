@@ -1029,6 +1029,7 @@
     "screenshotBtn": "Bank-app screenshot 📸",
     "shotBusy": "Extracting charges from the screenshot…",
     "shotError": "Couldn't read charges from that image. Try a clearer screenshot of the transactions list.",
+    "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead, or compress the file.",
     "exportGuideTitle": "How do I get my statement? (per-issuer guide)",
     "exportGuide": [
       "Easiest: screenshot the transactions list in your bank/card app and upload it here — Zakai extracts the rows.",

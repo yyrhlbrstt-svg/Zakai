@@ -16,6 +16,7 @@ import {
   scanShareKicker,
   scanShareLandingPath,
 } from "@/lib/monopoly/scanShare";
+import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 
 const CATEGORY_COLOR: Record<ChargeCategory, string> = {
   cellular: "#3FCB9B",
@@ -51,6 +52,7 @@ export function StatementScan({
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
+  const [shotTooBig, setShotTooBig] = useState(false);
   const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -78,6 +80,14 @@ export function StatementScan({
   async function onScreenshot(file?: File | null) {
     if (!file) return;
     setShotError(false);
+    setShotTooBig(false);
+    // Checked before upload: base64 inflates size ~4/3, and a request near
+    // Vercel's ~4.5MB serverless body limit fails at the platform level with
+    // an opaque error — indistinguishable from "scanning is broken".
+    if (file.size > MAX_UPLOAD_IMAGE_BYTES) {
+      setShotTooBig(true);
+      return;
+    }
     setShotBusy(true);
     try {
       const buf = await file.arrayBuffer();
@@ -210,6 +220,9 @@ export function StatementScan({
             onChange={(e) => onScreenshot(e.target.files?.[0])}
           />
         </div>
+        {shotTooBig && (
+          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotTooBig")}</p>
+        )}
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotError")}</p>
         )}
