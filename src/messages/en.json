@@ -11,6 +11,7 @@
     "next": "Next",
     "confirm": "Confirm",
     "required": "Required",
+    "stillNeeded": "To continue, fill in: {fields}",
     "genericError": "Something went wrong. Please try again.",
     "perMonth": "per month",
     "perMonthShort": "₪/month",

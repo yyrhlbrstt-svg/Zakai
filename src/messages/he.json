@@ -11,6 +11,7 @@
     "next": "הבא",
     "confirm": "אישור",
     "required": "שדה חובה",
+    "stillNeeded": "כדי להמשיך צריך למלא: {fields}",
     "genericError": "משהו השתבש. נסה שוב.",
     "perMonth": "לחודש",
     "perMonthShort": "₪ לחודש",

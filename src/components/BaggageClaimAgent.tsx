@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, Textarea, RadioChips } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function BaggageClaimAgent() {
@@ -122,6 +123,13 @@ export function BaggageClaimAgent() {
           <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} />
         </label>
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
+        <MissingFields
+          items={[
+            { ok: Boolean(airline.trim()), label: t("agent.airline") },
+            { ok: Boolean(pirNumber.trim()), label: t("agent.pir") },
+            { ok: Boolean(flightDate.trim()), label: t("agent.flightDate") },
+          ]}
+        />
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>

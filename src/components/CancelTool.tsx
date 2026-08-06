@@ -6,6 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { buildCancelLetter, type CancelIntent } from "@/lib/cancelLetter";
 import {
   pickOutreachEmail,
@@ -204,6 +205,13 @@ export function CancelTool() {
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{t("agentHonestNote")}</p>
 
         <div className="flex flex-col gap-2 mt-1">
+          <MissingFields
+            items={[
+              { ok: company.trim().length > 0, label: t("t_524bf65a") },
+              { ok: product.trim().length > 0, label: t("t_39e161aa") },
+              { ok: Boolean(outreachTo), label: t("contactEmailPlaceholder") },
+            ]}
+          />
           <Button
             onClick={sendWithAgent}
             disabled={!agentReady || busy}

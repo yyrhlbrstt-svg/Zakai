@@ -11,6 +11,7 @@
     "next": "التالي",
     "confirm": "تأكيد",
     "required": "حقل إلزامي",
+    "stillNeeded": "للمتابعة، يرجى تعبئة: {fields}",
     "genericError": "حدث خطأ ما. حاول مرة أخرى.",
     "perMonth": "شهريًا",
     "perMonthShort": "₪ شهريًا",

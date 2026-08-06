@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input, Select } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { buildBankFeeLetter, type BankFeeKind } from "@/lib/bankFeeLetter";
 import {
   IL_BANK_OPTIONS,
@@ -173,6 +174,12 @@ export function BankFeesTool() {
         />
 
         <div className="flex flex-col gap-2 mt-1">
+          <MissingFields
+            items={[
+              { ok: bankKey !== "other" || bankCustom.trim().length > 1, label: t("t_e5cbb043") },
+              { ok: hasOutreachEmail(bankEmail), label: tFlow("contactEmail") },
+            ]}
+          />
           <Button onClick={sendWithAgent} disabled={!bankReady || busy} className="w-full">
             {busy ? t("agentOpening") : t("agentSend")}
           </Button>
