@@ -1003,7 +1003,7 @@ export function CaseNextStep({
               value={draftEdit}
               onChange={(e) => setDraftEdit(e.target.value)}
               rows={6}
-              className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
+              className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] leading-relaxed px-3 py-2 font-sans"
               dir="auto"
             />
           </details>
@@ -1172,7 +1172,7 @@ export function CaseNextStep({
                   value={draftEdit}
                   onChange={(e) => setDraftEdit(e.target.value)}
                   rows={6}
-                  className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[12.5px] leading-relaxed px-3 py-2 font-mono"
+                  className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] leading-relaxed px-3 py-2 font-sans"
                   dir="auto"
                 />
               </details>

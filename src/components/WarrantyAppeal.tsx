@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, Textarea } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function WarrantyAppeal() {
@@ -112,6 +113,14 @@ export function WarrantyAppeal() {
           <Textarea rows={4} value={fault} onChange={(e) => setFault(e.target.value)} maxLength={500} />
         </label>
         <div className="flex flex-col gap-2">
+          <MissingFields
+            items={[
+              { ok: Boolean(seller.trim()), label: t("agentSeller") },
+              { ok: hasOutreachEmail(sellerEmail), label: t("agentSellerEmail") },
+              { ok: Boolean(product.trim()), label: t("agentProduct") },
+              { ok: fault.trim().length >= 3, label: t("agentFault") },
+            ]}
+          />
           <Button onClick={sendWithAgent} disabled={!ready || busy}>
             {busy ? t("agentBusy") : t("agentCta")}
           </Button>

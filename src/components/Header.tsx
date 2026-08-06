@@ -156,8 +156,15 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             role="dialog"
             aria-modal="true"
             aria-label={t("nav.menu")}
-            className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420]/95 backdrop-blur-xl p-3 flex flex-col gap-1 shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100dvh-96px)] overflow-y-auto"
+            className="md:hidden mt-3 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[#0c1420]/95 backdrop-blur-xl shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-h-[calc(100dvh-96px)] flex flex-col"
           >
+            {/* Pinned outside the scrollable list — on a long tools grid, a
+                language switcher buried at the bottom of the scroll is one
+                nobody finds. */}
+            <div className="flex justify-end px-3 pt-3 pb-2 border-b border-[rgba(255,255,255,0.08)] shrink-0">
+              {langButtons}
+            </div>
+            <div className="p-3 flex flex-col gap-1 overflow-y-auto">
             <MobileLink href="/" pathname={pathname}>{t("nav.home")}</MobileLink>
             <MobileLink href="/money" pathname={pathname}>{tIcomponents_Header("t_bd4c0905")}</MobileLink>
             <MobileLink href="/cancel" pathname={pathname}>{tIcomponents_Header("t_bc18d8da")}</MobileLink>
@@ -201,7 +208,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
                 <MobileLink href="/signup" pathname={pathname}>{t("nav.signup")}</MobileLink>
               </>
             )}
-            <div className="px-3 pt-2">{langButtons}</div>
+            </div>
           </div>
         )}
       </div>

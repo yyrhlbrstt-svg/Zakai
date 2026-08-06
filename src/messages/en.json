@@ -11,6 +11,7 @@
     "next": "Next",
     "confirm": "Confirm",
     "required": "Required",
+    "stillNeeded": "To continue, fill in: {fields}",
     "genericError": "Something went wrong. Please try again.",
     "perMonth": "per month",
     "perMonthShort": "₪/month",
@@ -255,6 +256,7 @@
     "invalidEmail": "Invalid email address.",
     "invalidPhone": "Invalid Israeli phone number (e.g. 0501234567).",
     "nameRequired": "Please enter your full name.",
+    "termsRequired": "Please accept the terms above to continue.",
     "mustLogin": "Please log in to continue.",
     "tooManyRequests": "Too many attempts. Try again in a few minutes.",
     "invitedNote": "You were invited by a friend 🎁",
@@ -828,7 +830,16 @@
     "networkProof": "Network proof",
     "about": "Why Zakai",
     "global": "World · Markets",
-    "howItWorks": "How it works"
+    "howItWorks": "How it works",
+    "nav": {
+      "money": "My money",
+      "cancel": "Cancel sub",
+      "owed": "What am I owed",
+      "electricity": "Electricity",
+      "institutions": "Institutions · Mandate",
+      "partners": "Partners · Embed",
+      "business": "B2B · employees + API"
+    }
   },
   "global": {
     "metaTitle": "Zakai worldwide — pick your market",

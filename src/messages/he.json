@@ -11,6 +11,7 @@
     "next": "הבא",
     "confirm": "אישור",
     "required": "שדה חובה",
+    "stillNeeded": "כדי להמשיך צריך למלא: {fields}",
     "genericError": "משהו השתבש. נסה שוב.",
     "perMonth": "לחודש",
     "perMonthShort": "₪ לחודש",
@@ -255,6 +256,7 @@
     "invalidEmail": "כתובת אימייל לא תקינה.",
     "invalidPhone": "מספר טלפון ישראלי לא תקין (למשל 0501234567).",
     "nameRequired": "נא להזין שם מלא.",
+    "termsRequired": "יש לאשר את התנאים למעלה כדי להמשיך.",
     "mustLogin": "יש להתחבר כדי להמשיך.",
     "tooManyRequests": "יותר מדי ניסיונות. נסה שוב בעוד כמה דקות.",
     "invitedNote": "הגעתם דרך הזמנה של חבר 🎁",
@@ -828,7 +830,16 @@
     "networkProof": "הוכחת רשת",
     "about": "למה זכאי",
     "global": "עולם · שווקים",
-    "howItWorks": "איך זה עובד"
+    "howItWorks": "איך זה עובד",
+    "nav": {
+      "money": "הכסף שלי",
+      "cancel": "ביטול מנוי",
+      "owed": "מה מגיע לי",
+      "electricity": "חשמל",
+      "institutions": "למוסדות · Mandate",
+      "partners": "שותפים · Embed",
+      "business": "B2B · עובדים + API"
+    }
   },
   "global": {
     "metaTitle": "זכאי בעולם — בחירת שוק",

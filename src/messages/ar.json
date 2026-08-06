@@ -11,6 +11,7 @@
     "next": "التالي",
     "confirm": "تأكيد",
     "required": "حقل إلزامي",
+    "stillNeeded": "للمتابعة، يرجى تعبئة: {fields}",
     "genericError": "حدث خطأ ما. حاول مرة أخرى.",
     "perMonth": "شهريًا",
     "perMonthShort": "₪ شهريًا",
@@ -98,6 +99,7 @@
     "invalidEmail": "عنوان بريد إلكتروني غير صالح.",
     "invalidPhone": "رقم هاتف غير صالح (مثال 0501234567).",
     "nameRequired": "يرجى إدخال الاسم الكامل.",
+    "termsRequired": "يجب الموافقة على الشروط أعلاه للمتابعة.",
     "mustLogin": "يجب تسجيل الدخول للمتابعة.",
     "tooManyRequests": "محاولات كثيرة جدًا. حاول بعد بضع دقائق.",
     "invitedNote": "وصلت عبر دعوة من صديق 🎁",
@@ -273,7 +275,16 @@
     "whatAmIOwed": "كم يستحقه؟",
     "companies": "تقييم زكاي",
     "allTools": "كل الأدوات",
-    "networkProof": "إثبات الشبكة"
+    "networkProof": "إثبات الشبكة",
+    "nav": {
+      "money": "أموالي",
+      "cancel": "إلغاء اشتراك",
+      "owed": "ما يحق لي",
+      "electricity": "كهرباء",
+      "institutions": "للمؤسسات",
+      "partners": "شركاء",
+      "business": "B2B"
+    }
   },
   "install": {
     "title": "ثبّت زكاي",

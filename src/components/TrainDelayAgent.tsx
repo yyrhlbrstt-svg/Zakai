@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, Textarea } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
 export function TrainDelayAgent() {
@@ -111,6 +112,12 @@ export function TrainDelayAgent() {
           <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.description")}</span>
           <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} />
         </label>
+        <MissingFields
+          items={[
+            { ok: Boolean(travelDate.trim()), label: t("agent.travelDate") },
+            { ok: hasOutreachEmail(contactEmail), label: tFlow("contactEmail") },
+          ]}
+        />
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>

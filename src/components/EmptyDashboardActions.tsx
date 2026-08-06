@@ -25,7 +25,7 @@ export function EmptyDashboardActions() {
           </Button>
         </Link>
         <details className="mt-4">
-          <summary className="cursor-pointer text-[12.5px] font-bold text-ink-soft list-none [&::-webkit-details-marker]:hidden">
+          <summary className="cursor-pointer text-[12.5px] font-bold text-ink-soft list-none [&::-webkit-details-marker]:hidden py-2.5 -mx-1 px-1">
             {tIcomponents_EmptyDashboardActions("t_1e2507e3")} ·{" "}
             {tIcomponents_EmptyDashboardActions("t_0ea869b4")} · …
           </summary>

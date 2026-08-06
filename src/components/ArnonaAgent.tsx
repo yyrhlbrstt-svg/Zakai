@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { ARNONA_AGENT_RIGHTS } from "@/lib/arnonaAppeal";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
@@ -150,6 +151,13 @@ export function ArnonaAgent() {
 
         {agentError && <p className="text-[13px] text-[#f08a6b]">{agentError}</p>}
 
+        <MissingFields
+          items={[
+            { ok: municipalityName.trim().length > 0, label: t("municipalityQ") },
+            { ok: hasOutreachEmail(municipalityEmail), label: t("emailQ") },
+            { ok: monthlyArnona > 0, label: t("monthlyQ") },
+          ]}
+        />
         <Button disabled={!canSend || busy} onClick={sendWithAgent}>
           {busy ? t("sending") : t("sendBtn")}
         </Button>
