@@ -2,11 +2,28 @@ import { z } from "zod";
 import { normalizePhone } from "./phone";
 
 /**
+ * NIST 800-63B: length matters far more than forced complexity rules, so this
+ * stays a length-only minimum — but length alone still lets "12345678" or
+ * "password" through, which is exactly the case a real user (and every
+ * credential-stuffing bot) will try first. Same complementary control NIST
+ * recommends: block the small set of passwords everyone tries.
+ */
+const COMMON_WEAK_PASSWORDS = new Set([
+  "12345678", "123456789", "1234567890", "password", "password1", "passw0rd",
+  "qwertyui", "qwerty123", "11111111", "00000000", "87654321", "letmein11",
+  "abc12345", "iloveyou1", "admin1234", "welcome1", "zakai1234", "zakaizakai",
+  "12341234", "changeme1", "aaaaaaaa", "1q2w3e4r", "asdfghjk",
+]);
+
+/**
  * The one place a new password's strength is defined. Shared by signup and by
  * password reset so the two can never drift — a reset path that quietly accepts
  * a weaker password than signup becomes the way in.
  */
-export const passwordField = z.string().min(8, "weakPassword");
+export const passwordField = z
+  .string()
+  .min(8, "weakPassword")
+  .refine((v) => !COMMON_WEAK_PASSWORDS.has(v.toLowerCase()), "weakPassword");
 
 export const signupSchema = z.object({
   name: z.string().trim().min(2, "nameRequired"),

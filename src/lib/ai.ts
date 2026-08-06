@@ -78,6 +78,21 @@ export function aiAvailable(): boolean {
   return aiProvider() !== null;
 }
 
+/**
+ * The next provider to try if the primary one (`aiProvider()`) is configured
+ * but fails at call time — an invalid/expired key, no credits, a transient
+ * outage. Without this, a broken Anthropic key made the assistant fail
+ * outright even when a working Gemini key sat right next to it in the same
+ * environment, unused.
+ */
+function secondaryProvider(): AiProvider | null {
+  const primary = aiProvider();
+  if (primary !== "openai" && openaiCompatConfig()) return "openai";
+  if (primary !== "gemini" && process.env.GEMINI_API_KEY) return "gemini";
+  if (primary !== "ollama" && ollamaConfigured()) return "ollama";
+  return null;
+}
+
 function client(): Anthropic {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new AiUnavailableError();
@@ -338,20 +353,25 @@ async function openaiCompatGenerate(opts: {
  * Dispatch a text/vision generation to whichever non-Anthropic provider is
  * active. Keeps the four call sites below to a single branch each.
  */
-async function fallbackGenerate(opts: {
-  system: string;
-  userText: string;
-  imageBase64?: string;
-  mediaType?: string;
-  maxTokens: number;
-  temperature?: number;
-  /** Gemini-only: a stronger model to try first (ignored by other providers). */
-  geminiPreferModel?: string;
-}): Promise<string> {
-  const provider = aiProvider();
+async function fallbackGenerate(
+  opts: {
+    system: string;
+    userText: string;
+    imageBase64?: string;
+    mediaType?: string;
+    maxTokens: number;
+    temperature?: number;
+    /** Gemini-only: a stronger model to try first (ignored by other providers). */
+    geminiPreferModel?: string;
+  },
+  /** Explicit provider (used when retrying after the primary failed at call time). */
+  forceProvider?: AiProvider,
+): Promise<string> {
+  const provider = forceProvider ?? aiProvider();
   if (provider === "openai") return openaiCompatGenerate(opts);
   if (provider === "ollama") return ollamaGenerate(opts);
-  return geminiGenerate({ ...opts, preferModel: opts.geminiPreferModel });
+  if (provider === "gemini") return geminiGenerate({ ...opts, preferModel: opts.geminiPreferModel });
+  throw new AiUnavailableError();
 }
 
 /**
@@ -890,35 +910,55 @@ export async function askZakai(
     });
   }
 
-  const anthropic = client();
-  const msg = await anthropic.messages.create({
-    model: DRAFT_MODEL,
-    max_tokens: 1024,
-    temperature: 0.3,
-    system: cachedSystem(system),
-    messages: [
-      {
-        role: "user",
-        content: image
-          ? [
-              {
-                type: "image",
-                source: {
-                  type: "base64",
-                  media_type: image.mediaType as "image/jpeg",
-                  data: image.base64,
+  try {
+    const anthropic = client();
+    const msg = await anthropic.messages.create({
+      model: DRAFT_MODEL,
+      max_tokens: 1024,
+      temperature: 0.3,
+      system: cachedSystem(system),
+      messages: [
+        {
+          role: "user",
+          content: image
+            ? [
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: image.mediaType as "image/jpeg",
+                    data: image.base64,
+                  },
                 },
-              },
-              { type: "text", text: userText },
-            ]
-          : userText,
+                { type: "text", text: userText },
+              ]
+            : userText,
+        },
+      ],
+    });
+    return msg.content
+      .map((b) => (b.type === "text" ? b.text : ""))
+      .join("\n")
+      .trim();
+  } catch (err) {
+    // A configured-but-broken Anthropic key (expired, no credits, transient
+    // outage) must not take the assistant down when a working secondary key
+    // is sitting right there unused — try it before giving up.
+    const secondary = secondaryProvider();
+    if (!secondary) throw err;
+    return fallbackGenerate(
+      {
+        system,
+        userText,
+        imageBase64: image?.base64,
+        mediaType: image?.mediaType,
+        maxTokens: 1024,
+        temperature: 0.3,
+        geminiPreferModel: process.env.GEMINI_ASSISTANT_MODEL || "gemini-2.5-pro",
       },
-    ],
-  });
-  return msg.content
-    .map((b) => (b.type === "text" ? b.text : ""))
-    .join("\n")
-    .trim();
+      secondary,
+    );
+  }
 }
 
 /**
