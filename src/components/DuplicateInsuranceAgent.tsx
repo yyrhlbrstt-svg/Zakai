@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Input } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import type { DuplicationResult } from "@/lib/insurance";
 import { wastefulPolicyKeysFromResult } from "@/lib/duplicateInsuranceClaim";
 import { formatAgorot } from "@/lib/money";
@@ -124,6 +125,12 @@ export function DuplicateInsuranceAgent({
 
         {agentError && <p className="text-[13px] text-[#f08a6b]">{agentError}</p>}
 
+        <MissingFields
+          items={[
+            { ok: insurerName.trim().length > 0, label: t("insurerQ") },
+            { ok: hasOutreachEmail(insurerEmail), label: t("emailQ") },
+          ]}
+        />
         <Button disabled={!canSend || busy} onClick={sendWithAgent}>
           {busy ? t("sending") : t("sendBtn")}
         </Button>
