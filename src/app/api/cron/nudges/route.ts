@@ -7,6 +7,7 @@ import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
 import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
 import { requireCronAuth } from "@/lib/security/cronAuth";
+import { sortByFollowUpPriority } from "@/lib/services/followUpPriority";
 import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { localeForCountry } from "@/lib/localePath";
@@ -137,6 +138,11 @@ export async function GET(request: Request) {
     // Do NOT require ACTIVE Mandate here: autoFollowUpCase returns
     // NO_ACTIVE_MANDATE and the branch below nudges the user to re-issue.
     // Filtering ACTIVE made that branch unreachable.
+    // take: 300 (up from the eligible-case pool, not the per-run processing
+    // cap below) so the plan-priority sort has a realistic pool to work with
+    // before the run-size limit bites — Pro/Max/Business promise priority
+    // handling on the pricing page, which only means something once there
+    // are more due cases in a run than the cron can process in one pass.
     const waitingRaw = await prisma.case.findMany({
       where: {
         status: "SENT",
@@ -149,16 +155,22 @@ export async function GET(request: Request) {
         vertical: true,
         provider: true,
         updatedAt: true,
-        user: { select: { email: true, name: true, country: true } },
+        user: { select: { email: true, name: true, country: true, plan: true } },
       },
-      take: 120,
+      take: 300,
       orderBy: { updatedAt: "asc" },
     });
     const nowMs = Date.now();
-    const waiting = waitingRaw.filter((c) => {
+    const eligible = waitingRaw.filter((c) => {
       const wait = waitDaysFor(c.vertical, c.provider);
       return c.updatedAt.getTime() <= nowMs - wait * 86_400_000;
-    }).slice(0, 80);
+    });
+    // Paid tiers first — the pricing page's own priority-handling promise.
+    // Only affects who goes first once there's more eligible work than one
+    // run can process; waitDaysFor/cohort timing above is untouched.
+    const waiting = sortByFollowUpPriority(
+      eligible.map((c) => ({ ...c, plan: c.user.plan })),
+    ).slice(0, 80);
 
     const OUTREACH_NEEDED_SUBJECT = "זכאי — חסר אימייל לספק כדי להמשיך";
     const MAX_ROUNDS_SUBJECT = "זכאי — סיבובי המעקב מוצו, רשמו תוצאה";
