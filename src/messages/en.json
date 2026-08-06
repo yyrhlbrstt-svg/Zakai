@@ -2868,6 +2868,21 @@
         "href": "/duplicate-insurance",
         "title": "Duplicate business insurance",
         "sub": "Property, equipment, or liability policies covering the same risk twice — common after switching brokers or an uncoordinated renewal."
+      },
+      {
+        "href": "/late-payment",
+        "title": "A client who paid late",
+        "sub": "The law allows late-payment interest — the agent sends the demand for you"
+      },
+      {
+        "href": "/advance-tax",
+        "title": "Income-tax advances set too high",
+        "sub": "Income down this year? You can ask for them to be reduced"
+      },
+      {
+        "href": "/vat",
+        "title": "Periodic VAT report",
+        "sub": "Check you haven't missed deductible expenses"
       }
     ],
     "cta": "Start by scanning a receipt"
