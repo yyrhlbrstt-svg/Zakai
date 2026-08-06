@@ -10,8 +10,13 @@ import { buildAssistantCasesSnapshot } from "@/lib/services/assistantContext";
 import { ensureReplyEndsWithNextAction } from "@/lib/services/nextAction";
 
 const ALLOWED_IMAGE_MEDIA = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
-/** Same cap as /api/scan/extract — a phone screenshot, not a dump. */
-const MAX_IMAGE_BASE64_CHARS = 5_500_000;
+/**
+ * Matches MAX_UPLOAD_IMAGE_BYTES (3MB raw) on the client, plus base64/JSON
+ * overhead — was 5.5M, which is silently unreachable in production: Vercel's
+ * ~4.5MB serverless request-body ceiling rejects anything that large before
+ * this validation ever runs.
+ */
+const MAX_IMAGE_BASE64_CHARS = 4_200_000;
 
 const schema = z
   .object({

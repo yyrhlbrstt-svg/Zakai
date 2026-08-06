@@ -7,6 +7,7 @@ import { Card, Button, Textarea } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import type { ReceiptCategory } from "@/lib/receipts";
 import type { PlanId } from "@/lib/plans";
+import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 
 export interface ReceiptRow {
   id: string;
@@ -46,6 +47,7 @@ export function ReceiptCollector({
   const [receipts, setReceipts] = useState<ReceiptRow[]>(initialReceipts);
   const [busy, setBusy] = useState(false);
   const [unreadable, setUnreadable] = useState(false);
+  const [tooBig, setTooBig] = useState(false);
   const [inboxJoined, setInboxJoined] = useState<Record<string, boolean>>({});
   const [bulkCsv, setBulkCsv] = useState("");
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -58,6 +60,14 @@ export function ReceiptCollector({
   async function onUpload(file?: File | null) {
     if (!file) return;
     setUnreadable(false);
+    setTooBig(false);
+    // Checked before upload: base64 inflates size ~4/3, and a request near
+    // Vercel's ~4.5MB serverless body limit fails at the platform level with
+    // an opaque error — indistinguishable from "receipt scanning is broken".
+    if (file.size > MAX_UPLOAD_IMAGE_BYTES) {
+      setTooBig(true);
+      return;
+    }
     setBusy(true);
     try {
       const imageBase64 = await fileToBase64(file);
@@ -145,6 +155,9 @@ export function ReceiptCollector({
             onChange={(e) => onUpload(e.target.files?.[0])}
           />
         </div>
+        {tooBig && (
+          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("tooBig")}</p>
+        )}
         {unreadable && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("unreadable")}</p>
         )}

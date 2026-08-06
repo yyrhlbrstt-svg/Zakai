@@ -1045,6 +1045,7 @@
     "uploadBtn": "Photograph / upload a receipt",
     "scanning": "Reading the receipt…",
     "unreadable": "We couldn't read that receipt. Try a clearer, straighter photo with the total amount visible.",
+    "tooBig": "Image is too large (max 3MB) — try a regular screenshot, or compress/crop the file.",
     "duplicateTitle": "This looks like a duplicate charge",
     "duplicateBody": "We found another receipt from {vendor} for the same amount ({amount}) within a few weeks. This is exactly the case worth a refund claim.",
     "openCaseCta": "Open a case to claim the refund",
@@ -1089,7 +1090,7 @@
     "attachImage": "Attach a photo (bill, letter, provider reply)",
     "imageAttached": "Image attached",
     "removeImage": "Remove image",
-    "imageTooBig": "Image is too large (max 4MB) — try a screenshot instead.",
+    "imageTooBig": "Image is too large (max 3MB) — try a screenshot instead.",
     "imageOnlyLabel": "📎 Image",
     "disclaimer": "The agent answers from your own data only, never executes actions itself, and is not legal, financial, or insurance advice.",
     "insights": {
@@ -5054,7 +5055,8 @@
     "t_da95e09c": "Could not read screenshot. Try a clearer image or a CSV.",
     "shotNeedsLoginPrefix": "AI photo scan needs an account — ",
     "shotNeedsLoginLink": "quick sign in",
-    "shotNeedsLoginSuffix": ". Or paste/upload a statement file below — no account needed."
+    "shotNeedsLoginSuffix": ". Or paste/upload a statement file below — no account needed.",
+    "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file."
   },
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "Overnight agent — follow-up for all",
