@@ -20,7 +20,13 @@ import { firstOutreachEmail } from "@/lib/outreachEmail";
 import { resolveTelecomContactEmail } from "@/lib/telecomContacts";
 import { openLoopConflictIfAny } from "@/lib/services/expressCaseOpen";
 
-const MAX_IMAGE_B64 = 5_500_000;
+/**
+ * Matches MAX_UPLOAD_IMAGE_BYTES (3MB raw) on the client, plus base64/JSON
+ * overhead — was 5.5M, which is silently unreachable in production: Vercel's
+ * ~4.5MB serverless request-body ceiling rejects anything that large before
+ * this validation ever runs.
+ */
+const MAX_IMAGE_B64 = 4_200_000;
 const ALLOWED_MEDIA = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
 
 const schema = z.union([

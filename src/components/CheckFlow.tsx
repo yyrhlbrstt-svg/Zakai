@@ -12,6 +12,7 @@ import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
 import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachEmail";
 import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
+import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 
 type Stage =
   | "input"
@@ -165,6 +166,13 @@ export function CheckFlow() {
 
   async function onFile(file?: File | null) {
     if (!file) return;
+    // Checked before upload: base64 inflates size ~4/3, and a request near
+    // Vercel's ~4.5MB serverless body limit fails at the platform level with
+    // an opaque error — indistinguishable from "the analyzer is broken".
+    if (file.size > MAX_UPLOAD_IMAGE_BYTES) {
+      setError("imageTooBig");
+      return;
+    }
     const base64 = await fileToBase64(file);
     await analyze({ mode: "image", imageBase64: base64, mediaType: file.type || "image/jpeg" });
   }
