@@ -19,19 +19,28 @@ async function loadSevenRailsInputsRaw(): Promise<SevenRailsInputs> {
     attributedSignups,
     fairnessIl,
   ] = await Promise.all([
-    prismaRead.strategyOutcome.count({ where: { selfReported: false } }),
-    prismaRead.case.count({ where: { status: "SAVED" } }),
-    prismaRead.case.count({
-      where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
-    }),
-    prismaRead.authorization.count({
-      where: { mandateJti: { not: null }, revokedAt: null },
-    }),
-    prismaRead.delegatedIssuer.count({
-      where: { status: "active", NOT: { slug: { startsWith: "sandbox." } } },
-    }),
-    prismaRead.collectiveIntentSignal.count(),
-    prismaRead.user.count({ where: { partnerRef: { not: null } } }),
+    // Read-only aggregates for a public dashboard — an unreachable DB should
+    // degrade one number to 0, not 500 the whole page (loadFairnessScores
+    // already followed this rule; the rest didn't).
+    prismaRead.strategyOutcome.count({ where: { selfReported: false } }).catch(() => 0),
+    prismaRead.case.count({ where: { status: "SAVED" } }).catch(() => 0),
+    prismaRead.case
+      .count({
+        where: { status: { in: ["SENT", "SAVED", "NO_SAVING"] } },
+      })
+      .catch(() => 0),
+    prismaRead.authorization
+      .count({
+        where: { mandateJti: { not: null }, revokedAt: null },
+      })
+      .catch(() => 0),
+    prismaRead.delegatedIssuer
+      .count({
+        where: { status: "active", NOT: { slug: { startsWith: "sandbox." } } },
+      })
+      .catch(() => 0),
+    prismaRead.collectiveIntentSignal.count().catch(() => 0),
+    prismaRead.user.count({ where: { partnerRef: { not: null } } }).catch(() => 0),
     loadFairnessScores("IL").catch(() => []),
   ]);
 
