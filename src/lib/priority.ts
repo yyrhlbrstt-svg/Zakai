@@ -274,6 +274,25 @@ export const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    id: "merchant-fees",
+    href: "/merchant-fees",
+    titleHe: "עמלות סליקה — תיק סוכן",
+    titleEn: "Card clearing fees — agent case",
+    whyHe: "בקשת פירוט בכתב והצעה מעודכנת",
+    whyEn: "Ask for the breakdown and a better offer",
+    // Ranking input only — priorityWeight() consumes this and nothing renders
+    // it, so it orders the catalog rather than promising anyone a figure.
+    // Left conservative and in the same family as bank fees: a shop turning
+    // over a few tens of thousands a month pays hundreds in clearing, and
+    // shaving a fraction of a point off is worth roughly this much monthly.
+    // The letter itself still refuses to name a rate, because that number is
+    // a claim made to a third party and only the acquirer actually knows it.
+    potentialShekels: 60,
+    cadence: "monthly",
+    effort: "low",
+    agentic: true,
+  },
+  {
     id: "bank-loan-fee",
     href: "/bank-loan-fee",
     titleHe: "עמלת פתיחת הלוואה",

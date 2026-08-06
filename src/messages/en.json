@@ -126,7 +126,8 @@
     "authority": "My authorities",
     "incident": "I was injured — who owes me?",
     "dormant": "Money you forgot",
-    "vehicleCheck": "Used-car check"
+    "vehicleCheck": "Used-car check",
+    "merchantFees": "Clearing fees"
   },
   "payslip": {
     "title": "Payslip check",
@@ -2837,6 +2838,11 @@
         "href": "/receipts",
         "title": "Receipt collector — duplicate charges & deductible expenses",
         "sub": "Photograph a receipt or invoice; Zakai flags a duplicate charge and opens a refund case. Clean CSV export for your accountant."
+      },
+      {
+        "href": "/merchant-fees",
+        "title": "Card clearing fees",
+        "sub": "Ask your acquirer for the breakdown and a better offer"
       },
       {
         "href": "/bank-fees",
@@ -6304,5 +6310,38 @@
   "outcomeStat": {
     "bannerNoAmount": "{trials} reported back — {pct}% got money back",
     "banner": "{trials} reported back — {pct}% got money back, avg {amount}"
+  },
+  "merchantFees": {
+    "metaTitle": "Card clearing fees for your business — ask for the breakdown | Zakai",
+    "metaDesc": "Every business that takes cards pays a fee on each transaction. The rate is negotiable, and most small businesses have never asked. Zakai writes and sends the request for you.",
+    "kicker": "For businesses and the self-employed",
+    "title": "Your card clearing fees — when did you last check them?",
+    "sub": "A large chain negotiates its clearing rate. A one-person business signs what it was offered and never revisits it. Same swipe, different price.",
+    "cite": "Clearing rates, terminal charges and monthly minimums are contract terms with your acquirer and can be revised. Zakai asks for the breakdown in writing and an updated offer — it does not promise any particular rate.",
+    "concerns": {
+      "rate_too_high": "The clearing rate itself",
+      "terminal_rental": "Terminal / service charges",
+      "monthly_minimum": "Monthly minimum fee",
+      "unexplained_charge": "A charge I didn't understand",
+      "other": "Clearing terms generally"
+    },
+    "agent": {
+      "title": "Have the agent request a breakdown and a better offer",
+      "sub": "A business letter is sent on your behalf, with a verifiable authorization, asking for every charge in writing and the best terms they can offer.",
+      "concern": "What's bothering you?",
+      "businessName": "Business name",
+      "businessId": "Company / VAT number",
+      "acquirer": "Acquirer (Isracard, Cal, Max, a bank…)",
+      "merchantNumber": "Merchant number (on your statement)",
+      "turnover": "Approx. monthly card turnover (₪)",
+      "years": "How long have you been a customer?",
+      "currentTerms": "The terms as you understand them today",
+      "currentTermsHint": "e.g. 1.2% on local credit, ₪49 terminal fee",
+      "honestNote": "Zakai does not know what rate you deserve — no public table is accurate enough for a specific business. So the letter asks them for the number in writing instead of inventing one.",
+      "needsEmail": "A merchant-services email is needed to send this.",
+      "openedTitle": "Case opened",
+      "openedSub": "Track it, send a reminder and document the saving in My money.",
+      "dashboard": "Go to my case"
+    }
   }
 }

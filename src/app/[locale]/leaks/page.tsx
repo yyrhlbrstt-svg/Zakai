@@ -80,6 +80,14 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/merchant-fees",
+    he: "עמלות סליקה לעסק",
+    en: "Card clearing fees",
+    subHe: "בקשת פירוט בכתב והצעה מעודכנת",
+    subEn: "Written breakdown + updated offer",
+    rank: 2,
+  },
+  {
     href: "/bank-loan-fee",
     he: "עמלת פתיחת הלוואה",
     en: "Loan opening / handling fee",

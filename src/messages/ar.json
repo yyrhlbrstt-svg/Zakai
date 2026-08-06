@@ -76,7 +76,8 @@
     "authority": "صلاحياتي",
     "incident": "أُصبت — من يدين لي؟",
     "dormant": "مال نسيته",
-    "vehicleCheck": "فحص سيارة قبل الشراء"
+    "vehicleCheck": "فحص سيارة قبل الشراء",
+    "merchantFees": "عمولات المقاصة"
   },
   "auth": {
     "loginTitle": "تسجيل الدخول إلى زكاي",

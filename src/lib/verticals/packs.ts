@@ -244,6 +244,27 @@ export const carInsuranceRefundIL: VerticalRulePack = {
   counterparties: ["other"],
 };
 
+/**
+ * Card-clearing fees — the largest recurring cost a small Israeli business
+ * never renegotiates. Same Case+Mandate+send+SavingsProof loop; the proof is
+ * a lower rate on the next merchant statement, not an estimate.
+ */
+export const merchantFeesIL: VerticalRulePack = {
+  key: "merchant-fees",
+  country: "IL",
+  label: "עמלות סליקה לעסק",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "statement_line_gone",
+    proofDescription: "שיעור העמלה בדף הפירוט של החודש הבא נמוך מהקודם",
+  },
+  feeBasis: "monthly",
+  regulated: false,
+  counterparties: ["isracard", "cal", "max", "leumi", "hapoalim", "other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -259,4 +280,5 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   arnonaIL,
   warrantyIL,
   carInsuranceRefundIL,
+  merchantFeesIL,
 ];
