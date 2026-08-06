@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { bcp47, type Locale } from "@/i18n/config";
 import { Card, Button, Input, Select, Textarea, FieldError, Spinner } from "@/components/ui";
+import { MissingFields } from "@/components/MissingFields";
 import { FallNumber } from "@/components/FallNumber";
 import { PROVIDER_KEYS } from "@/lib/providers";
 import { telecomNeedsContactEmail } from "@/lib/telecomContacts";
@@ -659,6 +660,12 @@ export function CheckFlow() {
           </label>
 
           <div className="flex flex-col gap-2.5 mt-4">
+            <MissingFields
+              items={[
+                { ok: consent, label: t("consentShort") },
+                { ok: outreachReady(), label: tFlow("contactEmail") },
+              ]}
+            />
             <Button onClick={approve} disabled={!consent || busy || !outreachReady()} className="flex-1 w-full">
               {t("approveBtn")}
             </Button>

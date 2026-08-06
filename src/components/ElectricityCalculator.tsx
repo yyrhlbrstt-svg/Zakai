@@ -5,7 +5,11 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Input, Button, FieldError, RadioChips } from "@/components/ui";
-import { estimatePlans, type UsageProfile } from "@/lib/electricity";
+import {
+  ELECTRICITY_RATES_SNAPSHOT,
+  estimatePlans,
+  type UsageProfile,
+} from "@/lib/electricity";
 import { formatAgorot, shekelsToAgorot, agorotToShekels } from "@/lib/money";
 import { normalizeOutreachEmail } from "@/lib/outreachEmail";
 import { resolveElectricityContactEmail } from "@/lib/utilityContacts";
@@ -40,6 +44,15 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [opened, setOpened] = useState<string | null>(null);
+
+  // "יולי 2026" / "July 2026" — derived from the rates table's own snapshot
+  // constant rather than written into each locale's disclaimer by hand.
+  const ratesDateLabel = useMemo(() => {
+    const [y, m] = ELECTRICITY_RATES_SNAPSHOT.split("-").map(Number);
+    return new Intl.DateTimeFormat(bcp47, { month: "long", year: "numeric" }).format(
+      new Date(Date.UTC(y, m - 1, 1)),
+    );
+  }, [bcp47]);
 
   const billNum = parseFloat(bill);
   const results = useMemo(() => {
@@ -220,7 +233,11 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
         </p>
       )}
 
-      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
+      {/* The date is read from the rates table's own constant, so it can never
+          claim a freshness the numbers above no longer have. */}
+      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">
+        {t("disclaimer", { ratesDate: ratesDateLabel })}
+      </p>
       <p className="mt-2 text-[12px] text-ink-soft leading-relaxed">
         {tIcomponents_ElectricityCalculator("t_b1112228")}
       </p>

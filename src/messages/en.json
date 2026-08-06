@@ -582,6 +582,7 @@
     "consentLabel": "I authorize Zakai to act on my behalf with",
     "consentLabel2": "regarding this matter, as described above. This authorization is recorded with a timestamp.",
     "approveBtn": "Approve & continue",
+    "consentShort": "tick the approval box above",
     "copySelfBtn": "Copy — I'll send from my email",
     "copySelfDone": "Copied. Send from your inbox — no send from Zakai servers.",
     "sendViaZakai": "Send via Zakai (Mandate)",
@@ -1167,7 +1168,7 @@
       "flat": "Flat discount",
       "flatTiered": "Flat, tiered"
     },
-    "disclaimer": "Estimates assume a typical usage profile and public price lists as of July 2026 — verify the exact rate with the supplier before switching. The switch itself is currently done with the supplier; automatic switching via Zakai is in development. Not advice."
+    "disclaimer": "Estimates assume a typical usage profile and public price lists as of {ratesDate} — verify the exact rate with the supplier before switching. The switch itself is currently done with the supplier; automatic switching via Zakai is in development. Not advice."
   },
   "flights": {
     "kicker": "Full agent · flights",
@@ -3325,11 +3326,26 @@
     ],
     "glossaryTitle": "Words you'll see in the app",
     "glossary": [
-      { "term": "Case", "def": "The record of one specific problem you opened — its status, amount, and correspondence." },
-      { "term": "Mandate", "def": "A digital power of attorney you sign that authorizes the agent to send a letter on your behalf. Revoke it any time from your authority list." },
-      { "term": "Authorization code", "def": "A code that verifies it's really you — like an SMS code, but for a letter sent in your name." },
-      { "term": "SavingsProof", "def": "The record that money actually came back to you. It's what the fee is based on — nothing else." },
-      { "term": "Success fee", "def": "A small percentage of what was actually saved. Nothing saved means no fee, and there's never an upfront charge." }
+      {
+        "term": "Case",
+        "def": "The record of one specific problem you opened — its status, amount, and correspondence."
+      },
+      {
+        "term": "Mandate",
+        "def": "A digital power of attorney you sign that authorizes the agent to send a letter on your behalf. Revoke it any time from your authority list."
+      },
+      {
+        "term": "Authorization code",
+        "def": "A code that verifies it's really you — like an SMS code, but for a letter sent in your name."
+      },
+      {
+        "term": "SavingsProof",
+        "def": "The record that money actually came back to you. It's what the fee is based on — nothing else."
+      },
+      {
+        "term": "Success fee",
+        "def": "A small percentage of what was actually saved. Nothing saved means no fee, and there's never an upfront charge."
+      }
     ],
     "safeTitle": "Is this safe?",
     "safeBody": "We never ask for your bank password. You see and approve every letter before it's sent, and you can revoke any authorization at any time from your \"authority wallet\".",
