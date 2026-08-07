@@ -475,6 +475,73 @@ export interface BillAnalysis {
 
 const BILL_EXTRACT_SYSTEM = `You extract data from photos of Israeli MOBILE phone bills. Extract the provider name, the monthly charge as a plain ILS number, and a short Hebrew plan description if visible. If the image is not a readable bill, set readable=false. Respond ONLY with JSON: {"provider":"...","amount":number_or_null,"plan":"...","readable":boolean}`;
 
+/**
+ * Name the document. Do not act on it.
+ *
+ * This exists because every other image entry point here is scoped to one
+ * document type and answers everything else with `readable: false`, which the
+ * UI shows as "I couldn't read the image, try a clearer photo". A sharp,
+ * well-lit electricity bill uploaded on /check got told to try a better
+ * picture — the app blaming the camera for a document it never handled.
+ *
+ * The model's whole job is the label. Where a label leads is decided by
+ * `routeDocument` in documentRouter.ts, in product code, tested without a
+ * network call — the same LLM-proposes / code-executes split used everywhere
+ * else in this file.
+ */
+const DOCUMENT_CLASSIFY_SYSTEM = `You identify what kind of document an image shows. Israeli context (Hebrew text common). Choose exactly one "kind" from this closed list:
+- "mobile_bill": a cellular/mobile phone bill (Cellcom, Partner, Pelephone, HOT Mobile, Golan, Rami Levy…)
+- "internet_bill": home internet / TV / landline bill (Bezeq, HOT, Partner Fiber…)
+- "electricity_bill": an electricity bill (חשמל, IEC)
+- "water_bill": a water bill (מים, תאגיד מים)
+- "arnona_bill": a municipal property tax notice (ארנונה)
+- "bank_statement": a bank account statement or transaction list
+- "card_statement": a credit-card statement or transaction list
+- "receipt": a shop/restaurant/service receipt or a one-off invoice
+- "subscription_notice": a subscription charge, renewal or cancellation notice
+- "insurance_policy": an insurance policy or premium notice
+- "unknown": anything else, or too blurry/dark/cropped to tell
+
+Set "legible" to false ONLY when the image itself cannot be read (blur, glare, cut off). A clear document of a type not listed above is legible with kind "unknown" — never call a readable image illegible just because it is not a phone bill.
+
+Respond ONLY with JSON: {"kind":"...","legible":boolean,"issuer":"..." or null}`;
+
+export interface DocumentClassification {
+  /** Validated against the closed set by the caller; may be any string here. */
+  kind: string;
+  /** False only when the image is genuinely unreadable, not merely off-topic. */
+  legible: boolean;
+  /** Provider/issuer name if visible, for a more specific message. */
+  issuer: string | null;
+}
+
+export async function classifyDocumentImage(
+  base64: string,
+  mediaType: string,
+): Promise<DocumentClassification> {
+  const text = await generateText({
+    system: DOCUMENT_CLASSIFY_SYSTEM,
+    userText: "Identify this document.",
+    imageBase64: base64,
+    mediaType,
+    model: EXTRACT_MODEL,
+    maxTokens: 200,
+    temperature: 0,
+  });
+  const parsed = extractJson(text) as {
+    kind?: string;
+    legible?: boolean;
+    issuer?: string | null;
+  };
+  return {
+    kind: typeof parsed.kind === "string" ? parsed.kind : "unknown",
+    // Absent means readable: an omitted flag must not turn a good photo into
+    // the camera error this whole path exists to stop showing.
+    legible: parsed.legible !== false,
+    issuer: typeof parsed.issuer === "string" && parsed.issuer.trim() ? parsed.issuer.trim() : null,
+  };
+}
+
 export async function analyzeBillImage(
   base64: string,
   mediaType: string,

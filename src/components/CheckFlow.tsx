@@ -127,6 +127,11 @@ export function CheckFlow() {
 
   const fileRef = useRef<HTMLInputElement>(null);
 
+  /** Set when the upload was a readable document that another tool handles. */
+  const [docRoute, setDocRoute] = useState<{ href: string | null; issuer: string | null } | null>(
+    null,
+  );
+
   function tErr(key: string | null): string | null {
     if (!key) return null;
     try {
@@ -138,6 +143,7 @@ export function CheckFlow() {
 
   async function analyze(payload: Record<string, unknown>) {
     setError(null);
+    setDocRoute(null);
     setStage("analyzing");
     try {
       const res = await fetch("/api/cases/analyze", {
@@ -159,6 +165,17 @@ export function CheckFlow() {
           setTimeout(() => router.push(data.nextHref), 1600);
           return;
         }
+        // The image was a real document, just not a mobile bill. Carry the
+        // tool that does handle it, so the answer is a way forward instead of
+        // "try a clearer photo" about a photo that was perfectly clear.
+        setDocRoute(
+          typeof data.documentKind === "string"
+            ? {
+                href: typeof data.href === "string" ? data.href : null,
+                issuer: typeof data.issuer === "string" ? data.issuer : null,
+              }
+            : null,
+        );
         setError(data.error || "genericError");
         setStage("input");
         if (data.error === "aiUnavailable") setManualOpen(true);
@@ -544,6 +561,14 @@ export function CheckFlow() {
           </div>
 
           <FieldError>{tErr(error)}</FieldError>
+
+          {/* The upload was a real document, just not a phone bill. Send the
+              reader to the tool that handles it — never a dead end. */}
+          {docRoute?.href && (
+            <Link href={docRoute.href} className="no-underline block mt-3">
+              <Button className="w-full">{t("docRoute.goTo")}</Button>
+            </Link>
+          )}
 
           <div className="flex justify-center mt-4">
             <button
