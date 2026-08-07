@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import { scanStatement } from "@/lib/subscriptions";
+import {
+  detectCostDrift,
+  increasesOnly,
+  netMonthlyDriftAgorot,
+  snapshotFromCharges,
+  type CostSnapshot,
+  type DriftItem,
+} from "@/lib/costDrift";
 import {
   actionableFindings,
   addressableMonthlyAgorot,
@@ -28,16 +36,44 @@ import { STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
  * presented as a saving, because whether any of it moves is the counterparty's
  * answer to give, not ours to predict.
  */
+const BASELINE_KEY = "zakai_business_baseline_v1";
+
 export function BusinessExpenseAudit({ bcp47 }: { bcp47: string }) {
   const t = useTranslations("businessAudit");
   const [text, setText] = useState("");
   const [findings, setFindings] = useState<BusinessFinding[] | null>(null);
+  const [baseline, setBaseline] = useState<CostSnapshot | null>(null);
+  const [drift, setDrift] = useState<DriftItem[] | null>(null);
 
   const canScan = text.trim().length >= STATEMENT_SCAN_MIN_CHARS;
   const money = (a: number) => formatAgorot(a, bcp47);
 
+  // Kept on the device, like the consumer scan's own summary. A statement is
+  // the most sensitive thing a business owns, and comparing two of them needs
+  // no server — so it does not get one.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(BASELINE_KEY);
+      if (raw) setBaseline(JSON.parse(raw) as CostSnapshot);
+    } catch {
+      /* private mode, or a shape from an older version — start fresh */
+    }
+  }, []);
+
   function run() {
-    setFindings(auditBusinessExpenses(scanStatement(text).recurring));
+    const charges = scanStatement(text).recurring;
+    setFindings(auditBusinessExpenses(charges));
+
+    const snapshot = snapshotFromCharges(charges);
+    // Compare before overwriting, or the first thing this feature does is
+    // destroy the only evidence it needs.
+    setDrift(baseline ? detectCostDrift(baseline, snapshot) : null);
+    setBaseline(snapshot);
+    try {
+      localStorage.setItem(BASELINE_KEY, JSON.stringify(snapshot));
+    } catch {
+      /* storage unavailable — the audit still works, the watch just won't */
+    }
   }
 
   const actionable = findings ? actionableFindings(findings) : [];
@@ -72,6 +108,33 @@ export function BusinessExpenseAudit({ bcp47 }: { bcp47: string }) {
 
       {findings && (
         <div className="mt-5">
+          {/* Above the totals: a cost that rose since last time is more
+              urgent than a cost that has always been there, because nobody
+              agreed to the rise. */}
+          {drift && increasesOnly(drift).length > 0 && (
+            <Card className="p-5 mb-4 border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.07)]">
+              <div className="font-extrabold text-title">{t("driftTitle")}</div>
+              <p className="text-caption text-ink-soft mt-1.5 mb-3">
+                {t("driftSub", { net: money(Math.abs(netMonthlyDriftAgorot(drift))) })}
+              </p>
+              <div className="flex flex-col gap-2">
+                {increasesOnly(drift).map((d, i) => (
+                  <div
+                    key={`${d.merchant}-${i}`}
+                    className="flex items-baseline justify-between gap-3 flex-wrap"
+                  >
+                    <span className="font-bold text-body">{d.merchant}</span>
+                    <span className="text-body text-amber font-bold" dir="ltr">
+                      {d.kind === "new"
+                        ? `+${money(d.afterAgorot)}`
+                        : `${money(d.beforeAgorot)} → ${money(d.afterAgorot)}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           {findings.length === 0 ? (
             <Card className="p-6">
               <p className="text-body-lg m-0">{t("none")}</p>
@@ -85,6 +148,13 @@ export function BusinessExpenseAudit({ bcp47 }: { bcp47: string }) {
                     would be easy to read it as a promise. */}
                 <p className="text-caption text-ink-soft mt-3 mb-0">{t("notASaving")}</p>
               </Card>
+
+              {/* Said once, on the first scan, so the second one is expected
+                  rather than a surprise. A watch only works if someone knows
+                  to come back. */}
+              {drift === null && (
+                <p className="text-caption text-ink-soft mt-3">{t("baselineSaved")}</p>
+              )}
 
               <div className="mt-4 flex flex-col gap-2.5">
                 {findings.map((f, i) => (
