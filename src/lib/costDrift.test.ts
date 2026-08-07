@@ -106,6 +106,7 @@ describe("snapshotFromCharges", () => {
       monthlyAgorot: 50_000,
       occurrences: 3,
       providerKey: null,
+      chargedOn: [],
     };
     const s = snapshotFromCharges([charge], new Date("2026-08-01T00:00:00Z"));
     expect(s.takenAt).toBe("2026-08-01T00:00:00.000Z");

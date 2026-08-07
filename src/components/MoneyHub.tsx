@@ -21,6 +21,7 @@ import {
   scanShareLandingPath,
 } from "@/lib/monopoly/scanShare";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
+import { estimateNextCharge } from "@/lib/nextCharge";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -77,6 +78,10 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
     batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו ב«כסף שלי» לפני שליחה.",
     selectHint: "סמן חיובים ואז פתח בבת אחת (Free = תיק פעיל אחד; Pro פותח יותר)",
+    nextToday: "החיוב הבא — היום",
+    nextTomorrow: "החיוב הבא — מחר",
+    nextInDays: "החיוב הבא בעוד {n} ימים",
+    approx: "ככל הנראה",
     altLetter: "חלופות (לא מסלול הסוכן)",
   },
   en: {
@@ -120,6 +125,10 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
     batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it in My money before send.",
     selectHint: "Select charges, then open together (Free = 1 active case; Pro opens more)",
+    nextToday: "Next charge — today",
+    nextTomorrow: "Next charge — tomorrow",
+    nextInDays: "Next charge in {n} days",
+    approx: "probably",
     altLetter: "Alternatives (not the agent path)",
   },
   ar: {
@@ -163,6 +172,10 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "فُتح {n} ملفات",
     batchNeedsEmail: "فُتح {n} — بعضها بلا بريد؛ أكمل في لوحة التحكم قبل الإرسال.",
     selectHint: "اختر ثم افتح دفعة واحدة",
+    nextToday: "الخصم القادم — اليوم",
+    nextTomorrow: "الخصم القادم — غدًا",
+    nextInDays: "الخصم القادم بعد {n} يومًا",
+    approx: "على الأرجح",
   },
   ru: {
     privacy: "Мы не просим пароль банка.",
@@ -205,6 +218,10 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Открыто {n} дел",
     batchNeedsEmail: "Открыто {n} — для части нужен email; укажите в дашборде перед отправкой.",
     selectHint: "Выберите и откройте пакетом",
+    nextToday: "Следующее списание — сегодня",
+    nextTomorrow: "Следующее списание — завтра",
+    nextInDays: "Следующее списание через {n} дн.",
+    approx: "вероятно",
   },
 };
 
@@ -215,6 +232,43 @@ function tx(locale: string, key: string): string {
   const familyDefault = locale === "he" || locale === "ar" ? copy.he : copy.en;
   const table = copy[locale] || familyDefault;
   return table[key] || familyDefault[key] || key;
+}
+
+/**
+ * "Next charge in 6 days", when that can honestly be said.
+ *
+ * Renders nothing when the cadence is unclear. A guess dressed as a date is
+ * the one outcome worse than silence here: somebody reads it, decides they
+ * have a week, and the money leaves on Tuesday.
+ */
+function NextChargeLine({ charge, locale }: { charge: RecurringCharge; locale: string }) {
+  const next = estimateNextCharge(charge.chargedOn);
+  if (!next) return null;
+
+  const { daysUntil, confidence } = next;
+  // Beyond a couple of months the number stops informing any decision made
+  // today, and starts reading as a promise about a date we cannot hold.
+  if (daysUntil > 62) return null;
+
+  const text =
+    daysUntil === 0
+      ? tx(locale, "nextToday")
+      : daysUntil === 1
+        ? tx(locale, "nextTomorrow")
+        : tx(locale, "nextInDays").replace("{n}", String(daysUntil));
+
+  // Urgency only where it is actionable — a week is the window in which
+  // cancelling still beats refunding for most providers.
+  const urgent = daysUntil <= 7;
+
+  return (
+    <div
+      className={`text-micro mt-0.5 font-bold ${urgent ? "text-amber" : "text-ink-soft"}`}
+      dir="auto"
+    >
+      {confidence === "low" ? `${tx(locale, "approx")} · ${text}` : text}
+    </div>
+  );
 }
 
 interface SavedSummary {
@@ -820,6 +874,13 @@ export function MoneyHub({
                       <div className="text-[11.5px] text-ink-soft mt-0.5">
                         {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
                       </div>
+                      {/* The one number that changes what someone does today.
+                          Cancelling before the charge keeps the money;
+                          cancelling after it starts a refund chase. Shown only
+                          when the cadence is clear enough to state — an
+                          estimate presented as a certainty is worse than
+                          silence, because someone waits on it. */}
+                      <NextChargeLine charge={r} locale={locale} />
                     </div>
                     <div
                       className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
