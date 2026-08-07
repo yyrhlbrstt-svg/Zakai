@@ -65,7 +65,19 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
-export function CheckFlow() {
+/**
+ * `mailLive` is false when no SMTP is configured, which is the state
+ * production has actually been in. In that state "send via Zakai" writes an
+ * Outbox row that stays QUEUED forever: the reader believes a letter went out,
+ * and nothing ever leaves. Meanwhile the path that genuinely works — copy the
+ * draft and send it from your own mail — was a ghost button, and in one place
+ * was folded inside a collapsed <details>.
+ *
+ * So the only route to someone's money was hidden behind the one that does
+ * nothing. That is not a missing feature; it is a working product made
+ * unreachable by its own hierarchy.
+ */
+export function CheckFlow({ mailLive = true }: { mailLive?: boolean }) {
   const t = useTranslations("flow");
   const tFlow = useTranslations("agentFlow");
   const tp = useTranslations("providers");
@@ -820,11 +832,23 @@ export function CheckFlow() {
           </Card>
 
           <div className="flex flex-col gap-2.5 mt-4">
-            <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
+            {/* Order and emphasis follow what can actually happen. With no
+                outbound mail, sending via Zakai cannot reach anyone, so the
+                self-send path leads and carries the primary styling. */}
+            <Button
+              variant={mailLive ? "ghost" : "primary"}
+              onClick={copyDraftForSelf}
+              className="w-full"
+            >
               {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
             </Button>
             {/* ownership stamped → /dispatch issues Mandate if missing */}
-            <Button onClick={send} disabled={!ownershipOk} className="flex-1 w-full">
+            <Button
+              variant={mailLive ? "primary" : "ghost"}
+              onClick={send}
+              disabled={!ownershipOk}
+              className="flex-1 w-full"
+            >
               {t("sendViaZakai")}
             </Button>
           </div>
