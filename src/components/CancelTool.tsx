@@ -180,27 +180,64 @@ export function CancelTool() {
       )}
 
       <Card className="p-5 flex flex-col gap-3">
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("t_ebd6b437")} />
-        <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={t("t_524bf65a")} />
-        <Input value={product} onChange={(e) => setProduct(e.target.value)} placeholder={t("t_39e161aa")} />
-        <Input value={account} onChange={(e) => setAccount(e.target.value)} placeholder={t("t_ad08a6d5")} />
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t("t_ebd6b437")}
+          aria-label={t("t_ebd6b437")}
+        />
+        <Input
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+          placeholder={t("t_524bf65a")}
+          aria-label={t("t_524bf65a")}
+        />
+        <Input
+          value={product}
+          onChange={(e) => setProduct(e.target.value)}
+          placeholder={t("t_39e161aa")}
+          aria-label={t("t_39e161aa")}
+        />
+        <Input
+          value={account}
+          onChange={(e) => setAccount(e.target.value)}
+          placeholder={t("t_ad08a6d5")}
+          aria-label={t("t_ad08a6d5")}
+        />
         <Input
           type="email"
           value={contactEmail}
           onChange={(e) => setContactEmail(e.target.value)}
           placeholder={t("contactEmailPlaceholder")}
+          aria-label={t("contactEmailPlaceholder")}
         />
         {showContactHint && (
           <p className="text-[12px] text-amber mb-0 -mt-1 leading-relaxed">{t("contactEmailHint")}</p>
         )}
-        <Input type="number" value={monthly} onChange={(e) => setMonthly(e.target.value)} placeholder={t("t_e7275f0c")} />
-        <Select value={intent} onChange={(e) => setIntent(e.target.value as CancelIntent)}>
+        <Input
+          type="number"
+          value={monthly}
+          onChange={(e) => setMonthly(e.target.value)}
+          placeholder={t("t_e7275f0c")}
+          aria-label={t("t_e7275f0c")}
+        />
+        <Select
+          value={intent}
+          onChange={(e) => setIntent(e.target.value as CancelIntent)}
+          aria-label={t("t_265eb5c4")}
+        >
           <option value="cancel">{t("t_265eb5c4")}</option>
           <option value="retention">{t("t_3bb646d8")}</option>
           <option value="downgrade">{t("t_59c6dced")}</option>
           <option value="pause">{t("t_9824add7")}</option>
         </Select>
-        <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} placeholder={t("t_d5befca9")} />
+        <Textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          rows={3}
+          placeholder={t("t_d5befca9")}
+          aria-label={t("t_d5befca9")}
+        />
 
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{t("agentHonestNote")}</p>
 

@@ -139,7 +139,13 @@ for (const path of PAGES) {
     // The server going away is a fact about the run, not about the page.
     // Calling it a page fault is how a dead server turned into a list of
     // "broken" screens that were all fine.
-    const serverGone = /ECONNREFUSED|CONNECTION_REFUSED|socket hang up/i.test(msg);
+    // A navigation timeout belongs here too: a dev server compiling a route
+    // for the first time can take longer than the budget, and that says
+    // nothing about the page. Only a page that actually loads and misbehaves
+    // earns PAGE_ERROR.
+    const serverGone = /ECONNREFUSED|CONNECTION_REFUSED|socket hang up|Timeout \d+ms exceeded/i.test(
+      msg,
+    );
     findings.push({
       kind: serverGone ? "UNCHECKED" : "PAGE_ERROR",
       path,
@@ -190,6 +196,34 @@ for (const path of PAGES) {
         detail: `"${link.text}" → ${link.href} (server did not answer; not a verdict)`,
       });
     }
+  }
+
+  // Form controls a screen reader cannot name. Wrapping an input in a
+  // <label> is the correct pattern and is what most of this codebase does,
+  // so grepping for aria-label reports hundreds of false positives — only a
+  // rendered page knows whether a control actually resolves to a name.
+  try {
+    const unnamed = await page.$$eval("input, select, textarea", (els) =>
+      els
+        .filter((el) => {
+          if (el.type === "hidden" || !(el.offsetParent || el.getClientRects().length)) return false;
+          const byAria = el.getAttribute("aria-label")?.trim();
+          const byLabelledBy = el.getAttribute("aria-labelledby")?.trim();
+          const wrapping = el.closest("label");
+          const associated = el.id
+            ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)
+            : null;
+          const named =
+            byAria || byLabelledBy || (wrapping && wrapping.textContent?.trim()) || associated;
+          return !named;
+        })
+        .map((el) => `${el.tagName.toLowerCase()}[type=${el.getAttribute("type") || "text"}]`),
+    );
+    for (const control of [...new Set(unnamed)]) {
+      findings.push({ kind: "UNLABELLED", path, detail: `${control} has no accessible name` });
+    }
+  } catch {
+    // Navigation raced the check; the page-level guards already record that.
   }
 
   // Buttons disabled with no visible explanation anywhere on the page.
