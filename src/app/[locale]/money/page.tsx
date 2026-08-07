@@ -10,6 +10,7 @@ import { MONTHLY_LEAK_PIN_IDS } from "@/lib/priority";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
 import { aiAvailable } from "@/lib/ai";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 import { proofsInboundAddress } from "@/lib/mandate/document";
@@ -352,6 +353,7 @@ export default async function MoneyPage({
           <MoneyHub
             bcp47={loc}
             screenshotEnabled={aiAvailable()}
+            mailLive={smtpFullyConfigured()}
             referralCode={user?.referralCode}
           />
         </div>

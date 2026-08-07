@@ -288,12 +288,15 @@ function topN(recurring: RecurringCharge[], n: number): RecurringCharge[] {
 }
 
 export function MoneyHub({
+  mailLive = true,
   bcp47,
   screenshotEnabled,
   referralCode,
 }: {
   bcp47: string;
   screenshotEnabled: boolean;
+  /** False when no SMTP: the agent cannot actually deliver anything. */
+  mailLive?: boolean;
   referralCode?: string;
 }) {
   const locale = useLocale();
@@ -799,16 +802,29 @@ export function MoneyHub({
               <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13.5px] font-bold">
                 {tx(locale, "nextStep")}
               </div>
-              <details className="text-[13px] text-ink-soft">
-                <summary className="cursor-pointer font-bold select-none">
-                  {tx(locale, "altLetter")}
-                </summary>
-                <Link href="/cancel/universal" className="no-underline block mt-2">
-                  <Button variant="ghost" className="w-full !text-[13px]">
+              {/* With no outbound mail the agent cannot deliver anything, so
+                  the letters you send yourself are not an "alternative" — they
+                  are the only route that reaches a provider. Burying them in a
+                  collapsed <details> labelled "not the agent path" hid the one
+                  thing that works behind the one that does not. */}
+              {mailLive ? (
+                <details className="text-[13px] text-ink-soft">
+                  <summary className="cursor-pointer font-bold select-none">
+                    {tx(locale, "altLetter")}
+                  </summary>
+                  <Link href="/cancel/universal" className="no-underline block mt-2">
+                    <Button variant="ghost" className="w-full !text-[13px]">
+                      {tx(locale, "universalCancelCta")}
+                    </Button>
+                  </Link>
+                </details>
+              ) : (
+                <Link href="/cancel/universal" className="no-underline block">
+                  <Button className="w-full !text-body">
                     {tx(locale, "universalCancelCta")}
                   </Button>
                 </Link>
-              </details>
+              )}
 
               {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
 
