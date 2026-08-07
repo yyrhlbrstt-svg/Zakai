@@ -12,6 +12,38 @@ const CSV_HE = `תאריך עסקה,שם בית עסק,סכום עסקה,סכו�
 02/05/2026,קפה גרג,38.00 ₪,38.00 ₪`;
 
 describe("parseStatement", () => {
+  /**
+   * Bank exports write a charge as a debit — negative — where a card
+   * statement writes the same event as a positive. Keeping only positives
+   * meant a pasted bank export produced nothing at all, and the scan said
+   * "no recurring charges found", which reads as "we cannot handle your
+   * bank" rather than "wrong sign".
+   */
+  it("reads an all-negative bank export as charges, not as nothing", () => {
+    const bankExport = [
+      "01/05/2026,ישראכרט סליקה,-1240.00",
+      "01/06/2026,ישראכרט סליקה,-1180.00",
+      "01/07/2026,ישראכרט סליקה,-1250.00",
+    ].join("\n");
+    const txns = parseStatement(bankExport);
+    expect(txns).toHaveLength(3);
+    expect(txns.every((t) => t.amountAgorot > 0)).toBe(true);
+    expect(txns[0].amountAgorot).toBe(124000);
+  });
+
+  it("still treats negatives as refunds when the statement also has positives", () => {
+    // A card statement: charges positive, the refund line negative. The
+    // refund must not become a fourth charge.
+    const cardExport = [
+      "01/05/2026,נטפליקס,54.90",
+      "01/06/2026,נטפליקס,54.90",
+      "01/07/2026,נטפליקס,-54.90",
+    ].join("\n");
+    const txns = parseStatement(cardExport);
+    expect(txns).toHaveLength(2);
+    expect(txns.every((t) => t.amountAgorot === 5490)).toBe(true);
+  });
+
   it("parses Hebrew credit-card exports (day-first dates, ₪, headers skipped)", () => {
     const txns = parseStatement(CSV_HE);
     expect(txns).toHaveLength(7);
