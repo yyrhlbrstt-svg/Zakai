@@ -26,7 +26,7 @@ export function MissingFields({ items }: { items: Requirement[] }) {
   const missing = items.filter((i) => !i.ok).map((i) => i.label);
   if (missing.length === 0) return null;
   return (
-    <p className="text-[12.5px] text-amber m-0 leading-relaxed">
+    <p className="text-caption text-amber m-0">
       {t("stillNeeded", { fields: missing.join(" · ") })}
     </p>
   );
