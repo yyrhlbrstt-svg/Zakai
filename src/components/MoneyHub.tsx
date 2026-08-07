@@ -845,7 +845,12 @@ export function MoneyHub({
               </Card>
 
               <div className="flex flex-wrap gap-2">
-                <Link href="/money" className="no-underline">
+                {/* "My dashboard" — which is /dashboard. This linked to /money,
+                    the page it is rendered on, so pressing it re-navigated to
+                    the current URL: the view scrolled to the top and nothing
+                    else changed. Reported as a button that "does nothing and
+                    is misleading", which is exactly what it was. */}
+                <Link href="/dashboard" className="no-underline">
                   <Button variant="ghost" className="!text-[13px] !py-2">
                     {tIcomponents_MoneyHub("t_38d0577a")}
                   </Button>
