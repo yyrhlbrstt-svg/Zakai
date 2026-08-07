@@ -6,6 +6,7 @@ import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 import { agentsPageCopy } from "@/lib/marketing/agentsPageCopy";
 import { textDirection } from "@/lib/textDirection";
 import { Link } from "@/i18n/routing";
+import { MandateConsole } from "@/components/MandateConsole";
 
 export async function generateMetadata({
   params,
@@ -47,6 +48,8 @@ export default async function AgentsPage({
       <div className="mb-6 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13.5px] leading-relaxed">
         <strong className="text-emerald">{copy.inviteStrong}</strong> {copy.inviteRest}
       </div>
+
+      <MandateConsole he={locale === "he"} />
 
       {copy.sections.map((section) => (
         <Section key={section.heading} heading={section.heading}>
