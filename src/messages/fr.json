@@ -75,7 +75,9 @@
     "authority": "Mes procurations",
     "incident": "J'ai été blessé — qui me doit quelque chose ?",
     "dormant": "Argent oublié",
-    "vehicleCheck": "Vérification véhicule d'occasion"
+    "vehicleCheck": "Vérification véhicule d'occasion",
+    "agents": "Pour les agents · Mandate",
+    "institutions": "Pour les institutions"
   },
   "door": {
     "title": "Continuer après Mon argent",

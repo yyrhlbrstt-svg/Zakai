@@ -77,7 +77,9 @@
     "incident": "أُصبت — من يدين لي؟",
     "dormant": "مال نسيته",
     "vehicleCheck": "فحص سيارة قبل الشراء",
-    "merchantFees": "عمولات المقاصة"
+    "merchantFees": "عمولات المقاصة",
+    "agents": "للوكلاء · Mandate",
+    "institutions": "للمؤسسات"
   },
   "auth": {
     "loginTitle": "تسجيل الدخول إلى زكاي",

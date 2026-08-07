@@ -127,7 +127,9 @@
     "incident": "נפצעתי — מי חייב לי?",
     "dormant": "כסף ששכחת",
     "vehicleCheck": "בדיקת רכב לפני קנייה",
-    "merchantFees": "עמלות סליקה"
+    "merchantFees": "עמלות סליקה",
+    "agents": "לסוכנים · Mandate",
+    "institutions": "למוסדות"
   },
   "payslip": {
     "title": "בדיקת תלוש שכר",

@@ -127,7 +127,9 @@
     "incident": "I was injured — who owes me?",
     "dormant": "Money you forgot",
     "vehicleCheck": "Used-car check",
-    "merchantFees": "Clearing fees"
+    "merchantFees": "Clearing fees",
+    "agents": "For agents · Mandate",
+    "institutions": "For institutions"
   },
   "payslip": {
     "title": "Payslip check",

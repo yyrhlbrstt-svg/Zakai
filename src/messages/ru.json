@@ -77,7 +77,9 @@
     "incident": "Я травмирован — кто мне должен?",
     "dormant": "Забытые деньги",
     "vehicleCheck": "Проверка авто перед покупкой",
-    "merchantFees": "Комиссии эквайринга"
+    "merchantFees": "Комиссии эквайринга",
+    "agents": "Для агентов · Mandate",
+    "institutions": "Для организаций"
   },
   "auth": {
     "loginTitle": "Вход в Zakai",
