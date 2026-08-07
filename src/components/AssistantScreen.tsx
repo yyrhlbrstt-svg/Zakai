@@ -13,6 +13,11 @@ import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 // A few high-signal starter questions surfaced as chips under the chat.
 const SUGGESTED_IDS = ["fee", "taxrefund", "payslip", "family"] as const;
 
+interface PendingImage {
+  base64: string;
+  mediaType: string;
+}
+
 interface ChatMsg {
   role: "user" | "assistant";
   text: string;
@@ -52,9 +57,12 @@ export function AssistantScreen({
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
-  const [pendingImage, setPendingImage] = useState<{ base64: string; mediaType: string } | null>(
-    null,
-  );
+  const [pendingImage, setPendingImage] = useState<PendingImage | null>(null);
+  /** The last send that failed transiently, held so it can be resent as-is. */
+  const [failedAttempt, setFailedAttempt] = useState<{
+    question: string;
+    image: PendingImage | null;
+  } | null>(null);
   const [imageError, setImageError] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -87,11 +95,18 @@ export function AssistantScreen({
     return t(`insights.${i.key}`, p as Record<string, string>);
   }
 
-  async function sendText(question: string) {
+  /**
+   * `imageOverride` exists for retries: setState is asynchronous, so a retry
+   * that restored the image via setPendingImage and immediately called this
+   * would read the previous (null) value and silently drop the attachment —
+   * losing the very thing the retry was meant to save.
+   */
+  async function sendText(question: string, imageOverride?: PendingImage | null) {
     if (busy) return;
-    const image = pendingImage;
+    const image = imageOverride !== undefined ? imageOverride : pendingImage;
     if (!question && !image) return;
     setChatError(null);
+    setFailedAttempt(null);
     setMessages((m) => [
       ...m,
       { role: "user", text: question || t("imageOnlyLabel") },
@@ -112,15 +127,36 @@ export function AssistantScreen({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setChatError(data.error === "quotaExceeded" ? "quota" : "generic");
+        // Quota is a wall — retrying cannot help until the window resets, so
+        // only a transient failure is worth holding on to.
+        if (data.error !== "quotaExceeded") setFailedAttempt({ question, image });
         return;
       }
       setMessages((m) => [...m, { role: "assistant", text: data.answer }]);
       setTimeout(() => listRef.current?.scrollTo({ top: 999999, behavior: "smooth" }), 50);
     } catch {
       setChatError("generic");
+      setFailedAttempt({ question, image });
     } finally {
       setBusy(false);
     }
+  }
+
+  /**
+   * Resend what just failed.
+   *
+   * The question and any attached image are cleared the moment a send starts,
+   * so a transient failure used to destroy both — and re-taking a photo of a
+   * bill is real work, not a keystroke. The attempt is kept aside instead, and
+   * the last user bubble is dropped so the transcript doesn't show the same
+   * question twice.
+   */
+  function retryLastAttempt() {
+    const attempt = failedAttempt;
+    if (!attempt || busy) return;
+    setFailedAttempt(null);
+    setMessages((m) => (m.length && m[m.length - 1].role === "user" ? m.slice(0, -1) : m));
+    void sendText(attempt.question, attempt.image);
   }
 
   function send(e: React.FormEvent) {
@@ -225,9 +261,25 @@ export function AssistantScreen({
               </div>
             )}
             {chatError && (
-              <p className="text-danger text-[13px] font-semibold">
-                {chatError === "quota" ? t("quotaError") : t("chatGenericError")}
-              </p>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <p className="text-danger text-[13px] font-semibold m-0">
+                  {chatError === "quota" ? t("quotaError") : t("chatGenericError")}
+                </p>
+                {/* Only offered when there is something to resend. Losing a
+                    photo of a bill to a momentary provider outage means
+                    re-taking it, which is real work — the attempt is kept and
+                    replayed intact, image included. */}
+                {failedAttempt && (
+                  <Button
+                    variant="ghost"
+                    className="!text-[12.5px] !py-1.5 !px-3"
+                    disabled={busy}
+                    onClick={retryLastAttempt}
+                  >
+                    {busy ? t("retrying") : t("retry")}
+                  </Button>
+                )}
+              </div>
             )}
             {imageError && (
               <p className="text-danger text-[13px] font-semibold">{t("imageTooBig")}</p>

@@ -1130,7 +1130,9 @@
     },
     "suggestTitle": "שאלות נפוצות — לחץ כדי לשאול:",
     "moreFaq": "לכל השאלות הנפוצות",
-    "leaveFeedback": "יש לך רעיון לשיפור?"
+    "leaveFeedback": "יש לך רעיון לשיפור?",
+    "retry": "נסו שוב",
+    "retrying": "שולח שוב…"
   },
   "electricity": {
     "metaTitle": "חשמל — כמה תחסכו? — זכאי",

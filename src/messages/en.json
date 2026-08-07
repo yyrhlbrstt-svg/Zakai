@@ -1130,7 +1130,9 @@
     },
     "suggestTitle": "Common questions — tap to ask:",
     "moreFaq": "See all FAQ",
-    "leaveFeedback": "Have an idea to improve?"
+    "leaveFeedback": "Have an idea to improve?",
+    "retry": "Try again",
+    "retrying": "Sending again…"
   },
   "electricity": {
     "metaTitle": "Electricity savings — Zakai",
