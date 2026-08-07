@@ -622,6 +622,9 @@ export function MoneyHub({
           dir="ltr"
           className="mt-2 font-mono text-[12.5px]"
           placeholder={tx(locale, "pastePh")}
+          // Named explicitly: a placeholder disappears the moment someone
+          // types, so it cannot be the only thing identifying the field.
+          aria-label={tx(locale, "pasteTitle")}
           value={text}
           onChange={(e) => {
             setText(e.target.value);
