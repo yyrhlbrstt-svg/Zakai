@@ -66,6 +66,8 @@ interface CreateCaseInput {
   counterpartyEmail?: string;
   vertical?: string;
   strategyVariant?: string;
+  /** Model that wrote the draft, as "provider:model". */
+  drafterId?: string;
   strategySeed?: number;
   autoApprove?: boolean;
 }
@@ -116,6 +118,7 @@ export async function createCase(input: CreateCaseInput) {
       draftMessage: input.draftMessage,
       beneficiaryLabel: (input.beneficiaryLabel ?? "").slice(0, 40),
       strategyVariant: input.strategyVariant ?? null,
+      drafterId: input.drafterId ?? null,
       strategySeed: input.strategySeed ?? null,
       status: input.autoApprove ? "APPROVED" : "ANALYZED",
       approvedAt: input.autoApprove ? now : null,
@@ -529,6 +532,7 @@ export async function recordSaving(
       counterparty: kase.provider,
     },
     variantId: kase.strategyVariant,
+    drafterId: kase.drafterId,
     paid: fee.savingMonthly > 0,
     recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
     days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),

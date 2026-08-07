@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { resolveProviderKey, type ProviderKey } from "./providers";
 import { normalizeContractAnalysis, type ContractAnalysis } from "./contractAnalysis";
 import { buildAssistantSystem } from "./assistantSystem";
+import { drafterId, UNKNOWN_DRAFTER } from "./ai/drafterId";
 
 /**
  * Server-side AI. The API key never reaches the browser.
@@ -175,6 +176,8 @@ async function geminiGenerate(opts: {
    * normal ranked candidates — quality upgrade, never a reliability regression.
    */
   preferModel?: string;
+  /** Reports the provider and model that actually served this call. */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new AiUnavailableError();
@@ -227,7 +230,10 @@ async function geminiGenerate(opts: {
         .map((p) => p.text ?? "")
         .join("\n")
         .trim();
-      if (text) return text;
+      if (text) {
+        opts.onModel?.("gemini", model);
+        return text;
+      }
       lastError = `Gemini ${model}: empty response`;
       continue;
     }
@@ -262,6 +268,8 @@ async function ollamaGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /** Reports the provider and model that actually served this call. */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   const base = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/+$/, "");
   const model = process.env.OLLAMA_MODEL || "llama3.1";
@@ -290,6 +298,7 @@ async function ollamaGenerate(opts: {
   const data = (await res.json()) as { message?: { content?: string } };
   const text = (data.message?.content ?? "").trim();
   if (!text) throw new Error(`Ollama ${model}: empty response`);
+  opts.onModel?.("ollama", model);
   return text;
 }
 
@@ -305,6 +314,8 @@ async function openaiCompatGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /** Reports the provider and model that actually served this call. */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   const cfg = openaiCompatConfig();
   if (!cfg) throw new AiUnavailableError();
@@ -346,6 +357,7 @@ async function openaiCompatGenerate(opts: {
   };
   const text = (data.choices?.[0]?.message?.content ?? "").trim();
   if (!text) throw new Error(`OpenAI-compat ${cfg.model}: empty response`);
+  opts.onModel?.("openai", cfg.model);
   return text;
 }
 
@@ -363,6 +375,8 @@ async function fallbackGenerate(
     temperature?: number;
     /** Gemini-only: a stronger model to try first (ignored by other providers). */
     geminiPreferModel?: string;
+    /** Reports the provider and model that actually served this call. */
+    onModel?: (provider: AiProvider, model: string) => void;
   },
   /** Explicit provider (used when retrying after the primary failed at call time). */
   forceProvider?: AiProvider,
@@ -420,6 +434,17 @@ async function generateText(opts: {
   maxTokens: number;
   temperature?: number;
   geminiPreferModel?: string;
+  /**
+   * Called with the provider and model that actually produced the text, after
+   * the call succeeds — including when a fallback provider handled it.
+   *
+   * It is a callback rather than a return value so that adding attribution did
+   * not have to touch all ~15 call sites. The distinction that matters is that
+   * it reports the executed call, never the configuration: the two differ
+   * exactly when the primary provider failed, which is precisely when a
+   * configuration-derived answer would be wrong.
+   */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   if (aiProvider() !== "anthropic") return fallbackGenerate(opts);
 
@@ -449,6 +474,10 @@ async function generateText(opts: {
         },
       ],
     });
+    // Reported after the call returns, and from the response's own model
+    // field where the API echoes it, so an alias like "claude-sonnet-5"
+    // resolves to whatever actually served the request.
+    opts.onModel?.("anthropic", msg.model || opts.model);
     return msg.content
       .map((b) => (b.type === "text" ? b.text : ""))
       .join("\n")
@@ -635,6 +664,13 @@ export interface Recommendation {
   marketHighShekels: number;
   draftMessage: string; // outreach body, always Hebrew (the provider reads Hebrew)
   source: "ai" | "template";
+  /**
+   * Which model actually wrote `draftMessage`, as "provider:model", so the
+   * outcome graph can later say whether it was worth using. `UNKNOWN_DRAFTER`
+   * for the deterministic template, because no model wrote that one — folding
+   * template outcomes into a model's record would inflate or wreck it.
+   */
+  drafterId: string;
 }
 
 export interface RecommendationInput {
@@ -680,8 +716,13 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
   const userText = `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel} for: "${input.plan || "a standard mobile plan"}". Customer name: "${input.customerName}". Strategy language: ${langName}.${stance}`;
 
   let text: string;
+  // Set from the call that actually ran, never from configuration.
+  let usedDrafter = UNKNOWN_DRAFTER;
+  const onModel = (provider: AiProvider, model: string) => {
+    usedDrafter = drafterId(provider, model);
+  };
   if (aiProvider() !== "anthropic") {
-    text = await fallbackGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900, temperature: 0.5 });
+    text = await fallbackGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900, temperature: 0.5, onModel });
   } else {
     const anthropic = client();
     const msg = await anthropic.messages.create({
@@ -693,6 +734,7 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
       messages: [{ role: "user", content: userText }],
     });
     text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+    usedDrafter = drafterId("anthropic", msg.model || DRAFT_MODEL);
   }
   const p = extractJson(text) as {
     strategy: string;
@@ -708,6 +750,7 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
     marketHighShekels: Math.round(p.marketHigh),
     draftMessage: p.message,
     source: "ai",
+    drafterId: usedDrafter,
   };
 }
 
@@ -977,6 +1020,7 @@ export function templateRecommendation(input: RecommendationInput): Recommendati
     marketHighShekels: marketHigh,
     draftMessage,
     source: "template",
+    drafterId: UNKNOWN_DRAFTER,
   };
 }
 

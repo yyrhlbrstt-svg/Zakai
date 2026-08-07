@@ -184,6 +184,9 @@ export async function POST(request: Request) {
       beneficiaryLabel: data.beneficiary,
       strategyVariant: stance.variantId,
       strategySeed: stance.seed,
+      // Carried from draft time to settle time alongside the stance, so the
+      // outcome graph can later say which model actually got paid.
+      drafterId: rec.drafterId,
       vertical: "telecom",
       counterpartyEmail: outreachTo ?? undefined,
     });
