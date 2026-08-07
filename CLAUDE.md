@@ -70,6 +70,8 @@ A PR that does not strengthen at least one of these is usually the wrong PR.
 | `src/app/[locale]/cancel` | Subscription cancel letters |
 | `src/app/api/**` | All mutations |
 | `docs/ARCHITECTURE.md` | Full system design |
+| `docs/PROGRESS.md` | Running log: what shipped, what blocks it, what to do next |
+| `docs/LOCAL_LOOP.md` | Run the app for real and prove the loop in a browser |
 | `docs/INFRASTRUCTURE_DOCTRINE.md` | Product laws |
 | `docs/AGENT_NEGOTIATION.md` | Negotiation agent behavior |
 | `docs/COUNTRY_PACKS.md` | How to add a jurisdiction to `src/lib/global/` |
