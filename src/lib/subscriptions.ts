@@ -156,11 +156,30 @@ export function parseStatement(text: string): StatementTxn[] {
       if (cell.length > merchant.length && /[A-Za-zא-ת]/.test(cell)) merchant = cell;
     }
 
-    if (date && amount !== null && amount > 0 && merchant) {
+    if (date && amount !== null && amount !== 0 && merchant) {
       txns.push({ date, merchant, amountAgorot: amount });
     }
   }
-  return txns;
+
+  /**
+   * Statements disagree about which way a charge points.
+   *
+   * Israeli card statements list what you were billed as a positive number.
+   * Bank account exports list the same event as a debit — negative — with
+   * credits positive. This parser only ever kept positives, so pasting a bank
+   * export produced zero transactions and the scan reported "no recurring
+   * charges found": indistinguishable, from the outside, from a bank the
+   * product simply cannot read.
+   *
+   * A statement is internally consistent, so its sign convention can be read
+   * off it. If anything positive is present, positives are the charges and
+   * negatives are refunds — the original behaviour, untouched. Only when a
+   * statement is entirely negative is it the other convention, and then the
+   * magnitudes are the charges.
+   */
+  const positives = txns.filter((t) => t.amountAgorot > 0);
+  if (positives.length > 0) return positives;
+  return txns.map((t) => ({ ...t, amountAgorot: Math.abs(t.amountAgorot) }));
 }
 
 /* ------------------------------------------------------------------ */

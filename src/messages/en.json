@@ -6360,5 +6360,29 @@
       "openedSub": "Track it, send a reminder and document the saving in My money.",
       "dashboard": "Go to my case"
     }
+  },
+  "businessAudit": {
+    "title": "Which of your fixed costs can be challenged",
+    "sub": "Paste a business statement. Zakai finds what recurs monthly and shows which of those have a tool that tries to bring them down.",
+    "pasteLabel": "Business account statement",
+    "pastePlaceholder": "Paste a CSV/text export from your bank or card issuer…",
+    "tooShort": "Paste at least a few statement lines.",
+    "scanBtn": "Check my costs",
+    "none": "No clear recurring charges found. Try a longer statement.",
+    "addressableLabel": "Monthly cost with a tool behind it",
+    "notASaving": "This is what you pay today — not a promised saving. How much moves, if any, is the provider's answer to give.",
+    "challengeCta": "Challenge this charge",
+    "noToolYet": "We don't have a tool for this cost type yet.",
+    "nothingRoutable": "None of the charges found match an existing tool right now.",
+    "kinds": {
+      "clearing": "Card clearing fee",
+      "bank_fee": "Business bank charges",
+      "insurance": "Business insurance",
+      "telecom": "Telecom",
+      "software": "Software / digital subscription",
+      "utilities": "Electricity / water",
+      "leasing": "Leasing / vehicle",
+      "unclassified": "Unclassified"
+    }
   }
 }

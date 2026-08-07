@@ -5,6 +5,8 @@ import { PageKicker } from "@/components/PageKicker";
 import { Reveal } from "@/components/Reveal";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { Button } from "@/components/ui";
+import { BusinessExpenseAudit } from "@/components/BusinessExpenseAudit";
+import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -53,8 +55,17 @@ export default async function SmallBusinessPage({
         </p>
       </Reveal>
 
+      {/* Above the tool grid on purpose. A business does not arrive knowing
+          which of eleven tools applies to it — it arrives knowing it spends
+          too much. This turns its own statement into that answer, and every
+          card below becomes the follow-through rather than a menu to guess
+          from. */}
       <Reveal>
-        <h2 className="text-[17px] font-extrabold mb-4">{t("toolsTitle")}</h2>
+        <BusinessExpenseAudit bcp47={bcp47[locale as Locale]} />
+      </Reveal>
+
+      <Reveal>
+        <h2 className="text-[17px] font-extrabold mb-4 mt-12">{t("toolsTitle")}</h2>
       </Reveal>
       <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
         {tools.map((tool, i) => (
