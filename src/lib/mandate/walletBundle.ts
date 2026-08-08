@@ -32,6 +32,23 @@ export interface AuthorityWalletBundle {
     status_uri_template: string;
     revocations: string;
   };
+  /**
+   * The signed settlement for this case, when one exists.
+   *
+   * The bundle carried the authority — proof that the person allowed the
+   * claim — and nothing about how it ended. Half a record is a strange thing
+   * to hand someone: it proves you were entitled to ask and says nothing
+   * about what you got, which is the half a counterparty, a regulator or a
+   * landlord would actually weigh.
+   *
+   * Null when the case has not settled, or settled before signing existed.
+   * Absent is a real state and it is said, rather than being papered over
+   * with an empty object that reads like a settlement of zero.
+   */
+  settlement: {
+    jws: string;
+    verify_post: string;
+  } | null;
   note: string;
 }
 
@@ -40,6 +57,8 @@ export function buildAuthorityWalletBundle(input: {
   locale: string;
   country: string | null;
   row: GrantedAuthority;
+  /** Signed settlement for this case, when the case has settled. */
+  settlementJws?: string | null;
 }): AuthorityWalletBundle {
   const loc = localeForCountry(input.country);
   const origin = input.origin.replace(/\/+$/, "");
@@ -73,6 +92,12 @@ export function buildAuthorityWalletBundle(input: {
       status_uri_template: `${origin}/api/mandate/status/{jti}`,
       revocations: `${origin}/api/mandate/revocations`,
     },
+    settlement: input.settlementJws
+      ? {
+          jws: input.settlementJws,
+          verify_post: `${origin}/api/mandate/verify-settlement`,
+        }
+      : null,
     note:
       "Portable proof pack — institutions verify Mandate JWTs against jwks; humans verify authorization codes at public_page. Revocation propagates via status list.",
   };
