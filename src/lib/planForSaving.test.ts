@@ -3,7 +3,7 @@ import { PLANS } from "./plans";
 import {
   MONTHS,
   WORTH_SWITCHING_AGOROT,
-  adviseplan,
+  advisePlan,
   crossoverAgorot,
   planCosts,
 } from "./planForSaving";
@@ -49,17 +49,17 @@ describe("planCosts", () => {
   });
 });
 
-describe("adviseplan", () => {
+describe("advisePlan", () => {
   /**
    * The property that makes this advice rather than an ad. A recommender that
    * can never say "stay where you are" is selling, and would be found out.
    */
   it("recommends staying free for a small saving", () => {
-    expect(adviseplan(shekels(20)).best.planId).toBe("FREE");
+    expect(advisePlan(shekels(20)).best.planId).toBe("FREE");
   });
 
   it("recommends a paid plan only once it genuinely costs less", () => {
-    const advice = adviseplan(shekels(1_000));
+    const advice = advisePlan(shekels(1_000));
     expect(advice.best.planId).not.toBe("FREE");
     expect(advice.best.totalAgorot).toBeLessThan(
       planCosts(shekels(1_000)).find((c) => c.planId === "FREE")!.totalAgorot,
@@ -71,7 +71,7 @@ describe("adviseplan", () => {
     // recommendation is churn dressed as advice.
     const pro = crossoverAgorot("PRO");
     if (pro !== null && pro > 100) {
-      const advice = adviseplan(pro - 100);
+      const advice = advisePlan(pro - 100);
       if (advice.savesAgorot < WORTH_SWITCHING_AGOROT) {
         expect(advice.worthSwitching).toBe(false);
       }
@@ -79,7 +79,7 @@ describe("adviseplan", () => {
   });
 
   it("reports what the runner-up would have cost", () => {
-    const advice = adviseplan(shekels(50));
+    const advice = advisePlan(shekels(50));
     expect(advice.runnerUp).not.toBeNull();
     expect(advice.savesAgorot).toBe(
       advice.runnerUp!.totalAgorot - advice.best.totalAgorot,

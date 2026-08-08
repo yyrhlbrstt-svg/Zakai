@@ -474,5 +474,12 @@
   "zakameter": {
     "cta": "Photo de facture — commencer dans Mon argent",
     "ctaScan": "Ou vérifier ce qui vous est dû (gratuit)"
+  },
+  "pricing": {
+    "maxRoiCheapest": "À ce niveau d'économies, le forfait le moins cher pour vous est {plan}.",
+    "maxRoiCheapestSaves": "À ce niveau d'économies, le forfait le moins cher pour vous est {plan} — environ {amount} de moins par an que l'option suivante.",
+    "maxRoiStayFree": "À ce niveau d'économies, rester en gratuit est le moins cher. Un abonnement ne serait pas rentable.",
+    "maxRoiProFrom": "Pro devient le forfait le moins cher à partir d'environ {amount} d'économies mensuelles documentées.",
+    "maxRoiMaxFrom": "Max devient le forfait le moins cher à partir d'environ {amount} d'économies mensuelles documentées."
   }
 }

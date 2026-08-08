@@ -39,11 +39,25 @@ export interface PlanCost {
  * a subscription that costs the same as no subscription is worse for the
  * person paying it.
  */
-export function planCosts(monthlySavingAgorot: number): PlanCost[] {
+/**
+ * The plans a consumer is actually choosing between.
+ *
+ * Business is a different product sold on a different page, and it can only
+ * lose here — same 0% fee as Max at several times the price. It never wins on
+ * today's numbers, but that is an accident of the current prices rather than
+ * a guarantee, and a pricing page that could one day recommend a business
+ * subscription to a household is not a page worth shipping.
+ */
+export const CONSUMER_PLAN_IDS: PlanId[] = ["FREE", "PRO", "MAX"];
+
+export function planCosts(
+  monthlySavingAgorot: number,
+  among: readonly PlanId[] = PLAN_IDS,
+): PlanCost[] {
   const saving = Math.max(0, Math.round(monthlySavingAgorot));
   const recovered = saving * MONTHS;
 
-  return PLAN_IDS.map((planId) => {
+  return among.map((planId) => {
     const p = PLANS[planId];
     const subscriptionAgorot = p.priceAgorot * MONTHS;
     // Integer throughout: basis points divide by 10,000 exactly.
@@ -75,8 +89,11 @@ export interface PlanAdvice {
 /** Below this yearly difference, a switch is not worth recommending. */
 export const WORTH_SWITCHING_AGOROT = 5_000; // ₪50/year
 
-export function adviseplan(monthlySavingAgorot: number): PlanAdvice {
-  const costs = planCosts(monthlySavingAgorot);
+export function advisePlan(
+  monthlySavingAgorot: number,
+  among: readonly PlanId[] = PLAN_IDS,
+): PlanAdvice {
+  const costs = planCosts(monthlySavingAgorot, among);
   const best = costs[0];
   const runnerUp = costs[1] ?? null;
   const savesAgorot = runnerUp ? runnerUp.totalAgorot - best.totalAgorot : 0;
@@ -97,11 +114,15 @@ export function adviseplan(monthlySavingAgorot: number): PlanAdvice {
  * who each plan is actually for, and they are computed from PLANS rather than
  * written into copy that can drift away from the prices.
  */
-export function crossoverAgorot(planId: PlanId, maxMonthlyAgorot = 500_000): number | null {
+export function crossoverAgorot(
+  planId: PlanId,
+  maxMonthlyAgorot = 500_000,
+  among: readonly PlanId[] = PLAN_IDS,
+): number | null {
   // Coarse then fine: the cost curves are linear, so a scan is exact enough
   // and far clearer than solving simultaneous equations per pair.
   for (let saving = 0; saving <= maxMonthlyAgorot; saving += 100) {
-    if (planCosts(saving)[0].planId === planId) return saving;
+    if (planCosts(saving, among)[0].planId === planId) return saving;
   }
   return null;
 }

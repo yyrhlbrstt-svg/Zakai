@@ -474,5 +474,12 @@
   "zakameter": {
     "cta": "Rechnung fotografieren — in Mein Geld starten",
     "ctaScan": "Oder prüfen, was Ihnen zusteht (kostenlos)"
+  },
+  "pricing": {
+    "maxRoiCheapest": "Bei dieser Ersparnis ist {plan} für Sie der günstigste Tarif.",
+    "maxRoiCheapestSaves": "Bei dieser Ersparnis ist {plan} für Sie der günstigste Tarif — rund {amount} pro Jahr weniger als die nächste Option.",
+    "maxRoiStayFree": "Bei dieser Ersparnis ist der kostenlose Tarif am günstigsten. Ein Abo würde sich nicht rechnen.",
+    "maxRoiProFrom": "Pro ist ab etwa {amount} dokumentierter monatlicher Ersparnis der günstigste Tarif.",
+    "maxRoiMaxFrom": "Max ist ab etwa {amount} dokumentierter monatlicher Ersparnis der günstigste Tarif."
   }
 }

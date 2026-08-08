@@ -1035,10 +1035,11 @@
     "maxRoiTitle": "Does Max pay off for you?",
     "maxRoiSub": "Max costs ₪59.90/month and removes success fees. Enter the documented monthly saving you expect — we'll compare to what you'd pay on Free or Pro.",
     "maxRoiInput": "Estimated documented monthly saving",
-    "maxRoiYes": "At this level, Max likely pays for itself in fees you avoid — worth considering.",
-    "maxRoiNo": "At this level, Free or Pro is still cheaper on fees — unless you need the higher limits.",
-    "maxRoiBreakevenFree": "Breakeven vs Free (18% fee): about {amount} documented saving per month.",
-    "maxRoiBreakevenPro": "Breakeven vs Pro (9% fee): about {amount} documented saving per month."
+    "maxRoiCheapest": "At this saving, the cheapest plan for you is {plan}.",
+    "maxRoiCheapestSaves": "At this saving, the cheapest plan for you is {plan} — about {amount} less per year than the next option.",
+    "maxRoiStayFree": "At this saving, staying on Free is cheapest. A subscription would not pay for itself.",
+    "maxRoiProFrom": "Pro becomes the cheapest plan from about {amount} documented saving per month.",
+    "maxRoiMaxFrom": "Max becomes the cheapest plan from about {amount} documented saving per month."
   },
   "scan": {
     "title": "What am I paying for?",
