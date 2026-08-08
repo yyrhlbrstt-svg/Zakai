@@ -710,7 +710,16 @@
     "issuedLabel": "הופק בתאריך",
     "scopeLabel": "היקף ההרשאה",
     "mandateAudienceLabel": "מזהה מוסד (Mandate aud)",
-    "leaderBadge": "מוביל אימות Mandate בזכאי — אימות JWKS ציבורי"
+    "leaderBadge": "מוביל אימות Mandate בזכאי — אימות JWKS ציבורי",
+    "stTitle": "✓ רשומה חתומה ותקפה",
+    "stSub": "אומת מול המפתח הציבורי של המנפיק. אותה בדיקה רצה גם לא־מקוון, בלי זכאי.",
+    "stCounterparty": "מול",
+    "stOutcome": "תוצאה",
+    "stSaved": "חיסכון מתועד",
+    "stNoSaving": "ללא חיסכון",
+    "stRecovered": "הוחזר לחודש",
+    "stDays": "ימים עד סגירה",
+    "stSelfReported": "מבוסס על דיווח של המשתמש, לא על תשובת ספק שתועדה."
   },
   "dashboard": {
     "title": "הדשבורד שלי",

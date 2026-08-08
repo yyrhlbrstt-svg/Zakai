@@ -710,7 +710,16 @@
     "issuedLabel": "Issued on",
     "scopeLabel": "Scope of authorization",
     "mandateAudienceLabel": "Institution id (Mandate aud)",
-    "leaderBadge": "Zakai Mandate verification leader — public JWKS verify path"
+    "leaderBadge": "Zakai Mandate verification leader — public JWKS verify path",
+    "stTitle": "✓ Signed record, valid",
+    "stSub": "Checked against the issuer's public key. The same check runs offline, without us.",
+    "stCounterparty": "Counterparty",
+    "stOutcome": "Outcome",
+    "stSaved": "Saving documented",
+    "stNoSaving": "No saving",
+    "stRecovered": "Recovered / month",
+    "stDays": "Days to resolve",
+    "stSelfReported": "Based on the user's own report, not a documented provider reply."
   },
   "dashboard": {
     "title": "My dashboard",

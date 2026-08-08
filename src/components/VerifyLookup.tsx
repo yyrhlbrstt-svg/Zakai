@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { bcp47, type Locale } from "@/i18n/config";
+import { formatAgorot } from "@/lib/money";
 import { Card, Button, Input, FieldError } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 import { heEn } from "@/lib/heEn";
@@ -26,12 +27,34 @@ interface GravityRow {
   cost?: { reputationSignal?: string; unhandledEstimate?: number; deskHours?: number };
 }
 
+/** What /api/mandate/verify-settlement returns on a good record. */
+interface SettlementResult {
+  counterparty: string;
+  market: string;
+  vertical: string;
+  outcome: "saved" | "no_saving";
+  beforeMinor: number;
+  afterMinor: number;
+  recoveredMinor: number;
+  days: number;
+  selfReported: boolean;
+  issuer: string;
+  issuedAt: string;
+}
+
+/** Three base64url segments — an authorization code never looks like this. */
+function looksLikeJws(v: string): boolean {
+  const parts = v.split(".");
+  return parts.length === 3 && parts.every((p) => /^[A-Za-z0-9_-]+$/.test(p) && p.length > 0);
+}
+
 export function VerifyLookup({ initialCode }: { initialCode?: string }) {
   const t = useTranslations("verifyPage");
   const locale = useLocale() as Locale;
   const he = locale === "he" || locale === "ar";
   const [code, setCode] = useState(initialCode ?? "");
   const [result, setResult] = useState<PublicAuth | null>(null);
+  const [settlement, setSettlement] = useState<SettlementResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [gravity, setGravity] = useState<GravityRow | null>(null);
@@ -42,8 +65,33 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
     setPending(true);
     setError(null);
     setResult(null);
+    setSettlement(null);
     setGravity(null);
     try {
+      /**
+       * A settlement is a compact JWS, an authorization is a short ZK- code.
+       * They arrive through the same box because whoever is checking one has
+       * been handed a string and does not know or care which kind it is —
+       * making them choose a tab first is asking the reader to know our
+       * schema before they can use it.
+       */
+      if (looksLikeJws(trimmed)) {
+        const sRes = await fetch("/api/mandate/verify-settlement", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ settlement: trimmed }),
+        });
+        const sData = await sRes.json();
+        if (!sRes.ok || sData.valid !== true) {
+          // The reason matters: a forged record and a record of the wrong
+          // kind are different problems for whoever is holding it.
+          setError(typeof sData.reason === "string" ? sData.reason : "notFound");
+          return;
+        }
+        setSettlement(sData as SettlementResult);
+        return;
+      }
+
       const res = await fetch(`/api/authorization/${encodeURIComponent(trimmed)}`);
       if (res.status === 404) {
         setError("notFound");
@@ -93,6 +141,32 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
         </div>
         {error && <FieldError>{t(error)}</FieldError>}
       </Card>
+
+      {settlement && (
+        <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.08)] p-5 mt-4">
+          <div className="font-bold text-emerald text-body-lg">{t("stTitle")}</div>
+          <p className="text-caption text-ink-soft mt-1 mb-3 leading-relaxed">{t("stSub")}</p>
+          <dl className="grid grid-cols-2 gap-y-2 text-body m-0">
+            <dt className="text-ink-soft">{t("stCounterparty")}</dt>
+            <dd className="m-0 font-bold">{settlement.counterparty}</dd>
+            <dt className="text-ink-soft">{t("stOutcome")}</dt>
+            <dd className="m-0 font-bold">
+              {settlement.outcome === "saved" ? t("stSaved") : t("stNoSaving")}
+            </dd>
+            <dt className="text-ink-soft">{t("stRecovered")}</dt>
+            <dd className="m-0 font-bold" dir="ltr">
+              {formatAgorot(settlement.recoveredMinor, bcp47[locale])}
+            </dd>
+            <dt className="text-ink-soft">{t("stDays")}</dt>
+            <dd className="m-0 font-bold">{settlement.days}</dd>
+          </dl>
+          {/* Never smoothed over: a reader weighing this as evidence has to
+              know whether a pipeline documented it or a person recalled it. */}
+          {settlement.selfReported && (
+            <p className="text-caption text-amber font-bold mt-3 mb-0">{t("stSelfReported")}</p>
+          )}
+        </div>
+      )}
 
       {result && (
         <Card
