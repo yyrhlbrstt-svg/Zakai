@@ -22,6 +22,7 @@ import {
 } from "@/lib/monopoly/scanShare";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 import { estimateNextCharge } from "@/lib/nextCharge";
+import { buildCommitmentWindow, worthShowing } from "@/lib/commitmentCalendar";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -78,6 +79,12 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
     batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו ב«כסף שלי» לפני שליחה.",
     selectHint: "סמן חיובים ואז פתח בבת אחת (Free = תיק פעיל אחד; Pro פותח יותר)",
+    cwTitle: "מה יוצא לך ב־30 הימים הקרובים",
+    cwSoon: "הכי קרוב",
+    cwUndated: "ועוד {n} חיובים שלא הצלחנו לתארך",
+    cwDays: "בעוד {n} ימים",
+    cwToday: "היום",
+    cwTomorrow: "מחר",
     nextToday: "החיוב הבא — היום",
     nextTomorrow: "החיוב הבא — מחר",
     nextInDays: "החיוב הבא בעוד {n} ימים",
@@ -125,6 +132,12 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
     batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it in My money before send.",
     selectHint: "Select charges, then open together (Free = 1 active case; Pro opens more)",
+    cwTitle: "Leaving your account in the next 30 days",
+    cwSoon: "Soonest",
+    cwUndated: "plus {n} charges we could not date",
+    cwDays: "in {n} days",
+    cwToday: "today",
+    cwTomorrow: "tomorrow",
     nextToday: "Next charge — today",
     nextTomorrow: "Next charge — tomorrow",
     nextInDays: "Next charge in {n} days",
@@ -172,6 +185,12 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "فُتح {n} ملفات",
     batchNeedsEmail: "فُتح {n} — بعضها بلا بريد؛ أكمل في لوحة التحكم قبل الإرسال.",
     selectHint: "اختر ثم افتح دفعة واحدة",
+    cwTitle: "ما سيُخصم خلال 30 يومًا",
+    cwSoon: "الأقرب",
+    cwUndated: "و{n} خصومًا لم نتمكن من تأريخها",
+    cwDays: "بعد {n} يومًا",
+    cwToday: "اليوم",
+    cwTomorrow: "غدًا",
     nextToday: "الخصم القادم — اليوم",
     nextTomorrow: "الخصم القادم — غدًا",
     nextInDays: "الخصم القادم بعد {n} يومًا",
@@ -218,6 +237,12 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Открыто {n} дел",
     batchNeedsEmail: "Открыто {n} — для части нужен email; укажите в дашборде перед отправкой.",
     selectHint: "Выберите и откройте пакетом",
+    cwTitle: "Спишется в ближайшие 30 дней",
+    cwSoon: "Ближайшее",
+    cwUndated: "и ещё {n} списаний без даты",
+    cwDays: "через {n} дн.",
+    cwToday: "сегодня",
+    cwTomorrow: "завтра",
     nextToday: "Следующее списание — сегодня",
     nextTomorrow: "Следующее списание — завтра",
     nextInDays: "Следующее списание через {n} дн.",
@@ -268,6 +293,52 @@ function NextChargeLine({ charge, locale }: { charge: RecurringCharge; locale: s
     >
       {confidence === "low" ? `${tx(locale, "approx")} · ${text}` : text}
     </div>
+  );
+}
+
+function CommitmentWindowCard({
+  result,
+  locale,
+  bcp47,
+}: {
+  result: ScanResult;
+  locale: string;
+  bcp47: string;
+}) {
+  const win = buildCommitmentWindow(result.recurring);
+  // An empty calendar is not a feature; it is a panel that makes the product
+  // look like it did nothing.
+  if (!worthShowing(win)) return null;
+
+  const when = (days: number) =>
+    days === 0
+      ? tx(locale, "cwToday")
+      : days === 1
+        ? tx(locale, "cwTomorrow")
+        : tx(locale, "cwDays").replace("{n}", String(days));
+
+  return (
+    <Card className="p-5 mb-4">
+      <div className="text-caption text-ink-soft font-bold">{tx(locale, "cwTitle")}</div>
+      <div className="font-display grad-text text-h1 mt-1.5">
+        {formatAgorot(win.datedAgorot, bcp47)}
+      </div>
+      <div className="mt-3 flex flex-col gap-2">
+        {win.dated.slice(0, 6).map((e, i) => (
+          <div key={`${e.merchant}-${i}`} className="flex items-baseline justify-between gap-3">
+            <span className="font-bold text-body">{e.merchant}</span>
+            <span className="text-caption text-ink-soft">
+              {when(e.next!.daysUntil)} · {formatAgorot(e.monthlyAgorot, bcp47)}
+            </span>
+          </div>
+        ))}
+      </div>
+      {win.undated.length > 0 && (
+        <p className="text-caption text-ink-soft mt-3 mb-0">
+          {tx(locale, "cwUndated").replace("{n}", String(win.undated.length))}
+        </p>
+      )}
+    </Card>
   );
 }
 
@@ -734,6 +805,12 @@ export function MoneyHub({
             </Card>
           ) : (
             <>
+              {/* The forward half of the scan. Every banking app shows what
+                  was charged; none shows what is already committed for the
+                  weeks ahead — which is the thing people actually worry about,
+                  and the only moment when cancelling still costs nothing. */}
+              <CommitmentWindowCard result={result} locale={locale} bcp47={bcp47} />
+
               <Card className="p-6 text-center">
                 <div className="text-[13px] text-ink-soft font-bold">{tx(locale, "total")}</div>
                 <div className="font-display grad-text text-4xl mt-1.5">
