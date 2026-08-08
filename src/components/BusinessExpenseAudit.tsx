@@ -20,6 +20,11 @@ import {
   type BusinessFinding,
 } from "@/lib/businessExpenseAudit";
 import { formatAgorot } from "@/lib/money";
+import {
+  findOverlaps,
+  maxAvoidableMonthlyAgorot,
+  type ServiceOverlap,
+} from "@/lib/overlappingServices";
 import { STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
 
 /**
@@ -44,6 +49,7 @@ export function BusinessExpenseAudit({ bcp47 }: { bcp47: string }) {
   const [findings, setFindings] = useState<BusinessFinding[] | null>(null);
   const [baseline, setBaseline] = useState<CostSnapshot | null>(null);
   const [drift, setDrift] = useState<DriftItem[] | null>(null);
+  const [overlaps, setOverlaps] = useState<ServiceOverlap[] | null>(null);
 
   const canScan = text.trim().length >= STATEMENT_SCAN_MIN_CHARS;
   const money = (a: number) => formatAgorot(a, bcp47);
@@ -63,6 +69,9 @@ export function BusinessExpenseAudit({ bcp47 }: { bcp47: string }) {
   function run() {
     const charges = scanStatement(text).recurring;
     setFindings(auditBusinessExpenses(charges));
+    // Pairs, not lines. A statement is a list and a list hides the two
+    // vendors doing the same job.
+    setOverlaps(findOverlaps(charges));
 
     const snapshot = snapshotFromCharges(charges);
     // Compare before overwriting, or the first thing this feature does is
@@ -129,6 +138,39 @@ export function BusinessExpenseAudit({ bcp47 }: { bcp47: string }) {
                         ? `+${money(d.afterAgorot)}`
                         : `${money(d.beforeAgorot)} → ${money(d.afterAgorot)}`}
                     </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {overlaps && overlaps.length > 0 && (
+            <Card className="p-5 mb-4">
+              <div className="font-extrabold text-title">{t("overlapTitle")}</div>
+              <p className="text-caption text-ink-soft mt-1.5 mb-3">
+                {t("overlapSub", {
+                  max: money(maxAvoidableMonthlyAgorot(overlaps)),
+                })}
+              </p>
+              <div className="flex flex-col gap-2.5">
+                {overlaps.slice(0, 5).map((o, i) => (
+                  <div key={`${o.charges[0].merchant}-${o.charges[1].merchant}-${i}`}>
+                    <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                      <span className="font-bold text-body">
+                        {o.charges[0].merchant} · {o.charges[1].merchant}
+                      </span>
+                      <span className="text-body font-bold" dir="ltr">
+                        {money(o.smallerMonthlyAgorot)}
+                      </span>
+                    </div>
+                    {/* Marked, not hidden: two mobile lines are usually meant,
+                        and filtering the pair away would decide for someone
+                        who may well have one too many. */}
+                    {o.commonlyLegitimate && (
+                      <div className="text-caption text-ink-soft mt-0.5">
+                        {t("overlapOftenFine")}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

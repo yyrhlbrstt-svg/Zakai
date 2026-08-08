@@ -6416,7 +6416,10 @@
     },
     "driftTitle": "Costs that rose since your last check",
     "driftSub": "Net change: {net} per month. Nobody told you — which is why it is worth looking.",
-    "baselineSaved": "Saved on your device. Next time you check, we'll show what changed since."
+    "baselineSaved": "Saved on your device. Next time you check, we'll show what changed since.",
+    "overlapTitle": "Two vendors, one job",
+    "overlapSub": "Worth reviewing — up to {max}/month if one is redundant. We cannot tell from a statement which pairs really are.",
+    "overlapOftenFine": "In this category two vendors are usually deliberate (e.g. two lines)"
   },
   "capability": {
     "mailOff": {
