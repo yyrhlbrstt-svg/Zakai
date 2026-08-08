@@ -47,9 +47,32 @@ describe("loadTrackRecordStats", () => {
     });
     expect(stats).toEqual({
       resolvedCases: 3,
+      settlementBackedCases: 3,
       documentedMonthlySavingAgorot: 12_000,
       activeSince: "2025-01-01T00:00:00.000Z",
     });
+  });
+
+  /**
+   * Counting rows asks a reader to trust our arithmetic over our own
+   * database. A settlement-backed count is a different claim: each one can be
+   * checked against the published key by whoever is weighing this, without
+   * contacting us.
+   *
+   * It is reported ALONGSIDE resolvedCases, never instead of it — cases
+   * settled before signing existed are real recoveries, and erasing them
+   * would understate a genuine history.
+   */
+  it("reports settlement-backed cases separately from resolved ones", async () => {
+    aggregate.mockResolvedValue({ _sum: { savingMonthly: 12_000 } });
+    // First count() is all resolved, second is those carrying a signature.
+    count.mockResolvedValueOnce(5).mockResolvedValueOnce(2);
+    findFirst.mockResolvedValue({ createdAt: new Date("2025-01-01T00:00:00.000Z") });
+
+    const stats = await loadTrackRecordStats("user_1");
+    expect(stats.resolvedCases).toBe(5);
+    expect(stats.settlementBackedCases).toBe(2);
+    expect(stats.settlementBackedCases).toBeLessThanOrEqual(stats.resolvedCases);
   });
 
   it("throws rather than returning fabricated zeros when the DB is unreachable", async () => {

@@ -32,6 +32,19 @@ export const TRACK_RECORD_TTL_SECONDS = 60 * 60 * 24 * 365;
 
 export interface TrackRecordStats {
   resolvedCases: number;
+  /**
+   * How many of those resolved cases carry a signed settlement.
+   *
+   * The credential counted rows and asserted a total, which asks a reader to
+   * trust our arithmetic over our own database. A settlement-backed count is
+   * a different claim: each one can be checked against the published key by
+   * the person weighing this, without contacting us at all.
+   *
+   * Reported separately rather than replacing resolvedCases, because cases
+   * settled before signing existed are still real recoveries and erasing them
+   * would understate a genuine history. A reader can see both and decide.
+   */
+  settlementBackedCases: number;
   /** Sum of verified SavingsProof.savingMonthly, agorot. */
   documentedMonthlySavingAgorot: number;
   /** ISO date of the account's oldest case, or null if there are none yet. */
@@ -40,6 +53,7 @@ export interface TrackRecordStats {
 
 const EMPTY_STATS: TrackRecordStats = {
   resolvedCases: 0,
+  settlementBackedCases: 0,
   documentedMonthlySavingAgorot: 0,
   activeSince: null,
 };
@@ -47,12 +61,15 @@ const EMPTY_STATS: TrackRecordStats = {
 /** Real, DB-backed numbers only — never fabricated, never estimated. */
 export async function loadTrackRecordStats(userId: string): Promise<TrackRecordStats> {
   try {
-    const [proofAgg, proofCount, firstCase] = await Promise.all([
+    const [proofAgg, proofCount, signedCount, firstCase] = await Promise.all([
       prisma.savingsProof.aggregate({
         where: { selfReported: false, case: { userId } },
         _sum: { savingMonthly: true },
       }),
       prisma.savingsProof.count({ where: { selfReported: false, case: { userId } } }),
+      prisma.savingsProof.count({
+        where: { selfReported: false, case: { userId }, settlementJws: { not: null } },
+      }),
       prisma.case.findFirst({
         where: { userId },
         orderBy: { createdAt: "asc" },
@@ -61,6 +78,7 @@ export async function loadTrackRecordStats(userId: string): Promise<TrackRecordS
     ]);
     return {
       resolvedCases: proofCount,
+      settlementBackedCases: signedCount,
       documentedMonthlySavingAgorot: proofAgg._sum.savingMonthly ?? 0,
       activeSince: firstCase?.createdAt.toISOString() ?? null,
     };
