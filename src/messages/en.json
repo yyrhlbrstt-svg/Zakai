@@ -6408,5 +6408,15 @@
     "driftTitle": "Costs that rose since your last check",
     "driftSub": "Net change: {net} per month. Nobody told you — which is why it is worth looking.",
     "baselineSaved": "Saved on your device. Next time you check, we'll show what changed since."
+  },
+  "capability": {
+    "mailOff": {
+      "headline": "Automatic sending is off — no letter will leave the system",
+      "alternative": "Prepare the letter here, send it from your own mail, then paste the provider reply back so we can carry on."
+    },
+    "aiOff": {
+      "headline": "Reading photos is unavailable right now",
+      "alternative": "Enter the provider and amount manually — it opens the same case, letter and mandate."
+    }
   }
 }

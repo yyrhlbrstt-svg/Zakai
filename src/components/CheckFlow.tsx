@@ -13,6 +13,7 @@ import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachE
 import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
+import { primaryNotice } from "@/lib/capabilityNotice";
 
 type Stage =
   | "input"
@@ -77,11 +78,18 @@ function fileToBase64(file: File): Promise<string> {
  * nothing. That is not a missing feature; it is a working product made
  * unreachable by its own hierarchy.
  */
-export function CheckFlow({ mailLive = true }: { mailLive?: boolean }) {
+export function CheckFlow({
+  mailLive = true,
+  aiLive = true,
+}: {
+  mailLive?: boolean;
+  aiLive?: boolean;
+}) {
   const t = useTranslations("flow");
   const tFlow = useTranslations("agentFlow");
   const tp = useTranslations("providers");
   const tv = useTranslations("verify");
+  const tc = useTranslations("capability");
   const locale = useLocale() as Locale;
   const nf = new Intl.NumberFormat(bcp47[locale]);
   const router = useRouter();
@@ -143,6 +151,15 @@ export function CheckFlow({ mailLive = true }: { mailLive?: boolean }) {
   const [docRoute, setDocRoute] = useState<{ href: string | null; issuer: string | null } | null>(
     null,
   );
+
+  /**
+   * Stated once, at the top, rather than left for someone to infer from a
+   * button that appears to work and then does nothing. An outside reviewer
+   * looking at this app concluded it was "a directory of tools, not an agent"
+   * — because when the agent cannot execute it is simply invisible, and
+   * silence reads as absence.
+   */
+  const notice = primaryNotice({ mail: mailLive, ai: aiLive });
 
   function tErr(key: string | null): string | null {
     if (!key) return null;
@@ -523,6 +540,21 @@ export function CheckFlow({ mailLive = true }: { mailLive?: boolean }) {
 
       {stage === "input" && (
         <div>
+          {notice && (
+            <div
+              role="status"
+              className={`rounded-xl border px-4 py-3 mb-4 ${
+                notice.severity === "blocking"
+                  ? "border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.08)]"
+                  : "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)]"
+              }`}
+            >
+              <div className="font-bold text-body">{tc(notice.headlineKey.split(".").slice(1).join("."))}</div>
+              <p className="text-caption text-ink-soft mt-1 mb-0 leading-relaxed">
+                {tc(notice.alternativeKey.split(".").slice(1).join("."))}
+              </p>
+            </div>
+          )}
           <input
             ref={fileRef}
             type="file"

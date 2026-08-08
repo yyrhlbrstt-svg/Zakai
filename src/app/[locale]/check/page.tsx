@@ -3,6 +3,7 @@ import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { CheckFlow } from "@/components/CheckFlow";
 import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
+import { aiAvailable } from "@/lib/ai";
 
 export default async function CheckPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -11,5 +12,5 @@ export default async function CheckPage({ params }: { params: Promise<{ locale: 
   if (!user) redirect({ href: "/login?return=/check", locale });
   // Real deliverability, not an assumption: with no SMTP the "send via Zakai"
   // button cannot reach anyone, and the self-send path has to lead instead.
-  return <CheckFlow mailLive={smtpFullyConfigured()} />;
+  return <CheckFlow mailLive={smtpFullyConfigured()} aiLive={aiAvailable()} />;
 }
