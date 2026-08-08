@@ -10,6 +10,14 @@ export type ProviderReplyKind =
   | "asked_call"
   | "accepted"
   | "competitor"
+  /**
+   * They agreed to credit an amount and the money did not arrive. A different
+   * letter from every other kind here: the others argue about what is fair,
+   * this one holds them to something they already conceded, which is a far
+   * stronger position and should not be worded as another request for a
+   * discount.
+   */
+  | "promise_broken"
   | "other";
 
 export interface FollowUpInput {
@@ -23,6 +31,12 @@ export interface FollowUpInput {
   round?: number;
   competitorName?: string;
   competitorPriceShekels?: number;
+  /** What they agreed to credit. Used only by `promise_broken`. */
+  promisedShekels?: number;
+  /** What actually arrived — zero when nothing did. Only by `promise_broken`. */
+  observedShekels?: number;
+  /** When the promise was made, as the person recorded it (yyyy-mm-dd). */
+  promisedOnLabel?: string;
 }
 
 export interface FollowUpResult {
@@ -149,6 +163,15 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
 תודה. מטעם ${name} מבקשים אישור כתוב: מחיר חודשי חדש, מה כלול, ותאריך תחילה.${baseClose}`,
       };
 
+    /**
+     * Holding them to something they already conceded. The tone is
+     * deliberately different: no negotiation, no target price, no request for
+     * a discount — the amount was agreed and is simply outstanding. Every
+     * figure comes from what the person recorded, never from an estimate.
+     */
+    case "promise_broken":
+      return buildPromiseBrokenFollowUp(input);
+
     default:
       return {
         subject: `המשך טיפול | ${name}`,
@@ -161,6 +184,85 @@ export function buildFollowUp(input: FollowUpInput): FollowUpResult {
   }
 }
 
+/**
+ * Holding them to something they already conceded.
+ *
+ * Shared by the monthly and lump playbooks on purpose: a promised credit is a
+ * promised credit, and the argument does not change with the fee basis. It is
+ * also the one letter here that must never read as a negotiation — the amount
+ * was agreed, so asking for it "as a discount" would hand back the only strong
+ * position the person has.
+ *
+ * Every figure comes from what the person recorded. Nothing is estimated,
+ * because the whole force of the letter is that it quotes the counterparty's
+ * own commitment back to them.
+ */
+export function buildPromiseBrokenFollowUp(input: FollowUpInput): FollowUpResult {
+  const name = input.customerName.trim() || "הלקוח/ה";
+  const provider = input.providerLabel;
+  const round = input.round ?? 2;
+  const days = deadlineDays(round);
+  const promised = Math.max(0, Math.round(input.promisedShekels ?? 0));
+  const observed = Math.max(0, Math.round(input.observedShekels ?? 0));
+  const outstanding = Math.max(0, promised - observed);
+  const when = input.promisedOnLabel?.trim();
+  const whenLine = when ? ` (התחייבות מיום ${when})` : "";
+  const partialLine =
+    observed > 0
+      ? `\nזוכה בפועל: ₪${observed}. היתרה שטרם זוכתה: ₪${outstanding}.`
+      : `\nלא נמצא זיכוי כלשהו בדפי החשבון מאז.`;
+
+  /**
+   * Nothing is outstanding — they credited the full amount or more. Demanding
+   * "a date to credit ₪0" would be absurd, and demanding the difference would
+   * invent a debt. The useful letter here is the one that gets the completed
+   * credit confirmed in writing, which is what makes it provable later.
+   */
+  if (outstanding === 0) {
+    return {
+      subject: `אישור ביצוע זיכוי — ₪${promised} | ${name}`,
+      tip: "הכסף הגיע. מבקשים אישור כתוב כדי שיהיה תיעוד אם זה יתגלגל בחזרה.",
+      nextIfNoReply: "אין צורך בהמשך טיפול — רשמו את הזיכוי בזכאי.",
+      body: `לכבוד ${provider},
+
+פנייה מטעם ${name}, באמצעות זכאי — סוכן דיגיטלי מורשה.
+
+הזיכוי שסוכם${whenLine} בסך ₪${promised} אותר בדפי החשבון.
+
+מבקשים אישור כתוב קצר הכולל את תאריך הזיכוי ומספר האסמכתה, לצורך תיעוד.
+
+בברכה,
+זכאי — סוכן דיגיטלי בשם ${name}`,
+    };
+  }
+
+  return {
+    subject: `זיכוי מוסכם שטרם בוצע — ₪${outstanding} | ${name}`,
+    tip: "זו לא בקשה להנחה — הסכום כבר הוסכם. מבקשים תאריך ביצוע ואסמכתה, בכתב.",
+    nextIfNoReply:
+      "אם אין תאריך ביצוע בכתב — זו עילה לפנייה לממונה על פניות הציבור ברשות הרלוונטית.",
+    body: `לכבוד ${provider},
+
+פנייה מטעם ${name}, באמצעות זכאי — סוכן דיגיטלי מורשה. אינני הלקוח/ה עצמו/ה.
+
+סוכם על זיכוי בסך ₪${promised}${whenLine}.${partialLine}
+
+מבקשים בכתב:
+1. תאריך מדויק לביצוע הזיכוי של ₪${outstanding}.
+2. אסמכתה / מספר אישור לזיכוי.
+3. אם לעמדתכם הזיכוי כבר בוצע — פירוט התאריך והמסמך שבו הוא מופיע.
+
+נבקש להדגיש: אין מדובר בבקשה חדשה להנחה, אלא בהתחייבות קיימת שטרם קוימה.
+
+נודה למענה בכתב תוך ${days} ימי עסקים.
+
+מצורף/קיים מסמך הרשאה מטעם הלקוח/ה עם אפשרות אימות.
+
+בברכה,
+זכאי — סוכן דיגיטלי בשם ${name}`,
+  };
+}
+
 export const REPLY_KIND_OPTIONS: { id: ProviderReplyKind; he: string; en: string }[] = [
   { id: "refused", he: "סירבו / אין הנחה", en: "Refused / no discount" },
   { id: "too_low", he: "הציעו מעט מדי", en: "Offer too low" },
@@ -168,5 +270,10 @@ export const REPLY_KIND_OPTIONS: { id: ProviderReplyKind; he: string; en: string
   { id: "asked_call", he: "ביקשו רק טלפון", en: "Asked for a call only" },
   { id: "competitor", he: "יש הצעת מתחרה", en: "Have a competitor offer" },
   { id: "accepted", he: "הסכימו — צריך אישור כתוב", en: "Agreed — need written confirm" },
+  {
+    id: "promise_broken",
+    he: "הבטיחו זיכוי — לא הגיע",
+    en: "Promised a credit — never arrived",
+  },
   { id: "other", he: "אחר", en: "Other" },
 ];

@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { reportError } from "@/lib/report-error";
 import {
   publishRevocation,
   StatusIndexUnknownError,
@@ -158,12 +159,34 @@ export async function revokeAuthority(userId: string, code: string): Promise<Rev
         }),
       );
     } catch (err) {
-      if (
-        !(err instanceof StatusIndexUnknownError) &&
-        !(err instanceof StatusListCapacityError)
-      ) {
-        // Status store down — human revoke already stands.
-      }
+      /**
+       * The human revoke already stands, so this never rolls back — but it
+       * must never be silent either.
+       *
+       * If the status-list bit is not published, every institution verifying
+       * the machine Mandate still sees it as valid, while the person has been
+       * told they revoked. That is the exact gap between a control that works
+       * in a demo and one that works when it is actually needed, and it used
+       * to be swallowed by an `if` with an empty body — which discarded every
+       * failure including a status store that was simply down.
+       *
+       * The two typed errors are reported at least as loudly as an unknown
+       * one: they mean the status list cannot express this revocation at all,
+       * which does not resolve on a retry.
+       */
+      await reportError(err, {
+        at: "revokeAuthority.publishRevocation",
+        jti: auth.mandateJti,
+        statusIndex: auth.mandateStatusIndex,
+        // Named so an alert says which failure this is without a stack dive.
+        kind:
+          err instanceof StatusIndexUnknownError
+            ? "status_index_unknown"
+            : err instanceof StatusListCapacityError
+              ? "status_list_capacity"
+              : "status_store_unavailable",
+        consumerRevokeStands: true,
+      });
     }
   }
 

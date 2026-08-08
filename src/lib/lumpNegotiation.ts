@@ -1,4 +1,4 @@
-import type { FollowUpInput, FollowUpResult } from "./negotiation";
+import { buildPromiseBrokenFollowUp, type FollowUpInput, type FollowUpResult } from "./negotiation";
 
 /**
  * Follow-ups for lump recoveries (refunds, deposits, fees, cancel confirmations)
@@ -68,6 +68,12 @@ export function buildLumpFollowUp(input: FollowUpInput): FollowUpResult {
 
 הלקוח/ה זמין/ה לשיחה לאחר קבלת עמדה כתובה.${baseClose}`,
       };
+
+    // A promised refund that never landed is the same argument whether the
+    // case is monthly or lump, and falling through to the generic reminder
+    // below would ask politely for something they already agreed to.
+    case "promise_broken":
+      return buildPromiseBrokenFollowUp(input);
 
     case "delay":
     default:

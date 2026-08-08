@@ -155,6 +155,32 @@ export async function dispatchCaseFollowUp(
 
   const auth = kase.authorization;
   const provider = providerHebrewName(kase.provider);
+
+  /**
+   * The broken-promise letter quotes the counterparty's own commitment back to
+   * them, so it is only meaningful with a recorded promise behind it. Sent
+   * without one, every figure defaults to zero and the builder takes its
+   * "the credit was found" branch — telling a provider in writing that money
+   * arrived when nobody ever said so. Refusing is the only safe answer.
+   */
+  let promiseFacts: {
+    promisedShekels?: number;
+    observedShekels?: number;
+    promisedOnLabel?: string;
+  } = {};
+  if (opts.replyKind === "promise_broken") {
+    const promise = await prisma.promisedCreditRecord.findUnique({
+      where: { caseId },
+      select: { promisedMinor: true, observedMinor: true, promisedAt: true },
+    });
+    if (!promise) return { caseId, sent: false, reason: "NO_PROMISE", round };
+    promiseFacts = {
+      promisedShekels: agorotToShekels(promise.promisedMinor),
+      observedShekels: promise.observedMinor === null ? 0 : agorotToShekels(promise.observedMinor),
+      promisedOnLabel: promise.promisedAt.toISOString().slice(0, 10),
+    };
+  }
+
   const follow = buildFollowUpForVertical(kase.vertical, {
     customerName: kase.user.name,
     providerLabel: provider,
@@ -165,6 +191,7 @@ export async function dispatchCaseFollowUp(
     round,
     competitorName: opts.competitorName,
     competitorPriceShekels: opts.competitorPriceShekels,
+    ...promiseFacts,
   });
 
   // Re-apply the case's measured stance so rounds 2–4 stay in the same learning bucket.

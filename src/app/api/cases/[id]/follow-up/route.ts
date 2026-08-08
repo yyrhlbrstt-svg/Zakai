@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { type ProviderReplyKind } from "@/lib/negotiation";
 import { buildFollowUpForVertical } from "@/lib/followUpRouter";
 import { providerHebrewName } from "@/lib/providers";
+import { loadPromise } from "@/lib/services/promisedCredits";
 import { agorotToShekels } from "@/lib/money";
 import { rateLimit } from "@/lib/ratelimit";
 import {
@@ -21,6 +22,7 @@ const schema = z.object({
     "asked_call",
     "accepted",
     "competitor",
+    "promise_broken",
     "other",
   ]),
   round: z.number().int().min(2).max(8).optional(),
@@ -118,6 +120,29 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     });
   }
 
+  /**
+   * The broken-promise letter quotes the counterparty's own commitment back
+   * to them, so its figures come from the recorded promise — never from the
+   * client, and never estimated. Without a recorded promise there is nothing
+   * to hold them to, and the request is refused rather than answered with a
+   * letter demanding an amount nobody agreed.
+   */
+  let promiseFacts: {
+    promisedShekels?: number;
+    observedShekels?: number;
+    promisedOnLabel?: string;
+  } = {};
+  if (parsed.data.replyKind === "promise_broken") {
+    const promise = await loadPromise(id, auth.userId);
+    if (!promise) return badRequest("NO_PROMISE", 409);
+    promiseFacts = {
+      promisedShekels: agorotToShekels(promise.promisedMinor),
+      observedShekels:
+        promise.observedMinor === null ? 0 : agorotToShekels(promise.observedMinor),
+      promisedOnLabel: promise.promisedAt.toISOString().slice(0, 10),
+    };
+  }
+
   const result = buildFollowUpForVertical(kase.vertical, {
     customerName: kase.user.name,
     providerLabel: providerHebrewName(kase.provider),
@@ -128,6 +153,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     round: nextRound,
     competitorName: parsed.data.competitorName,
     competitorPriceShekels: parsed.data.competitorPriceShekels,
+    ...promiseFacts,
   });
 
   // Learning → action: draft gets the same measured stance as auto-send.

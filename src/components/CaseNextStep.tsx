@@ -27,6 +27,7 @@ import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { UNATTRIBUTED_VARIANT_ID } from "@/lib/strategy/normalizeKeys";
 import { complaintCategoryForVertical } from "@/lib/complaintEscalation";
+import { PromisedCreditPanel, type OpenPromise } from "@/components/PromisedCreditPanel";
 
 type Status =
   | "ANALYZED"
@@ -103,6 +104,12 @@ interface Props {
    * do not double-report there.
    */
   strategyVariant?: string | null;
+  /**
+   * A credit the counterparty agreed to, held until it actually arrives.
+   * Null when none was recorded — which is not the same as "no promise was
+   * made", only that nobody told us about one.
+   */
+  promisedCredit?: OpenPromise | null;
 }
 
 const copy: Record<string, Record<string, string>> = {
@@ -383,6 +390,7 @@ export function CaseNextStep({
   learningTip = null,
   nextOpenCase = null,
   strategyVariant = null,
+  promisedCredit = null,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -1286,6 +1294,20 @@ export function CaseNextStep({
             </span>
           )}
         </div>
+
+        {/*
+          A promised credit is neither a saving nor a dead case, and before
+          this panel existed it had nowhere to go: recording it as a saving
+          bills a fee for money that has not moved, and recording nothing lets
+          the promise be forgotten — which is the outcome the counterparty
+          benefits from.
+        */}
+        <PromisedCreditPanel
+          caseId={caseId}
+          locale={locale}
+          promise={promisedCredit}
+          onWantsChaseLetter={() => setReplyKind("promise_broken")}
+        />
 
         {agentRound >= MAX_AGENT_ROUNDS && !proposed && (
           <div className="rounded-xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-3 py-2.5 text-[12.5px] font-extrabold text-[#f08a6b] leading-relaxed">

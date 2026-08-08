@@ -208,6 +208,7 @@ model Case {
 
   authorization Authorization?
   savingsProof  SavingsProof?
+  promisedCredit PromisedCreditRecord?
   fee           Fee?
   outbox        Outbox[]
 
@@ -329,6 +330,57 @@ model SavingsProof {
   settlementJws  String?  @db.Text
 
   @@index([selfReported, recordedAt])
+}
+
+/// A credit the counterparty said they would give, held until it actually
+/// arrives.
+///
+/// WHY THIS HAS TO EXIST SEPARATELY FROM SavingsProof
+///
+/// A provider agreeing on a call is not money. Before this, a case that
+/// reached "they said yes" had two possible endings and both were wrong:
+/// settle it — which writes a SavingsProof and a chargeable Fee for money
+/// that has not moved — or leave it, and let the promise be forgotten. The
+/// most reliable way to not pay somebody is to promise to pay them and let it
+/// drift, and each instance is too small to chase from memory.
+///
+/// So the promise is recorded as a promise: no proof, no fee, nothing
+/// claimed. When the credit is observed the case settles on the observed
+/// amount, and when it is not, the broken promise becomes a documented fact
+/// with a date on it.
+model PromisedCreditRecord {
+  id     String @id @default(cuid())
+  caseId String @unique
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  /// Normalised counterparty key, copied from the Case at record time so the
+  /// promise survives independently of later edits.
+  counterparty String
+
+  /// What they said they would credit, in agorot. Integer only.
+  promisedMinor Int
+  promisedAt    DateTime @default(now())
+
+  /// By when they said it would appear. Null when they did not say — the
+  /// difference matters, because a promise with no date is judged on a grace
+  /// period and one with a date is judged on the date.
+  dueBy DateTime?
+
+  /// What was actually observed, in agorot. Null until somebody checked; zero
+  /// is a real answer and must stay distinguishable from "not checked yet".
+  observedMinor Int?
+  checkedAt     DateTime?
+
+  /// Free-text note about where the promise came from — the reply, the call,
+  /// the reference number. Never parsed, only shown back, so it cannot become
+  /// a source of invented facts.
+  evidenceNote String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([counterparty, checkedAt])
+  @@index([dueBy])
 }
 
 enum FeeStatus {

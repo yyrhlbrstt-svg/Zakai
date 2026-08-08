@@ -23,6 +23,7 @@ import { formatAgorot } from "@/lib/money";
 import { providerHebrewName } from "@/lib/providers";
 import { bcp47, type Locale } from "@/i18n/config";
 import { getProposedSavingsMap } from "@/lib/services/proposedSaving";
+import { promiseForClient } from "@/lib/services/promisedCredits";
 import { proofsInboundAddress } from "@/lib/mandate/document";
 import { getAgentRoundMap, MAX_AGENT_ROUNDS } from "@/lib/services/agentFollowUp";
 import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
@@ -95,7 +96,7 @@ export default async function DashboardPage({
   const cases = await prisma.case.findMany({
     where: { userId: user!.id },
     orderBy: { createdAt: "desc" },
-    include: { savingsProof: true, fee: true, authorization: true },
+    include: { savingsProof: true, fee: true, authorization: true, promisedCredit: true },
   });
 
   // Legacy ?case= / payFee deep links finish on /money (fee + share included).
@@ -471,6 +472,7 @@ export default async function DashboardPage({
                       ? nextOpenCase
                       : null
                   }
+                  promisedCredit={promiseForClient(c.promisedCredit)}
                   strategyVariant={c.strategyVariant}
                 />
               ) : !settled ? (
