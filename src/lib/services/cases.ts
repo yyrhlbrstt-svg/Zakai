@@ -538,7 +538,7 @@ export async function recordSaving(
       where: { id: caseId },
       data: { status: saved ? "SAVED" : "NO_SAVING" },
     });
-    return { case: updated, fee, feeNet: credit.net, creditApplied: credit.applied };
+    return { case: updated, fee, feeNet: credit.net, creditApplied: credit.applied, settlementJws };
   });
 
   const fee = result.fee;
@@ -558,6 +558,10 @@ export async function recordSaving(
     recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
     days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),
     selfReported,
+    // Grades the evidence rather than just recording it: a settlement-backed
+    // row is one an outside party could verify, which is what separates a
+    // statistic from evidence.
+    settlementBacked: Boolean(result.settlementJws),
   });
 
   if (result.feeNet > 0) {

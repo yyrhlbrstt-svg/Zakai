@@ -121,6 +121,8 @@ export async function recordOutcome(input: {
    * quietly credited to whichever model happens to be configured now.
    */
   drafterId?: string | null;
+  /** True when a signed settlement backs this outcome. */
+  settlementBacked?: boolean;
   paid: boolean;
   recoveredMinor: number;
   days: number;
@@ -138,6 +140,7 @@ export async function recordOutcome(input: {
         counterparty: input.context.counterparty,
         variantId: input.variantId,
         drafterId: input.drafterId || UNKNOWN_DRAFTER,
+        settlementBacked: input.settlementBacked === true,
         paid: input.paid,
         recoveredMinor: Math.max(0, Math.round(input.recoveredMinor)),
         days: Math.max(0, Math.round(input.days)),

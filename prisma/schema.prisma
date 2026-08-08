@@ -455,6 +455,19 @@ model StrategyOutcome {
   /// what keeps this table publishable.
   drafterId String @default("unknown")
 
+  /// True when this outcome is backed by a signed settlement.
+  ///
+  /// The graph learned from rows: our own assertion that a case ended a
+  /// certain way. A settlement-backed row is a different grade of evidence —
+  /// anyone can verify it against the published key, and no party including
+  /// us can rewrite it afterwards. Keeping the distinction lets an aggregate
+  /// say which of its inputs would survive being checked, which is the whole
+  /// difference between a statistic and evidence.
+  ///
+  /// Defaults false so existing rows are not silently promoted to a standard
+  /// they were never held to.
+  settlementBacked Boolean @default(false)
+
   paid           Boolean
   recoveredMinor Int // minor units; 0 when nothing came back
   days           Int // send -> resolution
@@ -473,6 +486,7 @@ model StrategyOutcome {
   @@index([market, vertical])
   @@index([selfReported, createdAt])
   @@index([drafterId, selfReported])
+  @@index([settlementBacked])
 }
 
 /**
