@@ -59,7 +59,13 @@ describe("normalizeContractAnalysis", () => {
   });
 
   it("reports not readable, empty clauses, for a non-object response", () => {
-    const empty = { clauses: [], readable: false, autoRenews: false, renewalDate: null };
+    const empty = {
+      clauses: [],
+      readable: false,
+      autoRenews: false,
+      renewalDate: null,
+      noticeDays: null,
+    };
     expect(normalizeContractAnalysis(null)).toEqual(empty);
     expect(normalizeContractAnalysis("a string")).toEqual(empty);
     expect(normalizeContractAnalysis(42)).toEqual(empty);
@@ -104,5 +110,32 @@ describe("normalizeContractAnalysis", () => {
     const result = normalizeContractAnalysis({ readable: true, clauses: [] });
     expect(result.autoRenews).toBe(false);
     expect(result.renewalDate).toBeNull();
+  });
+});
+
+describe("noticeDays — the number that decides whether a term rolls", () => {
+  /**
+   * A renewal date without a notice period tells you when it is already too
+   * late. This is the figure that turns "renews 1 January" into "act by
+   * 2 November", and it is stated separately in almost every contract.
+   */
+  it("keeps a plausible notice period", () => {
+    expect(normalizeContractAnalysis({ readable: true, noticeDays: 60 }).noticeDays).toBe(60);
+    expect(normalizeContractAnalysis({ readable: true, noticeDays: 0 }).noticeDays).toBe(0);
+  });
+
+  it("rounds a fractional value rather than carrying it into a date", () => {
+    expect(normalizeContractAnalysis({ readable: true, noticeDays: 29.6 }).noticeDays).toBe(30);
+  });
+
+  it("drops values that are a misreading rather than a term", () => {
+    // Negative, absurd, or non-numeric: letting one through would put the
+    // deadline in the wrong place, which is the one failure this cannot afford.
+    for (const bad of [-1, 5000, Number.NaN, "60", null, undefined]) {
+      expect(
+        normalizeContractAnalysis({ readable: true, noticeDays: bad as unknown }).noticeDays,
+        String(bad),
+      ).toBeNull();
+    }
   });
 });

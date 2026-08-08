@@ -1033,7 +1033,9 @@ Also look specifically for an automatic-renewal clause: set autoRenews=true if t
 
 If the input is not readable as a contract at all (random text, a shopping list, gibberish), set readable=false and return an empty clauses array — do not force clauses onto unrelated text.
 
-Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"autoRenews":boolean,"renewalDate":"yyyy-mm-dd"_or_null,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
+Also extract the NOTICE PERIOD: how many days of advance written notice the contract requires before cancellation or non-renewal takes effect ("60 days", "חודשיים", "one month"). Convert to a whole number of days and set noticeDays. This is the number that decides whether a term rolls for another year, and it is usually stated separately from the renewal date. If the contract states no notice period, or you cannot resolve one confidently, set noticeDays to null — never assume a customary value, because a wrong deadline is worse than no deadline.
+
+Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"autoRenews":boolean,"renewalDate":"yyyy-mm-dd"_or_null,"noticeDays":number_or_null,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
 
 /**
  * Read a contract's text and flag clauses for a non-lawyer — bounded output,
@@ -1052,7 +1054,7 @@ export async function analyzeContractText(text: string): Promise<ContractAnalysi
   try {
     return normalizeContractAnalysis(extractJson(raw));
   } catch {
-    return { clauses: [], readable: false, autoRenews: false, renewalDate: null };
+    return { clauses: [], readable: false, autoRenews: false, renewalDate: null, noticeDays: null };
   }
 }
 
