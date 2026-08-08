@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import { alternateLanguages } from "@/lib/seo";
 import { bcp47, type Locale } from "@/i18n/config";
 import { heEn } from "@/lib/heEn";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 
 export async function generateMetadata({
   params,
@@ -43,7 +44,7 @@ export default async function LatePaymentPage({
           {heEn(he, "לכסף שלי", "My money")}
         </Link>
       </p>
-      <LatePaymentClaim bcp47={bcp47[locale as Locale]} />
+      <LatePaymentClaim bcp47={bcp47[locale as Locale]} mailLive={smtpFullyConfigured()} />
     </main>
   );
 }

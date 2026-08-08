@@ -23,7 +23,14 @@ import { moneyCaseHref } from "@/lib/moneyCaseHref";
  * an optional full-service path: give the client's email and let the Mandate
  * agent send + track the collection (fee only on documented payment).
  */
-export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
+export function LatePaymentClaim({
+  bcp47,
+  mailLive = true,
+}: {
+  bcp47: string;
+  /** False when no SMTP: the agent cannot deliver, so the letter leads. */
+  mailLive?: boolean;
+}) {
   const t = useTranslations("latePayment");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -191,7 +198,14 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
           </label>
         </div>
         <div className="flex flex-col gap-2">
-          <Button onClick={sendWithAgent} disabled={!canSendWithAgent || busy}>
+          {/* Emphasis follows what can actually happen. With no outbound
+              mail the agent cannot deliver, so the copy-only letter is not an
+              "alternative" — it is the only route that reaches anyone. */}
+          <Button
+            variant={mailLive ? "primary" : "ghost"}
+            onClick={sendWithAgent}
+            disabled={!canSendWithAgent || busy}
+          >
             {busy ? t("agentBusy") : t("agentSendCta")}
           </Button>
           <details className="text-[13px] text-ink-soft">
@@ -199,7 +213,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
               {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
             <Button
-              variant="ghost"
+              variant={mailLive ? "ghost" : "primary"}
               className="mt-2 w-full"
               onClick={generateLetter}
               disabled={!status}

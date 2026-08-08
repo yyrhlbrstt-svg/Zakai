@@ -10,6 +10,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { NumberedStepList } from "@/components/NumberedStepList";
 import { GradientCtaCard } from "@/components/GradientCtaCard";
 import { bcp47, type Locale } from "@/i18n/config";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 
 export async function generateMetadata({
   params,
@@ -75,7 +76,7 @@ export default async function DepositPage({
             {locale === "he" || locale === "ar" ? "לכסף שלי" : "My money"}
           </Link>
         </p>
-        <DepositReturnClaim bcp47={bcp47[locale as Locale]} />
+        <DepositReturnClaim bcp47={bcp47[locale as Locale]} mailLive={smtpFullyConfigured()} />
       </Reveal>
 
       <Reveal>
