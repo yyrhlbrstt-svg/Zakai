@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { signSettlement } from "@/lib/mandate/settlementRecord";
 import { shekelsToAgorot } from "@/lib/money";
 import { computeCaseSuccessFee, documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
@@ -448,6 +449,25 @@ export async function recordSaving(
     }
     const credit = applyCredit(billableAmount, owner?.referralCreditAgorot ?? 0);
 
+    /**
+     * The outcome, signed, so it stops being only our word for it.
+     *
+     * Fails open: a deployment without MANDATE_SIGNING_JWK must still be able
+     * to record a saving, because refusing to record a real recovery over a
+     * missing key would lose the fact entirely. An unsigned proof is a weaker
+     * artifact, not a lost one — and the column is nullable to say so.
+     */
+    const settlementJws = await signSettlementForCase({
+      counterparty: kase.provider,
+      market: marketForCase(kase.vertical),
+      vertical: kase.vertical,
+      outcome: saved ? "saved" : "no_saving",
+      beforeMinor: kase.amountOriginal,
+      afterMinor: newAmount,
+      days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),
+      selfReported,
+    });
+
     await tx.savingsProof.create({
       data: {
         caseId,
@@ -456,6 +476,7 @@ export async function recordSaving(
         savingMonthly: fee.savingMonthly,
         source,
         selfReported,
+        settlementJws,
       },
     });
     await tx.fee.create({
@@ -598,4 +619,28 @@ export async function recordSaving(
   }
 
   return result;
+}
+
+/**
+ * Sign a settlement, or return null when this deployment cannot.
+ *
+ * Separate from `recordSaving` so the failure mode is stated in one place: a
+ * missing signing key must never stop a real recovery from being recorded.
+ * Losing the fact would be far worse than storing it unsigned, and the
+ * nullable column already says which one happened.
+ */
+async function signSettlementForCase(
+  facts: Parameters<typeof signSettlement>[0],
+): Promise<string | null> {
+  try {
+    const issuer = (
+      process.env.MANDATE_ISSUER ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://zakai-3uxj.vercel.app"
+    ).replace(/\/+$/, "");
+    return await signSettlement(facts, issuer);
+  } catch (err) {
+    console.warn("[settlement] not signed:", err instanceof Error ? err.message : err);
+    return null;
+  }
 }
