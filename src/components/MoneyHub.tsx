@@ -23,6 +23,7 @@ import {
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
 import { estimateNextCharge } from "@/lib/nextCharge";
 import { buildCommitmentWindow, worthShowing } from "@/lib/commitmentCalendar";
+import { primaryNotice } from "@/lib/capabilityNotice";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -292,6 +293,39 @@ function NextChargeLine({ charge, locale }: { charge: RecurringCharge; locale: s
       dir="auto"
     >
       {confidence === "low" ? `${tx(locale, "approx")} · ${text}` : text}
+    </div>
+  );
+}
+
+function CapabilityNotice({
+  mailLive,
+  aiLive,
+  locale,
+}: {
+  mailLive: boolean;
+  aiLive: boolean;
+  locale: string;
+}) {
+  const tc = useTranslations("capability");
+  const notice = primaryNotice({ mail: mailLive, ai: aiLive });
+  if (!notice) return null;
+  // Keys arrive as "capability.mailOff.headline"; the namespace is already
+  // bound, so drop the first segment rather than re-resolving the whole path.
+  const key = (full: string) => full.split(".").slice(1).join(".");
+
+  return (
+    <div
+      role="status"
+      className={`rounded-xl border px-4 py-3 mb-4 ${
+        notice.severity === "blocking"
+          ? "border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.08)]"
+          : "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)]"
+      }`}
+    >
+      <div className="font-bold text-body">{tc(key(notice.headlineKey))}</div>
+      <p className="text-caption text-ink-soft mt-1 mb-0 leading-relaxed">
+        {tc(key(notice.alternativeKey))}
+      </p>
     </div>
   );
 }
@@ -701,6 +735,11 @@ export function MoneyHub({
           </button>
         </Card>
       )}
+
+      {/* Stated once, before anything is attempted. With no outbound mail the
+          agent cannot deliver, and a screen that stays silent about that reads
+          as a product that simply does nothing. */}
+      <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} locale={locale} />
 
       <Card className="p-6">
         <div className="font-extrabold text-[16px]">{tx(locale, "shotTitle")}</div>
