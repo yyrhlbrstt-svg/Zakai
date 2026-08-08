@@ -21,6 +21,9 @@ import {
   scanShareLandingPath,
 } from "@/lib/monopoly/scanShare";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
+import { estimateNextCharge } from "@/lib/nextCharge";
+import { buildCommitmentWindow, worthShowing } from "@/lib/commitmentCalendar";
+import { primaryNotice } from "@/lib/capabilityNotice";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -77,6 +80,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
     batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו ב«כסף שלי» לפני שליחה.",
     selectHint: "סמן חיובים ואז פתח בבת אחת (Free = תיק פעיל אחד; Pro פותח יותר)",
+    cwTitle: "מה יוצא לך ב־30 הימים הקרובים",
+    cwSoon: "הכי קרוב",
+    cwUndated: "ועוד {n} חיובים שלא הצלחנו לתארך",
+    cwDays: "בעוד {n} ימים",
+    cwToday: "היום",
+    cwTomorrow: "מחר",
+    nextToday: "החיוב הבא — היום",
+    nextTomorrow: "החיוב הבא — מחר",
+    nextInDays: "החיוב הבא בעוד {n} ימים",
+    approx: "ככל הנראה",
     altLetter: "חלופות (לא מסלול הסוכן)",
   },
   en: {
@@ -120,6 +133,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
     batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it in My money before send.",
     selectHint: "Select charges, then open together (Free = 1 active case; Pro opens more)",
+    cwTitle: "Leaving your account in the next 30 days",
+    cwSoon: "Soonest",
+    cwUndated: "plus {n} charges we could not date",
+    cwDays: "in {n} days",
+    cwToday: "today",
+    cwTomorrow: "tomorrow",
+    nextToday: "Next charge — today",
+    nextTomorrow: "Next charge — tomorrow",
+    nextInDays: "Next charge in {n} days",
+    approx: "probably",
     altLetter: "Alternatives (not the agent path)",
   },
   ar: {
@@ -163,6 +186,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "فُتح {n} ملفات",
     batchNeedsEmail: "فُتح {n} — بعضها بلا بريد؛ أكمل في لوحة التحكم قبل الإرسال.",
     selectHint: "اختر ثم افتح دفعة واحدة",
+    cwTitle: "ما سيُخصم خلال 30 يومًا",
+    cwSoon: "الأقرب",
+    cwUndated: "و{n} خصومًا لم نتمكن من تأريخها",
+    cwDays: "بعد {n} يومًا",
+    cwToday: "اليوم",
+    cwTomorrow: "غدًا",
+    nextToday: "الخصم القادم — اليوم",
+    nextTomorrow: "الخصم القادم — غدًا",
+    nextInDays: "الخصم القادم بعد {n} يومًا",
+    approx: "على الأرجح",
   },
   ru: {
     privacy: "Мы не просим пароль банка.",
@@ -205,6 +238,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Открыто {n} дел",
     batchNeedsEmail: "Открыто {n} — для части нужен email; укажите в дашборде перед отправкой.",
     selectHint: "Выберите и откройте пакетом",
+    cwTitle: "Спишется в ближайшие 30 дней",
+    cwSoon: "Ближайшее",
+    cwUndated: "и ещё {n} списаний без даты",
+    cwDays: "через {n} дн.",
+    cwToday: "сегодня",
+    cwTomorrow: "завтра",
+    nextToday: "Следующее списание — сегодня",
+    nextTomorrow: "Следующее списание — завтра",
+    nextInDays: "Следующее списание через {n} дн.",
+    approx: "вероятно",
   },
 };
 
@@ -215,6 +258,122 @@ function tx(locale: string, key: string): string {
   const familyDefault = locale === "he" || locale === "ar" ? copy.he : copy.en;
   const table = copy[locale] || familyDefault;
   return table[key] || familyDefault[key] || key;
+}
+
+/**
+ * "Next charge in 6 days", when that can honestly be said.
+ *
+ * Renders nothing when the cadence is unclear. A guess dressed as a date is
+ * the one outcome worse than silence here: somebody reads it, decides they
+ * have a week, and the money leaves on Tuesday.
+ */
+function NextChargeLine({ charge, locale }: { charge: RecurringCharge; locale: string }) {
+  const next = estimateNextCharge(charge.chargedOn);
+  if (!next) return null;
+
+  const { daysUntil, confidence } = next;
+  // Beyond a couple of months the number stops informing any decision made
+  // today, and starts reading as a promise about a date we cannot hold.
+  if (daysUntil > 62) return null;
+
+  const text =
+    daysUntil === 0
+      ? tx(locale, "nextToday")
+      : daysUntil === 1
+        ? tx(locale, "nextTomorrow")
+        : tx(locale, "nextInDays").replace("{n}", String(daysUntil));
+
+  // Urgency only where it is actionable — a week is the window in which
+  // cancelling still beats refunding for most providers.
+  const urgent = daysUntil <= 7;
+
+  return (
+    <div
+      className={`text-micro mt-0.5 font-bold ${urgent ? "text-amber" : "text-ink-soft"}`}
+      dir="auto"
+    >
+      {confidence === "low" ? `${tx(locale, "approx")} · ${text}` : text}
+    </div>
+  );
+}
+
+function CapabilityNotice({
+  mailLive,
+  aiLive,
+  locale,
+}: {
+  mailLive: boolean;
+  aiLive: boolean;
+  locale: string;
+}) {
+  const tc = useTranslations("capability");
+  const notice = primaryNotice({ mail: mailLive, ai: aiLive });
+  if (!notice) return null;
+  // Keys arrive as "capability.mailOff.headline"; the namespace is already
+  // bound, so drop the first segment rather than re-resolving the whole path.
+  const key = (full: string) => full.split(".").slice(1).join(".");
+
+  return (
+    <div
+      role="status"
+      className={`rounded-xl border px-4 py-3 mb-4 ${
+        notice.severity === "blocking"
+          ? "border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.08)]"
+          : "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)]"
+      }`}
+    >
+      <div className="font-bold text-body">{tc(key(notice.headlineKey))}</div>
+      <p className="text-caption text-ink-soft mt-1 mb-0 leading-relaxed">
+        {tc(key(notice.alternativeKey))}
+      </p>
+    </div>
+  );
+}
+
+function CommitmentWindowCard({
+  result,
+  locale,
+  bcp47,
+}: {
+  result: ScanResult;
+  locale: string;
+  bcp47: string;
+}) {
+  const win = buildCommitmentWindow(result.recurring);
+  // An empty calendar is not a feature; it is a panel that makes the product
+  // look like it did nothing.
+  if (!worthShowing(win)) return null;
+
+  const when = (days: number) =>
+    days === 0
+      ? tx(locale, "cwToday")
+      : days === 1
+        ? tx(locale, "cwTomorrow")
+        : tx(locale, "cwDays").replace("{n}", String(days));
+
+  return (
+    <Card className="p-5 mb-4">
+      <div className="text-caption text-ink-soft font-bold">{tx(locale, "cwTitle")}</div>
+      <div className="font-display grad-text text-h1 mt-1.5">
+        {formatAgorot(win.datedAgorot, bcp47)}
+      </div>
+      <div className="mt-3 flex flex-col gap-2">
+        {win.dated.slice(0, 6).map((e, i) => (
+          <div key={`${e.merchant}-${i}`} className="flex items-baseline justify-between gap-3">
+            <span className="font-bold text-body">{e.merchant}</span>
+            <span className="text-caption text-ink-soft">
+              {when(e.next!.daysUntil)} · {formatAgorot(e.monthlyAgorot, bcp47)}
+            </span>
+          </div>
+        ))}
+      </div>
+      {win.undated.length > 0 && (
+        <p className="text-caption text-ink-soft mt-3 mb-0">
+          {tx(locale, "cwUndated").replace("{n}", String(win.undated.length))}
+        </p>
+      )}
+    </Card>
+  );
 }
 
 interface SavedSummary {
@@ -234,12 +393,15 @@ function topN(recurring: RecurringCharge[], n: number): RecurringCharge[] {
 }
 
 export function MoneyHub({
+  mailLive = true,
   bcp47,
   screenshotEnabled,
   referralCode,
 }: {
   bcp47: string;
   screenshotEnabled: boolean;
+  /** False when no SMTP: the agent cannot actually deliver anything. */
+  mailLive?: boolean;
   referralCode?: string;
 }) {
   const locale = useLocale();
@@ -574,6 +736,11 @@ export function MoneyHub({
         </Card>
       )}
 
+      {/* Stated once, before anything is attempted. With no outbound mail the
+          agent cannot deliver, and a screen that stays silent about that reads
+          as a product that simply does nothing. */}
+      <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} locale={locale} />
+
       <Card className="p-6">
         <div className="font-extrabold text-[16px]">{tx(locale, "shotTitle")}</div>
         <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">{tx(locale, "shotSub")}</p>
@@ -677,6 +844,12 @@ export function MoneyHub({
             </Card>
           ) : (
             <>
+              {/* The forward half of the scan. Every banking app shows what
+                  was charged; none shows what is already committed for the
+                  weeks ahead — which is the thing people actually worry about,
+                  and the only moment when cancelling still costs nothing. */}
+              <CommitmentWindowCard result={result} locale={locale} bcp47={bcp47} />
+
               <Card className="p-6 text-center">
                 <div className="text-[13px] text-ink-soft font-bold">{tx(locale, "total")}</div>
                 <div className="font-display grad-text text-4xl mt-1.5">
@@ -745,16 +918,29 @@ export function MoneyHub({
               <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13.5px] font-bold">
                 {tx(locale, "nextStep")}
               </div>
-              <details className="text-[13px] text-ink-soft">
-                <summary className="cursor-pointer font-bold select-none">
-                  {tx(locale, "altLetter")}
-                </summary>
-                <Link href="/cancel/universal" className="no-underline block mt-2">
-                  <Button variant="ghost" className="w-full !text-[13px]">
+              {/* With no outbound mail the agent cannot deliver anything, so
+                  the letters you send yourself are not an "alternative" — they
+                  are the only route that reaches a provider. Burying them in a
+                  collapsed <details> labelled "not the agent path" hid the one
+                  thing that works behind the one that does not. */}
+              {mailLive ? (
+                <details className="text-[13px] text-ink-soft">
+                  <summary className="cursor-pointer font-bold select-none">
+                    {tx(locale, "altLetter")}
+                  </summary>
+                  <Link href="/cancel/universal" className="no-underline block mt-2">
+                    <Button variant="ghost" className="w-full !text-[13px]">
+                      {tx(locale, "universalCancelCta")}
+                    </Button>
+                  </Link>
+                </details>
+              ) : (
+                <Link href="/cancel/universal" className="no-underline block">
+                  <Button className="w-full !text-body">
                     {tx(locale, "universalCancelCta")}
                   </Button>
                 </Link>
-              </details>
+              )}
 
               {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
 
@@ -820,6 +1006,13 @@ export function MoneyHub({
                       <div className="text-[11.5px] text-ink-soft mt-0.5">
                         {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
                       </div>
+                      {/* The one number that changes what someone does today.
+                          Cancelling before the charge keeps the money;
+                          cancelling after it starts a refund chase. Shown only
+                          when the cadence is clear enough to state — an
+                          estimate presented as a certainty is worse than
+                          silence, because someone waits on it. */}
+                      <NextChargeLine charge={r} locale={locale} />
                     </div>
                     <div
                       className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
@@ -845,7 +1038,12 @@ export function MoneyHub({
               </Card>
 
               <div className="flex flex-wrap gap-2">
-                <Link href="/money" className="no-underline">
+                {/* "My dashboard" — which is /dashboard. This linked to /money,
+                    the page it is rendered on, so pressing it re-navigated to
+                    the current URL: the view scrolled to the top and nothing
+                    else changed. Reported as a button that "does nothing and
+                    is misleading", which is exactly what it was. */}
+                <Link href="/dashboard" className="no-underline">
                   <Button variant="ghost" className="!text-[13px] !py-2">
                     {tIcomponents_MoneyHub("t_38d0577a")}
                   </Button>

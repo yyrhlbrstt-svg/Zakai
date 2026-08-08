@@ -20,14 +20,34 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "ghost";
 };
 
-export function Button({ variant = "primary", className = "", ...rest }: ButtonProps) {
+/**
+ * `type` defaults to "button", not the browser's "submit".
+ *
+ * HTML makes an unlabelled <button> inside a <form> a submit button. That
+ * default is a trap in an app like this one: most buttons here run an
+ * onClick, and any of them that happened to sit inside a form quietly
+ * submitted it instead — a full page reload that lands the reader back at the
+ * top with nothing visibly changed. From the outside it is indistinguishable
+ * from a button that does nothing, which is exactly how it was reported.
+ *
+ * Every form in this codebase already marks its real submit button
+ * explicitly, so nothing depends on the implicit behaviour. Buttons that
+ * should submit still say so; buttons that should not can no longer do it by
+ * accident.
+ */
+export function Button({
+  variant = "primary",
+  className = "",
+  type = "button",
+  ...rest
+}: ButtonProps) {
   const base =
     "rounded-[14px] font-extrabold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,box-shadow,filter,background-color,border-color] duration-200 ease-[var(--ease-snappy)] focus-visible:outline-none";
   const styles =
     variant === "primary"
       ? "grad-bg btn-sheen text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_12px_32px_rgba(63,203,155,0.32)] hover:-translate-y-0.5 hover:brightness-[1.07] hover:shadow-[0_18px_48px_rgba(63,203,155,0.48)] active:translate-y-0 active:scale-[0.98] active:brightness-100"
       : "bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] px-6 py-3.5 text-[15px] font-bold hover:bg-[rgba(255,255,255,0.11)] hover:border-[rgba(63,203,155,0.45)] active:bg-[rgba(255,255,255,0.08)]";
-  return <button className={`${base} ${styles} ${className}`} {...rest} />;
+  return <button type={type} className={`${base} ${styles} ${className}`} {...rest} />;
 }
 
 export function Input({ className = "", ...rest }: React.InputHTMLAttributes<HTMLInputElement>) {

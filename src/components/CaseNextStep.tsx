@@ -149,6 +149,7 @@ const copy: Record<string, Record<string, string>> = {
     mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
     authCode: "קוד הרשאה",
     savedTitle: "✓ חיסכון מתועד",
+    downloadSettlement: "הורד את הרשומה החתומה — ניתנת לאימות בלי זכאי",
     savedSub:
       "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
     savedShareDefault:
@@ -266,6 +267,7 @@ const copy: Record<string, Record<string, string>> = {
     mandateOk: "Mandate issued — provider can verify via JWKS",
     authCode: "Authorization code",
     savedTitle: "✓ Saving documented",
+    downloadSettlement: "Download the signed record — verifiable without us",
     savedSub:
       "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we'll remind you to re-check if the price crept back.",
     savedShareDefault:
@@ -751,6 +753,16 @@ export function CaseNextStep({
           </div>
         ) : null}
         <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
+        {/* The signed record, handed over. A record the holder does not hold
+            is still ours — and everything that makes it worth signing depends
+            on the person having the bytes somewhere we cannot reach. */}
+        <a
+          href={`/api/cases/${caseId}/settlement`}
+          download
+          className="inline-block text-body font-bold text-emerald underline mb-3"
+        >
+          {t(locale, "downloadSettlement")}
+        </a>
         {(() => {
           const feePending =
             (pendingFeeAgorot != null && pendingFeeAgorot > 0) ||

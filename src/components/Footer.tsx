@@ -87,6 +87,10 @@ export function Footer() {
         <FooterLink href="/business" pathname={pathname}>{bizLabel}</FooterLink>
         <FooterLink href="/partners" pathname={pathname}>{partnersLabel}</FooterLink>
         <FooterLink href="/institutions" pathname={pathname}>{instLabel}</FooterLink>
+        {/* The protocol's own door. /institutions was here and /agents was
+            not, so the surface aimed at the people most likely to integrate
+            was the one with no link anywhere on the page. */}
+        <FooterLink href="/agents" pathname={pathname}>{t("nav.agents")}</FooterLink>
         <FooterLink href="/tools" pathname={pathname}>{t("footer.allTools")}</FooterLink>
         <FooterLink href="/network-proof" pathname={pathname}>
           {t("footer.networkProof")}

@@ -13,6 +13,7 @@ import { normalizeOutreachEmail, isOutreachEmailApiError } from "@/lib/outreachE
 import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
+import { primaryNotice } from "@/lib/capabilityNotice";
 
 type Stage =
   | "input"
@@ -65,11 +66,30 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
-export function CheckFlow() {
+/**
+ * `mailLive` is false when no SMTP is configured, which is the state
+ * production has actually been in. In that state "send via Zakai" writes an
+ * Outbox row that stays QUEUED forever: the reader believes a letter went out,
+ * and nothing ever leaves. Meanwhile the path that genuinely works — copy the
+ * draft and send it from your own mail — was a ghost button, and in one place
+ * was folded inside a collapsed <details>.
+ *
+ * So the only route to someone's money was hidden behind the one that does
+ * nothing. That is not a missing feature; it is a working product made
+ * unreachable by its own hierarchy.
+ */
+export function CheckFlow({
+  mailLive = true,
+  aiLive = true,
+}: {
+  mailLive?: boolean;
+  aiLive?: boolean;
+}) {
   const t = useTranslations("flow");
   const tFlow = useTranslations("agentFlow");
   const tp = useTranslations("providers");
   const tv = useTranslations("verify");
+  const tc = useTranslations("capability");
   const locale = useLocale() as Locale;
   const nf = new Intl.NumberFormat(bcp47[locale]);
   const router = useRouter();
@@ -127,6 +147,20 @@ export function CheckFlow() {
 
   const fileRef = useRef<HTMLInputElement>(null);
 
+  /** Set when the upload was a readable document that another tool handles. */
+  const [docRoute, setDocRoute] = useState<{ href: string | null; issuer: string | null } | null>(
+    null,
+  );
+
+  /**
+   * Stated once, at the top, rather than left for someone to infer from a
+   * button that appears to work and then does nothing. An outside reviewer
+   * looking at this app concluded it was "a directory of tools, not an agent"
+   * — because when the agent cannot execute it is simply invisible, and
+   * silence reads as absence.
+   */
+  const notice = primaryNotice({ mail: mailLive, ai: aiLive });
+
   function tErr(key: string | null): string | null {
     if (!key) return null;
     try {
@@ -138,6 +172,7 @@ export function CheckFlow() {
 
   async function analyze(payload: Record<string, unknown>) {
     setError(null);
+    setDocRoute(null);
     setStage("analyzing");
     try {
       const res = await fetch("/api/cases/analyze", {
@@ -159,6 +194,17 @@ export function CheckFlow() {
           setTimeout(() => router.push(data.nextHref), 1600);
           return;
         }
+        // The image was a real document, just not a mobile bill. Carry the
+        // tool that does handle it, so the answer is a way forward instead of
+        // "try a clearer photo" about a photo that was perfectly clear.
+        setDocRoute(
+          typeof data.documentKind === "string"
+            ? {
+                href: typeof data.href === "string" ? data.href : null,
+                issuer: typeof data.issuer === "string" ? data.issuer : null,
+              }
+            : null,
+        );
         setError(data.error || "genericError");
         setStage("input");
         if (data.error === "aiUnavailable") setManualOpen(true);
@@ -494,6 +540,21 @@ export function CheckFlow() {
 
       {stage === "input" && (
         <div>
+          {notice && (
+            <div
+              role="status"
+              className={`rounded-xl border px-4 py-3 mb-4 ${
+                notice.severity === "blocking"
+                  ? "border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.08)]"
+                  : "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)]"
+              }`}
+            >
+              <div className="font-bold text-body">{tc(notice.headlineKey.split(".").slice(1).join("."))}</div>
+              <p className="text-caption text-ink-soft mt-1 mb-0 leading-relaxed">
+                {tc(notice.alternativeKey.split(".").slice(1).join("."))}
+              </p>
+            </div>
+          )}
           <input
             ref={fileRef}
             type="file"
@@ -544,6 +605,14 @@ export function CheckFlow() {
           </div>
 
           <FieldError>{tErr(error)}</FieldError>
+
+          {/* The upload was a real document, just not a phone bill. Send the
+              reader to the tool that handles it — never a dead end. */}
+          {docRoute?.href && (
+            <Link href={docRoute.href} className="no-underline block mt-3">
+              <Button className="w-full">{t("docRoute.goTo")}</Button>
+            </Link>
+          )}
 
           <div className="flex justify-center mt-4">
             <button
@@ -795,11 +864,23 @@ export function CheckFlow() {
           </Card>
 
           <div className="flex flex-col gap-2.5 mt-4">
-            <Button variant="ghost" onClick={copyDraftForSelf} className="w-full">
+            {/* Order and emphasis follow what can actually happen. With no
+                outbound mail, sending via Zakai cannot reach anyone, so the
+                self-send path leads and carries the primary styling. */}
+            <Button
+              variant={mailLive ? "ghost" : "primary"}
+              onClick={copyDraftForSelf}
+              className="w-full"
+            >
               {selfCopied ? t("copySelfDone") : t("copySelfBtn")}
             </Button>
             {/* ownership stamped → /dispatch issues Mandate if missing */}
-            <Button onClick={send} disabled={!ownershipOk} className="flex-1 w-full">
+            <Button
+              variant={mailLive ? "primary" : "ghost"}
+              onClick={send}
+              disabled={!ownershipOk}
+              className="flex-1 w-full"
+            >
               {t("sendViaZakai")}
             </Button>
           </div>

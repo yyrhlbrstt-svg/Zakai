@@ -75,7 +75,9 @@
     "authority": "Meine Vollmachten",
     "incident": "Ich wurde verletzt — wer schuldet mir?",
     "dormant": "Vergessenes Geld",
-    "vehicleCheck": "Gebrauchtwagen-Check"
+    "vehicleCheck": "Gebrauchtwagen-Check",
+    "agents": "Für Agenten · Mandate",
+    "institutions": "Für Institutionen"
   },
   "door": {
     "title": "Weiter nach Mein Geld",

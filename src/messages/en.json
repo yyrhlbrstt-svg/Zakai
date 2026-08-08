@@ -127,7 +127,9 @@
     "incident": "I was injured — who owes me?",
     "dormant": "Money you forgot",
     "vehicleCheck": "Used-car check",
-    "merchantFees": "Clearing fees"
+    "merchantFees": "Clearing fees",
+    "agents": "For agents · Mandate",
+    "institutions": "For institutions"
   },
   "payslip": {
     "title": "Payslip check",
@@ -622,7 +624,25 @@
     "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan.",
     "beneficiaryLabel": "Who is this for?",
     "beneficiaryPlaceholder": "Who is this for? (e.g. Mom, Dad) — optional",
-    "beneficiaryHint": "Checking a family member’s bill? Give them a name and it’s grouped on your dashboard. Leave empty if it’s for you."
+    "beneficiaryHint": "Checking a family member’s bill? Give them a name and it’s grouped on your dashboard. Leave empty if it’s for you.",
+    "docRoute": {
+      "goTo": "Take me to the right tool",
+      "handledHere": "This is the right kind of document, but we could not read the amount from it. You can enter it manually and continue.",
+      "noToolYet": "We recognised the document, but we do not have a tool for it yet. You can enter your mobile details manually.",
+      "unknown": "We could not tell what this document is. If it is a mobile bill, try a clearer photo, or enter the details manually.",
+      "kinds": {
+        "mobile_bill": "This is a mobile bill — we will continue here.",
+        "internet_bill": "This is an internet / TV / landline bill. The telecom check handles it.",
+        "electricity_bill": "This is an electricity bill, not a mobile one. We have a dedicated electricity tool.",
+        "water_bill": "This is a water bill, not a mobile one. We have a dedicated water tool.",
+        "arnona_bill": "This is a municipal property tax (arnona) notice, not a mobile bill. We have a dedicated arnona tool.",
+        "bank_statement": "This is a bank statement. The charge scan in \"My money\" will find recurring charges in it.",
+        "card_statement": "This is a credit-card statement. The charge scan in \"My money\" will find recurring charges in it.",
+        "receipt": "This is a receipt or one-off invoice, not a monthly mobile bill.",
+        "subscription_notice": "This is a subscription charge or renewal notice. The cancellation tool handles it.",
+        "insurance_policy": "This is an insurance policy or premium notice, not a mobile bill."
+      }
+    }
   },
   "verify": {
     "title": "Verification before acting",
@@ -6384,6 +6404,19 @@
       "utilities": "Electricity / water",
       "leasing": "Leasing / vehicle",
       "unclassified": "Unclassified"
+    },
+    "driftTitle": "Costs that rose since your last check",
+    "driftSub": "Net change: {net} per month. Nobody told you — which is why it is worth looking.",
+    "baselineSaved": "Saved on your device. Next time you check, we'll show what changed since."
+  },
+  "capability": {
+    "mailOff": {
+      "headline": "Automatic sending is off — no letter will leave the system",
+      "alternative": "Prepare the letter here, send it from your own mail, then paste the provider reply back so we can carry on."
+    },
+    "aiOff": {
+      "headline": "Reading photos is unavailable right now",
+      "alternative": "Enter the provider and amount manually — it opens the same case, letter and mandate."
     }
   }
 }

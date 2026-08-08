@@ -36,6 +36,17 @@ export interface RecurringCharge {
   occurrences: number;
   /** Zakai provider key when the merchant maps to one we can act on. */
   providerKey: ProviderKey | null;
+  /**
+   * The dates this charge was actually seen on, oldest first.
+   *
+   * `detectRecurring` already sorts by date and measures the gaps — that is
+   * how it decides something recurs at all — and used to throw every date
+   * away. So the scan could say "you pay this monthly" but not "and it is due
+   * on Tuesday", from data it had just finished reading. Kept so
+   * `estimateNextCharge` can answer the second question, which is the one that
+   * lets someone cancel before the money leaves rather than chase it after.
+   */
+  chargedOn: Date[];
 }
 
 export interface ScanResult {
@@ -288,6 +299,7 @@ export function detectRecurring(txns: StatementTxn[]): RecurringCharge[] {
       monthlyAgorot: med,
       occurrences: list.length,
       providerKey: ACTIONABLE.includes(category) ? resolveProviderKey(merchant) : null,
+      chargedOn: list.map((t) => t.date), // already sorted oldest-first above
     });
   }
 

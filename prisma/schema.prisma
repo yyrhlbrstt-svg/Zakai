@@ -181,6 +181,11 @@ model Case {
   // stance when the case closes. Null on cases opened before the engine.
   strategyVariant String?
   strategySeed    Int?
+
+  /// The model that drafted this case's outreach, carried to `recordOutcome`
+  /// the same way `strategyVariant` is. Null for drafts made before
+  /// attribution, which must stay distinguishable from a real attribution.
+  drafterId       String?
   // When a de-identified StrategyOutcome row was written for this case.
   // Idempotency only — the Outcome table itself never stores caseId.
   outcomeRecordedAt DateTime?
@@ -310,6 +315,19 @@ model SavingsProof {
   selfReported   Boolean  @default(false)
   recordedAt     DateTime @default(now())
 
+  /// The settlement as a signed, independently verifiable object.
+  ///
+  /// Without this the outcome is only a row in our own database, which no
+  /// counterparty, regulator or holder can check without trusting us — while
+  /// the Mandate that authorised the claim has been verifiable by anyone from
+  /// the start. Proof of authority and no proof of result is what makes this a
+  /// service rather than a record layer.
+  ///
+  /// Nullable because signing needs MANDATE_SIGNING_JWK, and a deployment
+  /// without it must still be able to record a saving. An unsigned proof is a
+  /// weaker artifact, not a lost one.
+  settlementJws  String?  @db.Text
+
   @@index([selfReported, recordedAt])
 }
 
@@ -428,6 +446,15 @@ model StrategyOutcome {
   counterparty String // normalised provider key, never free text
   variantId    String
 
+  /// Which model actually produced the draft, as "provider:model" — or
+  /// "unknown" for cases that closed before attribution existed, and for calls
+  /// that reported nothing. Never derived from configuration: `generateText`
+  /// falls back to a secondary provider when the primary fails, so the model
+  /// that ran and the model that was configured differ exactly when something
+  /// is wrong. Naming our own infrastructure, it identifies no person, which is
+  /// what keeps this table publishable.
+  drafterId String @default("unknown")
+
   paid           Boolean
   recoveredMinor Int // minor units; 0 when nothing came back
   days           Int // send -> resolution
@@ -445,6 +472,7 @@ model StrategyOutcome {
   @@index([market, vertical, counterparty])
   @@index([market, vertical])
   @@index([selfReported, createdAt])
+  @@index([drafterId, selfReported])
 }
 
 /**

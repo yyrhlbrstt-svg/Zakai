@@ -125,6 +125,12 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
               <>
                 <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
                 <NavLink href="/business" pathname={pathname}>{tIcomponents_Header("t_79771be3")}</NavLink>
+                {/* Neither of these was reachable from the desktop nav at all:
+                    /agents from nowhere, /institutions from mobile only. The
+                    protocol is the long-term asset and it had no door on the
+                    surface most integrators arrive on. */}
+                <NavLink href="/agents" pathname={pathname}>{t("nav.agents")}</NavLink>
+                <NavLink href="/institutions" pathname={pathname}>{t("nav.institutions")}</NavLink>
                 <NavLink href="/pricing" pathname={pathname}>{t("nav.pricing")}</NavLink>
                 <NavLink href="/login" pathname={pathname}>{t("nav.login")}</NavLink>
                 <NavLink href="/signup" pathname={pathname}>{t("nav.signup")}</NavLink>
@@ -202,6 +208,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             ) : (
               <>
                 <MobileLink href="/business" pathname={pathname}>{tIcomponents_Header("t_b4265709")}</MobileLink>
+                <MobileLink href="/agents" pathname={pathname}>{t("nav.agents")}</MobileLink>
                 <MobileLink href="/institutions" pathname={pathname}>{tIcomponents_Header("t_8886b51f")}</MobileLink>
                 <MobileLink href="/pricing" pathname={pathname}>{t("nav.pricing")}</MobileLink>
                 <MobileLink href="/login" pathname={pathname}>{t("nav.login")}</MobileLink>
