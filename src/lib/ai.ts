@@ -535,6 +535,106 @@ Set "legible" to false ONLY when the image itself cannot be read (blur, glare, c
 
 Respond ONLY with JSON: {"kind":"...","legible":boolean,"issuer":"..." or null}`;
 
+/**
+ * Read ANY bill, not only a mobile one.
+ *
+ * WHY THIS REPLACES CLASSIFY-AND-ROUTE
+ *
+ * `analyzeBillImage` is scoped to Israeli mobile bills. When something else
+ * arrived, the best the product could do was work out what kind of document it
+ * was and send the reader to a different page to start over. That is a
+ * consolation prize dressed as a feature: the bill was right there, readable,
+ * and we answered a photograph of an electricity bill with directions.
+ *
+ * A person who uploads a bill wants the bill handled. So this extracts the
+ * same facts from whatever utility, telecom, municipal or insurance bill it is
+ * given, and names the vertical, so the case opens directly instead of
+ * bouncing them somewhere else.
+ *
+ * It still refuses to guess. `readable: false` when the image genuinely cannot
+ * be read, and a null amount rather than an invented one — a fabricated figure
+ * would go into a letter to a real company over a real person's name.
+ */
+const ANY_BILL_SYSTEM = `You read a photo of ANY Israeli consumer bill or invoice and extract its facts. Common issuers: cellular (Cellcom, Partner, Pelephone, HOT Mobile, Golan, Rami Levy), internet/TV (Bezeq, HOT, Partner Fiber, yes), electricity (חשמל / IEC), water (מים / תאגיד מים), municipal property tax (ארנונה), insurance (ביטוח), gym/subscriptions.
+
+Extract:
+- "issuer": the company or authority name exactly as printed.
+- "amount": the amount charged for this period, as a plain number. Use the total actually charged, not a subtotal or a balance carried forward.
+- "period": short description of the billing period if printed (e.g. "אוגוסט 2026"), else "".
+- "vertical": one of "telecom", "electricity", "water", "arnona", "insurance", "subscription", "other". Use "telecom" for cellular AND internet/TV/landline.
+- "readable": false ONLY if the image itself cannot be read — blurred, dark, cropped. A clear bill you can read is readable even if you are unsure of the vertical.
+
+Never guess an amount. If no amount is legible, set amount to null and readable to false.
+
+Respond ONLY with JSON: {"issuer":"...","amount":number_or_null,"period":"...","vertical":"...","readable":boolean}`;
+
+export type BillVertical =
+  | "telecom"
+  | "electricity"
+  | "water"
+  | "arnona"
+  | "insurance"
+  | "subscription"
+  | "other";
+
+export interface AnyBillAnalysis {
+  issuer: string;
+  provider: ProviderKey;
+  amountShekels: number;
+  period: string;
+  vertical: BillVertical;
+  readable: boolean;
+}
+
+const BILL_VERTICALS: readonly BillVertical[] = [
+  "telecom",
+  "electricity",
+  "water",
+  "arnona",
+  "insurance",
+  "subscription",
+  "other",
+];
+
+export async function analyzeAnyBillImage(
+  base64: string,
+  mediaType: string,
+): Promise<AnyBillAnalysis> {
+  const text = await generateText({
+    system: ANY_BILL_SYSTEM,
+    userText: "Extract this bill.",
+    imageBase64: base64,
+    mediaType,
+    model: EXTRACT_MODEL,
+    maxTokens: 400,
+    temperature: 0,
+  });
+  const parsed = extractJson(text) as {
+    issuer?: string;
+    amount?: number | null;
+    period?: string;
+    vertical?: string;
+    readable?: boolean;
+  };
+
+  const issuer = typeof parsed.issuer === "string" ? parsed.issuer.trim() : "";
+  const amount = typeof parsed.amount === "number" && parsed.amount > 0 ? parsed.amount : 0;
+  const vertical = (BILL_VERTICALS as readonly string[]).includes(parsed.vertical ?? "")
+    ? (parsed.vertical as BillVertical)
+    : "other";
+
+  return {
+    issuer,
+    provider: resolveProviderKey(issuer || "other"),
+    amountShekels: amount,
+    period: typeof parsed.period === "string" ? parsed.period.trim() : "",
+    vertical,
+    // An amount is what every downstream step needs; without one this is not
+    // a bill we can act on, whatever the model said about legibility.
+    readable: Boolean(parsed.readable) && amount > 0,
+  };
+}
+
 export interface DocumentClassification {
   /** Validated against the closed set by the caller; may be any string here. */
   kind: string;
