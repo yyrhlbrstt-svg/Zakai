@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
+import { linkifyAssistantText } from "@/lib/linkifyAssistant";
 import { Card, Button, Input } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import type { Insight } from "@/lib/insights";
@@ -250,7 +251,25 @@ export function AssistantScreen({
                         : "self-start bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)]"
                     }`}
                   >
-                    {m.text}
+                    {/* Rendered as segments, not raw text. A bare "/money?case=…"
+                        inside an RTL reply is reordered by bidi into
+                        "money?/case=…" — a scrambled, untappable string at the
+                        exact step where the reader has already agreed to
+                        everything. dir="ltr" on the link pins the path. */}
+                    {linkifyAssistantText(m.text).map((seg, j) =>
+                      seg.kind === "link" ? (
+                        <Link
+                          key={j}
+                          href={seg.href}
+                          dir="ltr"
+                          className="text-emerald font-bold underline inline-block"
+                        >
+                          {seg.label}
+                        </Link>
+                      ) : (
+                        <span key={j}>{seg.value}</span>
+                      ),
+                    )}
                   </div>
                 ))}
                 {busy && (
