@@ -85,6 +85,7 @@ model User {
   deadlines          Deadline[]
   receipts           Receipt[]
   inboxInterests     ConnectedInboxInterest[]
+  commitments        Commitment[]
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -117,6 +118,68 @@ model Deadline {
   createdAt        DateTime  @default(now())
 
   @@index([userId])
+}
+
+/// A financial commitment the person is currently under, and the date by which
+/// they can still get out of it.
+///
+/// WHY THIS IS THE RECORD, NOT A FEATURE
+///
+/// Everything else here is episodic: a Case exists because somebody suspected
+/// they were owed money on a particular day. That makes the product a place
+/// you visit when you remember to, and money-recovery is the least memorable
+/// errand there is — which is the same reason a single month's saving is worth
+/// ₪5.40 to collect.
+///
+/// Obligations are the opposite. Everyone has a set of them, it changes every
+/// month whether or not anyone is paying attention, and it lives nowhere: the
+/// bank app has the charge, the inbox has the contract, the drawer has the
+/// paper, and nothing holds "what am I committed to, and until when can I
+/// leave". Holding that set is continuous by nature, and every engine already
+/// written here — the notice window, the overlap finder, the commitment
+/// calendar, the promised credits — is a function over it.
+///
+/// Deliberately not the same thing as Deadline. A Deadline is a label and a
+/// date somebody typed. This carries the counterparty, the money, the notice
+/// period and where the facts came from, which is what the engines need and
+/// what makes leaving expensive.
+model Commitment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// What the person calls it — "Netflix", "the office lease".
+  label String
+  /// Normalised counterparty key when it maps to a known provider, else "".
+  counterparty String @default("")
+  /// Charge category, reused from the recurring-charge scanner so the overlap
+  /// finder can run over commitments and scanned charges alike.
+  category String @default("other")
+
+  /// Recurring cost in agorot. Null when the person does not know it yet —
+  /// which must stay distinguishable from zero.
+  monthlyMinor Int?
+
+  /// When the term renews, if it does.
+  renewsOn DateTime?
+  /// Days of written notice required to get out. Null when the contract does
+  /// not state one: a customary value guessed here would produce a confident
+  /// deadline that is wrong, and somebody would plan around it.
+  noticeDays Int?
+
+  /// Where the facts came from — "contract_scan", "statement_scan", "manual".
+  /// Never parsed; carried so a figure can be traced back to its source.
+  source String @default("manual")
+
+  /// Set when the commitment ends (cancelled, expired, switched away).
+  /// Kept rather than deleted: what somebody used to pay for is the record.
+  endedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, endedAt])
+  @@index([renewsOn])
 }
 
 // One reward per referred user, granted when that user's FIRST check documents

@@ -35,6 +35,10 @@
     {
       "path": "/api/cron/fact-freshness",
       "schedule": "0 11 1 * *"
+    },
+    {
+      "path": "/api/cron/deadline-watch",
+      "schedule": "0 7 * * 1"
     }
   ]
 }

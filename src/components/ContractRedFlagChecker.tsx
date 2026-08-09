@@ -50,6 +50,30 @@ export function ContractRedFlagChecker() {
     const dueDate = noticeWindow.actBy
       ? noticeWindow.actBy.toISOString().slice(0, 10)
       : result.renewalDate;
+
+    /**
+     * Keep the contract, not only the reminder.
+     *
+     * A Deadline is a label and a date. The commitment record carries the
+     * renewal date and the notice period, so the act-by date stays correct if
+     * either is later corrected, the weekly watch can chase it without anyone
+     * opening the app, and the overlap finder can see it next to everything
+     * else this person pays for. A reminder somebody has to remember to set is
+     * the thing this product exists to replace.
+     */
+    void fetch("/api/commitments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        label: t("renewalCta"),
+        renewsOn: result.renewalDate,
+        noticeDays: result.noticeDays,
+        source: "contract_scan",
+      }),
+    }).catch(() => {
+      // The reminder below is the user-visible promise and must still be made.
+      // Failing to also file the commitment is not worth blocking it over.
+    });
     setReminderBusy(true);
     setNeedsLogin(false);
     try {
