@@ -117,7 +117,10 @@ export function RefundChaseTool() {
         <div className="flex flex-col gap-2 mt-1">
           <MissingFields
             items={[
-              { ok: company.trim().length > 0, label: t("company") },
+              // The field's own label, not a second string: a checklist that points at
+              // an empty input must name it the way the input does, and t("company")
+              // never existed in any locale — it rendered as the raw key.
+              { ok: company.trim().length > 0, label: t("t_6a05400b") },
               { ok: hasOutreachEmail(contactEmail), label: t("contactEmailPlaceholder") },
             ]}
           />

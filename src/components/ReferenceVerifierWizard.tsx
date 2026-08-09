@@ -348,7 +348,10 @@ export function ReferenceVerifierWizard() {
           <span aria-hidden>{stepLabel(decideStep)}</span>
         </li>
         <li className="flex justify-between gap-3 font-bold">
-          <span>{t("check_status")}</span>
+          {/* "{jti}" is a literal path placeholder shown to an integrator, not
+              a value to substitute — t() would treat it as an ICU argument,
+              throw, and render the key path instead of the endpoint. */}
+          <span>{t.raw("check_status") as string}</span>
           <span aria-hidden>{stepLabel(statusStep)}</span>
         </li>
         <li className="flex justify-between gap-3 font-bold">

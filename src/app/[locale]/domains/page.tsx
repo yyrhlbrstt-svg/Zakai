@@ -96,12 +96,18 @@ export default async function DomainsPage({
       </section>
 
       <section className="border-t border-[rgba(255,255,255,0.08)] pt-10 mb-10">
+        {/*
+          Raw templates on purpose: the panel fetches the live count on the
+          client and substitutes the placeholders itself. Fetching them with
+          t() runs ICU formatting, which throws on the absent values and
+          renders the key path to the reader instead of the label.
+        */}
         <CollectiveSummaryPanel
           market={market}
           title={t("collectiveSummaryTitle")}
           sub={t("collectiveSummarySub")}
-          totalLabel={t("collectiveTotal")}
-          verticalLabel={t("collectiveVertical")}
+          totalLabel={t.raw("collectiveTotal") as string}
+          verticalLabel={t.raw("collectiveVertical") as string}
           apiHint={t("collectiveApiHint")}
         />
         <h2 className="text-lg font-extrabold mb-2">{t("collectiveTitle")}</h2>
@@ -109,11 +115,12 @@ export default async function DomainsPage({
         <CollectiveIntentForm market={market} />
       </section>
 
+      {/* Same: the run status placeholders are filled in from live data. */}
       <AutopilotStatusStrip
         title={t("autopilotTitle")}
         sub={t("autopilotSub")}
         manifestLabel={t("autopilotManifest")}
-        lastRunLabel={t("autopilotLastRun")}
+        lastRunLabel={t.raw("autopilotLastRun") as string}
         neverLabel={t("autopilotNever")}
       />
 

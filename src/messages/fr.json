@@ -485,5 +485,8 @@
   "contractCheck": {
     "noticeActBy": "Préavis écrit à donner avant le {date} — {days} jours de préavis requis. Il reste {left} jours.",
     "noticeMissed": "Le délai de préavis a expiré le {date} ({days} jours requis). Le contrat va se reconduire — vous pouvez encore demander la résiliation ou de nouvelles conditions."
+  },
+  "flow": {
+    "perMonth": "par mois"
   }
 }

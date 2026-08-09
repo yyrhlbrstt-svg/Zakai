@@ -642,7 +642,8 @@
         "subscription_notice": "This is a subscription charge or renewal notice. The cancellation tool handles it.",
         "insurance_policy": "This is an insurance policy or premium notice, not a mobile bill."
       }
-    }
+    },
+    "perMonth": "per month"
   },
   "verify": {
     "title": "Verification before acting",
