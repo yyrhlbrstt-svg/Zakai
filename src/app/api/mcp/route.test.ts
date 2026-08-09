@@ -40,7 +40,12 @@ describe("POST /api/mcp", () => {
     const res = await POST(rpc({ jsonrpc: "2.0", id: 2, method: "tools/list" }));
     const data = await res.json();
     const names = data.result.tools.map((t: { name: string }) => t.name);
-    expect(names).toEqual(["check_rights", "protocol_status"]);
+    expect(names).toEqual([
+      "check_rights",
+      "counterparty_playbook",
+      "start_claim",
+      "protocol_status",
+    ]);
     // Every tool must carry a valid JSON Schema input shape for MCP clients.
     for (const tool of data.result.tools) {
       expect(tool.inputSchema.type).toBe("object");
