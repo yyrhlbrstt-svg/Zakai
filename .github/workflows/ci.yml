@@ -19,3 +19,50 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run verify:pack-labels
+
+  # Open every page in a real browser at phone width.
+  #
+  # Every defect of this class found so far was found by loading the page and
+  # none by the unit suite, which stayed green through a contract reminder
+  # that fired after the deadline, a pricing page recommending the more
+  # expensive plan, and four screens rendering raw translation keys. This job
+  # is the cheapest version of the thing that actually works.
+  routes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build
+        run: npx next build
+        env:
+          # The sweep never touches the database — every swept route renders
+          # without one — but the build reads the schema, so the variables
+          # have to parse. A throwaway URL keeps CI from needing a real
+          # database to check whether pages render.
+          NEON_DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+          NEON_DATABASE_URL_UNPOOLED: postgresql://ci:ci@127.0.0.1:5432/ci
+          AUTH_SECRET: ci-only-not-a-real-secret-0123456789abcd
+      - name: Start server
+        run: npx next start -p 3000 &
+        env:
+          NEON_DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+          NEON_DATABASE_URL_UNPOOLED: postgresql://ci:ci@127.0.0.1:5432/ci
+          AUTH_SECRET: ci-only-not-a-real-secret-0123456789abcd
+      - name: Wait for server
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://127.0.0.1:3000/api/version && exit 0
+            sleep 1
+          done
+          echo "server never came up"
+          exit 1
+      - name: Sweep every route
+        run: npm run verify:routes
+        env:
+          BASE_URL: http://127.0.0.1:3000

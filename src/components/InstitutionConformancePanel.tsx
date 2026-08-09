@@ -5,10 +5,22 @@ import { useTranslations } from "next-intl";
 import { Card, Button } from "@/components/ui";
 import { Link } from "@/i18n/routing";
 
-const ORIGIN =
-  typeof window !== "undefined"
-    ? window.location.origin
-    : process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
+/**
+ * The canonical public origin, on both server and client.
+ *
+ * This used to read `window.location.origin` in the browser and fall back to
+ * the configured URL on the server, evaluated once at module load. The two
+ * disagree by construction, so the server sent one endpoint and React
+ * rendered another — a hydration mismatch (React #418) on the page aimed at
+ * institutional integrators, the audience least willing to forgive a page
+ * that logs errors.
+ *
+ * Deterministic is also simply more correct here: this is documentation
+ * telling an institution which endpoint to POST to. It should name the
+ * production endpoint, never whichever host the reader happens to be viewing
+ * from. Every other institutional page already does it this way.
+ */
+const ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://zakai-3uxj.vercel.app";
 
 type Step = "idle" | "running" | "ok" | "fail";
 
@@ -110,7 +122,12 @@ export function InstitutionConformancePanel() {
         </li>
         <li>
           {t("step3")}{" "}
-          <code className="text-[11px]">POST {ORIGIN}/api/mandate/conformance/probe</code>
+          {/* A full endpoint is longer than a phone is wide. Wrapping keeps it
+              readable; letting it run off the edge hides the path an
+              integrator came here to copy. */}
+          <code className="text-[11px] block break-all" dir="ltr">
+            POST {ORIGIN}/api/mandate/conformance/probe
+          </code>
         </li>
         <li>
           <Link href="/institutions#registered-issuer" className="text-emerald font-bold no-underline">
