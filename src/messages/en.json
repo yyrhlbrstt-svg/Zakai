@@ -2937,7 +2937,9 @@
     "renewalAutoRenewNote": "This contract renews automatically unless cancelled in time.",
     "renewalCta": "Add a reminder 30 days before",
     "renewalAdded": "Reminder added — we'll notify you in time.",
-    "renewalLoginNote": "Log in to save a reminder."
+    "renewalLoginNote": "Log in to save a reminder.",
+    "noticeActBy": "Written notice is due by {date} — {days} days' notice required. {left} days left.",
+    "noticeMissed": "The notice window closed on {date} ({days} days' notice required). The term is set to roll — you can still ask for cancellation or new terms."
   },
   "scamCheck": {
     "metaTitle": "Is this a scam? Check a suspicious SMS/WhatsApp message | Zakai",

@@ -481,5 +481,9 @@
     "maxRoiStayFree": "Bei dieser Ersparnis ist der kostenlose Tarif am günstigsten. Ein Abo würde sich nicht rechnen.",
     "maxRoiProFrom": "Pro ist ab etwa {amount} dokumentierter monatlicher Ersparnis der günstigste Tarif.",
     "maxRoiMaxFrom": "Max ist ab etwa {amount} dokumentierter monatlicher Ersparnis der günstigste Tarif."
+  },
+  "contractCheck": {
+    "noticeActBy": "Schriftliche Kündigung bis {date} — {days} Tage Frist. Noch {left} Tage.",
+    "noticeMissed": "Die Kündigungsfrist endete am {date} ({days} Tage Frist). Der Vertrag verlängert sich — Sie können weiterhin eine Kündigung oder neue Konditionen verlangen."
   }
 }

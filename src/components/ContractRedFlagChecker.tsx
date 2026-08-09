@@ -5,8 +5,9 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import type { ContractAnalysis } from "@/lib/contractAnalysis";
+import { computeNoticeWindow } from "@/lib/noticeWindow";
 
-/** Enough lead time to actually cancel or renegotiate before the renewal hits. */
+/** Enough lead time to actually cancel or renegotiate before the deadline hits. */
 const REMIND_DAYS_BEFORE = 30;
 
 /**
@@ -26,8 +27,29 @@ export function ContractRedFlagChecker() {
   const [reminderAdded, setReminderAdded] = useState(false);
   const [needsLogin, setNeedsLogin] = useState(false);
 
+  const noticeWindow = computeNoticeWindow({
+    renewalDate: result?.renewalDate ?? null,
+    noticeDays: result?.noticeDays ?? null,
+  });
+
   async function addRenewalReminder() {
     if (!result?.renewalDate) return;
+    /**
+     * Remind on the date notice must be GIVEN, not the date the term renews.
+     *
+     * A contract that renews on 1 January and requires sixty days' notice has
+     * to be acted on by 1 November. Reminding on 1 January tells somebody
+     * their contract renewed today — accurate, and useless. The notice period
+     * is already extracted; it just was not being used, so the one number
+     * that decides whether a term rolls was collected and then ignored.
+     *
+     * Falls back to the renewal date only when the contract states no notice
+     * period, because a guessed customary value would produce a confident
+     * deadline that is wrong and somebody would plan around it.
+     */
+    const dueDate = noticeWindow.actBy
+      ? noticeWindow.actBy.toISOString().slice(0, 10)
+      : result.renewalDate;
     setReminderBusy(true);
     setNeedsLogin(false);
     try {
@@ -36,7 +58,7 @@ export function ContractRedFlagChecker() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           label: t("renewalCta"),
-          dueDate: result.renewalDate,
+          dueDate,
           remindDaysBefore: REMIND_DAYS_BEFORE,
         }),
       });
@@ -117,6 +139,26 @@ export function ContractRedFlagChecker() {
           </p>
           {result.autoRenews && (
             <p className="text-ink-soft text-[12.5px] mt-1 mb-0">{t("renewalAutoRenewNote")}</p>
+          )}
+          {noticeWindow.actBy && noticeWindow.daysLeft !== null && (
+            <p
+              className={`text-body font-extrabold mt-2 mb-0 ${
+                noticeWindow.state === "missed" || noticeWindow.state === "closing"
+                  ? "text-[#f08a6b]"
+                  : ""
+              }`}
+            >
+              {noticeWindow.state === "missed"
+                ? t("noticeMissed", {
+                    date: noticeWindow.actBy.toISOString().slice(0, 10),
+                    days: noticeWindow.noticeDays ?? 0,
+                  })
+                : t("noticeActBy", {
+                    date: noticeWindow.actBy.toISOString().slice(0, 10),
+                    days: noticeWindow.noticeDays ?? 0,
+                    left: noticeWindow.daysLeft,
+                  })}
+            </p>
           )}
           {reminderAdded ? (
             <p className="text-emerald text-[13px] font-bold mt-3 mb-0">{t("renewalAdded")}</p>

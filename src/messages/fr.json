@@ -481,5 +481,9 @@
     "maxRoiStayFree": "À ce niveau d'économies, rester en gratuit est le moins cher. Un abonnement ne serait pas rentable.",
     "maxRoiProFrom": "Pro devient le forfait le moins cher à partir d'environ {amount} d'économies mensuelles documentées.",
     "maxRoiMaxFrom": "Max devient le forfait le moins cher à partir d'environ {amount} d'économies mensuelles documentées."
+  },
+  "contractCheck": {
+    "noticeActBy": "Préavis écrit à donner avant le {date} — {days} jours de préavis requis. Il reste {left} jours.",
+    "noticeMissed": "Le délai de préavis a expiré le {date} ({days} jours requis). Le contrat va se reconduire — vous pouvez encore demander la résiliation ou de nouvelles conditions."
   }
 }
