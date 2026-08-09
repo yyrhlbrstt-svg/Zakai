@@ -1,0 +1,40 @@
+{
+  "_comment": [
+    "Tool pages from which a person cannot reach a real claim by following links in the page's own",
+    "content. They offer a calculation and, at most, a link to another calculation. Somebody arrives",
+    "believing they are owed money and leaves holding arithmetic.",
+    "",
+    "Scoped to <main> on purpose: the header and footer link to /money from every page, and counting",
+    "those would make every page look like it offers a way forward.",
+    "",
+    "This list is a ratchet and may only shrink. scripts/routeSweep.mjs fails when a route appears",
+    "that is not listed here, and fails again when a listed route has since been given a way forward",
+    "and the line was not deleted. Adding a route here is a decision to leave it broken for now, not",
+    "a way to silence the check.",
+    "",
+    "Tool count is not an asset. docs/INFRASTRUCTURE_DOCTRINE.md calls tool sprawl an anti-pattern,",
+    "so deleting a page is as valid a fix as wiring one."
+  ],
+  "routes": [
+    "/advance-tax",
+    "/assistant",
+    "/cancel/universal",
+    "/complaint-escalation",
+    "/contract-check",
+    "/deadlines",
+    "/dormant",
+    "/entitlements",
+    "/holocaust-survivors",
+    "/incident",
+    "/maternity",
+    "/miluim",
+    "/overtime-backpay",
+    "/scam-check",
+    "/school-payments",
+    "/score",
+    "/spending",
+    "/unemployment",
+    "/vat",
+    "/vehicle-check"
+  ]
+}

@@ -66,6 +66,26 @@ function valueOf(flag) {
 }
 
 /**
+ * Which tool pages are real Case/Mandate loops, read from the catalogue.
+ *
+ * Parsed from source rather than imported because this script runs as plain
+ * node against a built server, with no TypeScript step in front of it.
+ */
+function toolCatalog() {
+  const out = new Map();
+  try {
+    const src = readFileSync(join(process.cwd(), "src/lib/toolsCatalog.ts"), "utf8");
+    for (const m of src.matchAll(/\{\s*href:\s*"([^"]+)"[^}]*\}/g)) {
+      out.set(m[1], /agentic:\s*true/.test(m[0]));
+    }
+  } catch {
+    /* the graph check simply does not run */
+  }
+  return out;
+}
+const TOOLS = toolCatalog();
+
+/**
  * Routes discovered from the filesystem rather than a list, so a page added
  * next week is swept without anyone remembering to add it.
  *
@@ -205,11 +225,31 @@ async function main() {
           rawKeys.push(m[0]);
         }
 
+        /**
+         * Internal links inside the page's own content.
+         *
+         * Deliberately scoped to <main>: the header and footer link to /money
+         * from every page, so counting them would make every page "able to
+         * reach a real claim" and turn the dead-end check into one that
+         * cannot fail. The question worth asking is whether THIS page offers
+         * a way forward, not whether the site chrome does.
+         */
+        const main = document.querySelector("main") ?? document.body;
+        const links = new Set();
+        for (const a of main.querySelectorAll("a[href]")) {
+          const href = a.getAttribute("href") ?? "";
+          if (!href.startsWith("/")) continue;
+          const path = href.split(/[?#]/)[0].replace(/\/$/, "") || "/";
+          // Strip the locale prefix so links compare against sweep routes.
+          links.add(path.replace(/^\/(he|en|ar|ru|de|fr)(?=\/|$)/, "") || "/");
+        }
+
         return {
           textLength: text.replace(/\s+/g, " ").trim().length,
           actions: document.querySelectorAll("a[href], button:not([disabled])").length,
           clippedText: clipped.slice(0, 3),
           rawKeys: [...new Set(rawKeys)].slice(0, 3),
+          links: [...links],
           authGated: /\/login|\/signup/.test(location.pathname),
         };
       }, NAMESPACES);
@@ -225,10 +265,67 @@ async function main() {
       status,
       failures: status === 0 ? ["navigation failed", ...unique] : hardFailures(status, unique, measured),
       notes: softNotes(measured),
+      // Carried through so the dead-end graph has edges. Leaving it out made
+      // every non-agentic tool look unreachable, which is a plausible answer
+      // arrived at by measuring nothing.
+      links: measured?.links ?? [],
       otherConsole: unique.filter((e) => e.startsWith("console:")),
     });
   }
   await browser.close();
+
+  /**
+   * Tool pages from which a real claim can never be reached.
+   *
+   * A page that only offers a calculation, and whose own content links only
+   * to other pages that do the same, is where a person's attention goes to
+   * die. They came because they think they are owed money; a number and a
+   * link to another number is not an answer.
+   *
+   * Follows the link graph to any depth. Reporting only direct links would
+   * miss the real shape of it — two pages that point at each other and
+   * nowhere else read as "having a next step" one hop at a time.
+   */
+  const graph = new Map(results.map((r) => [r.route, r.links ?? []]));
+  const reachesAClaim = (start) => {
+    const seen = new Set([start]);
+    const queue = [...(graph.get(start) ?? [])];
+    while (queue.length) {
+      const at = queue.shift();
+      if (seen.has(at)) continue;
+      seen.add(at);
+      if (TOOLS.get(at) === true) return true;
+      for (const next of graph.get(at) ?? []) if (!seen.has(next)) queue.push(next);
+    }
+    return false;
+  };
+  const deadEnds = TOOLS.size
+    ? results
+        .filter((r) => TOOLS.has(r.route) && TOOLS.get(r.route) !== true)
+        .filter((r) => r.status === 200 && !reachesAClaim(r.route))
+        .map((r) => r.route)
+        .sort()
+    : [];
+
+  /**
+   * A ratchet, not a wall.
+   *
+   * There are dozens of these today, so failing on all of them would only
+   * teach everyone to skip this job. The baseline is the list as it stands;
+   * a route that is not on it fails the build, and a route on it that has
+   * since been given a way forward also fails, with an instruction to delete
+   * the line. The list can therefore only ever get shorter — same shape as
+   * the type-scale ceiling already in this repo.
+   */
+  const baselinePath = join(process.cwd(), "scripts", "deadEndBaseline.json");
+  let baseline = [];
+  try {
+    baseline = JSON.parse(readFileSync(baselinePath, "utf8")).routes ?? [];
+  } catch {
+    baseline = [];
+  }
+  const newDeadEnds = deadEnds.filter((r) => !baseline.includes(r));
+  const fixedButListed = TOOLS.size ? baseline.filter((r) => !deadEnds.includes(r)) : [];
 
   const failing = results.filter((r) => r.failures.length > 0);
   const noted = results.filter((r) => r.failures.length === 0 && r.notes.length > 0);
@@ -247,10 +344,26 @@ async function main() {
       for (const r of noted) console.log(`  ${r.route}  ${r.notes.join(" | ")}`);
       console.log("");
     }
-    if (!failing.length) console.log("No hard failures.");
+    if (newDeadEnds.length) {
+      console.log(`NEW tool pages with no route to a real claim (${newDeadEnds.length}):`);
+      for (const r of newDeadEnds) console.log(`  ${r}`);
+      console.log("  Give the page a way into a real claim, or add it to scripts/deadEndBaseline.json.\n");
+    }
+    if (fixedButListed.length) {
+      console.log(`Fixed but still in the baseline (${fixedButListed.length}) — delete these lines:`);
+      for (const r of fixedButListed) console.log(`  ${r}`);
+      console.log("");
+    }
+    if (deadEnds.length) {
+      console.log(`Dead ends remaining: ${deadEnds.length} (baseline ${baseline.length}).\n`);
+    }
+    if (!failing.length && !newDeadEnds.length && !fixedButListed.length) {
+      console.log("No hard failures.");
+    }
   }
 
-  process.exit(failing.length > 0 ? 1 : 0);
+  const bad = failing.length + newDeadEnds.length + fixedButListed.length;
+  process.exit(bad > 0 ? 1 : 0);
 }
 
 main().catch((err) => {
