@@ -67,6 +67,38 @@ export const airlineIL: VerticalRulePack = {
   counterparties: ["elal", "israir", "arkia", "ryanair", "easyjet", "lufthansa", "other"],
 };
 
+/**
+ * Baggage — its own claim, not a footnote to a delayed flight.
+ *
+ * Lost, damaged and delayed baggage is governed by the Montreal Convention
+ * (Art. 17 and 22), which caps liability per passenger rather than per ticket
+ * and runs on its own clock: 7 days to complain about damage, 21 days for
+ * delayed baggage, counted from when it was placed at the passenger's
+ * disposal. None of that is the flight-delay regime, and the amounts are
+ * usually larger than a delay payout.
+ *
+ * `/baggage` existed and funnelled people into the flight-compensation
+ * vertical, which reaches the right airline with the wrong claim under the
+ * wrong deadline.
+ */
+export const baggageIL: VerticalRulePack = {
+  key: "baggage",
+  country: "IL",
+  label: "כבודה שאבדה, נפגעה או התעכבה",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    // The money lands once. It is not a bill that keeps arriving smaller,
+    // which is what feeBasis has to agree with.
+    method: "transfer_confirmation",
+    proofDescription: "אישור העברה / זיכוי מחברת התעופה עבור הכבודה",
+  },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["elal", "israir", "arkia", "ryanair", "easyjet", "lufthansa", "other"],
+};
+
 export const refundChaseIL: VerticalRulePack = {
   key: "refund-chase",
   country: "IL",
@@ -270,6 +302,7 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   bankFeesIL,
   subscriptionIL,
   airlineIL,
+  baggageIL,
   refundChaseIL,
   parkingIL,
   transportFineIL,

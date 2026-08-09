@@ -3,6 +3,9 @@ import { buildAirlineFollowUp } from "./flightNegotiation";
 import { buildLumpFollowUp } from "./lumpNegotiation";
 
 const LUMP_VERTICALS = new Set([
+  // A baggage claim is a one-time settlement under the Montreal Convention,
+  // not an airline delay payout and not a monthly bill to renegotiate.
+  "baggage",
   "bank-fees",
   "bank_fees",
   "cancel",
