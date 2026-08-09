@@ -488,5 +488,14 @@
   },
   "flow": {
     "perMonth": "par mois"
+  },
+  "cannotSpend": {
+    "heading": "Zakai ne peut pas dépenser un shekel en votre nom",
+    "sub": "Vous avez vu des IA connectées à un compte bancaire pour « gérer » l'argent. Un agent capable de dépenser peut être amené à vider un compte. Zakai est construit à l'inverse : il ne trouve que l'argent qui vous est dû, et l'argent ne circule que vers vous. Le pire cas d'un mandat compromis est une lettre non désirée, pas un vol.",
+    "allowedHeading": "Tout ce qu'un mandat peut contenir — la liste complète",
+    "perAct": "exige une confirmation distincte pour chaque acte",
+    "refusedHeading": "Refusé dans tout mandat",
+    "refusedNote": "Ce ne sont pas des « pas encore pris en charge ». Un mandat qui en contient un est rejeté, et un test fait échouer la compilation si quelqu'un ajoute une capacité de dépense.",
+    "verify": "Vérifiez cette liste par rapport à la source :"
   }
 }

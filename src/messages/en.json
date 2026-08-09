@@ -6434,5 +6434,14 @@
       "headline": "Reading photos is unavailable right now",
       "alternative": "Enter the provider and amount manually — it opens the same case, letter and mandate."
     }
+  },
+  "cannotSpend": {
+    "heading": "Zakai cannot spend a shekel on your behalf",
+    "sub": "You have seen AI connected to a bank account to \"manage\" money. An agent that can spend can be made to drain an account. Zakai is built the other way round: it finds only money you are owed, and money only ever moves toward you. The worst case of a compromised authority is an unwanted letter, not a theft.",
+    "allowedHeading": "Everything an authority can carry — the complete list",
+    "perAct": "needs separate confirmation for each act",
+    "refusedHeading": "Refused from every authority",
+    "refusedNote": "These are not \"not supported yet\". An authority containing one is rejected, and a test fails the build if anyone adds a spending capability.",
+    "verify": "Check this list against the source:"
   }
 }

@@ -488,5 +488,14 @@
   },
   "flow": {
     "perMonth": "pro Monat"
+  },
+  "cannotSpend": {
+    "heading": "Zakai kann in Ihrem Namen keinen Schekel ausgeben",
+    "sub": "Sie haben Videos gesehen, in denen eine KI mit einem Bankkonto verbunden wird, um Geld zu «verwalten». Ein Agent, der ausgeben kann, lässt sich dazu bringen, ein Konto zu leeren. Zakai ist umgekehrt gebaut: Er findet nur Geld, das Ihnen zusteht, und Geld bewegt sich ausschließlich zu Ihnen. Der schlimmste Fall einer kompromittierten Vollmacht ist ein unerwünschter Brief, kein Diebstahl.",
+    "allowedHeading": "Alles, was eine Vollmacht enthalten kann — die vollständige Liste",
+    "perAct": "erfordert eine separate Bestätigung für jede Handlung",
+    "refusedHeading": "In jeder Vollmacht abgelehnt",
+    "refusedNote": "Das ist kein «noch nicht unterstützt». Eine Vollmacht mit einem dieser Rechte wird abgelehnt, und ein Test lässt den Build scheitern, wenn jemand eine Ausgabe-Berechtigung hinzufügt.",
+    "verify": "Prüfen Sie diese Liste gegen die Quelle:"
   }
 }
