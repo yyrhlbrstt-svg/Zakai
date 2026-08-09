@@ -48,6 +48,14 @@ const AMBIGUOUS_METHOD_REASONS: Record<string, string> = {
     "A successful arnona objection corrects the property's classification or area, which lowers every future bill — the recurring case, not a one-off refund.",
   warranty:
     "The decision grants a repair, replacement or refund against one purchase. Nothing recurs.",
+  "toll-dispute":
+    "The operator's decision cancels a single toll charge that was already levied. Nothing recurs; the amount either stands or it does not.",
+  "water-bill":
+    "A concealed-leak discount is a credit against consumption already billed, granted once for the leak period. The ongoing tariff is unchanged.",
+  "vaad-bait":
+    "The committee either corrects a specific charge already made or refunds it. Any recurring change to the building's levy is a separate decision by the residents, not this claim.",
+  "collection-complaint":
+    "The outcome is a debt cancelled, reduced or confirmed once. There is no recurring bill here to make smaller.",
   "car-insurance-refund":
     "Cancelling mid-term returns the unused portion of a premium already paid. It is a single settlement.",
 };

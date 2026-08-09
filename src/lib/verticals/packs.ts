@@ -297,6 +297,125 @@ export const merchantFeesIL: VerticalRulePack = {
   counterparties: ["isracard", "cal", "max", "leumi", "hapoalim", "other"],
 };
 
+/**
+ * Verticals that were opening real cases with no rule pack behind them.
+ *
+ * `recordSaving` falls back to `pack?.feeBasis ?? "monthly"`, and
+ * `documentedRecoveryMinor` multiplies a monthly saving by twelve before it
+ * reaches the outcome graph. Every recovery in these seven was therefore
+ * being recorded at twelve times its real value — in the de-identified record
+ * other agents are now told to trust, which is the one place the damage
+ * compounds instead of being noticed.
+ *
+ * All seven settle in one payment (`amountShekels` in, target zero), so all
+ * seven are lump. The two that carry no money claim at all — a demand for
+ * accounts, a demand to verify a debt — are registered anyway: a vertical
+ * with no pack is the failure, and "nobody has recorded a saving on it yet"
+ * is not a reason to leave the trap set.
+ */
+export const tollDisputeIL: VerticalRulePack = {
+  key: "toll-dispute",
+  country: "IL",
+  label: "ערעור חיוב כביש אגרה",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: { method: "decision_letter", proofDescription: "הודעת ביטול החיוב ממפעיל הכביש" },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
+export const waterBillIL: VerticalRulePack = {
+  key: "water-bill",
+  country: "IL",
+  label: "הנחת נזילה סמויה",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "החלטת תאגיד המים המאשרת את ההנחה וסכומה",
+  },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
+export const vehicleLicenseRefundIL: VerticalRulePack = {
+  key: "vehicle-license-refund",
+  country: "IL",
+  label: "החזר יחסי אגרת רישוי",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: { method: "transfer_confirmation", proofDescription: "אישור החזר האגרה" },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
+export const trainDelayIL: VerticalRulePack = {
+  key: "train-delay",
+  country: "IL",
+  label: "פיצוי עיכוב רכבת",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: { method: "transfer_confirmation", proofDescription: "אישור זיכוי/פיצוי מהמפעיל" },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
+export const landlordRepairsIL: VerticalRulePack = {
+  key: "landlord-repairs",
+  country: "IL",
+  label: "תיקון ליקויים בשכירות",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "transfer_confirmation",
+    proofDescription: "החזר/קיזוז מוסכם בגין הליקוי",
+  },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
+export const vaadBaitIL: VerticalRulePack = {
+  key: "vaad-bait",
+  country: "IL",
+  label: "שקיפות חיובי ועד בית",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "פירוט חיוב מתוקן או זיכוי מוועד הבית",
+  },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
+export const collectionComplaintIL: VerticalRulePack = {
+  key: "collection-complaint",
+  country: "IL",
+  label: "אימות חוב והפסקת הטרדה",
+  level: "full",
+  feeRateBps: null,
+  channel: "email",
+  verification: {
+    method: "decision_letter",
+    proofDescription: "אישור בכתב על ביטול/הפחתת החוב או הפסקת הגבייה",
+  },
+  feeBasis: "lump",
+  regulated: false,
+  counterparties: ["other"],
+};
+
 export const RULE_PACKS: readonly VerticalRulePack[] = [
   telecomIL,
   bankFeesIL,
@@ -314,4 +433,11 @@ export const RULE_PACKS: readonly VerticalRulePack[] = [
   warrantyIL,
   carInsuranceRefundIL,
   merchantFeesIL,
+  tollDisputeIL,
+  waterBillIL,
+  vehicleLicenseRefundIL,
+  trainDelayIL,
+  landlordRepairsIL,
+  vaadBaitIL,
+  collectionComplaintIL,
 ];
