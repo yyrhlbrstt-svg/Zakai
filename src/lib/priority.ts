@@ -179,12 +179,16 @@ export const CATALOG: PriorityAction[] = [
     href: "/collection-complaint",
     titleHe: "גובה חוב מטריד?",
     titleEn: "Debt collector harassing you?",
-    whyHe: "תלונה + אימות חוב לפני תשלום",
-    whyEn: "Complaint + verify before paying",
+    whyHe: "דרישה כתובה לאימות החוב ולהפסקת ההטרדה, עם Mandate",
+    whyEn: "Written demand to verify the debt and stop the harassment, with Mandate",
+    // Carries no money claim of its own — the outcome is a debt verified,
+    // reduced or withdrawn — so the potential stays zero rather than becoming
+    // an invented figure about somebody else's debt.
     potentialShekels: 0,
-    cadence: "hidden",
+    cadence: "oneTime",
     effort: "low",
-    agentic: false,
+    // Now a real Case + Mandate + send path, not a bare complaint template.
+    agentic: true,
   },
   {
     id: "car-insurance-refund",
@@ -646,6 +650,35 @@ export const CATALOG: PriorityAction[] = [
     // send) that was simply never added here — invisible to both the
     // assistant's ranked digest and the dashboard's next-best-action list,
     // despite agentPlaybook.ts's own static text already mentioning it.
+    /**
+     * A full-service vertical (RULE_PACKS "baggage") that had a route, a page
+     * and a Mandate loop, and no door here — so it was invisible to both the
+     * assistant's ranked digest and the dashboard's next-best-action list.
+     */
+    id: "vehicle-license-refund",
+    href: "/vehicle-license-refund",
+    titleHe: "החזר יחסי על אגרת רישוי — תיק סוכן",
+    titleEn: "Vehicle licence part-refund — agent case",
+    whyHe: "רכב שהורד מהכביש באמצע השנה — החזר על התקופה שלא נוצלה",
+    whyEn: "A car taken off the road mid-year — a refund for the unused period",
+    potentialShekels: 400,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
+    id: "baggage",
+    href: "/baggage",
+    titleHe: "כבודה שאבדה או התעכבה — תיק סוכן",
+    titleEn: "Lost or delayed baggage — agent case",
+    whyHe: "תביעת פיצוי לפי אמנת מונטריאול, עם מועד ההודעה שנגזר מהתאריך שלכם",
+    whyEn: "Montreal Convention claim, with the complaint deadline derived from your own date",
+    potentialShekels: 800,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
     id: "parking",
     href: "/parking",
     titleHe: "ערעור על דוח חניה — תיק סוכן",

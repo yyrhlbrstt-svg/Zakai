@@ -6443,5 +6443,13 @@
     "refusedHeading": "Refused from every authority",
     "refusedNote": "These are not \"not supported yet\". An authority containing one is rejected, and a test fails the build if anyone adds a spending capability.",
     "verify": "Check this list against the source:"
+  },
+  "commitments": {
+    "metaTitle": "My commitments — Zakai",
+    "metaDesc": "What you are committed to, and until when you can still get out. Zakai holds the notice date and reminds you before it.",
+    "kicker": "The commitment record",
+    "title": "What you are committed to, and until when you can still leave",
+    "sub": "A contract renewing on 1 January with 60 days' notice has to be acted on by 1 November — and that date appears nowhere. We hold it.",
+    "footnote": "The date is recomputed on every load from the renewal date and the notice period; it is never stored, so it cannot stay wrong after a correction. A contract that states no notice period gets no guessed date — saying \"unknown\" beats guessing."
   }
 }

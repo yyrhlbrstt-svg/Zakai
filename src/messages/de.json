@@ -497,5 +497,13 @@
     "refusedHeading": "In jeder Vollmacht abgelehnt",
     "refusedNote": "Das ist kein «noch nicht unterstützt». Eine Vollmacht mit einem dieser Rechte wird abgelehnt, und ein Test lässt den Build scheitern, wenn jemand eine Ausgabe-Berechtigung hinzufügt.",
     "verify": "Prüfen Sie diese Liste gegen die Quelle:"
+  },
+  "commitments": {
+    "metaTitle": "Meine Verpflichtungen — Zakai",
+    "metaDesc": "Wozu Sie sich verpflichtet haben und bis wann Sie noch herauskommen.",
+    "kicker": "Das Verpflichtungsregister",
+    "title": "Wozu Sie sich verpflichtet haben, und bis wann Sie noch herauskommen",
+    "sub": "Ein Vertrag, der sich am 1. Januar verlängert und 60 Tage Frist verlangt, muss bis zum 1. November gekündigt werden — und dieses Datum steht nirgends.",
+    "footnote": "Das Datum wird bei jedem Laden neu berechnet und nie gespeichert. Ein Vertrag ohne genannte Frist bekommt kein geschätztes Datum."
   }
 }

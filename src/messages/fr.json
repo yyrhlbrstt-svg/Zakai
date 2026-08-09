@@ -497,5 +497,13 @@
     "refusedHeading": "Refusé dans tout mandat",
     "refusedNote": "Ce ne sont pas des « pas encore pris en charge ». Un mandat qui en contient un est rejeté, et un test fait échouer la compilation si quelqu'un ajoute une capacité de dépense.",
     "verify": "Vérifiez cette liste par rapport à la source :"
+  },
+  "commitments": {
+    "metaTitle": "Mes engagements — Zakai",
+    "metaDesc": "Ce à quoi vous êtes engagé, et jusqu'à quand vous pouvez encore sortir.",
+    "kicker": "Le registre des engagements",
+    "title": "Ce à quoi vous êtes engagé, et jusqu'à quand vous pouvez sortir",
+    "sub": "Un contrat qui se reconduit le 1er janvier avec 60 jours de préavis doit être traité avant le 1er novembre — et cette date ne figure nulle part.",
+    "footnote": "La date est recalculée à chaque chargement et n'est jamais stockée. Un contrat sans préavis indiqué ne reçoit aucune date devinée."
   }
 }

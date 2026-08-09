@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CATALOG,
   rankPriorityActions,
   formatPotentialHe,
   formatPotentialEn,
@@ -84,7 +85,15 @@ describe("priority cadence", () => {
     // however good the underlying vertical was. This is the guard against
     // that recurring class of bug: a full-service pack existing is not the
     // same as the recommendation engine knowing it exists.
-    const hrefs = new Set(rankPriorityActions(50).map((a) => a.href));
+    // Membership, not rank. The catalog is larger than any fixed page size, so
+    // `rankPriorityActions(50)` quietly meant "must be in the top 50" — which
+    // fails for a real vertical that correctly ranks low because it recovers
+    // no money (a debt-verification demand has no amount, and inventing one
+    // would be a claim about somebody else's debt). Knowing a door exists and
+    // ranking it highly are different questions; this guard is about the
+    // first. It still catches the original bug, where parking, transport-fine
+    // and late-payment were absent from the catalog altogether.
+    const hrefs = new Set(CATALOG.map((a) => a.href));
     for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
       const href = VERTICAL_HREF[pack.key] ?? `/${pack.key}`;
       expect(hrefs.has(href), `no priority.ts entry links to ${href} (pack "${pack.key}")`).toBe(true);
