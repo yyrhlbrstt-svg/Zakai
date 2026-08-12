@@ -109,7 +109,7 @@ export default async function InstitutionsPage({
             ? "Node או Python → READY_FOR_PIONEER → תביעת Pioneer באשף. אותו שער מכונה. בלי שיחת מכירות."
             : "Node or Python → READY_FOR_PIONEER → claim Pioneer in the wizard. Same machine gate. No sales call."}
         </p>
-        <pre
+        <pre tabIndex={0}
           className="rounded-xl bg-[#060b12] border border-[rgba(255,255,255,0.1)] px-4 py-3 text-[12.5px] font-mono text-ink overflow-x-auto mb-3"
           dir="ltr"
         >{`# Node
@@ -275,7 +275,7 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
               </p>
             ))}
             {section.pre ? (
-              <pre className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg mt-3">
+              <pre tabIndex={0} className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg mt-3">
                 {section.pre}
               </pre>
             ) : null}

@@ -81,7 +81,7 @@ export default async function PartnersPage({
         {tIapp_locale_partners_page("t_51ab2ede")}
       </h2>
       <Card className="p-5">
-        <pre className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
+        <pre tabIndex={0} className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
           {snippet}
         </pre>
       </Card>
@@ -93,7 +93,7 @@ export default async function PartnersPage({
         {tIapp_locale_partners_page("widgetSub")}
       </p>
       <Card className="p-5">
-        <pre className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
+        <pre tabIndex={0} className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
           {widgetSnippet}
         </pre>
       </Card>

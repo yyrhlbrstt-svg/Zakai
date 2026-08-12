@@ -134,7 +134,7 @@ export function VehicleCheckScreen({ isIsraeli = true }: { isIsraeli?: boolean }
         {letter && (
           <div className="mt-4">
             <div className="text-[13px] font-extrabold mb-2">{letter.subject}</div>
-            <pre className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
+            <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
               {letter.body}
             </pre>
             <div className="mt-3 flex gap-2 flex-wrap">

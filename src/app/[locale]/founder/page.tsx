@@ -585,7 +585,7 @@ export default async function FounderPage({
         </div>
       )}
 
-      <p className="text-[11.5px] text-[rgba(147,166,165,0.7)] mt-5 leading-relaxed">
+      <p className="text-[11.5px] text-[rgba(147,166,165,0.85)] mt-5 leading-relaxed">
         עמוד פנימי, גלוי רק לכתובות ב-ADMIN_EMAIL. אם אחוז ההצלחה נמוך או לא יציב על מדגם אמיתי — זו
         התובנה הכי חשובה של המוצר, לפני כל ורטיקל או שיווק נוסף.
       </p>

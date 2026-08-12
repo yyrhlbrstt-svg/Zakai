@@ -110,7 +110,7 @@ export default async function TrustPage({
         </a>
       </Section>
 
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed border-t border-[rgba(255,255,255,0.09)] pt-4">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed border-t border-[rgba(255,255,255,0.09)] pt-4">
         {t("disclaimer")}
       </p>
     </main>

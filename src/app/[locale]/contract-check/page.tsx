@@ -31,7 +31,7 @@ export default async function ContractCheckPage({
       <h1 className="font-display text-3xl my-3">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[600px]">{t("subtitle")}</p>
       <ContractRedFlagChecker />
-      <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed max-w-[600px]">
+      <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed max-w-[600px]">
         {t("disclaimer")}
       </p>
     </main>

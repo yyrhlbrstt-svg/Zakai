@@ -66,7 +66,7 @@ export function CollectiveSummaryPanel({
               </div>
             ))}
           </div>
-          <p className="text-[11px] text-ink-soft/70 mt-4 m-0 font-mono">{apiHint}</p>
+          <p className="text-[11px] text-ink-soft mt-4 m-0 font-mono">{apiHint}</p>
         </>
       )}
     </div>

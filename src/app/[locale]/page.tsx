@@ -515,7 +515,7 @@ export default async function HomePage({
         </div>
       </Reveal>
 
-      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[560px] mx-auto">
+      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.85)] text-center leading-relaxed max-w-[560px] mx-auto">
         {t("home.scopeNote")}
       </p>
     </main>

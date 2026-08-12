@@ -1641,7 +1641,7 @@ export function CaseNextStep({
               onChange={(e) => setPasteText(e.target.value)}
               placeholder={t(locale, "pastePh")}
               rows={4}
-              className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#060b12] px-3 py-2 text-[13px] text-ink placeholder:text-ink-soft/70 resize-y min-h-[88px]"
+              className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#060b12] px-3 py-2 text-[13px] text-ink placeholder:text-ink-soft resize-y min-h-[88px]"
             />
             <Button
               disabled={busy || pasteText.trim().length < 8}

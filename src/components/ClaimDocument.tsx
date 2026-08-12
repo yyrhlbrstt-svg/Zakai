@@ -116,7 +116,7 @@ export function ClaimDocument({ rightId }: { rightId: string }) {
         <div className="mt-4">
           <div className="text-[12px] text-ink-soft mb-1.5">{t("subject")}</div>
           <div className="text-[13px] font-extrabold mb-3">{draft.subject}</div>
-          <pre className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
+          <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
             {draft.body}
           </pre>
           <div className="mt-3 flex gap-2 flex-wrap">

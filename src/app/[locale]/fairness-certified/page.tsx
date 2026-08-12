@@ -59,7 +59,7 @@ export default async function FairnessCertifiedPage({
       </Card>
 
       <h2 className="text-[15px] font-extrabold mb-2">{c.embedTitle}</h2>
-      <pre className="text-[11.5px] leading-relaxed bg-[rgba(0,0,0,0.04)] p-4 rounded-lg overflow-x-auto mb-6 whitespace-pre-wrap">
+      <pre tabIndex={0} className="text-[11.5px] leading-relaxed bg-[rgba(0,0,0,0.04)] p-4 rounded-lg overflow-x-auto mb-6 whitespace-pre-wrap">
         {doc.embed.snippet}
       </pre>
 

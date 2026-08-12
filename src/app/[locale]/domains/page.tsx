@@ -124,7 +124,7 @@ export default async function DomainsPage({
         neverLabel={t("autopilotNever")}
       />
 
-      <p className="mt-10 text-[11.5px] text-ink-soft/70 text-center max-w-[560px] mx-auto leading-relaxed">
+      <p className="mt-10 text-[11.5px] text-ink-soft text-center max-w-[560px] mx-auto leading-relaxed">
         {t("footerHonesty")}
       </p>
     </VerticalPageShell>

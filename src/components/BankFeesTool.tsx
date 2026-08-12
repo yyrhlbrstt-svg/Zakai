@@ -112,8 +112,8 @@ export function BankFeesTool() {
     <div className="flex flex-col gap-4">
       <Card className="p-5 flex flex-col gap-3">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("t_ebd6b437")} />
-        <label className="text-[12px] text-ink-soft font-bold">{t("bankLabel")}</label>
         <Select
+          label={t("bankLabel")}
           value={bankKey}
           onChange={(e) => {
             const next = e.target.value as BankProviderKey;
@@ -135,8 +135,8 @@ export function BankFeesTool() {
             placeholder={t("t_e5cbb043")}
           />
         )}
-        <label className="text-[12px] text-ink-soft font-bold">{tFlow("contactEmail")}</label>
         <Input
+          label={tFlow("contactEmail")}
           type="email"
           dir="ltr"
           value={bankEmail}
@@ -149,7 +149,11 @@ export function BankFeesTool() {
           onChange={(e) => setAccountLast4(e.target.value.replace(/\D/g, "").slice(0, 4))}
           placeholder={t("t_832f0010")}
         />
-        <Select value={feeKind} onChange={(e) => setFeeKind(e.target.value as BankFeeKind)}>
+        <Select
+          label={t("feeKindLabel")}
+          value={feeKind}
+          onChange={(e) => setFeeKind(e.target.value as BankFeeKind)}
+        >
           {BANK_FEE_KINDS.map((k) => (
             <option key={k} value={k}>
               {feeKindLabel(k, locale)}

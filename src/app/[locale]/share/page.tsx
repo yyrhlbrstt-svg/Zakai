@@ -91,7 +91,7 @@ export default async function SharePage({
           </Link>
         </div>
       </Card>
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed">
         {t("landingDisclaimer")}
       </p>
     </main>

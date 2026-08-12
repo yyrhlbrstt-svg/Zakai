@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { ElementType } from "react";
 
 /**
  * Restrained scroll-reveal: a small fade + rise as the element enters the
@@ -12,12 +13,26 @@ export function Reveal({
   children,
   delay = 0,
   className = "",
+  as: Tag = "div",
 }: {
   children: React.ReactNode;
   delay?: number;
   className?: string;
+  /**
+   * The element to render as. Defaults to a div, which is right almost
+   * everywhere and wrong inside a list.
+   *
+   * Wrapping each `<li>` in a Reveal produced `<ol><div><li>` — which breaks
+   * the list in both directions at once: the `<ol>` no longer directly
+   * contains list items, and the `<li>` is no longer inside a list. A screen
+   * reader stops announcing "list, five items" entirely, so somebody who
+   * cannot see the numbered circles loses the count and the ordering — on
+   * pages whose whole content is a numbered sequence of steps to claim money.
+   * `<Reveal as="li">` keeps the animation and the semantics.
+   */
+  as?: ElementType;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -42,8 +57,12 @@ export function Reveal({
   }, []);
 
   return (
-    <div ref={ref} className={`reveal ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+    <Tag
+      ref={ref}
+      className={`reveal ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
       {children}
-    </div>
+    </Tag>
   );
 }

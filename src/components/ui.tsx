@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useId } from "react";
 
 /** Shared class fragments for the glass/dark design language. */
 export const glass =
@@ -50,32 +51,120 @@ export function Button({
   return <button type={type} className={`${base} ${styles} ${className}`} {...rest} />;
 }
 
-export function Input({ className = "", ...rest }: React.InputHTMLAttributes<HTMLInputElement>) {
+/**
+ * Every form control ends up with a name a screen reader can announce.
+ *
+ * An axe run across all 136 routes found eleven controls with none at all —
+ * three of them on the institutional contact form, two on the bank-fee flow.
+ * The visible `<label>` beside them was a plain sibling with no `htmlFor`, so
+ * it labelled nothing: clicking it did not focus the field, and a blind person
+ * reached an input announced as "edit text, blank" with no way to know what it
+ * wanted. On a product whose entire purpose is getting money back for people
+ * without the time or leverage to chase it themselves, that is the wrong group
+ * to lock out — and in Israel web accessibility is a legal duty, not a
+ * courtesy.
+ *
+ * Preference order, best first:
+ *   1. `label` — renders a real `<label htmlFor>`, so the click target works too.
+ *   2. An `aria-label` / `aria-labelledby` the caller passed deliberately.
+ *   3. The placeholder, as a floor.
+ *
+ * Three is a floor and not a target. A placeholder disappears the moment
+ * somebody types, so it is a poor label for anyone with working memory
+ * loaded — but it is a real accessible name, and it is enormously better than
+ * the nothing that was there.
+ */
+function useFieldName(
+  rest: { id?: string; "aria-label"?: string; "aria-labelledby"?: string; placeholder?: string },
+  label: string | undefined,
+  generatedId: string,
+): { id: string; ariaLabel?: string } {
+  const id = rest.id ?? generatedId;
+  if (label || rest["aria-label"] || rest["aria-labelledby"]) return { id };
+  return { id, ariaLabel: rest.placeholder || undefined };
+}
+
+/** The visible, properly associated label. */
+function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
   return (
+    <label htmlFor={htmlFor} className="text-caption text-ink-soft font-bold">
+      {children}
+    </label>
+  );
+}
+
+export function Input({
+  className = "",
+  label,
+  ...rest
+}: React.InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
+  const generated = useId();
+  const { id, ariaLabel } = useFieldName(rest, label, generated);
+  const field = (
     <input
+      id={id}
+      aria-label={ariaLabel}
       className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border transition-[border-color,box-shadow] duration-200 ease-[var(--ease-out)] hover:border-[rgba(255,255,255,0.18)] focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     />
   );
+  if (!label) return field;
+  return (
+    <span className="flex flex-col gap-1.5">
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      {field}
+    </span>
+  );
 }
 
-export function Select({ className = "", children, ...rest }: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
+export function Select({
+  className = "",
+  children,
+  label,
+  ...rest
+}: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string }) {
+  const generated = useId();
+  const { id, ariaLabel } = useFieldName(rest, label, generated);
+  const field = (
     <select
+      id={id}
+      aria-label={ariaLabel}
       className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     >
       {children}
     </select>
   );
+  if (!label) return field;
+  return (
+    <span className="flex flex-col gap-1.5">
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      {field}
+    </span>
+  );
 }
 
-export function Textarea({ className = "", ...rest }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
+export function Textarea({
+  className = "",
+  label,
+  ...rest
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string }) {
+  const generated = useId();
+  const { id, ariaLabel } = useFieldName(rest, label, generated);
+  const field = (
     <textarea
+      id={id}
+      aria-label={ariaLabel}
       className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[15px] leading-relaxed text-ink outline-none box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     />
+  );
+  if (!label) return field;
+  return (
+    <span className="flex flex-col gap-1.5">
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      {field}
+    </span>
   );
 }
 

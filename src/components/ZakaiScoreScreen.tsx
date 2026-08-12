@@ -230,6 +230,9 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
           <div
             className="mt-3 h-2 rounded-full bg-[rgba(255,255,255,0.08)] overflow-hidden"
             role="progressbar"
+            // A progressbar with a value and no name is announced as a bare
+            // number: "0, 1000". The reader has no idea what it measures.
+            aria-label={t("scoreLabel")}
             aria-valuenow={result.score}
             aria-valuemin={0}
             aria-valuemax={1000}

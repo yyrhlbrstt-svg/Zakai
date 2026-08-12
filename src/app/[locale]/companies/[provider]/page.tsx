@@ -218,7 +218,7 @@ export default async function CompanyDetailPage({
         </Link>
       </div>
 
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed max-w-[600px]">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed max-w-[600px]">
         {t("companies.disclaimer")}
       </p>
     </main>

@@ -89,7 +89,7 @@ export default async function PriceProtectionPage({
         </Link>
       </div>
 
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}
       </p>
     </VerticalPageShell>

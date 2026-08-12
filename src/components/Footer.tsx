@@ -32,8 +32,12 @@ function FooterLink({
   const isCurrent = pathname === target && !href.includes("#");
 
   if (isCurrent) {
+    // The current page, at half opacity, computed to 2.72:1 — well under the
+    // 4.5:1 floor and the worst contrast on the site. "You are here" is not a
+    // reason to make something unreadable; the cursor and aria-current already
+    // say it is not a link.
     return (
-      <span aria-current="page" className="text-ink-soft/50 cursor-default">
+      <span aria-current="page" className="text-ink-soft cursor-default">
         {children}
       </span>
     );
@@ -131,7 +135,7 @@ export function Footer() {
         </span>
       </div>
 
-      <p className="text-[11px] text-[rgba(147,166,165,0.7)] leading-relaxed text-center max-w-[640px] mx-auto">
+      <p className="text-[11px] text-[rgba(147,166,165,0.85)] leading-relaxed text-center max-w-[640px] mx-auto">
         {t("footer.legalLine")}
       </p>
     </footer>

@@ -35,7 +35,7 @@ export async function ZmlCatalogTeaser({
           return (
           <li key={r.id} className="text-[13.5px] text-ink-soft">
             <span className="text-ink font-semibold">{name}</span>
-            <span className="text-[11px] ms-2 opacity-70">{r.category}</span>
+            <span className="text-[11px] ms-2 text-ink-soft">{r.category}</span>
           </li>
           );
         })}

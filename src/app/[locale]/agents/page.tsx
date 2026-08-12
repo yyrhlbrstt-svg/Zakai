@@ -89,7 +89,7 @@ export default async function AgentsPage({
             </ul>
           )}
           {section.code && (
-            <pre className="bg-[#0d1117] text-[#e6edf3] text-[12.5px] leading-relaxed rounded-lg p-4 overflow-x-auto mb-4">
+            <pre tabIndex={0} className="bg-[#0d1117] text-[#e6edf3] text-[12.5px] leading-relaxed rounded-lg p-4 overflow-x-auto mb-4">
               {section.code.replace("{ORIGIN}", ORIGIN)}
             </pre>
           )}

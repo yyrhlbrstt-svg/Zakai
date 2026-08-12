@@ -5038,7 +5038,8 @@
       "title": "Money about to expire",
       "deadlineIn": "Soonest — {days} days left",
       "sub": "This amount stops being claimable on dates fixed by law. We keep the count for you."
-    }
+    },
+    "scoreLabel": "Zakai score"
   },
   "door": {
     "title": "Or start from here",
@@ -5301,7 +5302,8 @@
     "copied": "Copied",
     "errorGeneric": "Something went wrong. Try again.",
     "errorCaseLimit": "Case limit reached. Upgrade or close an existing case.",
-    "errorAmountRequired": "Missing fee amount — without a real figure there is no SavingsProof and no fee."
+    "errorAmountRequired": "Missing fee amount — without a real figure there is no SavingsProof and no fee.",
+    "feeKindLabel": "Fee type"
   },
   "inline_app_locale_money_page": {
     "t_98667843": "Money leaving every month for no good reason",
