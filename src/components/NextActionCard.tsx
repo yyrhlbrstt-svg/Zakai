@@ -97,7 +97,7 @@ export function NextActionCard({
           Naming what to do roughly doubles follow-through against intent alone. */}
       <Link
         href={c.href}
-        className="inline-flex items-center gap-1.5 text-[13.5px] font-extrabold text-base bg-emerald rounded-full px-5 py-2.5 no-underline hover:opacity-90 transition-opacity"
+        className="inline-flex items-center gap-1.5 text-[13.5px] font-extrabold text-[#06121A] bg-emerald rounded-full px-5 py-2.5 no-underline hover:opacity-90 transition-opacity"
       >
         {t("cta")}
       </Link>
