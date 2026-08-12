@@ -430,6 +430,19 @@ model SavingsProof {
   /// a chargeable Fee — eighteen percent of a number somebody typed is not a
   /// fee this company could defend if asked to.
   selfReported   Boolean  @default(false)
+
+  /// How many billing cycles have actually been confirmed for this saving.
+  ///
+  /// One is the honest floor and the historical default: settling a case
+  /// verifies the bill in front of us and nothing beyond it. Every later
+  /// confirmed bill raises this, which is what lets the documented recovery
+  /// grow on evidence instead of on the flat ×12 the outcome graph used to
+  /// assert off a single observation. Meaningless for lump recoveries, which
+  /// arrive once and whole.
+  confirmedCycles Int      @default(1)
+  /// When a later bill last confirmed the saving was still in place.
+  lastConfirmedAt DateTime?
+
   recordedAt     DateTime @default(now())
 
   /// The settlement as a signed, independently verifiable object.

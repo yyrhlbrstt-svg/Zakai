@@ -141,8 +141,34 @@ describe("resolveInboundRecordAmountShekels", () => {
 });
 
 describe("documentedRecoveryMinor", () => {
-  it("annualizes monthly savings only", () => {
-    expect(documentedRecoveryMinor(1000, "monthly")).toBe(12000);
-    expect(documentedRecoveryMinor(1000, "lump")).toBe(1000);
+  /**
+   * This used to assert ×12 and the reversal is deliberate.
+   *
+   * It read "annualizes monthly savings only" and was satisfied by twelve
+   * months recorded off a single verified bill, while `computeFee` charged 18%
+   * of exactly one. The graph counted a year, the invoice counted a month, and
+   * the field is called *documented* — eleven of those months were never
+   * observed by anyone.
+   */
+  it("records only the cycles actually confirmed", () => {
+    expect(documentedRecoveryMinor(1000, "monthly", 1)).toBe(1000);
+    expect(documentedRecoveryMinor(1000, "monthly", 2)).toBe(3000);
+    expect(documentedRecoveryMinor(1000, "monthly", 3)).toBe(6000);
+  });
+
+  it("defaults to one cycle — what settling a case actually establishes", () => {
+    expect(documentedRecoveryMinor(1000, "monthly")).toBe(1000);
+  });
+
+  it("never claims a full year, at any depth", () => {
+    for (const cycles of [1, 2, 3, 4, 10, 100]) {
+      expect(documentedRecoveryMinor(1000, "monthly", cycles)).toBeLessThan(12000);
+    }
+  });
+
+  it("leaves a lump recovery whole, whatever the cycle count", () => {
+    for (const cycles of [1, 2, 5]) {
+      expect(documentedRecoveryMinor(1000, "lump", cycles)).toBe(1000);
+    }
   });
 });

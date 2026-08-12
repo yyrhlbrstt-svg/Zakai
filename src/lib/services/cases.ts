@@ -544,6 +544,24 @@ export async function recordSaving(
   const fee = result.fee;
   const outcomeBasis = getRulePack(kase.vertical)?.feeBasis ?? "monthly";
 
+  /**
+   * The verification depth this outcome is allowed to claim.
+   *
+   * Read rather than assumed. At a first settle it is one — the proof was just
+   * written with that default, because settling verifies the bill in front of
+   * us and nothing beyond it. It is read anyway so a case that settles after a
+   * later bill already confirmed the saving records the depth it actually has,
+   * instead of a constant that happens to be right today.
+   *
+   * A known gap, stated rather than papered over: StrategyOutcome carries no
+   * case key by design, so a confirmation that arrives AFTER settlement cannot
+   * raise the row already written. The graph therefore under-reports rather
+   * than over-reports, which is the direction to err in.
+   */
+  const settledProof = await prisma.savingsProof
+    .findUnique({ where: { caseId }, select: { confirmedCycles: true } })
+    .catch(() => null);
+
   // Learning signal: documented settle → StrategyOutcome (de-identified). Background, fail-open.
   await commitCaseLearningSignal({
     caseId,
@@ -555,7 +573,12 @@ export async function recordSaving(
     variantId: kase.strategyVariant,
     drafterId: kase.drafterId,
     paid: fee.savingMonthly > 0,
-    recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
+    // The depth actually verified — never a projection. See above.
+    recoveredMinor: documentedRecoveryMinor(
+      fee.savingMonthly,
+      outcomeBasis,
+      settledProof?.confirmedCycles ?? 1,
+    ),
     days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),
     selfReported,
     // Grades the evidence rather than just recording it: a settlement-backed
