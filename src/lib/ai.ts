@@ -403,6 +403,31 @@ async function fallbackGenerate(
 const DRAFT_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 const EXTRACT_MODEL = process.env.ANTHROPIC_EXTRACT_MODEL || "claude-haiku-4-5";
 
+/**
+ * The model used where the output is a sum of money that binds somebody.
+ *
+ * Every extraction here ran on the small model, which is right for most of
+ * them: classifying a document, pulling transaction rows, reading a receipt
+ * into a list. Those are cheap to check and cheap to get wrong — the person
+ * sees the result on screen next to the picture they just took.
+ *
+ * Three of them are not like that. The amount read off a bill becomes the
+ * figure in a demand letter sent to a real company over a real person's name,
+ * and the amount read out of a provider's reply becomes a SavingsProof and a
+ * fee charged to that person. Nobody re-reads the photograph at that point.
+ * The first non-negotiable in this codebase is that we never fabricate an
+ * amount, and a misread digit is a fabricated amount that nobody chose.
+ *
+ * This is an asymmetry judgement, not a benchmark: there is no API key in the
+ * environment this was written in, so I have not measured Hebrew bill OCR on
+ * the two models and am not going to claim I did. The reasoning is only that
+ * the cost of the two errors is wildly unequal — a few tenths of a cent per
+ * upload against a wrong number in a legal demand. Set ANTHROPIC_MONEY_MODEL
+ * to move it, and measure before you do.
+ */
+const MONEY_MODEL =
+  process.env.ANTHROPIC_MONEY_MODEL || process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
+
 /** A system block that opts into prompt caching. Text must be stable. */
 function cachedSystem(text: string) {
   return [{ type: "text" as const, text, cache_control: { type: "ephemeral" as const } }];
@@ -661,7 +686,7 @@ export async function analyzeAnyBillImage(
     userText: "Extract this bill.",
     imageBase64: base64,
     mediaType,
-    model: EXTRACT_MODEL,
+    model: MONEY_MODEL,
     maxTokens: 400,
     temperature: 0,
   });
@@ -713,7 +738,7 @@ export async function analyzeBillImage(
     userText: "Extract this bill.",
     imageBase64: base64,
     mediaType,
-    model: EXTRACT_MODEL,
+    model: MONEY_MODEL,
     maxTokens: 400,
     temperature: 0,
   });
@@ -1046,7 +1071,7 @@ export async function extractSavingsFromEmail(
     } else {
       const anthropic = client();
       const msg = await anthropic.messages.create({
-        model: EXTRACT_MODEL,
+        model: MONEY_MODEL,
         max_tokens: 300,
         temperature: 0,
         system: cachedSystem(system),

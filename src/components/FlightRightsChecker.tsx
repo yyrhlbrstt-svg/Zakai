@@ -63,7 +63,6 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
   const [ilDelay, setIlDelay] = useState<number>(9);
   const [euDelay, setEuDelay] = useState<number>(6);
   const [shortNotice, setShortNotice] = useState(true);
-  const [letterOpen, setLetterOpen] = useState(false);
   const [letter, setLetter] = useState("");
   const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({
@@ -282,20 +281,18 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
         </div>
       </Card>
 
-      {/* Agent path + demand letter */}
+      {/*
+       * Agent path + demand letter.
+       *
+       * The form used to sit behind a "prepare a demand letter for me" button,
+       * so answering the questions produced a figure and then a card asking
+       * whether you would like to do anything about it. That extra tap is the
+       * whole of "it brings me here and then it isn't clear what to do": the
+       * answer to "you are owed 2,390" is the claim, not an offer to start one.
+       */}
       {entitled && (
         <Card className="mt-5 p-6">
-          {!letterOpen && !caseId ? (
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex-1 basis-[240px]">
-                <div className="font-extrabold text-[15px]">{t("letter.title")}</div>
-                <p className="text-ink-soft text-[13px] mt-1 mb-0 leading-relaxed">{t("letter.sub")}</p>
-              </div>
-              <Button variant="ghost" onClick={() => setLetterOpen(true)}>
-                {t("letter.openBtn")}
-              </Button>
-            </div>
-          ) : caseId ? (
+          {caseId ? (
             <div>
               <div className="text-emerald font-extrabold text-[15px]">
                 {tIcomponents_FlightRightsChecker("t_360e126e")}
@@ -311,7 +308,8 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
             </div>
           ) : (
             <>
-              <div className="font-extrabold text-[15px] mb-3">{t("letter.title")}</div>
+              <div className="font-extrabold text-lead mb-1">{t("letter.formTitle")}</div>
+              <p className="text-caption text-ink-soft mt-0 mb-3 leading-relaxed">{t("letter.sub")}</p>
               <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
                 {/* The airline is picked, not typed. Typing it meant the claim
                     address resolved for one spelling and silently failed for

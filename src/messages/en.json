@@ -1286,7 +1286,8 @@
       "contactHint": "The address is on the airline's contact page or your boarding pass. We never invent one.",
       "claimCta": "File the claim with {airline} — {amount}",
       "claimCtaPlain": "File the claim with the airline",
-      "nextStep": "Next: a short check that this is you, then one approval — and Zakai sends the demand in your name. You can stop at any point."
+      "nextStep": "Next: a short check that this is you, then one approval — and Zakai sends the demand in your name. You can stop at any point.",
+      "formTitle": "Flight details — to file the claim"
     },
     "metaTitle": "Flight cancelled or delayed? You're owed money — Zakai",
     "metaDesc": "Israel's Aviation Services Law obligates airlines to fixed compensation, an alternative ticket and assistance — low-cost carriers included. Three taps to know what you're owed."
