@@ -7,6 +7,7 @@ import { planConfig } from "@/lib/plans";
 import { aiAvailable } from "@/lib/ai";
 import { bcp47, type Locale } from "@/i18n/config";
 import { privatePageMetadata } from "@/lib/seo";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 
 export async function generateMetadata({
   params,
@@ -40,6 +41,7 @@ export default async function ScanPage({
         fullScan={planConfig(user!.plan).fullScan}
         bcp47={bcp47[locale as Locale]}
         screenshotEnabled={aiAvailable()}
+        mailLive={smtpFullyConfigured()}
         referralCode={user!.referralCode}
       />
     </main>

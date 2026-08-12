@@ -17,6 +17,7 @@ import {
   scanShareLandingPath,
 } from "@/lib/monopoly/scanShare";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
+import { CapabilityNotice } from "@/components/CapabilityNotice";
 
 const CATEGORY_COLOR: Record<ChargeCategory, string> = {
   cellular: "#3FCB9B",
@@ -36,11 +37,13 @@ export function StatementScan({
   fullScan,
   bcp47,
   screenshotEnabled = false,
+  mailLive = true,
   referralCode,
 }: {
   fullScan: boolean;
   bcp47: string;
   screenshotEnabled?: boolean;
+  mailLive?: boolean;
   referralCode?: string;
 }) {
   const t = useTranslations("scan");
@@ -176,6 +179,7 @@ export function StatementScan({
 
   return (
     <div className="pb-28">
+      <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} />
       <Card className="p-6">
         <div className="flex items-start gap-2.5 text-body text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 mb-5">
           <span aria-hidden>🔒</span>

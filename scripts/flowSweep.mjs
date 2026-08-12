@@ -40,6 +40,7 @@
  *   BASE_URL=http://127.0.0.1:3000 node scripts/flowSweep.mjs
  *   node scripts/flowSweep.mjs --locale he --json
  *   node scripts/flowSweep.mjs --only /flights,/money
+ *   node scripts/flowSweep.mjs --auth ./auth.json      # signed-in pass
  */
 
 import { chromium, devices } from "playwright";
@@ -51,6 +52,14 @@ const args = process.argv.slice(2);
 const LOCALE = valueOf("--locale") ?? "he";
 const AS_JSON = args.includes("--json");
 const ONLY = valueOf("--only")?.split(",").map((s) => s.trim()).filter(Boolean);
+/**
+ * A saved signed-in session.
+ *
+ * Half this product is behind a login — the dashboard, the case, the ledger,
+ * every screen where somebody is actually recovering money. A sweep that only
+ * ever sees the logged-out site checks the brochure and calls it the product.
+ */
+const STORAGE_STATE = valueOf("--auth");
 
 /**
  * Long enough for the timed overlays to appear. The install banner waits
@@ -258,10 +267,34 @@ async function sweep(page, route) {
     return true;
   });
 
+  /**
+   * A page with nothing on it to press is not a passing page.
+   *
+   * This check exists because the sweep briefly reported "ok, 0 controls" for
+   * nine routes in a row and looked like a clean run. The server was serving
+   * chunks from a previous build and every page had died with a
+   * ChunkLoadError, so the probe examined nothing and found nothing wrong with
+   * it. Silence and success are not the same result, and a check that cannot
+   * tell them apart is worse than no check — it is a green light nobody
+   * inspected.
+   */
+  const controls = Math.max(top.controls, bottom.controls);
+  if (controls === 0) {
+    return {
+      route,
+      status,
+      controls: 0,
+      fatal:
+        "no interactive elements at all — the page did not render (check the " +
+        "console for a client-side exception, and that the server is serving " +
+        "the build you think it is)",
+    };
+  }
+
   return {
     route,
     status,
-    controls: Math.max(top.controls, bottom.controls),
+    controls,
     occluded,
     disabled: [...new Set([...top.disabled, ...bottom.disabled])],
     small: [...new Set([...top.small, ...bottom.small])],
@@ -275,7 +308,11 @@ async function main() {
     executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined,
     args: ["--no-sandbox"],
   });
-  const ctx = await browser.newContext({ ...devices["iPhone 13"], locale: `${LOCALE}-IL` });
+  const ctx = await browser.newContext({
+    ...devices["iPhone 13"],
+    locale: `${LOCALE}-IL`,
+    ...(STORAGE_STATE ? { storageState: STORAGE_STATE } : {}),
+  });
   const page = await ctx.newPage();
 
   const results = [];

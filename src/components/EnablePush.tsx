@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "@/i18n/routing";
+import { FLOATING_BANNER_ATTR, useFloatingClearance } from "@/components/useFloatingClearance";
 
 /**
  * Registers the PWA service worker and offers one-tap Web Push opt-in.
@@ -51,6 +52,14 @@ export function EnablePush({ loggedIn }: { loggedIn: boolean }) {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [on, setOn] = useState(false);
+  /**
+   * Four seconds after any signed-in page loaded, this appeared over whatever
+   * happened to be at the bottom of the viewport. On the homepage that was
+   * "start with my money" — the button the whole product funnels toward. It
+   * now measures itself and leaves rather than sit on anything.
+   */
+  const retreat = useCallback(() => setShow(false), []);
+  const { ref, clear } = useFloatingClearance(show, retreat);
 
   useEffect(() => {
     if (!loggedIn) return;
@@ -143,7 +152,13 @@ export function EnablePush({ loggedIn }: { loggedIn: boolean }) {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-[4.5rem] z-[9997] mx-auto max-w-[520px] rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] p-4 flex items-center gap-3">
+    <div
+      ref={ref}
+      {...{ [FLOATING_BANNER_ATTR]: "push" }}
+      aria-hidden={!clear}
+      className="fixed inset-x-3 bottom-[4.5rem] z-[9997] mx-auto max-w-[520px] rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] p-4 flex items-center gap-3"
+      style={clear ? undefined : { visibility: "hidden", pointerEvents: "none" }}
+    >
       <div className="text-2xl shrink-0" aria-hidden>
         🔔
       </div>
@@ -163,7 +178,7 @@ export function EnablePush({ loggedIn }: { loggedIn: boolean }) {
         type="button"
         onClick={dismiss}
         aria-label={t.dismiss}
-        className="shrink-0 text-ink-soft hover:text-ink text-lg leading-none px-1 bg-transparent border-0 cursor-pointer"
+        className="shrink-0 text-ink-soft hover:text-ink text-lg leading-none grid place-items-center min-w-[28px] min-h-[28px] bg-transparent border-0 cursor-pointer"
       >
         ✕
       </button>
