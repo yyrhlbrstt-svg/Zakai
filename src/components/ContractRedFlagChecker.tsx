@@ -220,6 +220,16 @@ export function ContractRedFlagChecker() {
         </div>
       )}
 
+      {/* Present before any scan, not only after one succeeds. A person who
+          pastes nothing, or whose contract does not parse, still has a contract
+          renewing on a date somebody has to hold. */}
+      <p className="text-ink-soft text-caption mt-5 mb-0 leading-relaxed">
+        {t("commitmentsAlways")}{" "}
+        <Link href="/commitments" className="text-emerald font-bold no-underline">
+          {t("renewalWhereLink")}
+        </Link>
+      </p>
+
       {result && result.clauses.length > 0 && (
         <div className="flex flex-col gap-3 mt-6">
           {result.clauses.map((c, i) => (

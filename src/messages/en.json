@@ -2947,7 +2947,8 @@
     "noticeActBy": "Written notice is due by {date} — {days} days' notice required. {left} days left.",
     "noticeMissed": "The notice window closed on {date} ({days} days' notice required). The term is set to roll — you can still ask for cancellation or new terms.",
     "renewalWhereKept": "The contract is kept in your commitments record, with the notice date.",
-    "renewalWhereLink": "My commitments"
+    "renewalWhereLink": "My commitments",
+    "commitmentsAlways": "You can also skip the scan: keep any self-renewing contract, and we hold the date you can still get out by."
   },
   "scamCheck": {
     "metaTitle": "Is this a scam? Check a suspicious SMS/WhatsApp message | Zakai",
@@ -3082,7 +3083,9 @@
     "claimExpiryNote": "Under the general default, this claim would be time-barred around {date}.",
     "claimAddCta": "Add as a reminder",
     "claimAdded": "Added ✓",
-    "claimLabel": "Claim expiring: {desc}"
+    "claimLabel": "Claim expiring: {desc}",
+    "commitmentsHint": "Have a contract that renews itself? Instead of a reminder you have to remember to set, keep the contract — and we hold the date you can still get out by.",
+    "commitmentsLink": "The commitments record"
   },
   "parking": {
     "title": "Parking-ticket appeal",

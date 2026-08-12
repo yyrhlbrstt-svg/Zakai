@@ -53,6 +53,11 @@ const COPY = {
     everything: "כל ההתחייבויות",
     actBy: "להודיע עד",
     writeCancellation: "צור מכתב ביטול",
+    emptyAct: "כבר יודעים על חוזה שרוצים לצאת ממנו?",
+    loadFailed: "לא הצלחנו לטעון את הרשימה. רעננו את הדף.",
+    signedOutTitle: "צריך להתחבר כדי לראות את הרישום",
+    signedOutSub: "הרישום שמור לחשבון שלך בלבד. אם כבר עכשיו יש חוזה שרוצים לצאת ממנו — אפשר לייצר מכתב ביטול בלי להתחבר.",
+    signIn: "התחברות",
     daysLeft: "נותרו",
     days: "ימים",
     missed: "החלון נסגר",
@@ -85,6 +90,11 @@ const COPY = {
     everything: "All commitments",
     actBy: "give notice by",
     writeCancellation: "Write cancellation letter",
+    emptyAct: "Already know of a contract you want out of?",
+    loadFailed: "We could not load the list. Refresh the page.",
+    signedOutTitle: "Sign in to see your record",
+    signedOutSub: "The record is kept on your account only. If you already have a contract you want out of, you can write a cancellation letter without signing in.",
+    signIn: "Sign in",
     daysLeft: "left:",
     days: "days",
     missed: "window closed",
@@ -111,6 +121,10 @@ export function CommitmentsBoard({ locale }: { locale: string }) {
   const [review, setReview] = useState<Review | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [needsLogin, setNeedsLogin] = useState(false);
+  /** Separate from `err`, which belongs to the add form below. A list that
+   *  failed to load must not then claim there is nothing in it. */
+  const [loadErr, setLoadErr] = useState("");
 
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
@@ -120,14 +134,34 @@ export function CommitmentsBoard({ locale }: { locale: string }) {
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/commitments");
-      if (!res.ok) return;
+      /**
+       * A failed load must leave a state that is not "loading".
+       *
+       * This used to `return` on any non-OK response, which left `rows` null
+       * forever — and since the list is behind a session, that meant every
+       * logged-out visitor to this page sat looking at "Loading…" with no
+       * error, no sign-in prompt and no way onward, indefinitely. A spinner
+       * that never resolves is worse than an error: it gives a person nothing
+       * to act on and no reason to stop waiting.
+       */
+      if (res.status === 401) {
+        setNeedsLogin(true);
+        setRows([]);
+        return;
+      }
+      if (!res.ok) {
+        setLoadErr(c.loadFailed);
+        setRows([]);
+        return;
+      }
       const data = await res.json();
       setRows(data.commitments ?? []);
       setReview(data.review ?? null);
     } catch {
+      setLoadErr(c.loadFailed);
       setRows([]);
     }
-  }, []);
+  }, [c.loadFailed]);
 
   useEffect(() => {
     void load();
@@ -269,10 +303,40 @@ export function CommitmentsBoard({ locale }: { locale: string }) {
         </Card>
       )}
 
-      {rows.length === 0 && (
+      {needsLogin && (
+        <Card className="p-5">
+          <h2 className="text-title font-extrabold m-0 mb-1.5">{c.signedOutTitle}</h2>
+          <p className="text-ink-soft text-body m-0 mb-3 leading-relaxed">{c.signedOutSub}</p>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/login?return=/commitments" className="no-underline">
+              <Button variant="ghost" className="!text-body">{c.signIn}</Button>
+            </Link>
+            <Link href="/cancel" className="no-underline">
+              <Button variant="ghost" className="!text-body">{c.writeCancellation}</Button>
+            </Link>
+          </div>
+        </Card>
+      )}
+
+      {loadErr !== "" && (
+        <Card className="p-5">
+          <p role="alert" className="text-[#ff8f8f] text-body m-0">{loadErr}</p>
+        </Card>
+      )}
+
+      {!needsLogin && loadErr === "" && rows.length === 0 && (
         <Card className="p-5">
           <h2 className="text-title font-extrabold m-0 mb-1.5">{c.emptyTitle}</h2>
           <p className="text-ink-soft text-body m-0 leading-relaxed">{c.emptySub}</p>
+          {/* The way out has to be here in the empty state too. Offering it only
+              once a row exists means the page leads nowhere for every person
+              arriving for the first time — which is everybody, once. */}
+          <p className="text-ink-soft text-body mt-3 mb-0 leading-relaxed">
+            {c.emptyAct}{" "}
+            <Link href="/cancel" className="text-emerald font-bold no-underline">
+              {c.writeCancellation}
+            </Link>
+          </p>
         </Card>
       )}
 
