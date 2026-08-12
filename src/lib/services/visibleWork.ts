@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { providerHebrewName } from "@/lib/providers";
 
 /**
  * Visible Work — one surface for everything ever done in a person's name.
@@ -174,7 +175,16 @@ export async function loadVisibleWork(userId: string, limit = 300): Promise<Visi
   for (const a of authorities) {
     authorityByCase.set(a.caseId, { code: a.code, revoked: a.status === "REVOKED" });
   }
-  const providerByCase = new Map(cases.map((c) => [c.id, c.provider]));
+  /**
+   * The counterparty as a person would name it, not as the database keys it.
+   *
+   * The ledger read "נפתחה תביעה מול hapoalim" while the letter it produced
+   * said "בנק הפועלים" on the same screen's data. A page whose whole purpose is
+   * to be checkable by the person it is about cannot make them translate an
+   * internal key to know who was contacted on their behalf.
+   */
+  const displayName = (key: string) => providerHebrewName(key);
+  const providerByCase = new Map(cases.map((c) => [c.id, displayName(c.provider)]));
 
   const under = (caseId: string | null) => {
     const a = caseId ? authorityByCase.get(caseId) : undefined;
@@ -189,7 +199,7 @@ export async function loadVisibleWork(userId: string, limit = 300): Promise<Visi
       at: c.createdAt,
       kind: "case_opened",
       reach: "internal",
-      counterparty: c.provider,
+      counterparty: displayName(c.provider),
       caseId: c.id,
       ...under(c.id),
       amountMinor: null,
@@ -201,7 +211,7 @@ export async function loadVisibleWork(userId: string, limit = 300): Promise<Visi
         at: c.approvedAt,
         kind: "consent_given",
         reach: "internal",
-        counterparty: c.provider,
+        counterparty: displayName(c.provider),
         caseId: c.id,
         ...under(c.id),
         amountMinor: null,
@@ -214,7 +224,7 @@ export async function loadVisibleWork(userId: string, limit = 300): Promise<Visi
         at: c.ownershipVerifiedAt,
         kind: "ownership_verified",
         reach: "internal",
-        counterparty: c.provider,
+        counterparty: displayName(c.provider),
         caseId: c.id,
         ...under(c.id),
         amountMinor: null,
@@ -229,7 +239,7 @@ export async function loadVisibleWork(userId: string, limit = 300): Promise<Visi
       at: a.issuedAt,
       kind: "authority_granted",
       reach: "internal",
-      counterparty: a.provider,
+      counterparty: displayName(a.provider),
       caseId: a.caseId,
       authorityCode: a.code,
       authorityRevoked: a.status === "REVOKED",
@@ -242,7 +252,7 @@ export async function loadVisibleWork(userId: string, limit = 300): Promise<Visi
         at: a.revokedAt,
         kind: "authority_revoked",
         reach: "internal",
-        counterparty: a.provider,
+        counterparty: displayName(a.provider),
         caseId: a.caseId,
         authorityCode: a.code,
         authorityRevoked: true,

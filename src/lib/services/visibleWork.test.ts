@@ -214,6 +214,33 @@ describe("loadVisibleWork — binds every action to the authority it was taken u
   });
 });
 
+describe("loadVisibleWork — names the counterparty the way a person would", () => {
+  it("shows the provider's real name, never the database key", async () => {
+    // The ledger read "נפתחה תביעה מול hapoalim" while the letter produced from
+    // the same case said "בנק הפועלים". A page whose whole purpose is to be
+    // checkable by the person it is about cannot make them translate a key.
+    caseFindMany.mockResolvedValue([baseCase({ provider: "hapoalim" })]);
+    authFindMany.mockResolvedValue([
+      {
+        code: "ZK-1",
+        provider: "hapoalim",
+        status: "ACTIVE",
+        issuedAt: T("2026-01-01T12:00:00Z"),
+        revokedAt: null,
+        caseId: "c1",
+      },
+    ]);
+
+    const led = await loadVisibleWork("u1");
+    const named = led.events.filter((e) => e.counterparty !== null);
+    expect(named.length).toBeGreaterThan(0);
+    for (const e of named) {
+      expect(e.counterparty).not.toBe("hapoalim");
+      expect(e.counterparty).toBe("בנק הפועלים");
+    }
+  });
+});
+
 describe("loadVisibleWork — ordering and money", () => {
   it("is newest first", async () => {
     caseFindMany.mockResolvedValue([
