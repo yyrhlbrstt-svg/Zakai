@@ -248,8 +248,34 @@ async function main() {
          */
         const main = document.querySelector("main") ?? document.body;
         const links = new Set();
+        /**
+         * A link to an official government form is a way forward.
+         *
+         * CLAUDE.md says a page gets a path to action — "letter / check /
+         * external official tool" — and this check only ever counted the
+         * first two, so a page whose correct answer is gov.il form 2216א read
+         * as a place attention goes to die. That is the check being wrong
+         * about the product's own doctrine, and left uncorrected it pressures
+         * whoever fixes it next to bolt an internal link onto a page that
+         * does not need one.
+         *
+         * Deliberately narrow: an Israeli government host, or one of the
+         * regulators already carried with a verified URL in src/lib. A
+         * general "has any external link" rule would let a footnote to a news
+         * article count as getting somebody their money.
+         */
+        let officialAction = false;
+        const OFFICIAL_HOST = /(^|\.)gov\.il$|(^|\.)boi\.org\.il$|(^|\.)education\.gov\.il$|(^|\.)btl\.gov\.il$/;
         for (const a of main.querySelectorAll("a[href]")) {
           const href = a.getAttribute("href") ?? "";
+          if (/^https?:/.test(href)) {
+            try {
+              if (OFFICIAL_HOST.test(new URL(href).hostname)) officialAction = true;
+            } catch {
+              /* not a URL we can read — not a way forward either */
+            }
+            continue;
+          }
           if (!href.startsWith("/")) continue;
           const path = href.split(/[?#]/)[0].replace(/\/$/, "") || "/";
           // Strip the locale prefix so links compare against sweep routes.
@@ -279,6 +305,7 @@ async function main() {
           stuckLoading,
           textLength: text.replace(/\s+/g, " ").trim().length,
           actions: document.querySelectorAll("a[href], button:not([disabled])").length,
+          officialAction,
           clippedText: clipped.slice(0, 3),
           rawKeys: [...new Set(rawKeys)].slice(0, 3),
           links: [...links],
@@ -322,6 +349,7 @@ async function main() {
       // every non-agentic tool look unreachable, which is a plausible answer
       // arrived at by measuring nothing.
       links: measured?.links ?? [],
+      officialAction: measured?.officialAction ?? false,
       otherConsole: unique.filter((e) => e.startsWith("console:")),
     });
   }
@@ -340,14 +368,16 @@ async function main() {
    * nowhere else read as "having a next step" one hop at a time.
    */
   const graph = new Map(results.map((r) => [r.route, r.links ?? []]));
+  const official = new Map(results.map((r) => [r.route, r.officialAction === true]));
   const reachesAClaim = (start) => {
+    if (official.get(start)) return true;
     const seen = new Set([start]);
     const queue = [...(graph.get(start) ?? [])];
     while (queue.length) {
       const at = queue.shift();
       if (seen.has(at)) continue;
       seen.add(at);
-      if (TOOLS.get(at) === true) return true;
+      if (TOOLS.get(at) === true || official.get(at)) return true;
       for (const next of graph.get(at) ?? []) if (!seen.has(next)) queue.push(next);
     }
     return false;
