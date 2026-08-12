@@ -119,3 +119,14 @@ export const CATEGORY_ORDER: ToolCategory[] = ["agent", "rights", "global", "sel
 export function toolsInCategory(cat: ToolCategory): ToolEntry[] {
   return TOOL_CATALOG.filter((t) => t.category === cat);
 }
+
+/**
+ * How many domains carry a real claim path — a Case, a signed Mandate and a
+ * letter — rather than a calculator.
+ *
+ * Counted, never typed. User-facing copy that states this scope reads it from
+ * here, because the last hardcoded version of the sentence outlived its own
+ * truth by about twenty verticals and was quoted back at us in two outside
+ * reviews as evidence the product did almost nothing.
+ */
+export const AGENTIC_VERTICAL_COUNT = TOOL_CATALOG.filter((t) => t.agentic).length;

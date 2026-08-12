@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
 import { SpotlightCard } from "@/components/SpotlightCard";
 import { computeZakameter } from "@/lib/zakameter";
+import { AGENTIC_VERTICAL_COUNT } from "@/lib/toolsCatalog";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
 
 /**
@@ -131,7 +132,16 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
             {t("ctaScan")}
           </Button>
         </Link>
-        <p className="text-[10.5px] text-ink-soft mt-3 mb-0 leading-snug">{t("note")}</p>
+        {/* The scope sentence is counted from the catalogue rather than typed
+            here. The version that was typed said "full service today: mobile;
+            electricity, flights and subscriptions are a calculator you run
+            yourself" — and stayed there while all three grew a real claim
+            path, along with about twenty more. Two outside reviews read that
+            line and scored the product on it. A hardcoded scope claim does not
+            stay true; a counted one cannot go stale. */}
+        <p className="text-[10.5px] text-ink-soft mt-3 mb-0 leading-snug">
+          {t("note", { verticals: AGENTIC_VERTICAL_COUNT })}
+        </p>
       </div>
     </SpotlightCard>
   );

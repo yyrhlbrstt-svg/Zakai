@@ -193,6 +193,39 @@ describe("no claim this product cannot keep", () => {
     }
   });
 
+  it("states its scope from a count, not from a sentence somebody typed", () => {
+    // The note used to read "full service today: mobile; electricity, flights
+    // and subscriptions are a calculator you run yourself" — and stayed there
+    // while all three grew a real claim path, along with about twenty more.
+    // Two outside reviews quoted that line as evidence the product did almost
+    // nothing. A typed scope claim does not stay true.
+    for (const catalogue of [he, en]) {
+      const note = (catalogue as { zakameter: { note: string } }).zakameter.note;
+      expect(note, "the scope note must interpolate the counted vertical total").toContain(
+        "{verticals}",
+      );
+    }
+  });
+
+  it("no string claims one lone vertical is the only live one", () => {
+    const stale = [
+      /שירות פעיל מלא היום:\s*סלולר/,
+      /\bfull(?:y)? active service today:\s*mobile\b/i,
+      /\bonly telecom\b|\btelecom only\b/i,
+    ];
+    const findings: string[] = [];
+    for (const [name, catalogue] of [["he", he], ["en", en]] as const) {
+      walk(catalogue, "", (path, text) => {
+        if (stale.some((p) => p.test(text))) findings.push(`${name}:${path}`);
+      });
+    }
+    expect(
+      findings,
+      `Scope claims naming a single live vertical: ${findings.join(", ")}. ` +
+        `Count it from AGENTIC_VERTICAL_COUNT instead of writing it down.`,
+    ).toEqual([]);
+  });
+
   it("leaves the disclaimers alone — they are the good part", () => {
     const shouldPass = [
       { d: "זכאי אינו עורך דין, אינו נותן ייעוץ משפטי ואינו מייצג אותך בהליך כלשהו." },

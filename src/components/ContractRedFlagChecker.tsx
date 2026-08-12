@@ -185,7 +185,19 @@ export function ContractRedFlagChecker() {
             </p>
           )}
           {reminderAdded ? (
-            <p className="text-emerald text-[13px] font-bold mt-3 mb-0">{t("renewalAdded")}</p>
+            <div className="mt-3">
+              <p className="text-emerald text-[13px] font-bold m-0">{t("renewalAdded")}</p>
+              {/* The contract was filed as a commitment a moment ago, and until
+                  now nothing said where it went. Storing something on somebody's
+                  behalf and not showing them where is the same shape of problem
+                  as the letter that says "sent" without leaving. */}
+              <p className="text-ink-soft text-caption mt-1.5 mb-0 leading-relaxed">
+                {t("renewalWhereKept")}{" "}
+                <Link href="/commitments" className="text-emerald font-bold no-underline">
+                  {t("renewalWhereLink")}
+                </Link>
+              </p>
+            </div>
           ) : needsLogin ? (
             <div className="mt-3">
               <p className="text-ink-soft text-[12.5px] mb-2">{t("renewalLoginNote")}</p>

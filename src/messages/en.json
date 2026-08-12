@@ -1299,7 +1299,7 @@
     "cta": "Photo a bill — start in My money",
     "ctaHint": "Next step: a free profile check — no signup required",
     "ctaScan": "Or check what you are owed (free)",
-    "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
+    "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. A full claim path — a case, a signed authority and a letter in your name — is live in {verticals} domains, including electricity, flights and subscriptions. Letters are written and stored; automatic sending switches on once a mail server is configured."
   },
   "universalCancel": {
     "metaTitle": "Universal subscription cancel — Zakai",
@@ -2945,7 +2945,9 @@
     "renewalAdded": "Reminder added — we'll notify you in time.",
     "renewalLoginNote": "Log in to save a reminder.",
     "noticeActBy": "Written notice is due by {date} — {days} days' notice required. {left} days left.",
-    "noticeMissed": "The notice window closed on {date} ({days} days' notice required). The term is set to roll — you can still ask for cancellation or new terms."
+    "noticeMissed": "The notice window closed on {date} ({days} days' notice required). The term is set to roll — you can still ask for cancellation or new terms.",
+    "renewalWhereKept": "The contract is kept in your commitments record, with the notice date.",
+    "renewalWhereLink": "My commitments"
   },
   "scamCheck": {
     "metaTitle": "Is this a scam? Check a suspicious SMS/WhatsApp message | Zakai",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { Button, Card, Input, FieldError } from "@/components/ui";
 
 /**
@@ -52,6 +52,7 @@ const COPY = {
     actNow: "צריך לפעול עכשיו",
     everything: "כל ההתחייבויות",
     actBy: "להודיע עד",
+    writeCancellation: "צור מכתב ביטול",
     daysLeft: "נותרו",
     days: "ימים",
     missed: "החלון נסגר",
@@ -83,6 +84,7 @@ const COPY = {
     actNow: "Needs action now",
     everything: "All commitments",
     actBy: "give notice by",
+    writeCancellation: "Write cancellation letter",
     daysLeft: "left:",
     days: "days",
     missed: "window closed",
@@ -208,6 +210,17 @@ export function CommitmentsBoard({ locale }: { locale: string }) {
         <span className="text-micro text-ink-soft">
           {r.monthlyShekels === null ? c.unpricedTag : `₪${r.monthlyShekels} ${c.perMonth}`}
         </span>
+        {/* "End" only updates our record. On a contract whose notice window is
+            actually open, the thing that changes the outcome is the letter to
+            the provider — and until now this screen offered bookkeeping and no
+            way to act, which is the whole reason it counted as a dead end. */}
+        {urgent && (
+          <Link href="/cancel" className="no-underline">
+            <Button variant="ghost" className="!text-micro">
+              {c.writeCancellation}
+            </Button>
+          </Link>
+        )}
         <Button variant="ghost" className="!text-micro" disabled={busy} onClick={() => end(r.id)}>
           {busy ? c.ending : c.end}
         </Button>
