@@ -48,6 +48,7 @@ import {
   resolveMoneyPayFeeCaseId,
 } from "@/lib/services/moneyPayFeeCase";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
+import { planHasCouponVault } from "@/lib/coupons";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -858,6 +859,14 @@ export default async function DashboardPage({
             <Link href="/documents">
               <Button variant="ghost">{locale === "he" ? "מסמכים" : "Documents"}</Button>
             </Link>
+            {/* Only for plans that actually have it. A door that opens onto an
+                upsell wall is worse than no door — it spends the one row of
+                attention this strip gets on something the person cannot use. */}
+            {planHasCouponVault(user!.plan) ? (
+              <Link href="/coupons">
+                <Button variant="ghost">{t("coupons.title")}</Button>
+              </Link>
+            ) : null}
           </div>
           ) : (
             <div className="mt-6">

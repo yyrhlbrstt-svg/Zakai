@@ -23,6 +23,7 @@ export default async function SettingsPage({
 
   const t = await getTranslations("settings");
   const tVisible = await getTranslations({ locale, namespace: "visibleWork" });
+  const tCoupons = await getTranslations({ locale, namespace: "coupons" });
   const he = locale === "he" || locale === "ar";
   const tIapp_locale_settings_page = await getTranslations({ locale, namespace: "inline_app_locale_settings_page" });
 
@@ -89,6 +90,11 @@ export default async function SettingsPage({
         <Link href="/authority">
           <Button variant="ghost" className="!text-body">
             {tVisible("authorityLink")}
+          </Button>
+        </Link>
+        <Link href="/coupons">
+          <Button variant="ghost" className="!text-body">
+            {tCoupons("title")}
           </Button>
         </Link>
         <Link href="/documents">

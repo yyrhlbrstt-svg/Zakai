@@ -1007,7 +1007,8 @@
           "Full recurring-charges scan — every finding",
           "Automatic monthly reminder to check the price didn't quietly creep back up after a promo",
           "The smart assistant — up to 100 questions a month",
-          "Priority handling of your cases"
+          "Priority handling of your cases",
+          "Coupon vault — every discount code in one place, with an expiry warning"
         ]
       },
       "MAX": {
@@ -1018,7 +1019,8 @@
           "Unlimited checks",
           "The smart assistant — up to 300 questions a month",
           "Everything in Pro",
-          "Full priority + first access to new features"
+          "Full priority + first access to new features",
+          "Coupon vault — every discount code in one place, with an expiry warning"
         ]
       },
       "BUSINESS": {
@@ -6527,6 +6529,76 @@
         "with": "You accepted the terms of service",
         "plain": "You accepted the terms of service"
       }
+    }
+  },
+  "coupons": {
+    "metaTitle": "My coupons — Zakai",
+    "metaDescription": "Every discount code you hold, in one place, with a warning before it expires.",
+    "title": "My coupons",
+    "subtitle": "Every discount code you were given — in one place, by category, searchable, with a warning before it expires. Codes are stored on your account only.",
+    "empty": "The vault is empty. Add your first code — a retention offer, a card benefit, a coupon from an email — and it will be kept here with its expiry date.",
+    "noMatch": "No coupon matches that search.",
+    "addTitle": "Add a coupon",
+    "save": "Save coupon",
+    "saving": "Saving…",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Merchant, code, or note",
+    "valueHint": "A percentage or a fixed amount — one of them, not both. Neither is fine too (free shipping, for example).",
+    "expiringBanner": "{count} coupons expire within two weeks. They are listed first.",
+    "valuePercent": "{percent}% off",
+    "valueAmount": "{amount} off",
+    "valueUnstated": "Discount, amount not stated",
+    "minSpend": "over {amount}",
+    "copied": "Copied ✓",
+    "copyAria": "Copy the code {code}",
+    "markUsed": "Mark used",
+    "markUnused": "Mark unused",
+    "delete": "Delete",
+    "field": {
+      "merchant": "Merchant / service",
+      "code": "Coupon code",
+      "category": "Category",
+      "percentOff": "Percent off",
+      "amount": "Amount off (₪)",
+      "expiresAt": "Expiry date",
+      "note": "Note"
+    },
+    "category": {
+      "all": "All",
+      "shopping": "Shopping",
+      "food": "Food",
+      "software": "Software",
+      "travel": "Travel",
+      "telecom": "Telecom",
+      "home": "Home",
+      "health": "Health",
+      "other": "Other"
+    },
+    "status": {
+      "active": "Valid until {date}",
+      "expiring": "Expires in {days} days",
+      "expired": "Expired on {date}",
+      "undated": "No expiry date given",
+      "used": "Used"
+    },
+    "errors": {
+      "generic": "Could not save. Try again.",
+      "genericError": "Could not save. Try again.",
+      "value": "Pick a percentage or an amount — not both.",
+      "percent": "Percent off must be a whole number between 1 and 100.",
+      "amount": "The discount amount must be a positive number.",
+      "merchant": "A merchant or service name is required.",
+      "code": "A coupon code is required.",
+      "category": "Unknown category.",
+      "tooMany": "You have reached the maximum number of coupons. Delete old ones to add more.",
+      "notFound": "Coupon not found.",
+      "planRequired": "The coupon vault is available on Pro and above.",
+      "tooManyRequests": "Too many requests. Try again shortly."
+    },
+    "locked": {
+      "title": "The coupon vault is available on Pro and above",
+      "body": "This is where every discount code you were given is kept — retention offers, card benefits, coupons from emails — with search, categories, and a warning before a code expires. On the free plan this screen is locked.",
+      "cta": "Compare plans"
     }
   }
 }

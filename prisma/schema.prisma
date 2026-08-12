@@ -86,6 +86,59 @@ model User {
   receipts           Receipt[]
   inboxInterests     ConnectedInboxInterest[]
   commitments        Commitment[]
+  coupons            Coupon[]
+}
+
+/**
+ * A discount the person already holds and would otherwise lose track of.
+ *
+ * WHAT THIS IS, AND WHAT IT DELIBERATELY IS NOT
+ *
+ * This is the person's own vault: codes they were given — a retention offer a
+ * provider made, a card benefit, a membership discount, a promo email — kept in
+ * one place, searchable, and with the expiry date surfaced before it passes.
+ *
+ * It is NOT a scraped feed of public coupon codes. We have no agreement with
+ * any coupon site, scraping them breaches their terms, and a code that has
+ * already been redeemed is worse than no code at all: the person stands at a
+ * checkout and finds out we were wrong. Inventing entries here would be the
+ * same class of error as inventing an amount owed. `source` exists so a real
+ * partner feed can populate rows later without a schema change — until such a
+ * feed exists, every row got here because a person put it here.
+ *
+ * MONEY
+ *
+ * `percentOff` is whole percent; `amountMinor` is minor units. At most one is
+ * set — a coupon is a percentage or a fixed sum, never both — and either may be
+ * absent, because "free shipping" is a real coupon with neither.
+ */
+model Coupon {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  merchant String
+  /// The code itself. Bearer value — never logged, never left the user's scope.
+  code     String
+  category String @default("other")
+
+  percentOff    Int? // 1..100
+  amountMinor   Int? // agorot
+  currency      String @default("ILS")
+  minSpendMinor Int?
+
+  /// Null means "no expiry stated" — which is not the same as "never expires",
+  /// and is not the same as expired. All three render differently.
+  expiresAt DateTime?
+  note      String    @default("")
+  url       String    @default("")
+
+  /// manual | import | partner — how the row got here. Extensibility hook.
+  source    String    @default("manual")
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
