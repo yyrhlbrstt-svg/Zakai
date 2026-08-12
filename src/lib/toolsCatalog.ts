@@ -107,6 +107,7 @@ export const TOOL_CATALOG: readonly ToolEntry[] = [
   { href: "/scam-check", key: "scamCheck", category: "selfHelp" },
   { href: "/complaint-escalation", key: "complaintEscalation", category: "selfHelp" },
   { href: "/deadlines", key: "deadlines", category: "selfHelp" },
+  { href: "/commitments", key: "commitments", category: "selfHelp" },
   { href: "/advance-tax", key: "advanceTax", category: "selfHelp" },
   { href: "/school-payments", key: "schoolPayments", category: "selfHelp" },
 ] as const;

@@ -18,6 +18,7 @@ export const TOOL_EXTRA_LABELS: Record<string, { he: string; en: string }> = {
   scamCheck: { he: "זה עוקץ?", en: "Is this a scam?" },
   complaintEscalation: { he: "התלונה לא נענתה", en: "Complaint ignored" },
   deadlines: { he: "דדליינים", en: "Deadlines" },
+  commitments: { he: "ההתחייבויות שלי", en: "My commitments" },
   advanceTax: { he: "הקטנת מקדמות מס", en: "Reduce tax advances" },
   schoolPayments: { he: "תשלומי הורים", en: "School payments" },
   alimonyGuarantee: { he: "מזונות מובטחים", en: "Guaranteed alimony" },
