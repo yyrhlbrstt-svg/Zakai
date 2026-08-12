@@ -617,7 +617,7 @@ export function CheckFlow({
           <div className="flex justify-center mt-4">
             <button
               onClick={() => setManualOpen((v) => !v)}
-              className="bg-transparent border-0 text-emerald text-sm font-bold cursor-pointer"
+              className="bg-transparent border-0 text-emerald text-sm font-bold cursor-pointer inline-flex items-center min-h-[24px] px-2"
             >
               {t("orManual")}
             </button>

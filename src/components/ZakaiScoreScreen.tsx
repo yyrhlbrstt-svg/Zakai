@@ -257,7 +257,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
         <button
           type="button"
           onClick={() => setEditing((v) => !v)}
-          className="w-full flex items-center justify-between bg-transparent border-0 cursor-pointer p-0 text-start"
+          className="w-full flex items-center justify-between bg-transparent border-0 cursor-pointer p-0 py-1 min-h-[24px] text-start"
         >
           <span className="font-extrabold text-[14.5px]">{t("aboutYou")}</span>
           <span className="text-ink-soft text-[12.5px]">{editing ? t("hide") : t("edit")}</span>

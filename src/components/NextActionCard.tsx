@@ -107,7 +107,7 @@ export function NextActionCard({
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="bg-transparent border-0 p-0 cursor-pointer text-ink-soft text-[12.5px] underline"
+            className="bg-transparent border-0 p-0 py-1 min-h-[24px] inline-flex items-center cursor-pointer text-ink-soft text-caption underline"
           >
             {open ? t("hideAll") : t("showAll", { count: next.totalOpen - 1 })}
           </button>

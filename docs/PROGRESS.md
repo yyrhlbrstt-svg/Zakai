@@ -9,6 +9,78 @@ a file, a test, or a merged PR, it does not belong here.
 
 ---
 
+## Session — 2026-08-12
+
+### The founder used the app and found three holes in one sitting
+
+None of them were reachable by the unit suite, and none showed up in a
+screenshot. All three were the same shape: the page rendered perfectly, and
+you could not go on.
+
+**The flight claim.** After the questions produced "you are owed ₪2,390", the
+form was hidden behind a second button, and once opened it offered two
+near-identical CTAs — one named after our own machinery ("open a case,
+continue in the dashboard") — under a wall of grey text, with the install
+banner sitting on the route field. The airline was a free-text box feeding a
+Latin-only resolver, so "לופטהנזה" left the submit button dead with nothing
+saying why. Now: form follows the result directly, airline is picked from a
+list, one button reading "File the claim with El Al — ₪2,390".
+
+**Image upload.** The bill extractor only ever asked whether an image could be
+*read*, never whether it was a bill, so a legible non-bill with a number on it
+opened a case. The statement-screenshot reader returned the model's reply
+verbatim into the box holding the user's own transaction data — a photo of
+anything else put a sentence of model prose there and scanned it. Both now go
+through pure, tested interpreters (`interpretBillExtraction`,
+`keepTransactionRows`); five of the nine new assertions fail against the old
+code. The three extractions whose output is a sum of money that binds somebody
+moved to the larger model.
+
+**"Coming soon" for shipped features.** Printed under the button that prepares
+a full statutory demand: "coming soon: Zakai will prepare the full demand for
+you." Same for the coupon vault, live at `/coupons`. `comingSoonHonesty.test.ts`
+is now a register — every "coming soon" needs a written reason it is still true.
+
+### flowSweep — the check that finds this class
+
+`scripts/flowSweep.mjs` (`npm run verify:flows`) asks the browser who is at
+each control's coordinates. Three false-positive sources had to be eliminated
+before it was trustworthy: flex-wrapped links (bounding-box centre falls
+between the lines), sticky chrome (content scrolling under a header is what
+sticky means), and closed `<details>` (Chrome hands out full geometry for
+`content-visibility: hidden`). Proven to fail against the previous code before
+being believed.
+
+Signed out: 136 routes, 0 unreachable. **Signed in: 296 unreachable controls
+across the first 36 routes**, all of them the push-notification banner, which
+appeared four seconds after any signed-in page load over whatever was beneath
+it — on the homepage, "start with my money". Both bottom-fixed banners now
+share `useFloatingClearance`, which measures rather than guesses. After the
+fix: 136 signed-in routes, 0 unreachable.
+
+The sweep also briefly reported "ok, 0 controls" on nine routes while a stale
+server served chunks from an old build. A page with no interactive elements
+now fails outright — silence and success are not the same result.
+
+### The fine print
+
+2,091 text sizes across the app; 1,704 of them (81%) were 15px or smaller, and
+the single most common size in the product was 13px, used 668 times. All 668
+moved to the `body` token, which moved to 14.5px. No text clipping across 136
+routes, 0 WCAG 2.1 AA violations, ad-hoc-size ratchet down from 2,104 to 1,423.
+
+Also: first paint cut 45% (1520ms → 840ms on `/he`) by dropping a Heebo weight
+with zero uses and un-preloading the wordmark face.
+
+### Still the blocker
+
+Without SMTP no ownership can be verified, so no case can be SENT, so no
+SavingsProof and no Fee can ever exist. Everything above is polish on a loop
+that cannot close. Nineteen routes still let somebody arrive believing they are
+owed money and leave holding arithmetic (`scripts/deadEndBaseline.json`).
+
+---
+
 ## Session — 2026-08-06/07
 
 ### The finding that reframed everything
