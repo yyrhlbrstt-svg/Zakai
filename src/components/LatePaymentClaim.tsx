@@ -258,7 +258,7 @@ export function LatePaymentClaim({
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink outline-none box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

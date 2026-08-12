@@ -43,7 +43,7 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const base =
-    "rounded-[14px] font-extrabold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,box-shadow,filter,background-color,border-color] duration-200 ease-[var(--ease-snappy)] focus-visible:outline-none";
+    "rounded-[14px] font-extrabold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-[transform,box-shadow,filter,background-color,border-color] duration-200 ease-[var(--ease-snappy)]";
   const styles =
     variant === "primary"
       ? "grad-bg btn-sheen text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_12px_32px_rgba(63,203,155,0.32)] hover:-translate-y-0.5 hover:brightness-[1.07] hover:shadow-[0_18px_48px_rgba(63,203,155,0.48)] active:translate-y-0 active:scale-[0.98] active:brightness-100"
@@ -104,7 +104,7 @@ export function Input({
     <input
       id={id}
       aria-label={ariaLabel}
-      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border transition-[border-color,box-shadow] duration-200 ease-[var(--ease-out)] hover:border-[rgba(255,255,255,0.18)] focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
+      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink box-border transition-[border-color,box-shadow] duration-200 ease-[var(--ease-out)] hover:border-[rgba(255,255,255,0.18)] focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     />
   );
@@ -129,7 +129,7 @@ export function Select({
     <select
       id={id}
       aria-label={ariaLabel}
-      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink outline-none box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
+      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[16px] text-ink box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     >
       {children}
@@ -155,7 +155,7 @@ export function Textarea({
     <textarea
       id={id}
       aria-label={ariaLabel}
-      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[15px] leading-relaxed text-ink outline-none box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
+      className={`w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.05)] text-[15px] leading-relaxed text-ink box-border focus:shadow-[0_0_0_3px_rgba(63,203,155,0.18)] ${className}`}
       {...rest}
     />
   );

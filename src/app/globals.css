@@ -77,13 +77,23 @@ body {
   margin: 0;
 }
 
-/* Accessible focus ring on every interactive element, from day one. */
+/* Accessible focus ring on every interactive element, from day one.
+   [tabindex] is in the list because scrollable code and letter blocks are tab
+   stops — without it a keyboard user landed on one with nothing on screen
+   telling them where they were. */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
+[tabindex]:focus-visible,
 a:focus-visible {
-  outline: 3px solid var(--amber);
+  /* !important because a Tailwind `outline-none` utility outranks this rule on
+     specificity (class+pseudo beats element+pseudo) and was silently winning:
+     twenty-three tab stops across four pages had a 2px TRANSPARENT outline, so
+     a keyboard user could not see where they were anywhere on the site. The
+     utilities are removed too — this is the guarantee that one creeping back
+     in cannot take the focus ring with it. */
+  outline: 3px solid var(--amber) !important;
   outline-offset: 2px;
 }
 
