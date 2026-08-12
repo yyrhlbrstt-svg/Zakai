@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
-import { Card, Button, Input, Textarea, RadioChips } from "@/components/ui";
+import { Card, Button, Input, Select, Textarea, RadioChips } from "@/components/ui";
 import { MissingFields } from "@/components/MissingFields";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
@@ -16,7 +16,7 @@ import {
   type EuDistanceTier,
 } from "@/lib/flightRights";
 import { buildFlightDemandLetter } from "@/lib/flightLetter";
-import { resolveAirlineContactEmail } from "@/lib/airlineContacts";
+import { KNOWN_AIRLINES, resolveAirlineContactEmail } from "@/lib/airlineContacts";
 import { formatAgorot } from "@/lib/money";
 import { moneyCaseHref } from "@/lib/moneyCaseHref";
 
@@ -36,6 +36,12 @@ const CLAIM_FIELDS = [
   ["flightDate", "letter.flightDate"],
   ["route", "letter.route"],
 ] as const;
+
+/** The typed-in fields, in order — the airline is chosen, not typed. */
+const TYPED_FIELDS = CLAIM_FIELDS.filter(([field]) => field !== "airline");
+
+/** Sentinel for "my airline isn't on the list", which reopens the text field. */
+const OTHER_AIRLINE = "__other__";
 
 /**
  * Statutory flight-rights checker + agent path.
@@ -68,6 +74,8 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
     route: "",
   });
   const [airlineEmail, setAirlineEmail] = useState("");
+  /** "" = nothing picked yet, a carrier key, or OTHER_AIRLINE for free text. */
+  const [airlineChoice, setAirlineChoice] = useState("");
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -123,6 +131,9 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
       />
     </div>
   );
+
+  /** One place decides how a carrier's name is written, for list and letter. */
+  const airlineLabel = (a: (typeof KNOWN_AIRLINES)[number]) => (he ? a.he : a.en);
 
   const knownAirlineInbox = resolveAirlineContactEmail(form.airline);
   const formComplete =
@@ -302,36 +313,82 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
             <>
               <div className="font-extrabold text-[15px] mb-3">{t("letter.title")}</div>
               <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]">
-                {CLAIM_FIELDS.map(([field, key]) => (
+                {/* The airline is picked, not typed. Typing it meant the claim
+                    address resolved for one spelling and silently failed for
+                    every other, leaving the submit button disabled with nothing
+                    on screen explaining why. */}
+                <label className="block">
+                  <span className="text-caption text-ink-soft">{t("letter.airline")}</span>
+                  <Select
+                    value={airlineChoice}
+                    aria-label={t("letter.airline")}
+                    onChange={(e) => {
+                      const choice = e.target.value;
+                      setAirlineChoice(choice);
+                      if (choice === OTHER_AIRLINE || choice === "") {
+                        setForm((f) => ({ ...f, airline: "" }));
+                        setAirlineEmail("");
+                        return;
+                      }
+                      const picked = KNOWN_AIRLINES.find((a) => a.key === choice);
+                      const label = picked ? airlineLabel(picked) : "";
+                      setForm((f) => ({ ...f, airline: label }));
+                      setAirlineEmail(resolveAirlineContactEmail(label));
+                    }}
+                    className="mt-1 !py-2.5 !text-body-lg"
+                  >
+                    <option value="">{t("letter.airlinePlaceholder")}</option>
+                    {KNOWN_AIRLINES.map((a) => (
+                      <option key={a.key} value={a.key}>
+                        {airlineLabel(a)}
+                      </option>
+                    ))}
+                    <option value={OTHER_AIRLINE}>{t("letter.airlineOther")}</option>
+                  </Select>
+                </label>
+                {airlineChoice === OTHER_AIRLINE && (
+                  <label className="block">
+                    <span className="text-caption text-ink-soft">{t("letter.airlineName")}</span>
+                    <Input
+                      value={form.airline}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm((f) => ({ ...f, airline: value }));
+                        const known = resolveAirlineContactEmail(value);
+                        if (known) setAirlineEmail(known);
+                      }}
+                      className="mt-1 !py-2.5 !text-body-lg"
+                    />
+                  </label>
+                )}
+                {TYPED_FIELDS.map(([field, key]) => (
                   <label key={field} className="block">
                     <span className="text-[12.5px] text-ink-soft">{t(key)}</span>
                     <Input
                       value={form[field]}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setForm({ ...form, [field]: value });
-                        if (field === "airline") {
-                          const known = resolveAirlineContactEmail(value);
-                          if (known) setAirlineEmail(known);
-                        }
-                      }}
+                      onChange={(e) => setForm({ ...form, [field]: e.target.value })}
                       className="mt-1 !py-2.5 !text-[14px]"
                     />
                   </label>
                 ))}
-                <label className="block">
-                  <span className="text-[12.5px] text-ink-soft">{tFlow("contactEmail")}</span>
-                  <Input
-                    type="email"
-                    dir="ltr"
-                    value={airlineEmail}
-                    onChange={(e) => setAirlineEmail(e.target.value)}
-                    placeholder={tFlow("contactEmailHint")}
-                    className="mt-1 !py-2.5 !text-[14px]"
-                  />
-                </label>
+                {/* Only asked for when we do not already hold the address. */}
+                {!knownAirlineInbox && (
+                  <label className="block">
+                    <span className="text-[12.5px] text-ink-soft">{tFlow("contactEmail")}</span>
+                    <Input
+                      type="email"
+                      dir="ltr"
+                      value={airlineEmail}
+                      onChange={(e) => setAirlineEmail(e.target.value)}
+                      placeholder={tFlow("contactEmailHint")}
+                      className="mt-1 !py-2.5 !text-[14px]"
+                    />
+                    <span className="mt-1 block text-micro text-ink-soft leading-snug">
+                      {t("letter.contactHint")}
+                    </span>
+                  </label>
+                )}
               </div>
-              <p className="text-[12px] text-ink-soft mt-2 mb-0 leading-snug">{tFlow("honestNote")}</p>
 
               <div className="flex flex-col gap-2 mt-4">
                 <MissingFields
@@ -346,17 +403,31 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                     },
                   ]}
                 />
+                {/* One dominant action, named after what the passenger wants —
+                    the airline they picked and the sum they are owed — rather
+                    than after our own machinery ("open a case, continue in the
+                    dashboard"). Nobody landed here to open a case. */}
                 <Button
-                  className="!px-5 !py-3 !text-[14.5px]"
+                  className="!px-5 !py-3 !text-lead"
                   disabled={!formComplete || busy}
                   onClick={sendWithAgent}
                 >
-                  {busy ? tFlow("opening") : tFlow("openCase")}
+                  {busy
+                    ? tFlow("opening")
+                    : compensationLabel && form.airline.trim()
+                      ? t("letter.claimCta", {
+                          airline: form.airline.trim(),
+                          amount: compensationLabel,
+                        })
+                      : t("letter.claimCtaPlain")}
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="!text-[13px]"
+                <p className="text-caption text-ink-soft m-0 leading-snug text-center">
+                  {t("letter.nextStep")}
+                </p>
+                <button
+                  type="button"
                   disabled={!formComplete || busy}
+                  className="mt-1 self-center bg-transparent border-0 p-0 text-caption text-ink-soft underline cursor-pointer disabled:opacity-45 disabled:cursor-default"
                   onClick={() =>
                     setLetter(
                       buildFlightDemandLetter({
@@ -379,7 +450,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                   }
                 >
                   {tIcomponents_FlightRightsChecker("t_b4c9b341")}
-                </Button>
+                </button>
               </div>
               {error && <p className="text-[13px] text-amber mt-2 mb-0">{error}</p>}
 
@@ -411,8 +482,17 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                   />
                 </div>
               )}
-              <p className="text-[11px] text-ink-soft mt-3 mb-0 leading-snug">{t("letter.privacy")}</p>
-              <p className="text-[11.5px] text-ink-soft mt-2 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">
+              {/* "Generated in your browser only, nothing is sent or stored
+                  with us" is true of the copy-a-letter path and false of the
+                  button above it, which posts the whole form to open a case.
+                  Printed under both, it was a privacy promise the primary
+                  action breaks. It now appears only where it is true. */}
+              {letter && (
+                <p className="text-micro text-ink-soft mt-3 mb-0 leading-snug">
+                  {t("letter.privacy")}
+                </p>
+              )}
+              <p className="text-micro text-ink-soft mt-2 mb-0 leading-relaxed border border-[rgba(240,180,92,0.28)] bg-[rgba(240,180,92,0.06)] rounded-xl px-3 py-2.5">
                 {t("letter.legal")}
               </p>
             </>

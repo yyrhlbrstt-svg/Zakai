@@ -52,6 +52,8 @@ export function StatementScan({
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
+  /** Read fine, nothing in it — different advice from a failed read. */
+  const [shotNoTx, setShotNoTx] = useState(false);
   const [shotTooBig, setShotTooBig] = useState(false);
   const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -80,6 +82,7 @@ export function StatementScan({
   async function onScreenshot(file?: File | null) {
     if (!file) return;
     setShotError(false);
+    setShotNoTx(false);
     setShotTooBig(false);
     // Checked before upload: base64 inflates size ~4/3, and a request near
     // Vercel's ~4.5MB serverless body limit fails at the platform level with
@@ -100,6 +103,10 @@ export function StatementScan({
         body: JSON.stringify({ imageBase64: btoa(bin), mediaType: file.type || "image/jpeg" }),
       });
       const data = await res.json().catch(() => ({}));
+      if (data.error === "noTransactions") {
+        setShotNoTx(true);
+        return;
+      }
       if (!res.ok || !data.csv) {
         setShotError(true);
         return;
@@ -225,6 +232,9 @@ export function StatementScan({
         )}
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotError")}</p>
+        )}
+        {shotNoTx && (
+          <p className="text-body font-semibold mt-3 mb-0">{t("shotNoTransactions")}</p>
         )}
         {/* Also shown on an empty box — see MoneyHub for why silence here is
             indistinguishable from a broken button. */}

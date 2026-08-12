@@ -557,16 +557,20 @@ Respond ONLY with JSON: {"kind":"...","legible":boolean,"issuer":"..." or null}`
  */
 const ANY_BILL_SYSTEM = `You read a photo of ANY Israeli consumer bill or invoice and extract its facts. Common issuers: cellular (Cellcom, Partner, Pelephone, HOT Mobile, Golan, Rami Levy), internet/TV (Bezeq, HOT, Partner Fiber, yes), electricity (חשמל / IEC), water (מים / תאגיד מים), municipal property tax (ארנונה), insurance (ביטוח), gym/subscriptions.
 
-Extract:
+FIRST decide whether this image is a bill at all.
+- "isBill": true ONLY for a bill, invoice, charge notice or account statement issued to a customer. A price tag, a shop shelf, a menu, an advertisement, a contract, an ID document, a screenshot of an app that is not a statement, a photo of a person, an animal, an object, a room or a landscape is NOT a bill — set isBill to false. A number appearing somewhere in the image does not make it a bill.
+
+Then, only if isBill is true, extract:
 - "issuer": the company or authority name exactly as printed.
 - "amount": the amount charged for this period, as a plain number. Use the total actually charged, not a subtotal or a balance carried forward.
 - "period": short description of the billing period if printed (e.g. "אוגוסט 2026"), else "".
 - "vertical": one of "telecom", "electricity", "water", "arnona", "insurance", "subscription", "other". Use "telecom" for cellular AND internet/TV/landline.
 - "readable": false ONLY if the image itself cannot be read — blurred, dark, cropped. A clear bill you can read is readable even if you are unsure of the vertical.
 
+If isBill is false, set amount to null and readable to false.
 Never guess an amount. If no amount is legible, set amount to null and readable to false.
 
-Respond ONLY with JSON: {"issuer":"...","amount":number_or_null,"period":"...","vertical":"...","readable":boolean}`;
+Respond ONLY with JSON: {"isBill":boolean,"issuer":"...","amount":number_or_null,"period":"...","vertical":"...","readable":boolean}`;
 
 export type BillVertical =
   | "telecom"
@@ -583,6 +587,8 @@ export interface AnyBillAnalysis {
   amountShekels: number;
   period: string;
   vertical: BillVertical;
+  /** Whether the image is a bill at all — a legible non-bill is still not one. */
+  isBill: boolean;
   readable: boolean;
 }
 
@@ -596,20 +602,30 @@ const BILL_VERTICALS: readonly BillVertical[] = [
   "other",
 ];
 
-export async function analyzeAnyBillImage(
-  base64: string,
-  mediaType: string,
-): Promise<AnyBillAnalysis> {
-  const text = await generateText({
-    system: ANY_BILL_SYSTEM,
-    userText: "Extract this bill.",
-    imageBase64: base64,
-    mediaType,
-    model: EXTRACT_MODEL,
-    maxTokens: 400,
-    temperature: 0,
-  });
-  const parsed = extractJson(text) as {
+/**
+ * Turn whatever the model said into something we are willing to act on.
+ *
+ * Split out from the model call so it can be tested without a key, because
+ * this is the function that decides whether a photograph becomes a demand
+ * letter sent to a real company over a real person's name. It was previously
+ * three lines inside an async function with no test of any kind.
+ *
+ * The gate that was missing is `isBill`. The old prompt only ever asked
+ * whether the image could be *read*, so an image that was perfectly legible
+ * and simply was not a bill — a price tag, a receipt for a coffee, a
+ * screenshot with a number in it — came back readable with an amount, and a
+ * case opened against a provider resolved from whatever text was on it. The
+ * founder found this the ordinary way: uploaded unrelated photos and watched
+ * the flow carry on regardless.
+ *
+ * Absence is refusal here, not permission. A response without `isBill: true`
+ * does not become a case, because the cost of the two errors is not
+ * symmetrical: refusing a real bill shows a message, and accepting a
+ * non-bill sends a stranger a demand for money.
+ */
+export function interpretBillExtraction(raw: unknown): AnyBillAnalysis {
+  const parsed = (raw ?? {}) as {
+    isBill?: boolean;
     issuer?: string;
     amount?: number | null;
     period?: string;
@@ -629,10 +645,27 @@ export async function analyzeAnyBillImage(
     amountShekels: amount,
     period: typeof parsed.period === "string" ? parsed.period.trim() : "",
     vertical,
+    isBill: parsed.isBill === true,
     // An amount is what every downstream step needs; without one this is not
     // a bill we can act on, whatever the model said about legibility.
-    readable: Boolean(parsed.readable) && amount > 0,
+    readable: parsed.isBill === true && Boolean(parsed.readable) && amount > 0,
   };
+}
+
+export async function analyzeAnyBillImage(
+  base64: string,
+  mediaType: string,
+): Promise<AnyBillAnalysis> {
+  const text = await generateText({
+    system: ANY_BILL_SYSTEM,
+    userText: "Extract this bill.",
+    imageBase64: base64,
+    mediaType,
+    model: EXTRACT_MODEL,
+    maxTokens: 400,
+    temperature: 0,
+  });
+  return interpretBillExtraction(extractJson(text));
 }
 
 export interface DocumentClassification {
@@ -869,6 +902,31 @@ const STATEMENT_EXTRACT_SYSTEM = `You extract transaction rows from screenshots 
 - If a year is missing assume the current year visible elsewhere on screen, else 2026.
 - If NO transactions are visible, output exactly: NONE`;
 
+/**
+ * Keep only the lines that are actually transactions.
+ *
+ * `extractStatementImage` used to return the model's reply verbatim, and the
+ * caller pasted it straight into the box holding the person's own statement
+ * data and ran the recurring-charge detector over it. So a photo that was not
+ * a statement produced whatever the model said about it — a sentence, an
+ * apology, a description of the picture — sitting in the user's data as though
+ * they had typed it, and a scan that found nothing. From the outside that is
+ * indistinguishable from "I uploaded an image and it just moved on", which is
+ * exactly how it was reported.
+ *
+ * The line shape is narrow on purpose: a date, a merchant, a number. Anything
+ * else is not a transaction no matter how confidently it was written.
+ */
+const STATEMENT_ROW = /^\s*\d{1,2}[/.\-]\d{1,2}[/.\-]\d{2,4}\s*,[^,]{1,80},\s*-?[\d,]+(?:\.\d{1,2})?\s*$/;
+
+export function keepTransactionRows(raw: string): string {
+  return raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => STATEMENT_ROW.test(line))
+    .join("\n");
+}
+
 export async function extractStatementImage(
   base64: string,
   mediaType: string,
@@ -882,7 +940,7 @@ export async function extractStatementImage(
     maxTokens: 1500,
     temperature: 0,
   });
-  return text === "NONE" ? "" : text;
+  return text === "NONE" ? "" : keepTransactionRows(text);
 }
 
 // ---------- Inbound email savings extract (proof loop) ----------

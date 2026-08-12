@@ -12,6 +12,29 @@ interface BIPEvent extends Event {
 
 const DISMISS_KEY = "zk_install_dismissed";
 
+/**
+ * Anything a person types or chooses a value in.
+ *
+ * Deliberately narrower than "every form control". Radios, checkboxes and
+ * buttons are one tap and appear on pages that are otherwise pure reading —
+ * suppressing on those would mean the banner never showed anywhere. Sliders
+ * are excluded for the same reason: the only ones on the site are the
+ * illustrative calculators on the homepage and the pricing page, which are not
+ * the path anybody is trying to finish. What is left is the set that marks a
+ * page where somebody is entering their own details.
+ */
+const TEXT_ENTRY =
+  'input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]):not([type="button"]):not([type="submit"]):not([type="range"]),textarea,select';
+
+/** True when this page currently has a field someone could be filling in. */
+function pageHasTextEntry(): boolean {
+  const fields = document.querySelectorAll<HTMLElement>(TEXT_ENTRY);
+  for (const el of fields) {
+    if (el.offsetParent !== null || el.getClientRects().length > 0) return true;
+  }
+  return false;
+}
+
 export function InstallPrompt() {
   const t = useTranslations("install");
   const pathname = usePathname();
@@ -41,9 +64,32 @@ export function InstallPrompt() {
     const onBIP = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BIPEvent);
-      if (!deferInstall) setShow(true);
+      if (!deferInstall && !pageHasTextEntry()) setShow(true);
     };
     window.addEventListener("beforeinstallprompt", onBIP);
+
+    /**
+     * A form opened, or someone started typing — get out of the way.
+     *
+     * This banner is `position: fixed` at the bottom of the viewport, and the
+     * five paths in `deferInstall` were a hand-written list of the pages where
+     * that was known to hurt. The site has well over a hundred routes, so the
+     * list was wrong the moment a new flow shipped: on /flights it sat directly
+     * on top of the route field and the airline's email address, over the one
+     * button that opens the claim. The founder's report was "I fill in the
+     * ticket, it brings me here, and then it isn't clear what to do" — this was
+     * a large part of why.
+     *
+     * A rule beats a list. Never appear over a page that already has fields in
+     * it, and leave the moment focus lands in one. `setShow(false)` rather than
+     * `dismiss()` on purpose: they did not decline the app, they went back to
+     * their claim, so the offer can return on a later visit.
+     */
+    const onFocusIn = (e: Event) => {
+      const el = e.target as HTMLElement | null;
+      if (el?.matches?.(TEXT_ENTRY)) setShow(false);
+    };
+    document.addEventListener("focusin", onFocusIn);
 
     const ua = window.navigator.userAgent;
     const isIOS = /iphone|ipad|ipod/i.test(ua);
@@ -51,6 +97,7 @@ export function InstallPrompt() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     if (!deferInstall && isIOS && isSafari) {
       timer = setTimeout(() => {
+        if (pageHasTextEntry()) return;
         setIosHint(true);
         setShow(true);
       }, moneyOs ? 900 : 2500);
@@ -58,6 +105,7 @@ export function InstallPrompt() {
 
     return () => {
       window.removeEventListener("beforeinstallprompt", onBIP);
+      document.removeEventListener("focusin", onFocusIn);
       if (timer) clearTimeout(timer);
     };
   }, [moneyOs, deferInstall]);

@@ -42,6 +42,13 @@ export async function POST(request: Request) {
 
   try {
     const csv = await extractStatementImage(parsed.data.imageBase64, mediaType);
+    /**
+     * Read fine, and there was nothing in it. Distinguished from a failed read
+     * because the two need opposite advice: "try a clearer photo" is useless
+     * to someone who photographed a perfectly sharp picture of something that
+     * was never a statement, and it was the only thing we said to them.
+     */
+    if (!csv.trim()) return badRequest("noTransactions", 422);
     return NextResponse.json({ csv });
   } catch (err) {
     if (err instanceof AiUnavailableError) return badRequest("aiUnavailable", 503);

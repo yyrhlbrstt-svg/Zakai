@@ -412,6 +412,8 @@ export function MoneyHub({
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
+  /** Read fine, nothing in it — different advice from a failed read. */
+  const [shotNoTx, setShotNoTx] = useState(false);
   const [shotNeedsLogin, setShotNeedsLogin] = useState(false);
   const [shotTooBig, setShotTooBig] = useState(false);
   const [saved, setSaved] = useState<SavedSummary | null>(null);
@@ -484,6 +486,7 @@ export function MoneyHub({
   async function onScreenshot(file?: File | null) {
     if (!file) return;
     setShotError(false);
+    setShotNoTx(false);
     setShotNeedsLogin(false);
     setShotTooBig(false);
     // Checked before any upload attempt: base64 inflates size ~4/3, and a
@@ -511,6 +514,10 @@ export function MoneyHub({
         return;
       }
       const data = await res.json().catch(() => ({}));
+      if (data.error === "noTransactions") {
+        setShotNoTx(true);
+        return;
+      }
       if (!res.ok || !data.csv) {
         setShotError(true);
         return;
@@ -778,6 +785,11 @@ export function MoneyHub({
         {shotError && (
           <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("t_da95e09c")}
+          </p>
+        )}
+        {shotNoTx && (
+          <p className="text-body font-semibold mt-3 mb-0">
+            {tIcomponents_MoneyHub("shotNoTransactions")}
           </p>
         )}
       </Card>

@@ -1089,7 +1089,8 @@
       "Cal: transaction details → download as file.",
       "Hapoalim/Leumi/Discount: account → transactions → export/print → Excel.",
       "Or just select rows on the site, copy, and paste here — the parser is forgiving."
-    ]
+    ],
+    "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app."
   },
   "receipts": {
     "title": "Zakai finds the money hiding in your receipts",
@@ -1278,7 +1279,14 @@
       "copied": "Copied ✓",
       "sendHint": "Send it to the airline's customer service email or contact form, and keep a copy.",
       "privacy": "Generated in your browser only — details are never sent or stored. Not legal advice.",
-      "legal": "Zakai is not a law firm, does not provide legal advice, and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the demand is refused or heads to legal proceedings, consult a lawyer."
+      "legal": "Zakai is not a law firm, does not provide legal advice, and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the demand is refused or heads to legal proceedings, consult a lawyer.",
+      "airlinePlaceholder": "Choose your airline",
+      "airlineOther": "Another airline…",
+      "airlineName": "Airline name",
+      "contactHint": "The address is on the airline's contact page or your boarding pass. We never invent one.",
+      "claimCta": "File the claim with {airline} — {amount}",
+      "claimCtaPlain": "File the claim with the airline",
+      "nextStep": "Next: a short check that this is you, then one approval — and Zakai sends the demand in your name. You can stop at any point."
     },
     "metaTitle": "Flight cancelled or delayed? You're owed money — Zakai",
     "metaDesc": "Israel's Aviation Services Law obligates airlines to fixed compensation, an alternative ticket and assistance — low-cost carriers included. Three taps to know what you're owed."
@@ -5164,7 +5172,8 @@
     "shotNeedsLoginPrefix": "AI photo scan needs an account — ",
     "shotNeedsLoginLink": "quick sign in",
     "shotNeedsLoginSuffix": ". Or paste/upload a statement file below — no account needed.",
-    "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file."
+    "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file.",
+    "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app."
   },
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "Overnight agent — follow-up for all",
