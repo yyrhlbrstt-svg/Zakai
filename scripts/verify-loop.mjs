@@ -53,7 +53,20 @@ function check(name, ok, detail = "") {
   console.log(`${ok ? "OK  " : "FAIL"} ${name}${detail ? ` — ${detail}` : ""}`);
 }
 
-const browser = await chromium.launch();
+/**
+ * Chromium's location, when it is not where Playwright expects.
+ *
+ * This script exists because the unit suite once shipped a signup screen
+ * nobody could get past. It is the check that stands closest to a real user —
+ * and in the container this project is developed in, it did not run at all: it
+ * died on Playwright's "please install browsers" error, which its own SKIP
+ * path does not catch, because playwright imports fine and the server is up.
+ * A check that cannot run is a check that does not exist, and this one failing
+ * silently is worse than most.
+ */
+const EXECUTABLE = process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined;
+
+const browser = await chromium.launch({ executablePath: EXECUTABLE });
 const ctx = await browser.newContext({ ...devices["iPhone 13"], locale: "he-IL" });
 const page = await ctx.newPage();
 const email = `loopcheck${Date.now()}@example.com`;

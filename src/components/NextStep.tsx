@@ -65,7 +65,7 @@ export function NextStep({
       <div className="font-extrabold text-lead mb-3">{title ?? t("title")}</div>
       <ol className="m-0 ps-0 list-none flex flex-col gap-2.5">
         {lines.map((line, i) => (
-          <li key={line} className="flex gap-3 items-baseline">
+          <li key={`${i}-${line}`} className="flex gap-3 items-baseline">
             <span
               className="shrink-0 grid place-items-center w-6 h-6 rounded-full bg-[rgba(63,203,155,0.14)] text-emerald font-extrabold text-caption"
               aria-hidden

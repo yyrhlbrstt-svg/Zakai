@@ -72,6 +72,41 @@ routes, 0 WCAG 2.1 AA violations, ad-hoc-size ratchet down from 2,104 to 1,423.
 Also: first paint cut 45% (1520ms → 840ms on `/he`) by dropping a Heebo weight
 with zero uses and un-preloading the wordmark face.
 
+### The nineteen dead ends, and what they actually were
+
+`scripts/deadEndBaseline.json` lists nineteen tool pages a person can arrive
+at believing they are owed money and leave holding arithmetic. Measured page
+by page on a phone, most of them were not missing a next step. **The next
+step was there, written by somebody who knew the answer, rendered as the
+smallest type on the screen.**
+
+The reserve-duty calculator is the clearest case: it names בל/501 for the
+employer's reimbursement, בל/502 for a personal claim after three weeks, and
+the 3010 certificate that grounds either — five bullets of 13.5px grey under
+a large green number, which is where the eye goes last.
+
+`NextStep` (`src/components/NextStep.tsx`) is the fix: a heading, numbered
+lines at body size, one full-width action. Wired into eight pages that had no
+prominent path at all — advance-tax (gov.il form 2216א), complaint-escalation
+(the regulator it already picked), school-payments (the Ministry of Education
+circular), miluim / maternity / unemployment (the Bituach Leumi forms),
+scam-check (three safety steps plus `/duplicate-charge`, a real claim, for
+somebody already charged), overtime-backpay. Every URL was already carried in
+`src/lib`. None were invented.
+
+**A real bug found by driving a tool to completion:** the advance-tax page
+displayed "43,089,291 days left to file" as fact. The date arithmetic is
+correct; the tax-year field was an unbounded number box, and every figure on
+the page derives from it. Clamped, with tests.
+
+**The check was also wrong.** CLAUDE.md says a page gets "letter / check /
+external official tool" and the dead-end rule only counted the first two, so a
+page whose correct answer is a government form read as a dead end. Fixed. The
+count still says 19, because the check reads each page as it loads and several
+of these reveal their next step only once used. The baseline file now records
+that explicitly: 19 is not the number of broken pages, and nobody should bolt
+an internal link onto a page whose right answer is gov.il to make it move.
+
 ### Still the blocker
 
 Without SMTP no ownership can be verified, so no case can be SENT, so no
