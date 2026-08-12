@@ -361,7 +361,7 @@
       },
       "deals": {
         "title": "Deals & coupons",
-        "sub": "Every benefit and money-saving move in one place — and exclusive coupons coming soon."
+        "sub": "Every offer and move that saves you money, in one place — and for Pro members, a coupon vault with expiry alerts."
       },
       "lostmoney": {
         "title": "Lost money",
@@ -1247,7 +1247,7 @@
       "eu3h": "Under EU case law, a 3h+ arrival delay is compensated like a cancellation.",
       "euExceptions": "Airlines are exempt in 'extraordinary circumstances' (extreme weather, certain strikes); ordinary technical faults usually are NOT exempt."
     },
-    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai prepares the full demand for you — ready for you to send yourself.",
+    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change), 2012.",
     "jurisdictionQ": "Which law applies?",
     "jurisdictions": {
       "il": "Flight under Israeli law",
@@ -1264,7 +1264,7 @@
       "medium": "1,500–3,500 km (Rome, Paris)",
       "long": "Over 3,500 km (New York, Bangkok)"
     },
-    "euDisclaimer": "Based on Regulation (EC) 261/2004 — flights departing the EU, or arriving in the EU on an EU carrier. Not legal advice. Coming soon: Zakai prepares the full demand for you — ready for you to send yourself.",
+    "euDisclaimer": "Based on Regulation (EC) 261/2004 — applies to flights departing the EU, or landing in it on an EU carrier.",
     "letter": {
       "title": "Zakai prepares your demand letter",
       "sub": "A ready letter for you to send to the airline in your own name — with the remedies and amounts the law entitles you to.",
@@ -1279,7 +1279,7 @@
       "copied": "Copied ✓",
       "sendHint": "Send it to the airline's customer service email or contact form, and keep a copy.",
       "privacy": "Generated in your browser only — details are never sent or stored. Not legal advice.",
-      "legal": "Zakai is not a law firm, does not provide legal advice, and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the demand is refused or heads to legal proceedings, consult a lawyer.",
+      "legal": "If the claim is rejected or reaches legal proceedings, consider consulting a lawyer. The letter is a template you check, adopt and send in your own name.",
       "airlinePlaceholder": "Choose your airline",
       "airlineOther": "Another airline…",
       "airlineName": "Airline name",
@@ -3135,7 +3135,7 @@
     "copy": "Copy letter",
     "copied": "Copied ✓",
     "sendHint": "Send it to the local authority within 90 days of receiving the ticket (email / online form / post), and keep a copy.",
-    "legal": "Zakai is not a lawyer and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the appeal is refused, you have the right to a hearing at the local-affairs court.",
+    "legal": "If the appeal is rejected you have the right to be tried in the local affairs court. The letter is a template you check, adopt and send in your own name.",
     "disclaimer": "The letter is generated in your browser only and is never sent or stored. Not legal advice; appeal grounds and deadlines vary by authority and circumstances.",
     "metaTitle": "Parking ticket appeal — Zakai",
     "metaDesc": "Got a parking ticket? Many tickets fall on technicalities. Zakai prepares a ready-to-send appeal letter. Runs in your browser, no documents."
@@ -3171,7 +3171,7 @@
   },
   "deals": {
     "title": "Deals & benefits — money you can save now",
-    "sub": "A collection of real benefits and moves that save you money right away. Free for everyone. Exclusive partner coupons — coming soon for Pro members.",
+    "sub": "Real offers and moves that save you money now. Free for everyone. Pro members also get a personal coupon vault with expiry alerts.",
     "soon": "Exclusive coupons",
     "soonSub": "We're connecting to affiliate networks to bring you real store discount codes — exclusive to Pro and Max members.",
     "items": [
@@ -3247,7 +3247,7 @@
       }
     ],
     "metaTitle": "Deals & perks — Zakai",
-    "metaDesc": "A collection of real deals and moves that save you money right away — mobile, electricity, banking, rights and more. Free. Exclusive coupons coming soon."
+    "metaDesc": "Real offers and moves that save you money now — mobile, electricity, banking, entitlements and more. Free."
   },
   "transportFine": {
     "title": "Public-transport fine appeal",
@@ -3287,7 +3287,7 @@
     "copy": "Copy letter",
     "copied": "Copied ✓",
     "sendHint": "Send it to the operator's appeals department within the deadline on the report (usually 30–90 days), attaching a card/Rav-Kav history screenshot if relevant.",
-    "legal": "Zakai is not a lawyer and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If refused, you have the right to a hearing or an appeals committee.",
+    "legal": "If the appeal is rejected you have the right to be tried or to go to the appeals committee. The letter is a template you check, adopt and send in your own name.",
     "disclaimer": "The letter is generated in your browser only and is never sent or stored. Not legal advice; appeal grounds and deadlines vary by operator and circumstances.",
     "metaTitle": "Public transport fine appeal — Zakai",
     "metaDesc": "Got fined by a bus or train inspector? Many fines can be cancelled. Zakai prepares a ready-to-send appeal letter. Runs in your browser."
