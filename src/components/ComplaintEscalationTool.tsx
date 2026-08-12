@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { ESCALATION_BODIES, buildEscalationLetter, type ComplaintCategory } from "@/lib/complaintEscalation";
 import { MissingFields } from "@/components/MissingFields";
+import { NextStep } from "@/components/NextStep";
 
 const CATEGORIES: ComplaintCategory[] = ["bank", "telecom", "consumer"];
 
@@ -146,7 +147,26 @@ export function ComplaintEscalationTool() {
         </Card>
       )}
 
-      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
+      {/* The regulator's name and address sit at the top of the page, chosen
+          before the letter is written. Nothing repeated them at the end, where
+          somebody is holding the letter and asking who to send it to. */}
+      {letter && (
+        <NextStep
+          steps={[
+            t("step1", { body: t(`bodies.${category}.name`) }),
+            t("step2"),
+            t("step3"),
+          ]}
+          action={
+            body.url
+              ? { label: t("openBody", { body: t(`bodies.${category}.name`) }), href: body.url, external: true }
+              : undefined
+          }
+          note={body.url ? undefined : t("noLinkNote")}
+        />
+      )}
+
+      <p className="mt-5 text-micro text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>
   );
 }

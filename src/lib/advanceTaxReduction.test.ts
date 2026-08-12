@@ -5,6 +5,7 @@ import {
   daysUntilAdvanceTaxDeadline,
   canStillFileForYear,
   buildAdvanceTaxReductionLetter,
+  clampTaxYear,
 } from "./advanceTaxReduction";
 
 describe("advanceTaxReductionDeadline", () => {
@@ -68,5 +69,35 @@ describe("buildAdvanceTaxReductionLetter", () => {
 describe("ADVANCE_TAX_FORM_URL", () => {
   it("points at the real gov.il service page", () => {
     expect(ADVANCE_TAX_FORM_URL).toBe("https://www.gov.il/he/service/itc-2216a");
+  });
+});
+
+describe("tax year bounds", () => {
+  const now = new Date("2026-08-12T00:00:00Z");
+
+  /**
+   * The year box was unbounded, and every figure on the screen is derived from
+   * it. 120000 produced "43,089,291 days left to file", printed as fact.
+   * Arithmetic that is impeccable on nonsense is the worst kind of wrong.
+   */
+  it("snaps an absurd year into the fileable range", () => {
+    expect(clampTaxYear(120000, now)).toBe(2027);
+    expect(clampTaxYear(202, now)).toBe(2020);
+    expect(clampTaxYear(-5, now)).toBe(2020);
+  });
+
+  it("leaves a sensible year alone", () => {
+    expect(clampTaxYear(2026, now)).toBe(2026);
+    expect(clampTaxYear(2025, now)).toBe(2025);
+  });
+
+  it("falls back to this year when nothing was typed", () => {
+    expect(clampTaxYear(Number.NaN, now)).toBe(2026);
+  });
+
+  it("keeps the countdown inside a human number of days", () => {
+    const days = daysUntilAdvanceTaxDeadline(clampTaxYear(120000, now), now);
+    expect(days).toBeGreaterThan(0);
+    expect(days).toBeLessThan(1000);
   });
 });

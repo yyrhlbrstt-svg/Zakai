@@ -3005,7 +3005,10 @@
     "copy": "Copy",
     "copied": "Copied!",
     "sendHint": "Send this yourself, to the institution's office or parents' committee",
-    "disclaimer": "States the real mandatory-vs-voluntary rule and drafts a letter — not a guarantee of a refund, and not legal advice."
+    "disclaimer": "States the real mandatory-vs-voluntary rule and drafts a letter — not a guarantee of a refund, and not legal advice.",
+    "step1": "Send the letter to the school office or the parents committee, and ask for confirmation of receipt.",
+    "step2": "Keep a copy and the date you sent it.",
+    "step3": "If they refuse, you can go to the Ministry of Education district office, with the circular attached here."
   },
   "advanceTaxReduction": {
     "metaTitle": "Self-employed? Reduce your tax advances | Zakai",
@@ -3029,7 +3032,10 @@
     "copied": "Copied!",
     "formLink": "Form 2216א׳ on gov.il",
     "sendHint": "Print form 2216א׳, fill in the requested rate by hand, sign, attach this letter and supporting documents, and file at your assessing office.",
-    "disclaimer": "Explains the real filing window and drafts a covering letter — it never invents an advance-tax rate or a refund amount; the assessing office decides both. Not tax advice."
+    "disclaimer": "Explains the real filing window and drafts a covering letter — it never invents an advance-tax rate or a refund amount; the assessing office decides both. Not tax advice.",
+    "step1": "Print form 2216א and fill in the advance rate you are asking for by hand.",
+    "step2": "Attach this letter and the documents that support the drop in income.",
+    "step3": "File it at your assessing office — the assessing officer decides."
   },
   "complaintEscalation": {
     "metaTitle": "Complaint ignored? Escalate to the right regulator | Zakai",
@@ -3065,7 +3071,12 @@
         "name": "Consumer Protection and Fair Trade Authority",
         "description": "Handles general consumer complaints — deception, unauthorized charges, warranty/service, cancellation rights — outside banking or telecom. Current contact details are on gov.il."
       }
-    }
+    },
+    "step1": "Send the letter to {body} — by email or through their enquiry form.",
+    "step2": "Keep a copy and the date you sent it. That is your proof you approached them.",
+    "step3": "If the company gets back to you after the escalation, keep that too.",
+    "openBody": "Go to {body}",
+    "noLinkNote": "This body has no fixed online form — current contact details are on gov.il. We never invent an address."
   },
   "deadlines": {
     "metaTitle": "Never miss a deadline — passport, car test, filings | Zakai",
@@ -6796,5 +6807,8 @@
     "busy": "Preparing file…",
     "hint": "A JSON file with everything we hold about you, including the full text of every letter. Passwords and one-time codes are excluded.",
     "failed": "Export failed. Try again."
+  },
+  "nextStep": {
+    "title": "What now"
   }
 }

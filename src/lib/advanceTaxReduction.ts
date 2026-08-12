@@ -80,3 +80,37 @@ export function buildAdvanceTaxReductionLetter(input: AdvanceTaxLetterInput): st
     ].join("\n"),
   );
 }
+
+/**
+ * Tax years a reduction request can sensibly be filed for.
+ *
+ * The year was a bare `type="number"` box, and everything on the screen is
+ * derived from it: the deadline, the countdown, the reminder date, the year
+ * printed in a letter addressed to an assessing officer. Typing 120000 —
+ * which a number spinner on a phone makes easy — produced "43,089,291 days
+ * left to file for this tax year", stated as fact in a box styled to look
+ * authoritative. It is derived correctly from nonsense, which is the worst
+ * kind of wrong: the arithmetic is impeccable and the sentence is a lie.
+ *
+ * A reduction request only concerns the current tax year and, before the
+ * January 31 cutoff, the one just ended. The range is generous around that
+ * rather than exact, because being slightly permissive costs nothing and
+ * being wrong about somebody's edge case costs them the tool.
+ */
+export const EARLIEST_FILEABLE_TAX_YEAR_OFFSET = -6;
+export const LATEST_FILEABLE_TAX_YEAR_OFFSET = 1;
+
+export function taxYearRange(now: Date = new Date()): { min: number; max: number } {
+  const year = now.getFullYear();
+  return {
+    min: year + EARLIEST_FILEABLE_TAX_YEAR_OFFSET,
+    max: year + LATEST_FILEABLE_TAX_YEAR_OFFSET,
+  };
+}
+
+/** Snap a typed year into the fileable range; anything unparseable becomes this year. */
+export function clampTaxYear(value: number, now: Date = new Date()): number {
+  const { min, max } = taxYearRange(now);
+  if (!Number.isFinite(value)) return now.getFullYear();
+  return Math.min(max, Math.max(min, Math.trunc(value)));
+}

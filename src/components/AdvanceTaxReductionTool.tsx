@@ -9,9 +9,12 @@ import {
   ADVANCE_TAX_FORM_URL,
   advanceTaxReductionDeadline,
   daysUntilAdvanceTaxDeadline,
+  clampTaxYear,
+  taxYearRange,
   canStillFileForYear,
   buildAdvanceTaxReductionLetter,
 } from "@/lib/advanceTaxReduction";
+import { NextStep } from "@/components/NextStep";
 
 const CURRENT_TAX_YEAR = new Date().getFullYear();
 
@@ -108,7 +111,9 @@ export function AdvanceTaxReductionTool() {
           <Input
             type="number"
             value={taxYear}
-            onChange={(e) => setTaxYear(Number(e.target.value) || CURRENT_TAX_YEAR)}
+            min={taxYearRange().min}
+            max={taxYearRange().max}
+            onChange={(e) => setTaxYear(clampTaxYear(Number(e.target.value)))}
           />
         </label>
         <label className="block">
@@ -165,17 +170,21 @@ export function AdvanceTaxReductionTool() {
             >
               {copied ? t("copied") : t("copy")}
             </Button>
-            <a
-              href={ADVANCE_TAX_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald text-[12.5px] font-bold"
-            >
-              {t("formLink")} →
-            </a>
           </div>
-          <p className="text-[12px] text-ink-soft mt-3 mb-0">{t("sendHint")}</p>
         </Card>
+      )}
+
+      {/* The form link used to be a 12.5px green footnote beside the copy
+          button, and the three things to do with the letter a line of grey
+          under it. Both were correct and both were written as an afterthought
+          to the letter, which is not the point — the letter is an attachment
+          to a government form, and the form is the thing that gets the money
+          back. */}
+      {letter && (
+        <NextStep
+          steps={[t("step1"), t("step2"), t("step3")]}
+          action={{ label: t("formLink"), href: ADVANCE_TAX_FORM_URL, external: true }}
+        />
       )}
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>

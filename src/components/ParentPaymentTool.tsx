@@ -11,6 +11,7 @@ import {
   type ParentPaymentCategory,
 } from "@/lib/parentPayments";
 import { MissingFields } from "@/components/MissingFields";
+import { NextStep } from "@/components/NextStep";
 
 const CATEGORIES: ParentPaymentCategory[] = ["accident_insurance", "other"];
 
@@ -174,9 +175,20 @@ export function ParentPaymentTool() {
         </Card>
       )}
 
+      {letter && (
+        <NextStep
+          steps={[t("step1"), t("step2"), t("step3")]}
+          action={{
+            label: t("circularLink"),
+            href: MANDATORY_PAYMENT_CIRCULAR_URL,
+            external: true,
+          }}
+        />
+      )}
+
       {letter && <ShareResult message={tShare("msgSchoolPayment")} path="/school-payments" />}
 
-      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
+      <p className="mt-5 text-micro text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>
   );
 }
