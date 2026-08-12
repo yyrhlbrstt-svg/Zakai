@@ -2642,7 +2642,10 @@
     "copy": "Copy",
     "copied": "Copied!",
     "sendHint": "Send the letter yourself, by email or registered mail",
-    "disclaimer": "An estimate only, based on what you entered — not a substitute for real attendance records or legal advice. Any interest or indexation a labour court might award is not calculated here."
+    "disclaimer": "An estimate only, based on what you entered — not a substitute for real attendance records or legal advice. Any interest or indexation a labour court might award is not calculated here.",
+    "step1": "Send the letter to your employer in your own name — email or registered post, so delivery is provable.",
+    "step2": "Keep the payslips and attendance records for the period. They are the basis of any claim.",
+    "step3": "If there is no response, you can go to the Ministry of Labour or the labour court."
   },
   "latePayment": {
     "metaTitle": "Client paying you late? A demand letter under Israel's Fair Payment Law | Zakai",
@@ -2979,7 +2982,12 @@
       "gov_refund": "A government body promising a refund via a link",
       "shortened_link_urgency": "A shortened link combined with time pressure",
       "code_plus_urgency": "A request for a verification code combined with time pressure"
-    }
+    },
+    "safe1": "Do not tap any link in the message.",
+    "safe2": "Do not reply with a code, a password or card details.",
+    "safe3": "If it claims to be your bank, call the bank on the number from their official site or your card — never the number in the message.",
+    "chargedCta": "Already charged? Dispute the charge",
+    "chargedNote": "If money has already gone, reporting sooner materially improves the chance of getting it back."
   },
   "parentPayments": {
     "metaTitle": "Is that school/kindergarten payment mandatory? | Zakai",

@@ -10,6 +10,7 @@ import {
   LOOKBACK_YEARS_MAX,
 } from "@/lib/overtimeBackPay";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { NextStep } from "@/components/NextStep";
 
 /**
  * Overtime back-pay calculator + letter. Pure client-side, like every other
@@ -170,11 +171,12 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
             >
               {copied ? t("copied") : t("copy")}
             </Button>
-            <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
           <OutcomeReport vertical="overtime_backpay" counterparty="employer" variantId="standard" />
         </Card>
       )}
+
+      {letter && <NextStep steps={[t("step1"), t("step2"), t("step3")]} />}
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>
