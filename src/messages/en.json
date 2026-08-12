@@ -3085,7 +3085,8 @@
     "claimAdded": "Added ✓",
     "claimLabel": "Claim expiring: {desc}",
     "commitmentsHint": "Have a contract that renews itself? Instead of a reminder you have to remember to set, keep the contract — and we hold the date you can still get out by.",
-    "commitmentsLink": "The commitments record"
+    "commitmentsLink": "The commitments record",
+    "loadFailed": "We could not load the list. Refresh the page."
   },
   "parking": {
     "title": "Parking-ticket appeal",

@@ -28,6 +28,8 @@ export function DeadlineTracker() {
   const [remindDays, setRemindDays] = useState("14");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Kept apart from `error`, which belongs to the create form below. */
+  const [loadErr, setLoadErr] = useState<string | null>(null);
 
   const [claimDesc, setClaimDesc] = useState("");
   const [claimEventDate, setClaimEventDate] = useState("");
@@ -46,7 +48,21 @@ export function DeadlineTracker() {
       router.replace("/login?return=/deadlines");
       return;
     }
-    if (!res.ok) return;
+    /**
+     * A failed load has to say so.
+     *
+     * Returning here left `rows` null, and both render branches below are
+     * guarded on `rows` — so a 500 or a dropped connection produced a page
+     * with no list, no empty-state message and no error: the person sees
+     * blank space exactly where their own data should be, and has no way to
+     * tell "nothing saved" from "we could not fetch it".
+     */
+    if (!res.ok) {
+      setLoadErr(t("loadFailed"));
+      setRows([]);
+      return;
+    }
+    setLoadErr(null);
     const data = await res.json();
     setRows(data.deadlines);
   }
@@ -222,7 +238,14 @@ export function DeadlineTracker() {
         </div>
       )}
 
-      {rows && rows.length === 0 && <p className="mt-5 text-ink-soft text-[13.5px]">{t("empty")}</p>}
+      {loadErr && (
+        <p role="alert" className="mt-5 text-[#ff8f8f] text-body">
+          {loadErr}
+        </p>
+      )}
+      {!loadErr && rows && rows.length === 0 && (
+        <p className="mt-5 text-ink-soft text-[13.5px]">{t("empty")}</p>
+      )}
     </div>
   );
 }
