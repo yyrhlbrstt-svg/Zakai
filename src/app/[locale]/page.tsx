@@ -6,7 +6,7 @@ import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
+import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, KeyRound, Archive, Car } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsraeliMarket, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -84,7 +84,20 @@ export default async function HomePage({
   }
 
   const doorArm = await currentArm<string[]>("home_door_order");
-  const doorOrder = doorArm?.payload ?? ["money", "cancel", "owed", "electricity"];
+  /**
+   * The first four doors, and why a deposit is one of them.
+   *
+   * This list was money / cancel / owed / electricity — four recurring-bill
+   * doors, and not one recovery of money somebody is already owed. A renter
+   * whose landlord is holding ₪5,000 saw nothing addressed to them above the
+   * fold, on a product whose entire promise is getting money back.
+   *
+   * It is also where the money is, on both sides: the fee on a returned
+   * deposit is 18% of the whole sum, against 18% of a single month on a bill
+   * reduction. The experiment arm still overrides this — it is the default
+   * that was wrong, not the mechanism.
+   */
+  const doorOrder = doorArm?.payload ?? ["money", "deposit", "cancel", "owed"];
 
   const doorsByKey = [
     {
@@ -118,6 +131,14 @@ export default async function HomePage({
       subKey: "door.electricity.sub",
       ctaKey: "door.electricity.cta",
       accent: "amber",
+    },
+    {
+      href: "/deposit",
+      icon: KeyRound,
+      titleKey: "door.deposit.title",
+      subKey: "door.deposit.sub",
+      ctaKey: "door.deposit.cta",
+      accent: "emerald",
     },
     {
       href: "/incident",

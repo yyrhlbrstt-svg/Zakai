@@ -36,7 +36,11 @@ export const EXPERIMENTS: Experiment<unknown>[] = [
     minSamplesPerArm: 200,
     minRelativeLift: 0.05,
     arms: [
-      { id: "money_first", baseline: true, payload: ["money", "cancel", "owed", "electricity"] },
+      // The baseline carries a deposit door now. Every arm before this one was
+      // four recurring-bill doors and not one recovery of money somebody is
+      // already owed — so the experiment could compare orderings of the same
+      // idea, and never test the other idea at all.
+      { id: "money_first", baseline: true, payload: ["money", "deposit", "cancel", "owed"] },
       { id: "owed_first", payload: ["owed", "money", "cancel", "electricity"] },
       { id: "cancel_first", payload: ["cancel", "money", "owed", "electricity"] },
       // "dormant" and "incident" were added to the homepage's door grid with a
@@ -53,6 +57,11 @@ export const EXPERIMENTS: Experiment<unknown>[] = [
       // in its own comment, and just as untested in a leading position as the
       // two above until now.
       { id: "vehicle_check_first", payload: ["vehicle-check", "money", "cancel", "owed"] },
+      // The largest single sum a consumer here is routinely owed, and the one
+      // where the fee is 18% of the whole recovery rather than of one month.
+      // Untested in a leading position for the same reason as the three above:
+      // no arm ever placed it there.
+      { id: "deposit_first", payload: ["deposit", "money", "cancel", "owed"] },
     ],
   },
 

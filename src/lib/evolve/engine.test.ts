@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { decide, digest, review, summarise } from "./engine";
 import { EXPERIMENTS, automatableExperiments, experimentById } from "./experiments";
 import { seededRng } from "../strategy/selector";
@@ -239,15 +240,30 @@ describe("the shipped registry is coherent", () => {
     // than erroring). What must hold regardless is that nothing in an arm's
     // list is a typo'd or duplicated key, since either would silently make
     // that arm untestable or double-count a door.
-    const knownDoors = new Set([
-      "money",
-      "cancel",
-      "owed",
-      "electricity",
-      "incident",
-      "dormant",
-      "vehicle-check",
-    ]);
+    /**
+     * Read the door keys off the homepage rather than listing them here.
+     *
+     * They were listed here, and the list drifted the first time a door was
+     * added: the homepage grew a "deposit" door and this test failed calling
+     * it unknown — the test was right that something was inconsistent and
+     * wrong about which side was stale. A hardcoded copy of another file's
+     * contents only ever fails in that confusing direction, so it reads the
+     * source of truth now and cannot disagree with it again.
+     */
+    const homepage = readFileSync("src/app/[locale]/page.tsx", "utf8");
+    const grid = homepage.slice(
+      homepage.indexOf("const doorsByKey"),
+      homepage.indexOf("const doorKey"),
+    );
+    const knownDoors = new Set(
+      [...grid.matchAll(/href:\s*"\/([a-z-]+)"/g)].map((m) =>
+        // page.tsx's own doorKey(): both entitlement routes collapse to "owed".
+        m[1] === "what-am-i-owed" || m[1] === "entitlements" ? "owed" : m[1],
+      ),
+    );
+    // If the extraction ever stops matching, everything below passes over
+    // nothing — the silent no-op these guards exist to prevent.
+    expect(knownDoors.size).toBeGreaterThan(4);
     const doors = experimentById("home_door_order")!;
     for (const arm of doors.arms) {
       const payload = arm.payload as string[];

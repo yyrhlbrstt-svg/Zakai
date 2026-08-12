@@ -847,13 +847,41 @@ export const CATALOG: PriorityAction[] = [
 ];
 
 /**
+ * How many months of a recurring saving this ranking is willing to assume.
+ *
+ * It used to be twelve, and twelve is a claim nobody here has ever verified.
+ * The verification method for every monthly pack is `before_after_bill`: it
+ * proves ONE billing cycle. The success fee agrees — `computeFee` charges 18%
+ * of a single month. So annualising by twelve asserted eleven months that were
+ * neither observed nor charged for, and it did real damage to the ordering: a
+ * ₪40/month bank-fee door outranked a ₪400 warranty recovery, and a ₪300
+ * deposit came in below both. The person is shown the smaller, slower money
+ * first, and the smaller money is also the money this product earns least on
+ * — ₪7.20 against ₪72 on those two.
+ *
+ * Six is a judgement, not a measurement, and it is deliberately the
+ * conservative direction: a saving that does persist a full year is
+ * understated here, which costs an ordering place, while one that is re-raised
+ * after two months no longer outranks cash already in somebody's hand.
+ *
+ * It is a prior, and it is meant to be replaced. `catalogBoosts` carries real
+ * StrategyOutcome data into this function; once there are documented outcomes,
+ * they should decide the ordering and this constant should stop mattering.
+ */
+export const ASSUMED_SAVING_MONTHS = 6;
+
+/**
  * Ranking weight for next-best-action.
  *
- * Monthly agent doors (bank / telecom / cancel) compound every month — a ₪70/mo
- * cancel beats a ₪400 one-time warranty calculator for product volume, even though
- * raw potentialShekels looked smaller. Non-agentic monthly calculators (mortgage,
- * disability quiz) get a mild annualization only; they must not bury Mandate loops.
- * Display copy still uses the per-period figure via formatPotential*.
+ * Two things are being compared and they are not the same kind of thing: money
+ * already recovered, and money projected to keep not being spent. This weighs
+ * a recurring saving over `ASSUMED_SAVING_MONTHS` rather than a full year, so
+ * a one-time recovery is not structurally buried beneath a projection.
+ *
+ * Non-agentic monthly calculators get a milder factor still; they must not bury
+ * Mandate loops. Display copy always uses the per-period figure via
+ * formatPotential*, so nothing here changes what a person is told a door is
+ * worth — only the order the doors appear in.
  */
 export function priorityWeight(
   a: PriorityAction,
@@ -862,9 +890,16 @@ export function priorityWeight(
   const effortDiv = a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2;
   const base = a.potentialShekels / effortDiv;
   const withAgent = base * (a.agentic ? 1.35 : 1);
-  // Annualize recurring agent loops; mild factor for non-agent monthly tools.
+  // Weigh a recurring saving over the months we are willing to assume, not a
+  // full year — see ASSUMED_SAVING_MONTHS.
   const cadenceFactor =
-    a.cadence === "monthly" ? (a.agentic ? 12 : 2) : a.cadence === "hidden" ? 0.25 : 1;
+    a.cadence === "monthly"
+      ? a.agentic
+        ? ASSUMED_SAVING_MONTHS
+        : 2
+      : a.cadence === "hidden"
+        ? 0.25
+        : 1;
   const boost = catalogBoosts[a.id] ?? 0;
   return withAgent * cadenceFactor * (1 + boost);
 }

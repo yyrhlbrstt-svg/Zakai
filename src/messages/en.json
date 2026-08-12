@@ -5086,6 +5086,11 @@
       "title": "Buying a used car?",
       "sub": "The seller must hand you a written disclosure — accidents, mileage, liens. Almost nobody asks.",
       "cta": "What I may demand"
+    },
+    "deposit": {
+      "title": "Landlord holding your deposit?",
+      "sub": "Only proven damage may be deducted — not fair wear. A case, a signed authority and a demand letter in your name.",
+      "cta": "Claim the deposit"
     }
   },
   "authority": {
