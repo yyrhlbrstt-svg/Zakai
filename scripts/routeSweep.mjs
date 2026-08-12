@@ -121,6 +121,12 @@ function hardFailures(status, errors, page) {
     // nothing was reading them. Both put a raw key in front of a person.
     else if (/MISSING_MESSAGE|FORMATTING_ERROR/.test(e)) out.push(e);
   }
+  // A page whose whole content is a loading string has not finished loading —
+  // and after networkidle it never will. There is no judgement in it: the
+  // person is looking at a spinner with nothing to act on.
+  if (page?.stuckLoading) {
+    out.push("still showing a loading state after the page settled — a fetch failed and left the screen with nothing on it");
+  }
   for (const c of page?.clippedText ?? []) out.push(`text cut off at ${VIEWPORT.width}px: ${c}`);
   for (const k of page?.rawKeys ?? []) out.push(`raw translation key visible: ${k}`);
   return out;
@@ -250,7 +256,27 @@ async function main() {
           links.add(path.replace(/^\/(he|en|ar|ru|de|fr)(?=\/|$)/, "") || "/");
         }
 
+        /**
+         * A page still showing nothing but a loading state.
+         *
+         * /commitments loaded its list with `if (!res.ok) return;`, so a 401 —
+         * which is what every logged-out visitor gets — left it showing
+         * "Loading…" forever: no error, no sign-in prompt, no way onward. The
+         * unit suite was green, the page returned 200, and this sweep passed
+         * it, because on that run the local database happened to hold rows.
+         * The data was hiding it.
+         *
+         * Checked against `<main>` only, and only when the loading string is
+         * essentially all there is, so a page that legitimately shows a
+         * spinner beside real content is not flagged.
+         */
+        const mainText = main.innerText.replace(/\s+/g, " ").trim();
+        const LOADING = ["טוען…", "טוען...", "Loading…", "Loading...", "جارٍ التحميل", "Загрузка"];
+        const stuckLoading =
+          LOADING.some((l) => mainText.includes(l)) && mainText.length < 400;
+
         return {
+          stuckLoading,
           textLength: text.replace(/\s+/g, " ").trim().length,
           actions: document.querySelectorAll("a[href], button:not([disabled])").length,
           clippedText: clipped.slice(0, 3),
@@ -259,6 +285,27 @@ async function main() {
           authGated: /\/login|\/signup/.test(location.pathname),
         };
       }, NAMESPACES);
+
+      /**
+       * Re-check only the pages that look stuck.
+       *
+       * 600ms is enough for hydration but not always for a client fetch, so
+       * flagging on the first read would fail honest pages that were merely
+       * slow — and a hard failure that fires at random is worse than no check,
+       * because it gets the whole job switched off. Paying the extra wait only
+       * where the first read looked stuck keeps the sweep fast and the signal
+       * real: after this, a loading string means the fetch is not coming back.
+       */
+      if (measured?.stuckLoading) {
+        await page.waitForTimeout(2500);
+        const settled = await page.evaluate(() => {
+          const main = document.querySelector("main") ?? document.body;
+          const t = main.innerText.replace(/\s+/g, " ").trim();
+          const LOADING = ["טוען…", "טוען...", "Loading…", "Loading...", "جارٍ التحميل", "Загрузка"];
+          return LOADING.some((l) => t.includes(l)) && t.length < 400;
+        });
+        measured.stuckLoading = settled;
+      }
     } catch (err) {
       errors.push(`nav: ${String(err).split("\n")[0].slice(0, 160)}`);
     }
