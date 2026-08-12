@@ -250,7 +250,18 @@ select option {
   justify-content: center;
   gap: 22px;
   background: radial-gradient(120% 90% at 50% 42%, #0c1626 0%, #070b12 62%);
-  animation: splashOut 0.7s var(--ease-out) 2.5s forwards;
+  /**
+   * Held 2.5s and faded over 0.7s — 3.2 seconds of logo before a first-time
+   * visitor could see or do anything, on a product whose promise is that there
+   * is no waiting. It also cost us the number that decides how we are found:
+   * Chrome measured the splash word as the homepage's largest contentful paint
+   * at 1796ms, four times every other page, and Core Web Vitals feed search
+   * ranking — which is the only acquisition channel this product has.
+   *
+   * 0.9s still lands the mark and reads as deliberate. The animations beneath
+   * finish by ~1.3s, so nothing is cut mid-motion.
+   */
+  animation: splashOut 0.5s var(--ease-out) 0.9s forwards;
 }
 #zakai-splash.splash-skip {
   display: none;

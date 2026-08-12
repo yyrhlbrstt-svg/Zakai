@@ -22,7 +22,10 @@ import "../globals.css";
 
 const body = Heebo({
   subsets: ["hebrew", "latin"],
-  weight: ["400", "500", "700", "800"],
+  // 500 was here and `font-medium` appears zero times in 1,284 source files —
+  // two font files, in two subsets, downloaded on the critical path of every
+  // first visit for a weight nothing renders in.
+  weight: ["400", "700", "800"],
   variable: "--font-body",
   display: "swap",
 });
@@ -34,12 +37,21 @@ const display = Suez_One({
   display: "swap",
 });
 
-// Geometric bold face for the "ZAKAI" wordmark.
+/**
+ * Geometric bold face for the "ZAKAI" wordmark.
+ *
+ * Not preloaded. It renders the logo and the splash — nothing a person is
+ * reading — and preloading it put it in the critical path of the one page
+ * every visitor lands on, competing for a 1.6 Mbps pipe against the CSS and
+ * the body font that decide when anything appears at all. With `display: swap`
+ * the wordmark shows in the system face for a moment and settles.
+ */
 const wordmark = Manrope({
   subsets: ["latin"],
   weight: ["800"],
   variable: "--font-wordmark",
   display: "swap",
+  preload: false,
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zakai-3uxj.vercel.app";
