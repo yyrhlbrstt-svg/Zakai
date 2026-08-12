@@ -1,4 +1,5 @@
-import { setRequestLocale } from "next-intl/server";
+import type { Metadata } from "next";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
@@ -15,6 +16,7 @@ import { PipeNetworkLive } from "@/components/PipeNetworkLive";
 import { LoopVolumePanel } from "@/components/LoopVolumePanel";
 import { loadLoopVolume } from "@/lib/services/loopVolume";
 import { bcp47, type Locale } from "@/i18n/config";
+import { privatePageMetadata } from "@/lib/seo";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
   database: "מסד נתונים",
@@ -51,6 +53,16 @@ function isAdmin(email: string): boolean {
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
   return allow.includes(email.toLowerCase());
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return privatePageMetadata(t("founder.t"));
 }
 
 export default async function FounderPage({

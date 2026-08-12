@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
@@ -7,6 +8,21 @@ import { planConfig } from "@/lib/plans";
 import { AssistantScreen } from "@/components/AssistantScreen";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { bcp47, type Locale } from "@/i18n/config";
+import { publicPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return publicPageMetadata(locale, {
+    title: t("assistant.t"),
+    description: t("assistant.d"),
+    path: "/assistant",
+  });
+}
 
 export default async function AssistantPage({
   params,

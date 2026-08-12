@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Sparkles, Inbox, User, Users } from "lucide-react";
 import { redirect, Link } from "@/i18n/routing";
@@ -49,6 +50,7 @@ import {
 } from "@/lib/services/moneyPayFeeCase";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 import { planHasCouponVault } from "@/lib/coupons";
+import { privatePageMetadata } from "@/lib/seo";
 
 const STATUS_KEY: Record<string, string> = {
   ANALYZED: "analyzed",
@@ -69,6 +71,16 @@ const STATUS_COLOR: Record<string, string> = {
   NO_SAVING: "#93A6A5",
   REVOKED: "#F08A6B",
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return privatePageMetadata(t("dashboard.t"));
+}
 
 export default async function DashboardPage({
   params,

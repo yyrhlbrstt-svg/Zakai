@@ -1,6 +1,22 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { publicSupportEmail } from "@/lib/contact";
+import { publicPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return publicPageMetadata(locale, {
+    title: t("privacy.t"),
+    description: t("privacy.d"),
+    path: "/privacy",
+  });
+}
 
 export default async function PrivacyPage({
   params,

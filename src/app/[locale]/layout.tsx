@@ -10,6 +10,7 @@ import { ogImageUrl } from "@/lib/seo";
 import { Background } from "@/components/Background";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { organizationJsonLd } from "@/lib/structuredData";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { EnablePush } from "@/components/EnablePush";
 import { PlausibleScript } from "@/components/PlausibleScript";
@@ -187,6 +188,12 @@ export default async function LocaleLayout({
             __html:
               "(function(){try{var s=document.getElementById('zakai-splash');if(!s)return;if(sessionStorage.getItem('zk_splash')){s.className='splash-skip';}else{sessionStorage.setItem('zk_splash','1');}}catch(e){}})();",
           }}
+        />
+        <script
+          type="application/ld+json"
+          // Static, server-built object with no user input in it — the only
+          // shape of dangerouslySetInnerHTML that is not a question.
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd(locale)) }}
         />
         <NextIntlClientProvider messages={messages}>
           <Background />

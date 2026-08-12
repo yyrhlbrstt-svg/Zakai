@@ -871,7 +871,10 @@
       "institutions": "Institutions · Mandate",
       "partners": "Partners · Embed",
       "business": "B2B · employees + API"
-    }
+    },
+    "contact": "Contact",
+    "status": "Status",
+    "changelog": "What's new"
   },
   "global": {
     "metaTitle": "Zakai worldwide — pick your market",
@@ -6600,5 +6603,175 @@
       "body": "This is where every discount code you were given is kept — retention offers, card benefits, coupons from emails — with search, categories, and a warning before a code expires. On the free plan this screen is locked.",
       "cta": "Compare plans"
     }
+  },
+  "pageMeta": {
+    "saving_confirm": {
+      "t": "Confirm saving — Zakai"
+    },
+    "rights": {
+      "t": "Your rights — Zakai",
+      "d": "Which rights and refunds you are actually entitled to under law, each with a real next step."
+    },
+    "leads": {
+      "t": "Enquiries — Zakai"
+    },
+    "settings": {
+      "t": "Settings — Zakai"
+    },
+    "authority": {
+      "t": "Your authorities — Zakai"
+    },
+    "assistant": {
+      "t": "Zakai assistant",
+      "d": "Ask anything about money you are owed and get a clear next step — not a referral to a call centre."
+    },
+    "signup": {
+      "t": "Sign up — Zakai",
+      "d": "Open a Zakai account and start checking what you are owed. No card required."
+    },
+    "miluim": {
+      "t": "Reserve duty rights — Zakai",
+      "d": "What reserve-duty soldiers are entitled to, and how to actually claim it."
+    },
+    "ownership_confirm": {
+      "t": "Verify ownership — Zakai"
+    },
+    "terms": {
+      "t": "Terms of service — Zakai",
+      "d": "The terms of using Zakai, including the success-fee model and the limits on what the agent may do."
+    },
+    "authorization_code": {
+      "t": "Verify authorisation — Zakai"
+    },
+    "login": {
+      "t": "Log in — Zakai",
+      "d": "Log in to your Zakai account."
+    },
+    "scan": {
+      "t": "Charge scan — Zakai"
+    },
+    "verify": {
+      "t": "Verify — Zakai"
+    },
+    "forgot": {
+      "t": "Reset password — Zakai",
+      "d": "Forgot your password? We will email you a reset link."
+    },
+    "privacy": {
+      "t": "Privacy policy — Zakai",
+      "d": "What Zakai collects, why, how long it is kept, and how to delete or export it."
+    },
+    "dashboard": {
+      "t": "My dashboard — Zakai"
+    },
+    "pricing": {
+      "t": "Plans and pricing — Zakai",
+      "d": "Compare the plans: success-fee rate, number of active checks, and the coupon vault. You pay only on a documented saving."
+    },
+    "reset": {
+      "t": "Set a new password — Zakai"
+    },
+    "check": {
+      "t": "New check — Zakai"
+    },
+    "founder": {
+      "t": "Founder board — Zakai"
+    }
+  },
+  "contact": {
+    "metaTitle": "Contact — Zakai",
+    "metaDescription": "How to reach us: a message here, or direct email for support, institutions and security.",
+    "title": "Contact",
+    "subtitle": "Write to us here, or email the right address directly below.",
+    "promise": "Every message is stored the moment you send it, and we reply by email within one business day.",
+    "noCallback": "There is no call centre here and we do not promise “we will get back to you” — every path in Zakai finishes in the app, not in a queue behind a phone.",
+    "directTitle": "Direct email",
+    "faqHint": "Most questions are already answered:",
+    "faqLink": "FAQ",
+    "channel": {
+      "support": {
+        "title": "User support",
+        "desc": "Questions about your account, an open claim, a charge or a plan."
+      },
+      "institutions": {
+        "title": "Banks, fintechs and institutions",
+        "desc": "Mandate verification, connecting an inbound endpoint, or a question about the open protocol."
+      },
+      "security": {
+        "title": "Security disclosure",
+        "desc": "Found a vulnerability? Write here. We read this one first."
+      }
+    },
+    "form": {
+      "email": "Your email (so we can reply)",
+      "message": "Message",
+      "send": "Send",
+      "sending": "Sending…",
+      "recorded": "Your message has been stored.",
+      "recordedNote": "If you left an email address, the reply will go there.",
+      "failed": "We could not store your message. Try again.",
+      "tooMany": "Too many messages from this address. Try again in an hour."
+    }
+  },
+  "status": {
+    "metaTitle": "System status — Zakai",
+    "metaDescription": "What is working in Zakai right now, and what is working with a limitation — measured live on every page load.",
+    "title": "System status",
+    "footnote": "Every row here is measured as this page loads. There is no pre-set green badge.",
+    "overall": {
+      "up": "All systems working",
+      "degraded": "Working, with one or more limitations",
+      "down": "There is an outage"
+    },
+    "row": {
+      "site": {
+        "title": "The site",
+        "up": "Loading and serving requests.",
+        "degraded": "Partially working.",
+        "down": "Unavailable."
+      },
+      "database": {
+        "title": "Data storage",
+        "up": "Cases, documents and authorities are being saved normally.",
+        "degraded": "Slower than usual.",
+        "down": "Data cannot be saved or loaded right now."
+      },
+      "letters": {
+        "title": "Sending letters",
+        "up": "Letters are going out to the counterparty.",
+        "degraded": "Letters are written, stored and downloadable — but do not leave automatically, because no mail transport is configured yet.",
+        "down": "Letters cannot be produced right now."
+      },
+      "authority": {
+        "title": "Signed authorities",
+        "up": "Signed authorisations can be issued and revoked, and verified by any institution.",
+        "degraded": "Partially working.",
+        "down": "Signed authorities cannot be issued — no signing key is configured."
+      },
+      "payments": {
+        "title": "Fee collection",
+        "up": "Collection is live.",
+        "degraded": "No money is being collected. The flow works end to end in test mode, and no card details are collected.",
+        "down": "Collection is unavailable."
+      },
+      "assistant": {
+        "title": "The assistant",
+        "up": "Available.",
+        "degraded": "Not available right now. Every other path — check, letter, authority — works without it.",
+        "down": "Unavailable."
+      }
+    }
+  },
+  "changelog": {
+    "metaTitle": "What's new — Zakai",
+    "metaDescription": "What shipped in Zakai and when — real new capabilities and real fixes.",
+    "title": "What's new",
+    "subtitle": "What changed in Zakai, by date. Only things that change what you can actually do here."
+  },
+  "dataExport": {
+    "cta": "Export all my data",
+    "busy": "Preparing file…",
+    "hint": "A JSON file with everything we hold about you, including the full text of every letter. Passwords and one-time codes are excluded.",
+    "failed": "Export failed. Try again."
   }
 }
