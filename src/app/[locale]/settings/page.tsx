@@ -22,6 +22,7 @@ export default async function SettingsPage({
   if (!user) redirect({ href: "/login", locale });
 
   const t = await getTranslations("settings");
+  const tVisible = await getTranslations({ locale, namespace: "visibleWork" });
   const he = locale === "he" || locale === "ar";
   const tIapp_locale_settings_page = await getTranslations({ locale, namespace: "inline_app_locale_settings_page" });
 
@@ -80,6 +81,16 @@ export default async function SettingsPage({
       </Card>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/activity">
+          <Button variant="ghost" className="!text-body">
+            {tVisible("title")}
+          </Button>
+        </Link>
+        <Link href="/authority">
+          <Button variant="ghost" className="!text-body">
+            {tVisible("authorityLink")}
+          </Button>
+        </Link>
         <Link href="/documents">
           <Button variant="ghost" className="!text-[13px]">
             {tIapp_locale_settings_page("t_6c127838")}

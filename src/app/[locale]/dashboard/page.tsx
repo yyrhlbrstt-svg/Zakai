@@ -533,6 +533,14 @@ export default async function DashboardPage({
       <div className="flex items-center gap-3 flex-wrap my-3 mb-5">
         <h1 className="font-display text-3xl m-0">{t("dashboard.title")}</h1>
         <PlanBadge plan={user!.plan} />
+        {/* Not buried under settings: "what has this done in my name" is a
+            question people ask at the top of a session, not the bottom. */}
+        <Link
+          href="/activity"
+          className="ms-auto text-emerald text-body font-bold no-underline shrink-0"
+        >
+          {t("visibleWork.title")}
+        </Link>
       </div>
 
       <ReminderBanner />

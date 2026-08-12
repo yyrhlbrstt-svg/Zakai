@@ -6451,5 +6451,82 @@
     "title": "What you are committed to, and until when you can still leave",
     "sub": "A contract renewing on 1 January with 60 days' notice has to be acted on by 1 November — and that date appears nowhere. We hold it.",
     "footnote": "The date is recomputed on every load from the renewal date and the notice period; it is never stored, so it cannot stay wrong after a correction. A contract that states no notice period gets no guessed date — saying \"unknown\" beats guessing."
+  },
+  "visibleWork": {
+    "metaTitle": "What was done in my name — Zakai",
+    "metaDescription": "Every action taken in your name, under which authority, and what actually left.",
+    "title": "What was done in my name",
+    "subtitle": "Every action taken on your behalf — when, against whom, and under which authority. Anything that has not left yet says so.",
+    "empty": "Nothing has been done in your name yet. Once you open a claim, every step appears here.",
+    "statTotal": "Actions",
+    "statDelivered": "Actually left",
+    "statWaiting": "Waiting to send",
+    "statFailed": "Failed",
+    "statAuthorities": "Live authorities",
+    "nothingLeftYet": "No letter has left the system. They were written and addressed, but no mail transport is configured — so they are waiting. That is not “sent” and we will not show it as sent.",
+    "underRevoked": "{count} actions were taken under an authority that has since been withdrawn. They stay here: revoking stops the next action, it does not erase the last one.",
+    "revokedTag": "revoked",
+    "revoke": "Revoke",
+    "revoking": "Revoking…",
+    "revokeFailed": "Revocation did not complete. Try again.",
+    "revokedNote": "Authority revoked. Any institution verifying with us sees it on its next check.",
+    "filterEmpty": "No actions under this filter.",
+    "authorityHint": "To manage the permissions themselves — what Zakai may do, and revoke everything at once:",
+    "authorityLink": "Your authorities",
+    "filter": {
+      "all": "All",
+      "outward": "Left the system",
+      "waiting": "Waiting"
+    },
+    "kind": {
+      "case_opened": {
+        "with": "Claim opened against {counterparty}",
+        "plain": "Claim opened"
+      },
+      "consent_given": {
+        "with": "You approved us acting against {counterparty}",
+        "plain": "You approved us acting on your behalf"
+      },
+      "ownership_verified": {
+        "with": "Your ownership of the {counterparty} account was verified",
+        "plain": "Your account ownership was verified"
+      },
+      "authority_granted": {
+        "with": "Signed authority issued to act against {counterparty}",
+        "plain": "Signed authority issued"
+      },
+      "authority_revoked": {
+        "with": "Authority against {counterparty} revoked",
+        "plain": "Authority revoked"
+      },
+      "letter_queued": {
+        "with": "Letter to {counterparty} written and addressed — has not left yet",
+        "plain": "Letter written and addressed — has not left yet"
+      },
+      "letter_delivered": {
+        "with": "Letter left to {counterparty}",
+        "plain": "Letter left"
+      },
+      "letter_failed": {
+        "with": "Sending the letter to {counterparty} failed — it did not leave",
+        "plain": "Sending failed — the letter did not leave"
+      },
+      "saving_documented": {
+        "with": "Saving documented against {counterparty}",
+        "plain": "Saving documented"
+      },
+      "fee_raised": {
+        "with": "Success fee recorded on the {counterparty} case",
+        "plain": "Success fee recorded"
+      },
+      "fee_paid": {
+        "with": "Success fee on the {counterparty} case collected",
+        "plain": "Success fee collected"
+      },
+      "terms_accepted": {
+        "with": "You accepted the terms of service",
+        "plain": "You accepted the terms of service"
+      }
+    }
   }
 }
