@@ -41,12 +41,20 @@ export function NextStep({
   steps,
   action,
   note,
+  title,
 }: {
   /** Two or three short sentences. Not a paragraph. */
   steps: string[];
   action?: NextStepAction;
   /** One qualifying line, when the action needs a caveat to be honest. */
   note?: string;
+  /**
+   * A heading specific to this page, when it has one worth keeping.
+   * "How you actually get the money — step by step" says more than "What now",
+   * and a page that already knows its own answer should not be flattened into
+   * the generic one.
+   */
+  title?: string;
 }) {
   const t = useTranslations("nextStep");
   const lines = steps.filter((s) => s.trim().length > 0);
@@ -54,7 +62,7 @@ export function NextStep({
 
   return (
     <Card className="mt-5 p-6">
-      <div className="font-extrabold text-lead mb-3">{t("title")}</div>
+      <div className="font-extrabold text-lead mb-3">{title ?? t("title")}</div>
       <ol className="m-0 ps-0 list-none flex flex-col gap-2.5">
         {lines.map((line, i) => (
           <li key={line} className="flex gap-3 items-baseline">
