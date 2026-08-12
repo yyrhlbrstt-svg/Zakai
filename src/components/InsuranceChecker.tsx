@@ -95,11 +95,11 @@ export function InsuranceChecker({
         <div className="mt-6">
           {result.wastefulMonthlyAgorot > 0 ? (
             <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.07)] p-6 text-center">
-              <div className="text-[13px] font-bold text-ink-soft">{t("resultTitle")}</div>
+              <div className="text-body font-bold text-ink-soft">{t("resultTitle")}</div>
               <div className="font-display grad-text text-[clamp(28px,7vw,40px)] leading-none tabular-nums mt-2">
                 {formatAgorot(result.wastefulYearlyAgorot, loc)}
               </div>
-              <div className="text-[13px] text-ink-soft mt-2">{t("resultPerYear")}</div>
+              <div className="text-body text-ink-soft mt-2">{t("resultPerYear")}</div>
               <p className="text-[13.5px] text-ink mt-4 max-w-[520px] mx-auto leading-relaxed">
                 {t("resultExplain")}
               </p>

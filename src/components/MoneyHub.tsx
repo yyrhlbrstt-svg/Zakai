@@ -714,7 +714,7 @@ export function MoneyHub({
 
   return (
     <div className="flex flex-col gap-5 pb-28">
-      <div className="flex items-start gap-2.5 text-[13px] text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3">
+      <div className="flex items-start gap-2.5 text-body text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3">
         <span aria-hidden>🔒</span>
         <span>{tx(locale, "privacy")}</span>
       </div>
@@ -725,14 +725,14 @@ export function MoneyHub({
           <div className="font-display grad-text text-3xl mt-1">
             {formatAgorot(saved.totalMonthlyAgorot, bcp47)}
           </div>
-          <div className="text-[13px] text-ink-soft mt-1">
+          <div className="text-body text-ink-soft mt-1">
             {saved.count} · {saved.merchants.slice(0, 4).join(", ")}
             {saved.merchants.length > 4 ? "…" : ""}
           </div>
           <p className="text-[12px] text-ink-soft mt-2">{tx(locale, "remember")}</p>
           <button
             type="button"
-            className="mt-2 bg-transparent border-0 text-emerald text-[13px] font-bold cursor-pointer p-0"
+            className="mt-2 bg-transparent border-0 text-emerald text-body font-bold cursor-pointer p-0"
             onClick={() => {
               localStorage.removeItem(STORAGE_KEY);
               setSaved(null);
@@ -756,7 +756,7 @@ export function MoneyHub({
             {shotBusy ? tx(locale, "shotBusy") : tx(locale, "shotBtn")}
           </Button>
         ) : (
-          <p className="text-[13px] text-ink-soft mt-3">
+          <p className="text-body text-ink-soft mt-3">
             {tIcomponents_MoneyHub("t_292af8ba")}
           </p>
         )}
@@ -769,7 +769,7 @@ export function MoneyHub({
           onChange={(e) => onScreenshot(e.target.files?.[0])}
         />
         {shotNeedsLogin && (
-          <p className="text-[13px] font-semibold mt-3 mb-0">
+          <p className="text-body font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("shotNeedsLoginPrefix")}
             <Link href="/login?return=/money" className="text-emerald underline">
               {tIcomponents_MoneyHub("shotNeedsLoginLink")}
@@ -778,12 +778,12 @@ export function MoneyHub({
           </p>
         )}
         {shotTooBig && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
+          <p className="text-danger text-body font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("shotTooBig")}
           </p>
         )}
         {shotError && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
+          <p className="text-danger text-body font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("t_da95e09c")}
           </p>
         )}
@@ -817,7 +817,7 @@ export function MoneyHub({
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
             {tx(locale, "uploadBtn")}
           </Button>
-          <Button variant="ghost" className="!text-[13px]" type="button" onClick={loadDemo}>
+          <Button variant="ghost" className="!text-body" type="button" onClick={loadDemo}>
             {tx(locale, "loadDemo")}
           </Button>
           <input
@@ -863,7 +863,7 @@ export function MoneyHub({
               <CommitmentWindowCard result={result} locale={locale} bcp47={bcp47} />
 
               <Card className="p-6 text-center">
-                <div className="text-[13px] text-ink-soft font-bold">{tx(locale, "total")}</div>
+                <div className="text-body text-ink-soft font-bold">{tx(locale, "total")}</div>
                 <div className="font-display grad-text text-4xl mt-1.5">
                   {formatAgorot(result.totalMonthlyAgorot, bcp47)}
                 </div>
@@ -889,7 +889,7 @@ export function MoneyHub({
                     {tx(locale, "bestRoi")}
                   </div>
                   <div className="font-extrabold text-[17px] mt-1.5">{best.merchant}</div>
-                  <div className="text-ink-soft text-[13px] mt-0.5">
+                  <div className="text-ink-soft text-body mt-0.5">
                     {formatAgorot(best.monthlyAgorot, bcp47)} {tx(locale, "perMonth")} · {best.category}
                   </div>
                   <Button
@@ -909,7 +909,7 @@ export function MoneyHub({
               {/* Batch open — founder-grade: one scan → many agent cases */}
               {result.recurring.length >= 2 && (
                 <Card className="p-5 border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)]">
-                  <div className="text-[13px] font-extrabold">{tx(locale, "selectHint")}</div>
+                  <div className="text-body font-extrabold">{tx(locale, "selectHint")}</div>
                   <p className="text-[12px] text-ink-soft mt-1 mb-3">
                     {selected.size} / 5
                   </p>
@@ -936,12 +936,12 @@ export function MoneyHub({
                   collapsed <details> labelled "not the agent path" hid the one
                   thing that works behind the one that does not. */}
               {mailLive ? (
-                <details className="text-[13px] text-ink-soft">
+                <details className="text-body text-ink-soft">
                   <summary className="cursor-pointer font-bold select-none">
                     {tx(locale, "altLetter")}
                   </summary>
                   <Link href="/cancel/universal" className="no-underline block mt-2">
-                    <Button variant="ghost" className="w-full !text-[13px]">
+                    <Button variant="ghost" className="w-full !text-body">
                       {tx(locale, "universalCancelCta")}
                     </Button>
                   </Link>
@@ -954,7 +954,7 @@ export function MoneyHub({
                 </Link>
               )}
 
-              {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
+              {error && <p className="text-body text-amber font-semibold m-0">{error}</p>}
 
               {pendingOutreach && (
                 <Card className="p-4 border border-[rgba(240,180,92,0.4)] bg-[rgba(240,180,92,0.08)]">
@@ -965,7 +965,7 @@ export function MoneyHub({
                     onChange={(e) => setOutreachEmail(e.target.value)}
                     placeholder={tx(locale, "outreachPh")}
                     dir="ltr"
-                    className="text-[13px] mb-2"
+                    className="text-body mb-2"
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -993,7 +993,7 @@ export function MoneyHub({
                 </Card>
               )}
 
-              <div className="text-[13px] font-extrabold text-emerald">{tx(locale, "act")}</div>
+              <div className="text-body font-extrabold text-emerald">{tx(locale, "act")}</div>
 
               <Card className="py-1.5">
                 {result.recurring.map((r, i) => (
@@ -1056,12 +1056,12 @@ export function MoneyHub({
                     else changed. Reported as a button that "does nothing and
                     is misleading", which is exactly what it was. */}
                 <Link href="/dashboard" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">
+                  <Button variant="ghost" className="!text-body !py-2">
                     {tIcomponents_MoneyHub("t_38d0577a")}
                   </Button>
                 </Link>
                 <Link href="/cancel" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">
+                  <Button variant="ghost" className="!text-body !py-2">
                     {tIcomponents_MoneyHub("t_c4584cd0")}
                   </Button>
                 </Link>

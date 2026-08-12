@@ -29,7 +29,7 @@ export function ReminderBanner() {
               ? `יש ${follow.length} תיקים שממתינים למעקב אחרי הספק`
               : `${follow.length} case(s) waiting for a provider follow-up`}
           </div>
-          <Link href="/money" className="text-emerald font-bold no-underline text-[13px]">
+          <Link href="/money" className="text-emerald font-bold no-underline text-body">
             {tIcomponents_ReminderBanner("t_1a1a5c0a")}
           </Link>
         </div>
@@ -41,7 +41,7 @@ export function ReminderBanner() {
               ? `הגיע הזמן לבדוק אם המחיר חזר למעלה (${recheck.length})`
               : `Time to check if the price crept back up (${recheck.length})`}
           </div>
-          <Link href="/money" className="text-emerald font-bold no-underline text-[13px]">
+          <Link href="/money" className="text-emerald font-bold no-underline text-body">
             {tIcomponents_ReminderBanner("t_86e4f4c1")}
           </Link>
         </div>

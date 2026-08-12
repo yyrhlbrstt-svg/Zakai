@@ -155,7 +155,7 @@ export default async function BusinessPage({
             <Reveal key={c.title} delay={i * 70}>
               <SpotlightCard className="p-5 h-full border-[rgba(63,203,155,0.25)]">
                 <div className="font-extrabold text-[15px] text-emerald">{c.title}</div>
-                <div className="text-ink-soft text-[13px] mt-2 leading-relaxed">{c.sub}</div>
+                <div className="text-ink-soft text-body mt-2 leading-relaxed">{c.sub}</div>
               </SpotlightCard>
             </Reveal>
           ))}

@@ -16,7 +16,7 @@ export function VerticalOutcomeStat({ stat, bcp47 }: { stat: Stat; bcp47: string
   const pct = Math.round(stat.winRate * 100);
 
   return (
-    <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13px] font-bold text-emerald mb-4">
+    <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-body font-bold text-emerald mb-4">
       {stat.avgRecoveredMinor > 0
         ? t("banner", { trials: stat.trials, pct, amount: formatAgorot(stat.avgRecoveredMinor, bcp47) })
         : t("bannerNoAmount", { trials: stat.trials, pct })}

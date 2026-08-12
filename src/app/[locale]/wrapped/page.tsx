@@ -97,13 +97,13 @@ export default async function WrappedPage({
       </div>
 
       <Card className="mt-6 p-6 text-center border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)]">
-        <div className="text-[13px] text-ink-soft font-bold">
+        <div className="text-body text-ink-soft font-bold">
           {tIapp_locale_wrapped_page("t_ece7121c")}
         </div>
         <div className="font-display grad-text text-5xl mt-2">
           {formatAgorot(monthly, loc)}
         </div>
-        <div className="text-[13px] text-ink-soft mt-2">
+        <div className="text-body text-ink-soft mt-2">
           {tIapp_locale_wrapped_page("yearlyLine", { amount: formatAgorot(yearly, loc) })}
         </div>
       </Card>

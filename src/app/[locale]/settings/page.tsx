@@ -111,17 +111,17 @@ export default async function SettingsPage({
           </Button>
         </Link>
         <Link href="/documents">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {tIapp_locale_settings_page("t_6c127838")}
           </Button>
         </Link>
         <Link href="/wrapped">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {tIapp_locale_settings_page("t_e2d56b43")}
           </Button>
         </Link>
         <Link href="/money">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {tIapp_locale_settings_page("t_bd4c0905")}
           </Button>
         </Link>

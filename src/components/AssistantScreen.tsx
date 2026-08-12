@@ -189,7 +189,7 @@ export function AssistantScreen({
                 {insightText(i)}
               </p>
               <Link href={i.href} className="no-underline shrink-0">
-                <Button variant="ghost" className="!px-4 !py-2 !text-[13px]">
+                <Button variant="ghost" className="!px-4 !py-2 !text-body">
                   {t(`insightCta.${i.key}`)}
                 </Button>
               </Link>
@@ -273,7 +273,7 @@ export function AssistantScreen({
                   </div>
                 ))}
                 {busy && (
-                  <div className="self-start text-ink-soft text-[13px] px-2" aria-live="polite">
+                  <div className="self-start text-ink-soft text-body px-2" aria-live="polite">
                     {t("thinking")}
                   </div>
                 )}
@@ -281,7 +281,7 @@ export function AssistantScreen({
             )}
             {chatError && (
               <div className="flex flex-wrap items-center gap-2.5">
-                <p className="text-danger text-[13px] font-semibold m-0">
+                <p className="text-danger text-body font-semibold m-0">
                   {chatError === "quota" ? t("quotaError") : t("chatGenericError")}
                 </p>
                 {/* Only offered when there is something to resend. Losing a
@@ -301,7 +301,7 @@ export function AssistantScreen({
               </div>
             )}
             {imageError && (
-              <p className="text-danger text-[13px] font-semibold">{t("imageTooBig")}</p>
+              <p className="text-danger text-body font-semibold">{t("imageTooBig")}</p>
             )}
             {pendingImage && (
               <div className="flex items-center gap-2 mb-2.5 text-[12.5px] font-semibold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.25)] rounded-full px-3 py-1.5 w-fit">
@@ -358,7 +358,7 @@ export function AssistantScreen({
       </Card>
 
       {/* Under the assistant: the full FAQ, and the improve-Zakai box. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-[13px]">
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-body">
         <Link href="/faq" className="text-emerald font-bold no-underline">
           {t("moreFaq")}
         </Link>

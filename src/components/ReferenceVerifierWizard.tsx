@@ -332,7 +332,7 @@ export function ReferenceVerifierWizard() {
         {t("runChecks")}
       </Button>
 
-      <ul className="list-none p-0 m-0 flex flex-col gap-2 text-[13px]">
+      <ul className="list-none p-0 m-0 flex flex-col gap-2 text-body">
         {VERIFIER_READINESS_ENDPOINTS.map((ep) => (
           <li key={ep.id} className="flex justify-between gap-3">
             <span>{t(`check_${ep.id}`)}</span>
@@ -374,7 +374,7 @@ export function ReferenceVerifierWizard() {
 
       {readyDetail ? (
         <p
-          className={`text-[13px] mt-3 mb-0 font-extrabold ${
+          className={`text-body mt-3 mb-0 font-extrabold ${
             pioneerReady ? "text-emerald" : "text-ink-soft"
           }`}
         >
@@ -399,7 +399,7 @@ export function ReferenceVerifierWizard() {
         <div className="mt-6 pt-5 border-t border-[rgba(255,255,255,0.08)]">
           <p className="text-emerald font-extrabold text-[14px] mb-3">{t("checksPassed")}</p>
           <div className="grid gap-3">
-            <label className="block text-[13px]">
+            <label className="block text-body">
               {t("fieldInstitutionId")}
               <Input
                 className="mt-1"
@@ -409,15 +409,15 @@ export function ReferenceVerifierWizard() {
                 dir="ltr"
               />
             </label>
-            <label className="block text-[13px]">
+            <label className="block text-body">
               {t("fieldNameHe")}
               <Input className="mt-1" value={nameHe} onChange={(e) => setNameHe(e.target.value)} />
             </label>
-            <label className="block text-[13px]">
+            <label className="block text-body">
               {t("fieldNameEn")}
               <Input className="mt-1" value={nameEn} onChange={(e) => setNameEn(e.target.value)} />
             </label>
-            <label className="block text-[13px]">
+            <label className="block text-body">
               {t("fieldEmail")}
               <Input
                 type="email"
@@ -431,14 +431,14 @@ export function ReferenceVerifierWizard() {
           <Button className="mt-4 w-full" onClick={register} disabled={busy || !institutionId.trim()}>
             {busy ? t("registerBusy") : t("registerCta")}
           </Button>
-          {registerMsg && <p className="text-[13px] mt-3 text-ink-soft">{registerMsg}</p>}
+          {registerMsg && <p className="text-body mt-3 text-ink-soft">{registerMsg}</p>}
 
           {(listedId || allOk) && (
             <div className="mt-5 flex flex-col gap-2">
-              <p className="text-[13px] font-extrabold text-ink m-0">{t("nextStepsTitle")}</p>
+              <p className="text-body font-extrabold text-ink m-0">{t("nextStepsTitle")}</p>
               <a
                 href="/api/institution/pilot-package"
-                className="text-[13px] text-emerald font-bold no-underline"
+                className="text-body text-emerald font-bold no-underline"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -446,18 +446,18 @@ export function ReferenceVerifierWizard() {
               </a>
               <a
                 href="/reference/inbound-receiver/receive.mjs"
-                className="text-[13px] text-emerald font-bold no-underline"
+                className="text-body text-emerald font-bold no-underline"
                 target="_blank"
                 rel="noreferrer"
               >
                 {t("nextCloneReceiver")}
               </a>
               {publicUrl ? (
-                <Link href="/institutions/leaders" className="text-[13px] text-emerald font-bold">
+                <Link href="/institutions/leaders" className="text-body text-emerald font-bold">
                   {t("nextLeadersWall")}
                 </Link>
               ) : null}
-              <Link href="/join-network" className="text-[13px] text-emerald font-bold">
+              <Link href="/join-network" className="text-body text-emerald font-bold">
                 {t("nextJoinNetwork")}
               </Link>
             </div>

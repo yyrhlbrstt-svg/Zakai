@@ -65,7 +65,7 @@ export async function InstitutionLeadersConsumerStrip({ locale }: { locale: stri
 
     return (
       <Card className="p-5 mb-6 border-[rgba(63,203,155,0.25)]">
-        <p className="text-[13px] text-ink-soft m-0 mb-3 leading-relaxed">
+        <p className="text-body text-ink-soft m-0 mb-3 leading-relaxed">
           {t("consumerStripEmpty")}
         </p>
         <p className="text-[12px] text-ink-soft m-0 mb-4">{t("consumerStripEmptySlots")}</p>
@@ -74,12 +74,12 @@ export async function InstitutionLeadersConsumerStrip({ locale }: { locale: stri
             href={`mailto:?subject=${askBankSubject}&body=${askBankBody}`}
             className="no-underline"
           >
-            <Button variant="ghost" className="!text-[13px]">
+            <Button variant="ghost" className="!text-body">
               {t("consumerAskBankCta")}
             </Button>
           </a>
           <Link href="/institutions/leader" className="no-underline">
-            <Button className="!text-[13px]">{t("leaderProgramCta")}</Button>
+            <Button className="!text-body">{t("leaderProgramCta")}</Button>
           </Link>
         </div>
         <p className="text-[11px] text-ink-soft mt-3 mb-0">{t("consumerStripDisclaimer")}</p>
@@ -89,7 +89,7 @@ export async function InstitutionLeadersConsumerStrip({ locale }: { locale: stri
 
   return (
     <Card className="p-5 mb-6 border-[rgba(63,203,155,0.25)]">
-      <p className="text-[13px] text-ink-soft m-0 mb-3 leading-relaxed">{t("consumerStripHint")}</p>
+      <p className="text-body text-ink-soft m-0 mb-3 leading-relaxed">{t("consumerStripHint")}</p>
       <ul className="list-none p-0 m-0 flex flex-col gap-2">
         {leaders.map((r) => (
           <li key={r.institutionId} className="flex items-center justify-between gap-2 text-[14px]">
@@ -102,10 +102,10 @@ export async function InstitutionLeadersConsumerStrip({ locale }: { locale: stri
       </ul>
       <p className="text-[11px] text-ink-soft mt-3 mb-0">{t("consumerStripDisclaimer")}</p>
       <div className="flex flex-wrap gap-3 mt-3">
-        <Link href="/institutions/leaders" className="text-emerald font-bold text-[13px] no-underline">
+        <Link href="/institutions/leaders" className="text-emerald font-bold text-body no-underline">
           {t("seeLeaders")} →
         </Link>
-        <a href={institutionPilotMailto()} className="text-ink-soft font-bold text-[13px] no-underline">
+        <a href={institutionPilotMailto()} className="text-ink-soft font-bold text-body no-underline">
           {t("institutionEmailUs")} →
         </a>
       </div>

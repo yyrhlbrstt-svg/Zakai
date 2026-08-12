@@ -31,11 +31,11 @@ export async function ControlGatesStrip({ locale }: { locale: string }) {
   return (
     <section className="border border-[rgba(63,203,155,0.3)] rounded-2xl p-5 mb-10 bg-[rgba(63,203,155,0.05)]">
       <h2 className="text-[15px] font-extrabold m-0 mb-1">{copy.title}</h2>
-      <p className="text-[13px] text-ink-soft m-0 mb-3 font-mono" dir="ltr">
+      <p className="text-body text-ink-soft m-0 mb-3 font-mono" dir="ltr">
         phase={phase} · gates {passed}/{total}
       </p>
       {next ? (
-        <p className="text-[13px] leading-relaxed m-0 mb-3 text-ink">
+        <p className="text-body leading-relaxed m-0 mb-3 text-ink">
           {locale === "he" || locale === "ar" ? "החסימה הבאה: " : "Next blocker: "}
           {next}
         </p>

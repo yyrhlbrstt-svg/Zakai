@@ -58,7 +58,7 @@ export function LangSuggest({ initialShow = false }: { initialShow?: boolean }) 
         <button
           type="button"
           onClick={toEnglish}
-          className="shrink-0 grad-bg text-[#06121A] font-extrabold text-[13px] rounded-lg px-3.5 py-1.5"
+          className="shrink-0 grad-bg text-[#06121A] font-extrabold text-body rounded-lg px-3.5 py-1.5"
         >
           View in English
         </button>

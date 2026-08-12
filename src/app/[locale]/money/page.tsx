@@ -313,7 +313,7 @@ export default async function MoneyPage({
                 <div className="font-extrabold text-[14px] text-emerald">
                   {locale === "he" || locale === "ar" ? "עמלת הצלחה ממתינה" : "Success fee pending"}
                 </div>
-                <p className="text-[13px] text-ink-soft mt-1 mb-0">
+                <p className="text-body text-ink-soft mt-1 mb-0">
                   {formatAgorot(personalDocumented.pendingFeeAgorot, loc)}
                 </p>
               </div>
@@ -392,22 +392,22 @@ export default async function MoneyPage({
           <div className="font-extrabold text-[14px]">{tIapp_locale_money_page("t_26d7de3c")}</div>
           <div className="flex flex-wrap gap-3 mt-3">
             <Link href="/cancel">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_bc18d8da")}
               </Button>
             </Link>
             <Link href="/check">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_a4c2b6a9")}
               </Button>
             </Link>
             <Link href="/bank-fees">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_bankFeesShortcut")}
               </Button>
             </Link>
             <Link href="/dashboard">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_38d0577a")}
               </Button>
             </Link>

@@ -56,7 +56,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.16)] px-5 py-4 hover:border-[rgba(63,203,155,0.7)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-emerald">{t("feeNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">
           {t("feeNudgeSub", { amount: formatAgorot(action.feeAmountAgorot, loc) })}
         </p>
       </Link>
@@ -70,7 +70,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-5 py-4 hover:border-[rgba(63,203,155,0.55)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-emerald">{t("proposedNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("proposedNudgeSub")}</p>
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("proposedNudgeSub")}</p>
       </Link>
     );
   }
@@ -82,7 +82,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-5 py-4 hover:border-[rgba(240,138,107,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("exhaustedNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("exhaustedNudgeSub")}</p>
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("exhaustedNudgeSub")}</p>
       </Link>
     );
   }
@@ -94,7 +94,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.5)] bg-[rgba(240,180,92,0.12)] px-5 py-4 hover:border-[rgba(240,180,92,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("needsOutreachNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">
           {t("needsOutreachNudgeSub")}
         </p>
       </Link>
@@ -108,7 +108,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-5 py-4 hover:border-[rgba(240,138,107,0.65)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f08a6b]">{t("mandateInactiveNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">
           {t("mandateInactiveNudgeSub")}
         </p>
       </Link>
@@ -122,7 +122,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("preSendNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("preSendNudgeSub")}</p>
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("preSendNudgeSub")}</p>
       </Link>
     );
   }
@@ -134,7 +134,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink mb-5 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] px-5 py-4 hover:border-[rgba(240,180,92,0.6)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-[#f0b45c]">{t("sentWaitNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("sentWaitNudgeSub")}</p>
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("sentWaitNudgeSub")}</p>
       </Link>
     );
   }
@@ -148,7 +148,7 @@ export async function DashboardNextActionPanel({
         className="block no-underline text-ink rounded-2xl border border-[rgba(63,203,155,0.55)] bg-[rgba(63,203,155,0.14)] px-5 py-4 hover:border-[rgba(63,203,155,0.7)] transition-colors"
       >
         <div className="font-extrabold text-[15px] text-emerald">{t("startMoneyNudgeTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("startMoneyNudgeSub")}</p>
+        <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">{t("startMoneyNudgeSub")}</p>
       </Link>
       {!profileRow?.data ? (
         <Link

@@ -113,25 +113,25 @@ ${name || "____"}
       <Card className="p-6 flex flex-col gap-4">
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("ticket")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("ticket")}</span>
             <Input value={ticket} onChange={(e) => setTicket(e.target.value)} maxLength={40} dir="ltr" />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("city")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("city")}</span>
             <Input value={city} onChange={(e) => setCity(e.target.value)} maxLength={40} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{tIcomponents_ParkingAppeal("t_e3b93d14")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{tIcomponents_ParkingAppeal("t_e3b93d14")}</span>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </label>
         </div>
 
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("reasonQ")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("reasonQ")}</span>
           <RadioChips
             value={reason}
             onChange={setReason}
@@ -141,12 +141,12 @@ ${name || "____"}
         </div>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("details")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("details")}</span>
           <Input value={details} onChange={(e) => setDetails(e.target.value)} maxLength={300} />
         </label>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{tIcomponents_ParkingAppeal("authorityEmail")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{tIcomponents_ParkingAppeal("authorityEmail")}</span>
           <Input
             type="email"
             value={authorityEmail}
@@ -172,7 +172,7 @@ ${name || "____"}
           <Button onClick={sendWithAgent} disabled={!agentReady || busy}>
             {busy ? tFlow("opening") : tFlow("openCase")}
           </Button>
-          <details className="text-[13px] text-ink-soft">
+          <details className="text-body text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
               {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
@@ -186,7 +186,7 @@ ${name || "____"}
             </Button>
           </details>
         </div>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (
@@ -210,7 +210,7 @@ ${name || "____"}
             value={letter}
             rows={16}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

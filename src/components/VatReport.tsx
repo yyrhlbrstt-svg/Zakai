@@ -109,7 +109,7 @@ export function VatReport({ bcp47 }: { bcp47: string }) {
           isRefund ? "border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.06)]" : ""
         }`}
       >
-        <div className="text-[13px] text-ink-soft font-bold">
+        <div className="text-body text-ink-soft font-bold">
           {t(`direction.${report.direction}`)}
         </div>
         <div
@@ -289,7 +289,7 @@ export function VatReport({ bcp47 }: { bcp47: string }) {
             onChange={(e) => setDetailed(e.target.checked)}
             className="mt-0.5 w-[18px] h-[18px] accent-[#3FCB9B] shrink-0"
           />
-          <span className="text-[13px] leading-relaxed">
+          <span className="text-body leading-relaxed">
             <span className="font-bold">{t("detailedLabel")}</span>
             <span className="block text-ink-soft text-[12px]">{t("detailedHint")}</span>
           </span>
@@ -548,9 +548,9 @@ function Line({
   const color = tone === "emerald" ? "text-emerald" : tone === "danger" ? "text-danger" : "";
   return (
     <div className="flex items-baseline justify-between gap-3 py-1.5">
-      <dt className={`text-[13px] ${strong ? "font-extrabold" : "text-ink-soft"}`}>{label}</dt>
+      <dt className={`text-body ${strong ? "font-extrabold" : "text-ink-soft"}`}>{label}</dt>
       <dd
-        className={`m-0 tabular-nums ${strong ? "font-extrabold text-[15px]" : "text-[13px]"} ${color}`}
+        className={`m-0 tabular-nums ${strong ? "font-extrabold text-[15px]" : "text-body"} ${color}`}
       >
         {value}
       </dd>

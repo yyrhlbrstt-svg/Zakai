@@ -162,7 +162,7 @@ export function CarInsuranceRefundTool() {
           </Button>
           <Button
             variant="ghost"
-            className="w-full text-[13px]"
+            className="w-full text-body"
             disabled={!insurer.trim() || busy}
             onClick={() => {
               const letter = buildCarInsuranceRefundLetter(letterInput());
@@ -175,7 +175,7 @@ export function CarInsuranceRefundTool() {
             {heEn(he, "רק טיוטה להעתקה", "Draft only (copy)")}
           </Button>
         </div>
-        {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
+        {error && <p className="text-body text-amber mt-1 mb-0">{error}</p>}
       </Card>
 
       {caseId && (
@@ -192,7 +192,7 @@ export function CarInsuranceRefundTool() {
       {out && (
         <Card className="p-5">
           <div className="font-extrabold">{out.subject}</div>
-          <pre className="mt-3 whitespace-pre-wrap text-[13px] leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
+          <pre className="mt-3 whitespace-pre-wrap text-body leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
             {out.body}
           </pre>
           <Button

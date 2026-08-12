@@ -29,7 +29,7 @@ export function TaxEligibilityCheck() {
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] p-5 sm:p-6 mb-6">
       <div className="font-extrabold text-[16px]">{t("title")}</div>
-      <div className="text-ink-soft text-[13px] mt-1 mb-4">{t("sub")}</div>
+      <div className="text-ink-soft text-body mt-1 mb-4">{t("sub")}</div>
 
       <ul className="flex flex-col gap-2 list-none p-0 m-0">
         {triggers.map((label, i) => {

@@ -65,7 +65,7 @@ export default async function HowItWorksPage({
               <div className="font-extrabold text-[14px] text-emerald" dir="ltr">
                 {g.term}
               </div>
-              <p className="text-ink-soft text-[13px] mt-1.5 leading-relaxed m-0">{g.def}</p>
+              <p className="text-ink-soft text-body mt-1.5 leading-relaxed m-0">{g.def}</p>
             </SpotlightCard>
           </Reveal>
         ))}
@@ -88,7 +88,7 @@ export default async function HowItWorksPage({
           </div>
           <Link
             href="/faq"
-            className="inline-block mt-4 text-[13px] font-bold text-emerald no-underline hover:underline"
+            className="inline-block mt-4 text-body font-bold text-emerald no-underline hover:underline"
           >
             {t("faqLink")}
           </Link>

@@ -45,13 +45,13 @@ export function GlobalMarketPicker({
               <div className="flex flex-wrap gap-2 mt-1">
                 <a
                   href={href}
-                  className="text-[13px] font-bold text-emerald no-underline hover:underline"
+                  className="text-body font-bold text-emerald no-underline hover:underline"
                 >
                   {active ? t("selected") : t("useMarket")}
                 </a>
                 <Link
                   href="/rights"
-                  className="text-[13px] font-bold text-ink-soft no-underline hover:text-emerald"
+                  className="text-body font-bold text-ink-soft no-underline hover:text-emerald"
                 >
                   {t("rights")}
                 </Link>

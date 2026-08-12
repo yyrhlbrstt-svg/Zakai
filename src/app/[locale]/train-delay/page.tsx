@@ -41,7 +41,7 @@ export default async function TrainDelayPage({
       footer={
         <div className="mt-8 rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5 text-center">
           <p className="text-[14px] font-bold m-0">{t("euTitle")}</p>
-          <p className="text-ink-soft text-[13px] mt-2 mb-4">{t("euSub")}</p>
+          <p className="text-ink-soft text-body mt-2 mb-4">{t("euSub")}</p>
           <Link href="/flights">
             <Button>{t("euCta")}</Button>
           </Link>

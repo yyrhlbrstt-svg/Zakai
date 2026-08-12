@@ -81,7 +81,7 @@ export function PlanCards({
                   {p.priceAgorot === 0 ? t("freePrice") : formatAgorot(p.priceAgorot, bcp47)}
                 </span>
                 {p.priceAgorot > 0 && (
-                  <span className="text-ink-soft text-[13px]">{t("perMonth")}</span>
+                  <span className="text-ink-soft text-body">{t("perMonth")}</span>
                 )}
               </div>
               <div className="text-emerald font-extrabold text-[14px] mt-1.5">

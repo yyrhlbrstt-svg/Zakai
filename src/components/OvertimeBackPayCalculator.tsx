@@ -55,7 +55,7 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
       <Card className="p-6 flex flex-col gap-5">
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("wageQ")}</span>
+            <span className="text-body text-ink-soft">{t("wageQ")}</span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(hourlyWage))}</span>
           </div>
           <input
@@ -71,7 +71,7 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("dailyHoursQ")}</span>
+            <span className="text-body text-ink-soft">{t("dailyHoursQ")}</span>
             <span className="font-display text-[15px]">{dailyHours}</span>
           </div>
           <input
@@ -87,7 +87,7 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("daysPerMonthQ")}</span>
+            <span className="text-body text-ink-soft">{t("daysPerMonthQ")}</span>
             <span className="font-display text-[15px]">{daysPerMonth}</span>
           </div>
           <input
@@ -103,7 +103,7 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("monthsWorkedQ")}</span>
+            <span className="text-body text-ink-soft">{t("monthsWorkedQ")}</span>
             <span className="font-display text-[15px]">{monthsWorked}</span>
           </div>
           <input
@@ -119,7 +119,7 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
       </Card>
 
       <Card className="mt-5 p-6 text-center">
-        <div className="text-[13px] text-ink-soft font-bold">{t("resultTitle")}</div>
+        <div className="text-body text-ink-soft font-bold">{t("resultTitle")}</div>
         <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
           {money(result.totalAgorot)}
         </div>
@@ -135,11 +135,11 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
       <Card className="mt-5 p-6 flex flex-col gap-3">
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
             <Input value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("employerQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("employerQ")}</span>
             <Input value={employerName} onChange={(e) => setEmployerName(e.target.value)} />
           </label>
         </div>
@@ -153,7 +153,7 @@ export function OvertimeBackPayCalculator({ bcp47 }: { bcp47: string }) {
             value={letter}
             rows={16}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

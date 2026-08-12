@@ -57,7 +57,7 @@ export function FeedbackWidget({ compact = false }: { compact?: boolean }) {
             that is the worst possible moment to close the door. */}
         <Button
           variant="ghost"
-          className="!text-[13px] mt-4"
+          className="!text-body mt-4"
           onClick={() => {
             // The form is uncontrolled, so returning to "idle" remounts it
             // empty — nothing to clear by hand.
@@ -79,7 +79,7 @@ export function FeedbackWidget({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <>
           <div className="font-extrabold text-[15.5px]">{t("title")}</div>
-          <div className="text-ink-soft text-[13px] mt-1 mb-3">{t("sub")}</div>
+          <div className="text-ink-soft text-body mt-1 mb-3">{t("sub")}</div>
         </>
       )}
       <Textarea

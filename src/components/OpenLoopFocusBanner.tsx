@@ -31,7 +31,7 @@ export function OpenLoopFocusBanner({
       </div>
       <Link
         href={href}
-        className="shrink-0 no-underline rounded-full px-4 py-2 text-[13px] font-extrabold text-[#06121A] bg-emerald hover:opacity-90"
+        className="shrink-0 no-underline rounded-full px-4 py-2 text-body font-extrabold text-[#06121A] bg-emerald hover:opacity-90"
       >
         {heEn(he, "המשיכו עכשיו", "Continue now")}
       </Link>

@@ -160,7 +160,7 @@ export function UniversalCancelTool({
         <Button className="w-full" disabled={!canAnalyze} onClick={runAnalyze}>
           {t("analyzeBtn")}
         </Button>
-        <Button variant="ghost" className="w-full !text-[13px]" type="button" onClick={loadDemo}>
+        <Button variant="ghost" className="w-full !text-body" type="button" onClick={loadDemo}>
           {t("loadDemo")}
         </Button>
         {!canAnalyze && trimmed.length > 0 && (
@@ -176,7 +176,7 @@ export function UniversalCancelTool({
           <p className="text-[12px] text-ink-soft mt-1">
             {t("totalMonthly", { amount: formatAgorot(result.totalMonthlyAgorot, bcp47) })}
           </p>
-          <p className="text-[13px] text-ink-soft mt-3 mb-0 leading-relaxed">{t("actionsExplain")}</p>
+          <p className="text-body text-ink-soft mt-3 mb-0 leading-relaxed">{t("actionsExplain")}</p>
           <div className="mt-4">
             <ShareResult
               message={buildUniversalCancelShareMessage(locale, {
@@ -251,7 +251,7 @@ export function UniversalCancelTool({
                 {copiedKey === l.key ? t("copied") : t("copySendYours")}
               </Button>
               <Link href={agentHref(l.company, l.monthlyShekels, l.outreach)} className="no-underline">
-                <Button variant="ghost" className="w-full !text-[13px]">
+                <Button variant="ghost" className="w-full !text-body">
                   {t("agentSendCta")}
                 </Button>
               </Link>

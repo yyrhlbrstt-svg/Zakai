@@ -228,7 +228,7 @@ export function ElectricityCalculator({ bcp47 }: { bcp47: string }) {
 
       {err && <FieldError>{err}</FieldError>}
       {opened && (
-        <p className="mt-3 text-[13px] text-emerald font-bold">
+        <p className="mt-3 text-body text-emerald font-bold">
           {tIcomponents_ElectricityCalculator("t_62d5403d")}
         </p>
       )}

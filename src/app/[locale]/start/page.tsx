@@ -63,7 +63,7 @@ export default async function StartPage({
 
       <IntentTriage />
 
-      <details className="mt-2 text-[13px] text-ink-soft">
+      <details className="mt-2 text-body text-ink-soft">
         <summary className="cursor-pointer font-bold select-none">
           {heEn(he, "כבר יודעים את הבעיה? (אחרי כסף שלי)", "Already know the problem? (after My money)")}
         </summary>

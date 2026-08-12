@@ -86,7 +86,7 @@ export function ForgotPasswordForm() {
           />
         </label>
         {error && (
-          <p role="alert" className="text-[13px] text-[#ff8f8f] m-0">
+          <p role="alert" className="text-body text-[#ff8f8f] m-0">
             {messageFor(t, error)}
           </p>
         )}
@@ -176,7 +176,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           <span className="text-[11.5px] text-ink-soft mt-1 block">{t("passwordHint")}</span>
         </label>
         {error && (
-          <p role="alert" className="text-[13px] text-[#ff8f8f] m-0">
+          <p role="alert" className="text-body text-[#ff8f8f] m-0">
             {messageFor(t, error)}
             {stale && (
               <>

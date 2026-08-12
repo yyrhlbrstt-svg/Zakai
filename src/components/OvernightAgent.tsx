@@ -147,7 +147,7 @@ export function OvernightAgent({ cases }: { cases: SentCase[] }) {
       <div className="font-extrabold text-[14.5px]">
         {tIcomponents_OvernightAgent("t_aeb342ad")}
       </div>
-      <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">
+      <p className="text-ink-soft text-body mt-1 leading-relaxed">
         {he
           ? `יש ${cases.length} תיקים שחיכו כמה ימים בלי תשובה (Mandate פעיל + אימייל יעד). הסוכן מכין טיוטת המשך — אתם מאשרים ושולחים דרך זכאי. אם כבר ענו — הדביקו את התשובה בתיק.`
           : `${cases.length} SENT case(s) waited several days with no reply (ACTIVE Mandate + outreach inbox). Agent drafts a follow-up — you review, then send via Zakai. If they already replied — paste it on the case.`}

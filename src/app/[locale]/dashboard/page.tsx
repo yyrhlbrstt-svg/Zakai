@@ -491,7 +491,7 @@ export default async function DashboardPage({
               ) : !settled ? (
                 <Link
                   href={`/money?case=${c.id}`}
-                  className="inline-block text-[13px] font-extrabold text-emerald no-underline mt-1"
+                  className="inline-block text-body font-extrabold text-emerald no-underline mt-1"
                 >
                   {locale === "he" || locale === "ar" ? "המשיכו תיק זה →" : "Continue this case →"}
                 </Link>
@@ -580,7 +580,7 @@ export default async function DashboardPage({
         <div className="rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] px-5 py-4 mb-5 flex flex-wrap items-center gap-3 justify-between">
           <div>
             <div className="font-extrabold text-[14.5px] text-emerald">{t("dashboard.feeOutstandingTitle")}</div>
-            <p className="text-[13px] text-ink-soft mt-1 mb-0">
+            <p className="text-body text-ink-soft mt-1 mb-0">
               {t("dashboard.feeOutstandingSub", {
                 amount: formatAgorot(pendingFeeAgorot, loc),
               })}
@@ -611,7 +611,7 @@ export default async function DashboardPage({
           zero-case dashboard showing two config warnings before any content
           is the "looks unfinished" clutter this was flagged for. */}
       {cases.length > 0 && !emailConfigured() && (
-        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed font-bold">
+        <div className="rounded-2xl border border-[rgba(240,138,107,0.4)] bg-[rgba(240,138,107,0.08)] px-5 py-3.5 mb-5 text-body leading-relaxed font-bold">
           {locale === "he"
             ? "שליחת מייל מהשרת לא מוגדרת (SMTP) — אפשר עדיין לפתוח תיק + Mandate ולשלוח מהמייל שלכם. ברגע שיוגדר SMTP, הסוכן ישלח ישירות לספק."
             : "Server email (SMTP) is not configured — you can still open a case + Mandate and send from your own mail. Once SMTP is set, the agent sends to the provider directly."}
@@ -619,7 +619,7 @@ export default async function DashboardPage({
       )}
 
       {pendingFeeAgorot > 0 && !paymentsFullyLive() && (
-        <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-[13px] leading-relaxed">
+        <div className="rounded-2xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-5 py-3.5 mb-5 text-body leading-relaxed">
           {locale === "he"
             ? "סליקה במצב דמו — עמלת הצלחה לא גובה כסף אמיתי עד PayPlus מלא (בדיקה: /api/release-gate)."
             : "Payments are in demo mode — success fees do not collect real money until PayPlus is fully configured (/api/release-gate)."}
@@ -655,7 +655,7 @@ export default async function DashboardPage({
           <Sparkles size={20} className="text-[#3ec6ff] shrink-0" aria-hidden />
           <div>
             <div className="font-extrabold text-[14.5px]">{t("dashboard.intentTitle")}</div>
-            <div className="text-ink-soft text-[13px] mt-0.5">
+            <div className="text-ink-soft text-body mt-0.5">
               {t.has(`dashboard.intents.${intent}`)
                 ? t(`dashboard.intents.${intent}`)
                 : t("dashboard.intentGeneric")}
@@ -715,7 +715,7 @@ export default async function DashboardPage({
                 {t(user!.plan === "MAX" ? "dashboard.memberMax" : "dashboard.memberPro")}
               </div>
             </div>
-            <Link href="/pricing" className="text-emerald text-[13px] font-bold no-underline shrink-0">
+            <Link href="/pricing" className="text-emerald text-body font-bold no-underline shrink-0">
               {t("dashboard.memberManage")}
             </Link>
           </div>
@@ -752,7 +752,7 @@ export default async function DashboardPage({
                 aria-hidden
               />
               <div className="relative">
-                <div className="text-[13px] text-ink-soft font-bold">{t("dashboard.potential")}</div>
+                <div className="text-body text-ink-soft font-bold">{t("dashboard.potential")}</div>
                 <div className="font-display grad-text text-5xl mt-2">
                   {formatAgorot(totalPotential, loc)} {t("common.perMonthTag")}
                 </div>
@@ -786,7 +786,7 @@ export default async function DashboardPage({
                     <User size={17} className="text-emerald" aria-hidden />
                     {t("dashboard.checksFor", { name: label })}
                     {groupSaved > 0 && (
-                      <span className="text-[13px] font-bold text-emerald">
+                      <span className="text-body font-bold text-emerald">
                         · −{formatAgorot(groupSaved, loc)}/{locale === "he" ? "ח׳" : "mo"}
                       </span>
                     )}
@@ -840,7 +840,7 @@ export default async function DashboardPage({
               </div>
             </div>
             <Link href="/check" className="shrink-0">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {locale === "he" ? "פתח בדיקה משפחתית" : "Open family check"}
               </Button>
             </Link>

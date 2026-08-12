@@ -69,7 +69,7 @@ export function VehicleCheckScreen({ isIsraeli = true }: { isIsraeli?: boolean }
     <div>
       <Card className="p-6 mb-5 border-[rgba(240,180,92,0.4)] bg-[rgba(240,180,92,0.06)]">
         <p className="text-[14px] font-extrabold m-0 mb-1.5">{t("statuteTitle")}</p>
-        <p className="text-ink-soft text-[13px] m-0 leading-relaxed">{t("statuteSub")}</p>
+        <p className="text-ink-soft text-body m-0 leading-relaxed">{t("statuteSub")}</p>
       </Card>
 
       <h2 className="text-[15px] font-extrabold mb-3">{t("listTitle")}</h2>
@@ -85,7 +85,7 @@ export function VehicleCheckScreen({ isIsraeli = true }: { isIsraeli?: boolean }
             <summary className="cursor-pointer font-extrabold text-[14px] list-none">
               {i + 1}. {t(`items.${d.id}`)}
             </summary>
-            <p className="text-[13px] mt-2 mb-2 leading-relaxed">{d.demand}</p>
+            <p className="text-body mt-2 mb-2 leading-relaxed">{d.demand}</p>
             <p className="text-[12.5px] text-ink-soft m-0 mb-2 leading-relaxed">
               <span className="font-extrabold">{t("why")}: </span>
               {d.why}
@@ -133,8 +133,8 @@ export function VehicleCheckScreen({ isIsraeli = true }: { isIsraeli?: boolean }
 
         {letter && (
           <div className="mt-4">
-            <div className="text-[13px] font-extrabold mb-2">{letter.subject}</div>
-            <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
+            <div className="text-body font-extrabold mb-2">{letter.subject}</div>
+            <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-body leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
               {letter.body}
             </pre>
             <div className="mt-3 flex gap-2 flex-wrap">

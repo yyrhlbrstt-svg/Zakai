@@ -12,7 +12,7 @@ export async function MoneyPageContextPanel({ locale }: { locale: Locale }) {
   const user = await getCurrentUser();
   if (!user) {
     return (
-      <div className="rounded-2xl border border-[rgba(62,198,255,0.3)] bg-[rgba(62,198,255,0.06)] px-4 py-3.5 mb-6 text-[13px] leading-relaxed">
+      <div className="rounded-2xl border border-[rgba(62,198,255,0.3)] bg-[rgba(62,198,255,0.06)] px-4 py-3.5 mb-6 text-body leading-relaxed">
         <span className="text-ink-soft">{t("guestHint")} </span>
         <Link href="/login" className="text-[#3ec6ff] font-bold no-underline">
           {t("guestLogin")}

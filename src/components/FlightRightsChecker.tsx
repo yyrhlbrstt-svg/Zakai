@@ -235,7 +235,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
           <p className="m-0 text-[14.5px] leading-relaxed text-ink-soft">{t("notEntitled")}</p>
         ) : (
           <>
-            <div className="text-[13px] text-ink-soft font-bold mb-3">{t("resultTitle")}</div>
+            <div className="text-body text-ink-soft font-bold mb-3">{t("resultTitle")}</div>
             <ul className="m-0 p-0 list-none flex flex-col gap-2.5">
               {compensationLabel && (
                 <li className="flex gap-2.5 items-baseline">
@@ -450,11 +450,11 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                   {tIcomponents_FlightRightsChecker("t_b4c9b341")}
                 </button>
               </div>
-              {error && <p className="text-[13px] text-amber mt-2 mb-0">{error}</p>}
+              {error && <p className="text-body text-amber mt-2 mb-0">{error}</p>}
 
               {letter && (
                 <div className="mt-4">
-                  <Textarea readOnly value={letter} rows={14} className="!text-[13px]" dir="rtl" />
+                  <Textarea readOnly value={letter} rows={14} className="!text-body" dir="rtl" />
                   <div className="flex gap-3 mt-3 flex-wrap items-center">
                     <Button
                       variant="ghost"

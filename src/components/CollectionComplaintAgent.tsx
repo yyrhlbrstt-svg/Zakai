@@ -68,7 +68,7 @@ export function CollectionComplaintAgent() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("agent.sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("agent.reasonQ")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("agent.reasonQ")}</span>
           <RadioChips
             value={reason}
             onChange={setReason}
@@ -83,15 +83,15 @@ export function CollectionComplaintAgent() {
         </div>
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.collectorName")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.collectorName")}</span>
             <Input value={collectorName} onChange={(e) => setCollectorName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
             <Input
               type="email"
               value={contactEmail}
@@ -101,7 +101,7 @@ export function CollectionComplaintAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.claimedAmount")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.claimedAmount")}</span>
             <Input type="number" value={claimedAmount} onChange={(e) => setClaimedAmount(e.target.value)} />
           </label>
         </div>
@@ -114,7 +114,7 @@ export function CollectionComplaintAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

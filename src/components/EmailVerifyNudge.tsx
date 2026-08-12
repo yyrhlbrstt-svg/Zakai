@@ -69,7 +69,7 @@ export function EmailVerifyNudge() {
       <div className="font-extrabold text-[14.5px] text-[#3EC6FF]">
         {heEn(he, "אמתו את המייל — שליחת Mandate בלחיצה אחת", "Verify email — one-tap Mandate send")}
       </div>
-      <p className="text-[13px] text-ink-soft leading-relaxed mt-1.5 mb-3">
+      <p className="text-body text-ink-soft leading-relaxed mt-1.5 mb-3">
         {he
           ? "בלי אימות מייל צריך קוד בעלות בכל תיק. אחרי אימות: אשר → שלח עם Mandate מיד."
           : "Without email verify you need ownership codes on every case. After verify: approve → send with Mandate immediately."}
@@ -90,7 +90,7 @@ export function EmailVerifyNudge() {
           {status}
         </p>
       ) : (
-        <Button disabled={busy} className="!text-[13px] !py-2.5" onClick={() => void resend()}>
+        <Button disabled={busy} className="!text-body !py-2.5" onClick={() => void resend()}>
           {label}
         </Button>
       )}

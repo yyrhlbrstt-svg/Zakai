@@ -68,15 +68,15 @@ export function VaadBaitAgent() {
       <Card className="p-6 flex flex-col gap-4">
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.buildingAddress")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.buildingAddress")}</span>
             <Input value={buildingAddress} onChange={(e) => setBuildingAddress(e.target.value)} maxLength={160} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
             <Input
               type="email"
               value={contactEmail}
@@ -86,12 +86,12 @@ export function VaadBaitAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.chargeAmount")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.chargeAmount")}</span>
             <Input type="number" value={chargeAmount} onChange={(e) => setChargeAmount(e.target.value)} />
           </label>
         </div>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.unexplainedCharge")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agent.unexplainedCharge")}</span>
           <Input value={unexplainedCharge} onChange={(e) => setUnexplainedCharge(e.target.value)} maxLength={500} />
         </label>
         <MissingFields
@@ -103,7 +103,7 @@ export function VaadBaitAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

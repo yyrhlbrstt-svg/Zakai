@@ -117,7 +117,7 @@ export default async function CompanyDetailPage({
 
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-5">
-      <Link href="/companies" className="text-[13px] font-bold text-emerald no-underline">
+      <Link href="/companies" className="text-body font-bold text-emerald no-underline">
         ← {t("companies.title")}
       </Link>
 

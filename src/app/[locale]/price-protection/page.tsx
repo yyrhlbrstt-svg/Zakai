@@ -70,7 +70,7 @@ export default async function PriceProtectionPage({
             key={s}
             className="flex gap-3.5 items-start rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-4"
           >
-            <span className="w-[26px] h-[26px] shrink-0 rounded-full grad-bg text-[#06121A] flex items-center justify-center font-black text-[13px]">
+            <span className="w-[26px] h-[26px] shrink-0 rounded-full grad-bg text-[#06121A] flex items-center justify-center font-black text-body">
               {i + 1}
             </span>
             <span className="text-[14.5px] leading-relaxed">{s}</span>

@@ -21,7 +21,7 @@ export function RegulatoryIntelStrip({
     <div className="rounded-2xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.06)] p-5 mb-8">
       <h2 className="text-[16px] font-extrabold m-0 mb-2">{title}</h2>
       <p className="text-[13.5px] text-ink-soft leading-relaxed m-0 mb-4">{body}</p>
-      <div className="flex flex-wrap gap-3 text-[13px] font-bold">
+      <div className="flex flex-wrap gap-3 text-body font-bold">
         <a
           href={`${base}/api/regulatory/snapshot?market=IL`}
           className="text-emerald no-underline"

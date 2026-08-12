@@ -49,7 +49,7 @@ export default async function TrustPage({
       <Section heading={t("differentHeading")}>
         <p className="text-[14.5px] leading-relaxed mb-3">{t("differentIntro")}</p>
         <Bullets items={different} />
-        <p className="text-[13px] text-ink-soft leading-relaxed mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
+        <p className="text-body text-ink-soft leading-relaxed mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
           {t("differentProof")}
           <a href={jwksUrl} target="_blank" rel="noopener noreferrer" className="text-emerald font-bold" dir="ltr">
             /.well-known/zakai-jwks.json

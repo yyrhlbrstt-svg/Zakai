@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { ESCALATION_BODIES, buildEscalationLetter, type ComplaintCategory } from "@/lib/complaintEscalation";
+import { MissingFields } from "@/components/MissingFields";
 
 const CATEGORIES: ComplaintCategory[] = ["bank", "telecom", "consumer"];
 
@@ -61,7 +62,7 @@ export function ComplaintEscalationTool() {
     <div>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("categoryQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("categoryQ")}</span>
           <Select value={category} onChange={(e) => setCategory(e.target.value as ComplaintCategory)}>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -73,7 +74,7 @@ export function ComplaintEscalationTool() {
 
         <div className="rounded-xl border border-[rgba(63,203,155,0.25)] bg-[rgba(63,203,155,0.06)] p-4">
           <div className="font-extrabold text-[14px]">{t(`bodies.${category}.name`)}</div>
-          <p className="text-ink-soft text-[13px] mt-1.5 leading-relaxed mb-0">
+          <p className="text-ink-soft text-body mt-1.5 leading-relaxed mb-0">
             {t(`bodies.${category}.description`)}
           </p>
           {body.url && (
@@ -89,22 +90,28 @@ export function ComplaintEscalationTool() {
         </div>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("companyQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("companyQ")}</span>
           <Input value={company} onChange={(e) => setCompany(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("dateQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("dateQ")}</span>
           <Input value={complaintDate} onChange={(e) => setComplaintDate(e.target.value)} placeholder="DD/MM/YYYY" />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("summaryQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("summaryQ")}</span>
           <Textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={4} />
         </label>
 
+        <MissingFields
+          items={[
+            { ok: company.trim().length > 0, label: t("companyQ") },
+            { ok: summary.trim().length > 0, label: t("summaryQ") },
+          ]}
+        />
         <Button onClick={generate} disabled={!canGenerate}>
           {t("generateCta")}
         </Button>
@@ -117,7 +124,7 @@ export function ComplaintEscalationTool() {
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

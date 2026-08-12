@@ -52,7 +52,7 @@ export default async function InstitutionLeaderPage({
         <li>{t("benefit3")}</li>
       </ul>
 
-      <p className="text-[13px] text-ink-soft mb-2">
+      <p className="text-body text-ink-soft mb-2">
         <Link href="/institutions/leaders" className="text-emerald underline font-bold">
           {t("seeLeaders")}
         </Link>

@@ -82,7 +82,7 @@ export function VerifyEmailScreen() {
       )}
 
       {state === "ok" && (
-        <p className="text-ink-soft text-[13px] mt-4 mb-0 leading-relaxed">{t("okNote")}</p>
+        <p className="text-ink-soft text-body mt-4 mb-0 leading-relaxed">{t("okNote")}</p>
       )}
     </Card>
   );

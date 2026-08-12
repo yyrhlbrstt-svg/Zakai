@@ -57,7 +57,7 @@ export async function RightsCatalogIndex({
       <h2 className="text-[17px] font-extrabold mb-2">
         {locale === "he" || locale === "ar" ? "מדריך זכויות (SEO)" : "Rights guides"}
       </h2>
-      <p className="text-ink-soft text-[13px] mb-2 leading-relaxed">
+      <p className="text-ink-soft text-body mb-2 leading-relaxed">
         {locale === "he" || locale === "ar"
           ? "דף נפרד לכל זכות — מקורות רשמיים וקישור לכלי בזכאי."
           : "One page per right — official sources and a path to act in Zakai."}
@@ -74,7 +74,7 @@ export async function RightsCatalogIndex({
           if (!ids?.length) return null;
           return (
             <div key={cat}>
-              <div className="text-[13px] font-extrabold text-emerald mb-2">
+              <div className="text-body font-extrabold text-emerald mb-2">
                 {t(`categories.${cat}`)}
               </div>
               <ul className="m-0 p-0 list-none flex flex-col gap-1.5">

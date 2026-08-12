@@ -2,7 +2,7 @@
   "name": "zakai",
   "version": "1.2.2",
   "private": true,
-  "description": "Zakai \u2014 the standard consumer money agent + Mandate infrastructure. Dual-track: recovery loop and institutional authority layer.",
+  "description": "Zakai — the standard consumer money agent + Mandate infrastructure. Dual-track: recovery loop and institutional authority layer.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && node scripts/prebuild-migrate.mjs && next build",
@@ -34,7 +34,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "verify:routes": "node scripts/routeSweep.mjs",
-    "a11y": "node scripts/a11ySweep.mjs"
+    "a11y": "node scripts/a11ySweep.mjs",
+    "verify:flows": "node scripts/flowSweep.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

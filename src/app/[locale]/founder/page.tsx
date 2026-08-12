@@ -275,7 +275,7 @@ export default async function FounderPage({
         </div>
         {!releaseGate.canReleaseConsumerApp && (
           <>
-            <p className="text-[13px] text-ink-soft mt-2 mb-3 leading-relaxed m-0">
+            <p className="text-body text-ink-soft mt-2 mb-3 leading-relaxed m-0">
               ציון תצורה — לא ציון ערך ולא סיבה להתבייש. חסרים למטה חוסמים מייל/סליקה אמיתיים;
               עדיין רצים על נפח Mandate ברגע שיש SMTP. תקן ב־Vercel, Redeploy:{" "}
               <code className="text-[12px]">/api/release-gate</code> ·{" "}
@@ -300,7 +300,7 @@ export default async function FounderPage({
           </>
         )}
         {releaseGate.canReleaseConsumerApp && (
-          <p className="text-[13px] text-emerald font-bold mt-2 mb-0">
+          <p className="text-body text-emerald font-bold mt-2 mb-0">
             כל שכבות השחרור ירוקות — מותר לפרסם מבחינת תצורה. עדיין לוודא תיק אמיתי אחד end-to-end.
           </p>
         )}
@@ -328,7 +328,7 @@ export default async function FounderPage({
 
       <div className="mb-2">
         <h2 className="font-display text-xl m-0 mb-1">P0 מנכ״ל — מונופול על הצינור</h2>
-        <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">
+        <p className="text-body text-ink-soft m-0 mb-4 leading-relaxed">
           מונופול = כל מוסד וסוכן חייב לדבר Mandate→SavingsProof. השערים למטה הם מדד אימוץ — לא
           שווי. עד ש־gravity_tier≥gravity ו־G3/G5 ירוקים, PayPlus לא מקים מונופול. אל תחבר שלב D
           לפני זה.
@@ -336,7 +336,7 @@ export default async function FounderPage({
         <MonopolyMissionControl locale={locale} />
         <PipeNetworkLive locale={locale} bcp47={bcp47[locale as Locale] ?? "he-IL"} />
         <ControlGatesStrip locale={locale} />
-        <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-[13px] leading-relaxed">
+        <div className="rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.06)] px-5 py-4 mb-6 text-body leading-relaxed">
           <div className="font-extrabold text-[#3EC6FF] mb-2">פעולות אנושיות עכשיו (סדר חובה)</div>
           <ul className="m-0 ps-5 flex flex-col gap-1.5 text-ink-soft">
             <li>
@@ -423,7 +423,7 @@ export default async function FounderPage({
           partner's embed actually send us anyone" — the whole channel was
           marketing with zero measurement behind it. */}
       <h2 className="font-display text-xl mt-10 mb-1.5">ביצועי שותפים (embed)</h2>
-      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
         הרשמות שהגיעו דרך widget מוטמע (utm_source=embed) — לפי ref של השותף.
       </p>
       {partnerSignups.length === 0 ? (
@@ -452,7 +452,7 @@ export default async function FounderPage({
           /leads page carrying the full 300-row table — one inbox now, not two
           half-built ones; /leads redirects here. */}
       <h2 className="font-display text-xl mt-10 mb-1.5">פניות — למי לחזור</h2>
-      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
         כל פנייה נשמרת כאן לפני שנשלח מייל. אם אין SMTP או שהכתובת שגויה — המייל לא יוצא, והרשומה
         הזאת עדיין קיימת. זה המקור, המייל הוא רק התראה. סה״כ: <b className="text-emerald">{totalLeads}</b>
       </p>
@@ -493,7 +493,7 @@ export default async function FounderPage({
                     {lead.vertical} · {lead.createdAt.toISOString().slice(0, 10)} · {lead.status}
                   </span>
                 </div>
-                <div className="text-[13px] text-ink-soft mt-1" dir="ltr">
+                <div className="text-body text-ink-soft mt-1" dir="ltr">
                   {[lead.company ? lead.name : null, lead.email, lead.phone]
                     .filter(Boolean)
                     .join(" · ")}
@@ -515,7 +515,7 @@ export default async function FounderPage({
           widget produced a row nobody could read without querying the DB
           directly — exactly the "tin can" gap this section closes. */}
       <h2 className="font-display text-xl mt-10 mb-1.5">משוב ממשתמשים</h2>
-      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
         כל מה שנכתב בתיבת "מה היית משפר בזכאי" — מהאתר, בלי צורך בחשבון. סה״כ:{" "}
         <b className="text-emerald">{feedbackCount}</b>
       </p>
@@ -546,7 +546,7 @@ export default async function FounderPage({
 
       {/* The recovery graph — the moat. Per counterparty: what actually works. */}
       <h2 className="font-display text-xl mt-10 mb-1.5">גרף ההשבה — מה עובד מול מי</h2>
-      <p className="text-ink-soft text-[13px] mb-4 leading-relaxed">
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
         החפיר האמיתי (אפקט רשת של דאטה): לכל ספק — אחוז הצלחה, חיסכון ממוצע וזמן ממוצע לתוצאה. ככל
         שנצבור תיקים, זה הופך ל"מה מנצח מול מי" שאף מתחרה לא יכול להעתיק.
       </p>
@@ -554,7 +554,7 @@ export default async function FounderPage({
         <p className="text-ink-soft text-[13.5px]">אין עדיין תיקים לנתח.</p>
       ) : (
         <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-x-auto">
-          <table className="w-full text-[13px] min-w-[440px]">
+          <table className="w-full text-body min-w-[440px]">
             <thead>
               <tr className="text-ink-soft text-[11.5px] uppercase tracking-wide">
                 <th className="text-start px-4 py-3 font-bold">ספק</th>

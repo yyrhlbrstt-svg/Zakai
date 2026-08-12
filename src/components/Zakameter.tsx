@@ -47,7 +47,7 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
     label: string,
   ) => (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[13px] text-ink-soft">{label}</span>
+      <span className="text-body text-ink-soft">{label}</span>
       <div className="flex items-center gap-2.5" dir="ltr">
         <button
           type="button"
@@ -80,7 +80,7 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
   ) => (
     <label className="block">
       <div className="flex justify-between items-baseline mb-1.5">
-        <span className="text-[13px] text-ink-soft">{label}</span>
+        <span className="text-body text-ink-soft">{label}</span>
         <span className="font-display text-[15px]">{money(shekelsToAgorot(value))}</span>
       </div>
       <input
@@ -97,7 +97,7 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
 
   return (
     <SpotlightCard className="p-6">
-      <div className="text-[13px] font-extrabold text-emerald mb-4">{t("title")}</div>
+      <div className="text-body font-extrabold text-emerald mb-4">{t("title")}</div>
 
       <div className="flex flex-col gap-4">
         {slider(mobile, setMobile, 0, 400, 10, t("mobileQ"))}
@@ -112,7 +112,7 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
           {money(r.totalAgorot)}
         </div>
         {r.totalAgorot > 0 && (
-          <p className="text-[13px] text-ink-soft mt-2 mb-0 font-semibold">{t("ctaHint")}</p>
+          <p className="text-body text-ink-soft mt-2 mb-0 font-semibold">{t("ctaHint")}</p>
         )}
         {lines.length > 0 && (
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
@@ -128,7 +128,7 @@ export function Zakameter({ bcp47 }: { bcp47: string }) {
           <Button className="mt-5 w-full">{t("cta")}</Button>
         </Link>
         <Link href="/what-am-i-owed" className="no-underline block mt-2">
-          <Button variant="ghost" className="w-full !text-[13px]">
+          <Button variant="ghost" className="w-full !text-body">
             {t("ctaScan")}
           </Button>
         </Link>

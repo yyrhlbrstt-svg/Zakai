@@ -43,7 +43,7 @@ export default async function AuthorizationDocPage({
         <a
           href={pdfHref}
           download
-          className="inline-flex items-center rounded-[12px] px-5 py-2.5 font-extrabold text-[13px] border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] text-ink no-underline"
+          className="inline-flex items-center rounded-[12px] px-5 py-2.5 font-extrabold text-body border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] text-ink no-underline"
         >
           {t("download")}
         </a>

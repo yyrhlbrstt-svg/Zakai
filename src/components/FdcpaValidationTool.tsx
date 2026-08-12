@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, Button, Input, Textarea } from "@/components/ui";
 import { buildFdcpaValidationLetter } from "@/lib/fdcpaValidationLetter";
+import { MissingFields } from "@/components/MissingFields";
 
 export function FdcpaValidationTool() {
   const t = useTranslations("debtCollectorDispute.tool");
@@ -32,21 +33,22 @@ export function FdcpaValidationTool() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("collectorQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("collectorQ")}</span>
           <Input value={collectorName} onChange={(e) => setCollectorName(e.target.value)} maxLength={120} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("referenceQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("referenceQ")}</span>
           <Input value={referenceNumber} onChange={(e) => setReferenceNumber(e.target.value)} maxLength={60} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("detailsQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("detailsQ")}</span>
           <Textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={3} maxLength={500} />
         </label>
+        <MissingFields items={[{ ok: collectorName.trim().length > 0, label: t("collectorQ") }]} />
         <Button onClick={() => setLetter(letterPreview)} disabled={!canGenerate}>
           {t("generateCta")}
         </Button>
@@ -59,7 +61,7 @@ export function FdcpaValidationTool() {
             value={letter}
             rows={14}
             dir="ltr"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

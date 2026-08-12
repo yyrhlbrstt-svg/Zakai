@@ -67,7 +67,7 @@ export default async function SharePage({
 
   return (
     <main className="max-w-[560px] mx-auto px-5 pb-24 pt-10 text-center">
-      <div className="text-[13px] font-extrabold text-emerald tracking-wide uppercase mb-3">
+      <div className="text-body font-extrabold text-emerald tracking-wide uppercase mb-3">
         {sp.kicker || "Zakai"}
       </div>
       {sp.amount && (

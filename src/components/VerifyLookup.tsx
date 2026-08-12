@@ -179,7 +179,7 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
           }}
         >
           <div
-            className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold mb-4"
+            className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-body font-bold mb-4"
             style={{
               color: result.status === "ACTIVE" ? "#3FCB9B" : "#F08A6B",
               background: result.status === "ACTIVE" ? "rgba(63,203,155,0.13)" : "rgba(240,138,107,0.13)",
@@ -207,7 +207,7 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
               <div className="text-[11px] font-extrabold uppercase tracking-wide text-emerald">
                 {heEn(he, "נפח Mandate מתועד", "Documented Mandate volume")}
               </div>
-              <p className="text-[13px] font-bold m-0 mt-1 leading-relaxed">
+              <p className="text-body font-bold m-0 mt-1 leading-relaxed">
                 {he
                   ? `${gravity.dispatchedCases} פניות Mandate שנשלחו · ${gravity.savedCases ?? 0} SavingsProof`
                   : `${gravity.dispatchedCases} Mandate dispatches · ${gravity.savedCases ?? 0} SavingsProofs`}

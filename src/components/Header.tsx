@@ -55,7 +55,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <button
             key={l}
             onClick={() => switchLocale(l)}
-            className="bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] rounded-[10px] px-3 py-1.5 text-[13px] font-bold cursor-pointer min-w-[40px] hover:border-[rgba(63,203,155,0.35)] transition-colors"
+            className="bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] rounded-[10px] px-3 py-1.5 text-body font-bold cursor-pointer min-w-[40px] hover:border-[rgba(63,203,155,0.35)] transition-colors"
             aria-label={`Switch language to ${localeLabel[l]}`}
           >
             {localeLabel[l]}
@@ -196,7 +196,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
                   className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
                 >
                   <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
-                  <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
+                  <span className="text-body font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
                 </Link>
               ))}
             </div>
@@ -284,13 +284,13 @@ function ToolsMenu({
               className="flex items-center gap-2.5 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.12)] transition-colors"
             >
               <ToolIcon name={tool.key} size={18} className="text-emerald shrink-0" />
-              <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
+              <span className="text-body font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
             </Link>
           ))}
           <Link
             href="/tools"
             role="menuitem"
-            className="col-span-2 mt-1 flex items-center justify-center gap-2 no-underline rounded-xl px-3 py-2.5 text-emerald font-extrabold text-[13px] border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.1)] hover:bg-[rgba(63,203,155,0.16)]"
+            className="col-span-2 mt-1 flex items-center justify-center gap-2 no-underline rounded-xl px-3 py-2.5 text-emerald font-extrabold text-body border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.1)] hover:bg-[rgba(63,203,155,0.16)]"
           >
             {allToolsLabel}
           </Link>

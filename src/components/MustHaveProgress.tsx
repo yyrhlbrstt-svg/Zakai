@@ -85,7 +85,7 @@ export function MustHaveProgress({ locale }: { locale: string }) {
         })}
       </ul>
       {n === STARTER_PACK.length ? (
-        <p className="text-[13px] font-bold text-emerald mt-4 mb-0">{c.progressDone}</p>
+        <p className="text-body font-bold text-emerald mt-4 mb-0">{c.progressDone}</p>
       ) : null}
       <p className="text-[11.5px] text-ink-soft mt-3 mb-0">{c.installHint}</p>
     </Card>

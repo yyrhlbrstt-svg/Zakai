@@ -47,7 +47,7 @@ export default async function PrivacyPage({
           </section>
         ))}
       </Card>
-      <p className="mt-5 text-[13px] text-ink-soft">
+      <p className="mt-5 text-body text-ink-soft">
         {t("privacyContact", { email: supportEmail })}
       </p>
       <p className="mt-3 text-[11.5px] text-ink-soft leading-relaxed">{t("legalNote")}</p>

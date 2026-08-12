@@ -82,7 +82,7 @@ export function IncidentScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
   }, [kind, facts, occurredAt]);
 
   const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
+    `rounded-full px-4 py-2 text-body font-bold cursor-pointer border transition-colors duration-200 ${
       active
         ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
@@ -102,7 +102,7 @@ export function IncidentScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
   return (
     <div>
       <Card className="p-6">
-        <span className="text-[13px] text-ink-soft block mb-2">{t("whatHappened")}</span>
+        <span className="text-body text-ink-soft block mb-2">{t("whatHappened")}</span>
         <RadioChips
           value={kind ?? ""}
           onChange={(k) => setKind(k as IncidentKind)}
@@ -120,12 +120,12 @@ export function IncidentScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
               <p className="text-[14px] font-extrabold m-0 mb-1.5">
                 {t("stackTitle", { count: result.stackableCount })}
               </p>
-              <p className="text-ink-soft text-[13px] m-0 leading-relaxed">{t("stackSub")}</p>
+              <p className="text-ink-soft text-body m-0 leading-relaxed">{t("stackSub")}</p>
             </Card>
           )}
 
           <Card className="mt-5 p-6">
-            <span className="text-[13px] text-ink-soft block mb-2">{t("whenHappened")}</span>
+            <span className="text-body text-ink-soft block mb-2">{t("whenHappened")}</span>
             <Input
               type="date"
               value={when}
@@ -135,7 +135,7 @@ export function IncidentScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
             />
             <p className="text-[11.5px] text-ink-soft mt-2 mb-4 leading-relaxed">{t("whenWhy")}</p>
 
-            <span className="text-[13px] text-ink-soft block mb-2">{t("moreTitle")}</span>
+            <span className="text-body text-ink-soft block mb-2">{t("moreTitle")}</span>
             <div className="flex gap-2 flex-wrap">
               {EXTRAS.map((f) => (
                 <button
@@ -290,8 +290,8 @@ function CoverRow({ match, occurredAt }: { match: CoverMatch; occurredAt?: Date 
 
         {letter && (
           <div className="mt-4">
-            <div className="text-[13px] font-extrabold mb-2">{letter.subject}</div>
-            <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
+            <div className="text-body font-extrabold mb-2">{letter.subject}</div>
+            <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-body leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
               {letter.body}
             </pre>
             <div className="mt-3 flex gap-2 flex-wrap">

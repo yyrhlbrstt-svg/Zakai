@@ -45,7 +45,7 @@ export default async function DomainsPage({
     <VerticalPageShell title={t("title")} sub={t("sub")} width="wide" kicker={t("kicker")}>
       <Card className="p-5 mb-8 border-emerald/35 bg-[rgba(63,203,155,0.06)]">
         <p className="text-[14px] leading-relaxed m-0 mb-3">{t("mandateBlurb")}</p>
-        <div className="flex flex-wrap gap-4 text-[13px] font-bold">
+        <div className="flex flex-wrap gap-4 text-body font-bold">
           <Link href="/institutions" className="text-emerald no-underline">
             {t("mandateInstitutions")}
           </Link>
@@ -89,8 +89,8 @@ export default async function DomainsPage({
 
       <section className="border-t border-[rgba(255,255,255,0.08)] pt-10 mb-10">
         <h2 className="text-lg font-extrabold mb-2">{t("executionTitle")}</h2>
-        <p className="text-[13px] text-ink-soft mb-4 max-w-[640px] leading-relaxed">{t("executionSub")}</p>
-        <Link href="/standard" className="text-[13px] font-bold text-emerald no-underline">
+        <p className="text-body text-ink-soft mb-4 max-w-[640px] leading-relaxed">{t("executionSub")}</p>
+        <Link href="/standard" className="text-body font-bold text-emerald no-underline">
           {t("executionStandard")} →
         </Link>
       </section>
@@ -111,7 +111,7 @@ export default async function DomainsPage({
           apiHint={t("collectiveApiHint")}
         />
         <h2 className="text-lg font-extrabold mb-2">{t("collectiveTitle")}</h2>
-        <p className="text-[13px] text-ink-soft mb-4 max-w-[560px]">{t("collectiveSub")}</p>
+        <p className="text-body text-ink-soft mb-4 max-w-[560px]">{t("collectiveSub")}</p>
         <CollectiveIntentForm market={market} />
       </section>
 

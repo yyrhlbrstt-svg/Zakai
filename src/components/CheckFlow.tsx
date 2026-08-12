@@ -819,7 +819,7 @@ export function CheckFlow({
                     )}
                     <button
                       onClick={sendCode}
-                      className="bg-transparent border-0 text-emerald text-[13px] font-bold cursor-pointer mt-2"
+                      className="bg-transparent border-0 text-emerald text-body font-bold cursor-pointer mt-2"
                     >
                       {tv("resendCode")}
                     </button>
@@ -916,7 +916,7 @@ export function CheckFlow({
               <div className="font-extrabold text-emerald">
                 {t("proposedTitle")}: ₪{proposed.newAmountShekels}
               </div>
-              <p className="text-[13px] text-ink-soft mt-1 mb-3">
+              <p className="text-body text-ink-soft mt-1 mb-3">
                 {t("proposedConf")} {(proposed.confidence * 100).toFixed(0)}%
               </p>
               <Button
@@ -994,7 +994,7 @@ export function CheckFlow({
               aria-hidden
             />
             <div className="relative">
-              <div className="text-[13px] text-ink-soft font-extrabold">
+              <div className="text-body text-ink-soft font-extrabold">
                 {t("resultTitle")}
               </div>
               {/* chargeable ≠ documented saving (Max / credit / self-report can waive fee). */}
@@ -1039,7 +1039,7 @@ export function CheckFlow({
                 <div className="text-sm font-bold">{t("feeNote")}</div>
                 <div className="font-display grad-text text-2xl">₪{nf.format(outcome.fee)}</div>
               </div>
-              <div className="text-[13px] text-ink-soft mt-1.5">{t("feeExplain")}</div>
+              <div className="text-body text-ink-soft mt-1.5">{t("feeExplain")}</div>
               {outcome.checkoutError === "MANDATE_REQUIRED" ? (
                 <FieldError>{tv("feeMandateRequired")}</FieldError>
               ) : outcome.checkoutUrl ? (

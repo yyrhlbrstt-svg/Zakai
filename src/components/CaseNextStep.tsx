@@ -686,11 +686,11 @@ export function CaseNextStep({
         <div className="text-[15px] font-extrabold">
           {t(locale, closed ? "noSavingTitle" : "revokedTitle")}
         </div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">
+        <p className="text-body text-ink-soft mt-1.5 mb-3 leading-relaxed">
           {t(locale, closed ? "noSavingSub" : "revokedSub")}
         </p>
         <Link href="/money" className="no-underline">
-          <Button className="!text-[13px] w-full sm:w-auto">{t(locale, "noSavingCta")}</Button>
+          <Button className="!text-body w-full sm:w-auto">{t(locale, "noSavingCta")}</Button>
         </Link>
         {doors.length > 0 ? (
           <div className="mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
@@ -760,7 +760,7 @@ export function CaseNextStep({
             {feeBasis === "monthly" ? perMonthSuffix : documentedSuffix}
           </div>
         ) : null}
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
+        <p className="text-body text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
         {/* The signed record, handed over. A record the holder does not hold
             is still ours — and everything that makes it worth signing depends
             on the person having the bytes somewhere we cannot reach. */}
@@ -792,7 +792,7 @@ export function CaseNextStep({
                 </p>
                 <Button
                   disabled={busy}
-                  className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+                  className="text-body py-2.5 px-4 w-full sm:w-auto"
                   onClick={() =>
                     run(async () => {
                       const res = await fetch(`/api/cases/${caseId}/authorization`, {
@@ -819,7 +819,7 @@ export function CaseNextStep({
                   {t(locale, "savedPayFirst")}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-extrabold text-emerald">
+                  <span className="text-body font-extrabold text-emerald">
                     {t(locale, "payFeeNow")} · ₪{feeLabel}
                   </span>
                   <FeePayButton caseId={caseId} />
@@ -832,18 +832,18 @@ export function CaseNextStep({
         {/* Prove → fee and prove → share run in parallel (SCALE_DISTRIBUTION).
             Self-reported estimates still never unlock virality. */}
         {proofSelfReported ? (
-          <p className="text-[13px] text-ink-soft mb-3 leading-relaxed m-0">
+          <p className="text-body text-ink-soft mb-3 leading-relaxed m-0">
             {t(locale, "estimateNoShare")}
           </p>
         ) : (
           <>
-          <div className="mb-2.5 text-[13px] font-bold text-emerald leading-snug">
+          <div className="mb-2.5 text-body font-bold text-emerald leading-snug">
             {t(locale, "shareInviteHeadline")}
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-body text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
               onClick={() => {
                 window.open(
                   `https://wa.me/?text=${encodeURIComponent(fullText)}`,
@@ -857,7 +857,7 @@ export function CaseNextStep({
             {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
               <Button
                 variant="ghost"
-                className="!text-[13px] !py-2"
+                className="!text-body !py-2"
                 onClick={async () => {
                   try {
                     await navigator.share({ title: "Zakai", text: msg, url: shareUrl });
@@ -871,7 +871,7 @@ export function CaseNextStep({
             )}
             <Button
               variant="ghost"
-              className="!text-[13px] !py-2"
+              className="!text-body !py-2"
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(shareUrl);
@@ -924,7 +924,7 @@ export function CaseNextStep({
             onChange={(e) => setOutreachEmail(e.target.value)}
             placeholder={t(locale, "outreachEmailPh")}
             dir="ltr"
-            className="text-[13px] max-w-md"
+            className="text-body max-w-md"
           />
         )}
         {/* Send first when email is verified — draft review is optional. */}
@@ -1023,7 +1023,7 @@ export function CaseNextStep({
               value={draftEdit}
               onChange={(e) => setDraftEdit(e.target.value)}
               rows={6}
-              className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] leading-relaxed px-3 py-2 font-sans"
+              className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body leading-relaxed px-3 py-2 font-sans"
               dir="auto"
             />
           </details>
@@ -1075,12 +1075,12 @@ export function CaseNextStep({
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     placeholder={t(locale, "codePh")}
-                    className="max-w-[140px] text-[13px]"
+                    className="max-w-[140px] text-body"
                     inputMode="numeric"
                   />
                   <Button
                     disabled={busy || code.length < 6}
-                    className="text-[13px] py-2 px-3"
+                    className="text-body py-2 px-3"
                     onClick={() =>
                       run(async () => {
                         const res = await fetch(`/api/cases/${caseId}/ownership/verify`, {
@@ -1115,7 +1115,7 @@ export function CaseNextStep({
                   onChange={(e) => setOutreachEmail(e.target.value)}
                   placeholder={t(locale, "outreachEmailPh")}
                   dir="ltr"
-                  className="text-[13px]"
+                  className="text-body"
                 />
               </div>
             )}
@@ -1192,7 +1192,7 @@ export function CaseNextStep({
                   value={draftEdit}
                   onChange={(e) => setDraftEdit(e.target.value)}
                   rows={6}
-                  className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] leading-relaxed px-3 py-2 font-sans"
+                  className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body leading-relaxed px-3 py-2 font-sans"
                   dir="auto"
                 />
               </details>
@@ -1200,7 +1200,7 @@ export function CaseNextStep({
             {!emailConfigured && draftEdit.trim() && (
               <Button
                 variant="ghost"
-                className="text-[13px] py-2 px-3 self-start"
+                className="text-body py-2 px-3 self-start"
                 disabled={
                   !(
                     (outreachEmail.trim() || resolvedOutreach) &&
@@ -1328,7 +1328,7 @@ export function CaseNextStep({
             </div>
             <Button
               disabled={busy}
-              className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+              className="text-body py-2.5 px-4 w-full sm:w-auto"
               onClick={() =>
                 run(async () => {
                   const res = await fetch(`/api/cases/${caseId}/authorization`, {
@@ -1367,7 +1367,7 @@ export function CaseNextStep({
 
         {!emailConfigured && draftEdit.trim() && (
           <Button
-            className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+            className="text-body py-2.5 px-4 w-full sm:w-auto"
             disabled={
               !(
                 (outreachEmail.trim() || resolvedOutreach) &&
@@ -1421,7 +1421,7 @@ export function CaseNextStep({
         */}
         {agentRound < MAX_AGENT_ROUNDS && localAuth && (!proposed || needsOutreachInput) ? (
           <div className="rounded-xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] p-3.5">
-            <div className="text-[13px] font-extrabold text-[#F0B45C] mb-2">
+            <div className="text-body font-extrabold text-[#F0B45C] mb-2">
               {t(locale, "followTitle")}
             </div>
             {needsOutreachInput && (
@@ -1432,14 +1432,14 @@ export function CaseNextStep({
                   onChange={(e) => setOutreachEmail(e.target.value)}
                   placeholder={t(locale, "outreachEmailPh")}
                   dir="ltr"
-                  className="text-[13px]"
+                  className="text-body"
                 />
               </div>
             )}
             <select
               value={replyKind}
               onChange={(e) => setReplyKind(e.target.value as ProviderReplyKind)}
-              className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] px-3 py-2 mb-2"
+              className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body px-3 py-2 mb-2"
             >
               {REPLY_KIND_OPTIONS.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -1453,14 +1453,14 @@ export function CaseNextStep({
                   value={competitorName}
                   onChange={(e) => setCompetitorName(e.target.value)}
                   placeholder={t(locale, "competitorName")}
-                  className="flex-1 min-w-[140px] text-[13px]"
+                  className="flex-1 min-w-[140px] text-body"
                 />
                 <Input
                   type="number"
                   value={competitorPrice}
                   onChange={(e) => setCompetitorPrice(e.target.value)}
                   placeholder={t(locale, "competitorPrice")}
-                  className="max-w-[140px] text-[13px]"
+                  className="max-w-[140px] text-body"
                 />
               </div>
             )}
@@ -1468,7 +1468,7 @@ export function CaseNextStep({
               {emailConfigured && !followSentOk && !followQueuedOk ? (
                 <Button
                   disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(async () => {
                       setFollowSentOk(false);
@@ -1502,7 +1502,7 @@ export function CaseNextStep({
                 <Button
                   variant={emailConfigured ? "ghost" : undefined}
                   disabled={busy}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(async () => {
                       setFollowSentOk(false);
@@ -1533,7 +1533,7 @@ export function CaseNextStep({
                 <Button
                   variant="ghost"
                   disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(async () => {
                       const res = await fetch(`/api/cases/${caseId}/follow-up`, {
@@ -1562,12 +1562,12 @@ export function CaseNextStep({
                 </Button>
               ) : null}
               {followSentOk ? (
-                <span className="text-[13px] font-bold text-emerald self-center">
+                <span className="text-body font-bold text-emerald self-center">
                   {t(locale, "followSent")}
                 </span>
               ) : null}
               {followQueuedOk && !followSentOk ? (
-                <span className="text-[13px] font-bold text-[#3EC6FF] self-center">
+                <span className="text-body font-bold text-[#3EC6FF] self-center">
                   {t(locale, "followQueued")}
                 </span>
               ) : null}
@@ -1580,7 +1580,7 @@ export function CaseNextStep({
                 </pre>
                 <Button
                   variant="ghost"
-                  className="text-[13px] py-2 px-3 mt-2"
+                  className="text-body py-2 px-3 mt-2"
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(followBody);
@@ -1632,7 +1632,7 @@ export function CaseNextStep({
 
         {!proposedSaving && (
           <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
-            <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "pasteLabel")}</div>
+            <div className="text-body font-extrabold text-[#3EC6FF]">{t(locale, "pasteLabel")}</div>
             <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">
               {t(locale, "pasteHint")}
             </p>
@@ -1641,11 +1641,11 @@ export function CaseNextStep({
               onChange={(e) => setPasteText(e.target.value)}
               placeholder={t(locale, "pastePh")}
               rows={4}
-              className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#060b12] px-3 py-2 text-[13px] text-ink placeholder:text-ink-soft resize-y min-h-[88px]"
+              className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#060b12] px-3 py-2 text-body text-ink placeholder:text-ink-soft resize-y min-h-[88px]"
             />
             <Button
               disabled={busy || pasteText.trim().length < 8}
-              className="text-[13px] py-2.5 px-4 w-full sm:w-auto mt-2.5"
+              className="text-body py-2.5 px-4 w-full sm:w-auto mt-2.5"
               onClick={() => run(() => proposeFromPaste())}
             >
               {busy ? t(locale, "working") : t(locale, "pasteCta")}
@@ -1670,7 +1670,7 @@ export function CaseNextStep({
               value={newAmt}
               onChange={(e) => setNewAmt(e.target.value)}
               placeholder={t(locale, feeBasis === "lump" ? "newAmtLump" : "newAmt")}
-              className="max-w-[180px] text-[13px]"
+              className="max-w-[180px] text-body"
             />
             <Button
               disabled={busy || newAmt === "" || Number(newAmt) < 0}
@@ -1683,7 +1683,7 @@ export function CaseNextStep({
               <Button
                 variant="ghost"
                 disabled={busy}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() => run(() => recordAndFinish(0, { source: "manual" }))}
               >
                 {t(locale, "fullRecovery")}
@@ -1693,7 +1693,7 @@ export function CaseNextStep({
                 <Button
                   variant="ghost"
                   disabled={busy}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() => run(() => recordAndFinish(0, { source: "manual" }))}
                 >
                   {t(locale, "quickCancel")}
@@ -1701,7 +1701,7 @@ export function CaseNextStep({
                 <Button
                   variant="ghost"
                   disabled={busy}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(() => recordAndFinish(amountOriginalShekels, { source: "manual" }))
                   }
@@ -1753,7 +1753,7 @@ export function CaseNextStep({
         </div>
 
         <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
-          <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
+          <div className="text-body font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
           <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>
           <div className="flex flex-wrap items-center gap-2">
             <code className="text-[13.5px] font-extrabold tracking-wide bg-[#060b12] border border-[rgba(255,255,255,0.12)] rounded-lg px-3 py-2 select-all">
@@ -1761,7 +1761,7 @@ export function CaseNextStep({
             </code>
             <Button
               variant="ghost"
-              className="!text-[13px] !py-2"
+              className="!text-body !py-2"
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(proofsAddr);
@@ -1792,14 +1792,14 @@ export function CaseNextStep({
                 onChange={(e) => setOutreachEmail(e.target.value)}
                 placeholder={t(locale, "outreachEmailPh")}
                 dir="ltr"
-                className="text-[13px]"
+                className="text-body"
               />
             </div>
           )}
           <select
             value={replyKind}
             onChange={(e) => setReplyKind(e.target.value as ProviderReplyKind)}
-            className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] px-3 py-2 mb-2"
+            className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body px-3 py-2 mb-2"
           >
             {REPLY_KIND_OPTIONS.map((o) => (
               <option key={o.id} value={o.id}>
@@ -1813,14 +1813,14 @@ export function CaseNextStep({
                 value={competitorName}
                 onChange={(e) => setCompetitorName(e.target.value)}
                 placeholder={t(locale, "competitorName")}
-                className="flex-1 min-w-[140px] text-[13px]"
+                className="flex-1 min-w-[140px] text-body"
               />
               <Input
                 type="number"
                 value={competitorPrice}
                 onChange={(e) => setCompetitorPrice(e.target.value)}
                 placeholder={t(locale, "competitorPrice")}
-                className="max-w-[140px] text-[13px]"
+                className="max-w-[140px] text-body"
               />
             </div>
           )}
@@ -1828,7 +1828,7 @@ export function CaseNextStep({
             {emailConfigured && !followSentOk && !followQueuedOk ? (
               <Button
                 disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() =>
                   run(async () => {
                     setFollowSentOk(false);
@@ -1862,7 +1862,7 @@ export function CaseNextStep({
               <Button
                 variant={emailConfigured ? "ghost" : undefined}
                 disabled={busy}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() =>
                   run(async () => {
                     setFollowSentOk(false);
@@ -1893,7 +1893,7 @@ export function CaseNextStep({
               <Button
                 variant="ghost"
                 disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() =>
                   run(async () => {
                     const res = await fetch(`/api/cases/${caseId}/follow-up`, {
@@ -1922,12 +1922,12 @@ export function CaseNextStep({
               </Button>
             ) : null}
             {followSentOk ? (
-              <span className="text-[13px] font-bold text-emerald self-center">
+              <span className="text-body font-bold text-emerald self-center">
                 {t(locale, "followSent")}
               </span>
             ) : null}
             {followQueuedOk && !followSentOk ? (
-              <span className="text-[13px] font-bold text-[#3EC6FF] self-center">
+              <span className="text-body font-bold text-[#3EC6FF] self-center">
                 {t(locale, "followQueued")}
               </span>
             ) : null}
@@ -1940,7 +1940,7 @@ export function CaseNextStep({
               </pre>
               <Button
                 variant="ghost"
-                className="text-[13px] py-2 px-3 mt-2"
+                className="text-body py-2 px-3 mt-2"
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(followBody);

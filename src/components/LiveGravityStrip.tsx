@@ -68,7 +68,7 @@ export function LiveGravityStrip({
       <div className="mt-4 text-center">
         <Link
           href="/network-proof"
-          className="text-[13px] font-extrabold text-emerald no-underline hover:underline"
+          className="text-body font-extrabold text-emerald no-underline hover:underline"
         >
           {labels.ledger}
         </Link>

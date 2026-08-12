@@ -46,18 +46,18 @@ export default async function CancelPage({ params }: { params: Promise<{ locale:
         <CancelTool />
       </Suspense>
 
-      <details className="mt-8 text-[13px] text-ink-soft">
+      <details className="mt-8 text-body text-ink-soft">
         <summary className="cursor-pointer font-bold select-none">
           {locale === "he" || locale === "ar" ? "חלופות (לא הדלת הראשית)" : "Alternatives (not the main door)"}
         </summary>
         <div className="flex flex-wrap gap-2.5 mt-3">
           <Link href="/cancel/universal">
-            <Button variant="ghost" className="!text-[13px] !py-2">
+            <Button variant="ghost" className="!text-body !py-2">
               {locale === "he" || locale === "ar" ? "ביטול מרוכז (אתם שולחים)" : "Universal cancel (you send)"}
             </Button>
           </Link>
           <Link href="/money">
-            <Button variant="ghost" className="!text-[13px] !py-2">
+            <Button variant="ghost" className="!text-body !py-2">
               {tIapp_locale_cancel_page("t_c700a858")}
             </Button>
           </Link>

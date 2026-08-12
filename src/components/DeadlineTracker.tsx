@@ -152,34 +152,34 @@ export function DeadlineTracker() {
       <Card className="p-6 flex flex-col gap-3">
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("labelQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("labelQ")}</span>
             <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t("labelPlaceholder")} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("dateQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("dateQ")}</span>
             <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("remindQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("remindQ")}</span>
             <Input type="number" min={1} max={180} value={remindDays} onChange={(e) => setRemindDays(e.target.value)} />
           </label>
         </div>
         <Button onClick={add} disabled={!label.trim() || !dueDate || busy}>
           {busy ? t("adding") : t("addCta")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       <Card className="mt-5 p-6 flex flex-col gap-3">
         <div>
           <div className="font-bold text-[14px]">{t("claimTitle")}</div>
-          <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">
+          <p className="text-ink-soft text-body mt-1 leading-relaxed">
             {t("claimSub", { years: GENERAL_LIMITATION_YEARS })}
           </p>
         </div>
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("claimDescQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("claimDescQ")}</span>
             <Input
               value={claimDesc}
               onChange={(e) => setClaimDesc(e.target.value)}
@@ -187,19 +187,19 @@ export function DeadlineTracker() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("claimEventDateQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("claimEventDateQ")}</span>
             <Input type="date" value={claimEventDate} onChange={(e) => setClaimEventDate(e.target.value)} />
           </label>
         </div>
         {claimExpiry && (
-          <p className="text-[13px] text-ink-soft m-0">
+          <p className="text-body text-ink-soft m-0">
             {t("claimExpiryNote", { date: claimExpiry.toLocaleDateString("he-IL") })}
           </p>
         )}
         <Button onClick={addClaimExpiry} disabled={!claimDesc.trim() || !claimExpiry || claimBusy} variant="ghost">
           {claimBusy ? t("adding") : claimAdded ? t("claimAdded") : t("claimAddCta")}
         </Button>
-        {claimError && <p className="text-[13px] text-amber m-0">{claimError}</p>}
+        {claimError && <p className="text-body text-amber m-0">{claimError}</p>}
       </Card>
 
       {rows && rows.length > 0 && (

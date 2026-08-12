@@ -45,7 +45,7 @@ export function DeleteAccount() {
   return (
     <Card className="p-6 border-[rgba(240,138,107,0.3)]">
       <div className="text-[12px] font-extrabold text-[#F08A6B] mb-2">{t("title")}</div>
-      <p className="text-ink-soft text-[13px] leading-relaxed mt-0 mb-3">{t("explain")}</p>
+      <p className="text-ink-soft text-body leading-relaxed mt-0 mb-3">{t("explain")}</p>
       {!open ? (
         <Button
           variant="ghost"
@@ -57,7 +57,7 @@ export function DeleteAccount() {
       ) : (
         <form onSubmit={confirm} className="flex flex-col gap-3">
           <label className="block">
-            <span className="text-[13px] text-ink-soft">{t("passwordLabel")}</span>
+            <span className="text-body text-ink-soft">{t("passwordLabel")}</span>
             <Input
               type="password"
               value={password}

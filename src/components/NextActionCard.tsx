@@ -87,7 +87,7 @@ export function NextActionCard({
         </div>
       )}
 
-      <p className="text-ink-soft text-[13px] m-0 mb-4 leading-relaxed">
+      <p className="text-ink-soft text-body m-0 mb-4 leading-relaxed">
         {c.daysLeft !== null && next.because === "expiring"
           ? t("because.expiring", { days: c.daysLeft })
           : t(`because.${next.because}`)}
@@ -116,7 +116,7 @@ export function NextActionCard({
             <ul className="mt-3 mb-0 ps-0 list-none flex flex-col gap-2">
               {all.slice(1).map((x) => (
                 <li key={x.id} className="flex items-baseline gap-2 flex-wrap">
-                  <Link href={x.href} className="text-[13px] font-bold no-underline text-ink">
+                  <Link href={x.href} className="text-body font-bold no-underline text-ink">
                     {label(x.id.split(":")[0])}
                   </Link>
                   {x.valueMinor > 0 && (

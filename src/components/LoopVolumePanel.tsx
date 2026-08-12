@@ -36,7 +36,7 @@ export function LoopVolumePanel({
           {heEn(he, "פנימי · בלי vanity", "Internal · no vanity")}
         </span>
       </div>
-      <p className="text-[13px] text-ink-soft mt-0 mb-4 leading-relaxed">
+      <p className="text-body text-ink-soft mt-0 mb-4 leading-relaxed">
         {he
           ? "Mandates שנשלחו · SavingsProof מתועד · אחוז השלמה לוורטיקל. הערכות self-reported לא נספרות."
           : "Mandates sent · documented SavingsProof · completion per vertical. Self-reported estimates do not count."}
@@ -79,7 +79,7 @@ export function LoopVolumePanel({
         />
       </div>
 
-      <h3 className="text-[13px] font-extrabold text-ink-soft uppercase tracking-wide m-0 mb-2">
+      <h3 className="text-body font-extrabold text-ink-soft uppercase tracking-wide m-0 mb-2">
         {heEn(he, "השלמה לפי וורטיקל ראשי", "Completion by main vertical")}
       </h3>
       <div className="rounded-xl border border-[rgba(255,255,255,0.08)] overflow-hidden bg-[rgba(0,0,0,0.15)]">
@@ -97,7 +97,7 @@ export function LoopVolumePanel({
         {snap.byVertical.map((v) => (
           <div
             key={v.id}
-            className="grid gap-2 px-3 py-2.5 text-[13px] border-t border-[rgba(255,255,255,0.06)] items-center"
+            className="grid gap-2 px-3 py-2.5 text-body border-t border-[rgba(255,255,255,0.06)] items-center"
             style={{ gridTemplateColumns: "1.4fr repeat(5, minmax(0, 1fr))" }}
           >
             <span className="font-bold truncate">{he ? v.labelHe : v.labelEn}</span>

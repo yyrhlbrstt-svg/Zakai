@@ -155,7 +155,7 @@ export function EnablePush({ loggedIn }: { loggedIn: boolean }) {
         type="button"
         disabled={busy}
         onClick={enable}
-        className="shrink-0 grad-bg btn-sheen text-[#06121A] font-extrabold text-[13px] rounded-xl px-4 py-2.5 border-0 cursor-pointer disabled:opacity-60"
+        className="shrink-0 grad-bg btn-sheen text-[#06121A] font-extrabold text-body rounded-xl px-4 py-2.5 border-0 cursor-pointer disabled:opacity-60"
       >
         {busy ? "…" : t.cta}
       </button>

@@ -49,18 +49,18 @@ export default async function AboutPage({
           <p className="text-[14px] text-ink-soft m-0 leading-relaxed">{t("proofPitch")}</p>
           <div className="flex flex-wrap gap-3 mt-4">
             <Link href="/proofs">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {t("proofsCta")}
               </Button>
             </Link>
             <Link href="/results">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {t("resultsCta")}
               </Button>
             </Link>
           </div>
           {proof.verifiedCount > 0 && (
-            <p className="text-[13px] mt-4 mb-0">
+            <p className="text-body mt-4 mb-0">
               <span className="font-display grad-text text-2xl">
                 {formatAgorot(proof.verifiedMinor, bcp47[locale as Locale])}
               </span>
@@ -87,7 +87,7 @@ export default async function AboutPage({
               </div>
               <ul className="mt-3 flex flex-col gap-2 list-none p-0 m-0">
                 {points.map((p) => (
-                  <li key={p} className="flex gap-2.5 items-start text-[13px] text-ink-soft leading-relaxed">
+                  <li key={p} className="flex gap-2.5 items-start text-body text-ink-soft leading-relaxed">
                     <span className={isZakai ? "font-black shrink-0 text-emerald" : "font-black shrink-0 text-[rgba(147,166,165,0.6)]"} aria-hidden>
                       {isZakai ? "✓" : "•"}
                     </span>

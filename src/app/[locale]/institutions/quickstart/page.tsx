@@ -85,7 +85,7 @@ export default async function InstitutionQuickstartPage({
         <div className="font-extrabold text-[15px] mb-2">
           {heEn(he, "בטיחות — למה זה לא כסף יוצא", "Safety — why this is not outbound money")}
         </div>
-        <ul className="m-0 ps-5 flex flex-col gap-1.5 text-[13px] text-ink-soft leading-relaxed">
+        <ul className="m-0 ps-5 flex flex-col gap-1.5 text-body text-ink-soft leading-relaxed">
           <li>
             {heEn(
               he,
@@ -123,7 +123,7 @@ export default async function InstitutionQuickstartPage({
         <div className="font-extrabold text-[15px] mb-1">
           {heEn(he, "שלב 1א — Node (~10 דק׳)", "Step 1a — Node (~10 min)")}
         </div>
-        <p className="text-[13px] text-ink-soft mt-0 mb-3 leading-relaxed">
+        <p className="text-body text-ink-soft mt-0 mb-3 leading-relaxed">
           {heEn(
             he,
             "חבילה רשמית @zakai-app/mandate-sdk. עד פרסום npm — מהמונורפו.",
@@ -139,7 +139,7 @@ cd Zakai/sdk && npm ci && npm run ready -- --origin ${ORIGIN}
         <div className="font-extrabold text-[15px] mb-1">
           {heEn(he, "שלב 1ב — Python (~10 דק׳)", "Step 1b — Python (~10 min)")}
         </div>
-        <p className="text-[13px] text-ink-soft mt-0 mb-3 leading-relaxed">
+        <p className="text-body text-ink-soft mt-0 mb-3 leading-relaxed">
           {heEn(
             he,
             "חבילה רשמית zakai-mandate ב־sdk/python. אותו שער כמו Node. בלי cryptography אין READY.",
@@ -231,7 +231,7 @@ claims = verify_mandate_from_url(
         </div>
       </Card>
 
-      <details className="mb-8 text-[13px] text-ink-soft">
+      <details className="mb-8 text-body text-ink-soft">
         <summary className="cursor-pointer font-bold select-none">
           {heEn(he, "תירוצים שכבר לא עובדים", "Excuses that no longer work")}
         </summary>

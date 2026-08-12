@@ -104,7 +104,7 @@ export function AdvanceTaxReductionTool() {
         )}
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("yearQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("yearQ")}</span>
           <Input
             type="number"
             value={taxYear}
@@ -112,15 +112,15 @@ export function AdvanceTaxReductionTool() {
           />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("fileNumberQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("fileNumberQ")}</span>
           <Input value={taxFileNumber} onChange={(e) => setTaxFileNumber(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("reasonQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("reasonQ")}</span>
           <Textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -148,7 +148,7 @@ export function AdvanceTaxReductionTool() {
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

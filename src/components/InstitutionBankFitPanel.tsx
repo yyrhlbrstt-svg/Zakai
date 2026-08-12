@@ -16,7 +16,7 @@ export function InstitutionBankFitPanel({
   return (
     <section className="mt-12 mb-8 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.02)] p-6">
       <h2 className="font-display text-xl m-0 mb-2">{title}</h2>
-      <p className="text-[13px] text-ink-soft leading-relaxed m-0 mb-4">{disclaimer}</p>
+      <p className="text-body text-ink-soft leading-relaxed m-0 mb-4">{disclaimer}</p>
       <ul className="list-none p-0 m-0 flex flex-col gap-3">
         {rows.map((row) => (
           <li
@@ -29,7 +29,7 @@ export function InstitutionBankFitPanel({
                 {tierLabels[row.tier]}
               </span>
             </div>
-            <p className="text-[13px] text-ink-soft mt-1.5 mb-0 leading-relaxed">{row.why}</p>
+            <p className="text-body text-ink-soft mt-1.5 mb-0 leading-relaxed">{row.why}</p>
           </li>
         ))}
       </ul>

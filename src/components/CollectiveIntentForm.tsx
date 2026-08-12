@@ -26,7 +26,7 @@ export function CollectiveIntentForm({ market }: { market: string }) {
       {/* The label was a plain sibling, so it labelled nothing: the select was
           announced with no name at all, and clicking the label did not focus
           it. */}
-      <label htmlFor="collective-vertical" className="text-[13px] font-bold text-ink-soft">
+      <label htmlFor="collective-vertical" className="text-body font-bold text-ink-soft">
         {copy.label}
       </label>
       <select

@@ -225,7 +225,7 @@ export function AuthForm({
                 </ul>
                 <p className="mt-2 text-amber font-semibold">{tl("termsNote")}</p>
               </details>
-              <label className="flex gap-2.5 items-start mt-2.5 text-[13px] leading-snug cursor-pointer">
+              <label className="flex gap-2.5 items-start mt-2.5 text-body leading-snug cursor-pointer">
                 {/* Deliberately NOT `required`. Native constraint validation
                     aborts submission before onSubmit runs, so the handler's
                     translated "tick the terms" error never fired and the
@@ -262,7 +262,7 @@ export function AuthForm({
       </p>
 
       {mode === "login" && (
-        <p className="text-center mt-2 text-[13px]">
+        <p className="text-center mt-2 text-body">
           <Link href="/forgot" className="text-ink-soft no-underline hover:text-emerald">
             {t("forgotPassword")}
           </Link>

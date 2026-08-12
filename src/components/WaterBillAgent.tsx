@@ -69,7 +69,7 @@ export function WaterBillAgent() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("agent.sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("agent.proofQ")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("agent.proofQ")}</span>
           <RadioChips
             value={hasRepairProof}
             onChange={setHasRepairProof}
@@ -82,15 +82,15 @@ export function WaterBillAgent() {
         </div>
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.accountNumber")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.accountNumber")}</span>
             <Input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} maxLength={40} dir="ltr" />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
             <Input
               type="email"
               value={contactEmail}
@@ -100,11 +100,11 @@ export function WaterBillAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.repairDate")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.repairDate")}</span>
             <Input value={repairDate} onChange={(e) => setRepairDate(e.target.value)} maxLength={40} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.billAmount")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.billAmount")}</span>
             <Input type="number" value={billAmount} onChange={(e) => setBillAmount(e.target.value)} />
           </label>
         </div>
@@ -117,7 +117,7 @@ export function WaterBillAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

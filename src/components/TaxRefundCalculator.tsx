@@ -31,7 +31,7 @@ export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
       <Card className="p-6 flex flex-col gap-5">
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("salaryQ")}</span>
+            <span className="text-body text-ink-soft">{t("salaryQ")}</span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(monthly))}</span>
           </div>
           <input type="range" min={3000} max={60000} step={250} value={monthly}
@@ -40,7 +40,7 @@ export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("monthsQ")}</span>
+            <span className="text-body text-ink-soft">{t("monthsQ")}</span>
             <span className="font-display text-[15px]">{months}</span>
           </div>
           <input type="range" min={1} max={12} step={1} value={months}
@@ -59,7 +59,7 @@ export function TaxRefundCalculator({ bcp47 }: { bcp47: string }) {
       </Card>
 
       <Card className="mt-5 p-6 text-center">
-        <div className="text-[13px] text-ink-soft font-bold">{t("resultTitle")}</div>
+        <div className="text-body text-ink-soft font-bold">{t("resultTitle")}</div>
         <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
           {money(r.refundAgorot)}
         </div>

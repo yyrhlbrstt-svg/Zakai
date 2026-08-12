@@ -66,7 +66,7 @@ export default async function ToolsHubPage({ params }: { params: Promise<{ local
             ))}
           </div>
           <Link href="/must-have">
-            <Button className="!text-[13px]">{mustHavePageCopy(locale).starterTitle}</Button>
+            <Button className="!text-body">{mustHavePageCopy(locale).starterTitle}</Button>
           </Link>
         </div>
       </Reveal>
@@ -105,7 +105,7 @@ export default async function ToolsHubPage({ params }: { params: Promise<{ local
       })}
 
       <Reveal>
-        <p className="text-[13px] text-ink-soft mt-14 text-center max-w-[520px] mx-auto leading-relaxed">
+        <p className="text-body text-ink-soft mt-14 text-center max-w-[520px] mx-auto leading-relaxed">
           {t("footer")}
         </p>
       </Reveal>

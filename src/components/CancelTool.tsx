@@ -174,7 +174,7 @@ export function CancelTool() {
   return (
     <div className="flex flex-col gap-4">
       {prefilled && (
-        <div className="rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-[13px] font-bold">
+        <div className="rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-4 py-3 text-body font-bold">
           {t("t_cf09ad5a")}
         </div>
       )}
@@ -256,7 +256,7 @@ export function CancelTool() {
           >
             {busy ? t("agentOpening") : t("agentOpenCase")}
           </Button>
-          <details className="text-[13px] text-ink-soft">
+          <details className="text-body text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
               {locale === "he" || locale === "ar"
                 ? "חלופה — מכתב להעתקה בלבד"
@@ -266,13 +266,13 @@ export function CancelTool() {
               variant="ghost"
               onClick={generate}
               disabled={!company.trim() || !product.trim() || busy}
-              className="w-full text-[13px] mt-2"
+              className="w-full text-body mt-2"
             >
               {t("t_b4c9b341")}
             </Button>
           </details>
         </div>
-        {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
+        {error && <p className="text-body text-amber mt-1 mb-0">{error}</p>}
       </Card>
 
       {caseId && (
@@ -289,7 +289,7 @@ export function CancelTool() {
         <Card className="p-5">
           <div className="text-[12px] text-ink-soft font-bold">{t("t_550c1f87")}</div>
           <div className="font-extrabold mt-1">{out.subject}</div>
-          <pre className="mt-4 whitespace-pre-wrap text-[13px] leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
+          <pre className="mt-4 whitespace-pre-wrap text-body leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
             {out.body}
           </pre>
           <div className="mt-3 flex flex-col gap-2">

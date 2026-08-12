@@ -56,7 +56,7 @@ export function MaxPlanRoi({ bcp47 }: { bcp47: string }) {
       <p className="text-ink-soft text-[13.5px] mt-2 mb-5 leading-relaxed">{t("maxRoiSub")}</p>
       <label className="block">
         <div className="flex justify-between items-baseline mb-1.5">
-          <span className="text-[13px] text-ink-soft">{t("maxRoiInput")}</span>
+          <span className="text-body text-ink-soft">{t("maxRoiInput")}</span>
           <span className="font-display text-[15px]">{money(savingAgorot)}</span>
         </div>
         <input
@@ -69,7 +69,7 @@ export function MaxPlanRoi({ bcp47 }: { bcp47: string }) {
           aria-label={t("maxRoiInput")}
         />
       </label>
-      <p className="text-[13px] text-ink-soft mt-4 mb-0 leading-relaxed">{verdict}</p>
+      <p className="text-body text-ink-soft mt-4 mb-0 leading-relaxed">{verdict}</p>
       <ul className="mt-3 flex flex-col gap-1.5 list-none p-0 m-0 text-[12.5px] text-ink-soft">
         {proFrom !== null && (
           <li>{t("maxRoiProFrom", { amount: money(proFrom) })}</li>

@@ -46,8 +46,8 @@ export default async function FairnessCertifiedPage({
           <p className="text-[13.5px] text-ink-soft m-0 leading-relaxed">{c.empty}</p>
         ) : (
           <>
-            <p className="text-[13px] font-extrabold text-ink m-0 mb-3">{c.live}</p>
-            <ul className="m-0 pl-5 text-[13px] text-ink-soft space-y-1">
+            <p className="text-body font-extrabold text-ink m-0 mb-3">{c.live}</p>
+            <ul className="m-0 pl-5 text-body text-ink-soft space-y-1">
               {doc.certified_providers.map((p) => (
                 <li key={`${p.market}-${p.provider}`}>
                   {p.provider} — {p.fairnessScore}/100 (n={p.observations})

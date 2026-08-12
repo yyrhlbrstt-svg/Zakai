@@ -42,7 +42,7 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">
+            <span className="text-body text-ink-soft">
               {employment === "employee" ? t("salaryQ") : t("incomeQ")}
             </span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(monthly))}</span>
@@ -53,7 +53,7 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("daysQ")}</span>
+            <span className="text-body text-ink-soft">{t("daysQ")}</span>
             <span className="font-display text-[15px]">{days}</span>
           </div>
           <input type="range" min={1} max={120} step={1} value={days}
@@ -62,7 +62,7 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
       </Card>
 
       <Card className="mt-5 p-6 text-center">
-        <div className="text-[13px] text-ink-soft font-bold">{t("resultTitle")}</div>
+        <div className="text-body text-ink-soft font-bold">{t("resultTitle")}</div>
         <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
           {money(r.totalAgorot)}
         </div>

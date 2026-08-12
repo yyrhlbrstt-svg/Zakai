@@ -74,15 +74,15 @@ export function TrainDelayAgent() {
       <Card className="p-6 flex flex-col gap-4">
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.line")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.line")}</span>
             <Input value={line} onChange={(e) => setLine(e.target.value)} maxLength={120} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
             <Input
               type="email"
               value={contactEmail}
@@ -92,24 +92,24 @@ export function TrainDelayAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.travelDate")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.travelDate")}</span>
             <Input value={travelDate} onChange={(e) => setTravelDate(e.target.value)} maxLength={40} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.delayMinutes")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.delayMinutes")}</span>
             <Input type="number" value={delayMinutes} onChange={(e) => setDelayMinutes(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.ticketPrice")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.ticketPrice")}</span>
             <Input type="number" value={ticketPrice} onChange={(e) => setTicketPrice(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.claimedAmount")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.claimedAmount")}</span>
             <Input type="number" value={claimedAmount} onChange={(e) => setClaimedAmount(e.target.value)} />
           </label>
         </div>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.description")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agent.description")}</span>
           <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} />
         </label>
         <MissingFields
@@ -121,7 +121,7 @@ export function TrainDelayAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

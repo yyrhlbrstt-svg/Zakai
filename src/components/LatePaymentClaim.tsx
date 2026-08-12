@@ -125,13 +125,13 @@ export function LatePaymentClaim({
     <div>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("invoiceDateQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("invoiceDateQ")}</span>
           <Input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} />
         </label>
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("amountQ")}</span>
+            <span className="text-body text-ink-soft">{t("amountQ")}</span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(invoiceAmount))}</span>
           </div>
           <input
@@ -146,7 +146,7 @@ export function LatePaymentClaim({
         </label>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("termQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("termQ")}</span>
           <Input
             type="number"
             min={1}
@@ -159,7 +159,7 @@ export function LatePaymentClaim({
 
       {status && (
         <Card className="mt-5 p-6 text-center">
-          <div className="text-[13px] text-ink-soft font-bold">
+          <div className="text-body text-ink-soft font-bold">
             {status.isLate ? t("statusLate") : t("statusNotYet")}
           </div>
           <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
@@ -176,15 +176,15 @@ export function LatePaymentClaim({
       <Card className="mt-5 p-6 flex flex-col gap-3">
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("supplierQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("supplierQ")}</span>
             <Input value={supplierName} onChange={(e) => setSupplierName(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("clientQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("clientQ")}</span>
             <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("clientEmailQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("clientEmailQ")}</span>
             <Input
               type="email"
               value={clientEmail}
@@ -193,7 +193,7 @@ export function LatePaymentClaim({
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("invoiceNumberQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("invoiceNumberQ")}</span>
             <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
           </label>
         </div>
@@ -208,7 +208,7 @@ export function LatePaymentClaim({
           >
             {busy ? t("agentBusy") : t("agentSendCta")}
           </Button>
-          <details className="text-[13px] text-ink-soft">
+          <details className="text-body text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
               {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
@@ -236,7 +236,7 @@ export function LatePaymentClaim({
             ]}
           />
         )}
-        {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
+        {agentError && <p className="text-body text-amber">{agentError}</p>}
       </Card>
 
       {caseId && (
@@ -258,7 +258,7 @@ export function LatePaymentClaim({
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

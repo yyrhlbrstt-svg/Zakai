@@ -142,7 +142,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
   const money = (agorot: number) => formatAgorot(agorot, bcp47);
 
   const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
+    `rounded-full px-4 py-2 text-body font-bold cursor-pointer border transition-colors duration-200 ${
       active
         ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
@@ -160,7 +160,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
           this single choice is what makes the rest of the page honest for
           anyone who isn't Israeli. */}
       <Card className="p-5 mb-5">
-        <span className="text-[13px] text-ink-soft block mb-2">{tRights("country")}</span>
+        <span className="text-body text-ink-soft block mb-2">{tRights("country")}</span>
         <RadioChips
           value={country}
           onChange={setCountry}
@@ -191,7 +191,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
       {country === "IL" && watch.mostUrgent && watch.atRiskSoonMinor > 0 && (
         <Card className="p-6 mb-5 border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.07)]">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-[13px] font-extrabold text-[#f0b45c]">
+            <span className="text-body font-extrabold text-[#f0b45c]">
               {t("watch.title")}
             </span>
             <span className="text-[12px] text-ink-soft">
@@ -201,7 +201,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
           <div className="font-display text-3xl mt-2" dir="ltr">
             {money(watch.atRiskSoonMinor)}
           </div>
-          <p className="text-ink-soft text-[13px] mt-2 mb-0 leading-relaxed">
+          <p className="text-ink-soft text-body mt-2 mb-0 leading-relaxed">
             {t("watch.sub")}
           </p>
         </Card>
@@ -213,7 +213,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
         <div className="font-display grad-text text-[42px] leading-tight" dir="ltr">
           {money(result.unclaimedMinor)}
         </div>
-        <p className="text-ink-soft text-[13px] mt-3 mb-0 leading-relaxed">
+        <p className="text-ink-soft text-body mt-3 mb-0 leading-relaxed">
           {t("summary", { eligible: result.eligibleCount, acted: result.actedOnCount })}
         </p>
 
@@ -222,7 +222,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
             <span className="font-display text-3xl" dir="ltr">
               {result.score}
             </span>
-            <span className="text-ink-soft text-[13px]">/ 1000</span>
+            <span className="text-ink-soft text-body">/ 1000</span>
           </div>
           <p className="text-emerald font-extrabold text-[13.5px] mt-1.5 mb-0">
             {t(`bands.${result.band}`)}
@@ -266,7 +266,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
         {editing && (
           <div className="mt-5 flex flex-col gap-5">
             <div>
-              <span className="text-[13px] text-ink-soft block mb-2">{t("q.age")}</span>
+              <span className="text-body text-ink-soft block mb-2">{t("q.age")}</span>
               <RadioChips
                 value={profile.ageGroup}
                 onChange={(g) => update({ ...profile, ageGroup: g })}
@@ -276,7 +276,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
             </div>
 
             <div>
-              <span className="text-[13px] text-ink-soft block mb-2">{t("q.employment")}</span>
+              <span className="text-body text-ink-soft block mb-2">{t("q.employment")}</span>
               <RadioChips
                 value={profile.employment}
                 onChange={(e) => update({ ...profile, employment: e })}
@@ -286,7 +286,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
             </div>
 
             <div>
-              <span className="text-[13px] text-ink-soft block mb-2">{t("q.children")}</span>
+              <span className="text-body text-ink-soft block mb-2">{t("q.children")}</span>
               <div className="flex gap-2 flex-wrap">
                 {[0, 1, 2, 3, 4].map((n) => (
                   <button
@@ -309,7 +309,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
             </div>
 
             <div>
-              <span className="text-[13px] text-ink-soft block mb-2">{t("q.flags")}</span>
+              <span className="text-body text-ink-soft block mb-2">{t("q.flags")}</span>
               <div className="flex gap-2 flex-wrap">
                 {FLAGS.map((f) => (
                   <button
@@ -326,7 +326,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
             </div>
 
             <div>
-              <span className="text-[13px] text-ink-soft block mb-1">{t("q.moreTitle")}</span>
+              <span className="text-body text-ink-soft block mb-1">{t("q.moreTitle")}</span>
               <span className="text-[11.5px] text-ink-soft block mb-2 leading-relaxed">
                 {t("q.moreHint")}
               </span>
@@ -348,7 +348,7 @@ export function ZakaiScoreScreen({ bcp47 }: { bcp47: string }) {
             {/* One number, and the highest-yield question in the product per
                 tap: it expands into one disclosure demand per employment era. */}
             <div>
-              <span className="text-[13px] text-ink-soft block mb-2">{t("q.pastEmployers")}</span>
+              <span className="text-body text-ink-soft block mb-2">{t("q.pastEmployers")}</span>
               <div className="flex gap-2 flex-wrap">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
                   <button

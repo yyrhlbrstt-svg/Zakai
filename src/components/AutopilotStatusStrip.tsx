@@ -31,7 +31,7 @@ export async function AutopilotStatusStrip({
   return (
     <section className="border-t border-[rgba(255,255,255,0.08)] pt-10 mb-10">
       <h2 className="text-lg font-extrabold mb-2">{title}</h2>
-      <p className="text-[13px] text-ink-soft mb-4 max-w-[640px] leading-relaxed">{sub}</p>
+      <p className="text-body text-ink-soft mb-4 max-w-[640px] leading-relaxed">{sub}</p>
       <ul className="grid gap-2 sm:grid-cols-2 mb-4 m-0 p-0 list-none">
         {rows.map((r) => (
           <li
@@ -51,7 +51,7 @@ export async function AutopilotStatusStrip({
       </ul>
       <a
         href={`${SITE_URL}/.well-known/zakai-autopilot.json`}
-        className="text-[13px] font-bold text-emerald no-underline"
+        className="text-body font-bold text-emerald no-underline"
         rel="noopener noreferrer"
       >
         {manifestLabel} →

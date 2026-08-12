@@ -73,10 +73,10 @@ export default async function NetworkProofPage({
           <StatTile label={t("statMandates")} value={String(mandateCount)} hint={t("statMandatesHint")} />
         </div>
         <p className="text-[11.5px] text-ink-soft mt-3 leading-relaxed">{t("statDisclaimer")}</p>
-        <p className="text-[13px] text-ink-soft mt-4 font-mono">
+        <p className="text-body text-ink-soft mt-4 font-mono">
           {t("deployScore", { score: readiness.operationalScore, tier: readiness.tier })}
         </p>
-        <p className="text-[13px] text-ink-soft mt-2 font-mono">
+        <p className="text-body text-ink-soft mt-2 font-mono">
           {t("consumerReleaseScore", {
             score: readiness.consumerReleaseScore,
             ready: readiness.canReleaseConsumerApp ? "yes" : "no",

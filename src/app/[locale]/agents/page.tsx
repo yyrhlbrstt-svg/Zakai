@@ -94,7 +94,7 @@ export default async function AgentsPage({
             </pre>
           )}
           {section.footnote && (
-            <p className="text-[13px] leading-relaxed mt-3 text-ink-soft">{section.footnote}</p>
+            <p className="text-body leading-relaxed mt-3 text-ink-soft">{section.footnote}</p>
           )}
         </Section>
       ))}

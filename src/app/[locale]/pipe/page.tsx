@@ -124,7 +124,7 @@ export default async function PipePage({
         </pre>
       </Card>
 
-      <p className="text-[13px] text-ink-soft">
+      <p className="text-body text-ink-soft">
         {t("related")}{" "}
         <Link href="/institutions" className="text-emerald underline">
           /institutions

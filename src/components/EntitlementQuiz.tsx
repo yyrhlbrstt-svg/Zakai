@@ -221,7 +221,7 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
           }} />
           {profile.children > 0 && (
             <div className="mt-5">
-              <span className="text-[13px] text-ink-soft block mb-2">{t("rights.q.childrenUnder6")}</span>
+              <span className="text-body text-ink-soft block mb-2">{t("rights.q.childrenUnder6")}</span>
               <Counter
                 value={profile.childrenUnder6}
                 max={profile.children}

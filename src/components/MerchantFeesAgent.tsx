@@ -86,7 +86,7 @@ export function MerchantFeesAgent() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("agent.sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.concern")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agent.concern")}</span>
           <Select
             value={concern}
             onChange={(e) => setConcern(e.target.value as MerchantFeeConcern)}
@@ -102,23 +102,23 @@ export function MerchantFeesAgent() {
 
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.businessName")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.businessName")}</span>
             <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} maxLength={120} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.businessId")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.businessId")}</span>
             <Input value={businessId} onChange={(e) => setBusinessId(e.target.value)} maxLength={20} dir="ltr" />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.acquirer")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.acquirer")}</span>
             <Input value={acquirer} onChange={(e) => setAcquirer(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.merchantNumber")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.merchantNumber")}</span>
             <Input value={merchantNumber} onChange={(e) => setMerchantNumber(e.target.value)} maxLength={40} dir="ltr" />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{tFlow("contactEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{tFlow("contactEmail")}</span>
             <Input
               type="email"
               value={contactEmail}
@@ -128,17 +128,17 @@ export function MerchantFeesAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.turnover")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.turnover")}</span>
             <Input type="number" value={turnover} onChange={(e) => setTurnover(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.years")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.years")}</span>
             <Input value={yearsAsCustomer} onChange={(e) => setYearsAsCustomer(e.target.value)} maxLength={40} />
           </label>
         </div>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.currentTerms")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agent.currentTerms")}</span>
           <Textarea
             rows={3}
             value={currentTerms}
@@ -160,7 +160,7 @@ export function MerchantFeesAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

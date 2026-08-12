@@ -27,7 +27,7 @@ export function IntentTriage() {
 
   return (
     <SpotlightCard className="p-5 mb-6">
-      <div className="text-[13px] font-extrabold text-emerald mb-2">{t("label")}</div>
+      <div className="text-body font-extrabold text-emerald mb-2">{t("label")}</div>
       <Input
         value={text}
         onChange={(e) => setText(e.target.value)}

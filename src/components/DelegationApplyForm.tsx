@@ -70,7 +70,7 @@ export function DelegationApplyForm() {
           one did not focus the input, and three of these fields were announced
           to a screen reader as unnamed edit boxes. This is the form an
           institution fills in to join the protocol. */}
-      <label htmlFor="delegation-slug" className="text-[13px] text-ink-soft">
+      <label htmlFor="delegation-slug" className="text-body text-ink-soft">
         Slug (a stable identifier — e.g. <code className="text-[12px]">yourbot.example</code>)
       </label>
       <Input
@@ -96,10 +96,10 @@ export function DelegationApplyForm() {
       />
 
       <fieldset className="m-0 p-0 border-0">
-        <legend className="text-[13px] text-ink-soft mb-2">Scopes you need</legend>
+        <legend className="text-body text-ink-soft mb-2">Scopes you need</legend>
         <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto rounded-xl border border-[rgba(255,255,255,0.08)] p-3">
           {SCOPES.map((s) => (
-            <label key={s.scope} className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <label key={s.scope} className="flex items-start gap-2 text-body cursor-pointer">
               <input
                 type="checkbox"
                 checked={scopes.includes(s.scope)}

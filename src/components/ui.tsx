@@ -262,7 +262,7 @@ export function RadioChips<T extends string>({
             aria-checked={active}
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(o.value)}
-            className={`rounded-full px-3.5 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
+            className={`rounded-full px-3.5 py-2 text-body font-bold cursor-pointer border transition-colors duration-200 ${
               active
                 ? "bg-[rgba(63,203,155,0.16)] border-[rgba(63,203,155,0.55)] text-emerald shadow-[0_0_0_1px_rgba(63,203,155,0.12)]"
                 : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.22)]"

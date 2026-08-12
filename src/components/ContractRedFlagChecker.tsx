@@ -186,7 +186,7 @@ export function ContractRedFlagChecker() {
           )}
           {reminderAdded ? (
             <div className="mt-3">
-              <p className="text-emerald text-[13px] font-bold m-0">{t("renewalAdded")}</p>
+              <p className="text-emerald text-body font-bold m-0">{t("renewalAdded")}</p>
               {/* The contract was filed as a commitment a moment ago, and until
                   now nothing said where it went. Storing something on somebody's
                   behalf and not showing them where is the same shape of problem
@@ -202,7 +202,7 @@ export function ContractRedFlagChecker() {
             <div className="mt-3">
               <p className="text-ink-soft text-[12.5px] mb-2">{t("renewalLoginNote")}</p>
               <Link href={`/login?return=/contract-check`} className="no-underline">
-                <Button variant="ghost" className="!text-[13px]">
+                <Button variant="ghost" className="!text-body">
                   {t("renewalCta")}
                 </Button>
               </Link>
@@ -210,7 +210,7 @@ export function ContractRedFlagChecker() {
           ) : (
             <Button
               variant="ghost"
-              className="mt-3 !text-[13px]"
+              className="mt-3 !text-body"
               disabled={reminderBusy}
               onClick={addRenewalReminder}
             >
@@ -245,7 +245,7 @@ export function ContractRedFlagChecker() {
                 <span aria-hidden>{c.risk === "red" ? "🔴" : "🟢"}</span>
                 <div>
                   <p className="text-[13.5px] font-bold leading-relaxed">{c.quote}</p>
-                  <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">{c.explanation}</p>
+                  <p className="text-ink-soft text-body mt-1 leading-relaxed">{c.explanation}</p>
                 </div>
               </div>
             </div>

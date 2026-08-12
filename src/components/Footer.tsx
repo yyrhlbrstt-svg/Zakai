@@ -78,7 +78,7 @@ export function Footer() {
         ))}
       </ul>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-2.5 justify-center text-[13px] font-bold">
+      <div className="flex flex-wrap gap-x-4 gap-y-2.5 justify-center text-body font-bold">
         <FooterLink href="/money#zakai-money-scan" pathname={pathname} primary>
           {moneyLabel}
         </FooterLink>
@@ -127,7 +127,7 @@ export function Footer() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
+              className="text-body font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
             >
               {t(l.key)}
             </Link>

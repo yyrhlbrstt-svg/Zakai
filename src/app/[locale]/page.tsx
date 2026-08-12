@@ -328,7 +328,7 @@ export default async function HomePage({
         <Reveal delay={sortedDoors.length * 40}>
           <Link
             href="/tools"
-            className="no-underline block text-center text-[13px] text-ink-soft mb-14 hover:text-emerald transition-colors"
+            className="no-underline block text-center text-body text-ink-soft mb-14 hover:text-emerald transition-colors"
           >
             {t("home.moreDoors", { count: moreDoorsCount })}
           </Link>
@@ -364,7 +364,7 @@ export default async function HomePage({
                 bcp47[locale as Locale]
               )}
             </span>
-            <span className="block text-[13px] text-ink-soft mt-1.5">
+            <span className="block text-body text-ink-soft mt-1.5">
               {t("home.proof", { count: proof.count })}
             </span>
           </div>
@@ -414,7 +414,7 @@ export default async function HomePage({
       <Reveal>
         <Link
           href="/how-it-works"
-          className="inline-block mt-4 text-[13px] font-bold text-emerald no-underline hover:underline"
+          className="inline-block mt-4 text-body font-bold text-emerald no-underline hover:underline"
         >
           {t("home.fullGuideLink")}
         </Link>
@@ -446,7 +446,7 @@ export default async function HomePage({
                   {points.map((p) => (
                     <li
                       key={p}
-                      className="flex gap-2.5 items-start text-[13px] text-ink-soft leading-relaxed"
+                      className="flex gap-2.5 items-start text-body text-ink-soft leading-relaxed"
                     >
                       <span
                         className={

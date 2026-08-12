@@ -35,7 +35,7 @@ export default async function ConsumerCancelPage({
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")} cite={t("cite")}>
       <RightsChecker bcp47={bcp47[locale as Locale]} defaultCountry="IL" />
       <div className="mt-8 text-center">
-        <p className="text-[13px] text-ink-soft mb-3">{t("subsNote")}</p>
+        <p className="text-body text-ink-soft mb-3">{t("subsNote")}</p>
         <Link href="/cancel">
           <Button variant="ghost">{t("subsCta")}</Button>
         </Link>

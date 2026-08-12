@@ -55,7 +55,7 @@ export default async function DepositPage({
           <Reveal key={r.name} delay={i * 60}>
             <SpotlightCard className="p-5 h-full">
               <div className="font-extrabold text-[15px]">{r.name}</div>
-              <div className="text-ink-soft text-[13px] mt-1.5 leading-relaxed">{r.note}</div>
+              <div className="text-ink-soft text-body mt-1.5 leading-relaxed">{r.note}</div>
             </SpotlightCard>
           </Reveal>
         ))}

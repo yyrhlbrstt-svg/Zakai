@@ -72,15 +72,15 @@ export function LandlordRepairAgent() {
       <Card className="p-6 flex flex-col gap-4">
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.landlordName")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.landlordName")}</span>
             <Input value={landlordName} onChange={(e) => setLandlordName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.landlordEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.landlordEmail")}</span>
             <Input
               type="email"
               value={landlordEmail}
@@ -90,20 +90,20 @@ export function LandlordRepairAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.address")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.address")}</span>
             <Input value={address} onChange={(e) => setAddress(e.target.value)} maxLength={120} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.daysSinceReported")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.daysSinceReported")}</span>
             <Input type="number" value={days} onChange={(e) => setDays(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.repairCost")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.repairCost")}</span>
             <Input type="number" value={repairCost} onChange={(e) => setRepairCost(e.target.value)} />
           </label>
         </div>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.defect")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agent.defect")}</span>
           <Textarea rows={4} value={defect} onChange={(e) => setDefect(e.target.value)} maxLength={500} />
         </label>
         <MissingFields
@@ -116,7 +116,7 @@ export function LandlordRepairAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

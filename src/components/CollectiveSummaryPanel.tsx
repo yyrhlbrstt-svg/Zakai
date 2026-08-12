@@ -46,9 +46,9 @@ export function CollectiveSummaryPanel({
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] p-5 mb-6">
       <h3 className="text-[15px] font-extrabold m-0 mb-1">{title}</h3>
-      <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">{sub}</p>
+      <p className="text-body text-ink-soft m-0 mb-4 leading-relaxed">{sub}</p>
       {err && (
-        <p className="text-[13px] text-ink-soft m-0">{apiHint}</p>
+        <p className="text-body text-ink-soft m-0">{apiHint}</p>
       )}
       {data && (
         <>

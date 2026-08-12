@@ -95,7 +95,7 @@ export function ArnonaAgent() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("claimType")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("claimType")}</span>
           <select
             className="w-full rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] px-4 py-2.5 text-[14px] text-ink"
             value={rightId}
@@ -110,7 +110,7 @@ export function ArnonaAgent() {
         </label>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("monthlyQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("monthlyQ")}</span>
           <Input
             type="number"
             min={1}
@@ -120,11 +120,11 @@ export function ArnonaAgent() {
         </label>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("municipalityQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("municipalityQ")}</span>
           <Input value={municipalityName} onChange={(e) => setMunicipalityName(e.target.value)} required />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("emailQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("emailQ")}</span>
           <Input
             type="email"
             value={municipalityEmail}
@@ -133,23 +133,23 @@ export function ArnonaAgent() {
           />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
           <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("idQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("idQ")}</span>
           <Input value={customerId} onChange={(e) => setCustomerId(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("addressQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("addressQ")}</span>
           <Input value={propertyAddress} onChange={(e) => setPropertyAddress(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("detailsQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("detailsQ")}</span>
           <Input value={details} onChange={(e) => setDetails(e.target.value)} />
         </label>
 
-        {agentError && <p className="text-[13px] text-[#f08a6b]">{agentError}</p>}
+        {agentError && <p className="text-body text-[#f08a6b]">{agentError}</p>}
 
         <MissingFields
           items={[

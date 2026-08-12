@@ -72,10 +72,10 @@ export default async function CompaniesPage({
           </Link>
           <div className="mt-8 text-start max-w-[480px] mx-auto rounded-xl border border-[rgba(255,255,255,0.08)] p-5">
             <div className="font-extrabold text-[14px] mb-2">{t("companies.emptyFairnessTitle")}</div>
-            <p className="text-[13px] text-ink-soft m-0 leading-relaxed">{t("companies.emptyFairnessBody")}</p>
+            <p className="text-body text-ink-soft m-0 leading-relaxed">{t("companies.emptyFairnessBody")}</p>
             <a
               href="https://github.com/yyrhlbrstt-svg/Zakai/blob/main/docs/FAIRNESS_CERTIFIED_PROGRAM.md"
-              className="inline-block mt-3 text-[13px] font-bold text-emerald"
+              className="inline-block mt-3 text-body font-bold text-emerald"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -94,10 +94,10 @@ export default async function CompaniesPage({
               <div className="flex-1 basis-[160px] font-extrabold text-[15.5px]">
                 {tp.has(s.provider) ? tp(s.provider) : providerHebrewName(s.provider)}
               </div>
-              <div className="text-[13px] text-ink-soft">
+              <div className="text-body text-ink-soft">
                 {t("companies.sampleTag", { count: s.cases })}
               </div>
-              <div className="text-[13px] text-ink-soft">
+              <div className="text-body text-ink-soft">
                 {t("companies.savedRateTag", { pct: s.savedRatePct })}
               </div>
               <div className="text-[14px] font-extrabold text-emerald">

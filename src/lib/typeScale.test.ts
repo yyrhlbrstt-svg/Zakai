@@ -20,7 +20,7 @@ import { join } from "node:path";
  * When this fails, do not raise CEILING. Use a scale token — `text-body`,
  * `text-title`, `text-h2` — which is what the failure is asking for.
  */
-const CEILING = 2104;
+const CEILING = 1423;
 
 const ARBITRARY_SIZE = /text-\[[0-9.]+px\]/g;
 
