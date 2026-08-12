@@ -138,7 +138,13 @@ function softNotes(page) {
 
 async function main() {
   const list = routes();
-  const browser = await chromium.launch();
+  // An escape hatch for environments that ship a browser Playwright did not
+  // install itself — a version mismatch between the npm package and a
+  // pre-provisioned binary otherwise makes this whole sweep unrunnable, which
+  // is the one failure mode that costs the most: it is the only check here
+  // that has ever caught anything the unit suite missed.
+  const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined;
+  const browser = await chromium.launch(executablePath ? { executablePath } : {});
   const context = await browser.newContext({ viewport: VIEWPORT });
   const page = await context.newPage();
 

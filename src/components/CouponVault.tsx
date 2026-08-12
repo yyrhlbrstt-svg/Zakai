@@ -63,6 +63,11 @@ export function CouponVault({
   const [busy, setBusy] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  // Open only when there is nothing to retrieve yet. Once the vault has
+  // anything in it, the reason somebody opens this screen is to find a code
+  // while standing at a checkout — and six input fields between them and the
+  // list is the difference between a tool they reach for and one they don't.
+  const [formOpen, setFormOpen] = useState(initial.length === 0);
 
   const rows = useMemo(() => initial.map(hydrate), [initial]);
   const shown = useMemo(
@@ -146,6 +151,7 @@ export function CouponVault({
         return;
       }
       form.reset();
+      if (rows.length > 0) setFormOpen(false);
       router.refresh();
     } catch {
       setFormError(t("errors.generic"));
@@ -167,59 +173,7 @@ export function CouponVault({
         </Card>
       )}
 
-      <Card className="p-5">
-        <h2 className="font-display text-title mt-0 mb-4">{t("addTitle")}</h2>
-        <form onSubmit={submit} className="flex flex-col gap-3">
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-soft">{t("field.merchant")}</span>
-              <Input name="merchant" required maxLength={80} autoComplete="off" />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-soft">{t("field.code")}</span>
-              <Input name="code" required maxLength={64} autoComplete="off" dir="ltr" />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-soft">{t("field.category")}</span>
-              <Select name="category" defaultValue="other">
-                {COUPON_CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {t(`category.${c}`)}
-                  </option>
-                ))}
-              </Select>
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-soft">{t("field.percentOff")}</span>
-              <Input name="percentOff" type="number" min={1} max={100} step={1} inputMode="numeric" />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-soft">{t("field.amount")}</span>
-              <Input name="amountShekels" type="number" min={0.01} step={0.01} inputMode="decimal" />
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-caption text-ink-soft">{t("field.expiresAt")}</span>
-              <Input name="expiresAt" type="date" />
-            </label>
-          </div>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-caption text-ink-soft">{t("field.note")}</span>
-            <Input name="note" maxLength={300} autoComplete="off" />
-          </label>
-          <p className="text-micro text-ink-soft m-0 leading-relaxed">{t("valueHint")}</p>
-          {formError && (
-            <p role="alert" className="text-caption text-[#ff8f8f] m-0">
-              {formError}
-            </p>
-          )}
-          <div>
-            <Button type="submit" disabled={adding}>
-              {adding ? t("saving") : t("save")}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
+      {rows.length > 0 && (
       <div className="flex gap-3 flex-wrap items-end">
         <label className="flex flex-col gap-1.5 flex-1 basis-[200px]">
           <span className="text-caption text-ink-soft">{t("searchLabel")}</span>
@@ -243,7 +197,68 @@ export function CouponVault({
           </Select>
         </label>
       </div>
+      )}
 
+      {formOpen ? (
+      <Card className="p-5">
+          <h2 className="font-display text-title mt-0 mb-4">{t("addTitle")}</h2>
+          <form onSubmit={submit} className="flex flex-col gap-3">
+            <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-soft">{t("field.merchant")}</span>
+                <Input name="merchant" required maxLength={80} autoComplete="off" />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-soft">{t("field.code")}</span>
+                <Input name="code" required maxLength={64} autoComplete="off" dir="ltr" />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-soft">{t("field.category")}</span>
+                <Select name="category" defaultValue="other">
+                  {COUPON_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {t(`category.${c}`)}
+                    </option>
+                  ))}
+                </Select>
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-soft">{t("field.percentOff")}</span>
+                <Input name="percentOff" type="number" min={1} max={100} step={1} inputMode="numeric" />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-soft">{t("field.amount")}</span>
+                <Input name="amountShekels" type="number" min={0.01} step={0.01} inputMode="decimal" />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-caption text-ink-soft">{t("field.expiresAt")}</span>
+                <Input name="expiresAt" type="date" />
+              </label>
+            </div>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-caption text-ink-soft">{t("field.note")}</span>
+              <Input name="note" maxLength={300} autoComplete="off" />
+            </label>
+            <p className="text-micro text-ink-soft m-0 leading-relaxed">{t("valueHint")}</p>
+            {formError && (
+              <p role="alert" className="text-caption text-[#ff8f8f] m-0">
+                {formError}
+              </p>
+            )}
+            <div>
+              <Button type="submit" disabled={adding}>
+                {adding ? t("saving") : t("save")}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      ) : (
+        <div>
+          <Button variant="ghost" onClick={() => setFormOpen(true)} className="!text-body">
+            {t("addTitle")}
+          </Button>
+        </div>
+      )}
       {rows.length === 0 ? (
         <Card className="p-7 text-center">
           <p className="text-ink-soft text-body-lg m-0 leading-relaxed">{t("empty")}</p>
