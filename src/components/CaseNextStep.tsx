@@ -116,7 +116,7 @@ const copy: Record<string, Record<string, string>> = {
   he: {
     approve: "אשר והמשך",
     approveSend: "אשר ושלח עם Mandate עכשיו",
-    sentShareTitle: "שתפו — כל Mandate שמגיע דרככם מגדיל את הצינור",
+    sentShareTitle: "שתפו — ככל שיותר אנשים דורשים בכתב, קשה יותר להתעלם",
     sentShareDefault:
       "שלחתי לספק בקשה עם Mandate של זכאי — הרשאה חתומה בכתב, בלי מוקד. בדקו מה מגיע לכם:",
     shareInviteHeadline: "שתפו — כל חבר שמצטרף דרככם מקבל עזרה, ואתם מקבלים זיכוי לעמלה הבאה",
@@ -153,7 +153,7 @@ const copy: Record<string, Record<string, string>> = {
     copied: "הועתק",
     whatsapp: "וואטסאפ",
     nativeShare: "שתף",
-    mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
+    mandateOk: "ההרשאה נחתמה — הספק יכול לאמת שהיא אמיתית",
     authCode: "קוד הרשאה",
     savedTitle: "✓ חיסכון מתועד",
     downloadSettlement: "הורד את הרשומה החתומה — ניתנת לאימות בלי זכאי",
@@ -180,8 +180,8 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "ביטחון",
     proposedOneTap: "רשום חיסכון בלחיצה אחת",
     proposedFrom: "מ־",
-    saveBlockTitle: "סגירת הלופ — רשמו SavingsProof",
-    saveBlockSub: "זו המטרה של התיק. בלי רישום אין עמלה, אין הוכחה, ואין Gravity. הזינו סכום או הדביקו תשובה למעלה.",
+    saveBlockTitle: "רשמו כמה נחסך — זה מה שסוגר את התיק",
+    saveBlockSub: "זו כל המטרה. בלי הסכום אין הוכחה שנחסך לכם כסף — ובלי הוכחה אנחנו לא גובים כלום. הזינו סכום, או הדביקו את תשובת הספק למעלה.",
     quickCancel: "בוטל לגמרי (₪0)",
     quickOff20: "הנחה ~20% (הערכה — בלי עמלה)",
     quickOff50: "הנחה ~50% (הערכה — בלי עמלה)",
@@ -196,9 +196,9 @@ const copy: Record<string, Record<string, string>> = {
     mandateInactiveBanner:
       "אין Mandate פעיל על התיק — הסוכן לא יכול לשלוח המשך לספק עד שתאשרו הרשאה מחדש.",
     authRevokedBanner:
-      "ההרשאה בוטלה — אי אפשר לרשום חיסכון או לגבות עמלה. הנפיקו Mandate מחדש או פתחו תיק חדש.",
+      "ההרשאה בוטלה — אי אפשר לרשום חיסכון או לגבות עמלה. חדשו את ההרשאה או פתחו תיק חדש.",
     feeMandateRequired:
-      "אין Mandate קשור לעמלה — לא נגבה תשלום. ודאו שיש Mandate פעיל לפני סגירת הלופ.",
+      "אין הרשאה חתומה שקשורה לעמלה הזו — לכן לא נגבה כלום. ודאו שההרשאה פעילה לפני סגירת התיק.",
     mandateReissue: "הנפק Mandate מחדש",
     mandateReissued: "Mandate פעיל שוב",
     proofsLabel: "העבירו תשובת ספק לכאן",
@@ -226,7 +226,7 @@ const copy: Record<string, Record<string, string>> = {
     outreachEmailPh: "אימייל לשליחה (ספק / עירייה / חנות)",
     noSavingTitle: "אין חיסכון מתועד בתיק הזה",
     noSavingSub:
-      "סגרתם בלי SavingsProof — אפשר להתחיל סריקה חדשה או לפתוח תיק אחר. בלי תיעוד אין עמלה ואין שיתוף.",
+      "סגרתם בלי לרשום חיסכון — אפשר לסרוק מחדש או לפתוח תיק אחר. בלי סכום רשום אין עמלה ואין מה לשתף.",
     noSavingCta: "חזרה לכסף שלי",
     revokedTitle: "ההרשאה בוטלה",
     revokedSub: "התיק לא פעיל. אפשר להתחיל מחדש ב«כסף שלי».",
@@ -234,7 +234,7 @@ const copy: Record<string, Record<string, string>> = {
   en: {
     approve: "Approve & continue",
     approveSend: "Approve & send with Mandate now",
-    sentShareTitle: "Share — every Mandate through you grows the pipe",
+    sentShareTitle: "Share — the more people who ask in writing, the harder we are to ignore",
     sentShareDefault:
       "I sent my provider a Zakai Mandate request — signed written authority, no call center. See what you're owed:",
     shareInviteHeadline: "Share — every friend who joins through you gets help, and you earn credit toward your next fee",
@@ -271,7 +271,7 @@ const copy: Record<string, Record<string, string>> = {
     copied: "Copied",
     whatsapp: "WhatsApp",
     nativeShare: "Share",
-    mandateOk: "Mandate issued — provider can verify via JWKS",
+    mandateOk: "Authorization signed — the provider can verify it is genuine",
     authCode: "Authorization code",
     savedTitle: "✓ Saving documented",
     downloadSettlement: "Download the signed record — verifiable without us",
@@ -298,8 +298,8 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "Confidence",
     proposedOneTap: "One-tap record saving",
     proposedFrom: "from",
-    saveBlockTitle: "Close the loop — record SavingsProof",
-    saveBlockSub: "This is the point of the case. No record → no fee, no proof, no Gravity. Enter an amount or paste a reply above.",
+    saveBlockTitle: "Record what you saved — that is what closes the case",
+    saveBlockSub: "This is the whole point. Without the amount there is no proof you saved anything — and without proof we charge you nothing. Enter an amount, or paste the provider's reply above.",
     quickCancel: "Fully cancelled (₪0)",
     quickOff20: "~20% off (estimate — no fee)",
     quickOff50: "~50% off (estimate — no fee)",
@@ -316,7 +316,7 @@ const copy: Record<string, Record<string, string>> = {
     authRevokedBanner:
       "Authorization was revoked — cannot record a saving or collect a fee. Re-issue a Mandate or open a new case.",
     feeMandateRequired:
-      "No Mandate bound to this fee — checkout refused. Ensure an ACTIVE Mandate before closing the loop.",
+      "No signed authorization is bound to this fee — so nothing is charged. Make sure the authorization is active before closing the case.",
     mandateReissue: "Re-issue Mandate",
     mandateReissued: "Mandate active again",
     proofsLabel: "Forward provider reply here",
@@ -344,7 +344,7 @@ const copy: Record<string, Record<string, string>> = {
     outreachEmailPh: "Send-to email (provider / municipality / merchant)",
     noSavingTitle: "No documented saving on this case",
     noSavingSub:
-      "You closed without a SavingsProof — start a new scan or another case. No proof means no fee and no share.",
+      "You closed without recording a saving — start a new scan or another case. No amount recorded means no fee and nothing to share.",
     noSavingCta: "Back to My money",
     revokedTitle: "Mandate revoked",
     revokedSub: "This case is inactive. Start again in My money.",
@@ -1409,8 +1409,8 @@ export function CaseNextStep({
                   : ` · median days to outcome: ${learningTip.medianDays}`
                 : ""}
               {he
-                ? ". רק מענה בכתב נספר ל־SavingsProof."
-                : ". Only written replies become SavingsProof."}
+                ? ". רק תשובה בכתב נחשבת הוכחה."
+                : ". Only a written reply counts as proof."}
             </span>
           </div>
         ) : null}

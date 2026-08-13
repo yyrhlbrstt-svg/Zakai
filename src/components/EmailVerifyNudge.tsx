@@ -62,17 +62,17 @@ export function EmailVerifyNudge() {
 
   const label = busy
     ? heEn(he, "שולח…", "Sending…")
-    : heEn(he, "שלח קישור אימות", "Send verification link");
+    : heEn(he, "אמתו את כתובת המייל שלכם", "Confirm your email address");
 
   return (
     <div className="rounded-2xl border border-[rgba(62,198,255,0.4)] bg-[rgba(62,198,255,0.08)] px-5 py-4 mb-5">
       <div className="font-extrabold text-[14.5px] text-[#3EC6FF]">
-        {heEn(he, "אמתו את המייל — שליחת Mandate בלחיצה אחת", "Verify email — one-tap Mandate send")}
+        {heEn(he, "אמתו את המייל פעם אחת — וכל תיק נשלח בלחיצה", "Confirm your email once — then every case sends in one tap")}
       </div>
       <p className="text-body text-ink-soft leading-relaxed mt-1.5 mb-3">
         {he
-          ? "בלי אימות מייל צריך קוד בעלות בכל תיק. אחרי אימות: אשר → שלח עם Mandate מיד."
-          : "Without email verify you need ownership codes on every case. After verify: approve → send with Mandate immediately."}
+          ? "בלי זה צריך לאמת בעלות מחדש בכל תיק בנפרד. אחרי האימות אפשר לשלוח לספק מיד."
+          : "Without it you have to prove ownership again on every single case. After confirming, a case can be sent to the provider straight away."}
       </p>
       {/* A finished action stops being a control.
 
