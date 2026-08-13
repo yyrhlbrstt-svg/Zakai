@@ -255,7 +255,23 @@ export async function verifyMandate(
   for (const jwk of options.publicJwks) {
     try {
       const key = await importJWK(jwk, "EdDSA");
-      const result = await compactVerify(token, key);
+      /**
+       * The allowlist is stated, not inherited.
+       *
+       * Without it this is still safe, because the key is imported as Ed25519
+       * and jose refuses to use an OKP key for an HMAC algorithm — so a token
+       * claiming `alg: HS256`, signed with our published public key as the
+       * shared secret, is rejected. That is the classic JOSE forgery, and it
+       * matters here more than almost anywhere: our JWKS is public by design,
+       * so if it could ever be treated as a secret then every reader of it
+       * could mint authority in a stranger's name in front of their bank.
+       *
+       * The protection was the library's, not ours, and one generic key
+       * import or one dependency upgrade away from being gone with nothing
+       * failing. Naming the algorithm costs one argument and moves the
+       * property into this file, where the comment explaining it lives.
+       */
+      const result = await compactVerify(token, key, { algorithms: ["EdDSA"] });
       payload = result.payload;
       typ = result.protectedHeader.typ;
       break;

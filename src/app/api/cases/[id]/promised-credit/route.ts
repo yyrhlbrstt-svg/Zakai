@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { agorotToShekels } from "@/lib/money";
 import { PromiseError, loadPromise, recordPromise } from "@/lib/services/promisedCredits";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Record what the counterparty said they would credit — without claiming it
@@ -57,6 +58,29 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
   const { id } = await ctx.params;
+
+  /**
+   * Ownership stated here, not only inferred from the helper's where-clause.
+   *
+   * A probe that called every case-scoped route as a signed-in stranger found
+   * thirteen of fourteen answering 404 and this one answering 200 with
+   * `{ promise: null }`. Nothing leaked — `loadPromise` scopes on
+   * `case: { userId }`, so a stranger gets the same empty answer they would
+   * get for a case with no promise, and learns nothing either way.
+   *
+   * It is here because of what that arrangement costs later. The only thing
+   * standing between this route and a real leak is one clause inside another
+   * module, and the day somebody refactors `loadPromise` — adds a cache, takes
+   * a `caseId` only, widens it for an admin view — this endpoint starts
+   * serving other people's settlement terms with no test failing and no line
+   * of this file having changed. An access rule that is invisible in the file
+   * it protects is a rule waiting to be deleted by accident.
+   */
+  const owned = await prisma.case.findFirst({
+    where: { id, userId: auth.userId },
+    select: { id: true },
+  });
+  if (!owned) return badRequest("NOT_FOUND", 404);
 
   const promise = await loadPromise(id, auth.userId);
   if (!promise) return NextResponse.json({ ok: true, promise: null });
