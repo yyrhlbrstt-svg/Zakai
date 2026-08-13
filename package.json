@@ -40,7 +40,8 @@
     "mail:check": "node scripts/mail-check.mjs",
     "verify:agent-auth": "node scripts/verify-agent-authorization.mjs",
     "verify:money-loop": "node scripts/verify-money-loop.mjs",
-    "verify:journey": "node scripts/verify-journey.mjs"
+    "verify:journey": "node scripts/verify-journey.mjs",
+    "dev:smtp-sink": "node scripts/dev-smtp-sink.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

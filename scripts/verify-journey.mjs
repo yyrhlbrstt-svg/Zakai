@@ -35,18 +35,37 @@
  *
  * ASSISTED, NEVER "OK"
  *
- * Two moments genuinely leave the browser: the ownership email, and a
- * provider replying. Those steps read the Outbox directly and are reported as
- * ASSISTED. They are not passes. A run that ends with ASSISTED steps has
- * proven the product works for somebody whose mail arrives — nothing more —
- * and the summary says so in those words.
+ * One moment genuinely leaves the browser: the ownership email. How that step
+ * is reported depends on how far the message actually got.
+ *
+ *   ZAKAI_MAILDIR unset — the link is read out of the Outbox row, which is
+ *     where an undelivered message sits. Reported ASSISTED. It proves the
+ *     product composed the right thing, and nothing about delivery.
+ *
+ *   ZAKAI_MAILDIR set — the link is read out of a message that completed a
+ *     real SMTP conversation and landed in a mailbox. Reported OK, because
+ *     at that point the only thing standing between this and a person is
+ *     their thumb. Run `scripts/dev-smtp-sink.mjs` to get one.
+ *
+ * The distinction is the whole point. A run that says 13/13 with an ASSISTED
+ * step has not proven the loop closes for anybody — and the summary says so
+ * in those words rather than letting the number speak.
+ *
+ * NOT AGAINST PRODUCTION. Step 8 sends: with live mail that is a real letter
+ * to a real company carrying a signed Mandate on behalf of a person who does
+ * not exist, and the run writes Cases and SavingsProofs into the ledger the
+ * public counters are computed from. The sink exists so this never needs to
+ * point at production to be believed.
  *
  * Usage:
- *   DATABASE_URL=... node scripts/verify-journey.mjs [baseUrl]
+ *   node scripts/dev-smtp-sink.mjs &
+ *   ZAKAI_MAILDIR=/tmp/zakai-mail node scripts/verify-journey.mjs [baseUrl]
  *   PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome node scripts/verify-journey.mjs
  */
 
 import { PrismaClient } from "@prisma/client";
+import { readdirSync, readFileSync } from "node:fs";
+import { join as joinPath } from "node:path";
 
 const base = (process.argv[2] || process.env.ZAKAI_URL || "http://127.0.0.1:3000").replace(
   /\/+$/,
@@ -86,6 +105,8 @@ const page = await ctx.newPage();
 
 const email = `journey${Date.now()}@example.com`;
 const PASSWORD = "JourneyCheck12345!";
+/** A mailbox a local SMTP sink writes to. Absent = delivery is not proven. */
+const MAILDIR = process.env.ZAKAI_MAILDIR || "";
 
 /** Text visible to the reader right now — what they have to work with. */
 async function screenText() {
@@ -116,6 +137,40 @@ async function tap(pattern, { within = "body", timeout = 8000 } = {}) {
 async function settle(ms = 1500) {
   await page.waitForLoadState("networkidle", { timeout: 20000 }).catch(() => {});
   await page.waitForTimeout(ms);
+}
+
+/**
+ * The newest message actually delivered to this person, decoded far enough to
+ * find a link in it.
+ *
+ * Deliberately not a MIME library: the sink writes what nodemailer sent, and
+ * all that is needed is to undo quoted-printable so a URL split across a soft
+ * line break becomes a URL again. A message that cannot be decoded is treated
+ * as no message, never as a message with no link — those are different facts
+ * and only one of them is the product's fault.
+ */
+function linkFromMailbox(dir, recipient) {
+  let files;
+  try {
+    files = readdirSync(dir).filter((f) => f.endsWith(".eml")).sort();
+  } catch {
+    return null;
+  }
+  for (const file of [...files].reverse()) {
+    let raw;
+    try {
+      raw = readFileSync(joinPath(dir, file), "utf8");
+    } catch {
+      continue;
+    }
+    if (!raw.includes(recipient)) continue;
+    const decoded = raw.replace(/=\r?\n/g, "").replace(/=([0-9A-F]{2})/g, (_, h) =>
+      String.fromCharCode(parseInt(h, 16)),
+    );
+    const link = decoded.match(/https?:\/\/\S*ownership\/confirm\S*/)?.[0];
+    if (link) return { link: link.replace(/[)\]"',.]+$/, ""), file };
+  }
+  return null;
 }
 
 let caseId = null;
@@ -260,7 +315,10 @@ try {
       orderBy: { createdAt: "desc" },
       select: { channel: true, status: true, body: true },
     });
-    const link = msg?.body?.match(/https?:\/\/\S+/)?.[0];
+    // A message read out of a real mailbox is a different claim from one read
+    // out of the row it was queued in, and only the first one is a pass.
+    const delivered = MAILDIR ? linkFromMailbox(MAILDIR, email) : null;
+    const link = delivered?.link ?? msg?.body?.match(/https?:\/\/\S+/)?.[0];
     const code = msg?.body?.match(/\b\d{6}\b/)?.[0];
     if (link) {
       await page.goto(link.replace(/^https?:\/\/[^/]+/, base), {
@@ -276,10 +334,15 @@ try {
       where: { id: caseId },
       select: { ownershipVerifiedAt: true },
     });
+    const proven = Boolean(now?.ownershipVerifiedAt);
     record(
-      "ownership can be proven",
-      now?.ownershipVerifiedAt ? "assisted" : "stuck",
-      msg ? `via ${msg.channel} (${msg.status}) — read out of the Outbox, not delivered` : "no message was even queued",
+      "ownership can be proven from the link in their email",
+      proven ? (delivered ? "ok" : "assisted") : "stuck",
+      delivered
+        ? `link taken from ${delivered.file}, a message that completed a real SMTP delivery`
+        : msg
+          ? `via ${msg.channel} (${msg.status}) — read out of the Outbox, not from a mailbox`
+          : "no message was even queued",
     );
   }
 
@@ -365,7 +428,7 @@ console.log(
 );
 if (assisted.length) {
   console.log(
-    `${assisted.length} needed help the browser could not give itself — this run does NOT prove those work for a real person:`,
+    `${assisted.length} step(s) did NOT prove delivery — run scripts/dev-smtp-sink.mjs and set ZAKAI_MAILDIR to close that gap:`,
   );
   for (const s of assisted) console.log(`  · ${s.name} — ${s.detail}`);
 }
