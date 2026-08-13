@@ -331,7 +331,6 @@ export function AssistantScreen({
                 ref={fileRef}
                 type="file"
                 accept="image/*"
-                capture="environment"
                 className="hidden"
                 onChange={(e) => {
                   void onAttach(e.target.files?.[0]);

@@ -742,11 +742,24 @@ export function MoneyHub({
             {tIcomponents_MoneyHub("t_292af8ba")}
           </p>
         )}
+        {/* No `capture` attribute, deliberately.
+
+            `capture="environment"` tells the browser to open the rear camera
+            directly and skip the picker entirely. The button above says
+            "upload a screenshot", and the card above that says "take a
+            screenshot in your bank app" — a screenshot is, by definition,
+            already in the gallery, and there is no way to photograph one.
+            So the single action this whole product funnels into could not be
+            completed on Android at all: the camera opened, and the file the
+            person had just been told to make was unreachable.
+
+            Without it the OS shows its normal picker, which offers the
+            gallery *and* the camera — so photographing a paper bill still
+            works, and the primary path stops being impossible. */}
         <input
           ref={shotRef}
           type="file"
           accept="image/*"
-          capture="environment"
           className="hidden"
           onChange={(e) => onScreenshot(e.target.files?.[0])}
         />

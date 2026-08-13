@@ -150,7 +150,6 @@ export function ReceiptCollector({
             ref={fileRef}
             type="file"
             accept="image/*"
-            capture="environment"
             className="hidden"
             onChange={(e) => onUpload(e.target.files?.[0])}
           />
