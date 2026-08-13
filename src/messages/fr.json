@@ -376,8 +376,10 @@
     "start": "Commençons"
   },
   "inline_app_locale_money_page": {
-    "t_98667843": "Money OS · Mon argent",
-    "t_2144de53": "Où va l'argent — et l'agent agit",
+    "t_98667843": "Mon argent",
+    "t_2144de53": "Voyez ce qui part de votre compte chaque mois — et arrêtez-le",
+    "heroCta": "Commencer — photographiez votre relevé",
+    "heroCtaPaste": "Commencer — collez vos lignes de débit",
     "t_26d7de3c": "Ou agir directement",
     "t_bc18d8da": "Résilier un abonnement avec l'agent",
     "t_a4c2b6a9": "Vérification de facture mobile",

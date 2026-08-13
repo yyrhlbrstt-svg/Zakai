@@ -230,23 +230,30 @@ export default async function MoneyPage({
       title={tIapp_locale_money_page("t_2144de53")}
       sub={tIapp_locale_money_page("t_ef77bbd3")}
     >
-      <div className="mb-6">
-        <LiveGravityStrip
-          localeBcp47={loc}
-          verifiedMinor={proof.verifiedMinor}
-          verifiedCount={proof.verifiedCount}
-          sentCount={sentCount}
-          mandateCount={mandateCount}
-          labels={{
-            title: tHome("home.gravityTitle"),
-            sent: tHome("home.gravitySent"),
-            mandates: tHome("home.gravityMandates"),
-            proofs: tHome("home.gravityProofs", { count: proof.verifiedCount }),
-            empty: tHome("home.gravityEmpty"),
-            ledger: tHome("home.gravityLedger"),
-          }}
-        />
-      </div>
+      {/* The first screen has to offer the one thing this page is for.
+          Measured on an iPhone 13 it previously opened with fifteen text
+          blocks, ninety words and no action at all — the public counters
+          (honestly, three zeros) were the first thing anyone read. The
+          counters are still shown, unchanged and un-inflated, but at the
+          bottom where they are evidence rather than a greeting. */}
+      {/* Only when the scan actually renders below (MoneyHub is suppressed
+          while a case is open) — an anchor to an element that is not on the
+          page is worse than no button. With a case open, the focus banner
+          immediately below is already the action. */}
+      {!openLoop && !focusCaseId ? (
+        <div className="mb-8">
+          <a
+            href={aiAvailable() ? "#zakai-money-start" : "#zakai-money-scan"}
+            className="no-underline block"
+          >
+            <Button className="w-full !text-[15px]">
+              {aiAvailable()
+                ? tIapp_locale_money_page("heroCta")
+                : tIapp_locale_money_page("heroCtaPaste")}
+            </Button>
+          </a>
+        </div>
+      ) : null}
 
       {/* Guests: light login nudge. Logged-in: single next-action panel (no duplicate). */}
       {!user ? <MoneyPageContextPanel locale={locale as Locale} /> : null}
@@ -422,6 +429,24 @@ export default async function MoneyPage({
           </Link>
         </div>
       )}
+
+      <div className="mt-10">
+        <LiveGravityStrip
+          localeBcp47={loc}
+          verifiedMinor={proof.verifiedMinor}
+          verifiedCount={proof.verifiedCount}
+          sentCount={sentCount}
+          mandateCount={mandateCount}
+          labels={{
+            title: tHome("home.gravityTitle"),
+            sent: tHome("home.gravitySent"),
+            mandates: tHome("home.gravityMandates"),
+            proofs: tHome("home.gravityProofs", { count: proof.verifiedCount }),
+            empty: tHome("home.gravityEmpty"),
+            ledger: tHome("home.gravityLedger"),
+          }}
+        />
+      </div>
     </VerticalPageShell>
   );
 }

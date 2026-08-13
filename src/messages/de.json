@@ -376,8 +376,10 @@
     "start": "Los geht's"
   },
   "inline_app_locale_money_page": {
-    "t_98667843": "Geld-OS · Mein Geld",
-    "t_2144de53": "Wohin das Geld fließt — und der Agent handelt",
+    "t_98667843": "Mein Geld",
+    "t_2144de53": "Sehen Sie, was jeden Monat abgebucht wird — und stoppen Sie es",
+    "heroCta": "Starten — Abrechnung fotografieren",
+    "heroCtaPaste": "Starten — Buchungszeilen einfügen",
     "t_26d7de3c": "Oder direkt handeln",
     "t_bc18d8da": "Abo mit dem Agenten kündigen",
     "t_a4c2b6a9": "Handyrechnung prüfen",

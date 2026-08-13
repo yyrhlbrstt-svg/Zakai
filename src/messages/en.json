@@ -288,10 +288,10 @@
   },
   "home": {
     "kicker": "Start here — My money",
-    "title1": "Screenshot a bill.",
-    "title2": "The agent opens Cases + Mandate.",
-    "sub": "Zakai is an AI agent that finds and gets back money you're already owed — bank fees, a forgotten subscription, a right you never claimed. That is the whole start: screenshot → case with a Mandate → send → documented saving. Do not pick from a toolbox — go to My money.",
-    "cta": "Start in My money",
+    "title1": "You're paying too much.",
+    "title2": "Zakai gets it back.",
+    "sub": "Bank fees, a subscription you forgot to cancel, money you're owed that nobody told you about. Photograph your statement — Zakai finds what is leaving, writes to the provider in your name, and follows up until they answer. You pay only if money is actually saved.",
+    "cta": "Start — what's leaving each month",
     "heroLeaks": "Money leak map",
     "moreDoors": "{count} more ways to save →",
     "howTitle": "How it works",
@@ -5337,14 +5337,16 @@
     "feeKindLabel": "Fee type"
   },
   "inline_app_locale_money_page": {
-    "t_98667843": "Money leaving every month for no good reason",
-    "t_2144de53": "Bank · mobile · subscriptions — in writing with Mandate",
+    "t_98667843": "My money",
+    "t_2144de53": "See what leaves your account every month — and stop it",
+    "heroCta": "Start — photograph your statement",
+    "heroCtaPaste": "Start — paste your charge lines",
     "t_26d7de3c": "Loop shortcuts",
     "t_bc18d8da": "Cancel sub with agent",
     "t_a4c2b6a9": "Cellular bill check",
     "t_bankFeesShortcut": "Bank fees with agent",
     "t_38d0577a": "My dashboard",
-    "t_ef77bbd3": "Find a recurring charge → case → Mandate → send → SavingsProof. Fee only on documented saving. No call center.",
+    "t_ef77bbd3": "Photograph your card or bank statement. Zakai finds the recurring charges, writes to the provider in your name, and follows up until they answer. You pay only if money is actually saved.",
     "t_3e37c3c8": "Potentials are for prioritization only — not a promise. Fee only on documented savings. No call center, no phone left behind.",
     "metaTitle": "My money — stop silent monthly leaks | Zakai",
     "metaDesc": "Bank fees, post-promo mobile, and subscriptions — written Mandate cases and documented savings. No call center.",
@@ -5403,7 +5405,7 @@
     "t_ab015246": "Fill details → agent opens an approved case → Mandate → send & track. Fee only if a waiver/refund is documented."
   },
   "inline_app_locale_cancel_page": {
-    "t_97c08415": "Agent · Mandate · no callback",
+    "t_97c08415": "Agent · with your permission · no callback",
     "t_9af4e618": "Cancel · pause · lower price — agent does it",
     "t_c700a858": "Scan charges first",
     "t_cb700000": "What am I owed?",
@@ -5415,7 +5417,7 @@
     "metaDesc": "Cancel, discount, or pause — agent case, verification, Mandate send and tracking. No call centre."
   },
   "inline_app_locale_start_page": {
-    "t_eb8bdcd9": "Money OS · no callback",
+    "t_eb8bdcd9": "No call center. No callback.",
     "t_b39acbd2": "Where do you start?",
     "t_721693ca": "Paying too much — scan now",
     "t_87c0ebfc": "Electricity high — agent switch",
@@ -5436,8 +5438,8 @@
     "t_bd447869": "High-interest overdraft, cards and loans can become one lower payment. Start on screen in Zakai — not by leaving a phone number. A licensed provider only if you choose to continue."
   },
   "inline_app_locale_leaks_page": {
-    "t_c4b012f6": "Money leaks map · Money OS",
-    "t_2d4d4d1b": "Where money leaks — the agent closes it",
+    "t_c4b012f6": "Where your money leaks out",
+    "t_2d4d4d1b": "Every cost you can cut — in one place",
     "t_eec058aa": "My money — scan now",
     "t_bc18d8da": "Cancel with agent",
     "t_f87fbdb7": "High ROI",

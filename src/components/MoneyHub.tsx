@@ -716,7 +716,7 @@ export function MoneyHub({
           as a product that simply does nothing. */}
       <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} />
 
-      <Card className="p-6">
+      <Card className="p-6" id="zakai-money-start">
         <div className="font-extrabold text-[16px]">{tx(locale, "shotTitle")}</div>
         <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">{tx(locale, "shotSub")}</p>
         {screenshotEnabled ? (
