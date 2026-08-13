@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { confirmFeePayment } from "@/lib/services/payments";
+import { confirmPlanPayment, planOrderIdFromRef } from "@/lib/services/planOrders";
 import { dashboardFeeRedirectPath } from "@/lib/services/paymentRedirect";
 import { browserFeeReturnWhenUnverified } from "@/lib/services/browserFeeReturn";
 import { paymentProvider, type CallbackContext } from "@/lib/payments";
@@ -54,6 +55,26 @@ async function handle(ctx: CallbackContext, redirect: boolean, origin: string) {
       }
       return NextResponse.json({ ok: false, error: "unverified" }, { status: 400 });
     }
+    /**
+     * Two kinds of payment come back through this one authenticated door.
+     *
+     * A fee reference is a fee id; a plan purchase hands the PSP
+     * `plan_<orderId>`. Splitting on the prefix here means neither PSP adapter
+     * has to know that subscriptions exist, and — more importantly — the fee
+     * path, which is the one already trusted with real money, is untouched.
+     */
+    const planOrderId = planOrderIdFromRef(verified.feeId);
+    if (planOrderId) {
+      const paid = await confirmPlanPayment(planOrderId, verified.providerRef);
+      if (redirect) {
+        const loc = localeHint || "he";
+        return NextResponse.redirect(
+          new URL(`/${loc}/settings?plan=${paid ? "active" : "error"}`, origin),
+        );
+      }
+      return NextResponse.json({ ok: paid });
+    }
+
     const ok = await confirmFeePayment(verified.feeId, verified.providerRef);
     if (redirect) {
       const path = await dashboardFeeRedirectPath(ok ? "paid" : "error", verified.feeId, localeHint);

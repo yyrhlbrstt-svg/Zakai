@@ -6,6 +6,7 @@ import { MaxPlanRoi } from "@/components/MaxPlanRoi";
 import { isPlanId, type PlanId } from "@/lib/plans";
 import { bcp47, type Locale } from "@/i18n/config";
 import { publicPageMetadata } from "@/lib/seo";
+import { realPaymentsConfigured } from "@/lib/payments";
 
 export async function generateMetadata({
   params,
@@ -41,7 +42,11 @@ export default async function PricingPage({
       <p className="text-ink-soft text-center text-[15px] mt-3 mb-10 max-w-[540px] mx-auto leading-relaxed">
         {t("subtitle")}
       </p>
-      <PlanCards currentPlan={currentPlan} bcp47={bcp47[locale as Locale]} />
+      <PlanCards
+        currentPlan={currentPlan}
+        bcp47={bcp47[locale as Locale]}
+        paymentsLive={realPaymentsConfigured()}
+      />
       <MaxPlanRoi bcp47={bcp47[locale as Locale]} />
     </main>
   );

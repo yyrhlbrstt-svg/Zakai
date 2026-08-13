@@ -15,9 +15,16 @@ import { formatAgorot } from "@/lib/money";
 export function PlanCards({
   currentPlan,
   bcp47,
+  paymentsLive = false,
 }: {
   currentPlan: PlanId | null;
   bcp47: string;
+  /**
+   * Whether a real PSP is configured. Decides between a checkout and a
+   * waitlist — and it is decided on the server, because the honest answer to
+   * "can this person pay" is a property of the deployment, not of the browser.
+   */
+  paymentsLive?: boolean;
 }) {
   const t = useTranslations("pricing");
   const tc = useTranslations("common");
@@ -47,6 +54,24 @@ export function PlanCards({
       // 402 = a paid upgrade that can't be granted for free yet (billing not
       // connected). Show the honest "coming" note, not a generic error.
       if (res.status === 402) {
+        /**
+         * A paid tier, and the grant endpoint correctly refused to hand it over
+         * for free. If a PSP is live this is where a purchase begins; if not,
+         * the person is offered the only honest thing left — to be told when
+         * paying becomes possible.
+         */
+        if (paymentsLive) {
+          const checkout = await fetch("/api/account/plan/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan, months: 1 }),
+          });
+          const data = (await checkout.json().catch(() => ({}))) as { checkoutUrl?: string };
+          if (checkout.ok && data.checkoutUrl) {
+            window.location.href = data.checkoutUrl;
+            return;
+          }
+        }
         setBillingComing(true);
         setWanted(plan);
         setWaiting(false);

@@ -37,6 +37,12 @@ model User {
   // (PSP); the tier itself is enforced in code from day one.
   plan            Plan      @default(FREE)
   planChangedAt   DateTime?
+  /// When a paid plan lapses. Null on FREE, and on any plan granted without
+  /// payment. `GET /api/cron/plan-expiry` downgrades accounts past this date —
+  /// deliberately a sweep rather than a read-time check, because the plan is
+  /// read in twenty-three places and a rule enforced in one of them is a rule
+  /// enforced nowhere.
+  planUntil       DateTime?
   // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
   // are registered to; ownership verification sends a code here.
   phone           String
@@ -87,6 +93,7 @@ model User {
   inboxInterests     ConnectedInboxInterest[]
   commitments        Commitment[]
   coupons            Coupon[]
+  planOrders      PlanOrder[]
 }
 
 /**
@@ -579,6 +586,43 @@ model IdempotencyRecord {
 // can read real user suggestions and prioritise from them. Email is optional
 // (only if the user wants a reply); `context` records which screen it came
 // from. Not linked to a user account — a logged-out visitor can leave it too.
+/// A paid plan period somebody actually bought.
+///
+/// Separate from `Fee`, which is one-to-one with a Case and settles a success
+/// fee. This is the other revenue line entirely: a subscription, which needs
+/// no Case, no Mandate and no outbound mail — the reason it can earn while the
+/// consumer loop is still blocked on SMTP.
+///
+/// It rides the same PSP seam as fees. `providerRef` is the PSP's transaction
+/// id; the reference we hand the PSP is namespaced `plan_<id>` so the shared
+/// callback route can tell a plan payment from a fee payment without either
+/// adapter knowing this model exists.
+model PlanOrder {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  plan   String // PRO | MAX | BUSINESS
+  months Int    @default(1)
+  /// Agorot. Integer only — never a float, for the same reason fees are not.
+  amount Int
+
+  status      PlanOrderStatus @default(PENDING)
+  provider    String          @default("")
+  providerRef String?
+  paidAt      DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum PlanOrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
 model Feedback {
   id        String   @id @default(cuid())
   message   String
