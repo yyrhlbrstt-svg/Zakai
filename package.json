@@ -35,7 +35,9 @@
     "db:studio": "prisma studio",
     "verify:routes": "node scripts/routeSweep.mjs",
     "a11y": "node scripts/a11ySweep.mjs",
-    "verify:flows": "node scripts/flowSweep.mjs"
+    "verify:flows": "node scripts/flowSweep.mjs",
+    "mail:check": "node scripts/mail-check.mjs",
+    "verify:agent-auth": "node scripts/verify-agent-authorization.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
