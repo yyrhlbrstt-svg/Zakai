@@ -30,6 +30,7 @@ import {
 } from "@/lib/feeConfirmNotify";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { withFooter } from "@/lib/letterFooter";
+import { dedupeOutreachFooterLines } from "@/lib/outreachDedupe";
 import {
   institutionPipeMagnetLine,
   institutionPullFooterLine,
@@ -338,7 +339,9 @@ ${institutionPipeMagnetLine(appUrl)}
   const email = await sendEmail({
     to,
     subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
-    body: messageBody + footer,
+    // Three layers each append a footer and each is right alone; composed,
+    // the machine line arrived three times and the contact address five.
+    body: dedupeOutreachFooterLines(messageBody + footer),
     caseId,
     attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
   });

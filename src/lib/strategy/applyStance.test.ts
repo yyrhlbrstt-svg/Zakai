@@ -52,15 +52,34 @@ describe("it only adds, never rewrites the substance", () => {
   });
 });
 
-describe("it does not repeat what the builder already said", () => {
-  it("adds no second statutory assertion when one is already cited", () => {
+describe("it never asserts a law it cannot name", () => {
+  /**
+   * The letter this product actually sends contained "הבקשה מבוססת על
+   * ההוראות החלות בעניין זה" — and by construction it appeared only when the
+   * builder had cited nothing, so the assertion was made precisely when
+   * nothing stood behind it. Non-negotiable #1 in CLAUDE.md is that we never
+   * fabricate a legal claim; this is the test that keeps it out.
+   */
+  it("adds no vague statutory assertion, cited or not", () => {
+    const cited: Letter = {
+      subject: "s",
+      body: "לפי סעיף 13ד לחוק הגנת הצרכן, אבקש החזר.\n\nבכבוד רב,\nא",
+    };
+    const bare: Letter = { subject: "s", body: "אבקש החזר.\n\nבכבוד רב,\nא" };
+    for (const input of [cited, bare]) {
+      const out = applyStance(input, variantById("firm_statutory")!);
+      expect(out.body).not.toContain("מבוססת על ההוראות החלות");
+      expect(out.body).not.toContain("ההוראות החלות בעניין זה");
+    }
+  });
+
+  it("leaves a real citation the builder made exactly as it was", () => {
     const cited: Letter = {
       subject: "s",
       body: "לפי סעיף 13ד לחוק הגנת הצרכן, אבקש החזר.\n\nבכבוד רב,\nא",
     };
     const out = applyStance(cited, variantById("firm_statutory")!);
-    // A vague second claim of legal basis beside a specific citation weakens it.
-    expect(out.body).not.toContain("מבוססת על ההוראות החלות");
+    expect(out.body).toContain("סעיף 13ד לחוק הגנת הצרכן");
   });
 
   it("adds no second deadline when the builder set one", () => {
@@ -79,8 +98,8 @@ describe("the measured dimensions map to real text", () => {
   it("asks the recipient to compute the figure only when not anchoring", () => {
     const anchored = applyStance(letter, variantById("firm_statutory_anchored")!).body;
     const unanchored = applyStance(letter, variantById("firm_statutory")!).body;
-    expect(unanchored).toContain("תחשבו את הסכום המדויק");
-    expect(anchored).not.toContain("תחשבו את הסכום המדויק");
+    expect(unanchored).toContain("לחשב את הסכום המדויק");
+    expect(anchored).not.toContain("לחשב את הסכום המדויק");
   });
 
   it("sounds cooperative or formal according to the posture", () => {
@@ -88,3 +107,40 @@ describe("the measured dimensions map to real text", () => {
     expect(applyStance(letter, variantById("formal_escalation")!).body).toContain("שמורות לי מלוא טענותיי");
   });
 });
+
+describe("clauses go above the signature, whichever sign-off was used", () => {
+  /**
+   * The insertion only ever looked for "בכבוד רב". The agent's own outreach
+   * letters sign off "בברכה", so every stance clause landed below the
+   * signature — visible in a real letter to Cellcom read out of a mailbox.
+   */
+  it.each(["בכבוד רב", "בברכה"])("inserts above %s", (signOff) => {
+    const letter: Letter = {
+      subject: "s",
+      body: `גוף הפנייה.\n\n${signOff},\nזכאי`,
+    };
+    const out = applyStance(letter, variantById("cooperative_plain")!).body;
+    const clauseAt = out.indexOf("ככל שמדובר בטעות");
+    const signAt = out.lastIndexOf(signOff);
+    expect(clauseAt).toBeGreaterThan(-1);
+    expect(clauseAt).toBeLessThan(signAt);
+  });
+});
+
+describe("the clauses do not contradict a letter written by the agent", () => {
+  /**
+   * Agent outreach opens "אינני הלקוח/ה עצמו/ה". A clause asking for "the
+   * amount owed to me" made the same letter claim not to be the customer and
+   * then ask for its own money, in front of the counterparty.
+   */
+  it("asks for the amount without claiming to be the person owed", () => {
+    const agentLetter: Letter = {
+      subject: "s",
+      body: "אינני הלקוח/ה עצמו/ה.\n\nבברכה,\nזכאי",
+    };
+    const out = applyStance(agentLetter, variantById("cooperative_plain")!).body;
+    expect(out).not.toContain("המגיע לי");
+    expect(out).not.toMatch(/\bאני מניח/);
+  });
+});
+

@@ -7,6 +7,7 @@ import {
 import { buildOutreachProtocolFooter } from "@/lib/outreachSwitchingMeta";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
+import { dedupeOutreachFooterLines } from "@/lib/outreachDedupe";
 import { buildFollowUpForVertical } from "@/lib/followUpRouter";
 import type { ProviderReplyKind } from "@/lib/negotiation";
 import { providerHebrewName } from "@/lib/providers";
@@ -274,7 +275,8 @@ ${protocolFooter}`;
   const email = await sendEmail({
     to,
     subject,
-    body: followBody + footer,
+    // Same composition problem as the first letter — see outreachDedupe.
+    body: dedupeOutreachFooterLines(followBody + footer),
     caseId,
     attachments,
   });

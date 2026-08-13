@@ -243,7 +243,7 @@ export default async function MoneyPage({
       {!openLoop && !focusCaseId ? (
         <div className="mb-8">
           <a
-            href={aiAvailable() ? "#zakai-money-start" : "#zakai-money-scan"}
+            href="#zakai-money-scan"
             className="no-underline block"
           >
             <Button className="w-full !text-[15px]">

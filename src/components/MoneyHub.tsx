@@ -409,7 +409,10 @@ export function MoneyHub({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.location.hash !== "#zakai-money-scan") return;
+    // `#zakai-money-start` is kept working because it shipped in one release
+    // and may sit in somebody's history or a nudge email already sent.
+    const hash = window.location.hash;
+    if (hash !== "#zakai-money-scan" && hash !== "#zakai-money-start") return;
     document.getElementById("zakai-money-scan")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
@@ -716,7 +719,18 @@ export function MoneyHub({
           as a product that simply does nothing. */}
       <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} />
 
-      <Card className="p-6" id="zakai-money-start">
+      {/* The anchor sixteen "start here / photograph your bill" links point at.
+
+          It used to sit on the paste card below, so every one of them —
+          the homepage hero, the Zakameter's "צלמו חשבונית", the header, the
+          footer, the dashboard, the signup redirect — landed somebody on a
+          textarea asking for a CSV export from their bank. The camera, which
+          is the whole reason the product is usable on a phone, was one card
+          above the fold they arrived at, and therefore invisible.
+
+          Moving the id rather than editing sixteen links keeps them all
+          honest at once, and any new one inherits the fix. */}
+      <Card className="p-6" id="zakai-money-scan">
         <div className="font-extrabold text-[16px]">{tx(locale, "shotTitle")}</div>
         <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">{tx(locale, "shotSub")}</p>
         {screenshotEnabled ? (
@@ -762,7 +776,7 @@ export function MoneyHub({
         )}
       </Card>
 
-      <Card className="p-6" id="zakai-money-scan">
+      <Card className="p-6" id="zakai-money-paste">
         <div className="font-extrabold text-[15px]">{tx(locale, "pasteTitle")}</div>
         <Textarea
           rows={5}
