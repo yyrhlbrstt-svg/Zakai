@@ -791,6 +791,77 @@ model EmailVerification {
 /// a hard condition: the mandate says so. `zkm.on_behalf_of` names the agent,
 /// because a token that hid the delegation would mean this company vouching
 /// for a user verification it never performed.
+/// A third-party agent that asks OUR users for authority.
+///
+/// Deliberately not `DelegatedIssuer`, and the two must never be merged. A
+/// delegated issuer issues mandates for *its own* users, whom this product has
+/// never met, and its mandates carry `zkm.onBehalfOf` to say so. An
+/// `AgentClient` points the other way: it asks a person Zakai already knows to
+/// grant it authority, and Zakai signs that grant in the first party's own
+/// name because Zakai is the one who verified the human.
+///
+/// Conflating them would mean vouching for an identity check nobody performed,
+/// which is the failure a trust network does not recover from.
+model AgentClient {
+  id     String @id @default(cuid())
+  /// Stable public identifier the person sees named on the consent screen.
+  slug   String @unique
+  name   String
+  /// Shown to the person under the name — who this is, in their words.
+  description String @default("")
+
+  /// Exact-match allowlist. Never a prefix and never a wildcard: an attacker
+  /// who can steer a grant anywhere under a registered origin steers it to
+  /// themselves, which is how every authorization protocol gets broken.
+  redirectUris String[]
+
+  /// pending | approved | suspended. Only `approved` may ask for anything, and
+  /// suspension takes effect on the next request with no key rotation.
+  status    String   @default("pending")
+  contact   String   @default("")
+  createdAt DateTime @default(now())
+
+  requests AgentAuthorizationRequest[]
+
+  @@index([status])
+}
+
+/// One human decision, in flight.
+///
+/// Holds what was asked, what the person answered, and — only after they said
+/// yes — the signed mandate, released exactly once against a one-time code.
+model AgentAuthorizationRequest {
+  id       String      @id @default(cuid())
+  clientId String
+  client   AgentClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  scopes       String[]
+  purpose      String
+  redirectUri  String
+  /// Opaque value the agent round-trips to defend its own session.
+  state        String   @default("")
+  grantSeconds Int      @default(2592000)
+
+  /// pending | approved | denied | exchanged | expired
+  status String @default("pending")
+  /// Set the moment a person answers. Null means nobody has.
+  userId String?
+
+  /// SHA-256 of the one-time exchange code. Never the code itself, for the
+  /// same reason DelegatedIssuer stores a key hash.
+  codeHash   String? @unique
+  /// The issued mandate, held until the agent exchanges its code, then cleared.
+  mandateJws String?
+  mandateJti String?
+
+  expiresAt  DateTime
+  approvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([clientId, createdAt])
+  @@index([status, expiresAt])
+}
+
 model DelegatedIssuer {
   id            String    @id @default(cuid())
   /// Stable public identifier, e.g. "agent.example". Appears in the mandate.

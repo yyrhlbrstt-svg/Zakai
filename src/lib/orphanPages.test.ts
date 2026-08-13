@@ -41,7 +41,10 @@ const BASE = join("src", "app", "[locale]");
  * Adding a line here is a decision; leaving a page unreferenced by accident is
  * what the test is for.
  */
-const REACHED_FROM_OUTSIDE: Record<string, string> = {};
+const REACHED_FROM_OUTSIDE: Record<string, string> = {
+  "/authorize":
+    "The consent screen for a third-party agent. Its entry point is by definition outside this app: an agent redirects the person here with a request id. Linking it from a Zakai screen would be meaningless — there would be no request to answer.",
+};
 
 function routes(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {

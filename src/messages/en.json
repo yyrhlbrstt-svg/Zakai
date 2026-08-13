@@ -6820,5 +6820,22 @@
   },
   "nextStep": {
     "title": "What now"
-  }
+  },
+  "authorize": {
+    "title": "Approve agent access?",
+    "intro": "{agent} is asking for permission to act for you. The permission comes from you — not from it — and covers exactly what is listed here.",
+    "whoLabel": "Who is asking",
+    "whyLabel": "What for",
+    "whatLabel": "Exactly what it may do",
+    "silentWarning": "Note: {count} of these it will be able to do without asking you again.",
+    "readOnly": "This permission only reads. It cannot take any action in your name.",
+    "revokeNote": "The permission is signed, time-limited, and you can revoke it in one tap from your authorities screen — the revocation is honoured by everyone who checks it. Zakai never grants permission to move or withdraw money.",
+    "approve": "I approve",
+    "approving": "Approving…",
+    "deny": "I do not approve",
+    "failed": "We could not record your answer. Try again.",
+    "goneTitle": "This request has expired",
+    "goneSub": "Permission requests expire after fifteen minutes, or you have already answered. If you still need it, ask the agent to start again."
+  },
+  "scopeText": {}
 }
