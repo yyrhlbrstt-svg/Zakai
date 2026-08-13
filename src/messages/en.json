@@ -266,7 +266,8 @@
     "paymentUnavailable": "Payment is unavailable right now. Please try again later.",
     "country": "Country",
     "countryNotice": "Zakai’s active tools today are Israel-first. You’re signing up early — we’ll notify you the moment we launch in your country.",
-    "forgotPassword": "Forgot your password?"
+    "forgotPassword": "Forgot your password?",
+    "continueTo": "Continuing to “{tool}”. An account is needed to open a case in your name — it takes under a minute, and you come straight back here."
   },
   "onboarding": {
     "title": "What Zakai does for you",

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select, FieldError } from "@/components/ui";
+import { authSwitchHref, toolNameForReturnPath } from "@/lib/auth/returnReason";
 
 /** Only same-origin relative paths — blocks open redirects. */
 function safeReturnPath(raw: string | null): string | null {
@@ -51,6 +52,12 @@ export function AuthForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = safeReturnPath(searchParams.get("return"));
+  /**
+   * Somebody who tapped a named tool and landed here deserves to be told
+   * which one, and that they have not lost their place. Null for paths that
+   * are not a tool by name — better to say nothing than something empty.
+   */
+  const returnToolName = toolNameForReturnPath(returnTo, locale);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [termsOk, setTermsOk] = useState(false);
@@ -116,6 +123,11 @@ export function AuthForm({
       <h1 className="font-display text-[27px] text-center mb-6">
         {mode === "login" ? t("loginTitle") : t("signupTitle")}
       </h1>
+      {returnToolName && (
+        <div className="text-center text-[13.5px] leading-relaxed text-ink-soft border border-[rgba(62,198,255,0.3)] bg-[rgba(62,198,255,0.06)] rounded-xl px-4 py-3 mb-4">
+          {t("continueTo", { tool: returnToolName })}
+        </div>
+      )}
       {mode === "signup" && referralCode && (
         <div className="text-center text-[13.5px] text-emerald font-bold bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-xl px-4 py-2.5 mb-4">
           {t("invitedNote")}
@@ -252,14 +264,23 @@ export function AuthForm({
         </form>
       </Card>
 
-      <p className="text-center mt-5 text-sm">
-        <Link
-          href={mode === "login" ? "/signup" : "/login"}
-          className="text-emerald font-bold no-underline"
-        >
-          {mode === "login" ? t("toSignup") : t("toLogin")}
+      {/* Mid-errand, the other half of this screen is not a footnote. Somebody
+          bounced here from a tool they tapped most likely has no account yet,
+          and a small grey link is not an equal offer to a full-width sign-in
+          button. */}
+      {returnTo ? (
+        <Link href={authSwitchHref(mode, returnTo)} className="no-underline block mt-4">
+          <Button variant="ghost" className="w-full !text-body">
+            {mode === "login" ? t("toSignup") : t("toLogin")}
+          </Button>
         </Link>
-      </p>
+      ) : (
+        <p className="text-center mt-5 text-sm">
+          <Link href={authSwitchHref(mode, returnTo)} className="text-emerald font-bold no-underline">
+            {mode === "login" ? t("toSignup") : t("toLogin")}
+          </Link>
+        </p>
+      )}
 
       {mode === "login" && (
         <p className="text-center mt-2 text-body">
