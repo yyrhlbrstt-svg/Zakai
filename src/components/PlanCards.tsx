@@ -23,6 +23,10 @@ export function PlanCards({
   const tc = useTranslations("common");
   const router = useRouter();
   const [pending, setPending] = useState<PlanId | null>(null);
+  /** The plan they tried to buy, so the waitlist tap knows which one. */
+  const [wanted, setWanted] = useState<PlanId | null>(null);
+  const [waiting, setWaiting] = useState(false);
+  const [waitBusy, setWaitBusy] = useState(false);
   const [error, setError] = useState(false);
   const [billingComing, setBillingComing] = useState(false);
 
@@ -44,6 +48,8 @@ export function PlanCards({
       // connected). Show the honest "coming" note, not a generic error.
       if (res.status === 402) {
         setBillingComing(true);
+        setWanted(plan);
+        setWaiting(false);
         return;
       }
       if (!res.ok) throw new Error();
@@ -110,9 +116,41 @@ export function PlanCards({
         })}
       </div>
 
+      {/* The 402 was the end of the road: an honest note, and nothing anywhere
+          recording that somebody had just tried to hand us money. That is the
+          hardest number to get in a business with no revenue, and it was being
+          thrown away one tap at a time. */}
       {billingComing && (
         <Card className="mt-4 p-4 border-[rgba(63,203,155,0.35)]">
-          <p className="text-[13.5px] text-ink-soft m-0 leading-relaxed">{t("paymentComing")}</p>
+          <p className="text-body text-ink-soft m-0 leading-relaxed">{t("paymentComing")}</p>
+          {waiting ? (
+            <p className="text-body text-emerald font-bold mt-3 mb-0">{t("waitlistDone")}</p>
+          ) : (
+            wanted && (
+              <Button
+                className="mt-3 w-full"
+                disabled={waitBusy}
+                onClick={async () => {
+                  setWaitBusy(true);
+                  try {
+                    const res = await fetch("/api/account/plan/interest", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ plan: wanted }),
+                    });
+                    if (res.ok) setWaiting(true);
+                    else setError(true);
+                  } catch {
+                    setError(true);
+                  } finally {
+                    setWaitBusy(false);
+                  }
+                }}
+              >
+                {t("waitlistCta")}
+              </Button>
+            )
+          )}
         </Card>
       )}
 

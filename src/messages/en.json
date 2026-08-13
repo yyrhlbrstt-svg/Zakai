@@ -1045,7 +1045,9 @@
     "maxRoiCheapestSaves": "At this saving, the cheapest plan for you is {plan} — about {amount} less per year than the next option.",
     "maxRoiStayFree": "At this saving, staying on Free is cheapest. A subscription would not pay for itself.",
     "maxRoiProFrom": "Pro becomes the cheapest plan from about {amount} documented saving per month.",
-    "maxRoiMaxFrom": "Max becomes the cheapest plan from about {amount} documented saving per month."
+    "maxRoiMaxFrom": "Max becomes the cheapest plan from about {amount} documented saving per month.",
+    "waitlistCta": "Tell me the moment I can pay",
+    "waitlistDone": "Noted. We will tell you the moment billing works — no phone calls."
   },
   "scan": {
     "title": "What am I paying for?",
