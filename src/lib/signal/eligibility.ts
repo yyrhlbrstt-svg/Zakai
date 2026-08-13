@@ -15,6 +15,20 @@ import type { EligibilityFacts, EligibilityRule, MarketEvent } from "@/lib/signa
  * how we decided.
  */
 
+/**
+ * Country codes as a person says them.
+ *
+ * Only the markets with live tools. An unknown code falls back to a phrase
+ * that is vague and true rather than precise and meaningless.
+ */
+const COUNTRY_IN: Record<string, string> = {
+  IL: "בישראל",
+  GB: "בבריטניה",
+  US: "בארצות הברית",
+  DE: "בגרמניה",
+  FR: "בצרפת",
+};
+
 export interface EligibilityResult {
   matched: boolean;
   /** Every leaf rule that matched, in the reader's terms. Empty when it did not. */
@@ -37,7 +51,11 @@ function evaluate(rule: EligibilityRule, facts: EligibilityFacts, because: strin
   switch (rule.kind) {
     case "inCountry": {
       const ok = facts.country.toUpperCase() === rule.country.toUpperCase();
-      if (ok) because.push(`במדינה: ${rule.country}`);
+      // "במדינה: IL" is our storage format read out loud. A person matched by
+      // a nationwide order should be told it applies to everybody here, in
+      // words — the country code is an implementation detail they never
+      // agreed to learn.
+      if (ok) because.push(`זה חל על כל מי ש${COUNTRY_IN[rule.country.toUpperCase()] ?? "במדינה הזו"}`);
       return ok;
     }
     case "hasProvider": {

@@ -6840,5 +6840,13 @@
     "goneTitle": "This request has expired",
     "goneSub": "Permission requests expire after fifteen minutes, or you have already answered. If you still need it, ask the agent to start again."
   },
-  "scopeText": {}
+  "scopeText": {},
+  "signal": {
+    "title": "Something happened that affects you",
+    "claimCta": "Claim your part",
+    "closed": "The filing window closed on {date}. It cannot be filed now — but it happened, and it is on the record.",
+    "sourceOfficial": "Official source:",
+    "sourceReported": "Reported, not yet confirmed by a primary source:",
+    "sourceLine": "{publisher}, {date}"
+  }
 }

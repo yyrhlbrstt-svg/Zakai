@@ -101,12 +101,15 @@ export function validateEvent(event: MarketEvent, today: string): void {
   }
 
   // --- The words a person reads --------------------------------------------
-  for (const [field, text] of [
-    ["headlineHe", event.headlineHe],
-    ["headlineEn", event.headlineEn],
-  ] as const) {
-    if (text.trim().length < 12) bad(`${field} is too short to tell anybody anything`);
-    if (text.length > 160) bad(`${field} is longer than a sentence`);
+  // Hebrew and English are required as the two we can check; every other
+  // locale present is checked too, so a bad translation cannot slip in behind
+  // a good pair.
+  for (const required of ["he", "en"]) {
+    if (!event.headline[required]?.trim()) bad(`headline.${required} is missing`);
+  }
+  for (const [locale, text] of Object.entries(event.headline)) {
+    if (text.trim().length < 12) bad(`headline.${locale} is too short to tell anybody anything`);
+    if (text.length > 160) bad(`headline.${locale} is longer than a sentence`);
   }
 
   if (!/^[A-Z]{2}$/.test(event.jurisdiction)) bad("jurisdiction must be ISO 3166-1 alpha-2");

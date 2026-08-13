@@ -140,9 +140,18 @@ export interface MarketEvent {
   counterparty: string;
   /** ISO 3166-1 alpha-2. */
   jurisdiction: string;
-  /** One plain sentence, in the reader's words. Not a press release. */
-  headlineHe: string;
-  headlineEn: string;
+  /**
+   * One plain sentence, in the reader's words, per locale.
+   *
+   * A map rather than `headlineHe` + `headlineEn`, which is what this started
+   * as. Two fields is not a smaller version of a map — it is a shape in which
+   * Arabic, Russian, German and French *cannot be expressed at all*, so those
+   * readers would have received English forever and the gap would never have
+   * shown up as a missing translation anywhere. `he` and `en` are required
+   * because the validator needs two known-good strings to check; any other
+   * locale is optional and falls back.
+   */
+  headline: Record<string, string>;
   /** When the thing happened, which is often long before it was published. */
   occurredAt: string;
   source: EventSource;

@@ -4,6 +4,8 @@ import { Link } from "@/i18n/routing";
 import { MoneyHub } from "@/components/MoneyHub";
 import { MoneyInstallInline } from "@/components/MoneyInstallInline";
 import { MoneyPageContextPanel } from "@/components/MoneyPageContextPanel";
+import { SignalPanel } from "@/components/SignalPanel";
+import { signalMatchesForUser, signalMatchesForGuest } from "@/lib/services/signalMatches";
 import { MoneyGrowthPanel } from "@/components/MoneyGrowthPanel";
 import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { MONTHLY_LEAK_PIN_IDS } from "@/lib/priority";
@@ -82,6 +84,17 @@ export default async function MoneyPage({
   const loc = bcp47[locale as Locale];
   const proofsEmail = proofsInboundAddress();
   const user = await getCurrentUser();
+  /**
+   * Signed in, this is matched against their own history. Signed out, only
+   * jurisdiction-wide events can match — which is a real subset, not a
+   * degraded one: a nationwide refund order does not care who you bank with.
+   */
+  const signalMatches = user
+    ? await signalMatchesForUser(user.id)
+    // Israel for a guest, because it is the only market with live tools and a
+    // guest has told us nothing else. The moment a second market ships, this
+    // reads the same country signal the location banner already resolves.
+    : signalMatchesForGuest("IL");
   const tHome = await getTranslations({ locale });
   const [proof, sentCount, mandateCount] = await Promise.all([
     provenSavings(),
@@ -254,6 +267,12 @@ export default async function MoneyPage({
           </a>
         </div>
       ) : null}
+
+      {/* Above everything else, because it is the only thing here somebody did
+          not have to ask for. When nothing matches it renders nothing at all —
+          no "we're watching", which would claim a service is running that has
+          nothing to report. */}
+      <SignalPanel matches={signalMatches} locale={locale as Locale} />
 
       {/* Guests: light login nudge. Logged-in: single next-action panel (no duplicate). */}
       {!user ? <MoneyPageContextPanel locale={locale as Locale} /> : null}

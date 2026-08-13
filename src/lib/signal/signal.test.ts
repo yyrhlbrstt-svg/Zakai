@@ -12,8 +12,10 @@ function event(over: Partial<MarketEvent> = {}): MarketEvent {
     kind: "regulatory_fine",
     counterparty: "example-bank",
     jurisdiction: "IL",
-    headlineHe: "הבנק גבה עמלה שלא כדין וחויב להחזיר אותה",
-    headlineEn: "The bank charged a fee unlawfully and was ordered to refund it",
+    headline: {
+      he: "הבנק גבה עמלה שלא כדין וחויב להחזיר אותה",
+      en: "The bank charged a fee unlawfully and was ordered to refund it",
+    },
     occurredAt: "2026-03-01",
     source: {
       publisher: "בנק ישראל",
@@ -109,7 +111,7 @@ describe("an event nobody can check does not exist", () => {
   });
 
   it("refuses a headline too short to tell anybody anything", () => {
-    expect(() => validateEvent(event({ headlineHe: "משהו" }), TODAY)).toThrow(/too short/);
+    expect(() => validateEvent(event({ headline: { ...event().headline, he: "משהו" } }), TODAY)).toThrow(/too short/);
   });
 });
 
@@ -232,5 +234,28 @@ describe("who it applies to, and why", () => {
     const rows = matchEvents([older, newer, missing], facts, new Date("2026-08-13T00:00:00Z"));
     expect(rows.map((r) => r.event.id)).toEqual(["newer-2026", "older-2024"]);
     expect(rows.every((r) => r.because.length > 0)).toBe(true);
+  });
+});
+
+describe("the reason shown to a person is written for them", () => {
+  it("never reads a country code out loud", () => {
+    // "במדינה: IL" is our storage format on a screen. A nationwide order
+    // applies to everybody here; saying so in words is the whole persuasive
+    // content of that line.
+    const { because } = checkEligibility(
+      { kind: "inCountry", country: "IL" },
+      { country: "IL", providers: [] },
+    );
+    expect(because).toEqual(["זה חל על כל מי שבישראל"]);
+    expect(because.join(" ")).not.toMatch(/\bIL\b/);
+  });
+
+  it("falls back to something vague and true for a market it has no words for", () => {
+    const { because } = checkEligibility(
+      { kind: "inCountry", country: "ZZ" },
+      { country: "ZZ", providers: [] },
+    );
+    expect(because[0]).toContain("במדינה הזו");
+    expect(because.join(" ")).not.toMatch(/\bZZ\b/);
   });
 });
