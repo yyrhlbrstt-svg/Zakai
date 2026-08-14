@@ -791,6 +791,20 @@
     "closed": "أُغلقت نافذة التقديم في {date}. لم يعد بالإمكان التقديم — لكنه حدث، وهو موثَّق.",
     "sourceOfficial": "مصدر رسمي:",
     "sourceReported": "مُبلَّغ عنه، لم يُؤكَّد بعد من مصدر أولي:",
-    "sourceLine": "{publisher}، {date}"
+    "sourceLine": "{publisher}، {date}",
+    "reason": {
+      "inCountry": "ينطبق هذا على كل من {country}",
+      "country": {
+        "IL": "في إسرائيل",
+        "GB": "في بريطانيا",
+        "US": "في الولايات المتحدة",
+        "DE": "في ألمانيا",
+        "FR": "في فرنسا"
+      },
+      "countryOther": "في هذه الدولة",
+      "hasProvider": "لديك تعامل مع {provider}",
+      "hadProviderBetween": "كنت عميلاً لدى {provider} بين {from} و{to}",
+      "inVertical": "لديك ملف في مجال {vertical}"
+    }
   }
 }

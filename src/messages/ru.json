@@ -791,6 +791,20 @@
     "closed": "Срок подачи истёк {date}. Подать уже нельзя — но это произошло и задокументировано.",
     "sourceOfficial": "Официальный источник:",
     "sourceReported": "Сообщается, первоисточником пока не подтверждено:",
-    "sourceLine": "{publisher}, {date}"
+    "sourceLine": "{publisher}, {date}",
+    "reason": {
+      "inCountry": "Это касается всех, кто {country}",
+      "country": {
+        "IL": "в Израиле",
+        "GB": "в Великобритании",
+        "US": "в США",
+        "DE": "в Германии",
+        "FR": "во Франции"
+      },
+      "countryOther": "в этой стране",
+      "hasProvider": "У вас есть отношения с {provider}",
+      "hadProviderBetween": "Вы были клиентом {provider} с {from} по {to}",
+      "inVertical": "У вас есть дело в сфере {vertical}"
+    }
   }
 }

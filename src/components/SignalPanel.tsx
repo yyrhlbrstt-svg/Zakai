@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { providerHebrewName } from "@/lib/providers";
 import { Link } from "@/i18n/routing";
 import { Card, Button } from "@/components/ui";
 import type { SignalMatch } from "@/lib/services/signalMatches";
@@ -47,9 +48,47 @@ export async function SignalPanel({
    * makes the opposite call for UI chrome, deliberately, and that is the right
    * call there.
    */
+  /**
+   * A provider key is storage. "cellcom" in a sentence explaining why somebody
+   * is owed money reads as a database row, which is exactly the tone this
+   * screen cannot afford. `providerHebrewName` already carries display names
+   * for every provider the app knows and passes unknown strings through, so a
+   * new counterparty degrades to its own name rather than to nothing.
+   */
+  const providerName = (key: string) => providerHebrewName(key);
+
   const rows = matches.map((m) => ({
     ...m,
     headline: m.event.headline[locale] ?? m.event.headline.en,
+    /**
+     * Reasons rendered here, from codes, so every locale gets them.
+     *
+     * They used to be built as Hebrew sentences inside the matching engine —
+     * which handed an Arabic or Russian reader the one line that matters most,
+     * the one justifying a claim on their money, in a language they may not
+     * read. Nothing would have shown up as a missing translation, because from
+     * the catalogue's side nothing was missing.
+     */
+    reasons: m.because.map((r) => {
+      switch (r.code) {
+        case "inCountry": {
+          const key = `reason.country.${r.country}`;
+          return t("reason.inCountry", {
+            country: t.has(key) ? t(key) : t("reason.countryOther"),
+          });
+        }
+        case "hasProvider":
+          return t("reason.hasProvider", { provider: providerName(r.provider) });
+        case "hadProviderBetween":
+          return t("reason.hadProviderBetween", {
+            provider: providerName(r.provider),
+            from: r.from,
+            to: r.to,
+          });
+        case "inVertical":
+          return t("reason.inVertical", { vertical: r.vertical });
+      }
+    }),
   }));
 
   return (
@@ -57,14 +96,14 @@ export async function SignalPanel({
       <div className="font-extrabold text-[14px] mb-3">{t("title")}</div>
 
       <div className="flex flex-col gap-3">
-        {rows.map(({ event, because, claimOpen, headline }) => (
+        {rows.map(({ event, reasons, claimOpen, headline }) => (
           <Card key={event.id} className="p-5 border border-[rgba(63,203,155,0.35)]">
             <p className="font-extrabold text-[15.5px] leading-snug m-0">{headline}</p>
 
             {/* Why them, and not somebody else. Never summarised into "you may
                 be eligible" — the specific reason is the persuasive part. */}
             <ul className="list-none p-0 mt-3 mb-0 flex flex-col gap-1.5">
-              {because.map((reason) => (
+              {reasons.map((reason) => (
                 <li key={reason} className="text-body text-ink-soft leading-relaxed">
                   {reason}
                 </li>

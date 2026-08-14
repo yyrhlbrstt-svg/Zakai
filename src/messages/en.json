@@ -6847,6 +6847,20 @@
     "closed": "The filing window closed on {date}. It cannot be filed now — but it happened, and it is on the record.",
     "sourceOfficial": "Official source:",
     "sourceReported": "Reported, not yet confirmed by a primary source:",
-    "sourceLine": "{publisher}, {date}"
+    "sourceLine": "{publisher}, {date}",
+    "reason": {
+      "inCountry": "This applies to everybody {country}",
+      "country": {
+        "IL": "in Israel",
+        "GB": "in the UK",
+        "US": "in the United States",
+        "DE": "in Germany",
+        "FR": "in France"
+      },
+      "countryOther": "in this country",
+      "hasProvider": "You have a relationship with {provider}",
+      "hadProviderBetween": "You were a {provider} customer between {from} and {to}",
+      "inVertical": "You have a case in {vertical}"
+    }
   }
 }

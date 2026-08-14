@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { buildEligibilityFacts } from "@/lib/signal/facts";
-import { matchEvents } from "@/lib/signal/eligibility";
+import { matchEvents, type MatchReason } from "@/lib/signal/eligibility";
 import { MARKET_EVENTS } from "@/lib/signal/registry";
 import type { MarketEvent } from "@/lib/signal/types";
 
@@ -23,8 +23,12 @@ import type { MarketEvent } from "@/lib/signal/types";
 
 export interface SignalMatch {
   event: MarketEvent;
-  /** Why this person matched, in their terms. Shown, never summarised away. */
-  because: string[];
+  /**
+   * Why this person matched — codes and their facts, rendered by the screen.
+   * Shown in full, never summarised into "you may be eligible": the specific
+   * reason is the entire persuasive content.
+   */
+  because: MatchReason[];
   /** False when the filing window has closed. Still worth telling them. */
   claimOpen: boolean;
 }

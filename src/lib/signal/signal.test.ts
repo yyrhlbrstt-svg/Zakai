@@ -136,7 +136,9 @@ describe("who it applies to, and why", () => {
     );
     expect(result.matched).toBe(true);
     expect(result.because).toHaveLength(2);
-    expect(result.because.join(" ")).toContain("example-bank");
+    expect(result.because).toContainEqual(
+      expect.objectContaining({ provider: "example-bank" }),
+    );
   });
 
   it("leaves no half explanation behind when an `all` rule fails", () => {
@@ -187,7 +189,7 @@ describe("who it applies to, and why", () => {
       facts,
     );
     expect(result.matched).toBe(true);
-    expect(result.because).toEqual(["יש לכם התנהלות מול example-bank"]);
+    expect(result.because).toEqual([{ code: "hasProvider", provider: "example-bank" }]);
   });
 
   it("needs the relationship to overlap the window, not merely to exist", () => {
@@ -237,25 +239,28 @@ describe("who it applies to, and why", () => {
   });
 });
 
-describe("the reason shown to a person is written for them", () => {
-  it("never reads a country code out loud", () => {
-    // "במדינה: IL" is our storage format on a screen. A nationwide order
-    // applies to everybody here; saying so in words is the whole persuasive
-    // content of that line.
+describe("a reason is a code and its facts, never a sentence", () => {
+  /**
+   * These were Hebrew sentences built inside this pure module, which handed an
+   * Arabic or Russian reader the one line justifying a claim on their money in
+   * a language they may not read — and nothing would have shown up as a
+   * missing translation, because from the catalogue's side nothing was
+   * missing. Codes are also the machine-readable record of why we said it,
+   * which is what somebody asks for six months later.
+   */
+  it("reports the country as a code, for the screen to translate", () => {
     const { because } = checkEligibility(
       { kind: "inCountry", country: "IL" },
       { country: "IL", providers: [] },
     );
-    expect(because).toEqual(["זה חל על כל מי שבישראל"]);
-    expect(because.join(" ")).not.toMatch(/\bIL\b/);
+    expect(because).toEqual([{ code: "inCountry", country: "IL" }]);
   });
 
-  it("falls back to something vague and true for a market it has no words for", () => {
+  it("reports an unknown market too, and lets the screen decide the words", () => {
     const { because } = checkEligibility(
       { kind: "inCountry", country: "ZZ" },
       { country: "ZZ", providers: [] },
     );
-    expect(because[0]).toContain("במדינה הזו");
-    expect(because.join(" ")).not.toMatch(/\bZZ\b/);
+    expect(because[0]).toEqual({ code: "inCountry", country: "ZZ" });
   });
 });

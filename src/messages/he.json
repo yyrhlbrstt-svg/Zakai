@@ -6863,6 +6863,20 @@
     "closed": "חלון ההגשה נסגר ב-{date}. אי אפשר להגיש עכשיו — אבל זה קרה, וזה מתועד.",
     "sourceOfficial": "מקור רשמי:",
     "sourceReported": "דווח, טרם אושר במקור ראשוני:",
-    "sourceLine": "{publisher}, {date}"
+    "sourceLine": "{publisher}, {date}",
+    "reason": {
+      "inCountry": "זה חל על כל מי ש{country}",
+      "country": {
+        "IL": "בישראל",
+        "GB": "בבריטניה",
+        "US": "בארצות הברית",
+        "DE": "בגרמניה",
+        "FR": "בצרפת"
+      },
+      "countryOther": "במדינה הזו",
+      "hasProvider": "יש לכם התנהלות מול {provider}",
+      "hadProviderBetween": "הייתם לקוחות של {provider} בין {from} ל-{to}",
+      "inVertical": "יש לכם תיק בתחום {vertical}"
+    }
   }
 }

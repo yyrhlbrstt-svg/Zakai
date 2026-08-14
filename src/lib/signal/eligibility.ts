@@ -16,23 +16,30 @@ import type { EligibilityFacts, EligibilityRule, MarketEvent } from "@/lib/signa
  */
 
 /**
- * Country codes as a person says them.
+ * Why somebody matched — as a code and its facts, never as a sentence.
  *
- * Only the markets with live tools. An unknown code falls back to a phrase
- * that is vague and true rather than precise and meaningless.
+ * These strings used to be built here, in Hebrew, inside a pure module: "יש
+ * לכם התנהלות מול cellcom". That meant an Arabic or Russian reader — whose
+ * whole interface is already translated — would be handed the one sentence
+ * that matters most, the one justifying a claim that money is owed to them,
+ * in a language they may not read. And it would never have surfaced as a
+ * missing translation anywhere, because from the catalogue's point of view
+ * nothing was missing.
+ *
+ * A code plus its parameters is also the honest shape for a different reason:
+ * it is the machine-readable record of *why we said this*, which is what
+ * somebody would ask for six months later, and a rendered sentence is not.
  */
-const COUNTRY_IN: Record<string, string> = {
-  IL: "בישראל",
-  GB: "בבריטניה",
-  US: "בארצות הברית",
-  DE: "בגרמניה",
-  FR: "בצרפת",
-};
+export type MatchReason =
+  | { code: "inCountry"; country: string }
+  | { code: "hasProvider"; provider: string }
+  | { code: "hadProviderBetween"; provider: string; from: string; to: string }
+  | { code: "inVertical"; vertical: string };
 
 export interface EligibilityResult {
   matched: boolean;
-  /** Every leaf rule that matched, in the reader's terms. Empty when it did not. */
-  because: string[];
+  /** Every leaf rule that matched. Empty when it did not. */
+  because: MatchReason[];
 }
 
 function overlaps(
@@ -47,7 +54,7 @@ function overlaps(
   return start <= to && end >= from;
 }
 
-function evaluate(rule: EligibilityRule, facts: EligibilityFacts, because: string[]): boolean {
+function evaluate(rule: EligibilityRule, facts: EligibilityFacts, because: MatchReason[]): boolean {
   switch (rule.kind) {
     case "inCountry": {
       const ok = facts.country.toUpperCase() === rule.country.toUpperCase();
@@ -55,38 +62,45 @@ function evaluate(rule: EligibilityRule, facts: EligibilityFacts, because: strin
       // a nationwide order should be told it applies to everybody here, in
       // words — the country code is an implementation detail they never
       // agreed to learn.
-      if (ok) because.push(`זה חל על כל מי ש${COUNTRY_IN[rule.country.toUpperCase()] ?? "במדינה הזו"}`);
+      if (ok) because.push({ code: "inCountry", country: rule.country.toUpperCase() });
       return ok;
     }
     case "hasProvider": {
       const ok = facts.providers.includes(rule.provider);
-      if (ok) because.push(`יש לכם התנהלות מול ${rule.provider}`);
+      if (ok) because.push({ code: "hasProvider", provider: rule.provider });
       return ok;
     }
     case "hadProviderBetween": {
       const ok =
         facts.providers.includes(rule.provider) &&
         overlaps(facts.providerWindows?.[rule.provider], rule.from, rule.to);
-      if (ok) because.push(`הייתם לקוחות של ${rule.provider} בין ${rule.from} ל-${rule.to}`);
+      if (ok) {
+        because.push({
+          code: "hadProviderBetween",
+          provider: rule.provider,
+          from: rule.from,
+          to: rule.to,
+        });
+      }
       return ok;
     }
     case "inVertical": {
       const ok = (facts.verticals ?? []).includes(rule.vertical);
-      if (ok) because.push(`יש לכם תיק בתחום ${rule.vertical}`);
+      if (ok) because.push({ code: "inVertical", vertical: rule.vertical });
       return ok;
     }
     case "all": {
       // Reasons go to a scratch list and are kept only on success, so a rule
       // that failed halfway cannot leave half an explanation attached to a
       // match it did not make.
-      const scratch: string[] = [];
+      const scratch: MatchReason[] = [];
       const ok = rule.rules.every((child) => evaluate(child, facts, scratch));
       if (ok) because.push(...scratch);
       return ok;
     }
     case "any": {
       for (const child of rule.rules) {
-        const scratch: string[] = [];
+        const scratch: MatchReason[] = [];
         if (evaluate(child, facts, scratch)) {
           because.push(...scratch);
           return true;
@@ -101,7 +115,7 @@ export function checkEligibility(
   rule: EligibilityRule,
   facts: EligibilityFacts,
 ): EligibilityResult {
-  const because: string[] = [];
+  const because: MatchReason[] = [];
   const matched = evaluate(rule, facts, because);
   return { matched, because: matched ? because : [] };
 }
@@ -127,7 +141,7 @@ export function matchEvents(
   events: readonly MarketEvent[],
   facts: EligibilityFacts,
   on: Date,
-): Array<{ event: MarketEvent; because: string[]; claimOpen: boolean }> {
+): Array<{ event: MarketEvent; because: MatchReason[]; claimOpen: boolean }> {
   return events
     .map((event) => ({ event, ...checkEligibility(event.eligibility, facts) }))
     .filter((row) => row.matched)
