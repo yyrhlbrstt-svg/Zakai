@@ -42,3 +42,32 @@ export function IconLock(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function IconAlertTriangle(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 4 3 20h18L12 4Z" {...stroke} />
+      <path d="M12 10.5v4" {...stroke} />
+      <circle cx="12" cy="17.2" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function IconBell(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c0.5-0.5 2-2 2-6Z" {...stroke} />
+      <path d="M10 19a2 2 0 0 0 4 0" {...stroke} />
+    </svg>
+  );
+}
+
+export function IconTarget(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="8" {...stroke} />
+      <circle cx="12" cy="12" r="4.4" {...stroke} />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

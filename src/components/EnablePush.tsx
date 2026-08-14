@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "@/i18n/routing";
 import { FLOATING_BANNER_ATTR, useFloatingClearance } from "@/components/useFloatingClearance";
+import { IconBell } from "@/components/Icon";
 
 /**
  * Registers the PWA service worker and offers one-tap Web Push opt-in.
@@ -159,9 +160,7 @@ export function EnablePush({ loggedIn }: { loggedIn: boolean }) {
       className="fixed inset-x-3 bottom-[4.5rem] z-[9997] mx-auto max-w-[520px] rounded-2xl border border-[rgba(62,198,255,0.35)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] p-4 flex items-center gap-3"
       style={clear ? undefined : { visibility: "hidden", pointerEvents: "none" }}
     >
-      <div className="text-2xl shrink-0" aria-hidden>
-        🔔
-      </div>
+      <IconBell width={24} height={24} className="shrink-0 text-[#3ec6ff]" />
       <div className="flex-1 min-w-0">
         <div className="font-extrabold text-[14px]">{t.title}</div>
         <div className="text-ink-soft text-[12px] mt-0.5 leading-snug">{t.sub}</div>
