@@ -4,6 +4,7 @@ import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui";
+import { IconEye, IconPencil } from "@/components/Icon";
 import { AuthorizeDecision } from "@/components/AuthorizeDecision";
 import { explainAuthority } from "@/lib/mandate/explainScopes";
 import { privatePageMetadata } from "@/lib/seo";
@@ -120,8 +121,12 @@ export default async function AuthorizePage({
         <ul className="m-0 mt-2 p-0 list-none flex flex-col gap-2.5">
           {authority.scopes.map((s) => (
             <li key={s.scope} className="flex gap-3 items-baseline">
-              <span aria-hidden className={s.tier === "read" ? "text-emerald" : "text-amber"}>
-                {s.tier === "read" ? "👁" : "✎"}
+              <span className={s.tier === "read" ? "text-emerald" : "text-amber"}>
+                {s.tier === "read" ? (
+                  <IconEye width={16} height={16} />
+                ) : (
+                  <IconPencil width={16} height={16} />
+                )}
               </span>
               <span className="text-body leading-relaxed">{describe(s.scope, s.summary)}</span>
             </li>

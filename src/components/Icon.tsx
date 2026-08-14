@@ -71,3 +71,45 @@ export function IconTarget(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function IconCompass(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="9" {...stroke} />
+      <path d="M15 9l-2.2 4.8L8 16l2.2-4.8L15 9Z" {...stroke} />
+    </svg>
+  );
+}
+
+/** The password show/hide toggle — was duplicated inline in AuthForm; this is now the one copy. */
+export function IconEye(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" {...stroke} />
+      <circle cx="12" cy="12" r="3" {...stroke} />
+    </svg>
+  );
+}
+
+export function IconEyeOff(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path
+        d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.4 5.2A9.5 9.5 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.1 6.1A17 17 0 0 0 2 12s3.5 7 10 7a9.5 9.5 0 0 0 3-.5"
+        {...stroke}
+      />
+    </svg>
+  );
+}
+
+export function IconPencil(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path
+        d="M4 20l1-4.2L15.5 5.3a1.5 1.5 0 0 1 2.1 0l1.1 1.1a1.5 1.5 0 0 1 0 2.1L8.2 19l-4.2 1Z"
+        {...stroke}
+      />
+      <path d="M13.5 7.3l3.2 3.2" {...stroke} />
+    </svg>
+  );
+}

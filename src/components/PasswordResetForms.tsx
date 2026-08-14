@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Input, Button } from "@/components/ui";
+import { IconEye, IconEyeOff } from "@/components/Icon";
 
 /**
  * The two halves of account recovery.
@@ -170,7 +171,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
               className="absolute inset-inline-end-3 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer text-ink-soft p-1"
               style={{ insetInlineEnd: "0.75rem" }}
             >
-              {show ? "🙈" : "👁"}
+              {show ? <IconEyeOff width={20} height={20} /> : <IconEye width={20} height={20} />}
             </button>
           </div>
           <span className="text-[11.5px] text-ink-soft mt-1 block">{t("passwordHint")}</span>

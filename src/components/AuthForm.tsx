@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select, FieldError } from "@/components/ui";
 import { authSwitchHref, toolNameForReturnPath } from "@/lib/auth/returnReason";
+import { IconEye, IconEyeOff } from "@/components/Icon";
 
 /** Only same-origin relative paths — blocks open redirects. */
 function safeReturnPath(raw: string | null): string | null {
@@ -219,7 +220,7 @@ export function AuthForm({
                 title={showPw ? t("hidePassword") : t("showPassword")}
                 className="absolute end-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-ink-soft hover:text-ink cursor-pointer bg-transparent border-0"
               >
-                {showPw ? <EyeOff /> : <Eye />}
+                {showPw ? <IconEyeOff width={20} height={20} /> : <IconEye width={20} height={20} />}
               </button>
             </div>
           </label>
@@ -290,34 +291,5 @@ export function AuthForm({
         </p>
       )}
     </main>
-  );
-}
-
-function Eye() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function EyeOff() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.4 5.2A9.5 9.5 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.1 6.1A17 17 0 0 0 2 12s3.5 7 10 7a9.5 9.5 0 0 0 3-.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
