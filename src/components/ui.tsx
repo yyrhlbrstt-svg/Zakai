@@ -1,9 +1,34 @@
 import * as React from "react";
 import { useId } from "react";
+import { IconLock } from "./Icon";
 
-/** Shared class fragments for the glass/dark design language. */
+/**
+ * Shared class fragments for the glass/dark design language.
+ *
+ * The elevation shadow used to be `0 20px 50px rgba(0,0,0,0.5)` — a large,
+ * soft, *black* shadow, on a page whose background is `#070b12`. A black
+ * shadow cannot darken a surface that is already darker than black-at-50%;
+ * measured in a real screenshot, every card in the app read as a flat,
+ * bordered rectangle with no sense of sitting above the page, because the
+ * one cue meant to say "elevated" was invisible by construction.
+ *
+ * The primary CTA button never had this problem, because its shadow is
+ * *colored* — `rgba(63,203,155,…)`, emerald — and emerald against near-black
+ * reads clearly (it is the visible glow under every primary button). That
+ * contrast is the actual diagnosis: colored elevation works here, black does
+ * not, and Card was the one thing still relying on black.
+ *
+ * The fix is not a colored glow on every card — glowing hundreds of ordinary
+ * content cards would read as noise, not premium; the glow is earned by
+ * primary actions, not the default treatment. Instead, elevation comes from
+ * what actually works against a near-black page: a light rim along the top
+ * edge (a surface catching light from above, the same technique Vercel's and
+ * Linear's dark UIs use), a slightly richer fill so the card reads as one
+ * step lighter than the page rather than merely bordered, and a tight
+ * contact shadow for grounding rather than a large one that never resolves.
+ */
 export const glass =
-  "bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]";
+  "bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.5),0_12px_28px_rgba(0,0,0,0.28)]";
 
 export function Card({
   className = "",
@@ -353,6 +378,29 @@ export function CheckboxChips<T extends string>({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/**
+ * The "we never ask for your bank password" line, byte-identical in
+ * `MoneyHub` and `StatementScan` before this — same copy key, same wrapper,
+ * same 🔒 emoji, just written twice. Extracted so the two can never drift,
+ * and so the emoji-to-icon fix only had to happen once.
+ */
+export function PrivacyNote({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex items-start gap-2.5 text-body text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 ${className}`}
+    >
+      <IconLock className="shrink-0 mt-0.5" />
+      <span>{children}</span>
     </div>
   );
 }

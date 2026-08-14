@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { redirectIfOpenLoop } from "@/lib/openLoopClient";
-import { Card, Button, Textarea } from "@/components/ui";
+import { Card, Button, Textarea, PrivacyNote } from "@/components/ui";
 import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
 import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
@@ -181,10 +181,7 @@ export function StatementScan({
     <div className="pb-28">
       <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} />
       <Card className="p-6">
-        <div className="flex items-start gap-2.5 text-body text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 mb-5">
-          <span aria-hidden>🔒</span>
-          <span>{t("privacyNote")}</span>
-        </div>
+        <PrivacyNote className="mb-5">{t("privacyNote")}</PrivacyNote>
 
         <label className="block">
           <span className="text-[13.5px] text-ink-soft">{t("pasteLabel")}</span>

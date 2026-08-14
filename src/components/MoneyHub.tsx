@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { redirectIfOpenLoop } from "@/lib/openLoopClient";
-import { Card, Button, Textarea, Input } from "@/components/ui";
+import { Card, Button, Textarea, Input, PrivacyNote } from "@/components/ui";
 import {
   scanStatement,
   type ScanResult,
@@ -685,10 +685,7 @@ export function MoneyHub({
 
   return (
     <div className="flex flex-col gap-5 pb-28">
-      <div className="flex items-start gap-2.5 text-body text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3">
-        <span aria-hidden>🔒</span>
-        <span>{tx(locale, "privacy")}</span>
-      </div>
+      <PrivacyNote>{tx(locale, "privacy")}</PrivacyNote>
 
       {saved && !result && (
         <Card className="p-5">

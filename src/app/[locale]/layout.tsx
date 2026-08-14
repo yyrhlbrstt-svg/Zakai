@@ -18,6 +18,7 @@ import { LangSuggest, LANG_SUGGEST_COOKIE } from "@/components/LangSuggest";
 import { getCurrentUser } from "@/lib/auth/user";
 import { OpenLoopResumeBar } from "@/components/OpenLoopResumeBar";
 import { HideOnRoutes } from "@/components/HideOnRoutes";
+import { NON_CONSUMER_ROUTES } from "@/lib/nonConsumerRoutes";
 import "../globals.css";
 
 const body = Heebo({
@@ -232,7 +233,7 @@ export default async function LocaleLayout({
           <LangSuggest initialShow={showLangSuggest} />
           {children}
           {user ? (
-            <HideOnRoutes substrings={["/dashboard", "/money"]}>
+            <HideOnRoutes substrings={["/dashboard", "/money", ...NON_CONSUMER_ROUTES]}>
               <OpenLoopResumeBar locale={locale} />
             </HideOnRoutes>
           ) : null}

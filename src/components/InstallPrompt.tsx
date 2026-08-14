@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/routing";
 import { LogoMark } from "@/components/Logo";
 import { FLOATING_BANNER_ATTR, useFloatingClearance } from "@/components/useFloatingClearance";
+import { NON_CONSUMER_ROUTES } from "@/lib/nonConsumerRoutes";
 
 interface BIPEvent extends Event {
   prompt: () => Promise<void>;
@@ -79,6 +80,7 @@ export function InstallPrompt() {
   }
 
   if (pathname === "/cancel/universal") return null;
+  if (NON_CONSUMER_ROUTES.some((r) => pathname.startsWith(r))) return null;
   if (!show) return null;
 
   return (
