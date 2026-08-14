@@ -10,7 +10,6 @@ import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator"
 import { InstitutionIgnoreCostLive } from "@/components/InstitutionIgnoreCostLive";
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
-import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { LiveGravityStrip } from "@/components/LiveGravityStrip";
 import { institutionPilotMailto, institutionSalesEmail } from "@/lib/institutionPull";
 import { RegulatoryIntelStrip } from "@/components/RegulatoryIntelStrip";
@@ -198,8 +197,6 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
         networkCta={t("regulatoryStripNetwork")}
         kitCta={t("regulatoryStripKit")}
       />
-
-      <ControlGatesStrip locale={locale} />
 
       <p className="text-body text-ink-soft mb-6">
         {t("agentsCrossLink")}{" "}
