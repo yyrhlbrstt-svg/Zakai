@@ -15,6 +15,7 @@ import {
   buildAdvanceTaxReductionLetter,
 } from "@/lib/advanceTaxReduction";
 import { NextStep } from "@/components/NextStep";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 const CURRENT_TAX_YEAR = new Date().getFullYear();
 
@@ -171,6 +172,7 @@ export function AdvanceTaxReductionTool() {
               {copied ? t("copied") : t("copy")}
             </Button>
           </div>
+          <OutcomeReport vertical="advance_tax_reduction" counterparty="tax_authority" variantId="standard" />
         </Card>
       )}
 

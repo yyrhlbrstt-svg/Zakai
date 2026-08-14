@@ -12,6 +12,8 @@ import {
 } from "@/lib/parentPayments";
 import { MissingFields } from "@/components/MissingFields";
 import { NextStep } from "@/components/NextStep";
+import { OutcomeReport } from "@/components/OutcomeReport";
+import { normalizeOutcomeCounterparty } from "@/lib/strategy/normalizeKeys";
 
 const CATEGORIES: ParentPaymentCategory[] = ["accident_insurance", "other"];
 
@@ -172,6 +174,11 @@ export function ParentPaymentTool() {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport
+            vertical="parent_payment_dispute"
+            counterparty={normalizeOutcomeCounterparty(institutionName)}
+            variantId="standard"
+          />
         </Card>
       )}
 

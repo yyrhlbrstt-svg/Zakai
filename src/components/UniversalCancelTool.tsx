@@ -15,6 +15,8 @@ import {
   resolveSubscriptionCompany,
 } from "@/lib/normalizeSubscriptionProvider";
 import { ShareResult } from "@/components/ShareResult";
+import { OutcomeReport } from "@/components/OutcomeReport";
+import { normalizeOutcomeCounterparty } from "@/lib/strategy/normalizeKeys";
 import {
   buildUniversalCancelShareMessage,
   universalCancelShareKicker,
@@ -72,6 +74,7 @@ export function UniversalCancelTool({
         key: r.merchant,
         monthly: r.monthlyAgorot,
         company: resolved.displayName,
+        counterparty: normalizeOutcomeCounterparty(resolved.providerKey),
         subject: letter.subject,
         body: withFooter(letter.body, footerLocale),
         outreach,
@@ -256,6 +259,7 @@ export function UniversalCancelTool({
                 </Button>
               </Link>
             </div>
+            <OutcomeReport vertical="subscription" counterparty={l.counterparty} variantId="standard" />
           </Card>
         );
       })}

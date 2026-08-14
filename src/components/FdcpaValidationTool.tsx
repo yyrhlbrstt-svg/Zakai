@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card, Button, Input, Textarea } from "@/components/ui";
 import { buildFdcpaValidationLetter } from "@/lib/fdcpaValidationLetter";
 import { MissingFields } from "@/components/MissingFields";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 export function FdcpaValidationTool() {
   const t = useTranslations("debtCollectorDispute.tool");
@@ -80,6 +81,7 @@ export function FdcpaValidationTool() {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport market="US" vertical="debt_collector_dispute" counterparty="collector" variantId="standard" />
         </Card>
       )}
     </div>

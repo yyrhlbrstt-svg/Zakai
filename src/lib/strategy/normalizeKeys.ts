@@ -40,3 +40,18 @@ export function normalizeOutcomeVariantId(raw: string): string | null {
 export function isCatalogVariantId(id: string): boolean {
   return VARIANTS.some((v) => v.id === id);
 }
+
+/**
+ * /api/outcome requires counterparty to match /^[a-z0-9_:-]+$/ — free-text
+ * company/institution names typed by a user (often Hebrew, uppercase, or
+ * spaced) need slugging before they can be passed to OutcomeReport.
+ */
+export function normalizeOutcomeCounterparty(raw: string): string {
+  const slug = raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_:-]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 60);
+  return slug.length >= 2 ? slug : "counterparty";
+}

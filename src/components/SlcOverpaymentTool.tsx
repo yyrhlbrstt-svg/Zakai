@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card, Button, Input, Textarea } from "@/components/ui";
 import { buildSlcOverpaymentLetter } from "@/lib/slcOverpaymentLetter";
 import { MissingFields } from "@/components/MissingFields";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 export function SlcOverpaymentTool() {
   const t = useTranslations("studentLoanOverpayment.tool");
@@ -74,6 +75,7 @@ export function SlcOverpaymentTool() {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport market="GB" vertical="student_loan_overpayment" counterparty="slc" variantId="standard" />
         </Card>
       )}
     </div>

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card, Button, Input, Textarea } from "@/components/ui";
 import { buildFlsaWageStatementLetter } from "@/lib/flsaWageStatementLetter";
 import { MissingFields } from "@/components/MissingFields";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 export function FlsaWageStatementTool() {
   const t = useTranslations("wageStatementAudit.tool");
@@ -85,6 +86,7 @@ export function FlsaWageStatementTool() {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport market="US" vertical="wage_statement_audit" counterparty="employer" variantId="standard" />
         </Card>
       )}
     </div>

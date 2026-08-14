@@ -7,6 +7,8 @@ import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { ESCALATION_BODIES, buildEscalationLetter, type ComplaintCategory } from "@/lib/complaintEscalation";
 import { MissingFields } from "@/components/MissingFields";
 import { NextStep } from "@/components/NextStep";
+import { OutcomeReport } from "@/components/OutcomeReport";
+import { normalizeOutcomeCounterparty } from "@/lib/strategy/normalizeKeys";
 
 const CATEGORIES: ComplaintCategory[] = ["bank", "telecom", "consumer"];
 
@@ -144,6 +146,11 @@ export function ComplaintEscalationTool() {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport
+            vertical="complaint_escalation"
+            counterparty={normalizeOutcomeCounterparty(`${category}_${company}`)}
+            variantId="standard"
+          />
         </Card>
       )}
 
