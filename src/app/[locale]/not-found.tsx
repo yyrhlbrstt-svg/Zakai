@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Card, Button } from "@/components/ui";
+import { IconCompass } from "@/components/Icon";
 
 /**
  * Without this, an unmatched route (a typo'd URL, a deleted page, a stale
@@ -16,9 +17,7 @@ export default async function NotFound() {
 
   return (
     <main className="max-w-[520px] mx-auto px-5 pt-24 pb-20 text-center">
-      <div className="text-[44px] mb-4" aria-hidden>
-        🧭
-      </div>
+      <IconCompass width={44} height={44} className="mb-4 mx-auto text-[#3ec6ff]" />
       <Card className="p-8">
         <h1 className="font-display text-2xl mb-2">{t("title")}</h1>
         <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6">{t("subtitle")}</p>
