@@ -153,6 +153,55 @@ export function cohortLearning(
   };
 }
 
+export type VariantPerformance = {
+  variantId: string;
+  labelHe: string;
+  labelEn: string;
+  trials: number;
+  wins: number;
+  winRate: number;
+  avgRecoveredMinor: number;
+};
+
+/**
+ * Which stance wins overall, across every counterparty and vertical — not the
+ * per-cohort question `cohortLearning` answers, but "which approach performs
+ * best in general," the shape the founder instrument needs. Same MIN_COHORT_TRIALS
+ * gate as everywhere else this table is read, for the same statistical-honesty
+ * reason: a variant with 2 trials is not evidence, whatever it looks like.
+ */
+export function aggregateVariantPerformance(rows: readonly LearningOutcomeRow[]): VariantPerformance[] {
+  const catalogRows = rows.filter((r) => isCatalogVariantId(r.variantId));
+  const byVariant = new Map<string, { n: number; wins: number; recovered: number }>();
+  for (const r of catalogRows) {
+    const cur = byVariant.get(r.variantId) ?? { n: 0, wins: 0, recovered: 0 };
+    cur.n += 1;
+    if (r.paid && r.recoveredMinor > 0) {
+      cur.wins += 1;
+      cur.recovered += r.recoveredMinor;
+    }
+    byVariant.set(r.variantId, cur);
+  }
+
+  const out: VariantPerformance[] = [];
+  for (const [variantId, s] of byVariant) {
+    if (s.n < MIN_COHORT_TRIALS) continue;
+    const labels = variantLabel(variantId);
+    out.push({
+      variantId,
+      labelHe: labels.he,
+      labelEn: labels.en,
+      trials: s.n,
+      wins: s.wins,
+      winRate: s.wins / s.n,
+      avgRecoveredMinor: s.wins > 0 ? Math.round(s.recovered / s.wins) : 0,
+    });
+  }
+
+  out.sort((a, b) => b.winRate * b.avgRecoveredMinor - a.winRate * a.avgRecoveredMinor);
+  return out;
+}
+
 /**
  * Expected recovery in agorot using documented win rate when available.
  * Cold prior 0.35 keeps ranking useful before volume exists — not a promise.

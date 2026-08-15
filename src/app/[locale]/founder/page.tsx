@@ -10,6 +10,7 @@ import { computeRecoveryGraph } from "@/lib/recoveryGraph";
 import { evaluateConsumerReleaseGate, paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
+import { aggregateVariantPerformance, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
@@ -86,7 +87,9 @@ export default async function FounderPage({
   const paymentsOk = paymentsFullyLive();
   const loopVolume = await loadLoopVolume(smtpOk);
 
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const [
     byStatus,
     savedAgg,
@@ -191,6 +194,86 @@ export default async function FounderPage({
     }),
   ]);
 
+  // Second batch: time-boxed activity + "what works" — kept separate from the
+  // query above so neither list gets harder to review than it already is.
+  const [
+    activeUsers30d,
+    abandonedMidFlow,
+    openedToday,
+    openedWeek,
+    openedMonth,
+    successToday,
+    successWeek,
+    successMonth,
+    failedToday,
+    failedWeek,
+    failedMonth,
+    feeRevenueToday,
+    feeRevenueWeek,
+    feeRevenueMonth,
+    savedAmountToday,
+    savedAmountWeek,
+    savedAmountMonth,
+    strategyOutcomeRows,
+  ] = await Promise.all([
+    // "Active" = touched at least one case in the window — there is no login
+    // timestamp on User, so this is the honest proxy, not a session count.
+    prisma.case.groupBy({ by: ["userId"], where: { updatedAt: { gte: monthAgo } } }),
+    // Sitting in a pre-send status for over a week with no further movement —
+    // the "did they walk away" question, not just "how many are open now."
+    prisma.case.count({
+      where: { status: { in: ["ANALYZED", "APPROVED", "VERIFIED"] }, updatedAt: { lt: weekAgo } },
+    }),
+    prisma.case.count({ where: { createdAt: { gte: dayAgo } } }),
+    prisma.case.count({ where: { createdAt: { gte: weekAgo } } }),
+    prisma.case.count({ where: { createdAt: { gte: monthAgo } } }),
+    prisma.savingsProof.count({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: dayAgo } },
+    }),
+    prisma.savingsProof.count({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: weekAgo } },
+    }),
+    prisma.savingsProof.count({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: monthAgo } },
+    }),
+    prisma.case.count({ where: { status: "NO_SAVING", updatedAt: { gte: dayAgo } } }),
+    prisma.case.count({ where: { status: "NO_SAVING", updatedAt: { gte: weekAgo } } }),
+    prisma.case.count({ where: { status: "NO_SAVING", updatedAt: { gte: monthAgo } } }),
+    prisma.fee.aggregate({ where: { status: "PAID", paidAt: { gte: dayAgo } }, _sum: { amount: true } }),
+    prisma.fee.aggregate({ where: { status: "PAID", paidAt: { gte: weekAgo } }, _sum: { amount: true } }),
+    prisma.fee.aggregate({ where: { status: "PAID", paidAt: { gte: monthAgo } }, _sum: { amount: true } }),
+    prisma.savingsProof.aggregate({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: dayAgo } },
+      _sum: { savingMonthly: true },
+    }),
+    prisma.savingsProof.aggregate({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: weekAgo } },
+      _sum: { savingMonthly: true },
+    }),
+    prisma.savingsProof.aggregate({
+      where: { selfReported: false, savingMonthly: { gt: 0 }, recordedAt: { gte: monthAgo } },
+      _sum: { savingMonthly: true },
+    }),
+    // "What approach wins" — same de-identified table the Strategy Engine
+    // reads for chooseStance, aggregated globally instead of per-cohort.
+    prisma.strategyOutcome.findMany({
+      select: {
+        market: true,
+        vertical: true,
+        counterparty: true,
+        variantId: true,
+        paid: true,
+        recoveredMinor: true,
+        days: true,
+        selfReported: true,
+      },
+      take: 5000,
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const variantPerformance = aggregateVariantPerformance(strategyOutcomeRows as LearningOutcomeRow[]);
+
   const agentRounds = await getAgentRoundMap(sentOpenIds.map((c) => c.id));
   const stuckMaxRounds = [...agentRounds.values()].filter((n) => n >= MAX_AGENT_ROUNDS).length;
 
@@ -250,11 +333,174 @@ export default async function FounderPage({
   return (
     <main className="max-w-[920px] mx-auto px-5 pb-24 pt-8" dir="rtl">
       <h1 className="font-display text-3xl mb-1.5">מדדי מייסד</h1>
-      <p className="text-ink-soft text-[14px] mb-5">
+      <p className="text-ink-soft text-[14px] mb-4">
         המספרים היחידים: Mandates שנשלחו, SavingsProof מתועד, השלמה לפי וורטיקל. בלי vanity.
       </p>
 
+      <nav className="flex flex-wrap gap-2 mb-6 text-[12.5px]">
+        {[
+          ["#users", "משתמשים"],
+          ["#money-time", "כסף לאורך זמן"],
+          ["#cases-time", "תיקים לאורך זמן"],
+          ["#approach", "מה עובד — לפי גישה"],
+          ["#by-provider", "מה עובד — לפי ספק"],
+          ["#numbers", "כל המספרים"],
+          ["#leads", "פניות"],
+          ["#feedback", "משוב"],
+        ].map(([href, label]) => (
+          <a
+            key={href}
+            href={href}
+            className="rounded-full border border-[rgba(255,255,255,0.12)] px-3 py-1.5 text-ink-soft font-bold no-underline hover:border-[rgba(63,203,155,0.4)] hover:text-ink transition-colors"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
       <LoopVolumePanel snap={loopVolume} locale={locale} />
+
+      <h2 id="users" className="font-display text-xl mt-10 mb-1.5">משתמשים</h2>
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
+        "פעיל" = נגע בתיק כלשהו ב-30 הימים האחרונים — אין לנו חותמת התחברות, זה הפרוקסי הכן. "נטשו
+        באמצע" = תיק שנתקע לפני שליחה (עדיין ANALYZED/APPROVED/VERIFIED) בלי תזוזה מעל שבוע.
+      </p>
+      <div className="grid gap-3 mb-6 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
+        {[
+          ["סה״כ משתמשים", String(users)],
+          ["חדשים (7 ימים)", String(newUsers7d)],
+          ["פעילים (30 ימים)", String(activeUsers30d.length)],
+          ["נטשו באמצע (תקוע >7 ימים)", String(abandonedMidFlow)],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] px-4 py-3.5"
+          >
+            <div className="text-[11.5px] text-ink-soft mb-1">{label}</div>
+            <div className="font-display text-2xl tabular-nums">{value}</div>
+          </div>
+        ))}
+      </div>
+
+      <h2 id="money-time" className="font-display text-xl mt-10 mb-1.5">כסף לאורך זמן</h2>
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
+        הכנסה = עמלות ששולמו בפועל (לא נוצרו). חיסכון = SavingsProof מתועד בלבד, לא הערכות
+        self-reported.
+      </p>
+      <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-x-auto mb-6">
+        <table className="w-full text-body min-w-[420px]">
+          <thead>
+            <tr className="text-ink-soft text-[11.5px] uppercase tracking-wide">
+              <th className="text-start px-4 py-3 font-bold"> </th>
+              <th className="text-center px-3 py-3 font-bold">היום</th>
+              <th className="text-center px-3 py-3 font-bold">7 ימים</th>
+              <th className="text-center px-3 py-3 font-bold">30 ימים</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-t border-[rgba(255,255,255,0.07)]">
+              <td className="px-4 py-3 font-extrabold">הכנסה (עמלות ששולמו)</td>
+              <td className="text-center px-3 py-3 tabular-nums">{money(feeRevenueToday._sum.amount ?? 0)}</td>
+              <td className="text-center px-3 py-3 tabular-nums">{money(feeRevenueWeek._sum.amount ?? 0)}</td>
+              <td className="text-center px-3 py-3 tabular-nums font-extrabold text-emerald">
+                {money(feeRevenueMonth._sum.amount ?? 0)}
+              </td>
+            </tr>
+            <tr className="border-t border-[rgba(255,255,255,0.07)]">
+              <td className="px-4 py-3 font-extrabold">חיסכון שהוחזר למשתמשים</td>
+              <td className="text-center px-3 py-3 tabular-nums">{money(savedAmountToday._sum.savingMonthly ?? 0)}</td>
+              <td className="text-center px-3 py-3 tabular-nums">{money(savedAmountWeek._sum.savingMonthly ?? 0)}</td>
+              <td className="text-center px-3 py-3 tabular-nums font-extrabold text-emerald">
+                {money(savedAmountMonth._sum.savingMonthly ?? 0)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="cases-time" className="font-display text-xl mt-10 mb-1.5">תיקים לאורך זמן</h2>
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
+        "הצליחו" = SavingsProof מתועד נרשם בחלון. "נכשלו" = סומן NO_SAVING בחלון. השוואה בין השניים
+        היא אחוז ההצלחה האמיתי של התקופה — לא המצטבר.
+      </p>
+      <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-x-auto mb-6">
+        <table className="w-full text-body min-w-[420px]">
+          <thead>
+            <tr className="text-ink-soft text-[11.5px] uppercase tracking-wide">
+              <th className="text-start px-4 py-3 font-bold"> </th>
+              <th className="text-center px-3 py-3 font-bold">היום</th>
+              <th className="text-center px-3 py-3 font-bold">7 ימים</th>
+              <th className="text-center px-3 py-3 font-bold">30 ימים</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-t border-[rgba(255,255,255,0.07)]">
+              <td className="px-4 py-3 font-extrabold">נפתחו</td>
+              <td className="text-center px-3 py-3 tabular-nums">{openedToday}</td>
+              <td className="text-center px-3 py-3 tabular-nums">{openedWeek}</td>
+              <td className="text-center px-3 py-3 tabular-nums font-extrabold">{openedMonth}</td>
+            </tr>
+            <tr className="border-t border-[rgba(255,255,255,0.07)]">
+              <td className="px-4 py-3 font-extrabold text-emerald">הצליחו (SAVED מתועד)</td>
+              <td className="text-center px-3 py-3 tabular-nums text-emerald">{successToday}</td>
+              <td className="text-center px-3 py-3 tabular-nums text-emerald">{successWeek}</td>
+              <td className="text-center px-3 py-3 tabular-nums font-extrabold text-emerald">{successMonth}</td>
+            </tr>
+            <tr className="border-t border-[rgba(255,255,255,0.07)]">
+              <td className="px-4 py-3 font-extrabold text-[#F08A6B]">נכשלו (NO_SAVING)</td>
+              <td className="text-center px-3 py-3 tabular-nums">{failedToday}</td>
+              <td className="text-center px-3 py-3 tabular-nums">{failedWeek}</td>
+              <td className="text-center px-3 py-3 tabular-nums font-extrabold">{failedMonth}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="approach" className="font-display text-xl mt-10 mb-1.5">מה עובד — לפי גישה</h2>
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
+        אותה טבלת StrategyOutcome ש-chooseStance קורא ממנה, מצטברת גלובלית (לא לפי לקוח בודד): איזו
+        גישת ניסוח מנצחת בממוצע, על פני כל הספקים והוורטיקלים. מוצג רק לגישה עם 5+ תוצאות מתועדות.
+      </p>
+      {variantPerformance.length === 0 ? (
+        <p className="text-ink-soft text-[13.5px] mb-6">
+          עוד אין 5 תוצאות מתועדות לאף גישה. זה לא ריק כי המנגנון לא עובד — זה ריק כי עדיין אין מספיק
+          תיקים סגורים. ברגע שיש, זה מתמלא לבד.
+        </p>
+      ) : (
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-x-auto mb-6">
+          <table className="w-full text-body min-w-[440px]">
+            <thead>
+              <tr className="text-ink-soft text-[11.5px] uppercase tracking-wide">
+                <th className="text-start px-4 py-3 font-bold">גישה</th>
+                <th className="text-center px-3 py-3 font-bold">תוצאות</th>
+                <th className="text-center px-3 py-3 font-bold">אחוז הצלחה</th>
+                <th className="text-center px-3 py-3 font-bold">חיסכון ממוצע</th>
+              </tr>
+            </thead>
+            <tbody>
+              {variantPerformance.map((v, i) => (
+                <tr key={v.variantId} className="border-t border-[rgba(255,255,255,0.07)]">
+                  <td className="px-4 py-3 font-extrabold">
+                    {v.labelHe}
+                    {i === 0 && (
+                      <span className="ms-2 text-[10.5px] font-bold text-emerald uppercase tracking-wide">
+                        מוביל
+                      </span>
+                    )}
+                  </td>
+                  <td className="text-center px-3 py-3 tabular-nums text-ink-soft">{v.trials}</td>
+                  <td className="text-center px-3 py-3 tabular-nums font-extrabold text-emerald">
+                    {Math.round(v.winRate * 100)}%
+                  </td>
+                  <td className="text-center px-3 py-3 tabular-nums">
+                    {v.avgRecoveredMinor > 0 ? money(v.avgRecoveredMinor) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div
         className={`rounded-2xl border px-5 py-4 mb-6 ${
@@ -393,6 +639,7 @@ export default async function FounderPage({
         </div>
       </div>
 
+      <h2 id="numbers" className="font-display text-xl mt-10 mb-1.5">כל המספרים</h2>
       <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-hidden">
         {rows.map(([label, value], i) => {
           const highlight = label.includes("אחוז הצלחה");
@@ -451,7 +698,7 @@ export default async function FounderPage({
           to be a 25-row preview here, duplicated by a separate, unlinked
           /leads page carrying the full 300-row table — one inbox now, not two
           half-built ones; /leads redirects here. */}
-      <h2 className="font-display text-xl mt-10 mb-1.5">פניות — למי לחזור</h2>
+      <h2 id="leads" className="font-display text-xl mt-10 mb-1.5">פניות — למי לחזור</h2>
       <p className="text-ink-soft text-body mb-4 leading-relaxed">
         כל פנייה נשמרת כאן לפני שנשלח מייל. אם אין SMTP או שהכתובת שגויה — המייל לא יוצא, והרשומה
         הזאת עדיין קיימת. זה המקור, המייל הוא רק התראה. סה״כ: <b className="text-emerald">{totalLeads}</b>
@@ -514,7 +761,7 @@ export default async function FounderPage({
           page showed only a count. A parent typing "קשה" into the feedback
           widget produced a row nobody could read without querying the DB
           directly — exactly the "tin can" gap this section closes. */}
-      <h2 className="font-display text-xl mt-10 mb-1.5">משוב ממשתמשים</h2>
+      <h2 id="feedback" className="font-display text-xl mt-10 mb-1.5">משוב ממשתמשים</h2>
       <p className="text-ink-soft text-body mb-4 leading-relaxed">
         כל מה שנכתב בתיבת "מה היית משפר בזכאי" — מהאתר, בלי צורך בחשבון. סה״כ:{" "}
         <b className="text-emerald">{feedbackCount}</b>
@@ -545,7 +792,7 @@ export default async function FounderPage({
       )}
 
       {/* The recovery graph — the moat. Per counterparty: what actually works. */}
-      <h2 className="font-display text-xl mt-10 mb-1.5">גרף ההשבה — מה עובד מול מי</h2>
+      <h2 id="by-provider" className="font-display text-xl mt-10 mb-1.5">מה עובד — לפי ספק</h2>
       <p className="text-ink-soft text-body mb-4 leading-relaxed">
         החפיר האמיתי (אפקט רשת של דאטה): לכל ספק — אחוז הצלחה, חיסכון ממוצע וזמן ממוצע לתוצאה. ככל
         שנצבור תיקים, זה הופך ל"מה מנצח מול מי" שאף מתחרה לא יכול להעתיק.
