@@ -9,6 +9,7 @@ import { fairnessScoreMap } from "@/lib/services/fairnessScoreMap";
 import { providerHebrewName } from "@/lib/providers";
 import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
+import { CompanySearch } from "@/components/CompanySearch";
 
 export const revalidate = 3600;
 
@@ -84,35 +85,20 @@ export default async function CompaniesPage({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-2.5">
-          {stats.map((s) => (
-            <Link
-              key={s.provider}
-              href={`/companies/${s.provider}`}
-              className="flex items-center gap-4 flex-wrap rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-4 no-underline text-ink hover:border-[rgba(63,203,155,0.35)] transition-colors"
-            >
-              <div className="flex-1 basis-[160px] font-extrabold text-[15.5px]">
-                {tp.has(s.provider) ? tp(s.provider) : providerHebrewName(s.provider)}
-              </div>
-              <div className="text-body text-ink-soft">
-                {t("companies.sampleTag", { count: s.cases })}
-              </div>
-              <div className="text-body text-ink-soft">
-                {t("companies.savedRateTag", { pct: s.savedRatePct })}
-              </div>
-              <div className="text-[14px] font-extrabold text-emerald">
-                {t("companies.avgTag", { amount: formatAgorot(s.avgSavingAgorot, loc) })}
-              </div>
-              {fairness.get(s.provider) && (
-                <div className="text-[12px] text-ink-soft w-full basis-full">
-                  {t("companies.fairnessScoreTag", {
-                    score: fairness.get(s.provider)!.fairnessScore,
-                  })}
-                </div>
-              )}
-            </Link>
-          ))}
-        </div>
+        <CompanySearch
+          placeholder={t("companies.searchPlaceholder")}
+          noResults={t("companies.searchNoResults")}
+          items={stats.map((s) => ({
+            provider: s.provider,
+            displayName: tp.has(s.provider) ? tp(s.provider) : providerHebrewName(s.provider),
+            sampleLabel: t("companies.sampleTag", { count: s.cases }),
+            savedRateLabel: t("companies.savedRateTag", { pct: s.savedRatePct }),
+            avgLabel: t("companies.avgTag", { amount: formatAgorot(s.avgSavingAgorot, loc) }),
+            fairnessLabel: fairness.get(s.provider)
+              ? t("companies.fairnessScoreTag", { score: fairness.get(s.provider)!.fairnessScore })
+              : undefined,
+          }))}
+        />
       )}
 
       {stats.length > 0 && (

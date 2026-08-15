@@ -3894,9 +3894,11 @@
   "companies": {
     "metaTitle": "Zakai Score — results by company | Zakai",
     "metaDesc": "Factual data on outcomes with providers — how many checks, success rate, and average documented saving. Based on real cases.",
-    "kicker": "Transparency by company",
-    "title": "Zakai Score — real results with each company",
+    "kicker": "Check before you deal with them",
+    "title": "Before you contact a company — see what happened to people who already did",
     "sub": "As more checks flow through Zakai, we can show facts: which providers actually reduce bills, and by how much. Data only — not an opinion.",
+    "searchPlaceholder": "Search a company — e.g. Bezeq, Partner, Netflix",
+    "searchNoResults": "No documented results for this company yet.",
     "emptyTitle": "We are building this now",
     "emptySub": "The Zakai Score is built from real, documented cases. There isn't enough data yet to show any company fairly — we only show a provider after enough checks. Be among the first to create the data.",
     "emptyCta": "Start a check",
@@ -5448,6 +5450,7 @@
     "t_7698572b": "Start with My money",
     "t_03cd5197": "Zakai is the standard consumer money agent: no call center, no phone left behind, fee only on documented savings. Every card leads to Mandate action.",
     "t_ace971b5": "Scan → case → Mandate → send → follow-up → documented saving → share. That’s the loop.",
+    "companiesCrossLink": "Want to check a specific company first? See real results",
     "metaTitle": "Where your money is leaking — Zakai Money OS",
     "metaDesc": "A global map of money leaks: subscriptions, mobile, fees, insurance, rights — the Zakai agent closes them without a call center."
   },

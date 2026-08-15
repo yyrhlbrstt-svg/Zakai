@@ -346,6 +346,11 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
         <Link href="/money" className="inline-block mt-5">
           <Button>{tIapp_locale_leaks_page("t_7698572b")}</Button>
         </Link>
+        <div className="mt-4">
+          <Link href="/companies" className="text-[13px] font-bold text-emerald underline">
+            {tIapp_locale_leaks_page("companiesCrossLink")}
+          </Link>
+        </div>
       </div>
     </VerticalPageShell>
   );
