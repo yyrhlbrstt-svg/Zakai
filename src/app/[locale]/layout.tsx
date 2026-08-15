@@ -16,6 +16,7 @@ import { EnablePush } from "@/components/EnablePush";
 import { PlausibleScript } from "@/components/PlausibleScript";
 import { LangSuggest, LANG_SUGGEST_COOKIE } from "@/components/LangSuggest";
 import { getCurrentUser } from "@/lib/auth/user";
+import { isAdminEmail } from "@/lib/ops/internalAdminGate";
 import { OpenLoopResumeBar } from "@/components/OpenLoopResumeBar";
 import { HideOnRoutes } from "@/components/HideOnRoutes";
 import { NON_CONSUMER_ROUTES } from "@/lib/nonConsumerRoutes";
@@ -229,7 +230,11 @@ export default async function LocaleLayout({
         />
         <NextIntlClientProvider messages={messages}>
           <Background />
-          <Header user={user ? { name: user.name, plan: user.plan } : null} />
+          <Header
+            user={
+              user ? { name: user.name, plan: user.plan, isAdmin: isAdminEmail(user.email) } : null
+            }
+          />
           <LangSuggest initialShow={showLangSuggest} />
           {children}
           {user ? (

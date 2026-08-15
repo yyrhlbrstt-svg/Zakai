@@ -698,12 +698,14 @@ export default async function DashboardPage({
           feeCaseId={celebrateCase?.id}
         />
       )}
-      {(user!.plan === "PRO" || user!.plan === "MAX") && (
+      {(user!.plan === "PRO" || user!.plan === "MAX" || user!.plan === "BUSINESS") && (
         <div
           className={`rounded-2xl p-[1px] mb-6 ${
-            user!.plan === "MAX"
-              ? "bg-[linear-gradient(105deg,#f7d98a,#f0b45c_55%,#e79a3c)]"
-              : "bg-[linear-gradient(105deg,#3fcb9b,#23cbb6_55%,#1fb6c9)]"
+            user!.plan === "BUSINESS"
+              ? "bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_45%,#8b5cf6_80%,#3fcb9b)]"
+              : user!.plan === "MAX"
+                ? "bg-[linear-gradient(105deg,#f7d98a,#f0b45c_55%,#e79a3c)]"
+                : "bg-[linear-gradient(105deg,#3fcb9b,#23cbb6_55%,#1fb6c9)]"
           }`}
         >
           <div className="rounded-2xl bg-[#0a1119] px-5 py-4 flex items-center justify-between gap-3 flex-wrap">
@@ -712,7 +714,13 @@ export default async function DashboardPage({
                 {t("dashboard.memberTitle", { plan: user!.plan })}
               </div>
               <div className="text-ink-soft text-[12.5px] mt-0.5">
-                {t(user!.plan === "MAX" ? "dashboard.memberMax" : "dashboard.memberPro")}
+                {t(
+                  user!.plan === "BUSINESS"
+                    ? "dashboard.memberBusiness"
+                    : user!.plan === "MAX"
+                      ? "dashboard.memberMax"
+                      : "dashboard.memberPro",
+                )}
               </div>
             </div>
             <Link href="/pricing" className="text-emerald text-body font-bold no-underline shrink-0">

@@ -79,7 +79,8 @@
     "vehicleCheck": "فحص سيارة قبل الشراء",
     "merchantFees": "عمولات المقاصة",
     "agents": "للوكلاء · Mandate",
-    "institutions": "للمؤسسات"
+    "institutions": "للمؤسسات",
+    "founderPanel": "لوحة الإدارة"
   },
   "auth": {
     "loginTitle": "تسجيل الدخول إلى زكاي",

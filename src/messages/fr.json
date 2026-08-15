@@ -77,7 +77,8 @@
     "dormant": "Argent oublié",
     "vehicleCheck": "Vérification véhicule d'occasion",
     "agents": "Pour les agents · Mandate",
-    "institutions": "Pour les institutions"
+    "institutions": "Pour les institutions",
+    "founderPanel": "Panneau d'administration"
   },
   "door": {
     "title": "Continuer après Mon argent",
