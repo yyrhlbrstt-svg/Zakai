@@ -431,15 +431,58 @@ select option {
   0% { transform: translateX(-120%); }
   22%, 100% { transform: translateX(220%); }
 }
+/*
+ * BUSINESS gets the full brand gradient — every hue the product uses
+ * elsewhere for its own mark, not one hue borrowed for a tier — because it
+ * is the top of the ladder, not a variation on MAX. The gradient itself
+ * drifts slowly (background-position, GPU-cheap) on top of the same sheen
+ * sweep PRO/MAX use, so it reads as more alive without being busier: two
+ * quiet motions instead of one, not one loud one.
+ */
+.plan-badge-business {
+  background: linear-gradient(105deg, #3fcb9b, #3ec6ff 45%, #8b5cf6 80%, #3fcb9b);
+  background-size: 260% 100%;
+  box-shadow: 0 4px 18px rgba(139, 92, 246, 0.4);
+  animation: badgeDrift 7s linear infinite;
+}
+.plan-badge-business::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: translateX(-120%);
+  animation: badgeSheen 3.6s var(--ease-out) 1.2s infinite;
+  z-index: 1;
+}
+@keyframes badgeDrift {
+  to { background-position: 260% 0; }
+}
 /* Members get a warmer avatar ring in the header account chip. */
 :root[data-plan="MAX"] .account-avatar {
   background: linear-gradient(105deg, #f7d98a, #f0b45c 55%, #e79a3c) !important;
   box-shadow: 0 0 0 2px rgba(240, 180, 92, 0.35);
 }
+:root[data-plan="BUSINESS"] .account-avatar {
+  background: linear-gradient(105deg, #3fcb9b, #3ec6ff 45%, #8b5cf6 80%, #3fcb9b) !important;
+  background-size: 260% 100%;
+  animation: badgeDrift 7s linear infinite;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.4);
+}
 @media (prefers-reduced-motion: reduce) {
-  .plan-badge-max::after {
+  .plan-badge-max::after,
+  .plan-badge-business::after {
     animation: none;
     opacity: 0;
+  }
+  .plan-badge-business,
+  :root[data-plan="BUSINESS"] .account-avatar {
+    animation: none;
+    background-position: 0 0;
   }
 }
 
