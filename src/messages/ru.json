@@ -79,7 +79,8 @@
     "vehicleCheck": "Проверка авто перед покупкой",
     "merchantFees": "Комиссии эквайринга",
     "agents": "Для агентов · Mandate",
-    "institutions": "Для организаций"
+    "institutions": "Для организаций",
+    "founderPanel": "Панель управления"
   },
   "auth": {
     "loginTitle": "Вход в Zakai",

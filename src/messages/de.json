@@ -77,7 +77,8 @@
     "dormant": "Vergessenes Geld",
     "vehicleCheck": "Gebrauchtwagen-Check",
     "agents": "Für Agenten · Mandate",
-    "institutions": "Für Institutionen"
+    "institutions": "Für Institutionen",
+    "founderPanel": "Admin-Bereich"
   },
   "door": {
     "title": "Weiter nach Mein Geld",

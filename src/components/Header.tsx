@@ -12,7 +12,11 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { FEATURED_TOOLS } from "@/lib/toolsCatalog";
 import { TOOL_EXTRA_LABELS } from "@/lib/toolLabels";
 
-export function Header({ user }: { user: { name: string; plan?: string } | null }) {
+export function Header({
+  user,
+}: {
+  user: { name: string; plan?: string; isAdmin?: boolean } | null;
+}) {
   const t = useTranslations();
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -119,6 +123,9 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
                 <NavLink href="/dashboard" pathname={pathname}>{t("nav.dashboard")}</NavLink>
                 <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
                 <NavLink href="/check" pathname={pathname}>{t("nav.newCheck")}</NavLink>
+                {user.isAdmin && (
+                  <NavLink href="/founder" pathname={pathname}>{t("nav.founderPanel")}</NavLink>
+                )}
                 {accountChip}
               </>
             ) : (
@@ -204,7 +211,12 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
 
             <div className="h-px bg-[rgba(255,255,255,0.08)] my-2" />
             {user ? (
-              <MobileLink href="/settings" pathname={pathname}>{t("nav.settings")}</MobileLink>
+              <>
+                {user.isAdmin && (
+                  <MobileLink href="/founder" pathname={pathname}>{t("nav.founderPanel")}</MobileLink>
+                )}
+                <MobileLink href="/settings" pathname={pathname}>{t("nav.settings")}</MobileLink>
+              </>
             ) : (
               <>
                 <MobileLink href="/business" pathname={pathname}>{tIcomponents_Header("t_b4265709")}</MobileLink>
