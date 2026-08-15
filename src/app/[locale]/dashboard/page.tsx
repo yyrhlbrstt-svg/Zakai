@@ -723,9 +723,16 @@ export default async function DashboardPage({
                 )}
               </div>
             </div>
-            <Link href="/pricing" className="text-emerald text-body font-bold no-underline shrink-0">
-              {t("dashboard.memberManage")}
-            </Link>
+            <div className="flex items-center gap-4 shrink-0">
+              {user!.plan === "BUSINESS" && (
+                <Link href="/receipts" className="text-emerald text-body font-bold no-underline">
+                  {t("dashboard.memberBusinessCta")}
+                </Link>
+              )}
+              <Link href="/pricing" className="text-emerald text-body font-bold no-underline">
+                {t("dashboard.memberManage")}
+              </Link>
+            </div>
           </div>
         </div>
       )}
