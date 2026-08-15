@@ -405,6 +405,18 @@ export const CATALOG: PriorityAction[] = [
     agentic: true,
   },
   {
+    id: "price-protection",
+    href: "/price-protection",
+    titleHe: "ירד המחיר אחרי שקנית?",
+    titleEn: "Price dropped after you bought it?",
+    whyHe: "טיסה, מלון או מוצר שהוזל — דרישת הפרש בכתב",
+    whyEn: "A flight, hotel, or product that got cheaper — written demand for the difference",
+    potentialShekels: 50,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
     id: "credit-card",
     href: "/credit-card",
     titleHe: "ריבית כרטיס",

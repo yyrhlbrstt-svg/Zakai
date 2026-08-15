@@ -348,6 +348,7 @@ export default async function FounderPage({
 
       <nav className="flex flex-wrap gap-2 mb-6 text-[12.5px]">
         {[
+          ["#recommendation", "מה לעשות עכשיו — P0"],
           ["#users", "משתמשים"],
           ["#money-time", "כסף לאורך זמן"],
           ["#cases-time", "תיקים לאורך זמן"],
@@ -581,7 +582,7 @@ export default async function FounderPage({
         </div>
       )}
 
-      <div className="mb-2">
+      <div id="recommendation" className="mb-2">
         <h2 className="font-display text-xl m-0 mb-1">P0 מנכ״ל — מונופול על הצינור</h2>
         <p className="text-body text-ink-soft m-0 mb-4 leading-relaxed">
           מונופול = כל מוסד וסוכן חייב לדבר Mandate→SavingsProof. השערים למטה הם מדד אימוץ — לא
