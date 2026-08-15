@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
 import { clientIpFromHeaders } from "@/lib/ratelimit";
 import { logSecurityEvent } from "@/lib/security/securityEvent";
+import { isAdminEmail } from "@/lib/ops/internalAdminGate";
 import { isEmailVerified } from "@/lib/services/emailVerification";
 import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
@@ -18,6 +19,7 @@ import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
 import { LoopVolumePanel } from "@/components/LoopVolumePanel";
+import { GrantOwnerAccessButton } from "@/components/GrantOwnerAccessButton";
 import { loadLoopVolume } from "@/lib/services/loopVolume";
 import { bcp47, type Locale } from "@/i18n/config";
 import { privatePageMetadata } from "@/lib/seo";
@@ -51,13 +53,6 @@ export const dynamic = "force-dynamic";
  * Gated by ADMIN_EMAIL (comma-separated allowed). No admin system needed: it
  * reuses the normal session and just checks the email. Not linked anywhere.
  */
-function isAdmin(email: string): boolean {
-  const allow = (process.env.ADMIN_EMAIL || "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  return allow.includes(email.toLowerCase());
-}
 
 export async function generateMetadata({
   params,
@@ -78,7 +73,7 @@ export default async function FounderPage({
   setRequestLocale(locale as Locale);
   const user = await getCurrentUser();
   if (!user) redirect({ href: "/login", locale });
-  if (!isAdmin(user!.email)) redirect({ href: "/dashboard", locale });
+  if (!isAdminEmail(user!.email)) redirect({ href: "/dashboard", locale });
   // Matching the address is not the same as controlling it. Signup accepts any
   // address, so without this an attacker who registered the ADMIN_EMAIL value
   // first would hold a dashboard listing every lead's name, phone and company.
@@ -345,6 +340,10 @@ export default async function FounderPage({
       <p className="text-ink-soft text-[14px] mb-4">
         המספרים היחידים: Mandates שנשלחו, SavingsProof מתועד, השלמה לפי וורטיקל. בלי vanity.
       </p>
+
+      <div className="mb-6">
+        <GrantOwnerAccessButton currentPlan={user!.plan} />
+      </div>
 
       <nav className="flex flex-wrap gap-2 mb-6 text-[12.5px]">
         {[

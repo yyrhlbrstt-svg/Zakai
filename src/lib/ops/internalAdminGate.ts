@@ -10,3 +10,16 @@ export function isInternalOpsRequest(request: Request): boolean {
   const provided = request.headers.get("x-zakai-admin-token") || "";
   return secretsMatch(provided, adminToken);
 }
+
+/**
+ * Same ADMIN_EMAIL allow-list /founder itself is gated by (comma-separated).
+ * Shared so a second consumer — /api/founder/grant-owner-access — can't drift
+ * from the one place that decides who is the founder.
+ */
+export function isAdminEmail(email: string): boolean {
+  const allow = (process.env.ADMIN_EMAIL || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return allow.includes(email.toLowerCase());
+}
