@@ -29,6 +29,7 @@
     "packs:release-check": "npm run packs:sync && npm run verify:packs-cdn",
     "gravity:checklist": "node scripts/gravity-checklist.mjs",
     "delegation:admit-pilot": "node scripts/admit-delegated-pilot.mjs",
+    "grant:owner-access": "node scripts/grant-owner-access.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
