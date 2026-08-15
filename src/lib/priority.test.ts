@@ -56,6 +56,10 @@ describe("priority cadence", () => {
     expect(rankPriorityActions(20).some((a) => a.id === "vehicleCheck")).toBe(true);
   });
 
+  it("includes price-protection — toolsCatalog.ts already marked it agentic:true, but it had no door into this ranking, so the recommendation engine could never surface it", () => {
+    expect(rankPriorityActions(50).some((a) => a.id === "price-protection")).toBe(true);
+  });
+
   it("includes every calculator named in the assistant's own KNOWLEDGE ANCHORS, not just pension-fees", () => {
     // pension-fees, payslip, severance, maternity, unemployment and miluim
     // were all built, tested, and already named in assistantSystem.ts's own
