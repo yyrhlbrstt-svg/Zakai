@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { prisma } from "@/lib/prisma";
+import { clientIpFromHeaders } from "@/lib/ratelimit";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 import { isEmailVerified } from "@/lib/services/emailVerification";
 import { emailConfigured } from "@/lib/messaging";
 import { formatAgorot } from "@/lib/money";
@@ -81,6 +84,12 @@ export default async function FounderPage({
   // first would hold a dashboard listing every lead's name, phone and company.
   // The environment names who may be admin; this proves they are that person.
   if (!(await isEmailVerified(user!.id))) redirect({ href: "/dashboard", locale });
+
+  await logSecurityEvent({
+    type: "admin_access",
+    userId: user!.id,
+    ip: clientIpFromHeaders(await headers()),
+  });
 
   const releaseGate = evaluateConsumerReleaseGate();
   const smtpOk = emailConfigured();

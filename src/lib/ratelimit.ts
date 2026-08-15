@@ -65,13 +65,22 @@ export async function refundRateLimit(
  * inbound requests, and otherwise fall back to the LAST `x-forwarded-for` hop —
  * the one appended by the nearest trusted proxy — never the spoofable first.
  */
-export function clientIp(request: Request): string {
-  const real = request.headers.get("x-real-ip")?.trim();
+function ipFromHeaders(headers: { get(name: string): string | null }): string {
+  const real = headers.get("x-real-ip")?.trim();
   if (real) return real;
-  const xff = request.headers.get("x-forwarded-for");
+  const xff = headers.get("x-forwarded-for");
   if (xff) {
     const hops = xff.split(",").map((s) => s.trim()).filter(Boolean);
     if (hops.length > 0) return hops[hops.length - 1];
   }
   return "unknown";
+}
+
+export function clientIp(request: Request): string {
+  return ipFromHeaders(request.headers);
+}
+
+/** Same extraction as clientIp, for Server Components with no Request object — pass next/headers' headers(). */
+export function clientIpFromHeaders(headers: { get(name: string): string | null }): string {
+  return ipFromHeaders(headers);
 }

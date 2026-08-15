@@ -148,7 +148,10 @@ export async function completePasswordReset(
   const passwordHash = await hashPassword(newPassword);
 
   await prisma.$transaction([
-    prisma.user.update({ where: { id: record.userId }, data: { passwordHash } }),
+    prisma.user.update({
+      where: { id: record.userId },
+      data: { passwordHash, passwordChangedAt: new Date() },
+    }),
     prisma.passwordReset.update({
       where: { id: record.id },
       data: { consumedAt: new Date() },
