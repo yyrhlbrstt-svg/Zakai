@@ -788,7 +788,8 @@
       "class_action": "We’ll check open class actions you’re owed money from and enroll you automatically — no forms.",
       "lost_money": "We’ll scan every registry for lost money in your name and get it back to you."
     },
-    "memberBusiness": "Zero fee, unlimited cases, and bulk receipt import (CSV) + an automatic monthly digest for your accountant — BUSINESS only."
+    "memberBusiness": "Zero fee, unlimited cases, and bulk receipt import (CSV) + an automatic monthly digest for your accountant — BUSINESS only.",
+    "memberBusinessCta": "Open receipt import"
   },
   "legal": {
     "termsTitle": "Terms of use & privacy",
