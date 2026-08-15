@@ -7,7 +7,7 @@ import { reportError } from "@/lib/report-error";
 import { AGENT_SUBJECT_PREFIX, autoFollowUpCase } from "@/lib/services/agentFollowUp";
 import { SENT_FOLLOWUP_AFTER_DAYS } from "@/lib/services/loopLimits";
 import { requireCronAuth } from "@/lib/security/cronAuth";
-import { sortByFollowUpPriority } from "@/lib/services/followUpPriority";
+import { sortByFollowUpPriority, planFollowUpWaitDays } from "@/lib/services/followUpPriority";
 import { isReminderDue } from "@/lib/deadlines";
 import { feePayAbsoluteUrl, feePayDashboardPath } from "@/lib/feePayPath";
 import { localeForCountry } from "@/lib/localePath";
@@ -162,7 +162,9 @@ export async function GET(request: Request) {
     });
     const nowMs = Date.now();
     const eligible = waitingRaw.filter((c) => {
-      const wait = waitDaysFor(c.vertical, c.provider);
+      // Paid plans chase sooner than the cohort-learned wait, not just
+      // sooner in processing order — see planFollowUpWaitDays.
+      const wait = planFollowUpWaitDays(waitDaysFor(c.vertical, c.provider), c.user.plan);
       return c.updatedAt.getTime() <= nowMs - wait * 86_400_000;
     });
     // Paid tiers first — the pricing page's own priority-handling promise.

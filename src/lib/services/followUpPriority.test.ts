@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planPriority, sortByFollowUpPriority } from "./followUpPriority";
+import { planPriority, sortByFollowUpPriority, planFollowUpWaitDays } from "./followUpPriority";
 
 describe("planPriority", () => {
   it("ranks paid tiers above FREE", () => {
@@ -45,5 +45,32 @@ describe("sortByFollowUpPriority", () => {
     const original = [...cases];
     sortByFollowUpPriority(cases);
     expect(cases).toEqual(original);
+  });
+});
+
+describe("planFollowUpWaitDays", () => {
+  it("leaves FREE exactly on the cohort-learned/default wait", () => {
+    expect(planFollowUpWaitDays(10, "FREE")).toBe(10);
+    expect(planFollowUpWaitDays(10, null)).toBe(10);
+  });
+
+  it("chases sooner for paid plans, MAX/BUSINESS faster than PRO", () => {
+    const pro = planFollowUpWaitDays(10, "PRO");
+    const max = planFollowUpWaitDays(10, "MAX");
+    const business = planFollowUpWaitDays(10, "BUSINESS");
+    expect(pro).toBeLessThan(10);
+    expect(max).toBeLessThan(pro);
+    expect(business).toBe(max);
+  });
+
+  it("never goes below the FOLLOWUP_AFTER_DAYS_MIN floor, even for MAX", () => {
+    // A short cohort-learned wait (e.g. 3, already at the floor) must not be
+    // scaled down further into day-0 theater just because the plan is paid.
+    expect(planFollowUpWaitDays(3, "MAX")).toBe(3);
+    expect(planFollowUpWaitDays(4, "MAX")).toBeGreaterThanOrEqual(3);
+  });
+
+  it("treats an unknown plan value as FREE", () => {
+    expect(planFollowUpWaitDays(10, "something_unknown")).toBe(10);
   });
 });
