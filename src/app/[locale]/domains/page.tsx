@@ -45,7 +45,7 @@ export default async function DomainsPage({
     <VerticalPageShell title={t("title")} sub={t("sub")} width="wide" kicker={t("kicker")}>
       <Card className="p-5 mb-8 border-emerald/35 bg-[rgba(63,203,155,0.06)]">
         <p className="text-[14px] leading-relaxed m-0 mb-3">{t("mandateBlurb")}</p>
-        <div className="flex flex-wrap gap-4 text-[13px] font-bold">
+        <div className="flex flex-wrap gap-4 text-body font-bold">
           <Link href="/institutions" className="text-emerald no-underline">
             {t("mandateInstitutions")}
           </Link>
@@ -89,35 +89,42 @@ export default async function DomainsPage({
 
       <section className="border-t border-[rgba(255,255,255,0.08)] pt-10 mb-10">
         <h2 className="text-lg font-extrabold mb-2">{t("executionTitle")}</h2>
-        <p className="text-[13px] text-ink-soft mb-4 max-w-[640px] leading-relaxed">{t("executionSub")}</p>
-        <Link href="/standard" className="text-[13px] font-bold text-emerald no-underline">
+        <p className="text-body text-ink-soft mb-4 max-w-[640px] leading-relaxed">{t("executionSub")}</p>
+        <Link href="/standard" className="text-body font-bold text-emerald no-underline">
           {t("executionStandard")} →
         </Link>
       </section>
 
       <section className="border-t border-[rgba(255,255,255,0.08)] pt-10 mb-10">
+        {/*
+          Raw templates on purpose: the panel fetches the live count on the
+          client and substitutes the placeholders itself. Fetching them with
+          t() runs ICU formatting, which throws on the absent values and
+          renders the key path to the reader instead of the label.
+        */}
         <CollectiveSummaryPanel
           market={market}
           title={t("collectiveSummaryTitle")}
           sub={t("collectiveSummarySub")}
-          totalLabel={t("collectiveTotal")}
-          verticalLabel={t("collectiveVertical")}
+          totalLabel={t.raw("collectiveTotal") as string}
+          verticalLabel={t.raw("collectiveVertical") as string}
           apiHint={t("collectiveApiHint")}
         />
         <h2 className="text-lg font-extrabold mb-2">{t("collectiveTitle")}</h2>
-        <p className="text-[13px] text-ink-soft mb-4 max-w-[560px]">{t("collectiveSub")}</p>
+        <p className="text-body text-ink-soft mb-4 max-w-[560px]">{t("collectiveSub")}</p>
         <CollectiveIntentForm market={market} />
       </section>
 
+      {/* Same: the run status placeholders are filled in from live data. */}
       <AutopilotStatusStrip
         title={t("autopilotTitle")}
         sub={t("autopilotSub")}
         manifestLabel={t("autopilotManifest")}
-        lastRunLabel={t("autopilotLastRun")}
+        lastRunLabel={t.raw("autopilotLastRun") as string}
         neverLabel={t("autopilotNever")}
       />
 
-      <p className="mt-10 text-[11.5px] text-ink-soft/70 text-center max-w-[560px] mx-auto leading-relaxed">
+      <p className="mt-10 text-[11.5px] text-ink-soft text-center max-w-[560px] mx-auto leading-relaxed">
         {t("footerHonesty")}
       </p>
     </VerticalPageShell>

@@ -23,8 +23,14 @@ export function CollectiveIntentForm({ market }: { market: string }) {
 
   return (
     <div className="flex flex-col gap-3 max-w-md">
-      <label className="text-[13px] font-bold text-ink-soft">{copy.label}</label>
+      {/* The label was a plain sibling, so it labelled nothing: the select was
+          announced with no name at all, and clicking the label did not focus
+          it. */}
+      <label htmlFor="collective-vertical" className="text-body font-bold text-ink-soft">
+        {copy.label}
+      </label>
       <select
+        id="collective-vertical"
         className="rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.2)] px-3 py-2 text-[14px]"
         value={vertical}
         onChange={(e) => setVertical(e.target.value)}

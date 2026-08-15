@@ -53,7 +53,7 @@ export function RightsGuideSearch({
       {filtered && (
         <ul className="mt-3 m-0 p-0 list-none flex flex-col gap-1.5 max-h-64 overflow-auto">
           {filtered.length === 0 ? (
-            <li className="text-[13px] text-ink-soft">—</li>
+            <li className="text-body text-ink-soft">—</li>
           ) : (
             filtered.map(({ id, title, cat }) => (
               <li key={id}>

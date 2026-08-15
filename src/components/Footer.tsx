@@ -32,8 +32,12 @@ function FooterLink({
   const isCurrent = pathname === target && !href.includes("#");
 
   if (isCurrent) {
+    // The current page, at half opacity, computed to 2.72:1 — well under the
+    // 4.5:1 floor and the worst contrast on the site. "You are here" is not a
+    // reason to make something unreadable; the cursor and aria-current already
+    // say it is not a link.
     return (
-      <span aria-current="page" className="text-ink-soft/50 cursor-default">
+      <span aria-current="page" className="text-ink-soft cursor-default">
         {children}
       </span>
     );
@@ -74,7 +78,7 @@ export function Footer() {
         ))}
       </ul>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-2.5 justify-center text-[13px] font-bold">
+      <div className="flex flex-wrap gap-x-4 gap-y-2.5 justify-center text-body font-bold">
         <FooterLink href="/money#zakai-money-scan" pathname={pathname} primary>
           {moneyLabel}
         </FooterLink>
@@ -87,6 +91,10 @@ export function Footer() {
         <FooterLink href="/business" pathname={pathname}>{bizLabel}</FooterLink>
         <FooterLink href="/partners" pathname={pathname}>{partnersLabel}</FooterLink>
         <FooterLink href="/institutions" pathname={pathname}>{instLabel}</FooterLink>
+        {/* The protocol's own door. /institutions was here and /agents was
+            not, so the surface aimed at the people most likely to integrate
+            was the one with no link anywhere on the page. */}
+        <FooterLink href="/agents" pathname={pathname}>{t("nav.agents")}</FooterLink>
         <FooterLink href="/tools" pathname={pathname}>{t("footer.allTools")}</FooterLink>
         <FooterLink href="/network-proof" pathname={pathname}>
           {t("footer.networkProof")}
@@ -103,6 +111,9 @@ export function Footer() {
           {(
             [
               { href: "/about", key: "footer.about" as const },
+              { href: "/contact", key: "footer.contact" as const },
+              { href: "/status", key: "footer.status" as const },
+              { href: "/changelog", key: "footer.changelog" as const },
               { href: "/how-it-works", key: "footer.howItWorks" as const },
               { href: "/feedback", key: "footer.feedback" as const },
               { href: "/faq", key: "footer.faq" as const },
@@ -116,7 +127,7 @@ export function Footer() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
+              className="text-body font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
             >
               {t(l.key)}
             </Link>
@@ -124,7 +135,7 @@ export function Footer() {
         </span>
       </div>
 
-      <p className="text-[11px] text-[rgba(147,166,165,0.7)] leading-relaxed text-center max-w-[640px] mx-auto">
+      <p className="text-[11px] text-[rgba(147,166,165,0.85)] leading-relaxed text-center max-w-[640px] mx-auto">
         {t("footer.legalLine")}
       </p>
     </footer>

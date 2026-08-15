@@ -27,6 +27,7 @@ import { resolvePasteRecordField } from "@/lib/services/pasteRecordField";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { UNATTRIBUTED_VARIANT_ID } from "@/lib/strategy/normalizeKeys";
 import { complaintCategoryForVertical } from "@/lib/complaintEscalation";
+import { PromisedCreditPanel, type OpenPromise } from "@/components/PromisedCreditPanel";
 
 type Status =
   | "ANALYZED"
@@ -103,13 +104,19 @@ interface Props {
    * do not double-report there.
    */
   strategyVariant?: string | null;
+  /**
+   * A credit the counterparty agreed to, held until it actually arrives.
+   * Null when none was recorded — which is not the same as "no promise was
+   * made", only that nobody told us about one.
+   */
+  promisedCredit?: OpenPromise | null;
 }
 
 const copy: Record<string, Record<string, string>> = {
   he: {
     approve: "אשר והמשך",
     approveSend: "אשר ושלח עם Mandate עכשיו",
-    sentShareTitle: "שתפו — כל Mandate שמגיע דרככם מגדיל את הצינור",
+    sentShareTitle: "שתפו — ככל שיותר אנשים דורשים בכתב, קשה יותר להתעלם",
     sentShareDefault:
       "שלחתי לספק בקשה עם Mandate של זכאי — הרשאה חתומה בכתב, בלי מוקד. בדקו מה מגיע לכם:",
     shareInviteHeadline: "שתפו — כל חבר שמצטרף דרככם מקבל עזרה, ואתם מקבלים זיכוי לעמלה הבאה",
@@ -146,9 +153,10 @@ const copy: Record<string, Record<string, string>> = {
     copied: "הועתק",
     whatsapp: "וואטסאפ",
     nativeShare: "שתף",
-    mandateOk: "Mandate הונפק — הספק יכול לאמת חתימה ב-JWKS",
+    mandateOk: "ההרשאה נחתמה — הספק יכול לאמת שהיא אמיתית",
     authCode: "קוד הרשאה",
     savedTitle: "✓ חיסכון מתועד",
+    downloadSettlement: "הורד את הרשומה החתומה — ניתנת לאימות בלי זכאי",
     savedSub:
       "הסוכן סיים. שתף — כל חבר שמגיע דרכך מקבל קרדיט, ואתה גם. בעוד ~6 חודשים נזכיר לבדוק אם המחיר זחל חזרה.",
     savedShareDefault:
@@ -172,8 +180,8 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "ביטחון",
     proposedOneTap: "רשום חיסכון בלחיצה אחת",
     proposedFrom: "מ־",
-    saveBlockTitle: "סגירת הלופ — רשמו SavingsProof",
-    saveBlockSub: "זו המטרה של התיק. בלי רישום אין עמלה, אין הוכחה, ואין Gravity. הזינו סכום או הדביקו תשובה למעלה.",
+    saveBlockTitle: "רשמו כמה נחסך — זה מה שסוגר את התיק",
+    saveBlockSub: "זו כל המטרה. בלי הסכום אין הוכחה שנחסך לכם כסף — ובלי הוכחה אנחנו לא גובים כלום. הזינו סכום, או הדביקו את תשובת הספק למעלה.",
     quickCancel: "בוטל לגמרי (₪0)",
     quickOff20: "הנחה ~20% (הערכה — בלי עמלה)",
     quickOff50: "הנחה ~50% (הערכה — בלי עמלה)",
@@ -188,9 +196,9 @@ const copy: Record<string, Record<string, string>> = {
     mandateInactiveBanner:
       "אין Mandate פעיל על התיק — הסוכן לא יכול לשלוח המשך לספק עד שתאשרו הרשאה מחדש.",
     authRevokedBanner:
-      "ההרשאה בוטלה — אי אפשר לרשום חיסכון או לגבות עמלה. הנפיקו Mandate מחדש או פתחו תיק חדש.",
+      "ההרשאה בוטלה — אי אפשר לרשום חיסכון או לגבות עמלה. חדשו את ההרשאה או פתחו תיק חדש.",
     feeMandateRequired:
-      "אין Mandate קשור לעמלה — לא נגבה תשלום. ודאו שיש Mandate פעיל לפני סגירת הלופ.",
+      "אין הרשאה חתומה שקשורה לעמלה הזו — לכן לא נגבה כלום. ודאו שההרשאה פעילה לפני סגירת התיק.",
     mandateReissue: "הנפק Mandate מחדש",
     mandateReissued: "Mandate פעיל שוב",
     proofsLabel: "העבירו תשובת ספק לכאן",
@@ -218,7 +226,7 @@ const copy: Record<string, Record<string, string>> = {
     outreachEmailPh: "אימייל לשליחה (ספק / עירייה / חנות)",
     noSavingTitle: "אין חיסכון מתועד בתיק הזה",
     noSavingSub:
-      "סגרתם בלי SavingsProof — אפשר להתחיל סריקה חדשה או לפתוח תיק אחר. בלי תיעוד אין עמלה ואין שיתוף.",
+      "סגרתם בלי לרשום חיסכון — אפשר לסרוק מחדש או לפתוח תיק אחר. בלי סכום רשום אין עמלה ואין מה לשתף.",
     noSavingCta: "חזרה לכסף שלי",
     revokedTitle: "ההרשאה בוטלה",
     revokedSub: "התיק לא פעיל. אפשר להתחיל מחדש ב«כסף שלי».",
@@ -226,7 +234,7 @@ const copy: Record<string, Record<string, string>> = {
   en: {
     approve: "Approve & continue",
     approveSend: "Approve & send with Mandate now",
-    sentShareTitle: "Share — every Mandate through you grows the pipe",
+    sentShareTitle: "Share — the more people who ask in writing, the harder we are to ignore",
     sentShareDefault:
       "I sent my provider a Zakai Mandate request — signed written authority, no call center. See what you're owed:",
     shareInviteHeadline: "Share — every friend who joins through you gets help, and you earn credit toward your next fee",
@@ -263,9 +271,10 @@ const copy: Record<string, Record<string, string>> = {
     copied: "Copied",
     whatsapp: "WhatsApp",
     nativeShare: "Share",
-    mandateOk: "Mandate issued — provider can verify via JWKS",
+    mandateOk: "Authorization signed — the provider can verify it is genuine",
     authCode: "Authorization code",
     savedTitle: "✓ Saving documented",
+    downloadSettlement: "Download the signed record — verifiable without us",
     savedSub:
       "Agent done. Share — friends who join via you get credit, and so do you. In ~6 months we'll remind you to re-check if the price crept back.",
     savedShareDefault:
@@ -289,8 +298,8 @@ const copy: Record<string, Record<string, string>> = {
     proposedConf: "Confidence",
     proposedOneTap: "One-tap record saving",
     proposedFrom: "from",
-    saveBlockTitle: "Close the loop — record SavingsProof",
-    saveBlockSub: "This is the point of the case. No record → no fee, no proof, no Gravity. Enter an amount or paste a reply above.",
+    saveBlockTitle: "Record what you saved — that is what closes the case",
+    saveBlockSub: "This is the whole point. Without the amount there is no proof you saved anything — and without proof we charge you nothing. Enter an amount, or paste the provider's reply above.",
     quickCancel: "Fully cancelled (₪0)",
     quickOff20: "~20% off (estimate — no fee)",
     quickOff50: "~50% off (estimate — no fee)",
@@ -307,7 +316,7 @@ const copy: Record<string, Record<string, string>> = {
     authRevokedBanner:
       "Authorization was revoked — cannot record a saving or collect a fee. Re-issue a Mandate or open a new case.",
     feeMandateRequired:
-      "No Mandate bound to this fee — checkout refused. Ensure an ACTIVE Mandate before closing the loop.",
+      "No signed authorization is bound to this fee — so nothing is charged. Make sure the authorization is active before closing the case.",
     mandateReissue: "Re-issue Mandate",
     mandateReissued: "Mandate active again",
     proofsLabel: "Forward provider reply here",
@@ -335,7 +344,7 @@ const copy: Record<string, Record<string, string>> = {
     outreachEmailPh: "Send-to email (provider / municipality / merchant)",
     noSavingTitle: "No documented saving on this case",
     noSavingSub:
-      "You closed without a SavingsProof — start a new scan or another case. No proof means no fee and no share.",
+      "You closed without recording a saving — start a new scan or another case. No amount recorded means no fee and nothing to share.",
     noSavingCta: "Back to My money",
     revokedTitle: "Mandate revoked",
     revokedSub: "This case is inactive. Start again in My money.",
@@ -381,6 +390,7 @@ export function CaseNextStep({
   learningTip = null,
   nextOpenCase = null,
   strategyVariant = null,
+  promisedCredit = null,
 }: Props) {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -676,11 +686,11 @@ export function CaseNextStep({
         <div className="text-[15px] font-extrabold">
           {t(locale, closed ? "noSavingTitle" : "revokedTitle")}
         </div>
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">
+        <p className="text-body text-ink-soft mt-1.5 mb-3 leading-relaxed">
           {t(locale, closed ? "noSavingSub" : "revokedSub")}
         </p>
         <Link href="/money" className="no-underline">
-          <Button className="!text-[13px] w-full sm:w-auto">{t(locale, "noSavingCta")}</Button>
+          <Button className="!text-body w-full sm:w-auto">{t(locale, "noSavingCta")}</Button>
         </Link>
         {doors.length > 0 ? (
           <div className="mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
@@ -750,7 +760,17 @@ export function CaseNextStep({
             {feeBasis === "monthly" ? perMonthSuffix : documentedSuffix}
           </div>
         ) : null}
-        <p className="text-[13px] text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
+        <p className="text-body text-ink-soft mt-1.5 mb-3 leading-relaxed">{t(locale, "savedSub")}</p>
+        {/* The signed record, handed over. A record the holder does not hold
+            is still ours — and everything that makes it worth signing depends
+            on the person having the bytes somewhere we cannot reach. */}
+        <a
+          href={`/api/cases/${caseId}/settlement`}
+          download
+          className="inline-block text-body font-bold text-emerald underline mb-3"
+        >
+          {t(locale, "downloadSettlement")}
+        </a>
         {(() => {
           const feePending =
             (pendingFeeAgorot != null && pendingFeeAgorot > 0) ||
@@ -772,7 +792,7 @@ export function CaseNextStep({
                 </p>
                 <Button
                   disabled={busy}
-                  className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+                  className="text-body py-2.5 px-4 w-full sm:w-auto"
                   onClick={() =>
                     run(async () => {
                       const res = await fetch(`/api/cases/${caseId}/authorization`, {
@@ -799,7 +819,7 @@ export function CaseNextStep({
                   {t(locale, "savedPayFirst")}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-extrabold text-emerald">
+                  <span className="text-body font-extrabold text-emerald">
                     {t(locale, "payFeeNow")} · ₪{feeLabel}
                   </span>
                   <FeePayButton caseId={caseId} />
@@ -812,18 +832,18 @@ export function CaseNextStep({
         {/* Prove → fee and prove → share run in parallel (SCALE_DISTRIBUTION).
             Self-reported estimates still never unlock virality. */}
         {proofSelfReported ? (
-          <p className="text-[13px] text-ink-soft mb-3 leading-relaxed m-0">
+          <p className="text-body text-ink-soft mb-3 leading-relaxed m-0">
             {t(locale, "estimateNoShare")}
           </p>
         ) : (
           <>
-          <div className="mb-2.5 text-[13px] font-bold text-emerald leading-snug">
+          <div className="mb-2.5 text-body font-bold text-emerald leading-snug">
             {t(locale, "shareInviteHeadline")}
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-[13px] text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-extrabold text-body text-[#06121A] bg-[#25D366] border-0 cursor-pointer"
               onClick={() => {
                 window.open(
                   `https://wa.me/?text=${encodeURIComponent(fullText)}`,
@@ -837,7 +857,7 @@ export function CaseNextStep({
             {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
               <Button
                 variant="ghost"
-                className="!text-[13px] !py-2"
+                className="!text-body !py-2"
                 onClick={async () => {
                   try {
                     await navigator.share({ title: "Zakai", text: msg, url: shareUrl });
@@ -851,7 +871,7 @@ export function CaseNextStep({
             )}
             <Button
               variant="ghost"
-              className="!text-[13px] !py-2"
+              className="!text-body !py-2"
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(shareUrl);
@@ -904,7 +924,7 @@ export function CaseNextStep({
             onChange={(e) => setOutreachEmail(e.target.value)}
             placeholder={t(locale, "outreachEmailPh")}
             dir="ltr"
-            className="text-[13px] max-w-md"
+            className="text-body max-w-md"
           />
         )}
         {/* Send first when email is verified — draft review is optional. */}
@@ -1003,7 +1023,7 @@ export function CaseNextStep({
               value={draftEdit}
               onChange={(e) => setDraftEdit(e.target.value)}
               rows={6}
-              className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] leading-relaxed px-3 py-2 font-sans"
+              className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body leading-relaxed px-3 py-2 font-sans"
               dir="auto"
             />
           </details>
@@ -1055,12 +1075,12 @@ export function CaseNextStep({
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     placeholder={t(locale, "codePh")}
-                    className="max-w-[140px] text-[13px]"
+                    className="max-w-[140px] text-body"
                     inputMode="numeric"
                   />
                   <Button
                     disabled={busy || code.length < 6}
-                    className="text-[13px] py-2 px-3"
+                    className="text-body py-2 px-3"
                     onClick={() =>
                       run(async () => {
                         const res = await fetch(`/api/cases/${caseId}/ownership/verify`, {
@@ -1095,7 +1115,7 @@ export function CaseNextStep({
                   onChange={(e) => setOutreachEmail(e.target.value)}
                   placeholder={t(locale, "outreachEmailPh")}
                   dir="ltr"
-                  className="text-[13px]"
+                  className="text-body"
                 />
               </div>
             )}
@@ -1172,7 +1192,7 @@ export function CaseNextStep({
                   value={draftEdit}
                   onChange={(e) => setDraftEdit(e.target.value)}
                   rows={6}
-                  className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] leading-relaxed px-3 py-2 font-sans"
+                  className="mt-2 w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body leading-relaxed px-3 py-2 font-sans"
                   dir="auto"
                 />
               </details>
@@ -1180,7 +1200,7 @@ export function CaseNextStep({
             {!emailConfigured && draftEdit.trim() && (
               <Button
                 variant="ghost"
-                className="text-[13px] py-2 px-3 self-start"
+                className="text-body py-2 px-3 self-start"
                 disabled={
                   !(
                     (outreachEmail.trim() || resolvedOutreach) &&
@@ -1275,6 +1295,20 @@ export function CaseNextStep({
           )}
         </div>
 
+        {/*
+          A promised credit is neither a saving nor a dead case, and before
+          this panel existed it had nowhere to go: recording it as a saving
+          bills a fee for money that has not moved, and recording nothing lets
+          the promise be forgotten — which is the outcome the counterparty
+          benefits from.
+        */}
+        <PromisedCreditPanel
+          caseId={caseId}
+          locale={locale}
+          promise={promisedCredit}
+          onWantsChaseLetter={() => setReplyKind("promise_broken")}
+        />
+
         {agentRound >= MAX_AGENT_ROUNDS && !proposed && (
           <div className="rounded-xl border border-[rgba(240,138,107,0.5)] bg-[rgba(240,138,107,0.12)] px-3 py-2.5 text-[12.5px] font-extrabold text-[#f08a6b] leading-relaxed">
             {t(locale, "exhaustedBanner")}
@@ -1294,7 +1328,7 @@ export function CaseNextStep({
             </div>
             <Button
               disabled={busy}
-              className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+              className="text-body py-2.5 px-4 w-full sm:w-auto"
               onClick={() =>
                 run(async () => {
                   const res = await fetch(`/api/cases/${caseId}/authorization`, {
@@ -1333,7 +1367,7 @@ export function CaseNextStep({
 
         {!emailConfigured && draftEdit.trim() && (
           <Button
-            className="text-[13px] py-2.5 px-4 w-full sm:w-auto"
+            className="text-body py-2.5 px-4 w-full sm:w-auto"
             disabled={
               !(
                 (outreachEmail.trim() || resolvedOutreach) &&
@@ -1375,8 +1409,8 @@ export function CaseNextStep({
                   : ` · median days to outcome: ${learningTip.medianDays}`
                 : ""}
               {he
-                ? ". רק מענה בכתב נספר ל־SavingsProof."
-                : ". Only written replies become SavingsProof."}
+                ? ". רק תשובה בכתב נחשבת הוכחה."
+                : ". Only a written reply counts as proof."}
             </span>
           </div>
         ) : null}
@@ -1387,7 +1421,7 @@ export function CaseNextStep({
         */}
         {agentRound < MAX_AGENT_ROUNDS && localAuth && (!proposed || needsOutreachInput) ? (
           <div className="rounded-xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.1)] p-3.5">
-            <div className="text-[13px] font-extrabold text-[#F0B45C] mb-2">
+            <div className="text-body font-extrabold text-[#F0B45C] mb-2">
               {t(locale, "followTitle")}
             </div>
             {needsOutreachInput && (
@@ -1398,14 +1432,14 @@ export function CaseNextStep({
                   onChange={(e) => setOutreachEmail(e.target.value)}
                   placeholder={t(locale, "outreachEmailPh")}
                   dir="ltr"
-                  className="text-[13px]"
+                  className="text-body"
                 />
               </div>
             )}
             <select
               value={replyKind}
               onChange={(e) => setReplyKind(e.target.value as ProviderReplyKind)}
-              className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] px-3 py-2 mb-2"
+              className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body px-3 py-2 mb-2"
             >
               {REPLY_KIND_OPTIONS.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -1419,14 +1453,14 @@ export function CaseNextStep({
                   value={competitorName}
                   onChange={(e) => setCompetitorName(e.target.value)}
                   placeholder={t(locale, "competitorName")}
-                  className="flex-1 min-w-[140px] text-[13px]"
+                  className="flex-1 min-w-[140px] text-body"
                 />
                 <Input
                   type="number"
                   value={competitorPrice}
                   onChange={(e) => setCompetitorPrice(e.target.value)}
                   placeholder={t(locale, "competitorPrice")}
-                  className="max-w-[140px] text-[13px]"
+                  className="max-w-[140px] text-body"
                 />
               </div>
             )}
@@ -1434,7 +1468,7 @@ export function CaseNextStep({
               {emailConfigured && !followSentOk && !followQueuedOk ? (
                 <Button
                   disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(async () => {
                       setFollowSentOk(false);
@@ -1468,7 +1502,7 @@ export function CaseNextStep({
                 <Button
                   variant={emailConfigured ? "ghost" : undefined}
                   disabled={busy}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(async () => {
                       setFollowSentOk(false);
@@ -1499,7 +1533,7 @@ export function CaseNextStep({
                 <Button
                   variant="ghost"
                   disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(async () => {
                       const res = await fetch(`/api/cases/${caseId}/follow-up`, {
@@ -1528,12 +1562,12 @@ export function CaseNextStep({
                 </Button>
               ) : null}
               {followSentOk ? (
-                <span className="text-[13px] font-bold text-emerald self-center">
+                <span className="text-body font-bold text-emerald self-center">
                   {t(locale, "followSent")}
                 </span>
               ) : null}
               {followQueuedOk && !followSentOk ? (
-                <span className="text-[13px] font-bold text-[#3EC6FF] self-center">
+                <span className="text-body font-bold text-[#3EC6FF] self-center">
                   {t(locale, "followQueued")}
                 </span>
               ) : null}
@@ -1546,7 +1580,7 @@ export function CaseNextStep({
                 </pre>
                 <Button
                   variant="ghost"
-                  className="text-[13px] py-2 px-3 mt-2"
+                  className="text-body py-2 px-3 mt-2"
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(followBody);
@@ -1598,7 +1632,7 @@ export function CaseNextStep({
 
         {!proposedSaving && (
           <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
-            <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "pasteLabel")}</div>
+            <div className="text-body font-extrabold text-[#3EC6FF]">{t(locale, "pasteLabel")}</div>
             <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">
               {t(locale, "pasteHint")}
             </p>
@@ -1607,11 +1641,11 @@ export function CaseNextStep({
               onChange={(e) => setPasteText(e.target.value)}
               placeholder={t(locale, "pastePh")}
               rows={4}
-              className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#060b12] px-3 py-2 text-[13px] text-ink placeholder:text-ink-soft/70 resize-y min-h-[88px]"
+              className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#060b12] px-3 py-2 text-body text-ink placeholder:text-ink-soft resize-y min-h-[88px]"
             />
             <Button
               disabled={busy || pasteText.trim().length < 8}
-              className="text-[13px] py-2.5 px-4 w-full sm:w-auto mt-2.5"
+              className="text-body py-2.5 px-4 w-full sm:w-auto mt-2.5"
               onClick={() => run(() => proposeFromPaste())}
             >
               {busy ? t(locale, "working") : t(locale, "pasteCta")}
@@ -1636,7 +1670,7 @@ export function CaseNextStep({
               value={newAmt}
               onChange={(e) => setNewAmt(e.target.value)}
               placeholder={t(locale, feeBasis === "lump" ? "newAmtLump" : "newAmt")}
-              className="max-w-[180px] text-[13px]"
+              className="max-w-[180px] text-body"
             />
             <Button
               disabled={busy || newAmt === "" || Number(newAmt) < 0}
@@ -1649,7 +1683,7 @@ export function CaseNextStep({
               <Button
                 variant="ghost"
                 disabled={busy}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() => run(() => recordAndFinish(0, { source: "manual" }))}
               >
                 {t(locale, "fullRecovery")}
@@ -1659,7 +1693,7 @@ export function CaseNextStep({
                 <Button
                   variant="ghost"
                   disabled={busy}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() => run(() => recordAndFinish(0, { source: "manual" }))}
                 >
                   {t(locale, "quickCancel")}
@@ -1667,7 +1701,7 @@ export function CaseNextStep({
                 <Button
                   variant="ghost"
                   disabled={busy}
-                  className="text-[13px] py-2 px-3"
+                  className="text-body py-2 px-3"
                   onClick={() =>
                     run(() => recordAndFinish(amountOriginalShekels, { source: "manual" }))
                   }
@@ -1719,7 +1753,7 @@ export function CaseNextStep({
         </div>
 
         <div className="rounded-xl border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.08)] p-3.5">
-          <div className="text-[13px] font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
+          <div className="text-body font-extrabold text-[#3EC6FF]">{t(locale, "proofsLabel")}</div>
           <p className="text-[12px] text-ink-soft mt-1 mb-2.5 leading-relaxed">{t(locale, "proofsHint")}</p>
           <div className="flex flex-wrap items-center gap-2">
             <code className="text-[13.5px] font-extrabold tracking-wide bg-[#060b12] border border-[rgba(255,255,255,0.12)] rounded-lg px-3 py-2 select-all">
@@ -1727,7 +1761,7 @@ export function CaseNextStep({
             </code>
             <Button
               variant="ghost"
-              className="!text-[13px] !py-2"
+              className="!text-body !py-2"
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(proofsAddr);
@@ -1758,14 +1792,14 @@ export function CaseNextStep({
                 onChange={(e) => setOutreachEmail(e.target.value)}
                 placeholder={t(locale, "outreachEmailPh")}
                 dir="ltr"
-                className="text-[13px]"
+                className="text-body"
               />
             </div>
           )}
           <select
             value={replyKind}
             onChange={(e) => setReplyKind(e.target.value as ProviderReplyKind)}
-            className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-[13px] px-3 py-2 mb-2"
+            className="w-full rounded-lg bg-[#0a1119] border border-[rgba(255,255,255,0.12)] text-ink text-body px-3 py-2 mb-2"
           >
             {REPLY_KIND_OPTIONS.map((o) => (
               <option key={o.id} value={o.id}>
@@ -1779,14 +1813,14 @@ export function CaseNextStep({
                 value={competitorName}
                 onChange={(e) => setCompetitorName(e.target.value)}
                 placeholder={t(locale, "competitorName")}
-                className="flex-1 min-w-[140px] text-[13px]"
+                className="flex-1 min-w-[140px] text-body"
               />
               <Input
                 type="number"
                 value={competitorPrice}
                 onChange={(e) => setCompetitorPrice(e.target.value)}
                 placeholder={t(locale, "competitorPrice")}
-                className="max-w-[140px] text-[13px]"
+                className="max-w-[140px] text-body"
               />
             </div>
           )}
@@ -1794,7 +1828,7 @@ export function CaseNextStep({
             {emailConfigured && !followSentOk && !followQueuedOk ? (
               <Button
                 disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() =>
                   run(async () => {
                     setFollowSentOk(false);
@@ -1828,7 +1862,7 @@ export function CaseNextStep({
               <Button
                 variant={emailConfigured ? "ghost" : undefined}
                 disabled={busy}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() =>
                   run(async () => {
                     setFollowSentOk(false);
@@ -1859,7 +1893,7 @@ export function CaseNextStep({
               <Button
                 variant="ghost"
                 disabled={busy || (needsOutreachInput && !/@/.test(outreachEmail.trim()))}
-                className="text-[13px] py-2 px-3"
+                className="text-body py-2 px-3"
                 onClick={() =>
                   run(async () => {
                     const res = await fetch(`/api/cases/${caseId}/follow-up`, {
@@ -1888,12 +1922,12 @@ export function CaseNextStep({
               </Button>
             ) : null}
             {followSentOk ? (
-              <span className="text-[13px] font-bold text-emerald self-center">
+              <span className="text-body font-bold text-emerald self-center">
                 {t(locale, "followSent")}
               </span>
             ) : null}
             {followQueuedOk && !followSentOk ? (
-              <span className="text-[13px] font-bold text-[#3EC6FF] self-center">
+              <span className="text-body font-bold text-[#3EC6FF] self-center">
                 {t(locale, "followQueued")}
               </span>
             ) : null}
@@ -1906,7 +1940,7 @@ export function CaseNextStep({
               </pre>
               <Button
                 variant="ghost"
-                className="text-[13px] py-2 px-3 mt-2"
+                className="text-body py-2 px-3 mt-2"
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(followBody);

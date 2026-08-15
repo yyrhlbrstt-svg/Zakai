@@ -42,11 +42,11 @@ export function PensionFeesCalculator() {
 
   const field = (label: string, hint: string, value: string, set: (v: string) => void, suffix?: string) => (
     <label className="block">
-      <span className="text-[13px] text-ink-soft block mb-1.5">{label}</span>
+      <span className="text-body text-ink-soft block mb-1.5">{label}</span>
       <div className="relative">
         <Input type="number" value={value} onChange={(e) => set(e.target.value)} dir="ltr" className="text-start" />
         {suffix && (
-          <span className="absolute inset-y-0 end-3 flex items-center text-ink-soft text-[13px] pointer-events-none">
+          <span className="absolute inset-y-0 end-3 flex items-center text-ink-soft text-body pointer-events-none">
             {suffix}
           </span>
         )}
@@ -78,7 +78,7 @@ export function PensionFeesCalculator() {
             aria-hidden
           />
           <div className="relative">
-            <div className="text-[13px] text-ink-soft font-bold">{t("resultLabel", { years: result.years })}</div>
+            <div className="text-body text-ink-soft font-bold">{t("resultLabel", { years: result.years })}</div>
             <div className="font-display grad-text text-5xl mt-2">{money(result.savingsShekels)}</div>
             <div className="text-[12.5px] text-ink-soft mt-2 leading-relaxed max-w-[520px]">
               {t("resultSub", {

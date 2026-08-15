@@ -105,7 +105,7 @@ export default async function OlimPage({
         })}
       </div>
 
-      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed max-w-[620px]">
+      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed max-w-[620px]">
         {t("olim.disclaimer")}
       </p>
     </VerticalPageShell>

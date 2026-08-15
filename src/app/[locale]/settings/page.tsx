@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
@@ -5,11 +6,23 @@ import { prisma } from "@/lib/prisma";
 import { Card, Button } from "@/components/ui";
 import { LogoutButton } from "@/components/LogoutButton";
 import { DeleteAccount } from "@/components/DeleteAccount";
+import { ExportAccountButton } from "@/components/ExportAccountButton";
 import { ReferralCard } from "@/components/ReferralCard";
 import { TrackRecordCard } from "@/components/TrackRecordCard";
 import { RecapCard } from "@/components/RecapCard";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { bcp47, type Locale } from "@/i18n/config";
+import { privatePageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return privatePageMetadata(t("settings.t"));
+}
 
 export default async function SettingsPage({
   params,
@@ -22,6 +35,8 @@ export default async function SettingsPage({
   if (!user) redirect({ href: "/login", locale });
 
   const t = await getTranslations("settings");
+  const tVisible = await getTranslations({ locale, namespace: "visibleWork" });
+  const tCoupons = await getTranslations({ locale, namespace: "coupons" });
   const he = locale === "he" || locale === "ar";
   const tIapp_locale_settings_page = await getTranslations({ locale, namespace: "inline_app_locale_settings_page" });
 
@@ -80,18 +95,33 @@ export default async function SettingsPage({
       </Card>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <Link href="/activity">
+          <Button variant="ghost" className="!text-body">
+            {tVisible("title")}
+          </Button>
+        </Link>
+        <Link href="/authority">
+          <Button variant="ghost" className="!text-body">
+            {tVisible("authorityLink")}
+          </Button>
+        </Link>
+        <Link href="/coupons">
+          <Button variant="ghost" className="!text-body">
+            {tCoupons("title")}
+          </Button>
+        </Link>
         <Link href="/documents">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {tIapp_locale_settings_page("t_6c127838")}
           </Button>
         </Link>
         <Link href="/wrapped">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {tIapp_locale_settings_page("t_e2d56b43")}
           </Button>
         </Link>
         <Link href="/money">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {tIapp_locale_settings_page("t_bd4c0905")}
           </Button>
         </Link>
@@ -114,6 +144,10 @@ export default async function SettingsPage({
 
       <div className="mt-6">
         <TrackRecordCard bcp47={bcp47[locale as Locale]} />
+      </div>
+
+      <div className="mt-6">
+        <ExportAccountButton />
       </div>
 
       <div className="mt-6">

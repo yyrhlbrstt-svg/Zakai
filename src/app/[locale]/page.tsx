@@ -6,7 +6,7 @@ import { Zakameter } from "@/components/Zakameter";
 import { Reveal } from "@/components/Reveal";
 import { PageKicker } from "@/components/PageKicker";
 import { SpotlightCard } from "@/components/SpotlightCard";
-import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, Archive, Car } from "lucide-react";
+import { Globe, ScanLine, Ban, Scale, Zap, HeartPulse, KeyRound, Archive, Car } from "lucide-react";
 import { formatAgorot } from "@/lib/money";
 import { isIsraeliMarket, getCountry } from "@/lib/geo";
 import { bcp47, type Locale } from "@/i18n/config";
@@ -84,7 +84,20 @@ export default async function HomePage({
   }
 
   const doorArm = await currentArm<string[]>("home_door_order");
-  const doorOrder = doorArm?.payload ?? ["money", "cancel", "owed", "electricity"];
+  /**
+   * The first four doors, and why a deposit is one of them.
+   *
+   * This list was money / cancel / owed / electricity — four recurring-bill
+   * doors, and not one recovery of money somebody is already owed. A renter
+   * whose landlord is holding ₪5,000 saw nothing addressed to them above the
+   * fold, on a product whose entire promise is getting money back.
+   *
+   * It is also where the money is, on both sides: the fee on a returned
+   * deposit is 18% of the whole sum, against 18% of a single month on a bill
+   * reduction. The experiment arm still overrides this — it is the default
+   * that was wrong, not the mechanism.
+   */
+  const doorOrder = doorArm?.payload ?? ["money", "deposit", "cancel", "owed"];
 
   const doorsByKey = [
     {
@@ -118,6 +131,14 @@ export default async function HomePage({
       subKey: "door.electricity.sub",
       ctaKey: "door.electricity.cta",
       accent: "amber",
+    },
+    {
+      href: "/deposit",
+      icon: KeyRound,
+      titleKey: "door.deposit.title",
+      subKey: "door.deposit.sub",
+      ctaKey: "door.deposit.cta",
+      accent: "emerald",
     },
     {
       href: "/incident",
@@ -307,7 +328,7 @@ export default async function HomePage({
         <Reveal delay={sortedDoors.length * 40}>
           <Link
             href="/tools"
-            className="no-underline block text-center text-[13px] text-ink-soft mb-14 hover:text-emerald transition-colors"
+            className="no-underline block text-center text-body text-ink-soft mb-14 hover:text-emerald transition-colors"
           >
             {t("home.moreDoors", { count: moreDoorsCount })}
           </Link>
@@ -343,7 +364,7 @@ export default async function HomePage({
                 bcp47[locale as Locale]
               )}
             </span>
-            <span className="block text-[13px] text-ink-soft mt-1.5">
+            <span className="block text-body text-ink-soft mt-1.5">
               {t("home.proof", { count: proof.count })}
             </span>
           </div>
@@ -393,7 +414,7 @@ export default async function HomePage({
       <Reveal>
         <Link
           href="/how-it-works"
-          className="inline-block mt-4 text-[13px] font-bold text-emerald no-underline hover:underline"
+          className="inline-block mt-4 text-body font-bold text-emerald no-underline hover:underline"
         >
           {t("home.fullGuideLink")}
         </Link>
@@ -425,7 +446,7 @@ export default async function HomePage({
                   {points.map((p) => (
                     <li
                       key={p}
-                      className="flex gap-2.5 items-start text-[13px] text-ink-soft leading-relaxed"
+                      className="flex gap-2.5 items-start text-body text-ink-soft leading-relaxed"
                     >
                       <span
                         className={
@@ -494,7 +515,7 @@ export default async function HomePage({
         </div>
       </Reveal>
 
-      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[560px] mx-auto">
+      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.85)] text-center leading-relaxed max-w-[560px] mx-auto">
         {t("home.scopeNote")}
       </p>
     </main>

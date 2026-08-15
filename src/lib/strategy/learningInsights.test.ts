@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  aggregateVariantPerformance,
   cohortLearning,
   expectedRecoveryAgorot,
   followUpAfterDays,
@@ -53,6 +54,35 @@ describe("cohortLearning", () => {
       row({ variantId: "standard", paid: true, recoveredMinor: 3_000 }),
     );
     expect(cohortLearning(rows, "IL", "telecom", "cellcom")).toBeNull();
+  });
+});
+
+describe("aggregateVariantPerformance", () => {
+  it("excludes variants below MIN_COHORT_TRIALS", () => {
+    const rows = [row({ variantId: "firm_statutory", paid: true })];
+    expect(aggregateVariantPerformance(rows)).toEqual([]);
+  });
+
+  it("ranks variants by EV across every counterparty, not per-cohort", () => {
+    const rows: LearningOutcomeRow[] = [
+      ...Array.from({ length: 5 }, () =>
+        row({ variantId: "cooperative_plain", paid: true, recoveredMinor: 1_000, counterparty: "cellcom" }),
+      ),
+      ...Array.from({ length: 5 }, () =>
+        row({ variantId: "firm_statutory", paid: true, recoveredMinor: 9_000, counterparty: "partner" }),
+      ),
+    ];
+    const perf = aggregateVariantPerformance(rows);
+    expect(perf).toHaveLength(2);
+    expect(perf[0].variantId).toBe("firm_statutory");
+    expect(perf[0].trials).toBe(5);
+    expect(perf[0].winRate).toBe(1);
+    expect(perf[0].avgRecoveredMinor).toBe(9_000);
+  });
+
+  it("ignores non-catalog variant ids", () => {
+    const rows = Array.from({ length: 6 }, () => row({ variantId: "standard", paid: true }));
+    expect(aggregateVariantPerformance(rows)).toEqual([]);
   });
 });
 

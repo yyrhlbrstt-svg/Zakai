@@ -62,7 +62,7 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
           {!fullTime && (
             <label className="block mt-3">
               <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[13px] text-ink-soft">{t("scopePctQ")}</span>
+                <span className="text-body text-ink-soft">{t("scopePctQ")}</span>
                 <span className="font-display text-[15px]">{scopePct}%</span>
               </div>
               <input type="range" min={10} max={100} step={5} value={scopePct} onChange={(e) => setScopePct(Number(e.target.value))} aria-label={t("scopePctQ")} />
@@ -72,7 +72,7 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
 
         {/* Base salary */}
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("baseQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("baseQ")}</span>
           <Input type="number" inputMode="numeric" min={0} value={base} onChange={(e) => setBase(e.target.value)} placeholder="₪ 6,443" />
         </label>
 
@@ -90,7 +90,7 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
           />
           {pensionShown && (
             <label className="block mt-3">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("employerPensionQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("employerPensionQ")}</span>
               <Input type="number" inputMode="numeric" min={0} value={employerPension} onChange={(e) => setEmployerPension(e.target.value)} placeholder="₪" />
             </label>
           )}
@@ -99,7 +99,7 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
         {/* Seniority */}
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("seniorityQ")}</span>
+            <span className="text-body text-ink-soft">{t("seniorityQ")}</span>
             <span className="font-display text-[15px]">{seniority}</span>
           </div>
           <input type="range" min={0} max={30} step={1} value={seniority} onChange={(e) => setSeniority(Number(e.target.value))} aria-label={t("seniorityQ")} />
@@ -119,7 +119,7 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
           />
           {havraaPaid && (
             <label className="block mt-3">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("havraaAmountQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("havraaAmountQ")}</span>
               <Input type="number" inputMode="numeric" min={0} value={havraaAmount} onChange={(e) => setHavraaAmount(e.target.value)} placeholder="₪" />
             </label>
           )}
@@ -132,7 +132,7 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
           <Card className="mt-5 p-6 text-center">
             {audit.flagged > 0 ? (
               <>
-                <div className="text-[13px] text-ink-soft font-bold">{t("gapTitle")}</div>
+                <div className="text-body text-ink-soft font-bold">{t("gapTitle")}</div>
                 <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
                   {money(audit.annualGapAgorot)}
                 </div>
@@ -173,7 +173,7 @@ export function PayslipChecker({ bcp47 }: { bcp47: string }) {
           </Card>
         </>
       ) : (
-        <p className="mt-5 text-[13px] text-ink-soft text-center">{t("enterBase")}</p>
+        <p className="mt-5 text-body text-ink-soft text-center">{t("enterBase")}</p>
       )}
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>

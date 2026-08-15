@@ -12,6 +12,7 @@
  */
 
 import type { FeeBasis } from "@/lib/verticals/types";
+import { documentedSavingMinor } from "@/lib/verificationDepth";
 
 export const FEE_RATE_BPS = 1800; // 18.00%
 export const BPS_DENOMINATOR = 10000;
@@ -114,9 +115,31 @@ export function previewSuccessFeeShekels(
   };
 }
 
-/** De-identified outcome graph: yearly equivalent for recurring savings only. */
-export function documentedRecoveryMinor(savingDocumentedAgorot: number, basis: FeeBasis): number {
-  return basis === "lump" ? savingDocumentedAgorot : savingDocumentedAgorot * 12;
+/**
+ * What the outcome graph is entitled to record for this case.
+ *
+ * This multiplied a recurring saving by twelve, off a single verified bill.
+ * The field is called *documented*, and eleven of those twelve months were
+ * never observed by anyone — while `computeFee` charged 18% of exactly one.
+ * The graph counted a year and the invoice counted a month, and both cannot be
+ * right about the same event.
+ *
+ * It counts confirmed billing cycles now. `confirmedCycles` defaults to 1,
+ * which is what settling a case actually establishes, and rises only when a
+ * later bill confirms the saving is still in place — so the number grows on
+ * evidence rather than on assumption, and can never claim a full year.
+ *
+ * This lowers the recorded recovery on recurring cases by up to twelve times
+ * against what the old line asserted. That is the correction, not a
+ * regression: there are no documented outcomes yet, so nothing already
+ * recorded changes, and every future row is one somebody could check.
+ */
+export function documentedRecoveryMinor(
+  savingDocumentedAgorot: number,
+  basis: FeeBasis,
+  confirmedCycles = 1,
+): number {
+  return documentedSavingMinor(savingDocumentedAgorot, basis, confirmedCycles);
 }
 
 /**

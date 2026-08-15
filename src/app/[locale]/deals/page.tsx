@@ -70,7 +70,7 @@ export default async function DealsPage({
         <div className="mt-10 rounded-2xl border border-[rgba(240,180,92,0.3)] bg-[rgba(240,180,92,0.05)] p-6 text-center max-w-[640px] mx-auto">
           <div className="text-[28px]" aria-hidden>🎟️</div>
           <div className="font-extrabold text-[15px] mt-1.5">{t("soon")}</div>
-          <div className="text-ink-soft text-[13px] mt-1.5 leading-relaxed">{t("soonSub")}</div>
+          <div className="text-ink-soft text-body mt-1.5 leading-relaxed">{t("soonSub")}</div>
         </div>
       </Reveal>
     </main>

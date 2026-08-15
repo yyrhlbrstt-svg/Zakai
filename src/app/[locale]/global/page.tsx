@@ -53,10 +53,10 @@ export default async function GlobalPage({
       <div className="grid gap-4 mt-10 sm:grid-cols-2">
         <Card className="p-5">
           <h2 className="text-lg font-bold m-0 mb-2">{t("apiTitle")}</h2>
-          <p className="text-[13px] text-ink-soft m-0 mb-3">{t("apiBody")}</p>
+          <p className="text-body text-ink-soft m-0 mb-3">{t("apiBody")}</p>
           <a
             href={`${SITE_URL}/api/markets`}
-            className="text-[13px] font-bold text-emerald no-underline hover:underline"
+            className="text-body font-bold text-emerald no-underline hover:underline"
             rel="noopener noreferrer"
           >
             {SITE_URL}/api/markets
@@ -64,10 +64,10 @@ export default async function GlobalPage({
         </Card>
         <Card className="p-5">
           <h2 className="text-lg font-bold m-0 mb-2">{t("contributeTitle")}</h2>
-          <p className="text-[13px] text-ink-soft m-0 mb-3">{t("contributeBody")}</p>
+          <p className="text-body text-ink-soft m-0 mb-3">{t("contributeBody")}</p>
           <Link
             href="/integrations"
-            className="text-[13px] font-bold text-emerald no-underline hover:underline"
+            className="text-body font-bold text-emerald no-underline hover:underline"
           >
             {t("contributeCta")}
           </Link>

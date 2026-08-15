@@ -67,7 +67,7 @@ export default async function SharePage({
 
   return (
     <main className="max-w-[560px] mx-auto px-5 pb-24 pt-10 text-center">
-      <div className="text-[13px] font-extrabold text-emerald tracking-wide uppercase mb-3">
+      <div className="text-body font-extrabold text-emerald tracking-wide uppercase mb-3">
         {sp.kicker || "Zakai"}
       </div>
       {sp.amount && (
@@ -91,7 +91,7 @@ export default async function SharePage({
           </Link>
         </div>
       </Card>
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed">
         {t("landingDisclaimer")}
       </p>
     </main>

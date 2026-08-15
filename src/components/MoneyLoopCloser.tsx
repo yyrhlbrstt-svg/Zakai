@@ -169,7 +169,7 @@ export async function MoneyLoopCloser({
       </div>
       <div className="font-extrabold text-[16px] mb-2">
         {providerHebrewName(c.provider)}
-        <span className="text-ink-soft font-bold text-[13px] ms-2">{c.vertical}</span>
+        <span className="text-ink-soft font-bold text-body ms-2">{c.vertical}</span>
       </div>
       <CaseNextStep
         caseId={c.id}

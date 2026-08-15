@@ -40,7 +40,7 @@ export async function MonopolyMissionControl({ locale }: { locale: string }) {
           {!smtpConfigured ? " · SMTP=off" : ""}
         </span>
       </div>
-      <p className="text-[13px] text-ink-soft leading-relaxed m-0 mb-4">
+      <p className="text-body text-ink-soft leading-relaxed m-0 mb-4">
         {he ? loop.thesisHe : loop.thesisEn}
       </p>
 

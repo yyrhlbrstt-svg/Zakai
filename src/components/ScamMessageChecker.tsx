@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card, Textarea } from "@/components/ui";
 import { assessMessage } from "@/lib/scamCheck";
 import { ShareResult } from "@/components/ShareResult";
+import { NextStep } from "@/components/NextStep";
 
 /**
  * Paste a suspicious SMS/WhatsApp message, get an instant pattern check.
@@ -59,7 +60,6 @@ export function ScamMessageChecker() {
                   </div>
                 ))}
               </div>
-              <p className="text-[12.5px] text-ink-soft mt-4 leading-relaxed">{t("riskAdvice")}</p>
               <ShareResult message={tShare("msgScam")} path="/scam-check" />
             </>
           ) : (
@@ -71,7 +71,19 @@ export function ScamMessageChecker() {
         </Card>
       )}
 
-      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
+      {/* Three separate instructions were one 12.5px sentence under the
+          verdict. And the page stopped at "this looks like a scam" — for
+          somebody who has already been charged, the next step is a dispute,
+          which this app actually does. */}
+      {assessment && (
+        <NextStep
+          steps={[t("safe1"), t("safe2"), t("safe3")]}
+          action={{ label: t("chargedCta"), href: "/duplicate-charge" }}
+          note={t("chargedNote")}
+        />
+      )}
+
+      <p className="mt-5 text-micro text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>
   );
 }

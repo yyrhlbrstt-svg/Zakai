@@ -200,6 +200,30 @@ const LEAKS = [
     rank: 2,
   },
   {
+    href: "/vehicle-license-refund",
+    he: "רכב שירד מהכביש — אגרה ששולמה מראש",
+    en: "Car off the road — licence fee paid in advance",
+    subHe: "בקשת החזר יחסי + Mandate",
+    subEn: "Pro-rata refund request + Mandate",
+    rank: 3,
+  },
+  {
+    href: "/train-delay",
+    he: "רכבת שהתעכבה",
+    en: "A delayed train",
+    subHe: "פיצוי לפי מדיניות המפעיל + Mandate",
+    subEn: "Compensation under the operator's policy + Mandate",
+    rank: 3,
+  },
+  {
+    href: "/baggage",
+    he: "כבודה שאבדה, נפגעה או התעכבה",
+    en: "Baggage lost, damaged or delayed",
+    subHe: "תביעה לפי אמנת מונטריאול + Mandate",
+    subEn: "Montreal Convention claim + Mandate",
+    rank: 2,
+  },
+  {
     href: "/parking",
     he: "דוח חניה שאפשר לערער עליו",
     en: "Parking ticket you can appeal",
@@ -322,6 +346,11 @@ export default async function LeaksPage({ params }: { params: Promise<{ locale: 
         <Link href="/money" className="inline-block mt-5">
           <Button>{tIapp_locale_leaks_page("t_7698572b")}</Button>
         </Link>
+        <div className="mt-4">
+          <Link href="/companies" className="text-[13px] font-bold text-emerald underline">
+            {tIapp_locale_leaks_page("companiesCrossLink")}
+          </Link>
+        </div>
       </div>
     </VerticalPageShell>
   );

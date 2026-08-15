@@ -33,6 +33,16 @@ export interface ContractAnalysis {
   autoRenews: boolean;
   /** ISO yyyy-mm-dd renewal/expiry date, only when the model found one AND it parses as a real date. Never invented. */
   renewalDate: string | null;
+  /**
+   * Days of advance written notice the contract requires, when stated.
+   *
+   * This is the number that actually decides whether a term rolls: a renewal
+   * date without it tells you when it is already too late. Null when the
+   * contract does not state one — a customary default guessed here would
+   * produce a confident deadline that is wrong, and someone would plan
+   * around it.
+   */
+  noticeDays: number | null;
 }
 
 function truncate(s: string): string {
@@ -76,7 +86,7 @@ function normalizeClause(raw: unknown): ContractClause | null {
  */
 export function normalizeContractAnalysis(parsed: unknown): ContractAnalysis {
   if (!parsed || typeof parsed !== "object")
-    return { clauses: [], readable: false, autoRenews: false, renewalDate: null };
+    return { clauses: [], readable: false, autoRenews: false, renewalDate: null, noticeDays: null };
   const p = parsed as Record<string, unknown>;
   const clauses = Array.isArray(p.clauses)
     ? p.clauses
@@ -89,5 +99,22 @@ export function normalizeContractAnalysis(parsed: unknown): ContractAnalysis {
     readable: Boolean(p.readable),
     autoRenews: Boolean(p.autoRenews),
     renewalDate: normalizeRenewalDate(p.renewalDate),
+    noticeDays: normalizeNoticeDays((p as { noticeDays?: unknown }).noticeDays),
   };
+}
+
+
+/**
+ * A notice period only survives if it is a plausible whole number of days.
+ *
+ * Anything negative, fractional, or longer than two years is a
+ * misinterpretation rather than a term, and letting one through would set a
+ * deadline in the wrong place — which is the single failure this feature
+ * cannot afford.
+ */
+function normalizeNoticeDays(v: unknown): number | null {
+  if (typeof v !== "number" || !Number.isFinite(v)) return null;
+  const days = Math.round(v);
+  if (days < 0 || days > 730) return null;
+  return days;
 }

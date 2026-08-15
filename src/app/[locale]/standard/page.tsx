@@ -53,13 +53,13 @@ export default async function StandardPage({
             <Card className="p-4 h-full">
               <div className="text-[11px] font-mono text-emerald mb-1">{p.id}</div>
               <div className="font-bold text-[15px] mb-1">{p.title}</div>
-              <p className="text-[13px] text-ink-soft m-0 leading-relaxed">{p.summary}</p>
+              <p className="text-body text-ink-soft m-0 leading-relaxed">{p.summary}</p>
             </Card>
           </li>
         ))}
       </ul>
 
-      <div className="flex flex-wrap gap-4 text-[13px] font-bold">
+      <div className="flex flex-wrap gap-4 text-body font-bold">
         <Link href="/integrations" className="text-emerald no-underline hover:underline">
           {t("ctaIntegrations")}
         </Link>

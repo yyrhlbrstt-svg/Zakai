@@ -331,7 +331,7 @@ export function LeadForm({ vertical }: { vertical: string; title?: string }) {
         <button
           type="button"
           onClick={() => setShowContact(true)}
-          className="bg-transparent border-0 text-ink-soft text-[13px] font-bold cursor-pointer"
+          className="bg-transparent border-0 text-ink-soft text-body font-bold cursor-pointer"
         >
           {tIcomponents_LeadForm("t_99e05b72")}
         </button>

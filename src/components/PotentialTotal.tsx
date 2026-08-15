@@ -68,7 +68,7 @@ export function PotentialTotal({ isIsraeli = true }: { isIsraeli?: boolean }) {
   return (
     <div>
       <Card className="p-6">
-        <div className="text-[13px] text-ink-soft font-bold mb-3">{t("q")}</div>
+        <div className="text-body text-ink-soft font-bold mb-3">{t("q")}</div>
         <div className="flex flex-wrap gap-2.5">
           {QUESTIONS.map((q) => {
             const on = profile[q.key];
@@ -103,7 +103,7 @@ export function PotentialTotal({ isIsraeli = true }: { isIsraeli?: boolean }) {
             aria-hidden
           />
           <div className="relative">
-            <div className="text-[13px] text-ink-soft font-bold">{t("resultLabel")}</div>
+            <div className="text-body text-ink-soft font-bold">{t("resultLabel")}</div>
             <div className="font-display grad-text text-[clamp(38px,11vw,60px)] leading-none mt-2">
               {t("upTo")} {money(result.totalHighShekels)}
             </div>
@@ -119,7 +119,7 @@ export function PotentialTotal({ isIsraeli = true }: { isIsraeli?: boolean }) {
                   className="flex items-center justify-between gap-3 no-underline rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-3 hover:border-[rgba(63,203,155,0.4)] transition-colors"
                 >
                   <span className="text-[14px] font-bold text-ink">{tv(`${it.key}.title`)}</span>
-                  <span className="text-[13px] font-extrabold text-emerald shrink-0">
+                  <span className="text-body font-extrabold text-emerald shrink-0">
                     {t("upTo")} {money(it.highShekels)}
                   </span>
                 </Link>

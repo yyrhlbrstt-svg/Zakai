@@ -72,7 +72,7 @@ export function TollDisputeAgent() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("agent.sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("agent.reasonQ")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("agent.reasonQ")}</span>
           <RadioChips
             value={reason}
             onChange={setReason}
@@ -82,15 +82,15 @@ export function TollDisputeAgent() {
         </div>
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.invoiceNumber")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.invoiceNumber")}</span>
             <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} maxLength={40} dir="ltr" />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.contactEmail")}</span>
             <Input
               type="email"
               value={contactEmail}
@@ -100,12 +100,12 @@ export function TollDisputeAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.amount")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.amount")}</span>
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
           </label>
         </div>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.details")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agent.details")}</span>
           <Textarea rows={3} value={details} onChange={(e) => setDetails(e.target.value)} maxLength={500} />
         </label>
         <MissingFields
@@ -116,7 +116,7 @@ export function TollDisputeAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

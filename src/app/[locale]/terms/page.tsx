@@ -1,6 +1,22 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui";
+import { publicPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return publicPageMetadata(locale, {
+    title: t("terms.t"),
+    description: t("terms.d"),
+    path: "/terms",
+  });
+}
 
 export default async function TermsPage({
   params,
@@ -28,7 +44,7 @@ export default async function TermsPage({
       </Card>
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("legalNote")}</p>
       <p className="mt-4 text-[12.5px] text-ink-soft leading-relaxed">{t("protocolBlurb")}</p>
-      <Link href="/protocol" className="text-[13px] font-bold text-emerald mt-2 inline-block">
+      <Link href="/protocol" className="text-body font-bold text-emerald mt-2 inline-block">
         {t("protocolLink")} →
       </Link>
     </main>

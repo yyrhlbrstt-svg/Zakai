@@ -9,9 +9,13 @@ import {
   ADVANCE_TAX_FORM_URL,
   advanceTaxReductionDeadline,
   daysUntilAdvanceTaxDeadline,
+  clampTaxYear,
+  taxYearRange,
   canStillFileForYear,
   buildAdvanceTaxReductionLetter,
 } from "@/lib/advanceTaxReduction";
+import { NextStep } from "@/components/NextStep";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 const CURRENT_TAX_YEAR = new Date().getFullYear();
 
@@ -104,23 +108,25 @@ export function AdvanceTaxReductionTool() {
         )}
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("yearQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("yearQ")}</span>
           <Input
             type="number"
             value={taxYear}
-            onChange={(e) => setTaxYear(Number(e.target.value) || CURRENT_TAX_YEAR)}
+            min={taxYearRange().min}
+            max={taxYearRange().max}
+            onChange={(e) => setTaxYear(clampTaxYear(Number(e.target.value)))}
           />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("fileNumberQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("fileNumberQ")}</span>
           <Input value={taxFileNumber} onChange={(e) => setTaxFileNumber(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("reasonQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("reasonQ")}</span>
           <Textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -148,7 +154,7 @@ export function AdvanceTaxReductionTool() {
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink outline-none box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button
@@ -165,17 +171,22 @@ export function AdvanceTaxReductionTool() {
             >
               {copied ? t("copied") : t("copy")}
             </Button>
-            <a
-              href={ADVANCE_TAX_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald text-[12.5px] font-bold"
-            >
-              {t("formLink")} →
-            </a>
           </div>
-          <p className="text-[12px] text-ink-soft mt-3 mb-0">{t("sendHint")}</p>
+          <OutcomeReport vertical="advance_tax_reduction" counterparty="tax_authority" variantId="standard" />
         </Card>
+      )}
+
+      {/* The form link used to be a 12.5px green footnote beside the copy
+          button, and the three things to do with the letter a line of grey
+          under it. Both were correct and both were written as an afterthought
+          to the letter, which is not the point — the letter is an attachment
+          to a government form, and the form is the thing that gets the money
+          back. */}
+      {letter && (
+        <NextStep
+          steps={[t("step1"), t("step2"), t("step3")]}
+          action={{ label: t("formLink"), href: ADVANCE_TAX_FORM_URL, external: true }}
+        />
       )}
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>

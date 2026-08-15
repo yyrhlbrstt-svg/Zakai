@@ -30,7 +30,7 @@ export default async function CreditCardPage({ params }: { params: Promise<{ loc
         {tIapp_locale_credit_card_page("t_abfc2a7f")}
       </p>
       <CreditCardTool />
-      <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.7)]">
+      <p className="mt-6 text-[11.5px] text-[rgba(147,166,165,0.85)]">
         {tIapp_locale_credit_card_page("t_5f18186c")}
       </p>
     </main>

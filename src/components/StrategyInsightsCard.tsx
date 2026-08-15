@@ -42,7 +42,7 @@ export async function StrategyInsightsCard({
       </div>
 
       {data.topStance && (
-        <p className="text-[13px] mt-2 mb-0">
+        <p className="text-body mt-2 mb-0">
           <span className="text-ink-soft">{tIcomponents_StrategyInsightsCard("t_eddcfda5")}</span>{" "}
           <span className="font-extrabold text-emerald">
             {he ? data.topStance.labelHe : data.topStance.labelEn}
@@ -62,7 +62,7 @@ export async function StrategyInsightsCard({
             return (
               <li
                 key={`${c.counterparty}-${c.vertical}`}
-                className="flex justify-between gap-3 text-[13px] flex-wrap"
+                className="flex justify-between gap-3 text-body flex-wrap"
               >
                 <span className="font-bold">{c.counterparty}</span>
                 <span className="text-ink-soft">

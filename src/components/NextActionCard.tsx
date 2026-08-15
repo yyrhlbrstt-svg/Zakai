@@ -87,7 +87,7 @@ export function NextActionCard({
         </div>
       )}
 
-      <p className="text-ink-soft text-[13px] m-0 mb-4 leading-relaxed">
+      <p className="text-ink-soft text-body m-0 mb-4 leading-relaxed">
         {c.daysLeft !== null && next.because === "expiring"
           ? t("because.expiring", { days: c.daysLeft })
           : t(`because.${next.because}`)}
@@ -97,7 +97,7 @@ export function NextActionCard({
           Naming what to do roughly doubles follow-through against intent alone. */}
       <Link
         href={c.href}
-        className="inline-flex items-center gap-1.5 text-[13.5px] font-extrabold text-base bg-emerald rounded-full px-5 py-2.5 no-underline hover:opacity-90 transition-opacity"
+        className="inline-flex items-center gap-1.5 text-[13.5px] font-extrabold text-[#06121A] bg-emerald rounded-full px-5 py-2.5 no-underline hover:opacity-90 transition-opacity"
       >
         {t("cta")}
       </Link>
@@ -107,7 +107,7 @@ export function NextActionCard({
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="bg-transparent border-0 p-0 cursor-pointer text-ink-soft text-[12.5px] underline"
+            className="bg-transparent border-0 p-0 py-1 min-h-[24px] inline-flex items-center cursor-pointer text-ink-soft text-caption underline"
           >
             {open ? t("hideAll") : t("showAll", { count: next.totalOpen - 1 })}
           </button>
@@ -116,7 +116,7 @@ export function NextActionCard({
             <ul className="mt-3 mb-0 ps-0 list-none flex flex-col gap-2">
               {all.slice(1).map((x) => (
                 <li key={x.id} className="flex items-baseline gap-2 flex-wrap">
-                  <Link href={x.href} className="text-[13px] font-bold no-underline text-ink">
+                  <Link href={x.href} className="text-body font-bold no-underline text-ink">
                     {label(x.id.split(":")[0])}
                   </Link>
                   {x.valueMinor > 0 && (

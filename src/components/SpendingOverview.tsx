@@ -77,14 +77,14 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
         <Button onClick={run} disabled={text.trim().length === 0} className="w-full mt-4">
           {t("analyze")}
         </Button>
-        {empty && <p className="text-ink-soft text-[13px] mt-3 text-center">{t("empty")}</p>}
+        {empty && <p className="text-ink-soft text-body mt-3 text-center">{t("empty")}</p>}
         <p className="text-[11px] text-ink-soft mt-3 text-center leading-relaxed">{t("privacy")}</p>
       </Card>
 
       {result && (
         <>
           <Card className="p-6 text-center">
-            <div className="text-ink-soft text-[13px]">{t("totalLabel")}</div>
+            <div className="text-ink-soft text-body">{t("totalLabel")}</div>
             <div className="font-display grad-text text-[clamp(30px,7vw,44px)] leading-none tabular-nums mt-1.5">
               {money(result.totalAgorot)}
             </div>
@@ -102,7 +102,7 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
                   <div key={c.category}>
                     <div className="flex justify-between items-baseline gap-3 mb-1.5">
                       <span className="text-[13.5px] font-bold">{t(`categories.${c.category}`)}</span>
-                      <span className="text-[13px] text-ink-soft tabular-nums">
+                      <span className="text-body text-ink-soft tabular-nums">
                         {money(c.totalAgorot)} · {pct}%
                       </span>
                     </div>
@@ -121,7 +121,7 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
           {actions.length > 0 && (
             <div>
               <h2 className="text-[15px] font-extrabold mb-1">{t("actionsTitle")}</h2>
-              <p className="text-ink-soft text-[13px] mb-3 leading-relaxed">{t("actionsSub")}</p>
+              <p className="text-ink-soft text-body mb-3 leading-relaxed">{t("actionsSub")}</p>
               <Card className="p-[1px] bg-[linear-gradient(105deg,#3fcb9b,#3ec6ff_55%,#8b5cf6)] border-0">
                 <div className="rounded-[15px] bg-[#0a1119] p-2">
                   {actions.map((r, i, arr) => (
@@ -137,7 +137,7 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
                         </div>
                       </div>
                       <Link href={actionHref(r)} className="no-underline shrink-0">
-                        <Button className="!px-4 !py-2 !text-[13px]">{t("actCta")}</Button>
+                        <Button className="!px-4 !py-2 !text-body">{t("actCta")}</Button>
                       </Link>
                     </div>
                   ))}
@@ -156,7 +156,7 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
                   style={{ borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none" }}
                 >
                   <span className="text-[13.5px] font-bold truncate">{m.merchant}</span>
-                  <span className="text-[13px] text-ink-soft tabular-nums shrink-0">
+                  <span className="text-body text-ink-soft tabular-nums shrink-0">
                     {money(m.totalAgorot)}
                     {m.count > 1 && <span className="opacity-70"> · {t("occurrences", { count: m.count })}</span>}
                   </span>

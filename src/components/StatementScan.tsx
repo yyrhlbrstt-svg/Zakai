@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { redirectIfOpenLoop } from "@/lib/openLoopClient";
-import { Card, Button, Textarea } from "@/components/ui";
+import { Card, Button, Textarea, PrivacyNote } from "@/components/ui";
 import { scanStatement, type ScanResult, type ChargeCategory, type RecurringCharge } from "@/lib/subscriptions";
 import { formatAgorot } from "@/lib/money";
 import { UNIVERSAL_CANCEL_DEMO_CSV, STATEMENT_SCAN_MIN_CHARS } from "@/lib/subscriptionsDemoSample";
@@ -17,6 +17,7 @@ import {
   scanShareLandingPath,
 } from "@/lib/monopoly/scanShare";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
+import { CapabilityNotice } from "@/components/CapabilityNotice";
 
 const CATEGORY_COLOR: Record<ChargeCategory, string> = {
   cellular: "#3FCB9B",
@@ -36,11 +37,13 @@ export function StatementScan({
   fullScan,
   bcp47,
   screenshotEnabled = false,
+  mailLive = true,
   referralCode,
 }: {
   fullScan: boolean;
   bcp47: string;
   screenshotEnabled?: boolean;
+  mailLive?: boolean;
   referralCode?: string;
 }) {
   const t = useTranslations("scan");
@@ -52,6 +55,8 @@ export function StatementScan({
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
+  /** Read fine, nothing in it — different advice from a failed read. */
+  const [shotNoTx, setShotNoTx] = useState(false);
   const [shotTooBig, setShotTooBig] = useState(false);
   const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -80,6 +85,7 @@ export function StatementScan({
   async function onScreenshot(file?: File | null) {
     if (!file) return;
     setShotError(false);
+    setShotNoTx(false);
     setShotTooBig(false);
     // Checked before upload: base64 inflates size ~4/3, and a request near
     // Vercel's ~4.5MB serverless body limit fails at the platform level with
@@ -100,6 +106,10 @@ export function StatementScan({
         body: JSON.stringify({ imageBase64: btoa(bin), mediaType: file.type || "image/jpeg" }),
       });
       const data = await res.json().catch(() => ({}));
+      if (data.error === "noTransactions") {
+        setShotNoTx(true);
+        return;
+      }
       if (!res.ok || !data.csv) {
         setShotError(true);
         return;
@@ -169,11 +179,9 @@ export function StatementScan({
 
   return (
     <div className="pb-28">
+      <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} />
       <Card className="p-6">
-        <div className="flex items-start gap-2.5 text-[13px] text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 mb-5">
-          <span aria-hidden>🔒</span>
-          <span>{t("privacyNote")}</span>
-        </div>
+        <PrivacyNote className="mb-5">{t("privacyNote")}</PrivacyNote>
 
         <label className="block">
           <span className="text-[13.5px] text-ink-soft">{t("pasteLabel")}</span>
@@ -197,7 +205,7 @@ export function StatementScan({
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
             {t("uploadBtn")}
           </Button>
-          <Button variant="ghost" className="!text-[13px]" type="button" onClick={loadDemo}>
+          <Button variant="ghost" className="!text-body" type="button" onClick={loadDemo}>
             {t("loadDemo")}
           </Button>
           {screenshotEnabled && (
@@ -221,16 +229,19 @@ export function StatementScan({
           />
         </div>
         {shotTooBig && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotTooBig")}</p>
+          <p className="text-danger text-body font-semibold mt-3 mb-0">{t("shotTooBig")}</p>
         )}
         {shotError && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("shotError")}</p>
+          <p className="text-danger text-body font-semibold mt-3 mb-0">{t("shotError")}</p>
+        )}
+        {shotNoTx && (
+          <p className="text-body font-semibold mt-3 mb-0">{t("shotNoTransactions")}</p>
         )}
         {/* Also shown on an empty box — see MoneyHub for why silence here is
             indistinguishable from a broken button. */}
         {!canScan && <p className="text-[12px] text-ink-soft mt-2 mb-0">{t("tooShort")}</p>}
 
-        <details className="mt-5 text-[13px] text-ink-soft">
+        <details className="mt-5 text-body text-ink-soft">
           <summary className="cursor-pointer font-bold text-emerald">{t("exportGuideTitle")}</summary>
           <ul className="mt-2.5 ps-4 list-disc space-y-2 leading-relaxed">
             {(t.raw("exportGuide") as string[]).map((line) => (
@@ -260,7 +271,7 @@ export function StatementScan({
           ) : (
             <>
               <Card className="p-6 text-center">
-                <div className="text-[13px] text-ink-soft font-bold">{t("totalLabel")}</div>
+                <div className="text-body text-ink-soft font-bold">{t("totalLabel")}</div>
                 <div className="font-display grad-text text-4xl mt-1.5">
                   {formatAgorot(result.totalMonthlyAgorot, bcp47)}
                 </div>
@@ -287,7 +298,7 @@ export function StatementScan({
                     {tIcomponents_StatementScan("t_49d491c5")}
                   </div>
                   <div className="font-extrabold text-[17px] mt-1.5">{best.merchant}</div>
-                  <div className="text-ink-soft text-[13px] mt-0.5">
+                  <div className="text-ink-soft text-body mt-0.5">
                     {formatAgorot(best.monthlyAgorot, bcp47)} {t("perMonth")}
                   </div>
                   <Button
@@ -306,7 +317,7 @@ export function StatementScan({
                 </Card>
               )}
 
-              {err && <p className="text-[13px] text-amber font-semibold mt-3">{err}</p>}
+              {err && <p className="text-body text-amber font-semibold mt-3">{err}</p>}
 
               <Card className="mt-4 py-1.5">
                 {visible.map((r, i) => (
@@ -340,7 +351,7 @@ export function StatementScan({
                     </div>
                     <Button
                       variant="ghost"
-                      className="!px-4 !py-2 !text-[13px]"
+                      className="!px-4 !py-2 !text-body"
                       disabled={busyMerchant === r.merchant}
                       onClick={() => openCase(r)}
                     >
@@ -361,7 +372,7 @@ export function StatementScan({
                   <div className="font-extrabold text-[15px]">
                     {t("upgradeTitle", { count: hidden })}
                   </div>
-                  <div className="text-ink-soft text-[13px] mt-1.5">{t("upgradeSub")}</div>
+                  <div className="text-ink-soft text-body mt-1.5">{t("upgradeSub")}</div>
                   <Link href="/pricing" className="no-underline">
                     <Button className="mt-4 !px-6 !py-3 !text-[15px]">{t("upgradeCta")}</Button>
                   </Link>

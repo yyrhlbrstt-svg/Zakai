@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
 import { listAuthorities } from "@/lib/services/authorityControl";
 import { AuthorityList } from "@/components/AuthorityList";
+import { privatePageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,16 @@ export const dynamic = "force-dynamic";
  *
  * The screen the whole protocol exists to serve, and the last one to be built.
  */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return privatePageMetadata(t("authority.t"));
+}
+
 export default async function AuthorityPage({
   params,
 }: {

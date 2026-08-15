@@ -1,44 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useLocale } from "next-intl";
+import { useState } from "react";
 import { useRouter, usePathname } from "@/i18n/routing";
-import type { Locale } from "@/i18n/config";
 
-const DISMISS_KEY = "zk_lang_suggest";
+/**
+ * A cookie, not localStorage — because the SERVER has to know.
+ *
+ * The dismissal used to live in localStorage, which meant only the browser
+ * could decide whether to show this, which meant it could only appear after
+ * hydration, which meant it pushed `<main>` down on every page after first
+ * paint. A cookie is readable in the layout, so the decision happens before
+ * anything is painted and nothing moves.
+ */
+export const LANG_SUGGEST_COOKIE = "zk_lang_suggest";
 
 /**
  * The international wedge's front door: a Hebrew-default visitor whose browser
  * is set to another language (a new immigrant, a tourist) is quietly offered
  * the English site. Shown once, dismissible, never nags. No effect for Hebrew
  * browsers or anyone already on /en.
+ *
+ * WHY `initialShow` IS A PROP AND NOT AN EFFECT
+ *
+ * This decided in a `useEffect`, so on the server and at first paint it
+ * rendered nothing and then appeared — in the document flow, above `<main>` —
+ * pushing every page down after it had already been drawn. That single
+ * component was 0.0747 of layout shift on all eight pages measured, which was
+ * 99% of the site's CLS. The decision needs only the Accept-Language header
+ * and a cookie, both of which the server has, so it is made there and the
+ * banner is in the first byte of HTML or not at all. Nothing moves either way.
  */
-export function LangSuggest() {
-  const locale = useLocale() as Locale;
+export function LangSuggest({ initialShow = false }: { initialShow?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    if (locale !== "he") return; // only nudge from the Hebrew default
-    try {
-      if (localStorage.getItem(DISMISS_KEY)) return;
-    } catch {
-      /* ignore */
-    }
-    const langs = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
-    const anyHebrew = langs.some((l) => /^he|^iw/i.test(l));
-    const anyEnglish = langs.some((l) => /^en/i.test(l));
-    if (!anyHebrew && anyEnglish) setShow(true);
-  }, [locale]);
+  const [show, setShow] = useState(initialShow);
 
   function dismiss() {
     setShow(false);
-    try {
-      localStorage.setItem(DISMISS_KEY, "1");
-    } catch {
-      /* ignore */
-    }
+    // A year, path-wide, so the server stops rendering it on the next request
+    // rather than drawing it and having the client take it away again.
+    document.cookie = `${LANG_SUGGEST_COOKIE}=1; path=/; max-age=31536000; samesite=lax`;
   }
 
   function toEnglish() {
@@ -57,7 +58,7 @@ export function LangSuggest() {
         <button
           type="button"
           onClick={toEnglish}
-          className="shrink-0 grad-bg text-[#06121A] font-extrabold text-[13px] rounded-lg px-3.5 py-1.5"
+          className="shrink-0 grad-bg text-[#06121A] font-extrabold text-body rounded-lg px-3.5 py-1.5"
         >
           View in English
         </button>

@@ -62,3 +62,59 @@ It needs a database, a full build, and a browser. Wiring that into the PR
 workflow would roughly triple CI time for every typo fix. Run it before
 merging anything that touches signup, `/money`, `CheckFlow`, or a vertical's
 agent form — the surfaces where "it looked done" has already cost the most.
+
+## Walk it the way a person walks it
+
+`verify-loop.mjs` stops once a scan produces *a next action*. `verify-money-loop.mjs`
+goes all the way to a Fee, but does it over HTTP against our own API — it POSTs
+to `/api/cases/:id/approve` because it knows that route exists, which is a thing
+no person knows. Between them, the journey a stranger actually takes had never
+been watched end to end.
+
+```bash
+# 1. a mailbox, so the ownership link is real mail and not a database row
+node scripts/dev-smtp-sink.mjs &          # 127.0.0.1:2525 → /tmp/zakai-mail
+
+# 2. point the app at it, plus a signing key so a Mandate can be issued
+#    (a chargeable saving without one is refused on purpose — see cases.ts)
+SMTP_HOST=127.0.0.1 SMTP_PORT=2525 SMTP_USER=sink@localhost SMTP_PASS=sink \
+MANDATE_SIGNING_KID=zakai-local-1 MANDATE_SIGNING_JWK='<Ed25519 private JWK>' \
+npm run build && npx next start -p 3000
+
+# 3. walk it
+ZAKAI_MAILDIR=/tmp/zakai-mail npm run verify:journey
+```
+
+Generate the local key with:
+
+```bash
+node -e 'const{generateKeyPairSync}=require("crypto");
+const{privateKey}=generateKeyPairSync("ed25519");
+const j=privateKey.export({format:"jwk"});j.kid="zakai-local-1";j.alg="EdDSA";j.use="sig";
+console.log(JSON.stringify(j))'
+```
+
+In `.env`, single-quote it — the value contains double quotes and both the
+shell and dotenv will otherwise mangle it, which shows up as a JWKS endpoint
+answering `mandate_keys_not_configured` with no other clue.
+
+### What its states mean
+
+- **OK** — the step was taken from the screen, by finding its own control.
+- **ASSISTED** — the ownership link was read out of the Outbox row, because no
+  mailbox was given. Not a pass: it proves the message was composed, not that
+  it arrives. Set `ZAKAI_MAILDIR` to turn this into a real OK.
+- **STUCK** — no control on that screen led onward. The report names the URL
+  they were standing on and what was being looked for.
+
+The script never navigates to a URL it was not shown. That rule is the whole
+value: allowed to help itself to a known route, it would turn a real dead end
+into a passing check.
+
+### Never point it at production
+
+Step 8 sends. With live mail that is a real letter to a real company, carrying
+a signed Mandate, on behalf of a person who does not exist — and the run writes
+a Case, an Authorization and a SavingsProof into the same rows the public
+counters and the outcome graph are computed from. The sink exists precisely so
+this never needs production to be believed.

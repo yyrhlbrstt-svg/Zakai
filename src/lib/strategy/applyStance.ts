@@ -43,10 +43,17 @@ const CLAUSES = {
   deadline: `אבקש תשובה עניינית בכתב תוך ${DEADLINE_DAYS} ימים ממועד קבלת פנייה זו.`,
   escalation:
     "ככל שהבקשה תידחה, אבקש הנמקה מפורטת בכתב, ואפנה לגורם המוסמך לבירור התלונה בהתאם לדין.",
-  statute: "הבקשה מבוססת על ההוראות החלות בעניין זה.",
+  /**
+   * Written without a first person, because these clauses are appended to two
+   * kinds of letter: one the person sends themselves, and one the agent sends
+   * on their behalf, which opens "אינני הלקוח/ה עצמו/ה". In the second, "the
+   * amount owed to me" made the letter contradict itself in front of the
+   * counterparty — it said it was not the customer and then asked for its own
+   * money. Neutral phrasing is correct in both voices.
+   */
   anchorAsk:
-    "אבקש שתחשבו את הסכום המדויק המגיע לי ותציינו אותו בתשובתכם, בצירוף אופן החישוב.",
-  cooperative: "אני מניח/ה שמדובר בטעות ומבקש/ת לתקנה ללא צורך בהליך נוסף.",
+    "אבקש לחשב את הסכום המדויק ולציין אותו בתשובתכם, בצירוף אופן החישוב.",
+  cooperative: "ככל שמדובר בטעות, אפשר לתקן אותה ללא צורך בהליך נוסף.",
   formal: "פנייה זו נשלחת לשם בירור וטיפול, ושמורות לי מלוא טענותיי וזכויותיי.",
 } as const;
 
@@ -65,11 +72,27 @@ export function applyStance(letter: Letter, variant: StrategyVariant): Letter {
   if (variant.posture === "cooperative") additions.push(CLAUSES.cooperative);
   if (variant.posture === "formal_legal") additions.push(CLAUSES.formal);
 
-  // Only claim a statutory basis when the letter does not already cite one —
-  // a second, vaguer assertion next to a specific citation weakens it.
-  if (variant.citesStatute && !/סעיף|חוק|תקנה|צו /.test(letter.body)) {
-    additions.push(CLAUSES.statute);
-  }
+  /**
+   * `citesStatute` adds nothing here, on purpose.
+   *
+   * It used to append "הבקשה מבוססת על ההוראות החלות בעניין זה" — "this
+   * request is based on the applicable directives" — but only when the letter
+   * cited nothing specific. So the sentence appeared exactly when there was no
+   * statute behind it, which is an unsupported legal claim, and the first
+   * non-negotiable in this repository is that we never fabricate one.
+   *
+   * It also does not work. A retention desk reads an unnamed "applicable
+   * directives" as a bluff, and it is: naming חוק הגנת הצרכן סעיף 13ד moves
+   * a case, gesturing at directives does not. Read in the letter this actually
+   * sends, it sat between a clear ask and a wall of URLs, adding nothing to
+   * either.
+   *
+   * The dimension is now expressed by whether the builder cited a real statute
+   * — the same way `anchorsAmount` is expressed by the absence of the ask
+   * rather than by a clause. When a vertical has a citation to make, it
+   * belongs in that vertical's builder, where the specific section can be
+   * named. Nowhere else can name it truthfully.
+   */
 
   if (variant.setsDeadline && !/\d+\s*ימים/.test(letter.body)) {
     additions.push(CLAUSES.deadline);
@@ -84,9 +107,29 @@ export function applyStance(letter: Letter, variant: StrategyVariant): Letter {
 
   if (additions.length === 0) return letter;
 
-  // Inserted before the sign-off when there is one, so the letter still reads
-  // like a letter rather than a document with paragraphs after the signature.
-  const signOffIndex = letter.body.lastIndexOf("בכבוד רב");
+  /**
+   * Inserted before the sign-off, so the letter reads like a letter rather
+   * than a document with paragraphs after the signature.
+   *
+   * This only ever looked for "בכבוד רב". The agent's own outreach letters
+   * sign off with "בברכה", so every clause landed *below* the signature —
+   * read out of a real mailbox, the Cellcom retention request ended:
+   *
+   *     בברכה,
+   *     זכאי — סוכן דיגיטלי בשם …
+   *
+   *     אני מניח/ה שמדובר בטעות …
+   *     אבקש שתחשבו את הסכום …
+   *
+   * which reads as an afterthought scribbled under a signature, in the one
+   * document whose whole job is to look like it was written by somebody who
+   * knows what they are doing.
+   */
+  const SIGN_OFFS = ["בכבוד רב", "בברכה", "בכבוד"];
+  const signOffIndex = SIGN_OFFS.reduce((best, phrase) => {
+    const at = letter.body.lastIndexOf(phrase);
+    return at > best ? at : best;
+  }, -1);
   const block = additions.join("\n\n");
 
   if (signOffIndex === -1) {

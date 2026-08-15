@@ -37,6 +37,12 @@ model User {
   // (PSP); the tier itself is enforced in code from day one.
   plan            Plan      @default(FREE)
   planChangedAt   DateTime?
+  /// When a paid plan lapses. Null on FREE, and on any plan granted without
+  /// payment. `GET /api/cron/plan-expiry` downgrades accounts past this date —
+  /// deliberately a sweep rather than a read-time check, because the plan is
+  /// read in twenty-three places and a rule enforced in one of them is a rule
+  /// enforced nowhere.
+  planUntil       DateTime?
   // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
   // are registered to; ownership verification sends a code here.
   phone           String
@@ -85,6 +91,61 @@ model User {
   deadlines          Deadline[]
   receipts           Receipt[]
   inboxInterests     ConnectedInboxInterest[]
+  commitments        Commitment[]
+  coupons            Coupon[]
+  planOrders      PlanOrder[]
+}
+
+/**
+ * A discount the person already holds and would otherwise lose track of.
+ *
+ * WHAT THIS IS, AND WHAT IT DELIBERATELY IS NOT
+ *
+ * This is the person's own vault: codes they were given — a retention offer a
+ * provider made, a card benefit, a membership discount, a promo email — kept in
+ * one place, searchable, and with the expiry date surfaced before it passes.
+ *
+ * It is NOT a scraped feed of public coupon codes. We have no agreement with
+ * any coupon site, scraping them breaches their terms, and a code that has
+ * already been redeemed is worse than no code at all: the person stands at a
+ * checkout and finds out we were wrong. Inventing entries here would be the
+ * same class of error as inventing an amount owed. `source` exists so a real
+ * partner feed can populate rows later without a schema change — until such a
+ * feed exists, every row got here because a person put it here.
+ *
+ * MONEY
+ *
+ * `percentOff` is whole percent; `amountMinor` is minor units. At most one is
+ * set — a coupon is a percentage or a fixed sum, never both — and either may be
+ * absent, because "free shipping" is a real coupon with neither.
+ */
+model Coupon {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  merchant String
+  /// The code itself. Bearer value — never logged, never left the user's scope.
+  code     String
+  category String @default("other")
+
+  percentOff    Int? // 1..100
+  amountMinor   Int? // agorot
+  currency      String @default("ILS")
+  minSpendMinor Int?
+
+  /// Null means "no expiry stated" — which is not the same as "never expires",
+  /// and is not the same as expired. All three render differently.
+  expiresAt DateTime?
+  note      String    @default("")
+  url       String    @default("")
+
+  /// manual | import | partner — how the row got here. Extensibility hook.
+  source    String    @default("manual")
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
 }
 
 // Consent ledger (Privacy Protection Law, Amendment 13): a durable record of
@@ -117,6 +178,68 @@ model Deadline {
   createdAt        DateTime  @default(now())
 
   @@index([userId])
+}
+
+/// A financial commitment the person is currently under, and the date by which
+/// they can still get out of it.
+///
+/// WHY THIS IS THE RECORD, NOT A FEATURE
+///
+/// Everything else here is episodic: a Case exists because somebody suspected
+/// they were owed money on a particular day. That makes the product a place
+/// you visit when you remember to, and money-recovery is the least memorable
+/// errand there is — which is the same reason a single month's saving is worth
+/// ₪5.40 to collect.
+///
+/// Obligations are the opposite. Everyone has a set of them, it changes every
+/// month whether or not anyone is paying attention, and it lives nowhere: the
+/// bank app has the charge, the inbox has the contract, the drawer has the
+/// paper, and nothing holds "what am I committed to, and until when can I
+/// leave". Holding that set is continuous by nature, and every engine already
+/// written here — the notice window, the overlap finder, the commitment
+/// calendar, the promised credits — is a function over it.
+///
+/// Deliberately not the same thing as Deadline. A Deadline is a label and a
+/// date somebody typed. This carries the counterparty, the money, the notice
+/// period and where the facts came from, which is what the engines need and
+/// what makes leaving expensive.
+model Commitment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// What the person calls it — "Netflix", "the office lease".
+  label String
+  /// Normalised counterparty key when it maps to a known provider, else "".
+  counterparty String @default("")
+  /// Charge category, reused from the recurring-charge scanner so the overlap
+  /// finder can run over commitments and scanned charges alike.
+  category String @default("other")
+
+  /// Recurring cost in agorot. Null when the person does not know it yet —
+  /// which must stay distinguishable from zero.
+  monthlyMinor Int?
+
+  /// When the term renews, if it does.
+  renewsOn DateTime?
+  /// Days of written notice required to get out. Null when the contract does
+  /// not state one: a customary value guessed here would produce a confident
+  /// deadline that is wrong, and somebody would plan around it.
+  noticeDays Int?
+
+  /// Where the facts came from — "contract_scan", "statement_scan", "manual".
+  /// Never parsed; carried so a figure can be traced back to its source.
+  source String @default("manual")
+
+  /// Set when the commitment ends (cancelled, expired, switched away).
+  /// Kept rather than deleted: what somebody used to pay for is the record.
+  endedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, endedAt])
+  @@index([renewsOn])
 }
 
 // One reward per referred user, granted when that user's FIRST check documents
@@ -181,6 +304,11 @@ model Case {
   // stance when the case closes. Null on cases opened before the engine.
   strategyVariant String?
   strategySeed    Int?
+
+  /// The model that drafted this case's outreach, carried to `recordOutcome`
+  /// the same way `strategyVariant` is. Null for drafts made before
+  /// attribution, which must stay distinguishable from a real attribution.
+  drafterId       String?
   // When a de-identified StrategyOutcome row was written for this case.
   // Idempotency only — the Outcome table itself never stores caseId.
   outcomeRecordedAt DateTime?
@@ -203,6 +331,7 @@ model Case {
 
   authorization Authorization?
   savingsProof  SavingsProof?
+  promisedCredit PromisedCreditRecord?
   fee           Fee?
   outbox        Outbox[]
 
@@ -308,9 +437,86 @@ model SavingsProof {
   /// a chargeable Fee — eighteen percent of a number somebody typed is not a
   /// fee this company could defend if asked to.
   selfReported   Boolean  @default(false)
+
+  /// How many billing cycles have actually been confirmed for this saving.
+  ///
+  /// One is the honest floor and the historical default: settling a case
+  /// verifies the bill in front of us and nothing beyond it. Every later
+  /// confirmed bill raises this, which is what lets the documented recovery
+  /// grow on evidence instead of on the flat ×12 the outcome graph used to
+  /// assert off a single observation. Meaningless for lump recoveries, which
+  /// arrive once and whole.
+  confirmedCycles Int      @default(1)
+  /// When a later bill last confirmed the saving was still in place.
+  lastConfirmedAt DateTime?
+
   recordedAt     DateTime @default(now())
 
+  /// The settlement as a signed, independently verifiable object.
+  ///
+  /// Without this the outcome is only a row in our own database, which no
+  /// counterparty, regulator or holder can check without trusting us — while
+  /// the Mandate that authorised the claim has been verifiable by anyone from
+  /// the start. Proof of authority and no proof of result is what makes this a
+  /// service rather than a record layer.
+  ///
+  /// Nullable because signing needs MANDATE_SIGNING_JWK, and a deployment
+  /// without it must still be able to record a saving. An unsigned proof is a
+  /// weaker artifact, not a lost one.
+  settlementJws  String?  @db.Text
+
   @@index([selfReported, recordedAt])
+}
+
+/// A credit the counterparty said they would give, held until it actually
+/// arrives.
+///
+/// WHY THIS HAS TO EXIST SEPARATELY FROM SavingsProof
+///
+/// A provider agreeing on a call is not money. Before this, a case that
+/// reached "they said yes" had two possible endings and both were wrong:
+/// settle it — which writes a SavingsProof and a chargeable Fee for money
+/// that has not moved — or leave it, and let the promise be forgotten. The
+/// most reliable way to not pay somebody is to promise to pay them and let it
+/// drift, and each instance is too small to chase from memory.
+///
+/// So the promise is recorded as a promise: no proof, no fee, nothing
+/// claimed. When the credit is observed the case settles on the observed
+/// amount, and when it is not, the broken promise becomes a documented fact
+/// with a date on it.
+model PromisedCreditRecord {
+  id     String @id @default(cuid())
+  caseId String @unique
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  /// Normalised counterparty key, copied from the Case at record time so the
+  /// promise survives independently of later edits.
+  counterparty String
+
+  /// What they said they would credit, in agorot. Integer only.
+  promisedMinor Int
+  promisedAt    DateTime @default(now())
+
+  /// By when they said it would appear. Null when they did not say — the
+  /// difference matters, because a promise with no date is judged on a grace
+  /// period and one with a date is judged on the date.
+  dueBy DateTime?
+
+  /// What was actually observed, in agorot. Null until somebody checked; zero
+  /// is a real answer and must stay distinguishable from "not checked yet".
+  observedMinor Int?
+  checkedAt     DateTime?
+
+  /// Free-text note about where the promise came from — the reply, the call,
+  /// the reference number. Never parsed, only shown back, so it cannot become
+  /// a source of invented facts.
+  evidenceNote String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([counterparty, checkedAt])
+  @@index([dueBy])
 }
 
 enum FeeStatus {
@@ -380,6 +586,43 @@ model IdempotencyRecord {
 // can read real user suggestions and prioritise from them. Email is optional
 // (only if the user wants a reply); `context` records which screen it came
 // from. Not linked to a user account — a logged-out visitor can leave it too.
+/// A paid plan period somebody actually bought.
+///
+/// Separate from `Fee`, which is one-to-one with a Case and settles a success
+/// fee. This is the other revenue line entirely: a subscription, which needs
+/// no Case, no Mandate and no outbound mail — the reason it can earn while the
+/// consumer loop is still blocked on SMTP.
+///
+/// It rides the same PSP seam as fees. `providerRef` is the PSP's transaction
+/// id; the reference we hand the PSP is namespaced `plan_<id>` so the shared
+/// callback route can tell a plan payment from a fee payment without either
+/// adapter knowing this model exists.
+model PlanOrder {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  plan   String // PRO | MAX | BUSINESS
+  months Int    @default(1)
+  /// Agorot. Integer only — never a float, for the same reason fees are not.
+  amount Int
+
+  status      PlanOrderStatus @default(PENDING)
+  provider    String          @default("")
+  providerRef String?
+  paidAt      DateTime?
+  createdAt   DateTime        @default(now())
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum PlanOrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
 model Feedback {
   id        String   @id @default(cuid())
   message   String
@@ -428,6 +671,28 @@ model StrategyOutcome {
   counterparty String // normalised provider key, never free text
   variantId    String
 
+  /// Which model actually produced the draft, as "provider:model" — or
+  /// "unknown" for cases that closed before attribution existed, and for calls
+  /// that reported nothing. Never derived from configuration: `generateText`
+  /// falls back to a secondary provider when the primary fails, so the model
+  /// that ran and the model that was configured differ exactly when something
+  /// is wrong. Naming our own infrastructure, it identifies no person, which is
+  /// what keeps this table publishable.
+  drafterId String @default("unknown")
+
+  /// True when this outcome is backed by a signed settlement.
+  ///
+  /// The graph learned from rows: our own assertion that a case ended a
+  /// certain way. A settlement-backed row is a different grade of evidence —
+  /// anyone can verify it against the published key, and no party including
+  /// us can rewrite it afterwards. Keeping the distinction lets an aggregate
+  /// say which of its inputs would survive being checked, which is the whole
+  /// difference between a statistic and evidence.
+  ///
+  /// Defaults false so existing rows are not silently promoted to a standard
+  /// they were never held to.
+  settlementBacked Boolean @default(false)
+
   paid           Boolean
   recoveredMinor Int // minor units; 0 when nothing came back
   days           Int // send -> resolution
@@ -445,6 +710,8 @@ model StrategyOutcome {
   @@index([market, vertical, counterparty])
   @@index([market, vertical])
   @@index([selfReported, createdAt])
+  @@index([drafterId, selfReported])
+  @@index([settlementBacked])
 }
 
 /**
@@ -524,6 +791,77 @@ model EmailVerification {
 /// a hard condition: the mandate says so. `zkm.on_behalf_of` names the agent,
 /// because a token that hid the delegation would mean this company vouching
 /// for a user verification it never performed.
+/// A third-party agent that asks OUR users for authority.
+///
+/// Deliberately not `DelegatedIssuer`, and the two must never be merged. A
+/// delegated issuer issues mandates for *its own* users, whom this product has
+/// never met, and its mandates carry `zkm.onBehalfOf` to say so. An
+/// `AgentClient` points the other way: it asks a person Zakai already knows to
+/// grant it authority, and Zakai signs that grant in the first party's own
+/// name because Zakai is the one who verified the human.
+///
+/// Conflating them would mean vouching for an identity check nobody performed,
+/// which is the failure a trust network does not recover from.
+model AgentClient {
+  id     String @id @default(cuid())
+  /// Stable public identifier the person sees named on the consent screen.
+  slug   String @unique
+  name   String
+  /// Shown to the person under the name — who this is, in their words.
+  description String @default("")
+
+  /// Exact-match allowlist. Never a prefix and never a wildcard: an attacker
+  /// who can steer a grant anywhere under a registered origin steers it to
+  /// themselves, which is how every authorization protocol gets broken.
+  redirectUris String[]
+
+  /// pending | approved | suspended. Only `approved` may ask for anything, and
+  /// suspension takes effect on the next request with no key rotation.
+  status    String   @default("pending")
+  contact   String   @default("")
+  createdAt DateTime @default(now())
+
+  requests AgentAuthorizationRequest[]
+
+  @@index([status])
+}
+
+/// One human decision, in flight.
+///
+/// Holds what was asked, what the person answered, and — only after they said
+/// yes — the signed mandate, released exactly once against a one-time code.
+model AgentAuthorizationRequest {
+  id       String      @id @default(cuid())
+  clientId String
+  client   AgentClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  scopes       String[]
+  purpose      String
+  redirectUri  String
+  /// Opaque value the agent round-trips to defend its own session.
+  state        String   @default("")
+  grantSeconds Int      @default(2592000)
+
+  /// pending | approved | denied | exchanged | expired
+  status String @default("pending")
+  /// Set the moment a person answers. Null means nobody has.
+  userId String?
+
+  /// SHA-256 of the one-time exchange code. Never the code itself, for the
+  /// same reason DelegatedIssuer stores a key hash.
+  codeHash   String? @unique
+  /// The issued mandate, held until the agent exchanges its code, then cleared.
+  mandateJws String?
+  mandateJti String?
+
+  expiresAt  DateTime
+  approvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([clientId, createdAt])
+  @@index([status, expiresAt])
+}
+
 model DelegatedIssuer {
   id            String    @id @default(cuid())
   /// Stable public identifier, e.g. "agent.example". Appears in the mandate.

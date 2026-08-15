@@ -49,7 +49,7 @@ export async function MoneyScoreCard({ result }: { result: MoneyScoreResult }) {
         </div>
 
         <div className="flex-1 min-w-[200px]">
-          <div className="text-[13px] text-ink-soft font-bold">{t("title")}</div>
+          <div className="text-body text-ink-soft font-bold">{t("title")}</div>
           <div className="font-display text-2xl mt-0.5">{t(`levels.${result.level}`)}</div>
           {top.length > 0 ? (
             <>

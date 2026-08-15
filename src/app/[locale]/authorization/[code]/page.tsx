@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getPublicAuthorization } from "@/lib/services/authorization";
@@ -5,6 +6,17 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { PrintButton } from "@/components/PrintButton";
 import { Logo } from "@/components/Logo";
 import { MandateQr } from "@/components/MandateQr";
+import { privatePageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return privatePageMetadata(t("authorization_code.t"));
+}
 
 export default async function AuthorizationDocPage({
   params,
@@ -31,7 +43,7 @@ export default async function AuthorizationDocPage({
         <a
           href={pdfHref}
           download
-          className="inline-flex items-center rounded-[12px] px-5 py-2.5 font-extrabold text-[13px] border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] text-ink no-underline"
+          className="inline-flex items-center rounded-[12px] px-5 py-2.5 font-extrabold text-body border border-[rgba(255,255,255,0.18)] bg-[rgba(255,255,255,0.06)] text-ink no-underline"
         >
           {t("download")}
         </a>

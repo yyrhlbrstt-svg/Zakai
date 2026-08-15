@@ -13,7 +13,7 @@ export async function VisitorMarketNotice({
   const label = marketLabel(market);
 
   return (
-    <p className="text-[13px] text-ink-soft mb-5 leading-relaxed flex flex-wrap items-center gap-x-2 gap-y-1">
+    <p className="text-body text-ink-soft mb-5 leading-relaxed flex flex-wrap items-center gap-x-2 gap-y-1">
       <span>
         {t("currentMarket", { label, code: market })}
       </span>

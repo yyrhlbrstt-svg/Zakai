@@ -24,7 +24,7 @@ export function SeveranceCalculator({ bcp47 }: { bcp47: string }) {
       <Card className="p-6 flex flex-col gap-5">
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("salaryQ")}</span>
+            <span className="text-body text-ink-soft">{t("salaryQ")}</span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(salary))}</span>
           </div>
           <input type="range" min={3000} max={60000} step={250} value={salary}
@@ -33,7 +33,7 @@ export function SeveranceCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("yearsQ")}</span>
+            <span className="text-body text-ink-soft">{t("yearsQ")}</span>
             <span className="font-display text-[15px]">{years}</span>
           </div>
           <input type="range" min={0} max={40} step={1} value={years}
@@ -42,7 +42,7 @@ export function SeveranceCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("monthsQ")}</span>
+            <span className="text-body text-ink-soft">{t("monthsQ")}</span>
             <span className="font-display text-[15px]">{months}</span>
           </div>
           <input type="range" min={0} max={11} step={1} value={months}
@@ -51,7 +51,7 @@ export function SeveranceCalculator({ bcp47 }: { bcp47: string }) {
       </Card>
 
       <Card className="mt-5 p-6 text-center">
-        <div className="text-[13px] text-ink-soft font-bold">{t("resultTitle")}</div>
+        <div className="text-body text-ink-soft font-bold">{t("resultTitle")}</div>
         <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
           {money(r.severanceAgorot)}
         </div>

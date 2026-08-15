@@ -56,7 +56,7 @@ export function VigilWatchCard({ bcp47 }: { bcp47: string }) {
   return (
     <Card className="p-6 mt-5">
       <div className="font-display text-lg mb-1">{tw("title")}</div>
-      <p className="text-ink-soft text-[13px] mb-4">{tw("sub")}</p>
+      <p className="text-ink-soft text-body mb-4">{tw("sub")}</p>
 
       {state.items.length === 0 ? (
         <p className="text-ink-soft text-[13.5px] m-0">{tw("empty")}</p>
@@ -71,7 +71,7 @@ export function VigilWatchCard({ bcp47 }: { bcp47: string }) {
                 {t.has(`items.${item.rightId}.title`) ? t(`items.${item.rightId}.title`) : item.rightId}
                 {item.taxYear ? ` (${item.taxYear})` : ""}
               </div>
-              <div className="text-[13px] font-extrabold text-emerald">
+              <div className="text-body font-extrabold text-emerald">
                 {formatAgorot(item.valueAtRiskMinor, bcp47)}
               </div>
               {item.daysLeft !== null && (

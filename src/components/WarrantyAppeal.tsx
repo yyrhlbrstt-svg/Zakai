@@ -82,15 +82,15 @@ export function WarrantyAppeal() {
       <Card className="p-6 flex flex-col gap-4">
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentName")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agentName")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentSeller")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agentSeller")}</span>
             <Input value={seller} onChange={(e) => setSeller(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentSellerEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agentSellerEmail")}</span>
             <Input
               type="email"
               value={sellerEmail}
@@ -100,16 +100,16 @@ export function WarrantyAppeal() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentProduct")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agentProduct")}</span>
             <Input value={product} onChange={(e) => setProduct(e.target.value)} maxLength={120} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentRepairCost")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agentRepairCost")}</span>
             <Input type="number" value={repairCost} onChange={(e) => setRepairCost(e.target.value)} />
           </label>
         </div>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agentFault")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agentFault")}</span>
           <Textarea rows={4} value={fault} onChange={(e) => setFault(e.target.value)} maxLength={500} />
         </label>
         <div className="flex flex-col gap-2">
@@ -128,7 +128,7 @@ export function WarrantyAppeal() {
             {t("templateOnly")}
           </Button>
         </div>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

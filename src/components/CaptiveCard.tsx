@@ -46,7 +46,7 @@ export function CaptiveCard({ profile, bcp47 }: { profile: RightsProfile; bcp47:
   return (
     <div className="mt-6">
       <h2 className="text-[15px] font-extrabold mb-1">{t("title")}</h2>
-      <p className="text-ink-soft text-[13px] leading-relaxed mt-0 mb-3">{t("sub")}</p>
+      <p className="text-ink-soft text-body leading-relaxed mt-0 mb-3">{t("sub")}</p>
       <Card className="py-1">
         {products.map((p, i) => (
           <div
@@ -200,8 +200,8 @@ function CaptiveRow({ product, bcp47 }: { product: CaptiveProduct; bcp47: string
 
         {letter && (
           <div className="mt-4">
-            <div className="text-[13px] font-extrabold mb-2">{letter.subject}</div>
-            <pre className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
+            <div className="text-body font-extrabold mb-2">{letter.subject}</div>
+            <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-body leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
               {letter.body}
             </pre>
             <div className="mt-3 flex gap-2 flex-wrap">

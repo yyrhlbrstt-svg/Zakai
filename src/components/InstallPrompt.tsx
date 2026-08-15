@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/routing";
 import { LogoMark } from "@/components/Logo";
+import { FLOATING_BANNER_ATTR, useFloatingClearance } from "@/components/useFloatingClearance";
+import { NON_CONSUMER_ROUTES } from "@/lib/nonConsumerRoutes";
 
 interface BIPEvent extends Event {
   prompt: () => Promise<void>;
@@ -16,16 +18,15 @@ export function InstallPrompt() {
   const t = useTranslations("install");
   const pathname = usePathname();
   const moneyOs = pathname === "/money" || pathname === "/dashboard";
-  /** Flow pages need a visible primary CTA at the bottom — defer install banner. */
-  const deferInstall =
-    pathname === "/cancel/universal" ||
-    pathname === "/cancel" ||
-    pathname === "/check" ||
-    pathname === "/start" ||
-    pathname === "/money";
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
   const [iosHint, setIosHint] = useState(false);
   const [show, setShow] = useState(false);
+  const retreat = useCallback(() => setShow(false), []);
+  const { ref, clear } = useFloatingClearance(show, retreat);
+
+  useEffect(() => {
+    setShow(false);
+  }, [pathname]);
 
   useEffect(() => {
     const standalone =
@@ -41,7 +42,7 @@ export function InstallPrompt() {
     const onBIP = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BIPEvent);
-      if (!deferInstall) setShow(true);
+      setShow(true);
     };
     window.addEventListener("beforeinstallprompt", onBIP);
 
@@ -49,7 +50,7 @@ export function InstallPrompt() {
     const isIOS = /iphone|ipad|ipod/i.test(ua);
     const isSafari = /safari/i.test(ua) && !/crios|fxios|edgios/i.test(ua);
     let timer: ReturnType<typeof setTimeout> | undefined;
-    if (!deferInstall && isIOS && isSafari) {
+    if (isIOS && isSafari) {
       timer = setTimeout(() => {
         setIosHint(true);
         setShow(true);
@@ -60,7 +61,7 @@ export function InstallPrompt() {
       window.removeEventListener("beforeinstallprompt", onBIP);
       if (timer) clearTimeout(timer);
     };
-  }, [moneyOs, deferInstall]);
+  }, [moneyOs]);
 
   function dismiss() {
     setShow(false);
@@ -79,11 +80,17 @@ export function InstallPrompt() {
   }
 
   if (pathname === "/cancel/universal") return null;
-
+  if (NON_CONSUMER_ROUTES.some((r) => pathname.startsWith(r))) return null;
   if (!show) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-[9998] mx-auto max-w-[520px] rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] p-4 flex items-center gap-3">
+    <div
+      ref={ref}
+      {...{ [FLOATING_BANNER_ATTR]: "install" }}
+      aria-hidden={!clear}
+      className="fixed inset-x-3 bottom-3 z-[9998] mx-auto max-w-[520px] rounded-2xl border border-[rgba(63,203,155,0.3)] bg-[#0c1420] shadow-[0_24px_60px_rgba(0,0,0,0.55)] p-4 flex items-center gap-3"
+      style={clear ? undefined : { visibility: "hidden", pointerEvents: "none" }}
+    >
       <LogoMark size={40} className="shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="font-extrabold text-[14px]">{t("title")}</div>
@@ -95,7 +102,7 @@ export function InstallPrompt() {
         <button
           type="button"
           onClick={install}
-          className="shrink-0 grad-bg btn-sheen text-[#06121A] font-extrabold text-[13px] rounded-xl px-4 py-2.5"
+          className="shrink-0 grad-bg btn-sheen text-[#06121A] font-extrabold text-body rounded-xl px-4 py-2.5"
         >
           {t("cta")}
         </button>
@@ -104,7 +111,7 @@ export function InstallPrompt() {
         type="button"
         onClick={dismiss}
         aria-label={t("dismiss")}
-        className="shrink-0 text-ink-soft hover:text-ink text-lg leading-none px-1 bg-transparent border-0 cursor-pointer"
+        className="shrink-0 text-ink-soft hover:text-ink text-lg leading-none grid place-items-center min-w-[28px] min-h-[28px] bg-transparent border-0 cursor-pointer"
       >
         ✕
       </button>

@@ -136,7 +136,7 @@ export function AuthorityList({ authorities }: { authorities: GrantedAuthority[]
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="flex-1 basis-[240px]">
                 <div className="font-extrabold text-[15px]">{a.provider}</div>
-                <div className="text-ink-soft text-[13px] mt-1.5 leading-relaxed">{a.scope}</div>
+                <div className="text-ink-soft text-body mt-1.5 leading-relaxed">{a.scope}</div>
                 <div className="text-ink-soft text-[11.5px] mt-2" dir="ltr">
                   {a.code} · {new Date(a.issuedAt).toLocaleDateString()}
                 </div>
@@ -152,7 +152,7 @@ export function AuthorityList({ authorities }: { authorities: GrantedAuthority[]
                     variant="ghost"
                     disabled={local === "busy"}
                     onClick={() => revoke(a.code)}
-                    className="!text-[13px] !px-4 !py-2"
+                    className="!text-body !px-4 !py-2"
                   >
                     {local === "busy" ? t("revoking") : t("revoke")}
                   </Button>

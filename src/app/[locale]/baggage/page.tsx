@@ -42,11 +42,11 @@ export default async function BaggagePage({
 
       <Reveal delay={80}>
         <SpotlightCard className="p-6 mt-8">
-          <div className="text-[13px] text-ink-soft font-bold">{t("capLabel")}</div>
+          <div className="text-body text-ink-soft font-bold">{t("capLabel")}</div>
           <div className="font-display grad-text text-[clamp(30px,7vw,44px)] leading-none mt-2">
             {t("capAmount")}
           </div>
-          <div className="text-[13px] text-ink-soft mt-2 leading-relaxed">{t("capNote")}</div>
+          <div className="text-body text-ink-soft mt-2 leading-relaxed">{t("capNote")}</div>
         </SpotlightCard>
       </Reveal>
 
@@ -76,7 +76,7 @@ export default async function BaggagePage({
             key={s}
             className="flex gap-3.5 items-start rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-4"
           >
-            <span className="w-[26px] h-[26px] shrink-0 rounded-full grad-bg text-[#06121A] flex items-center justify-center font-black text-[13px]">
+            <span className="w-[26px] h-[26px] shrink-0 rounded-full grad-bg text-[#06121A] flex items-center justify-center font-black text-body">
               {i + 1}
             </span>
             <span className="text-[14.5px] leading-relaxed">{s}</span>
@@ -121,7 +121,7 @@ export default async function BaggagePage({
         </GradientCtaCard>
       </Reveal>
 
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}
       </p>
     </VerticalPageShell>

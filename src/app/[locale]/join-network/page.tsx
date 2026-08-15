@@ -78,13 +78,13 @@ export default async function JoinNetworkPage({
             </p>
             {card.href ? (
               <Link href={card.href} className="no-underline">
-                <Button variant="ghost" className="!text-[13px] w-full">
+                <Button variant="ghost" className="!text-body w-full">
                   {card.cta}
                 </Button>
               </Link>
             ) : (
               <a href={card.external!} className="no-underline">
-                <Button variant="ghost" className="!text-[13px] w-full">
+                <Button variant="ghost" className="!text-body w-full">
                   {card.cta}
                 </Button>
               </a>

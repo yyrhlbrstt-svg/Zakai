@@ -47,6 +47,45 @@ export function defaultOpenGraph(
  * one place that list of locales is written, so it can't drift from
  * i18n/config.ts's activeLocales the way sitemap.ts's copy once did.
  */
+/**
+ * Metadata for a page that must never be indexed.
+ *
+ * A dashboard, a settings screen, a one-time confirmation link — these still
+ * need a title, because a browser tab reading "zakai-3uxj.vercel.app" is what
+ * a person sees when they have six tabs open and are looking for the one with
+ * their money in it. What they must not have is a description written for a
+ * search engine that is never going to see them.
+ */
+export function privatePageMetadata(title: string): Metadata {
+  return { title, robots: { index: false, follow: false } };
+}
+
+/**
+ * Metadata for a public page: unique title, real description, share card,
+ * canonical URL and hreflang alternates — the five things that were missing
+ * one-by-one across twenty-one pages, each in a slightly different way.
+ */
+export function publicPageMetadata(
+  locale: string,
+  opts: { title: string; description: string; path: string },
+): Metadata {
+  return {
+    title: opts.title,
+    description: opts.description,
+    alternates: {
+      canonical: `${SITE_URL}/${locale}${opts.path}`,
+      languages: alternateLanguages(opts.path),
+    },
+    openGraph: defaultOpenGraph(locale, opts),
+    twitter: {
+      card: "summary_large_image",
+      title: opts.title,
+      description: opts.description,
+      images: [ogImageUrl({ locale, sub: opts.description })],
+    },
+  };
+}
+
 export function alternateLanguages(path: string): Record<string, string> {
   const languages: Record<string, string> = {};
   for (const locale of activeLocales) {

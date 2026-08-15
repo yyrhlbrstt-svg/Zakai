@@ -27,28 +27,28 @@ export function CreditCardTool() {
   return (
     <div className="flex flex-col gap-4">
       <Card className="p-5 flex flex-col gap-3">
-        <label className="text-[13px] text-ink-soft">
+        <label className="text-body text-ink-soft">
           {tIcomponents_CreditCardTool("t_540e7429")}
           <Input type="number" className="mt-1" value={balance} onChange={(e) => setBalance(e.target.value)} />
         </label>
-        <label className="text-[13px] text-ink-soft">
+        <label className="text-body text-ink-soft">
           {tIcomponents_CreditCardTool("t_4bbb156f")}
           <Input type="number" className="mt-1" value={rate} onChange={(e) => setRate(e.target.value)} />
         </label>
-        <label className="text-[13px] text-ink-soft">
+        <label className="text-body text-ink-soft">
           {tIcomponents_CreditCardTool("t_3216c28f")}
           <Input type="number" className="mt-1" value={minPct} onChange={(e) => setMinPct(e.target.value)} />
         </label>
       </Card>
 
       <Card className="p-6 text-center">
-        <div className="text-[13px] text-ink-soft font-bold">{tIcomponents_CreditCardTool("t_59e0bebc")}</div>
+        <div className="text-body text-ink-soft font-bold">{tIcomponents_CreditCardTool("t_59e0bebc")}</div>
         <div className="font-display grad-text text-4xl mt-2">₪{result.monthlyInterestShekels.toLocaleString()}</div>
-        <div className="text-[13px] text-ink-soft mt-3">
+        <div className="text-body text-ink-soft mt-3">
           {tIcomponents_CreditCardTool("t_d51fcd64")} ₪{result.yearlyInterestShekels.toLocaleString()}
         </div>
         {result.monthsToClearIfMinOnly != null && (
-          <div className="text-[13px] text-ink-soft mt-2">
+          <div className="text-body text-ink-soft mt-2">
             {tIcomponents_CreditCardTool("t_bc347226")} {result.monthsToClearIfMinOnly}{" "}
             {tIcomponents_CreditCardTool("t_3acbdf22")}
           </div>

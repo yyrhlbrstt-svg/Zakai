@@ -34,8 +34,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/money",
     titleHe: "הכסף שלי — סריקה + תיק סוכן",
     titleEn: "My money — scan + agent case",
-    whyHe: "צילום מסך → הסוכן פותח תיק עם הרשאה",
-    whyEn: "Screenshot → agent opens Mandate case",
+    whyHe: "מצלמים את דף החיובים ורואים מה יורד כל חודש",
+    whyEn: "Photograph your statement and see what leaves every month",
     potentialShekels: 150,
     cadence: "monthly",
     effort: "low",
@@ -80,8 +80,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/dormant",
     titleHe: "כסף ששכחת שהוא שלך",
     titleEn: "Money you forgot is yours",
-    whyHe: "שאלה אחת → כל גוף שחייב לגלות מה יש לו על שמך",
-    whyEn: "One question → every body that must disclose what it holds",
+    whyHe: "שאלה אחת, וכל גוף חייב לגלות מה יש לו על שמכם",
+    whyEn: "One question, and every body must disclose what it holds in your name",
     potentialShekels: 120,
     cadence: "hidden",
     effort: "low",
@@ -107,8 +107,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/cancel",
     titleHe: "ביטול / הנחה — תיק סוכן",
     titleEn: "Cancel / discount — agent case",
-    whyHe: "תיק + הרשאה + מעקב + תיעוד חיסכון",
-    whyEn: "Case + Mandate + follow-up + savings proof",
+    whyHe: "מבטלים מנוי, ומישהו ממשיך לרדוף אחרי הספק עד שהוא עונה",
+    whyEn: "Cancel a subscription — and something keeps chasing the provider until they answer",
     potentialShekels: 70,
     cadence: "monthly",
     effort: "low",
@@ -119,8 +119,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/entitlements",
     titleHe: "שאלון זכאות — מה מגיע לך?",
     titleEn: "Entitlements quiz — what are you owed?",
-    whyHe: "מנוע הזכויות → דלת ישירה לסוכן מלא על כל התאמה",
-    whyEn: "Rights engine → direct door to full agent per match",
+    whyHe: "עונים על כמה שאלות ורואים מה מגיע לכם בפועל",
+    whyEn: "Answer a few questions and see what you are actually owed",
     potentialShekels: 220,
     cadence: "oneTime",
     effort: "low",
@@ -131,8 +131,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/student-loan-overpayment",
     titleHe: "בריטניה — החזר יתר על הלוואת סטודנטים",
     titleEn: "UK — student loan overpayment refund",
-    whyHe: "מכתב SLC עם ציטוט רגולטורי — דלת גלובלית ראשונה",
-    whyEn: "SLC letter with regulatory citation — first global door",
+    whyHe: "שילמתם יותר מדי על הלוואת הסטודנט? מכתב שמבקש את הכסף בחזרה",
+    whyEn: "Overpaid on your student loan? A letter asking for it back",
     potentialShekels: 120,
     cadence: "oneTime",
     effort: "low",
@@ -179,20 +179,24 @@ export const CATALOG: PriorityAction[] = [
     href: "/collection-complaint",
     titleHe: "גובה חוב מטריד?",
     titleEn: "Debt collector harassing you?",
-    whyHe: "תלונה + אימות חוב לפני תשלום",
-    whyEn: "Complaint + verify before paying",
+    whyHe: "דרישה בכתב לאמת את החוב ולהפסיק את ההטרדה",
+    whyEn: "A written demand to verify the debt and stop the harassment",
+    // Carries no money claim of its own — the outcome is a debt verified,
+    // reduced or withdrawn — so the potential stays zero rather than becoming
+    // an invented figure about somebody else's debt.
     potentialShekels: 0,
-    cadence: "hidden",
+    cadence: "oneTime",
     effort: "low",
-    agentic: false,
+    // Now a real Case + Mandate + send path, not a bare complaint template.
+    agentic: true,
   },
   {
     id: "car-insurance-refund",
     href: "/car-insurance-refund",
     titleHe: "ביטלת ביטוח רכב?",
     titleEn: "Cancelled car insurance?",
-    whyHe: "החזר פרמיה יחסי — הסוכן שולח עם Mandate",
-    whyEn: "Pro-rata premium — agent sends with Mandate",
+    whyHe: "ביטלתם ביטוח באמצע השנה? מגיע לכם החזר יחסי",
+    whyEn: "Cancelled insurance mid-year? You are owed a pro-rata refund",
     potentialShekels: 150,
     cadence: "oneTime",
     effort: "low",
@@ -215,8 +219,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/debt-collector-dispute",
     titleHe: "ארה״ב — אימות חוב FDCPA",
     titleEn: "US — FDCPA debt validation",
-    whyHe: "מכתב validation — דלת גלובלית",
-    whyEn: "Validation letter — global door",
+    whyHe: "מכתב שמחייב את חברת הגבייה להוכיח שהחוב אמיתי",
+    whyEn: "A letter forcing the collector to prove the debt is real",
     potentialShekels: 40,
     cadence: "oneTime",
     effort: "low",
@@ -227,8 +231,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/wage-statement-audit",
     titleHe: "ארה״ב — ביקורת תלוש שכר (FLSA)",
     titleEn: "US — wage statement audit (FLSA)",
-    whyHe: "מכתב למעסיק עם ציטוט חוקי — דלת גלובלית",
-    whyEn: "Employer letter with legal citation — global door",
+    whyHe: "תלוש שגוי? מכתב למעסיק עם ההפניה לחוק",
+    whyEn: "Wrong payslip? A letter to your employer citing the law",
     potentialShekels: 180,
     cadence: "oneTime",
     effort: "medium",
@@ -242,8 +246,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/what-am-i-owed",
     titleHe: "מה מגיע לי?",
     titleEn: "What am I owed?",
-    whyHe: "פוטנציאל → דלתות פעולה עם סוכן",
-    whyEn: "Potential → agent action doors",
+    whyHe: "בדיקה קצרה שמראה כמה כסף מחכה לכם",
+    whyEn: "A short check that shows how much money is waiting for you",
     potentialShekels: 90,
     cadence: "oneTime",
     effort: "low",
@@ -254,8 +258,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/check",
     titleHe: "סלולר / אינטרנט — משא ומתן",
     titleEn: "Mobile / internet — negotiate",
-    whyHe: "משא ומתן מתועד + הרשאה",
-    whyEn: "Documented negotiation + Mandate",
+    whyHe: "בודקים אם אתם משלמים יותר מדי על הסלולר — ומורידים",
+    whyEn: "See if you are overpaying for mobile — and get it lowered",
     potentialShekels: 55,
     cadence: "monthly",
     effort: "medium",
@@ -266,8 +270,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/bank-fees",
     titleHe: "עמלות בנק — תיק סוכן",
     titleEn: "Bank fees — agent case",
-    whyHe: "תיק מלא + הרשאה + תיעוד",
-    whyEn: "Full case + Mandate + proof",
+    whyHe: "עמלות שהבנק גובה ואפשר לבטל או להחזיר",
+    whyEn: "Fees the bank charges that can be waived or refunded",
     potentialShekels: 40,
     cadence: "monthly",
     effort: "low",
@@ -297,8 +301,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/bank-loan-fee",
     titleHe: "עמלת פתיחת הלוואה",
     titleEn: "Loan opening fee clawback",
-    whyHe: "מכתב לבנק; אפשר להמשיך עם סוכן ב-/bank-fees",
-    whyEn: "Bank letter; can escalate via /bank-fees agent",
+    whyHe: "מכתב לבנק על עמלת פירעון מוקדם",
+    whyEn: "A letter to the bank about the early-repayment fee",
     potentialShekels: 120,
     cadence: "oneTime",
     effort: "medium",
@@ -355,8 +359,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/check",
     titleHe: "סלולר אחרי מבצע — משא ומתן בכתב",
     titleEn: "Post-promo mobile — written negotiate",
-    whyHe: "הלולאה המלאה ב-/check",
-    whyEn: "Full loop on /check",
+    whyHe: "יוצאים מחוזה סלולר בלי לשלם קנס יציאה",
+    whyEn: "Leave a mobile contract without paying an exit penalty",
     potentialShekels: 55,
     cadence: "hidden",
     effort: "medium",
@@ -367,8 +371,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/electricity",
     titleHe: "חשמל — מעבר ספק עם סוכן",
     titleEn: "Electricity — agent switches supplier",
-    whyHe: "תיק + הרשאה + שליחה + חיסכון מתועד",
-    whyEn: "Case + Mandate + send + documented saving",
+    whyHe: "מעבר לספק חשמל זול יותר, בלי לדבר עם אף אחד",
+    whyEn: "Switch to a cheaper electricity supplier without talking to anyone",
     potentialShekels: 45,
     cadence: "monthly",
     effort: "low",
@@ -379,8 +383,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/leaks",
     titleHe: "מפת נזילות",
     titleEn: "Leaks map",
-    whyHe: "כל נקודות הדליפה → פעולת סוכן",
-    whyEn: "Every leak → agent action",
+    whyHe: "כל ההוצאות שאפשר להקטין, במקום אחד",
+    whyEn: "Every cost you can cut, in one place",
     potentialShekels: 40,
     cadence: "monthly",
     effort: "low",
@@ -393,8 +397,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/refund-chase",
     titleHe: "החזר שלא הגיע",
     titleEn: "Missing refund",
-    whyHe: "דרישה בכתב דרך הסוכן",
-    whyEn: "Written demand via agent",
+    whyHe: "שילמתם ולא קיבלתם? דרישה בכתב שממשיכה לרדוף",
+    whyEn: "Paid and never received it? A written demand that keeps chasing",
     potentialShekels: 50,
     cadence: "oneTime",
     effort: "low",
@@ -428,8 +432,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/arnona",
     titleHe: "ארנונה — הנחה או תיקון",
     titleEn: "Arnona discount / fix",
-    whyHe: "תיק + שליחה לעירייה אחרי אימות (Mandate)",
-    whyEn: "Case + send to municipality after verification (Mandate)",
+    whyHe: "הנחה בארנונה שמגיעה לכם ולא הופעלה",
+    whyEn: "An arnona discount you qualify for that was never applied",
     potentialShekels: 200,
     cadence: "monthly",
     effort: "medium",
@@ -622,8 +626,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/flights",
     titleHe: "פיצוי טיסה",
     titleEn: "Flight compensation",
-    whyHe: "עיכוב / ביטול → תיק סוכן",
-    whyEn: "Delay / cancel → agent case",
+    whyHe: "טיסה שאיחרה או בוטלה — מגיע לכם פיצוי",
+    whyEn: "A delayed or cancelled flight — you are owed compensation",
     potentialShekels: 80,
     cadence: "oneTime",
     effort: "medium",
@@ -634,8 +638,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/warranty",
     titleHe: "אחריות מוצר — תיק סוכן",
     titleEn: "Product warranty — agent case",
-    whyHe: "תיקון / החלפה בחינם לפי חוק הגנת הצרכן — בכתב + Mandate",
-    whyEn: "Free repair or replacement under consumer law — written + Mandate",
+    whyHe: "תיקון או החלפה בחינם לפי חוק הגנת הצרכן",
+    whyEn: "Free repair or replacement under consumer law",
     potentialShekels: 400,
     cadence: "oneTime",
     effort: "low",
@@ -646,12 +650,41 @@ export const CATALOG: PriorityAction[] = [
     // send) that was simply never added here — invisible to both the
     // assistant's ranked digest and the dashboard's next-best-action list,
     // despite agentPlaybook.ts's own static text already mentioning it.
+    /**
+     * A full-service vertical (RULE_PACKS "baggage") that had a route, a page
+     * and a Mandate loop, and no door here — so it was invisible to both the
+     * assistant's ranked digest and the dashboard's next-best-action list.
+     */
+    id: "vehicle-license-refund",
+    href: "/vehicle-license-refund",
+    titleHe: "החזר יחסי על אגרת רישוי — תיק סוכן",
+    titleEn: "Vehicle licence part-refund — agent case",
+    whyHe: "רכב שהורד מהכביש באמצע השנה — החזר על התקופה שלא נוצלה",
+    whyEn: "A car taken off the road mid-year — a refund for the unused period",
+    potentialShekels: 400,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
+    id: "baggage",
+    href: "/baggage",
+    titleHe: "כבודה שאבדה או התעכבה — תיק סוכן",
+    titleEn: "Lost or delayed baggage — agent case",
+    whyHe: "תביעת פיצוי לפי אמנת מונטריאול, עם מועד ההודעה שנגזר מהתאריך שלכם",
+    whyEn: "Montreal Convention claim, with the complaint deadline derived from your own date",
+    potentialShekels: 800,
+    cadence: "oneTime",
+    effort: "low",
+    agentic: true,
+  },
+  {
     id: "parking",
     href: "/parking",
     titleHe: "ערעור על דוח חניה — תיק סוכן",
     titleEn: "Parking ticket appeal — agent case",
-    whyHe: "ערעור בכתב + הרשאה דרך הסוכן, מול העירייה / רשות החניה",
-    whyEn: "Written appeal + Mandate via the agent, to the municipality / parking authority",
+    whyHe: "ערעור בכתב על דוח חניה, מול העירייה או רשות החניה",
+    whyEn: "A written appeal against a parking ticket, to the municipality or parking authority",
     potentialShekels: 150,
     cadence: "oneTime",
     effort: "low",
@@ -664,8 +697,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/transport-fine",
     titleHe: "ערעור קנס תחבורה ציבורית — תיק סוכן",
     titleEn: "Public-transport fine appeal — agent case",
-    whyHe: "ערעור בכתב + הרשאה דרך הסוכן, מול מפעיל התחבורה",
-    whyEn: "Written appeal + Mandate via the agent, to the transport operator",
+    whyHe: "ערעור בכתב על קנס בתחבורה הציבורית",
+    whyEn: "A written appeal against a public-transport fine",
     potentialShekels: 180,
     cadence: "oneTime",
     effort: "low",
@@ -678,8 +711,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/late-payment",
     titleHe: "לקוח לא משלם? הסוכן דורש",
     titleEn: "Client not paying? Agent demands",
-    whyHe: "דרישה בכתב + הרשאה דרך הסוכן, לפי חוק מוסר תשלומים לספקים",
-    whyEn: "Written demand + Mandate via the agent, under the Fair Payment Practices law",
+    whyHe: "לקוח לא משלם בזמן? דרישה לפי חוק מוסר תשלומים",
+    whyEn: "Client paying late? A demand under the Fair Payment Practices Law",
     potentialShekels: 200,
     cadence: "oneTime",
     effort: "low",
@@ -711,8 +744,8 @@ export const CATALOG: PriorityAction[] = [
     href: "/deposit",
     titleHe: "המשכיר לא מחזיר פיקדון? הסוכן דורש",
     titleEn: "Landlord withholding deposit? Agent demands",
-    whyHe: "דרישה בכתב + הרשאה דרך הסוכן, לפי חוק השכירות והשאילה",
-    whyEn: "Written demand + Mandate via the agent, under the Rent and Loan Law",
+    whyHe: "בעל הדירה לא מחזיר את הפיקדון? דרישה בכתב",
+    whyEn: "Landlord not returning your deposit? A written demand",
     potentialShekels: 300,
     cadence: "oneTime",
     effort: "low",
@@ -814,13 +847,41 @@ export const CATALOG: PriorityAction[] = [
 ];
 
 /**
+ * How many months of a recurring saving this ranking is willing to assume.
+ *
+ * It used to be twelve, and twelve is a claim nobody here has ever verified.
+ * The verification method for every monthly pack is `before_after_bill`: it
+ * proves ONE billing cycle. The success fee agrees — `computeFee` charges 18%
+ * of a single month. So annualising by twelve asserted eleven months that were
+ * neither observed nor charged for, and it did real damage to the ordering: a
+ * ₪40/month bank-fee door outranked a ₪400 warranty recovery, and a ₪300
+ * deposit came in below both. The person is shown the smaller, slower money
+ * first, and the smaller money is also the money this product earns least on
+ * — ₪7.20 against ₪72 on those two.
+ *
+ * Six is a judgement, not a measurement, and it is deliberately the
+ * conservative direction: a saving that does persist a full year is
+ * understated here, which costs an ordering place, while one that is re-raised
+ * after two months no longer outranks cash already in somebody's hand.
+ *
+ * It is a prior, and it is meant to be replaced. `catalogBoosts` carries real
+ * StrategyOutcome data into this function; once there are documented outcomes,
+ * they should decide the ordering and this constant should stop mattering.
+ */
+export const ASSUMED_SAVING_MONTHS = 6;
+
+/**
  * Ranking weight for next-best-action.
  *
- * Monthly agent doors (bank / telecom / cancel) compound every month — a ₪70/mo
- * cancel beats a ₪400 one-time warranty calculator for product volume, even though
- * raw potentialShekels looked smaller. Non-agentic monthly calculators (mortgage,
- * disability quiz) get a mild annualization only; they must not bury Mandate loops.
- * Display copy still uses the per-period figure via formatPotential*.
+ * Two things are being compared and they are not the same kind of thing: money
+ * already recovered, and money projected to keep not being spent. This weighs
+ * a recurring saving over `ASSUMED_SAVING_MONTHS` rather than a full year, so
+ * a one-time recovery is not structurally buried beneath a projection.
+ *
+ * Non-agentic monthly calculators get a milder factor still; they must not bury
+ * Mandate loops. Display copy always uses the per-period figure via
+ * formatPotential*, so nothing here changes what a person is told a door is
+ * worth — only the order the doors appear in.
  */
 export function priorityWeight(
   a: PriorityAction,
@@ -829,9 +890,16 @@ export function priorityWeight(
   const effortDiv = a.effort === "low" ? 1 : a.effort === "medium" ? 1.4 : 2;
   const base = a.potentialShekels / effortDiv;
   const withAgent = base * (a.agentic ? 1.35 : 1);
-  // Annualize recurring agent loops; mild factor for non-agent monthly tools.
+  // Weigh a recurring saving over the months we are willing to assume, not a
+  // full year — see ASSUMED_SAVING_MONTHS.
   const cadenceFactor =
-    a.cadence === "monthly" ? (a.agentic ? 12 : 2) : a.cadence === "hidden" ? 0.25 : 1;
+    a.cadence === "monthly"
+      ? a.agentic
+        ? ASSUMED_SAVING_MONTHS
+        : 2
+      : a.cadence === "hidden"
+        ? 0.25
+        : 1;
   const boost = catalogBoosts[a.id] ?? 0;
   return withAgent * cadenceFactor * (1 + boost);
 }

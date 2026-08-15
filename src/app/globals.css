@@ -77,13 +77,23 @@ body {
   margin: 0;
 }
 
-/* Accessible focus ring on every interactive element, from day one. */
+/* Accessible focus ring on every interactive element, from day one.
+   [tabindex] is in the list because scrollable code and letter blocks are tab
+   stops — without it a keyboard user landed on one with nothing on screen
+   telling them where they were. */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
+[tabindex]:focus-visible,
 a:focus-visible {
-  outline: 3px solid var(--amber);
+  /* !important because a Tailwind `outline-none` utility outranks this rule on
+     specificity (class+pseudo beats element+pseudo) and was silently winning:
+     twenty-three tab stops across four pages had a 2px TRANSPARENT outline, so
+     a keyboard user could not see where they were anywhere on the site. The
+     utilities are removed too — this is the guarantee that one creeping back
+     in cannot take the focus ring with it. */
+  outline: 3px solid var(--amber) !important;
   outline-offset: 2px;
 }
 
@@ -240,7 +250,31 @@ select option {
   justify-content: center;
   gap: 22px;
   background: radial-gradient(120% 90% at 50% 42%, #0c1626 0%, #070b12 62%);
-  animation: splashOut 0.7s var(--ease-out) 2.5s forwards;
+  /**
+   * Timed to the animation underneath it, which is what the first attempt got
+   * wrong.
+   *
+   * The original held 2.5s and faded over 0.7s — 3.2 seconds of logo before a
+   * first-time visitor could see or do anything, on a product whose promise is
+   * that there is no waiting. It also cost the number that decides how we are
+   * found: Chrome measured the splash word as the homepage's largest
+   * contentful paint at 1796ms, and Core Web Vitals feed search ranking, which
+   * is the only acquisition channel this product has.
+   *
+   * So it was cut to 0.9s, with a comment claiming the animations beneath
+   * finish by ~1.3s and nothing is cut mid-motion. That was wrong, and it was
+   * arithmetic, not opinion: `.splash-tag` runs 0.6s starting at 0.8s and so
+   * lands at 1.40s. The fade began half a second before the tagline had
+   * finished arriving. The mark appeared, the sentence never did, and the
+   * whole thing read as a flash of nothing — which is exactly how it was
+   * reported.
+   *
+   * 2.0s is the first moment the sequence is complete (1.40s) plus enough to
+   * read the line it spent that long drawing. Still two thirds of the
+   * original, and the LCP cost is measured rather than assumed — see the
+   * commit that set it.
+   */
+  animation: splashOut 0.6s var(--ease-out) 2s forwards;
 }
 #zakai-splash.splash-skip {
   display: none;
@@ -321,9 +355,27 @@ select option {
     stroke-dashoffset: 0;
   }
 }
+/**
+ * The first sentence anybody reads, and it was unreadable.
+ *
+ * 13.5px in muted grey (#93A6A5 at 85%) on a near-black field, sitting under
+ * a large bright wordmark that pulls the eye away from it. Photographed on a
+ * phone it is barely a smudge — the founder's screenshot of production shows
+ * the line present and effectively invisible.
+ *
+ * Two separate mistakes compounded: the size, and putting the product's whole
+ * promise in the colour reserved for secondary captions. The standard this
+ * fails is one already set for this project: one idea per screen, plain
+ * words, readable size. A promise nobody can read is not a shorter promise,
+ * it is no promise.
+ */
 .splash-tag {
-  font-size: 13.5px;
-  color: rgba(147, 166, 165, 0.85);
+  font-size: clamp(15px, 4.2vw, 18px);
+  font-weight: 600;
+  line-height: 1.45;
+  max-width: 22ch;
+  text-align: center;
+  color: rgba(232, 241, 240, 0.95);
   animation: splashFade 0.6s var(--ease-out) 0.8s both;
 }
 @keyframes splashFade {

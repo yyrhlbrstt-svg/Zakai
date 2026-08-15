@@ -10,7 +10,6 @@ import { InstitutionRoiCalculator } from "@/components/InstitutionRoiCalculator"
 import { InstitutionIgnoreCostLive } from "@/components/InstitutionIgnoreCostLive";
 import { InstitutionBankFitPanel } from "@/components/InstitutionBankFitPanel";
 import { InstitutionInboundPressurePanel } from "@/components/InstitutionInboundPressurePanel";
-import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { LiveGravityStrip } from "@/components/LiveGravityStrip";
 import { institutionPilotMailto, institutionSalesEmail } from "@/lib/institutionPull";
 import { RegulatoryIntelStrip } from "@/components/RegulatoryIntelStrip";
@@ -109,7 +108,7 @@ export default async function InstitutionsPage({
             ? "Node או Python → READY_FOR_PIONEER → תביעת Pioneer באשף. אותו שער מכונה. בלי שיחת מכירות."
             : "Node or Python → READY_FOR_PIONEER → claim Pioneer in the wizard. Same machine gate. No sales call."}
         </p>
-        <pre
+        <pre tabIndex={0}
           className="rounded-xl bg-[#060b12] border border-[rgba(255,255,255,0.1)] px-4 py-3 text-[12.5px] font-mono text-ink overflow-x-auto mb-3"
           dir="ltr"
         >{`# Node
@@ -147,10 +146,10 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
         </ol>
         <div className="flex flex-wrap gap-2">
           <Link href="/institutions/quickstart" className="no-underline">
-            <Button className="!text-[13px]">{heEn(he, "Quickstart מלא", "Full quickstart")}</Button>
+            <Button className="!text-body">{heEn(he, "Quickstart מלא", "Full quickstart")}</Button>
           </Link>
           <Link href="/institutions/leader" className="no-underline">
-            <Button variant="ghost" className="!text-[13px]">
+            <Button variant="ghost" className="!text-body">
               {heEn(he, "תביעת Pioneer", "Claim Pioneer")}
             </Button>
           </Link>
@@ -160,29 +159,29 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
             target="_blank"
             rel="noreferrer"
           >
-            <Button variant="ghost" className="!text-[13px]">
+            <Button variant="ghost" className="!text-body">
               sdk/QUICKSTART.md
             </Button>
           </a>
         </div>
       </Card>
 
-      <details className="mb-8 text-[13px] text-ink-soft">
+      <details className="mb-8 text-body text-ink-soft">
         <summary className="cursor-pointer font-bold select-none text-ink">
           {heEn(he, "חלופות (לא הדלת הראשית)", "Alternatives (not the main door)")}
         </summary>
         <div className="flex flex-wrap gap-3 mt-3">
           <Link href="/pipe" className="no-underline">
-            <Button variant="ghost" className="!text-[13px]">
+            <Button variant="ghost" className="!text-body">
               {heEn(he, "הצינור — Mandate → SavingsProof", "The Pipe — Mandate → SavingsProof")}
             </Button>
           </Link>
           <a href={institutionPilotMailto()} className="no-underline">
-            <Button variant="ghost" className="!text-[13px]">{t("heroMailtoCta")}</Button>
+            <Button variant="ghost" className="!text-body">{t("heroMailtoCta")}</Button>
           </a>
           <a
             href={`mailto:${institutionSalesEmail()}`}
-            className="text-[13px] text-ink-soft self-center font-mono"
+            className="text-body text-ink-soft self-center font-mono"
             dir="ltr"
           >
             {institutionSalesEmail()}
@@ -199,9 +198,7 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
         kitCta={t("regulatoryStripKit")}
       />
 
-      <ControlGatesStrip locale={locale} />
-
-      <p className="text-[13px] text-ink-soft mb-6">
+      <p className="text-body text-ink-soft mb-6">
         {t("agentsCrossLink")}{" "}
         <Link href="/agents" className="underline text-emerald">
           /agents
@@ -275,7 +272,7 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
               </p>
             ))}
             {section.pre ? (
-              <pre className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg mt-3">
+              <pre tabIndex={0} className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg mt-3">
                 {section.pre}
               </pre>
             ) : null}

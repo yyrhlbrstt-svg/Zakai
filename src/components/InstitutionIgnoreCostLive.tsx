@@ -56,16 +56,16 @@ export function InstitutionIgnoreCostLive() {
   return (
     <Card className="p-6 border-[rgba(255,200,80,0.25)]">
       <h3 className="font-extrabold text-[15px] m-0 mb-2">{t("ignoreTitle")}</h3>
-      <p className="text-[13px] leading-relaxed text-ink-soft m-0 mb-3">{t("ignoreBody")}</p>
+      <p className="text-body leading-relaxed text-ink-soft m-0 mb-3">{t("ignoreBody")}</p>
 
       {unavailable ? (
-        <p className="text-[13px] text-ink-soft m-0 mb-3">{t("ignoreUnavailable")}</p>
+        <p className="text-body text-ink-soft m-0 mb-3">{t("ignoreUnavailable")}</p>
       ) : rows === null ? (
-        <p className="text-[13px] text-ink-soft m-0 mb-3">{t("ignoreLoading")}</p>
+        <p className="text-body text-ink-soft m-0 mb-3">{t("ignoreLoading")}</p>
       ) : rows.length === 0 ? (
-        <p className="text-[13px] text-ink-soft m-0 mb-3">{t("ignoreEmpty")}</p>
+        <p className="text-body text-ink-soft m-0 mb-3">{t("ignoreEmpty")}</p>
       ) : (
-        <ul className="list-none p-0 m-0 mb-3 flex flex-col gap-2 text-[13px]" dir="ltr">
+        <ul className="list-none p-0 m-0 mb-3 flex flex-col gap-2 text-body" dir="ltr">
           {rows.slice(0, 8).map((row) => (
             <li key={row.institutionId} className="flex justify-between gap-3 font-mono">
               <span>{row.institutionId}</span>
@@ -86,7 +86,7 @@ export function InstitutionIgnoreCostLive() {
       </p>
       <a
         href="/api/institution/ignore-cost"
-        className="text-emerald font-bold no-underline text-[13px]"
+        className="text-emerald font-bold no-underline text-body"
         target="_blank"
         rel="noopener noreferrer"
       >

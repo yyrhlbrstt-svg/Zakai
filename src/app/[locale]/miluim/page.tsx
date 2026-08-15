@@ -1,8 +1,24 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { MiluimCalculator } from "@/components/MiluimCalculator";
 import { bcp47, type Locale } from "@/i18n/config";
+import { publicPageMetadata } from "@/lib/seo";
 
 /** Public — reserve-duty pay: the most under-claimed money in Israel today. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return publicPageMetadata(locale, {
+    title: t("miluim.t"),
+    description: t("miluim.d"),
+    path: "/miluim",
+  });
+}
+
 export default async function MiluimPage({
   params,
 }: {

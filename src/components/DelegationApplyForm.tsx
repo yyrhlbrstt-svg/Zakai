@@ -65,27 +65,41 @@ export function DelegationApplyForm() {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
-      <label className="text-[13px] text-ink-soft">
+      {/* Every label here is associated with its field. They were plain
+          siblings with no htmlFor, which meant they labelled nothing: clicking
+          one did not focus the input, and three of these fields were announced
+          to a screen reader as unnamed edit boxes. This is the form an
+          institution fills in to join the protocol. */}
+      <label htmlFor="delegation-slug" className="text-body text-ink-soft">
         Slug (a stable identifier — e.g. <code className="text-[12px]">yourbot.example</code>)
       </label>
-      <Input name="slug" required minLength={2} maxLength={64} placeholder="yourbot.example" />
+      <Input
+        id="delegation-slug"
+        name="slug"
+        required
+        minLength={2}
+        maxLength={64}
+        placeholder="yourbot.example"
+      />
 
-      <label className="text-[13px] text-ink-soft">Agent / company name</label>
-      <Input name="name" required minLength={2} maxLength={120} />
+      <Input label="Agent / company name" name="name" required minLength={2} maxLength={120} />
 
-      <label className="text-[13px] text-ink-soft">Contact email</label>
-      <Input name="contactEmail" type="email" required maxLength={160} />
+      <Input label="Contact email" name="contactEmail" type="email" required maxLength={160} />
 
-      <label className="text-[13px] text-ink-soft">
-        What will your agent do with these mandates? (min 20 characters)
-      </label>
-      <Textarea name="useCase" required minLength={20} maxLength={2000} rows={4} />
+      <Textarea
+        label="What will your agent do with these mandates? (min 20 characters)"
+        name="useCase"
+        required
+        minLength={20}
+        maxLength={2000}
+        rows={4}
+      />
 
       <fieldset className="m-0 p-0 border-0">
-        <legend className="text-[13px] text-ink-soft mb-2">Scopes you need</legend>
+        <legend className="text-body text-ink-soft mb-2">Scopes you need</legend>
         <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto rounded-xl border border-[rgba(255,255,255,0.08)] p-3">
           {SCOPES.map((s) => (
-            <label key={s.scope} className="flex items-start gap-2 text-[13px] cursor-pointer">
+            <label key={s.scope} className="flex items-start gap-2 text-body cursor-pointer">
               <input
                 type="checkbox"
                 checked={scopes.includes(s.scope)}

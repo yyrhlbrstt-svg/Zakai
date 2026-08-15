@@ -63,7 +63,7 @@ export function SavingRevealCard({
       <p className="text-[13.5px] text-ink-soft mt-2 mb-0 leading-relaxed">{sub}</p>
       {feeTag && feeAmountAgorot && feeAmountAgorot > 0 && feeCaseId ? (
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <span className="text-[13px] font-bold text-ink-soft">
+          <span className="text-body font-bold text-ink-soft">
             {feeTag}: {formatAgorot(feeAmountAgorot, bcp47)}
           </span>
           <FeePayButton caseId={feeCaseId} />

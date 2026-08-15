@@ -133,12 +133,12 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
 
       <Card className="p-5 mt-6">
         <div className="font-display text-xl mb-2">{domains.title}</div>
-        <p className="text-[13px] text-ink-soft m-0 mb-4 leading-relaxed">{domains.sub}</p>
+        <p className="text-body text-ink-soft m-0 mb-4 leading-relaxed">{domains.sub}</p>
         <ul className="m-0 p-0 list-none grid gap-2 sm:grid-cols-2">
           {domains.items.map((item) => (
             <li
               key={item.name}
-              className="rounded-xl border border-[rgba(255,255,255,0.08)] px-4 py-3 text-[13px]"
+              className="rounded-xl border border-[rgba(255,255,255,0.08)] px-4 py-3 text-body"
             >
               <span className="font-extrabold text-emerald">{item.name}</span>
               <span className="text-ink-soft block mt-0.5">{item.note}</span>

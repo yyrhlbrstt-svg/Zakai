@@ -6,7 +6,7 @@ export function FooterSupportLink() {
   return (
     <a
       href={`mailto:${email}`}
-      className="text-[13px] font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
+      className="text-body font-bold text-ink-soft hover:text-emerald no-underline transition-colors duration-200"
       dir="ltr"
     >
       {email}

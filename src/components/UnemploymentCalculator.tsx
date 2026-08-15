@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui";
 import { estimateUnemployment } from "@/lib/unemployment";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { NextStep } from "@/components/NextStep";
 
 /** Unemployment-benefit estimator — pure client-side; returns an honest range. */
 export function UnemploymentCalculator({ bcp47 }: { bcp47: string }) {
@@ -24,7 +25,7 @@ export function UnemploymentCalculator({ bcp47 }: { bcp47: string }) {
       <Card className="p-6 flex flex-col gap-5">
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("salaryQ")}</span>
+            <span className="text-body text-ink-soft">{t("salaryQ")}</span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(monthly))}</span>
           </div>
           <input type="range" min={3000} max={40000} step={250} value={monthly}
@@ -33,7 +34,7 @@ export function UnemploymentCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("ageQ")}</span>
+            <span className="text-body text-ink-soft">{t("ageQ")}</span>
             <span className="font-display text-[15px]">{age}</span>
           </div>
           <input type="range" min={18} max={67} step={1} value={age}
@@ -42,7 +43,7 @@ export function UnemploymentCalculator({ bcp47 }: { bcp47: string }) {
       </Card>
 
       <Card className="mt-5 p-6 text-center">
-        <div className="text-[13px] text-ink-soft font-bold">{t("dailyTitle")}</div>
+        <div className="text-body text-ink-soft font-bold">{t("dailyTitle")}</div>
         <div className="font-display grad-text text-[30px] mt-1.5" aria-live="polite">
           {range(r.dailyLowAgorot, r.dailyHighAgorot)}
         </div>
@@ -54,14 +55,12 @@ export function UnemploymentCalculator({ bcp47 }: { bcp47: string }) {
         {r.capped && <div className="text-[12px] text-amber mt-2">{t("capped")}</div>}
       </Card>
 
-      <Card className="mt-5 p-6">
-        <div className="font-extrabold text-[15px] mb-3">{t("howTitle")}</div>
-        <ul className="m-0 p-0 ps-4 list-disc flex flex-col gap-2 text-[13.5px] text-ink-soft leading-relaxed">
-          {(t.raw("howSteps") as string[]).map((s) => (
-            <li key={s}>{s}</li>
-          ))}
-        </ul>
-      </Card>
+      {/* This was the least prominent thing on the page: five bullets of
+          13.5px grey under the number, naming the actual forms — בל/501,
+          בל/502, the 3010 certificate — that get somebody paid. Whoever wrote
+          them knew exactly what happens next. The reader, looking at a big
+          green figure with small grey text beneath it, did not. */}
+      <NextStep title={t("howTitle")} steps={t.raw("howSteps") as string[]} />
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>

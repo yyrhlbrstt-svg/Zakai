@@ -1,4 +1,4 @@
-import type { FollowUpInput, FollowUpResult } from "./negotiation";
+import { buildPromiseBrokenFollowUp, type FollowUpInput, type FollowUpResult } from "./negotiation";
 
 /** Written follow-ups for airline compensation — not telecom retention language. */
 export function buildAirlineFollowUp(input: FollowUpInput): FollowUpResult {
@@ -37,6 +37,11 @@ export function buildAirlineFollowUp(input: FollowUpInput): FollowUpResult {
 
 נודה למענה תוך ${days} ימים.${baseClose}`,
       };
+    // Compensation they agreed to and never paid. Falling through to the
+    // reminder below would ask again for something already conceded.
+    case "promise_broken":
+      return buildPromiseBrokenFollowUp(input);
+
     default:
       return {
         subject: `תזכורת — דרישת פיצוי טיסה | ${name}`,

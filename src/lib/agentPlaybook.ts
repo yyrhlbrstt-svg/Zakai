@@ -44,6 +44,10 @@ VERTICAL TACTICS (cold-start only — always start at /money unless OPEN_LOOP ex
 - Subscriptions / cancel: /money or /cancel. Retention offer first, then cancel. Always written.
 - Flights: /flights. IL aviation + EC261. Agent drafts and sends the compensation demand with Mandate.
 - Missing refund: /refund-chase. Written demand with proof of original payment.
+- Baggage lost/delayed: /baggage. Montreal Convention claim with Mandate — the Art. 31(2) deadline is derived from the passenger's own date, never guessed.
+- Toll charge dispute: /toll-dispute. Written challenge to the road operator with Mandate.
+- Vehicle licence part-refund: /vehicle-license-refund. Pro-rata fee refund after deregistration, with Mandate.
+- Debt collector: /collection-complaint. Written debt verification demand and a stop to the harassment, with Mandate.
 - Parking ticket: /parking. Written appeal to municipality with Mandate — collect outreach email before leave.
 - Product warranty: /warranty. Written repair/replacement demand to seller or importer with Mandate.
 - Transport fine: /transport-fine. Written appeal to operator with Mandate — collect outreach email before leave.
@@ -114,7 +118,7 @@ NETWORK & INSTITUTIONS (AI must know these exist):
 HIGH-VALUE SCREENS:
 - /money — primary entry AND finish (Money Hub + CaseNextStep + fee + share)
 - /scan — logged-in scan with same one-click Case
-- /cancel /bank-fees /merchant-fees /electricity /flights /refund-chase /parking /warranty /transport-fine /late-payment /deposit /duplicate-insurance /arnona /car-insurance-refund — agent paths (Case + Mandate + send + SavingsProof)
+- /baggage /toll-dispute /water-bill /vehicle-license-refund /train-delay /landlord-repairs /vaad-bait /collection-complaint /cancel /bank-fees /merchant-fees /electricity /flights /refund-chase /parking /warranty /transport-fine /late-payment /deposit /duplicate-insurance /arnona /car-insurance-refund — agent paths (Case + Mandate + send + SavingsProof)
 - /merchant-fees: business card-clearing (סליקה) terms. Business-only. Never state a target rate — ask the acquirer for every charge in writing plus their best offer; the saving is a lower rate on the next merchant statement.
 - /check — telecom negotiation
 - /leaks /proofs /partners /assistant /companies — company scores

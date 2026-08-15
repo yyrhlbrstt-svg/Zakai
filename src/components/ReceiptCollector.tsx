@@ -150,16 +150,15 @@ export function ReceiptCollector({
             ref={fileRef}
             type="file"
             accept="image/*"
-            capture="environment"
             className="hidden"
             onChange={(e) => onUpload(e.target.files?.[0])}
           />
         </div>
         {tooBig && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("tooBig")}</p>
+          <p className="text-danger text-body font-semibold mt-3 mb-0">{t("tooBig")}</p>
         )}
         {unreadable && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">{t("unreadable")}</p>
+          <p className="text-danger text-body font-semibold mt-3 mb-0">{t("unreadable")}</p>
         )}
       </Card>
 
@@ -187,7 +186,7 @@ export function ReceiptCollector({
         <div className="font-extrabold text-[15px]">{t("bulkTitle")}</div>
         {plan === "BUSINESS" ? (
           <>
-            <p className="text-ink-soft text-[13px] mt-1.5 mb-3 leading-relaxed">{t("bulkBody")}</p>
+            <p className="text-ink-soft text-body mt-1.5 mb-3 leading-relaxed">{t("bulkBody")}</p>
             <Textarea
               rows={6}
               dir="ltr"
@@ -205,7 +204,7 @@ export function ReceiptCollector({
             </Button>
             {bulkResult && (
               <div className="mt-4">
-                <p className="text-[13px] text-ink-soft m-0">
+                <p className="text-body text-ink-soft m-0">
                   {t("bulkResult", { imported: bulkResult.imported, skipped: bulkResult.skipped })}
                 </p>
                 {bulkResult.flagged.map((f, i) => (
@@ -213,7 +212,7 @@ export function ReceiptCollector({
                     key={`${f.vendor}-${i}`}
                     className="flex items-center justify-between gap-3 mt-2 rounded-xl border border-[rgba(240,138,107,0.35)] bg-[rgba(240,138,107,0.08)] px-4 py-2.5"
                   >
-                    <span className="text-[13px] font-bold">
+                    <span className="text-body font-bold">
                       {f.vendor} · {formatAgorot(f.amountAgorot, bcp47)}
                     </span>
                     <Link
@@ -231,7 +230,7 @@ export function ReceiptCollector({
           </>
         ) : (
           <>
-            <p className="text-ink-soft text-[13px] mt-1.5 mb-3 leading-relaxed">{t("bulkUpsell")}</p>
+            <p className="text-ink-soft text-body mt-1.5 mb-3 leading-relaxed">{t("bulkUpsell")}</p>
             <Link href="/pricing" className="no-underline">
               <Button variant="ghost">{t("bulkUpsellCta")}</Button>
             </Link>
@@ -272,7 +271,7 @@ export function ReceiptCollector({
 
       <Card className="mt-6 p-5">
         <div className="font-extrabold text-[15px]">{t("exportTitle")}</div>
-        <p className="text-ink-soft text-[13px] mt-1.5 mb-3 leading-relaxed">{t("exportBody")}</p>
+        <p className="text-ink-soft text-body mt-1.5 mb-3 leading-relaxed">{t("exportBody")}</p>
         <a href="/api/receipts/export" className="no-underline">
           <Button variant="ghost">{t("exportCta")}</Button>
         </a>
@@ -280,7 +279,7 @@ export function ReceiptCollector({
 
       <Card className="mt-4 p-5">
         <div className="font-extrabold text-[15px]">{t("inboxTitle")}</div>
-        <p className="text-ink-soft text-[13px] mt-1.5 mb-3 leading-relaxed">{t("inboxBody")}</p>
+        <p className="text-ink-soft text-body mt-1.5 mb-3 leading-relaxed">{t("inboxBody")}</p>
         <div className="flex gap-3 flex-wrap">
           <Button
             variant="ghost"

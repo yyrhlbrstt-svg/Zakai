@@ -28,6 +28,8 @@ export function DeadlineTracker() {
   const [remindDays, setRemindDays] = useState("14");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Kept apart from `error`, which belongs to the create form below. */
+  const [loadErr, setLoadErr] = useState<string | null>(null);
 
   const [claimDesc, setClaimDesc] = useState("");
   const [claimEventDate, setClaimEventDate] = useState("");
@@ -46,7 +48,21 @@ export function DeadlineTracker() {
       router.replace("/login?return=/deadlines");
       return;
     }
-    if (!res.ok) return;
+    /**
+     * A failed load has to say so.
+     *
+     * Returning here left `rows` null, and both render branches below are
+     * guarded on `rows` — so a 500 or a dropped connection produced a page
+     * with no list, no empty-state message and no error: the person sees
+     * blank space exactly where their own data should be, and has no way to
+     * tell "nothing saved" from "we could not fetch it".
+     */
+    if (!res.ok) {
+      setLoadErr(t("loadFailed"));
+      setRows([]);
+      return;
+    }
+    setLoadErr(null);
     const data = await res.json();
     setRows(data.deadlines);
   }
@@ -136,34 +152,34 @@ export function DeadlineTracker() {
       <Card className="p-6 flex flex-col gap-3">
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("labelQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("labelQ")}</span>
             <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t("labelPlaceholder")} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("dateQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("dateQ")}</span>
             <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("remindQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("remindQ")}</span>
             <Input type="number" min={1} max={180} value={remindDays} onChange={(e) => setRemindDays(e.target.value)} />
           </label>
         </div>
         <Button onClick={add} disabled={!label.trim() || !dueDate || busy}>
           {busy ? t("adding") : t("addCta")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       <Card className="mt-5 p-6 flex flex-col gap-3">
         <div>
           <div className="font-bold text-[14px]">{t("claimTitle")}</div>
-          <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">
+          <p className="text-ink-soft text-body mt-1 leading-relaxed">
             {t("claimSub", { years: GENERAL_LIMITATION_YEARS })}
           </p>
         </div>
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("claimDescQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("claimDescQ")}</span>
             <Input
               value={claimDesc}
               onChange={(e) => setClaimDesc(e.target.value)}
@@ -171,19 +187,19 @@ export function DeadlineTracker() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("claimEventDateQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("claimEventDateQ")}</span>
             <Input type="date" value={claimEventDate} onChange={(e) => setClaimEventDate(e.target.value)} />
           </label>
         </div>
         {claimExpiry && (
-          <p className="text-[13px] text-ink-soft m-0">
+          <p className="text-body text-ink-soft m-0">
             {t("claimExpiryNote", { date: claimExpiry.toLocaleDateString("he-IL") })}
           </p>
         )}
         <Button onClick={addClaimExpiry} disabled={!claimDesc.trim() || !claimExpiry || claimBusy} variant="ghost">
           {claimBusy ? t("adding") : claimAdded ? t("claimAdded") : t("claimAddCta")}
         </Button>
-        {claimError && <p className="text-[13px] text-amber m-0">{claimError}</p>}
+        {claimError && <p className="text-body text-amber m-0">{claimError}</p>}
       </Card>
 
       {rows && rows.length > 0 && (
@@ -222,7 +238,14 @@ export function DeadlineTracker() {
         </div>
       )}
 
-      {rows && rows.length === 0 && <p className="mt-5 text-ink-soft text-[13.5px]">{t("empty")}</p>}
+      {loadErr && (
+        <p role="alert" className="mt-5 text-[#ff8f8f] text-body">
+          {loadErr}
+        </p>
+      )}
+      {!loadErr && rows && rows.length === 0 && (
+        <p className="mt-5 text-ink-soft text-[13.5px]">{t("empty")}</p>
+      )}
     </div>
   );
 }

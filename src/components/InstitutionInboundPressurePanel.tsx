@@ -34,14 +34,14 @@ export async function InstitutionInboundPressurePanel({ locale }: { locale: stri
       <h2 className="font-display text-xl mb-2">{t("inboundPressureTitle")}</h2>
       <p className="text-[14px] leading-relaxed text-ink-soft mb-4">{t("inboundPressureBody")}</p>
 
-      <p className="text-[13px] font-bold m-0 mb-3">
+      <p className="text-body font-bold m-0 mb-3">
         {t("inboundPressureMappedTotal", { count: mappedTotal })}
       </p>
 
       {disclosed.length === 0 ? (
-        <p className="text-[13px] text-ink-soft m-0 mb-4">{t("inboundPressureEmpty")}</p>
+        <p className="text-body text-ink-soft m-0 mb-4">{t("inboundPressureEmpty")}</p>
       ) : (
-        <ul className="list-none p-0 m-0 mb-4 flex flex-col gap-2 text-[13px]">
+        <ul className="list-none p-0 m-0 mb-4 flex flex-col gap-2 text-body">
           {disclosed.slice(0, 5).map((row) => {
             const trend = trendByInstitution.get(row.institutionId);
             return (
@@ -75,17 +75,17 @@ export async function InstitutionInboundPressurePanel({ locale }: { locale: stri
         <p className="text-[13.5px] leading-relaxed text-ink-soft m-0 mb-3">{t("inboundPressureDeskBody")}</p>
         <div className="flex flex-col gap-2">
           <a href="/api/network/join-kit" className="no-underline">
-            <Button variant="ghost" className="w-full !text-[13px]">
+            <Button variant="ghost" className="w-full !text-body">
               {t("inboundPressureDeskStep1")}
             </Button>
           </a>
           <Link href="/institutions/leader" className="no-underline">
-            <Button variant="ghost" className="w-full !text-[13px]">
+            <Button variant="ghost" className="w-full !text-body">
               {t("inboundPressureDeskStep2")}
             </Button>
           </Link>
           <a href={institutionPilotMailto()} className="no-underline">
-            <Button className="w-full !text-[13px]">{t("inboundPressureDeskStep3")}</Button>
+            <Button className="w-full !text-body">{t("inboundPressureDeskStep3")}</Button>
           </a>
         </div>
       </div>

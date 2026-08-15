@@ -74,7 +74,7 @@ export default async function CampaignGoPage({
       title={title}
       sub={why}
     >
-      <p className="text-[13px] text-ink-soft leading-relaxed -mt-2 mb-6">{t("trust")}</p>
+      <p className="text-body text-ink-soft leading-relaxed -mt-2 mb-6">{t("trust")}</p>
       <Link href={action.href}>
         <Button className="w-full !text-[16px] !py-3.5">{t("cta")}</Button>
       </Link>

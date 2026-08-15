@@ -36,9 +36,19 @@ export const EXPERIMENTS: Experiment<unknown>[] = [
     minSamplesPerArm: 200,
     minRelativeLift: 0.05,
     arms: [
-      { id: "money_first", baseline: true, payload: ["money", "cancel", "owed", "electricity"] },
-      { id: "owed_first", payload: ["owed", "money", "cancel", "electricity"] },
-      { id: "cancel_first", payload: ["cancel", "money", "owed", "electricity"] },
+      // The baseline carries a deposit door now. Every arm before this one was
+      // four recurring-bill doors and not one recovery of money somebody is
+      // already owed — so the experiment could compare orderings of the same
+      // idea, and never test the other idea at all.
+      { id: "money_first", baseline: true, payload: ["money", "deposit", "cancel", "owed"] },
+      // These two carry the deposit door in place of electricity. The arms
+      // below each exist to test one specific door in the lead and are left
+      // alone; these two do not, and with the bandit rotating seven arms a
+      // door present in only one of them is a door most visitors never see.
+      // Electricity keeps its page, its catalogue entry and its place in the
+      // grid below the fold — it is ₪45 a month, the smallest door in the set.
+      { id: "owed_first", payload: ["owed", "money", "deposit", "cancel"] },
+      { id: "cancel_first", payload: ["cancel", "money", "deposit", "owed"] },
       // "dormant" and "incident" were added to the homepage's door grid with a
       // comment calling them "the two strongest reasons to open the app" — but
       // no arm here ever placed either first, so `rank()` in page.tsx sorted
@@ -53,6 +63,17 @@ export const EXPERIMENTS: Experiment<unknown>[] = [
       // in its own comment, and just as untested in a leading position as the
       // two above until now.
       { id: "vehicle_check_first", payload: ["vehicle-check", "money", "cancel", "owed"] },
+      // The largest single sum a consumer here is routinely owed, and the one
+      // where the fee is 18% of the whole recovery rather than of one month.
+      // Untested in a leading position for the same reason as the three above:
+      // no arm ever placed it there.
+      { id: "deposit_first", payload: ["deposit", "money", "cancel", "owed"] },
+      // Electricity moved out of the two general arms to make room for the
+      // deposit door, which would have left it in no arm at all — sorted last
+      // on every run and untestable in any position, the exact failure this
+      // experiment's own comments describe happening to dormant and incident.
+      // It gets its own lead arm instead, like they did.
+      { id: "electricity_first", payload: ["electricity", "money", "cancel", "owed"] },
     ],
   },
 

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Card, Button } from "@/components/ui";
+import { IconAlertTriangle } from "@/components/Icon";
 import { reportError } from "@/lib/report-error";
 
 /**
@@ -30,9 +31,7 @@ export default function LocaleError({
 
   return (
     <main className="max-w-[520px] mx-auto px-5 pt-24 pb-20 text-center">
-      <div className="text-[44px] mb-4" aria-hidden>
-        ⚠️
-      </div>
+      <IconAlertTriangle width={44} height={44} className="mb-4 mx-auto text-[#f0b45c]" />
       <Card className="p-8">
         <h1 className="font-display text-2xl mb-2">{t("title")}</h1>
         <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6">{t("subtitle")}</p>

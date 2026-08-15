@@ -54,12 +54,30 @@ const config: Config = {
        * migration happens screen by screen, which is the only way to move
        * 2,104 call sites without a rewrite nobody can review.
        */
+      /**
+       * The sizes moved up once, deliberately, after counting them.
+       *
+       * 2,091 text sizes are written across this app and 1,704 of them — 81% —
+       * were 15px or smaller. The single most common size in the entire
+       * product was 13px, used 668 times, and 211 places used 11.5px or less.
+       * That is a money app, read on a phone, in Hebrew, set in fine print;
+       * and the fine print is not the legal boilerplate, it is the sentence
+       * telling somebody what they are owed and what to press.
+       *
+       * The comparison that made it obvious was a stack of finance explainer
+       * cards: one idea per screen, four short lines, set around 20px. Nobody
+       * has to work to read those. Ours has to be worked at.
+       *
+       * `body` is the workhorse — raising it from 13px to 14.5px lifts most of
+       * the product in one move, and `micro` leaves the 11px range entirely,
+       * because 11px Hebrew on a phone is a size you decide not to read.
+       */
       fontSize: {
-        micro: ["11px", { lineHeight: "1.45" }], // legal lines, timestamps
-        caption: ["12px", { lineHeight: "1.5" }], // hints, secondary labels
-        body: ["13px", { lineHeight: "1.6" }], // the workhorse
-        "body-lg": ["14px", { lineHeight: "1.6" }], // comfortable reading
-        lead: ["15px", { lineHeight: "1.55" }], // intros, emphasised body
+        micro: ["12px", { lineHeight: "1.5" }], // legal lines, timestamps
+        caption: ["13px", { lineHeight: "1.55" }], // hints, secondary labels
+        body: ["14.5px", { lineHeight: "1.6" }], // the workhorse
+        "body-lg": ["15.5px", { lineHeight: "1.6" }], // comfortable reading
+        lead: ["16.5px", { lineHeight: "1.55" }], // intros, emphasised body
         title: ["17px", { lineHeight: "1.4" }], // card and section titles
         h4: ["19px", { lineHeight: "1.35" }],
         h3: ["22px", { lineHeight: "1.3" }],

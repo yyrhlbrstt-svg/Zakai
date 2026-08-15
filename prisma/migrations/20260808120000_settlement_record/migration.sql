@@ -1,0 +1,14 @@
+-- Store the settlement as a signed, independently verifiable object.
+--
+-- The Mandate that authorised a claim has always been verifiable by anyone
+-- against the published JWKS. The outcome was not: it lived only as a row
+-- here, which a counterparty, a regulator, or the person holding it cannot
+-- check without trusting us. Proof of authority with no proof of result is
+-- what keeps this a service instead of a record layer.
+--
+-- Nullable on purpose. Signing requires MANDATE_SIGNING_JWK, and a deployment
+-- without that key must still be able to record a saving — an unsigned proof
+-- is a weaker artifact, not a lost one. Existing rows stay NULL rather than
+-- being back-signed, because a signature applied later would assert we
+-- witnessed something at a time we did not.
+ALTER TABLE "SavingsProof" ADD COLUMN "settlementJws" TEXT;

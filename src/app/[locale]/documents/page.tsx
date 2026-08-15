@@ -84,7 +84,7 @@ export default async function DocumentsPage({
                 </div>
               </div>
               <Link href={`/authorization/${c.authorization!.code}`}>
-                <Button variant="ghost" className="!text-[13px] !py-2">
+                <Button variant="ghost" className="!text-body !py-2">
                   {tIapp_locale_documents_page("t_4e482ddb")}
                 </Button>
               </Link>

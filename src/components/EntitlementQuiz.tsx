@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Button, CheckboxChips, RadioChips } from "@/components/ui";
 import { FallNumber } from "@/components/FallNumber";
 import { ShareResult } from "@/components/ShareResult";
+import { IconTarget } from "@/components/Icon";
 import { evaluateRights, type RightsProfile } from "@/lib/rights";
 import { formatAgorot } from "@/lib/money";
 import { actionRouteForEntitlement, isFullServiceEntitlement } from "@/lib/entitlementRoutes";
@@ -78,9 +79,7 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
     return (
       <Shell>
         <div className="text-center">
-          <div className="text-[40px] mb-3" aria-hidden>
-            🎯
-          </div>
+          <IconTarget width={40} height={40} className="mb-3 mx-auto text-emerald" />
           <h1 className="font-display text-[clamp(26px,5vw,36px)] leading-tight m-0">
             {t("entitlements.title")}
           </h1>
@@ -221,7 +220,7 @@ export function EntitlementQuiz({ bcp47 }: { bcp47: string }) {
           }} />
           {profile.children > 0 && (
             <div className="mt-5">
-              <span className="text-[13px] text-ink-soft block mb-2">{t("rights.q.childrenUnder6")}</span>
+              <span className="text-body text-ink-soft block mb-2">{t("rights.q.childrenUnder6")}</span>
               <Counter
                 value={profile.childrenUnder6}
                 max={profile.children}

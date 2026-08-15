@@ -127,7 +127,9 @@
     "incident": "I was injured — who owes me?",
     "dormant": "Money you forgot",
     "vehicleCheck": "Used-car check",
-    "merchantFees": "Clearing fees"
+    "merchantFees": "Clearing fees",
+    "agents": "For agents · Mandate",
+    "institutions": "For institutions"
   },
   "payslip": {
     "title": "Payslip check",
@@ -195,7 +197,7 @@
     "resultKicker": "Based on what you told us",
     "worthFrom": "worth from ",
     "perYear": "a year, at least",
-    "worthNote": "A conservative estimate of the quantifiable part only — the real value is almost always higher.",
+    "worthNote": "A conservative estimate of the quantifiable part only. Rights that cannot be priced here are not counted.",
     "foundCount": "{count, plural, one {1 relevant right to check} other {# relevant rights to check}}",
     "ctaSignup": "Open an account and let's claim it",
     "ctaRights": "The full list with explanations",
@@ -264,7 +266,8 @@
     "paymentUnavailable": "Payment is unavailable right now. Please try again later.",
     "country": "Country",
     "countryNotice": "Zakai’s active tools today are Israel-first. You’re signing up early — we’ll notify you the moment we launch in your country.",
-    "forgotPassword": "Forgot your password?"
+    "forgotPassword": "Forgot your password?",
+    "continueTo": "Continuing to “{tool}”. An account is needed to open a case in your name — it takes under a minute, and you come straight back here."
   },
   "onboarding": {
     "title": "What Zakai does for you",
@@ -286,10 +289,10 @@
   },
   "home": {
     "kicker": "Start here — My money",
-    "title1": "Screenshot a bill.",
-    "title2": "The agent opens Cases + Mandate.",
-    "sub": "Zakai is an AI agent that finds and gets back money you're already owed — bank fees, a forgotten subscription, a right you never claimed. That is the whole start: screenshot → case with a Mandate → send → documented saving. Do not pick from a toolbox — go to My money.",
-    "cta": "Start in My money",
+    "title1": "You're paying too much.",
+    "title2": "Zakai gets it back.",
+    "sub": "Bank fees, a subscription you forgot to cancel, money you're owed that nobody told you about. Photograph your statement — Zakai finds what is leaving, writes to the provider in your name, and follows up until they answer. You pay only if money is actually saved.",
+    "cta": "Start — what's leaving each month",
     "heroLeaks": "Money leak map",
     "moreDoors": "{count} more ways to save →",
     "howTitle": "How it works",
@@ -359,7 +362,7 @@
       },
       "deals": {
         "title": "Deals & coupons",
-        "sub": "Every benefit and money-saving move in one place — and exclusive coupons coming soon."
+        "sub": "Every offer and move that saves you money, in one place — and for Pro members, a coupon vault with expiry alerts."
       },
       "lostmoney": {
         "title": "Lost money",
@@ -622,7 +625,26 @@
     "caseLimit": "You've reached your plan's active-check limit. Finish an existing check or upgrade your plan.",
     "beneficiaryLabel": "Who is this for?",
     "beneficiaryPlaceholder": "Who is this for? (e.g. Mom, Dad) — optional",
-    "beneficiaryHint": "Checking a family member’s bill? Give them a name and it’s grouped on your dashboard. Leave empty if it’s for you."
+    "beneficiaryHint": "Checking a family member’s bill? Give them a name and it’s grouped on your dashboard. Leave empty if it’s for you.",
+    "docRoute": {
+      "goTo": "Take me to the right tool",
+      "handledHere": "This is the right kind of document, but we could not read the amount from it. You can enter it manually and continue.",
+      "noToolYet": "We recognised the document, but we do not have a tool for it yet. You can enter your mobile details manually.",
+      "unknown": "We could not tell what this document is. If it is a mobile bill, try a clearer photo, or enter the details manually.",
+      "kinds": {
+        "mobile_bill": "This is a mobile bill — we will continue here.",
+        "internet_bill": "This is an internet / TV / landline bill. The telecom check handles it.",
+        "electricity_bill": "This is an electricity bill, not a mobile one. We have a dedicated electricity tool.",
+        "water_bill": "This is a water bill, not a mobile one. We have a dedicated water tool.",
+        "arnona_bill": "This is a municipal property tax (arnona) notice, not a mobile bill. We have a dedicated arnona tool.",
+        "bank_statement": "This is a bank statement. The charge scan in \"My money\" will find recurring charges in it.",
+        "card_statement": "This is a credit-card statement. The charge scan in \"My money\" will find recurring charges in it.",
+        "receipt": "This is a receipt or one-off invoice, not a monthly mobile bill.",
+        "subscription_notice": "This is a subscription charge or renewal notice. The cancellation tool handles it.",
+        "insurance_policy": "This is an insurance policy or premium notice, not a mobile bill."
+      }
+    },
+    "perMonth": "per month"
   },
   "verify": {
     "title": "Verification before acting",
@@ -690,7 +712,16 @@
     "issuedLabel": "Issued on",
     "scopeLabel": "Scope of authorization",
     "mandateAudienceLabel": "Institution id (Mandate aud)",
-    "leaderBadge": "Zakai Mandate verification leader — public JWKS verify path"
+    "leaderBadge": "Zakai Mandate verification leader — public JWKS verify path",
+    "stTitle": "✓ Signed record, valid",
+    "stSub": "Checked against the issuer's public key. The same check runs offline, without us.",
+    "stCounterparty": "Counterparty",
+    "stOutcome": "Outcome",
+    "stSaved": "Saving documented",
+    "stNoSaving": "No saving",
+    "stRecovered": "Recovered / month",
+    "stDays": "Days to resolve",
+    "stSelfReported": "Based on the user's own report, not a documented provider reply."
   },
   "dashboard": {
     "title": "My dashboard",
@@ -841,7 +872,10 @@
       "institutions": "Institutions · Mandate",
       "partners": "Partners · Embed",
       "business": "B2B · employees + API"
-    }
+    },
+    "contact": "Contact",
+    "status": "Status",
+    "changelog": "What's new"
   },
   "global": {
     "metaTitle": "Zakai worldwide — pick your market",
@@ -977,7 +1011,8 @@
           "Full recurring-charges scan — every finding",
           "Automatic monthly reminder to check the price didn't quietly creep back up after a promo",
           "The smart assistant — up to 100 questions a month",
-          "Priority handling of your cases"
+          "Priority handling of your cases",
+          "Coupon vault — every discount code in one place, with an expiry warning"
         ]
       },
       "MAX": {
@@ -988,7 +1023,8 @@
           "Unlimited checks",
           "The smart assistant — up to 300 questions a month",
           "Everything in Pro",
-          "Full priority + first access to new features"
+          "Full priority + first access to new features",
+          "Coupon vault — every discount code in one place, with an expiry warning"
         ]
       },
       "BUSINESS": {
@@ -1006,10 +1042,13 @@
     "maxRoiTitle": "Does Max pay off for you?",
     "maxRoiSub": "Max costs ₪59.90/month and removes success fees. Enter the documented monthly saving you expect — we'll compare to what you'd pay on Free or Pro.",
     "maxRoiInput": "Estimated documented monthly saving",
-    "maxRoiYes": "At this level, Max likely pays for itself in fees you avoid — worth considering.",
-    "maxRoiNo": "At this level, Free or Pro is still cheaper on fees — unless you need the higher limits.",
-    "maxRoiBreakevenFree": "Breakeven vs Free (18% fee): about {amount} documented saving per month.",
-    "maxRoiBreakevenPro": "Breakeven vs Pro (9% fee): about {amount} documented saving per month."
+    "maxRoiCheapest": "At this saving, the cheapest plan for you is {plan}.",
+    "maxRoiCheapestSaves": "At this saving, the cheapest plan for you is {plan} — about {amount} less per year than the next option.",
+    "maxRoiStayFree": "At this saving, staying on Free is cheapest. A subscription would not pay for itself.",
+    "maxRoiProFrom": "Pro becomes the cheapest plan from about {amount} documented saving per month.",
+    "maxRoiMaxFrom": "Max becomes the cheapest plan from about {amount} documented saving per month.",
+    "waitlistCta": "Tell me the moment I can pay",
+    "waitlistDone": "Noted. We will tell you the moment billing works — no phone calls."
   },
   "scan": {
     "title": "What am I paying for?",
@@ -1053,7 +1092,8 @@
       "Cal: transaction details → download as file.",
       "Hapoalim/Leumi/Discount: account → transactions → export/print → Excel.",
       "Or just select rows on the site, copy, and paste here — the parser is forgiving."
-    ]
+    ],
+    "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app."
   },
   "receipts": {
     "title": "Zakai finds the money hiding in your receipts",
@@ -1210,7 +1250,7 @@
       "eu3h": "Under EU case law, a 3h+ arrival delay is compensated like a cancellation.",
       "euExceptions": "Airlines are exempt in 'extraordinary circumstances' (extreme weather, certain strikes); ordinary technical faults usually are NOT exempt."
     },
-    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change of Conditions), 2012. Not legal advice. Coming soon: Zakai prepares the full demand for you — ready for you to send yourself.",
+    "disclaimer": "Based on the Aviation Services Law (Compensation and Assistance for Flight Cancellation or Change), 2012.",
     "jurisdictionQ": "Which law applies?",
     "jurisdictions": {
       "il": "Flight under Israeli law",
@@ -1227,7 +1267,7 @@
       "medium": "1,500–3,500 km (Rome, Paris)",
       "long": "Over 3,500 km (New York, Bangkok)"
     },
-    "euDisclaimer": "Based on Regulation (EC) 261/2004 — flights departing the EU, or arriving in the EU on an EU carrier. Not legal advice. Coming soon: Zakai prepares the full demand for you — ready for you to send yourself.",
+    "euDisclaimer": "Based on Regulation (EC) 261/2004 — applies to flights departing the EU, or landing in it on an EU carrier.",
     "letter": {
       "title": "Zakai prepares your demand letter",
       "sub": "A ready letter for you to send to the airline in your own name — with the remedies and amounts the law entitles you to.",
@@ -1242,7 +1282,15 @@
       "copied": "Copied ✓",
       "sendHint": "Send it to the airline's customer service email or contact form, and keep a copy.",
       "privacy": "Generated in your browser only — details are never sent or stored. Not legal advice.",
-      "legal": "Zakai is not a law firm, does not provide legal advice, and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the demand is refused or heads to legal proceedings, consult a lawyer."
+      "legal": "If the claim is rejected or reaches legal proceedings, consider consulting a lawyer. The letter is a template you check, adopt and send in your own name.",
+      "airlinePlaceholder": "Choose your airline",
+      "airlineOther": "Another airline…",
+      "airlineName": "Airline name",
+      "contactHint": "The address is on the airline's contact page or your boarding pass. We never invent one.",
+      "claimCta": "File the claim with {airline} — {amount}",
+      "claimCtaPlain": "File the claim with the airline",
+      "nextStep": "Next: a short check that this is you, then one approval — and Zakai sends the demand in your name. You can stop at any point.",
+      "formTitle": "Flight details — to file the claim"
     },
     "metaTitle": "Flight cancelled or delayed? You're owed money — Zakai",
     "metaDesc": "Israel's Aviation Services Law obligates airlines to fixed compensation, an alternative ticket and assistance — low-cost carriers included. Three taps to know what you're owed."
@@ -1263,7 +1311,7 @@
     "cta": "Photo a bill — start in My money",
     "ctaHint": "Next step: a free profile check — no signup required",
     "ctaScan": "Or check what you are owed (free)",
-    "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. Full active service today: mobile. Electricity, flights and subscriptions — a check/calculator you run yourself."
+    "note": "A conservative estimate powered by Zakai's own engines (typical 18% mobile reduction, flat electricity plan, minimum statutory flight compensation, ₪35 per subscription). Not a promise of results. A full claim path — a case, a signed authority and a letter in your name — is live in {verticals} domains, including electricity, flights and subscriptions. Letters are written and stored; automatic sending switches on once a mail server is configured."
   },
   "universalCancel": {
     "metaTitle": "Universal subscription cancel — Zakai",
@@ -2597,7 +2645,10 @@
     "copy": "Copy",
     "copied": "Copied!",
     "sendHint": "Send the letter yourself, by email or registered mail",
-    "disclaimer": "An estimate only, based on what you entered — not a substitute for real attendance records or legal advice. Any interest or indexation a labour court might award is not calculated here."
+    "disclaimer": "An estimate only, based on what you entered — not a substitute for real attendance records or legal advice. Any interest or indexation a labour court might award is not calculated here.",
+    "step1": "Send the letter to your employer in your own name — email or registered post, so delivery is provable.",
+    "step2": "Keep the payslips and attendance records for the period. They are the basis of any claim.",
+    "step3": "If there is no response, you can go to the Ministry of Labour or the labour court."
   },
   "latePayment": {
     "metaTitle": "Client paying you late? A demand letter under Israel's Fair Payment Law | Zakai",
@@ -2907,7 +2958,12 @@
     "renewalAutoRenewNote": "This contract renews automatically unless cancelled in time.",
     "renewalCta": "Add a reminder 30 days before",
     "renewalAdded": "Reminder added — we'll notify you in time.",
-    "renewalLoginNote": "Log in to save a reminder."
+    "renewalLoginNote": "Log in to save a reminder.",
+    "noticeActBy": "Written notice is due by {date} — {days} days' notice required. {left} days left.",
+    "noticeMissed": "The notice window closed on {date} ({days} days' notice required). The term is set to roll — you can still ask for cancellation or new terms.",
+    "renewalWhereKept": "The contract is kept in your commitments record, with the notice date.",
+    "renewalWhereLink": "My commitments",
+    "commitmentsAlways": "You can also skip the scan: keep any self-renewing contract, and we hold the date you can still get out by."
   },
   "scamCheck": {
     "metaTitle": "Is this a scam? Check a suspicious SMS/WhatsApp message | Zakai",
@@ -2929,7 +2985,12 @@
       "gov_refund": "A government body promising a refund via a link",
       "shortened_link_urgency": "A shortened link combined with time pressure",
       "code_plus_urgency": "A request for a verification code combined with time pressure"
-    }
+    },
+    "safe1": "Do not tap any link in the message.",
+    "safe2": "Do not reply with a code, a password or card details.",
+    "safe3": "If it claims to be your bank, call the bank on the number from their official site or your card — never the number in the message.",
+    "chargedCta": "Already charged? Dispute the charge",
+    "chargedNote": "If money has already gone, reporting sooner materially improves the chance of getting it back."
   },
   "parentPayments": {
     "metaTitle": "Is that school/kindergarten payment mandatory? | Zakai",
@@ -2955,7 +3016,10 @@
     "copy": "Copy",
     "copied": "Copied!",
     "sendHint": "Send this yourself, to the institution's office or parents' committee",
-    "disclaimer": "States the real mandatory-vs-voluntary rule and drafts a letter — not a guarantee of a refund, and not legal advice."
+    "disclaimer": "States the real mandatory-vs-voluntary rule and drafts a letter — not a guarantee of a refund, and not legal advice.",
+    "step1": "Send the letter to the school office or the parents committee, and ask for confirmation of receipt.",
+    "step2": "Keep a copy and the date you sent it.",
+    "step3": "If they refuse, you can go to the Ministry of Education district office, with the circular attached here."
   },
   "advanceTaxReduction": {
     "metaTitle": "Self-employed? Reduce your tax advances | Zakai",
@@ -2979,7 +3043,10 @@
     "copied": "Copied!",
     "formLink": "Form 2216א׳ on gov.il",
     "sendHint": "Print form 2216א׳, fill in the requested rate by hand, sign, attach this letter and supporting documents, and file at your assessing office.",
-    "disclaimer": "Explains the real filing window and drafts a covering letter — it never invents an advance-tax rate or a refund amount; the assessing office decides both. Not tax advice."
+    "disclaimer": "Explains the real filing window and drafts a covering letter — it never invents an advance-tax rate or a refund amount; the assessing office decides both. Not tax advice.",
+    "step1": "Print form 2216א and fill in the advance rate you are asking for by hand.",
+    "step2": "Attach this letter and the documents that support the drop in income.",
+    "step3": "File it at your assessing office — the assessing officer decides."
   },
   "complaintEscalation": {
     "metaTitle": "Complaint ignored? Escalate to the right regulator | Zakai",
@@ -3015,7 +3082,12 @@
         "name": "Consumer Protection and Fair Trade Authority",
         "description": "Handles general consumer complaints — deception, unauthorized charges, warranty/service, cancellation rights — outside banking or telecom. Current contact details are on gov.il."
       }
-    }
+    },
+    "step1": "Send the letter to {body} — by email or through their enquiry form.",
+    "step2": "Keep a copy and the date you sent it. That is your proof you approached them.",
+    "step3": "If the company gets back to you after the escalation, keep that too.",
+    "openBody": "Go to {body}",
+    "noLinkNote": "This body has no fixed online form — current contact details are on gov.il. We never invent an address."
   },
   "deadlines": {
     "metaTitle": "Never miss a deadline — passport, car test, filings | Zakai",
@@ -3042,7 +3114,10 @@
     "claimExpiryNote": "Under the general default, this claim would be time-barred around {date}.",
     "claimAddCta": "Add as a reminder",
     "claimAdded": "Added ✓",
-    "claimLabel": "Claim expiring: {desc}"
+    "claimLabel": "Claim expiring: {desc}",
+    "commitmentsHint": "Have a contract that renews itself? Instead of a reminder you have to remember to set, keep the contract — and we hold the date you can still get out by.",
+    "commitmentsLink": "The commitments record",
+    "loadFailed": "We could not load the list. Refresh the page."
   },
   "parking": {
     "title": "Parking-ticket appeal",
@@ -3082,7 +3157,7 @@
     "copy": "Copy letter",
     "copied": "Copied ✓",
     "sendHint": "Send it to the local authority within 90 days of receiving the ticket (email / online form / post), and keep a copy.",
-    "legal": "Zakai is not a lawyer and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If the appeal is refused, you have the right to a hearing at the local-affairs court.",
+    "legal": "If the appeal is rejected you have the right to be tried in the local affairs court. The letter is a template you check, adopt and send in your own name.",
     "disclaimer": "The letter is generated in your browser only and is never sent or stored. Not legal advice; appeal grounds and deadlines vary by authority and circumstances.",
     "metaTitle": "Parking ticket appeal — Zakai",
     "metaDesc": "Got a parking ticket? Many tickets fall on technicalities. Zakai prepares a ready-to-send appeal letter. Runs in your browser, no documents."
@@ -3118,7 +3193,7 @@
   },
   "deals": {
     "title": "Deals & benefits — money you can save now",
-    "sub": "A collection of real benefits and moves that save you money right away. Free for everyone. Exclusive partner coupons — coming soon for Pro members.",
+    "sub": "Real offers and moves that save you money now. Free for everyone. Pro members also get a personal coupon vault with expiry alerts.",
     "soon": "Exclusive coupons",
     "soonSub": "We're connecting to affiliate networks to bring you real store discount codes — exclusive to Pro and Max members.",
     "items": [
@@ -3194,7 +3269,7 @@
       }
     ],
     "metaTitle": "Deals & perks — Zakai",
-    "metaDesc": "A collection of real deals and moves that save you money right away — mobile, electricity, banking, rights and more. Free. Exclusive coupons coming soon."
+    "metaDesc": "Real offers and moves that save you money now — mobile, electricity, banking, entitlements and more. Free."
   },
   "transportFine": {
     "title": "Public-transport fine appeal",
@@ -3234,7 +3309,7 @@
     "copy": "Copy letter",
     "copied": "Copied ✓",
     "sendHint": "Send it to the operator's appeals department within the deadline on the report (usually 30–90 days), attaching a card/Rav-Kav history screenshot if relevant.",
-    "legal": "Zakai is not a lawyer and does not represent you. This is a self-help tool: the letter is a template you review, adopt and send in your own name and on your own responsibility. If refused, you have the right to a hearing or an appeals committee.",
+    "legal": "If the appeal is rejected you have the right to be tried or to go to the appeals committee. The letter is a template you check, adopt and send in your own name.",
     "disclaimer": "The letter is generated in your browser only and is never sent or stored. Not legal advice; appeal grounds and deadlines vary by operator and circumstances.",
     "metaTitle": "Public transport fine appeal — Zakai",
     "metaDesc": "Got fined by a bus or train inspector? Many fines can be cancelled. Zakai prepares a ready-to-send appeal letter. Runs in your browser."
@@ -3616,7 +3691,7 @@
     "title": "What would you improve in Zakai?",
     "sub": "Any idea, bug or request — it comes straight to us and helps us improve. We read everything.",
     "placeholder": "Tell us what's missing, what's annoying, or which tool you'd want us to add…",
-    "emailPlaceholder": "Email (optional — only if you'd like a reply)",
+    "emailPlaceholder": "Email (optional — only if you want a reply by email)",
     "send": "Send feedback",
     "sending": "Sending…",
     "doneTitle": "Thank you! Got it.",
@@ -3819,9 +3894,11 @@
   "companies": {
     "metaTitle": "Zakai Score — results by company | Zakai",
     "metaDesc": "Factual data on outcomes with providers — how many checks, success rate, and average documented saving. Based on real cases.",
-    "kicker": "Transparency by company",
-    "title": "Zakai Score — real results with each company",
+    "kicker": "Check before you deal with them",
+    "title": "Before you contact a company — see what happened to people who already did",
     "sub": "As more checks flow through Zakai, we can show facts: which providers actually reduce bills, and by how much. Data only — not an opinion.",
+    "searchPlaceholder": "Search a company — e.g. Bezeq, Partner, Netflix",
+    "searchNoResults": "No documented results for this company yet.",
     "emptyTitle": "We are building this now",
     "emptySub": "The Zakai Score is built from real, documented cases. There isn't enough data yet to show any company fairly — we only show a provider after enough checks. Be among the first to create the data.",
     "emptyCta": "Start a check",
@@ -4994,7 +5071,8 @@
       "title": "Money about to expire",
       "deadlineIn": "Soonest — {days} days left",
       "sub": "This amount stops being claimable on dates fixed by law. We keep the count for you."
-    }
+    },
+    "scoreLabel": "Zakai score"
   },
   "door": {
     "title": "Or start from here",
@@ -5042,6 +5120,11 @@
       "title": "Buying a used car?",
       "sub": "The seller must hand you a written disclosure — accidents, mileage, liens. Almost nobody asks.",
       "cta": "What I may demand"
+    },
+    "deposit": {
+      "title": "Landlord holding your deposit?",
+      "sub": "Only proven damage may be deducted — not fair wear. A case, a signed authority and a demand letter in your name.",
+      "cta": "Claim the deposit"
     }
   },
   "authority": {
@@ -5114,7 +5197,8 @@
     "shotNeedsLoginPrefix": "AI photo scan needs an account — ",
     "shotNeedsLoginLink": "quick sign in",
     "shotNeedsLoginSuffix": ". Or paste/upload a statement file below — no account needed.",
-    "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file."
+    "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file.",
+    "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app."
   },
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "Overnight agent — follow-up for all",
@@ -5252,17 +5336,20 @@
     "copied": "Copied",
     "errorGeneric": "Something went wrong. Try again.",
     "errorCaseLimit": "Case limit reached. Upgrade or close an existing case.",
-    "errorAmountRequired": "Missing fee amount — without a real figure there is no SavingsProof and no fee."
+    "errorAmountRequired": "Missing fee amount — without a real figure there is no SavingsProof and no fee.",
+    "feeKindLabel": "Fee type"
   },
   "inline_app_locale_money_page": {
-    "t_98667843": "Money leaving every month for no good reason",
-    "t_2144de53": "Bank · mobile · subscriptions — in writing with Mandate",
+    "t_98667843": "My money",
+    "t_2144de53": "See what leaves your account every month — and stop it",
+    "heroCta": "Start — photograph your statement",
+    "heroCtaPaste": "Start — paste your charge lines",
     "t_26d7de3c": "Loop shortcuts",
     "t_bc18d8da": "Cancel sub with agent",
     "t_a4c2b6a9": "Cellular bill check",
     "t_bankFeesShortcut": "Bank fees with agent",
     "t_38d0577a": "My dashboard",
-    "t_ef77bbd3": "Find a recurring charge → case → Mandate → send → SavingsProof. Fee only on documented saving. No call center.",
+    "t_ef77bbd3": "Photograph your card or bank statement. Zakai finds the recurring charges, writes to the provider in your name, and follows up until they answer. You pay only if money is actually saved.",
     "t_3e37c3c8": "Potentials are for prioritization only — not a promise. Fee only on documented savings. No call center, no phone left behind.",
     "metaTitle": "My money — stop silent monthly leaks | Zakai",
     "metaDesc": "Bank fees, post-promo mobile, and subscriptions — written Mandate cases and documented savings. No call center.",
@@ -5321,7 +5408,7 @@
     "t_ab015246": "Fill details → agent opens an approved case → Mandate → send & track. Fee only if a waiver/refund is documented."
   },
   "inline_app_locale_cancel_page": {
-    "t_97c08415": "Agent · Mandate · no callback",
+    "t_97c08415": "Agent · with your permission · no callback",
     "t_9af4e618": "Cancel · pause · lower price — agent does it",
     "t_c700a858": "Scan charges first",
     "t_cb700000": "What am I owed?",
@@ -5333,7 +5420,7 @@
     "metaDesc": "Cancel, discount, or pause — agent case, verification, Mandate send and tracking. No call centre."
   },
   "inline_app_locale_start_page": {
-    "t_eb8bdcd9": "Money OS · no callback",
+    "t_eb8bdcd9": "No call center. No callback.",
     "t_b39acbd2": "Where do you start?",
     "t_721693ca": "Paying too much — scan now",
     "t_87c0ebfc": "Electricity high — agent switch",
@@ -5354,8 +5441,8 @@
     "t_bd447869": "High-interest overdraft, cards and loans can become one lower payment. Start on screen in Zakai — not by leaving a phone number. A licensed provider only if you choose to continue."
   },
   "inline_app_locale_leaks_page": {
-    "t_c4b012f6": "Money leaks map · Money OS",
-    "t_2d4d4d1b": "Where money leaks — the agent closes it",
+    "t_c4b012f6": "Where your money leaks out",
+    "t_2d4d4d1b": "Every cost you can cut — in one place",
     "t_eec058aa": "My money — scan now",
     "t_bc18d8da": "Cancel with agent",
     "t_f87fbdb7": "High ROI",
@@ -5363,6 +5450,7 @@
     "t_7698572b": "Start with My money",
     "t_03cd5197": "Zakai is the standard consumer money agent: no call center, no phone left behind, fee only on documented savings. Every card leads to Mandate action.",
     "t_ace971b5": "Scan → case → Mandate → send → follow-up → documented saving → share. That’s the loop.",
+    "companiesCrossLink": "Want to check a specific company first? See real results",
     "metaTitle": "Where your money is leaking — Zakai Money OS",
     "metaDesc": "A global map of money leaks: subscriptions, mobile, fees, insurance, rights — the Zakai agent closes them without a call center."
   },
@@ -5982,8 +6070,6 @@
     "statMandates": "Active mandates",
     "statMandatesHint": "ACTIVE authorizations now",
     "statDisclaimer": "Excludes self-reported memory. No fee amounts or PII.",
-    "deployScore": "Deploy readiness (env layers, no secrets): {score}/100 · {tier}",
-    "consumerReleaseScore": "Consumer release gate: {score}/100 · ship={ready}",
     "verifyTitle": "What to verify before you email us",
     "bullets": [
       "Discovery: /.well-known/zakai-mandate.json",
@@ -6384,6 +6470,398 @@
       "utilities": "Electricity / water",
       "leasing": "Leasing / vehicle",
       "unclassified": "Unclassified"
+    },
+    "driftTitle": "Costs that rose since your last check",
+    "driftSub": "Net change: {net} per month. Nobody told you — which is why it is worth looking.",
+    "baselineSaved": "Saved on your device. Next time you check, we'll show what changed since.",
+    "overlapTitle": "Two vendors, one job",
+    "overlapSub": "Worth reviewing — up to {max}/month if one is redundant. We cannot tell from a statement which pairs really are.",
+    "overlapOftenFine": "In this category two vendors are usually deliberate (e.g. two lines)"
+  },
+  "capability": {
+    "mailOff": {
+      "headline": "Automatic sending is off — no letter will leave the system",
+      "alternative": "Prepare the letter here, send it from your own mail, then paste the provider reply back so we can carry on."
+    },
+    "aiOff": {
+      "headline": "Reading photos is unavailable right now",
+      "alternative": "Enter the provider and amount manually — it opens the same case, letter and mandate."
+    }
+  },
+  "cannotSpend": {
+    "heading": "Zakai cannot spend a shekel on your behalf",
+    "sub": "You have seen AI connected to a bank account to \"manage\" money. An agent that can spend can be made to drain an account. Zakai is built the other way round: it finds only money you are owed, and money only ever moves toward you. The worst case of a compromised authority is an unwanted letter, not a theft.",
+    "allowedHeading": "Everything an authority can carry — the complete list",
+    "perAct": "needs separate confirmation for each act",
+    "refusedHeading": "Refused from every authority",
+    "refusedNote": "These are not \"not supported yet\". An authority containing one is rejected, and a test fails the build if anyone adds a spending capability.",
+    "verify": "Check this list against the source:"
+  },
+  "commitments": {
+    "metaTitle": "My commitments — Zakai",
+    "metaDesc": "What you are committed to, and until when you can still get out. Zakai holds the notice date and reminds you before it.",
+    "kicker": "The commitment record",
+    "title": "What you are committed to, and until when you can still leave",
+    "sub": "A contract renewing on 1 January with 60 days' notice has to be acted on by 1 November — and that date appears nowhere. We hold it.",
+    "footnote": "The date is recomputed on every load from the renewal date and the notice period; it is never stored, so it cannot stay wrong after a correction. A contract that states no notice period gets no guessed date — saying \"unknown\" beats guessing."
+  },
+  "visibleWork": {
+    "metaTitle": "What was done in my name — Zakai",
+    "metaDescription": "Every action taken in your name, under which authority, and what actually left.",
+    "title": "What was done in my name",
+    "subtitle": "Every action taken on your behalf — when, against whom, and under which authority. Anything that has not left yet says so.",
+    "empty": "Nothing has been done in your name yet. Once you open a claim, every step appears here.",
+    "statTotal": "Actions",
+    "statDelivered": "Actually left",
+    "statWaiting": "Waiting to send",
+    "statFailed": "Failed",
+    "statAuthorities": "Live authorities",
+    "nothingLeftYet": "No letter has left the system. They were written and addressed, but no mail transport is configured — so they are waiting. That is not “sent” and we will not show it as sent.",
+    "underRevoked": "{count, plural, one {One action was taken under an authority that has since been withdrawn. It stays here: revoking stops the next action, it does not erase the last one.} other {# actions were taken under an authority that has since been withdrawn. They stay here: revoking stops the next action, it does not erase the last one.}}",
+    "revokedTag": "revoked",
+    "revoke": "Revoke",
+    "revoking": "Revoking…",
+    "revokeFailed": "Revocation did not complete. Try again.",
+    "revokedNote": "Authority revoked. Any institution verifying with us sees it on its next check.",
+    "filterEmpty": "No actions under this filter.",
+    "authorityHint": "To manage the permissions themselves — what Zakai may do, and revoke everything at once:",
+    "authorityLink": "Your authorities",
+    "filter": {
+      "all": "All",
+      "outward": "Left the system",
+      "waiting": "Waiting"
+    },
+    "kind": {
+      "case_opened": {
+        "with": "Claim opened against {counterparty}",
+        "plain": "Claim opened"
+      },
+      "consent_given": {
+        "with": "You approved us acting against {counterparty}",
+        "plain": "You approved us acting on your behalf"
+      },
+      "ownership_verified": {
+        "with": "Your ownership of the {counterparty} account was verified",
+        "plain": "Your account ownership was verified"
+      },
+      "authority_granted": {
+        "with": "Signed authority issued to act against {counterparty}",
+        "plain": "Signed authority issued"
+      },
+      "authority_revoked": {
+        "with": "Authority against {counterparty} revoked",
+        "plain": "Authority revoked"
+      },
+      "letter_queued": {
+        "with": "Letter to {counterparty} written and addressed — has not left yet",
+        "plain": "Letter written and addressed — has not left yet"
+      },
+      "letter_delivered": {
+        "with": "Letter left to {counterparty}",
+        "plain": "Letter left"
+      },
+      "letter_failed": {
+        "with": "Sending the letter to {counterparty} failed — it did not leave",
+        "plain": "Sending failed — the letter did not leave"
+      },
+      "saving_documented": {
+        "with": "Saving documented against {counterparty}",
+        "plain": "Saving documented"
+      },
+      "fee_raised": {
+        "with": "Success fee recorded on the {counterparty} case",
+        "plain": "Success fee recorded"
+      },
+      "fee_paid": {
+        "with": "Success fee on the {counterparty} case collected",
+        "plain": "Success fee collected"
+      },
+      "terms_accepted": {
+        "with": "You accepted the terms of service",
+        "plain": "You accepted the terms of service"
+      }
+    }
+  },
+  "coupons": {
+    "metaTitle": "My coupons — Zakai",
+    "metaDescription": "Every discount code you hold, in one place, with a warning before it expires.",
+    "title": "My coupons",
+    "subtitle": "Every discount code you were given — in one place, by category, searchable, with a warning before it expires. Codes are stored on your account only.",
+    "empty": "The vault is empty. Add your first code — a retention offer, a card benefit, a coupon from an email — and it will be kept here with its expiry date.",
+    "noMatch": "No coupon matches that search.",
+    "addTitle": "Add a coupon",
+    "save": "Save coupon",
+    "saving": "Saving…",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Merchant, code, or note",
+    "valueHint": "A percentage or a fixed amount — one of them, not both. Neither is fine too (free shipping, for example).",
+    "expiringBanner": "{count, plural, one {One coupon expires within two weeks. It is listed first.} other {# coupons expire within two weeks. They are listed first.}}",
+    "valuePercent": "{percent}% off",
+    "valueAmount": "{amount} off",
+    "valueUnstated": "Discount, amount not stated",
+    "minSpend": "over {amount}",
+    "copied": "Copied ✓",
+    "copyAria": "Copy the code {code}",
+    "markUsed": "Mark used",
+    "markUnused": "Mark unused",
+    "delete": "Delete",
+    "field": {
+      "merchant": "Merchant / service",
+      "code": "Coupon code",
+      "category": "Category",
+      "percentOff": "Percent off",
+      "amount": "Amount off (₪)",
+      "expiresAt": "Expiry date",
+      "note": "Note"
+    },
+    "category": {
+      "all": "All",
+      "shopping": "Shopping",
+      "food": "Food",
+      "software": "Software",
+      "travel": "Travel",
+      "telecom": "Telecom",
+      "home": "Home",
+      "health": "Health",
+      "other": "Other"
+    },
+    "status": {
+      "active": "Valid until {date}",
+      "expiring": "Expires in {days} days",
+      "expired": "Expired on {date}",
+      "undated": "No expiry date given",
+      "used": "Used"
+    },
+    "errors": {
+      "generic": "Could not save. Try again.",
+      "genericError": "Could not save. Try again.",
+      "value": "Pick a percentage or an amount — not both.",
+      "percent": "Percent off must be a whole number between 1 and 100.",
+      "amount": "The discount amount must be a positive number.",
+      "merchant": "A merchant or service name is required.",
+      "code": "A coupon code is required.",
+      "category": "Unknown category.",
+      "tooMany": "You have reached the maximum number of coupons. Delete old ones to add more.",
+      "notFound": "Coupon not found.",
+      "planRequired": "The coupon vault is available on Pro and above.",
+      "tooManyRequests": "Too many requests. Try again shortly."
+    },
+    "locked": {
+      "title": "The coupon vault is available on Pro and above",
+      "body": "This is where every discount code you were given is kept — retention offers, card benefits, coupons from emails — with search, categories, and a warning before a code expires. On the free plan this screen is locked.",
+      "cta": "Compare plans"
+    }
+  },
+  "pageMeta": {
+    "saving_confirm": {
+      "t": "Confirm saving — Zakai"
+    },
+    "rights": {
+      "t": "Your rights — Zakai",
+      "d": "Which rights and refunds you are actually entitled to under law, each with a real next step."
+    },
+    "leads": {
+      "t": "Enquiries — Zakai"
+    },
+    "settings": {
+      "t": "Settings — Zakai"
+    },
+    "authority": {
+      "t": "Your authorities — Zakai"
+    },
+    "assistant": {
+      "t": "Zakai assistant",
+      "d": "Ask anything about money you are owed and get a clear next step — not a referral to a call centre."
+    },
+    "signup": {
+      "t": "Sign up — Zakai",
+      "d": "Open a Zakai account and start checking what you are owed. No card required."
+    },
+    "miluim": {
+      "t": "Reserve duty rights — Zakai",
+      "d": "What reserve-duty soldiers are entitled to, and how to actually claim it."
+    },
+    "ownership_confirm": {
+      "t": "Verify ownership — Zakai"
+    },
+    "terms": {
+      "t": "Terms of service — Zakai",
+      "d": "The terms of using Zakai, including the success-fee model and the limits on what the agent may do."
+    },
+    "authorization_code": {
+      "t": "Verify authorisation — Zakai"
+    },
+    "login": {
+      "t": "Log in — Zakai",
+      "d": "Log in to your Zakai account."
+    },
+    "scan": {
+      "t": "Charge scan — Zakai"
+    },
+    "verify": {
+      "t": "Verify — Zakai"
+    },
+    "forgot": {
+      "t": "Reset password — Zakai",
+      "d": "Forgot your password? We will email you a reset link."
+    },
+    "privacy": {
+      "t": "Privacy policy — Zakai",
+      "d": "What Zakai collects, why, how long it is kept, and how to delete or export it."
+    },
+    "dashboard": {
+      "t": "My dashboard — Zakai"
+    },
+    "pricing": {
+      "t": "Plans and pricing — Zakai",
+      "d": "Compare the plans: success-fee rate, number of active checks, and the coupon vault. You pay only on a documented saving."
+    },
+    "reset": {
+      "t": "Set a new password — Zakai"
+    },
+    "check": {
+      "t": "New check — Zakai"
+    },
+    "founder": {
+      "t": "Founder board — Zakai"
+    }
+  },
+  "contact": {
+    "metaTitle": "Contact — Zakai",
+    "metaDescription": "How to reach us: a message here, or direct email for support, institutions and security.",
+    "title": "Contact",
+    "subtitle": "Write to us here, or email the right address directly below.",
+    "promise": "Every message is stored the moment you send it, and we reply by email within one business day.",
+    "noCallback": "There is no call centre here and we do not promise “we will get back to you” — every path in Zakai finishes in the app, not in a queue behind a phone.",
+    "directTitle": "Direct email",
+    "faqHint": "Most questions are already answered:",
+    "faqLink": "FAQ",
+    "channel": {
+      "support": {
+        "title": "User support",
+        "desc": "Questions about your account, an open claim, a charge or a plan."
+      },
+      "institutions": {
+        "title": "Banks, fintechs and institutions",
+        "desc": "Mandate verification, connecting an inbound endpoint, or a question about the open protocol."
+      },
+      "security": {
+        "title": "Security disclosure",
+        "desc": "Found a vulnerability? Write here. We read this one first."
+      }
+    },
+    "form": {
+      "email": "Your email (so we can reply)",
+      "message": "Message",
+      "send": "Send",
+      "sending": "Sending…",
+      "recorded": "Your message has been stored.",
+      "recordedNote": "If you left an email address, the reply will go there.",
+      "failed": "We could not store your message. Try again.",
+      "tooMany": "Too many messages from this address. Try again in an hour."
+    }
+  },
+  "status": {
+    "metaTitle": "System status — Zakai",
+    "metaDescription": "What is working in Zakai right now, and what is working with a limitation — measured live on every page load.",
+    "title": "System status",
+    "footnote": "Every row here is measured as this page loads. There is no pre-set green badge.",
+    "overall": {
+      "up": "All systems working",
+      "degraded": "Working, with one or more limitations",
+      "down": "There is an outage"
+    },
+    "row": {
+      "site": {
+        "title": "The site",
+        "up": "Loading and serving requests.",
+        "degraded": "Partially working.",
+        "down": "Unavailable."
+      },
+      "database": {
+        "title": "Data storage",
+        "up": "Cases, documents and authorities are being saved normally.",
+        "degraded": "Slower than usual.",
+        "down": "Data cannot be saved or loaded right now."
+      },
+      "letters": {
+        "title": "Sending letters",
+        "up": "Letters are going out to the counterparty.",
+        "degraded": "Letters are written, stored and downloadable — but do not leave automatically, because no mail transport is configured yet.",
+        "down": "Letters cannot be produced right now."
+      },
+      "authority": {
+        "title": "Signed authorities",
+        "up": "Signed authorisations can be issued and revoked, and verified by any institution.",
+        "degraded": "Partially working.",
+        "down": "Signed authorities cannot be issued — no signing key is configured."
+      },
+      "payments": {
+        "title": "Fee collection",
+        "up": "Collection is live.",
+        "degraded": "No money is being collected. The flow works end to end in test mode, and no card details are collected.",
+        "down": "Collection is unavailable."
+      },
+      "assistant": {
+        "title": "The assistant",
+        "up": "Available.",
+        "degraded": "Not available right now. Every other path — check, letter, authority — works without it.",
+        "down": "Unavailable."
+      }
+    }
+  },
+  "changelog": {
+    "metaTitle": "What's new — Zakai",
+    "metaDescription": "What shipped in Zakai and when — real new capabilities and real fixes.",
+    "title": "What's new",
+    "subtitle": "What changed in Zakai, by date. Only things that change what you can actually do here."
+  },
+  "dataExport": {
+    "cta": "Export all my data",
+    "busy": "Preparing file…",
+    "hint": "A JSON file with everything we hold about you, including the full text of every letter. Passwords and one-time codes are excluded.",
+    "failed": "Export failed. Try again."
+  },
+  "nextStep": {
+    "title": "What now"
+  },
+  "authorize": {
+    "title": "Approve agent access?",
+    "intro": "{agent} is asking for permission to act for you. The permission comes from you — not from it — and covers exactly what is listed here.",
+    "whoLabel": "Who is asking",
+    "whyLabel": "What for",
+    "whatLabel": "Exactly what it may do",
+    "silentWarning": "Note: {count} of these it will be able to do without asking you again.",
+    "readOnly": "This permission only reads. It cannot take any action in your name.",
+    "revokeNote": "The permission is signed, time-limited, and you can revoke it in one tap from your authorities screen — the revocation is honoured by everyone who checks it. Zakai never grants permission to move or withdraw money.",
+    "approve": "I approve",
+    "approving": "Approving…",
+    "deny": "I do not approve",
+    "failed": "We could not record your answer. Try again.",
+    "goneTitle": "This request has expired",
+    "goneSub": "Permission requests expire after fifteen minutes, or you have already answered. If you still need it, ask the agent to start again."
+  },
+  "scopeText": {},
+  "signal": {
+    "title": "Something happened that affects you",
+    "claimCta": "Claim your part",
+    "closed": "The filing window closed on {date}. It cannot be filed now — but it happened, and it is on the record.",
+    "sourceOfficial": "Official source:",
+    "sourceReported": "Reported, not yet confirmed by a primary source:",
+    "sourceLine": "{publisher}, {date}",
+    "reason": {
+      "inCountry": "This applies to everybody {country}",
+      "country": {
+        "IL": "in Israel",
+        "GB": "in the UK",
+        "US": "in the United States",
+        "DE": "in Germany",
+        "FR": "in France"
+      },
+      "countryOther": "in this country",
+      "hasProvider": "You have a relationship with {provider}",
+      "hadProviderBetween": "You were a {provider} customer between {from} and {to}",
+      "inVertical": "You have a case in {vertical}"
     }
   }
 }

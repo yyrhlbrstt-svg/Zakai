@@ -23,7 +23,14 @@ import { moneyCaseHref } from "@/lib/moneyCaseHref";
  * an optional full-service path: give the client's email and let the Mandate
  * agent send + track the collection (fee only on documented payment).
  */
-export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
+export function LatePaymentClaim({
+  bcp47,
+  mailLive = true,
+}: {
+  bcp47: string;
+  /** False when no SMTP: the agent cannot deliver, so the letter leads. */
+  mailLive?: boolean;
+}) {
   const t = useTranslations("latePayment");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -118,13 +125,13 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
     <div>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("invoiceDateQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("invoiceDateQ")}</span>
           <Input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} />
         </label>
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("amountQ")}</span>
+            <span className="text-body text-ink-soft">{t("amountQ")}</span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(invoiceAmount))}</span>
           </div>
           <input
@@ -139,7 +146,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
         </label>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("termQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("termQ")}</span>
           <Input
             type="number"
             min={1}
@@ -152,7 +159,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
 
       {status && (
         <Card className="mt-5 p-6 text-center">
-          <div className="text-[13px] text-ink-soft font-bold">
+          <div className="text-body text-ink-soft font-bold">
             {status.isLate ? t("statusLate") : t("statusNotYet")}
           </div>
           <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
@@ -169,15 +176,15 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
       <Card className="mt-5 p-6 flex flex-col gap-3">
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("supplierQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("supplierQ")}</span>
             <Input value={supplierName} onChange={(e) => setSupplierName(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("clientQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("clientQ")}</span>
             <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("clientEmailQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("clientEmailQ")}</span>
             <Input
               type="email"
               value={clientEmail}
@@ -186,20 +193,27 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("invoiceNumberQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("invoiceNumberQ")}</span>
             <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
           </label>
         </div>
         <div className="flex flex-col gap-2">
-          <Button onClick={sendWithAgent} disabled={!canSendWithAgent || busy}>
+          {/* Emphasis follows what can actually happen. With no outbound
+              mail the agent cannot deliver, so the copy-only letter is not an
+              "alternative" — it is the only route that reaches anyone. */}
+          <Button
+            variant={mailLive ? "primary" : "ghost"}
+            onClick={sendWithAgent}
+            disabled={!canSendWithAgent || busy}
+          >
             {busy ? t("agentBusy") : t("agentSendCta")}
           </Button>
-          <details className="text-[13px] text-ink-soft">
+          <details className="text-body text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
               {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
             <Button
-              variant="ghost"
+              variant={mailLive ? "ghost" : "primary"}
               className="mt-2 w-full"
               onClick={generateLetter}
               disabled={!status}
@@ -222,7 +236,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
             ]}
           />
         )}
-        {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
+        {agentError && <p className="text-body text-amber">{agentError}</p>}
       </Card>
 
       {caseId && (
@@ -244,7 +258,7 @@ export function LatePaymentClaim({ bcp47 }: { bcp47: string }) {
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink outline-none box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

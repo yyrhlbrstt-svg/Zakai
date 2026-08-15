@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { redirectIfOpenLoop } from "@/lib/openLoopClient";
-import { Card, Button, Textarea, Input } from "@/components/ui";
+import { Card, Button, Textarea, Input, PrivacyNote } from "@/components/ui";
 import {
   scanStatement,
   type ScanResult,
@@ -21,6 +21,9 @@ import {
   scanShareLandingPath,
 } from "@/lib/monopoly/scanShare";
 import { MAX_UPLOAD_IMAGE_BYTES } from "@/lib/imageUpload";
+import { estimateNextCharge } from "@/lib/nextCharge";
+import { buildCommitmentWindow, worthShowing } from "@/lib/commitmentCalendar";
+import { CapabilityNotice } from "@/components/CapabilityNotice";
 
 const STORAGE_KEY = "zakai_money_hub_v1";
 
@@ -77,6 +80,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "נפתחו {n} תיקים — חלק דולגו (מגבלת מסלול או חסר אימייל)",
     batchNeedsEmail: "נפתחו {n} תיקים — בחלק חסר אימייל לספק; השלימו ב«כסף שלי» לפני שליחה.",
     selectHint: "סמן חיובים ואז פתח בבת אחת (Free = תיק פעיל אחד; Pro פותח יותר)",
+    cwTitle: "מה יוצא לך ב־30 הימים הקרובים",
+    cwSoon: "הכי קרוב",
+    cwUndated: "ועוד {n} חיובים שלא הצלחנו לתארך",
+    cwDays: "בעוד {n} ימים",
+    cwToday: "היום",
+    cwTomorrow: "מחר",
+    nextToday: "החיוב הבא — היום",
+    nextTomorrow: "החיוב הבא — מחר",
+    nextInDays: "החיוב הבא בעוד {n} ימים",
+    approx: "ככל הנראה",
     altLetter: "חלופות (לא מסלול הסוכן)",
   },
   en: {
@@ -120,6 +133,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Opened {n} cases — some skipped (plan limit or missing email)",
     batchNeedsEmail: "Opened {n} cases — some need a provider email; finish it in My money before send.",
     selectHint: "Select charges, then open together (Free = 1 active case; Pro opens more)",
+    cwTitle: "Leaving your account in the next 30 days",
+    cwSoon: "Soonest",
+    cwUndated: "plus {n} charges we could not date",
+    cwDays: "in {n} days",
+    cwToday: "today",
+    cwTomorrow: "tomorrow",
+    nextToday: "Next charge — today",
+    nextTomorrow: "Next charge — tomorrow",
+    nextInDays: "Next charge in {n} days",
+    approx: "probably",
     altLetter: "Alternatives (not the agent path)",
   },
   ar: {
@@ -163,6 +186,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "فُتح {n} ملفات",
     batchNeedsEmail: "فُتح {n} — بعضها بلا بريد؛ أكمل في لوحة التحكم قبل الإرسال.",
     selectHint: "اختر ثم افتح دفعة واحدة",
+    cwTitle: "ما سيُخصم خلال 30 يومًا",
+    cwSoon: "الأقرب",
+    cwUndated: "و{n} خصومًا لم نتمكن من تأريخها",
+    cwDays: "بعد {n} يومًا",
+    cwToday: "اليوم",
+    cwTomorrow: "غدًا",
+    nextToday: "الخصم القادم — اليوم",
+    nextTomorrow: "الخصم القادم — غدًا",
+    nextInDays: "الخصم القادم بعد {n} يومًا",
+    approx: "على الأرجح",
   },
   ru: {
     privacy: "Мы не просим пароль банка.",
@@ -205,6 +238,16 @@ const copy: Record<string, Record<string, string>> = {
     batchPartial: "Открыто {n} дел",
     batchNeedsEmail: "Открыто {n} — для части нужен email; укажите в дашборде перед отправкой.",
     selectHint: "Выберите и откройте пакетом",
+    cwTitle: "Спишется в ближайшие 30 дней",
+    cwSoon: "Ближайшее",
+    cwUndated: "и ещё {n} списаний без даты",
+    cwDays: "через {n} дн.",
+    cwToday: "сегодня",
+    cwTomorrow: "завтра",
+    nextToday: "Следующее списание — сегодня",
+    nextTomorrow: "Следующее списание — завтра",
+    nextInDays: "Следующее списание через {n} дн.",
+    approx: "вероятно",
   },
 };
 
@@ -215,6 +258,90 @@ function tx(locale: string, key: string): string {
   const familyDefault = locale === "he" || locale === "ar" ? copy.he : copy.en;
   const table = copy[locale] || familyDefault;
   return table[key] || familyDefault[key] || key;
+}
+
+/**
+ * "Next charge in 6 days", when that can honestly be said.
+ *
+ * Renders nothing when the cadence is unclear. A guess dressed as a date is
+ * the one outcome worse than silence here: somebody reads it, decides they
+ * have a week, and the money leaves on Tuesday.
+ */
+function NextChargeLine({ charge, locale }: { charge: RecurringCharge; locale: string }) {
+  const next = estimateNextCharge(charge.chargedOn);
+  if (!next) return null;
+
+  const { daysUntil, confidence } = next;
+  // Beyond a couple of months the number stops informing any decision made
+  // today, and starts reading as a promise about a date we cannot hold.
+  if (daysUntil > 62) return null;
+
+  const text =
+    daysUntil === 0
+      ? tx(locale, "nextToday")
+      : daysUntil === 1
+        ? tx(locale, "nextTomorrow")
+        : tx(locale, "nextInDays").replace("{n}", String(daysUntil));
+
+  // Urgency only where it is actionable — a week is the window in which
+  // cancelling still beats refunding for most providers.
+  const urgent = daysUntil <= 7;
+
+  return (
+    <div
+      className={`text-micro mt-0.5 font-bold ${urgent ? "text-amber" : "text-ink-soft"}`}
+      dir="auto"
+    >
+      {confidence === "low" ? `${tx(locale, "approx")} · ${text}` : text}
+    </div>
+  );
+}
+
+
+function CommitmentWindowCard({
+  result,
+  locale,
+  bcp47,
+}: {
+  result: ScanResult;
+  locale: string;
+  bcp47: string;
+}) {
+  const win = buildCommitmentWindow(result.recurring);
+  // An empty calendar is not a feature; it is a panel that makes the product
+  // look like it did nothing.
+  if (!worthShowing(win)) return null;
+
+  const when = (days: number) =>
+    days === 0
+      ? tx(locale, "cwToday")
+      : days === 1
+        ? tx(locale, "cwTomorrow")
+        : tx(locale, "cwDays").replace("{n}", String(days));
+
+  return (
+    <Card className="p-5 mb-4">
+      <div className="text-caption text-ink-soft font-bold">{tx(locale, "cwTitle")}</div>
+      <div className="font-display grad-text text-h1 mt-1.5">
+        {formatAgorot(win.datedAgorot, bcp47)}
+      </div>
+      <div className="mt-3 flex flex-col gap-2">
+        {win.dated.slice(0, 6).map((e, i) => (
+          <div key={`${e.merchant}-${i}`} className="flex items-baseline justify-between gap-3">
+            <span className="font-bold text-body">{e.merchant}</span>
+            <span className="text-caption text-ink-soft">
+              {when(e.next!.daysUntil)} · {formatAgorot(e.monthlyAgorot, bcp47)}
+            </span>
+          </div>
+        ))}
+      </div>
+      {win.undated.length > 0 && (
+        <p className="text-caption text-ink-soft mt-3 mb-0">
+          {tx(locale, "cwUndated").replace("{n}", String(win.undated.length))}
+        </p>
+      )}
+    </Card>
+  );
 }
 
 interface SavedSummary {
@@ -234,12 +361,15 @@ function topN(recurring: RecurringCharge[], n: number): RecurringCharge[] {
 }
 
 export function MoneyHub({
+  mailLive = true,
   bcp47,
   screenshotEnabled,
   referralCode,
 }: {
   bcp47: string;
   screenshotEnabled: boolean;
+  /** False when no SMTP: the agent cannot actually deliver anything. */
+  mailLive?: boolean;
   referralCode?: string;
 }) {
   const locale = useLocale();
@@ -250,6 +380,8 @@ export function MoneyHub({
   const [result, setResult] = useState<ScanResult | null>(null);
   const [shotBusy, setShotBusy] = useState(false);
   const [shotError, setShotError] = useState(false);
+  /** Read fine, nothing in it — different advice from a failed read. */
+  const [shotNoTx, setShotNoTx] = useState(false);
   const [shotNeedsLogin, setShotNeedsLogin] = useState(false);
   const [shotTooBig, setShotTooBig] = useState(false);
   const [saved, setSaved] = useState<SavedSummary | null>(null);
@@ -277,7 +409,10 @@ export function MoneyHub({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.location.hash !== "#zakai-money-scan") return;
+    // `#zakai-money-start` is kept working because it shipped in one release
+    // and may sit in somebody's history or a nudge email already sent.
+    const hash = window.location.hash;
+    if (hash !== "#zakai-money-scan" && hash !== "#zakai-money-start") return;
     document.getElementById("zakai-money-scan")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
@@ -322,6 +457,7 @@ export function MoneyHub({
   async function onScreenshot(file?: File | null) {
     if (!file) return;
     setShotError(false);
+    setShotNoTx(false);
     setShotNeedsLogin(false);
     setShotTooBig(false);
     // Checked before any upload attempt: base64 inflates size ~4/3, and a
@@ -349,6 +485,10 @@ export function MoneyHub({
         return;
       }
       const data = await res.json().catch(() => ({}));
+      if (data.error === "noTransactions") {
+        setShotNoTx(true);
+        return;
+      }
       if (!res.ok || !data.csv) {
         setShotError(true);
         return;
@@ -545,10 +685,7 @@ export function MoneyHub({
 
   return (
     <div className="flex flex-col gap-5 pb-28">
-      <div className="flex items-start gap-2.5 text-[13px] text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3">
-        <span aria-hidden>🔒</span>
-        <span>{tx(locale, "privacy")}</span>
-      </div>
+      <PrivacyNote>{tx(locale, "privacy")}</PrivacyNote>
 
       {saved && !result && (
         <Card className="p-5">
@@ -556,14 +693,14 @@ export function MoneyHub({
           <div className="font-display grad-text text-3xl mt-1">
             {formatAgorot(saved.totalMonthlyAgorot, bcp47)}
           </div>
-          <div className="text-[13px] text-ink-soft mt-1">
+          <div className="text-body text-ink-soft mt-1">
             {saved.count} · {saved.merchants.slice(0, 4).join(", ")}
             {saved.merchants.length > 4 ? "…" : ""}
           </div>
           <p className="text-[12px] text-ink-soft mt-2">{tx(locale, "remember")}</p>
           <button
             type="button"
-            className="mt-2 bg-transparent border-0 text-emerald text-[13px] font-bold cursor-pointer p-0"
+            className="mt-2 bg-transparent border-0 text-emerald text-body font-bold cursor-pointer p-0"
             onClick={() => {
               localStorage.removeItem(STORAGE_KEY);
               setSaved(null);
@@ -574,7 +711,23 @@ export function MoneyHub({
         </Card>
       )}
 
-      <Card className="p-6">
+      {/* Stated once, before anything is attempted. With no outbound mail the
+          agent cannot deliver, and a screen that stays silent about that reads
+          as a product that simply does nothing. */}
+      <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} />
+
+      {/* The anchor sixteen "start here / photograph your bill" links point at.
+
+          It used to sit on the paste card below, so every one of them —
+          the homepage hero, the Zakameter's "צלמו חשבונית", the header, the
+          footer, the dashboard, the signup redirect — landed somebody on a
+          textarea asking for a CSV export from their bank. The camera, which
+          is the whole reason the product is usable on a phone, was one card
+          above the fold they arrived at, and therefore invisible.
+
+          Moving the id rather than editing sixteen links keeps them all
+          honest at once, and any new one inherits the fix. */}
+      <Card className="p-6" id="zakai-money-scan">
         <div className="font-extrabold text-[16px]">{tx(locale, "shotTitle")}</div>
         <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">{tx(locale, "shotSub")}</p>
         {screenshotEnabled ? (
@@ -582,20 +735,33 @@ export function MoneyHub({
             {shotBusy ? tx(locale, "shotBusy") : tx(locale, "shotBtn")}
           </Button>
         ) : (
-          <p className="text-[13px] text-ink-soft mt-3">
+          <p className="text-body text-ink-soft mt-3">
             {tIcomponents_MoneyHub("t_292af8ba")}
           </p>
         )}
+        {/* No `capture` attribute, deliberately.
+
+            `capture="environment"` tells the browser to open the rear camera
+            directly and skip the picker entirely. The button above says
+            "upload a screenshot", and the card above that says "take a
+            screenshot in your bank app" — a screenshot is, by definition,
+            already in the gallery, and there is no way to photograph one.
+            So the single action this whole product funnels into could not be
+            completed on Android at all: the camera opened, and the file the
+            person had just been told to make was unreachable.
+
+            Without it the OS shows its normal picker, which offers the
+            gallery *and* the camera — so photographing a paper bill still
+            works, and the primary path stops being impossible. */}
         <input
           ref={shotRef}
           type="file"
           accept="image/*"
-          capture="environment"
           className="hidden"
           onChange={(e) => onScreenshot(e.target.files?.[0])}
         />
         {shotNeedsLogin && (
-          <p className="text-[13px] font-semibold mt-3 mb-0">
+          <p className="text-body font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("shotNeedsLoginPrefix")}
             <Link href="/login?return=/money" className="text-emerald underline">
               {tIcomponents_MoneyHub("shotNeedsLoginLink")}
@@ -604,18 +770,23 @@ export function MoneyHub({
           </p>
         )}
         {shotTooBig && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
+          <p className="text-danger text-body font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("shotTooBig")}
           </p>
         )}
         {shotError && (
-          <p className="text-danger text-[13px] font-semibold mt-3 mb-0">
+          <p className="text-danger text-body font-semibold mt-3 mb-0">
             {tIcomponents_MoneyHub("t_da95e09c")}
+          </p>
+        )}
+        {shotNoTx && (
+          <p className="text-body font-semibold mt-3 mb-0">
+            {tIcomponents_MoneyHub("shotNoTransactions")}
           </p>
         )}
       </Card>
 
-      <Card className="p-6" id="zakai-money-scan">
+      <Card className="p-6" id="zakai-money-paste">
         <div className="font-extrabold text-[15px]">{tx(locale, "pasteTitle")}</div>
         <Textarea
           rows={5}
@@ -638,7 +809,7 @@ export function MoneyHub({
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
             {tx(locale, "uploadBtn")}
           </Button>
-          <Button variant="ghost" className="!text-[13px]" type="button" onClick={loadDemo}>
+          <Button variant="ghost" className="!text-body" type="button" onClick={loadDemo}>
             {tx(locale, "loadDemo")}
           </Button>
           <input
@@ -677,8 +848,14 @@ export function MoneyHub({
             </Card>
           ) : (
             <>
+              {/* The forward half of the scan. Every banking app shows what
+                  was charged; none shows what is already committed for the
+                  weeks ahead — which is the thing people actually worry about,
+                  and the only moment when cancelling still costs nothing. */}
+              <CommitmentWindowCard result={result} locale={locale} bcp47={bcp47} />
+
               <Card className="p-6 text-center">
-                <div className="text-[13px] text-ink-soft font-bold">{tx(locale, "total")}</div>
+                <div className="text-body text-ink-soft font-bold">{tx(locale, "total")}</div>
                 <div className="font-display grad-text text-4xl mt-1.5">
                   {formatAgorot(result.totalMonthlyAgorot, bcp47)}
                 </div>
@@ -704,7 +881,7 @@ export function MoneyHub({
                     {tx(locale, "bestRoi")}
                   </div>
                   <div className="font-extrabold text-[17px] mt-1.5">{best.merchant}</div>
-                  <div className="text-ink-soft text-[13px] mt-0.5">
+                  <div className="text-ink-soft text-body mt-0.5">
                     {formatAgorot(best.monthlyAgorot, bcp47)} {tx(locale, "perMonth")} · {best.category}
                   </div>
                   <Button
@@ -724,7 +901,7 @@ export function MoneyHub({
               {/* Batch open — founder-grade: one scan → many agent cases */}
               {result.recurring.length >= 2 && (
                 <Card className="p-5 border border-[rgba(62,198,255,0.35)] bg-[rgba(62,198,255,0.07)]">
-                  <div className="text-[13px] font-extrabold">{tx(locale, "selectHint")}</div>
+                  <div className="text-body font-extrabold">{tx(locale, "selectHint")}</div>
                   <p className="text-[12px] text-ink-soft mt-1 mb-3">
                     {selected.size} / 5
                   </p>
@@ -745,18 +922,31 @@ export function MoneyHub({
               <div className="rounded-xl border border-[rgba(63,203,155,0.3)] bg-[rgba(63,203,155,0.06)] px-4 py-3 text-[13.5px] font-bold">
                 {tx(locale, "nextStep")}
               </div>
-              <details className="text-[13px] text-ink-soft">
-                <summary className="cursor-pointer font-bold select-none">
-                  {tx(locale, "altLetter")}
-                </summary>
-                <Link href="/cancel/universal" className="no-underline block mt-2">
-                  <Button variant="ghost" className="w-full !text-[13px]">
+              {/* With no outbound mail the agent cannot deliver anything, so
+                  the letters you send yourself are not an "alternative" — they
+                  are the only route that reaches a provider. Burying them in a
+                  collapsed <details> labelled "not the agent path" hid the one
+                  thing that works behind the one that does not. */}
+              {mailLive ? (
+                <details className="text-body text-ink-soft">
+                  <summary className="cursor-pointer font-bold select-none">
+                    {tx(locale, "altLetter")}
+                  </summary>
+                  <Link href="/cancel/universal" className="no-underline block mt-2">
+                    <Button variant="ghost" className="w-full !text-body">
+                      {tx(locale, "universalCancelCta")}
+                    </Button>
+                  </Link>
+                </details>
+              ) : (
+                <Link href="/cancel/universal" className="no-underline block">
+                  <Button className="w-full !text-body">
                     {tx(locale, "universalCancelCta")}
                   </Button>
                 </Link>
-              </details>
+              )}
 
-              {error && <p className="text-[13px] text-amber font-semibold m-0">{error}</p>}
+              {error && <p className="text-body text-amber font-semibold m-0">{error}</p>}
 
               {pendingOutreach && (
                 <Card className="p-4 border border-[rgba(240,180,92,0.4)] bg-[rgba(240,180,92,0.08)]">
@@ -767,7 +957,7 @@ export function MoneyHub({
                     onChange={(e) => setOutreachEmail(e.target.value)}
                     placeholder={tx(locale, "outreachPh")}
                     dir="ltr"
-                    className="text-[13px] mb-2"
+                    className="text-body mb-2"
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -795,7 +985,7 @@ export function MoneyHub({
                 </Card>
               )}
 
-              <div className="text-[13px] font-extrabold text-emerald">{tx(locale, "act")}</div>
+              <div className="text-body font-extrabold text-emerald">{tx(locale, "act")}</div>
 
               <Card className="py-1.5">
                 {result.recurring.map((r, i) => (
@@ -820,6 +1010,13 @@ export function MoneyHub({
                       <div className="text-[11.5px] text-ink-soft mt-0.5">
                         {tx(locale, "occurrences").replace("{n}", String(r.occurrences))}
                       </div>
+                      {/* The one number that changes what someone does today.
+                          Cancelling before the charge keeps the money;
+                          cancelling after it starts a refund chase. Shown only
+                          when the cadence is clear enough to state — an
+                          estimate presented as a certainty is worse than
+                          silence, because someone waits on it. */}
+                      <NextChargeLine charge={r} locale={locale} />
                     </div>
                     <div
                       className="text-[11px] font-extrabold rounded-full px-2.5 py-1"
@@ -845,13 +1042,18 @@ export function MoneyHub({
               </Card>
 
               <div className="flex flex-wrap gap-2">
-                <Link href="/money" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">
+                {/* "My dashboard" — which is /dashboard. This linked to /money,
+                    the page it is rendered on, so pressing it re-navigated to
+                    the current URL: the view scrolled to the top and nothing
+                    else changed. Reported as a button that "does nothing and
+                    is misleading", which is exactly what it was. */}
+                <Link href="/dashboard" className="no-underline">
+                  <Button variant="ghost" className="!text-body !py-2">
                     {tIcomponents_MoneyHub("t_38d0577a")}
                   </Button>
                 </Link>
                 <Link href="/cancel" className="no-underline">
-                  <Button variant="ghost" className="!text-[13px] !py-2">
+                  <Button variant="ghost" className="!text-body !py-2">
                     {tIcomponents_MoneyHub("t_c4584cd0")}
                   </Button>
                 </Link>

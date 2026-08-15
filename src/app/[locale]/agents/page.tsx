@@ -6,6 +6,8 @@ import { alternateLanguages, defaultOpenGraph } from "@/lib/seo";
 import { agentsPageCopy } from "@/lib/marketing/agentsPageCopy";
 import { textDirection } from "@/lib/textDirection";
 import { Link } from "@/i18n/routing";
+import { MandateConsole } from "@/components/MandateConsole";
+import { DelegationApplyForm } from "@/components/DelegationApplyForm";
 
 export async function generateMetadata({
   params,
@@ -48,6 +50,30 @@ export default async function AgentsPage({
         <strong className="text-emerald">{copy.inviteStrong}</strong> {copy.inviteRest}
       </div>
 
+      <MandateConsole he={locale === "he"} />
+
+      {/* Immediately after the console, and deliberately not on another page.
+          This form existed only inside a section of /institutions, so a
+          developer who had just watched the protocol work here had nothing to
+          click and no idea a key was obtainable at all. The most valuable
+          action on the page was the one action missing from it. */}
+      <Card className="p-6 mb-4 border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.06)]">
+        <h2 className="font-display text-h4 mt-0 mb-2">
+          {locale === "he" ? "לקבל מפתח ולהתחיל להנפיק" : "Get a key and start issuing"}
+        </h2>
+        <p className="text-body text-ink-soft leading-relaxed mb-1">
+          {locale === "he"
+            ? "הסביבה למעלה פתוחה לכולם ולא דורשת כלום. מפתח אמיתי הוא מה שמאפשר להנפיק Mandate שמוסד יכול לאמת — ובקשה עוברת בדיקה אנושית לפני שמפתח נוצר."
+            : "The sandbox above needs nothing. A real key is what lets you issue mandates an institution can verify — and every request is reviewed by a person before a key is minted."}
+        </p>
+        <p className="text-caption text-ink-soft mb-4">
+          {locale === "he"
+            ? "אין עלות לבקש, ואין מכירה אחרי זה."
+            : "No cost to ask, and no sales follow-up."}
+        </p>
+        <DelegationApplyForm />
+      </Card>
+
       {copy.sections.map((section) => (
         <Section key={section.heading} heading={section.heading}>
           {section.paragraphs.map((p) => (
@@ -63,12 +89,12 @@ export default async function AgentsPage({
             </ul>
           )}
           {section.code && (
-            <pre className="bg-[#0d1117] text-[#e6edf3] text-[12.5px] leading-relaxed rounded-lg p-4 overflow-x-auto mb-4">
+            <pre tabIndex={0} className="bg-[#0d1117] text-[#e6edf3] text-[12.5px] leading-relaxed rounded-lg p-4 overflow-x-auto mb-4">
               {section.code.replace("{ORIGIN}", ORIGIN)}
             </pre>
           )}
           {section.footnote && (
-            <p className="text-[13px] leading-relaxed mt-3 text-ink-soft">{section.footnote}</p>
+            <p className="text-body leading-relaxed mt-3 text-ink-soft">{section.footnote}</p>
           )}
         </Section>
       ))}

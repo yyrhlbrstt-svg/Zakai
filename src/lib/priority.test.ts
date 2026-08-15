@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CATALOG,
   rankPriorityActions,
   formatPotentialHe,
   formatPotentialEn,
@@ -84,7 +85,15 @@ describe("priority cadence", () => {
     // however good the underlying vertical was. This is the guard against
     // that recurring class of bug: a full-service pack existing is not the
     // same as the recommendation engine knowing it exists.
-    const hrefs = new Set(rankPriorityActions(50).map((a) => a.href));
+    // Membership, not rank. The catalog is larger than any fixed page size, so
+    // `rankPriorityActions(50)` quietly meant "must be in the top 50" — which
+    // fails for a real vertical that correctly ranks low because it recovers
+    // no money (a debt-verification demand has no amount, and inventing one
+    // would be a claim about somebody else's debt). Knowing a door exists and
+    // ranking it highly are different questions; this guard is about the
+    // first. It still catches the original bug, where parking, transport-fine
+    // and late-payment were absent from the catalog altogether.
+    const hrefs = new Set(CATALOG.map((a) => a.href));
     for (const pack of RULE_PACKS.filter((p) => p.level === "full")) {
       const href = VERTICAL_HREF[pack.key] ?? `/${pack.key}`;
       expect(hrefs.has(href), `no priority.ts entry links to ${href} (pack "${pack.key}")`).toBe(true);
@@ -98,17 +107,51 @@ describe("priority cadence", () => {
     }
   });
 
-  it("monthly agent doors outrank one-time calculator doors after cadence factor", () => {
-    // Pain fit: bank + telecom + cancel compound monthly and already close
-    // Mandate → SavingsProof. Warranty / vehicle-check are useful but bury the
-    // volume engine when raw one-time ₪ figures win the sort.
-    const top = rankPriorityActions(12).map((a) => a.id);
-    expect(top).toContain("cancel");
-    expect(top).toContain("bank-fees");
-    const cancelIdx = top.indexOf("cancel");
-    const warrantyIdx = top.indexOf("warranty");
-    if (warrantyIdx >= 0) {
-      expect(cancelIdx).toBeLessThan(warrantyIdx);
+  it("cash already recovered is not buried under a projection", () => {
+    /**
+     * This test used to assert the opposite, and the reversal is deliberate.
+     *
+     * It read "monthly agent doors outrank one-time calculator doors" and was
+     * satisfied by a cadence factor of twelve — a claim nobody here has
+     * verified. Every monthly pack verifies with `before_after_bill`, which
+     * proves one billing cycle, and `computeFee` charges 18% of one month. So
+     * the ordering asserted eleven months that were neither observed nor
+     * charged for, and put a ₪40/month bank-fee door above a ₪400 warranty
+     * recovery — the smaller, slower money first, which is also the money this
+     * product earns least on.
+     *
+     * What replaces it is narrower and checkable: a one-time recovery worth
+     * several hundred shekels must not rank below a monthly door worth tens.
+     * Monthly doors are still valuable and still rank well; they no longer get
+     * an unearned multiplier.
+     */
+    const ranked = rankPriorityActions(40);
+    const idx = (id: string) => ranked.findIndex((a) => a.id === id);
+
+    const warranty = idx("warranty");
+    const bankFees = idx("bank-fees");
+    expect(warranty, "warranty missing from the ranking").toBeGreaterThanOrEqual(0);
+    expect(bankFees, "bank-fees missing from the ranking").toBeGreaterThanOrEqual(0);
+    // ₪400 in hand against ₪40 a month.
+    expect(warranty).toBeLessThan(bankFees);
+
+    // And the general rule, not just that one pair.
+    for (const a of ranked) {
+      if (a.cadence !== "oneTime" || !a.agentic || a.potentialShekels < 400) continue;
+      for (const b of ranked) {
+        if (b.cadence !== "monthly" || b.potentialShekels > 50) continue;
+        expect(
+          idx(a.id),
+          `${a.id} (₪${a.potentialShekels} one-time) ranks below ${b.id} (₪${b.potentialShekels}/mo)`,
+        ).toBeLessThan(idx(b.id));
+      }
+    }
+  });
+
+  it("still surfaces the monthly agent doors — they are demoted, not dropped", () => {
+    const top = rankPriorityActions(40).map((a) => a.id);
+    for (const id of ["cancel", "bank-fees", "check"]) {
+      expect(top, `${id} fell out of the ranking entirely`).toContain(id);
     }
   });
 

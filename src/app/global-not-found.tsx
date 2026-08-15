@@ -1,4 +1,5 @@
 import "./globals.css";
+import { IconCompass } from "@/components/Icon";
 
 /**
  * The root fallback — separate from src/app/[locale]/not-found.tsx.
@@ -20,9 +21,7 @@ export default function RootNotFound() {
     <html lang="he" dir="rtl">
       <body className="bg-[#070B12] text-[#EAF2F0] min-h-screen flex items-center justify-center px-5">
         <div className="max-w-[420px] text-center">
-          <div className="text-[44px] mb-4" aria-hidden>
-            🧭
-          </div>
+          <IconCompass width={44} height={44} className="mb-4 mx-auto text-[#3ec6ff]" />
           <h1 className="font-display text-2xl mb-2">העמוד הזה לא קיים</h1>
           <p className="text-[14.5px] leading-relaxed mb-6 opacity-70">
             יכול להיות שהקישור ישן, או שהכתובת הוקלדה לא נכון.

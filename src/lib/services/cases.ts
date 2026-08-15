@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { signSettlement } from "@/lib/mandate/settlementRecord";
 import { shekelsToAgorot } from "@/lib/money";
 import { computeCaseSuccessFee, documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack, effectiveFeeRateBps } from "@/lib/verticals";
@@ -29,6 +30,7 @@ import {
 } from "@/lib/feeConfirmNotify";
 import { paymentsFullyLive } from "@/lib/deploy/releaseGate";
 import { withFooter } from "@/lib/letterFooter";
+import { dedupeOutreachFooterLines } from "@/lib/outreachDedupe";
 import {
   institutionPipeMagnetLine,
   institutionPullFooterLine,
@@ -66,6 +68,8 @@ interface CreateCaseInput {
   counterpartyEmail?: string;
   vertical?: string;
   strategyVariant?: string;
+  /** Model that wrote the draft, as "provider:model". */
+  drafterId?: string;
   strategySeed?: number;
   autoApprove?: boolean;
 }
@@ -116,6 +120,7 @@ export async function createCase(input: CreateCaseInput) {
       draftMessage: input.draftMessage,
       beneficiaryLabel: (input.beneficiaryLabel ?? "").slice(0, 40),
       strategyVariant: input.strategyVariant ?? null,
+      drafterId: input.drafterId ?? null,
       strategySeed: input.strategySeed ?? null,
       status: input.autoApprove ? "APPROVED" : "ANALYZED",
       approvedAt: input.autoApprove ? now : null,
@@ -334,7 +339,9 @@ ${institutionPipeMagnetLine(appUrl)}
   const email = await sendEmail({
     to,
     subject: outreachSubjectForVertical(kase.vertical, auth.principalName, auth.code),
-    body: messageBody + footer,
+    // Three layers each append a footer and each is right alone; composed,
+    // the machine line arrived three times and the contact address five.
+    body: dedupeOutreachFooterLines(messageBody + footer),
     caseId,
     attachments: inboundAtt ? [attachment, inboundAtt] : [attachment],
   });
@@ -445,6 +452,25 @@ export async function recordSaving(
     }
     const credit = applyCredit(billableAmount, owner?.referralCreditAgorot ?? 0);
 
+    /**
+     * The outcome, signed, so it stops being only our word for it.
+     *
+     * Fails open: a deployment without MANDATE_SIGNING_JWK must still be able
+     * to record a saving, because refusing to record a real recovery over a
+     * missing key would lose the fact entirely. An unsigned proof is a weaker
+     * artifact, not a lost one — and the column is nullable to say so.
+     */
+    const settlementJws = await signSettlementForCase({
+      counterparty: kase.provider,
+      market: marketForCase(kase.vertical),
+      vertical: kase.vertical,
+      outcome: saved ? "saved" : "no_saving",
+      beforeMinor: kase.amountOriginal,
+      afterMinor: newAmount,
+      days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),
+      selfReported,
+    });
+
     await tx.savingsProof.create({
       data: {
         caseId,
@@ -453,6 +479,7 @@ export async function recordSaving(
         savingMonthly: fee.savingMonthly,
         source,
         selfReported,
+        settlementJws,
       },
     });
     await tx.fee.create({
@@ -514,11 +541,29 @@ export async function recordSaving(
       where: { id: caseId },
       data: { status: saved ? "SAVED" : "NO_SAVING" },
     });
-    return { case: updated, fee, feeNet: credit.net, creditApplied: credit.applied };
+    return { case: updated, fee, feeNet: credit.net, creditApplied: credit.applied, settlementJws };
   });
 
   const fee = result.fee;
   const outcomeBasis = getRulePack(kase.vertical)?.feeBasis ?? "monthly";
+
+  /**
+   * The verification depth this outcome is allowed to claim.
+   *
+   * Read rather than assumed. At a first settle it is one — the proof was just
+   * written with that default, because settling verifies the bill in front of
+   * us and nothing beyond it. It is read anyway so a case that settles after a
+   * later bill already confirmed the saving records the depth it actually has,
+   * instead of a constant that happens to be right today.
+   *
+   * A known gap, stated rather than papered over: StrategyOutcome carries no
+   * case key by design, so a confirmation that arrives AFTER settlement cannot
+   * raise the row already written. The graph therefore under-reports rather
+   * than over-reports, which is the direction to err in.
+   */
+  const settledProof = await prisma.savingsProof
+    .findUnique({ where: { caseId }, select: { confirmedCycles: true } })
+    .catch(() => null);
 
   // Learning signal: documented settle → StrategyOutcome (de-identified). Background, fail-open.
   await commitCaseLearningSignal({
@@ -529,10 +574,20 @@ export async function recordSaving(
       counterparty: kase.provider,
     },
     variantId: kase.strategyVariant,
+    drafterId: kase.drafterId,
     paid: fee.savingMonthly > 0,
-    recoveredMinor: documentedRecoveryMinor(fee.savingMonthly, outcomeBasis),
+    // The depth actually verified — never a projection. See above.
+    recoveredMinor: documentedRecoveryMinor(
+      fee.savingMonthly,
+      outcomeBasis,
+      settledProof?.confirmedCycles ?? 1,
+    ),
     days: await daysToSettle(caseId, kase.approvedAt ?? kase.createdAt),
     selfReported,
+    // Grades the evidence rather than just recording it: a settlement-backed
+    // row is one an outside party could verify, which is what separates a
+    // statistic from evidence.
+    settlementBacked: Boolean(result.settlementJws),
   });
 
   if (result.feeNet > 0) {
@@ -594,4 +649,28 @@ export async function recordSaving(
   }
 
   return result;
+}
+
+/**
+ * Sign a settlement, or return null when this deployment cannot.
+ *
+ * Separate from `recordSaving` so the failure mode is stated in one place: a
+ * missing signing key must never stop a real recovery from being recorded.
+ * Losing the fact would be far worse than storing it unsigned, and the
+ * nullable column already says which one happened.
+ */
+async function signSettlementForCase(
+  facts: Parameters<typeof signSettlement>[0],
+): Promise<string | null> {
+  try {
+    const issuer = (
+      process.env.MANDATE_ISSUER ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://zakai-3uxj.vercel.app"
+    ).replace(/\/+$/, "");
+    return await signSettlement(facts, issuer);
+  } catch (err) {
+    console.warn("[settlement] not signed:", err instanceof Error ? err.message : err);
+    return null;
+  }
 }

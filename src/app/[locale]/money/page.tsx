@@ -4,12 +4,15 @@ import { Link } from "@/i18n/routing";
 import { MoneyHub } from "@/components/MoneyHub";
 import { MoneyInstallInline } from "@/components/MoneyInstallInline";
 import { MoneyPageContextPanel } from "@/components/MoneyPageContextPanel";
+import { SignalPanel } from "@/components/SignalPanel";
+import { signalMatchesForUser, signalMatchesForGuest } from "@/lib/services/signalMatches";
 import { MoneyGrowthPanel } from "@/components/MoneyGrowthPanel";
 import { PriorityActionsRanked } from "@/components/PriorityActionsRanked";
 import { MONTHLY_LEAK_PIN_IDS } from "@/lib/priority";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { Button } from "@/components/ui";
 import { aiAvailable } from "@/lib/ai";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 import { proofsInboundAddress } from "@/lib/mandate/document";
@@ -81,6 +84,17 @@ export default async function MoneyPage({
   const loc = bcp47[locale as Locale];
   const proofsEmail = proofsInboundAddress();
   const user = await getCurrentUser();
+  /**
+   * Signed in, this is matched against their own history. Signed out, only
+   * jurisdiction-wide events can match — which is a real subset, not a
+   * degraded one: a nationwide refund order does not care who you bank with.
+   */
+  const signalMatches = user
+    ? await signalMatchesForUser(user.id)
+    // Israel for a guest, because it is the only market with live tools and a
+    // guest has told us nothing else. The moment a second market ships, this
+    // reads the same country signal the location banner already resolves.
+    : signalMatchesForGuest("IL");
   const tHome = await getTranslations({ locale });
   const [proof, sentCount, mandateCount] = await Promise.all([
     provenSavings(),
@@ -229,23 +243,36 @@ export default async function MoneyPage({
       title={tIapp_locale_money_page("t_2144de53")}
       sub={tIapp_locale_money_page("t_ef77bbd3")}
     >
-      <div className="mb-6">
-        <LiveGravityStrip
-          localeBcp47={loc}
-          verifiedMinor={proof.verifiedMinor}
-          verifiedCount={proof.verifiedCount}
-          sentCount={sentCount}
-          mandateCount={mandateCount}
-          labels={{
-            title: tHome("home.gravityTitle"),
-            sent: tHome("home.gravitySent"),
-            mandates: tHome("home.gravityMandates"),
-            proofs: tHome("home.gravityProofs", { count: proof.verifiedCount }),
-            empty: tHome("home.gravityEmpty"),
-            ledger: tHome("home.gravityLedger"),
-          }}
-        />
-      </div>
+      {/* The first screen has to offer the one thing this page is for.
+          Measured on an iPhone 13 it previously opened with fifteen text
+          blocks, ninety words and no action at all — the public counters
+          (honestly, three zeros) were the first thing anyone read. The
+          counters are still shown, unchanged and un-inflated, but at the
+          bottom where they are evidence rather than a greeting. */}
+      {/* Only when the scan actually renders below (MoneyHub is suppressed
+          while a case is open) — an anchor to an element that is not on the
+          page is worse than no button. With a case open, the focus banner
+          immediately below is already the action. */}
+      {!openLoop && !focusCaseId ? (
+        <div className="mb-8">
+          <a
+            href="#zakai-money-scan"
+            className="no-underline block"
+          >
+            <Button className="w-full !text-[15px]">
+              {aiAvailable()
+                ? tIapp_locale_money_page("heroCta")
+                : tIapp_locale_money_page("heroCtaPaste")}
+            </Button>
+          </a>
+        </div>
+      ) : null}
+
+      {/* Above everything else, because it is the only thing here somebody did
+          not have to ask for. When nothing matches it renders nothing at all —
+          no "we're watching", which would claim a service is running that has
+          nothing to report. */}
+      <SignalPanel matches={signalMatches} locale={locale as Locale} />
 
       {/* Guests: light login nudge. Logged-in: single next-action panel (no duplicate). */}
       {!user ? <MoneyPageContextPanel locale={locale as Locale} /> : null}
@@ -312,7 +339,7 @@ export default async function MoneyPage({
                 <div className="font-extrabold text-[14px] text-emerald">
                   {locale === "he" || locale === "ar" ? "עמלת הצלחה ממתינה" : "Success fee pending"}
                 </div>
-                <p className="text-[13px] text-ink-soft mt-1 mb-0">
+                <p className="text-body text-ink-soft mt-1 mb-0">
                   {formatAgorot(personalDocumented.pendingFeeAgorot, loc)}
                 </p>
               </div>
@@ -352,6 +379,7 @@ export default async function MoneyPage({
           <MoneyHub
             bcp47={loc}
             screenshotEnabled={aiAvailable()}
+            mailLive={smtpFullyConfigured()}
             referralCode={user?.referralCode}
           />
         </div>
@@ -390,22 +418,22 @@ export default async function MoneyPage({
           <div className="font-extrabold text-[14px]">{tIapp_locale_money_page("t_26d7de3c")}</div>
           <div className="flex flex-wrap gap-3 mt-3">
             <Link href="/cancel">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_bc18d8da")}
               </Button>
             </Link>
             <Link href="/check">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_a4c2b6a9")}
               </Button>
             </Link>
             <Link href="/bank-fees">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_bankFeesShortcut")}
               </Button>
             </Link>
             <Link href="/dashboard">
-              <Button variant="ghost" className="!text-[13px]">
+              <Button variant="ghost" className="!text-body">
                 {tIapp_locale_money_page("t_38d0577a")}
               </Button>
             </Link>
@@ -420,6 +448,24 @@ export default async function MoneyPage({
           </Link>
         </div>
       )}
+
+      <div className="mt-10">
+        <LiveGravityStrip
+          localeBcp47={loc}
+          verifiedMinor={proof.verifiedMinor}
+          verifiedCount={proof.verifiedCount}
+          sentCount={sentCount}
+          mandateCount={mandateCount}
+          labels={{
+            title: tHome("home.gravityTitle"),
+            sent: tHome("home.gravitySent"),
+            mandates: tHome("home.gravityMandates"),
+            proofs: tHome("home.gravityProofs", { count: proof.verifiedCount }),
+            empty: tHome("home.gravityEmpty"),
+            ledger: tHome("home.gravityLedger"),
+          }}
+        />
+      </div>
     </VerticalPageShell>
   );
 }

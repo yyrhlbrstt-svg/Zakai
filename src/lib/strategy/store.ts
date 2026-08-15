@@ -1,4 +1,5 @@
 import "server-only";
+import { UNKNOWN_DRAFTER } from "@/lib/ai/drafterId";
 import { prisma } from "@/lib/prisma";
 import { selectVariant, seededRng } from "./selector";
 import { VARIANTS, describeVariant, variantById } from "./variants";
@@ -113,6 +114,15 @@ export async function chooseStance(context: StrategyContext): Promise<Stance> {
 export async function recordOutcome(input: {
   context: StrategyContext;
   variantId: string | null;
+  /**
+   * Model that wrote the draft, as "provider:model". Null/absent for cases
+   * drafted before attribution existed and for the deterministic template —
+   * both stored as UNKNOWN_DRAFTER so they stay countable and can never be
+   * quietly credited to whichever model happens to be configured now.
+   */
+  drafterId?: string | null;
+  /** True when a signed settlement backs this outcome. */
+  settlementBacked?: boolean;
   paid: boolean;
   recoveredMinor: number;
   days: number;
@@ -129,6 +139,8 @@ export async function recordOutcome(input: {
         vertical: input.context.vertical,
         counterparty: input.context.counterparty,
         variantId: input.variantId,
+        drafterId: input.drafterId || UNKNOWN_DRAFTER,
+        settlementBacked: input.settlementBacked === true,
         paid: input.paid,
         recoveredMinor: Math.max(0, Math.round(input.recoveredMinor)),
         days: Math.max(0, Math.round(input.days)),

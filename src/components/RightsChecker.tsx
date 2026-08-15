@@ -106,7 +106,7 @@ export function RightsChecker({
   const universalProfile = useMemo(() => fromLegacyIsraeliProfile(profile), [profile]);
 
   const chip = (active: boolean) =>
-    `rounded-full px-3.5 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
+    `rounded-full px-3.5 py-2 text-body font-bold cursor-pointer border transition-colors duration-200 ${
       active
         ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
@@ -114,7 +114,7 @@ export function RightsChecker({
 
   const counter = (label: string, value: number, set: (n: number) => void, max: number) => (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[13px] text-ink-soft">{label}</span>
+      <span className="text-body text-ink-soft">{label}</span>
       <div className="flex items-center gap-2.5" dir="ltr">
         <button type="button" aria-label="-" onClick={() => set(Math.max(0, value - 1))}
           className="w-11 h-11 rounded-[10px] bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-ink font-black cursor-pointer">−</button>
@@ -129,7 +129,7 @@ export function RightsChecker({
     <div>
       <Card className="p-6 flex flex-col gap-5">
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("country")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("country")}</span>
           <RadioChips
             value={country}
             onChange={setCountry}
@@ -139,7 +139,7 @@ export function RightsChecker({
         </div>
 
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("q.age")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("q.age")}</span>
           <RadioChips
             value={profile.ageGroup}
             onChange={(a) => setProfile({ ...profile, ageGroup: a })}
@@ -149,7 +149,7 @@ export function RightsChecker({
         </div>
 
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("q.employment")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("q.employment")}</span>
           <RadioChips
             value={profile.employment}
             onChange={(e) => setProfile({ ...profile, employment: e })}
@@ -165,7 +165,7 @@ export function RightsChecker({
             setProfile({ ...profile, childrenUnder6: n }), profile.children)}
 
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("q.flags")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("q.flags")}</span>
           <div className="flex gap-2 flex-wrap">
             {FLAGS.map((f) => (
               <button key={f} type="button" aria-pressed={profile[f]}
@@ -182,14 +182,14 @@ export function RightsChecker({
           {t("resultsTitle", { count: q ? visibleCount : result.matches.length })}
         </div>
         {result.quantifiedYearlyAgorot > 0 && (
-          <p className="text-ink-soft text-[13px] mt-2 mb-0 leading-relaxed">
+          <p className="text-ink-soft text-body mt-2 mb-0 leading-relaxed">
             {t("quantified", { amount: money(result.quantifiedYearlyAgorot) })}
           </p>
         )}
       </Card>
 
       <label className="block mt-5">
-        <span className="text-[13px] text-ink-soft font-bold">{t("searchLabel")}</span>
+        <span className="text-body text-ink-soft font-bold">{t("searchLabel")}</span>
         <input
           type="search"
           value={query}
@@ -235,7 +235,7 @@ export function RightsChecker({
                         : t("valueVaries")}
                   </span>
                 </summary>
-                <p className="text-ink-soft text-[13px] mt-2 mb-1 leading-relaxed">
+                <p className="text-ink-soft text-body mt-2 mb-1 leading-relaxed">
                   {t(`items.${e.id}.desc`)}
                 </p>
                 <p className="text-[12.5px] m-0 leading-relaxed">

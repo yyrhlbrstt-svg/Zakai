@@ -8,7 +8,6 @@ import { Link } from "@/i18n/routing";
 import { alternateLanguages, defaultOpenGraph, SITE_URL } from "@/lib/seo";
 import { textDirection } from "@/lib/textDirection";
 import { buildZakaiPipeDocument } from "@/lib/pipe/zakaiPipe";
-import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
 import { bcp47, type Locale } from "@/i18n/config";
 
@@ -53,7 +52,6 @@ export default async function PipePage({
         <strong className="text-emerald">{t("thesisStrong")}</strong> {t("thesisBody")}
       </EmeraldInfoPanel>
 
-      <MonopolyMissionControl locale={locale} />
       <PipeNetworkLive locale={locale} bcp47={bcp47[locale as Locale] ?? "he-IL"} />
 
       <div className="flex flex-wrap gap-3 mb-8">
@@ -112,19 +110,19 @@ export default async function PipePage({
       <Card className="p-6 mb-4 border-emerald/30">
         <h2 className="font-display text-xl mb-2">{t("minutesHeading")}</h2>
         <p className="text-[14px] text-ink-soft leading-relaxed mb-3">{t("minutesBody")}</p>
-        <pre className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg" dir="ltr">
+        <pre tabIndex={0} className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg" dir="ltr">
 {`curl -sS -X POST ${origin}/api/pipe/accept \\
   -H 'content-type: application/json' \\
   -d '{"mandate_jws":"<JWS>","action":"correspond:provider"}'`}
         </pre>
-        <pre className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg mt-3" dir="ltr">
+        <pre tabIndex={0} className="text-[12.5px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg mt-3" dir="ltr">
 {`curl -sS -X POST ${origin}/api/pipe/handoff \\
   -H 'content-type: application/json' \\
   -d '{"agent":"my-ai","door":"cancel","locale":"he"}'`}
         </pre>
       </Card>
 
-      <p className="text-[13px] text-ink-soft">
+      <p className="text-body text-ink-soft">
         {t("related")}{" "}
         <Link href="/institutions" className="text-emerald underline">
           /institutions

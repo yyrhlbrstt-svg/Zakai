@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { buildCatalogResponse } from "@/lib/protocol/zml/catalog";
 import { buildZakaiProtocolDocument } from "@/lib/protocol/discovery";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { loadPlaybook } from "@/lib/services/loadPlaybook";
 
 export const runtime = "nodejs";
 
@@ -44,6 +45,42 @@ const TOOLS: McpTool[] = [
     },
   },
   {
+    name: "counterparty_playbook",
+    description:
+      "What actually happens when a claim is made against a specific company: how often it pays, how long it takes, and which approach wins — measured from Zakai's de-identified record of real, documented outcomes. This is the one thing a general assistant cannot obtain, because it only accumulates across many people and every assistant conversation is isolated by design. Returns an explicit not-enough-evidence result below the sample floor rather than a thin number, and never carries a claimant.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        counterparty: {
+          type: "string",
+          description: "Normalised company key, e.g. cellcom, hapoalim, partner",
+        },
+        vertical: {
+          type: "string",
+          description: "Optional claim type to narrow to, e.g. telecom, bank-fees, deposit",
+        },
+      },
+      required: ["counterparty"],
+    },
+  },
+  {
+    name: "start_claim",
+    description:
+      "Hand a person off to Zakai to open a real claim with a signed, scoped, revocable Mandate an institution can verify. Returns a prefilled link for the PERSON to complete — it never opens a case or grants authority on its own, because authority has to come from the human, not from an agent acting on their behalf. Use this after check_rights or counterparty_playbook when the person wants to actually pursue the money.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        vertical: {
+          type: "string",
+          description: "Claim type, e.g. telecom, bank-fees, deposit, flights, parking",
+        },
+        counterparty: { type: "string", description: "Optional company key the claim is against" },
+        locale: { type: "string", description: "Optional UI language: he, en, ar, ru, de, fr" },
+      },
+      required: ["vertical"],
+    },
+  },
+  {
     name: "protocol_status",
     description:
       "Get Zakai's live protocol status: whether Mandate signing is active in production, outbound email delivery status, and links to the machine-readable protocol layers (Mandate spec, JWKS, verify API).",
@@ -67,6 +104,75 @@ function accepted() {
 }
 
 async function callTool(name: unknown, args: Record<string, unknown>, origin: string) {
+  if (name === "counterparty_playbook") {
+    const counterparty = String(args.counterparty ?? "").trim();
+    if (!counterparty) {
+      return [{ type: "text" as const, text: "counterparty is required." }];
+    }
+    const vertical = typeof args.vertical === "string" ? args.vertical : null;
+    const result = await loadPlaybook(counterparty, vertical);
+
+    if (!result.ok) {
+      // Stated plainly rather than returned as zeros. An agent handed a 0%
+      // win rate would report it as a finding about a named company.
+      return [
+        {
+          type: "text" as const,
+          text:
+            `Not enough documented evidence about "${counterparty}" to say anything useful ` +
+            `(${result.sampleSize} outcome(s); at least ${result.minSample} are needed). ` +
+            "Zakai withholds rather than reports a rate this thin.",
+        },
+      ];
+    }
+    const p = result.playbook;
+    const lines = [
+      `${p.counterparty}${p.vertical ? ` · ${p.vertical}` : ""} — from ${p.sampleSize} documented outcomes:`,
+      `- pays on ${Math.round(p.paidRate * 100)}% of claims`,
+      p.medianDays === null
+        ? "- no median resolution time yet (nothing has been paid)"
+        : `- median ${p.medianDays} days from delivery to resolution`,
+      p.bestVariant
+        ? `- the "${p.bestVariant.variantId}" approach wins most often (${p.bestVariant.paid}/${p.bestVariant.trials})`
+        : "- no approach is clearly ahead of the others; the difference is within noise",
+      "",
+      "These are de-identified aggregates of real outcomes, not estimates.",
+    ];
+    return [{ type: "text" as const, text: lines.join("\n") }];
+  }
+
+  if (name === "start_claim") {
+    const vertical = String(args.vertical ?? "").trim();
+    if (!vertical) return [{ type: "text" as const, text: "vertical is required." }];
+    const locale = typeof args.locale === "string" && /^[a-z]{2}$/.test(args.locale) ? args.locale : "he";
+    const counterparty = typeof args.counterparty === "string" ? args.counterparty.trim() : "";
+
+    /**
+     * A link, not an action.
+     *
+     * The person grants the authority; an agent cannot grant it for them, and
+     * a Mandate minted without a human act would be exactly the thing that
+     * makes an institution refuse to accept any of them. So this returns
+     * somewhere for the person to go, prefilled, and stops.
+     */
+    const url = new URL(`/${locale}/start`, origin);
+    url.searchParams.set("vertical", vertical);
+    if (counterparty) url.searchParams.set("company", counterparty);
+
+    return [
+      {
+        type: "text" as const,
+        text: [
+          `Open the claim here: ${url.toString()}`,
+          "",
+          "The person completes it themselves. Zakai then issues a signed, scoped, revocable",
+          "Mandate the company can verify against a published key — and which can never move",
+          "money outward. No fee unless a saving is documented.",
+        ].join("\n"),
+      },
+    ];
+  }
+
   if (name === "check_rights") {
     const market = String(args.market ?? "IL").toUpperCase();
     const category = typeof args.category === "string" ? args.category : undefined;

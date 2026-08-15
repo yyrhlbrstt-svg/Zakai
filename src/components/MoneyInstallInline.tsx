@@ -46,7 +46,7 @@ export function MoneyInstallInline() {
             /* ignore */
           }
         }}
-        className="shrink-0 text-ink-soft hover:text-ink text-lg bg-transparent border-0 cursor-pointer"
+        className="shrink-0 text-ink-soft hover:text-ink text-lg grid place-items-center min-w-[28px] min-h-[28px] bg-transparent border-0 cursor-pointer"
         aria-label={t("dismiss")}
       >
         ✕

@@ -68,7 +68,7 @@ export function ReferralCard({
           dir="ltr"
           value={link}
           onFocus={(e) => e.currentTarget.select()}
-          className="flex-1 min-w-[200px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] rounded-xl px-3.5 py-2.5 text-[13px] text-ink font-mono"
+          className="flex-1 min-w-[200px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.12)] rounded-xl px-3.5 py-2.5 text-body text-ink font-mono"
         />
         <button
           type="button"

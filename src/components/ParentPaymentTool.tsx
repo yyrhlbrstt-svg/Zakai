@@ -10,6 +10,10 @@ import {
   buildParentPaymentLetter,
   type ParentPaymentCategory,
 } from "@/lib/parentPayments";
+import { MissingFields } from "@/components/MissingFields";
+import { NextStep } from "@/components/NextStep";
+import { OutcomeReport } from "@/components/OutcomeReport";
+import { normalizeOutcomeCounterparty } from "@/lib/strategy/normalizeKeys";
 
 const CATEGORIES: ParentPaymentCategory[] = ["accident_insurance", "other"];
 
@@ -65,7 +69,7 @@ export function ParentPaymentTool() {
     <div>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("categoryQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("categoryQ")}</span>
           <Select value={category} onChange={(e) => setCategory(e.target.value as ParentPaymentCategory)}>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -98,27 +102,27 @@ export function ParentPaymentTool() {
         {!mandatory && (
           <>
             <label className="block">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("parentNameQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("parentNameQ")}</span>
               <Input value={parentName} onChange={(e) => setParentName(e.target.value)} />
             </label>
             <label className="block">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("studentNameQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("studentNameQ")}</span>
               <Input value={studentName} onChange={(e) => setStudentName(e.target.value)} />
             </label>
             <label className="block">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("institutionQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("institutionQ")}</span>
               <Input value={institutionName} onChange={(e) => setInstitutionName(e.target.value)} />
             </label>
             <label className="block">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("chargeQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("chargeQ")}</span>
               <Input value={chargeDescription} onChange={(e) => setChargeDescription(e.target.value)} />
             </label>
             <label className="block">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("amountQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("amountQ")}</span>
               <Input type="number" value={chargeAmount} onChange={(e) => setChargeAmount(e.target.value)} />
             </label>
             <label className="block">
-              <span className="text-[13px] text-ink-soft block mb-1.5">{t("reasonQ")}</span>
+              <span className="text-body text-ink-soft block mb-1.5">{t("reasonQ")}</span>
               <Textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
@@ -127,6 +131,16 @@ export function ParentPaymentTool() {
               />
             </label>
 
+            <MissingFields
+              items={[
+                { ok: parentName.trim().length > 0, label: t("parentNameQ") },
+                { ok: studentName.trim().length > 0, label: t("studentNameQ") },
+                { ok: institutionName.trim().length > 0, label: t("institutionQ") },
+                { ok: chargeDescription.trim().length > 0, label: t("chargeQ") },
+                { ok: amount > 0, label: t("amountQ") },
+                { ok: reason.trim().length > 0, label: t("reasonQ") },
+              ]}
+            />
             <Button onClick={generate} disabled={!canGenerate}>
               {t("generateCta")}
             </Button>
@@ -141,7 +155,7 @@ export function ParentPaymentTool() {
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink outline-none box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button
@@ -160,12 +174,28 @@ export function ParentPaymentTool() {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport
+            vertical="parent_payment_dispute"
+            counterparty={normalizeOutcomeCounterparty(institutionName)}
+            variantId="standard"
+          />
         </Card>
+      )}
+
+      {letter && (
+        <NextStep
+          steps={[t("step1"), t("step2"), t("step3")]}
+          action={{
+            label: t("circularLink"),
+            href: MANDATORY_PAYMENT_CIRCULAR_URL,
+            external: true,
+          }}
+        />
       )}
 
       {letter && <ShareResult message={tShare("msgSchoolPayment")} path="/school-payments" />}
 
-      <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
+      <p className="mt-5 text-micro text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>
   );
 }

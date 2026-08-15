@@ -16,7 +16,7 @@ export function EmptyDashboardActions() {
         <div className="font-extrabold text-[15px]">
           {tIcomponents_EmptyDashboardActions("t_8e012a21")}
         </div>
-        <p className="text-ink-soft text-[13px] mt-1.5 mb-4 leading-relaxed">
+        <p className="text-ink-soft text-body mt-1.5 mb-4 leading-relaxed">
           {tIcomponents_EmptyDashboardActions("t_0536a00e")}
         </p>
         <Link href="/money#zakai-money-scan">

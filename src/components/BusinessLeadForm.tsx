@@ -68,7 +68,7 @@ export function BusinessLeadForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-3.5">
       <fieldset className="m-0 p-0 border-0">
-        <legend className="text-[13px] text-ink-soft mb-2">
+        <legend className="text-body text-ink-soft mb-2">
           {tIcomponents_BusinessLeadForm("t_ed765e5a")}
         </legend>
         <div className="flex flex-wrap gap-2">
@@ -77,7 +77,7 @@ export function BusinessLeadForm() {
               key={o.id}
               type="button"
               onClick={() => setInterest(o.id)}
-              className={`rounded-full px-3.5 py-2 text-[13px] font-bold border cursor-pointer transition-colors ${
+              className={`rounded-full px-3.5 py-2 text-body font-bold border cursor-pointer transition-colors ${
                 interest === o.id
                   ? "bg-[rgba(63,203,155,0.18)] border-[rgba(63,203,155,0.55)] text-emerald"
                   : "bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.12)] text-ink-soft"
@@ -90,25 +90,25 @@ export function BusinessLeadForm() {
       </fieldset>
 
       <label className="block">
-        <span className="text-[13px] text-ink-soft block mb-1.5">{t("form.company")}</span>
+        <span className="text-body text-ink-soft block mb-1.5">{t("form.company")}</span>
         <Input name="company" required maxLength={120} />
       </label>
       <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("form.contact")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("form.contact")}</span>
           <Input name="contact" required maxLength={120} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("form.email")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("form.email")}</span>
           <Input name="email" type="email" required maxLength={160} dir="ltr" />
         </label>
       </div>
       <label className="block">
-        <span className="text-[13px] text-ink-soft block mb-1.5">{t("form.employees")}</span>
+        <span className="text-body text-ink-soft block mb-1.5">{t("form.employees")}</span>
         <Input name="employees" inputMode="numeric" maxLength={40} />
       </label>
       <label className="block">
-        <span className="text-[13px] text-ink-soft block mb-1.5">{t("form.note")}</span>
+        <span className="text-body text-ink-soft block mb-1.5">{t("form.note")}</span>
         <Textarea name="note" rows={3} maxLength={1000} />
       </label>
       {state === "error" && <FieldError>{t("form.error")}</FieldError>}

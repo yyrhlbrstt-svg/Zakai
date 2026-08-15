@@ -43,7 +43,7 @@ export function InstitutionRoiCalculator() {
       <p className="text-[13.5px] leading-relaxed text-ink-soft mb-4">{t("intro")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-        <label className="text-[13px] font-bold text-ink-soft">
+        <label className="text-body font-bold text-ink-soft">
           {t("volumeLabel")}
           <Input
             type="number"
@@ -54,7 +54,7 @@ export function InstitutionRoiCalculator() {
             className="mt-1.5"
           />
         </label>
-        <label className="text-[13px] font-bold text-ink-soft">
+        <label className="text-body font-bold text-ink-soft">
           {t("minutesLabel")}
           <Input
             type="number"
@@ -65,7 +65,7 @@ export function InstitutionRoiCalculator() {
             className="mt-1.5"
           />
         </label>
-        <label className="text-[13px] font-bold text-ink-soft">
+        <label className="text-body font-bold text-ink-soft">
           {t("hourlyLabel")}
           <Input
             type="number"

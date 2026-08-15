@@ -42,6 +42,16 @@ export async function POST(request: Request) {
     select: { country: true },
   });
 
+  /**
+   * The settled half. Scoped to this user's own case, like the row above —
+   * a wallet that could be filled with somebody else's outcome by guessing a
+   * case id would be a leak, not a wallet.
+   */
+  const proof = await prisma.savingsProof.findFirst({
+    where: { caseId: row.caseId, case: { userId: auth.userId } },
+    select: { settlementJws: true },
+  });
+
   const origin = new URL(request.url).origin;
   const locale = parseLocaleParam(parsed.data.locale);
 
@@ -53,6 +63,7 @@ export async function POST(request: Request) {
       ...row,
       status: row.status as "ACTIVE" | "REVOKED" | "EXPIRED",
     },
+    settlementJws: proof?.settlementJws ?? null,
   });
 
   return NextResponse.json({ ok: true, bundle });

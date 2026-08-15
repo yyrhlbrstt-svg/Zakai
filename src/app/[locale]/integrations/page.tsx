@@ -166,9 +166,9 @@ export default async function IntegrationsPage({
           <SectionHeading title={t("outcomeGraphTitle")} className="mt-0 mb-2" as="h2" />
           <p className="text-[14px] text-ink-soft leading-relaxed m-0 mb-3">{t("outcomeGraphBody")}</p>
           {outcome.totalOutcomes === 0 ? (
-            <p className="text-[13px] text-ink-soft m-0 mb-3">{t("outcomeGraphEmpty")}</p>
+            <p className="text-body text-ink-soft m-0 mb-3">{t("outcomeGraphEmpty")}</p>
           ) : (
-            <ul className="list-none p-0 m-0 mb-3 flex flex-col gap-1.5 text-[13px]">
+            <ul className="list-none p-0 m-0 mb-3 flex flex-col gap-1.5 text-body">
               <li className="font-extrabold text-emerald">
                 {t("outcomeGraphTotal", { count: outcome.totalOutcomes })}
               </li>

@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select, FieldError } from "@/components/ui";
+import { authSwitchHref, toolNameForReturnPath } from "@/lib/auth/returnReason";
+import { IconEye, IconEyeOff } from "@/components/Icon";
 
 /** Only same-origin relative paths — blocks open redirects. */
 function safeReturnPath(raw: string | null): string | null {
@@ -51,6 +53,12 @@ export function AuthForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = safeReturnPath(searchParams.get("return"));
+  /**
+   * Somebody who tapped a named tool and landed here deserves to be told
+   * which one, and that they have not lost their place. Null for paths that
+   * are not a tool by name — better to say nothing than something empty.
+   */
+  const returnToolName = toolNameForReturnPath(returnTo, locale);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [termsOk, setTermsOk] = useState(false);
@@ -116,6 +124,11 @@ export function AuthForm({
       <h1 className="font-display text-[27px] text-center mb-6">
         {mode === "login" ? t("loginTitle") : t("signupTitle")}
       </h1>
+      {returnToolName && (
+        <div className="text-center text-[13.5px] leading-relaxed text-ink-soft border border-[rgba(62,198,255,0.3)] bg-[rgba(62,198,255,0.06)] rounded-xl px-4 py-3 mb-4">
+          {t("continueTo", { tool: returnToolName })}
+        </div>
+      )}
       {mode === "signup" && referralCode && (
         <div className="text-center text-[13.5px] text-emerald font-bold bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.3)] rounded-xl px-4 py-2.5 mb-4">
           {t("invitedNote")}
@@ -207,7 +220,7 @@ export function AuthForm({
                 title={showPw ? t("hidePassword") : t("showPassword")}
                 className="absolute end-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-ink-soft hover:text-ink cursor-pointer bg-transparent border-0"
               >
-                {showPw ? <EyeOff /> : <Eye />}
+                {showPw ? <IconEyeOff width={20} height={20} /> : <IconEye width={20} height={20} />}
               </button>
             </div>
           </label>
@@ -225,7 +238,7 @@ export function AuthForm({
                 </ul>
                 <p className="mt-2 text-amber font-semibold">{tl("termsNote")}</p>
               </details>
-              <label className="flex gap-2.5 items-start mt-2.5 text-[13px] leading-snug cursor-pointer">
+              <label className="flex gap-2.5 items-start mt-2.5 text-body leading-snug cursor-pointer">
                 {/* Deliberately NOT `required`. Native constraint validation
                     aborts submission before onSubmit runs, so the handler's
                     translated "tick the terms" error never fired and the
@@ -252,51 +265,31 @@ export function AuthForm({
         </form>
       </Card>
 
-      <p className="text-center mt-5 text-sm">
-        <Link
-          href={mode === "login" ? "/signup" : "/login"}
-          className="text-emerald font-bold no-underline"
-        >
-          {mode === "login" ? t("toSignup") : t("toLogin")}
+      {/* Mid-errand, the other half of this screen is not a footnote. Somebody
+          bounced here from a tool they tapped most likely has no account yet,
+          and a small grey link is not an equal offer to a full-width sign-in
+          button. */}
+      {returnTo ? (
+        <Link href={authSwitchHref(mode, returnTo)} className="no-underline block mt-4">
+          <Button variant="ghost" className="w-full !text-body">
+            {mode === "login" ? t("toSignup") : t("toLogin")}
+          </Button>
         </Link>
-      </p>
+      ) : (
+        <p className="text-center mt-5 text-sm">
+          <Link href={authSwitchHref(mode, returnTo)} className="text-emerald font-bold no-underline">
+            {mode === "login" ? t("toSignup") : t("toLogin")}
+          </Link>
+        </p>
+      )}
 
       {mode === "login" && (
-        <p className="text-center mt-2 text-[13px]">
+        <p className="text-center mt-2 text-body">
           <Link href="/forgot" className="text-ink-soft no-underline hover:text-emerald">
             {t("forgotPassword")}
           </Link>
         </p>
       )}
     </main>
-  );
-}
-
-function Eye() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function EyeOff() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.4 5.2A9.5 9.5 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.1 6.1A17 17 0 0 0 2 12s3.5 7 10 7a9.5 9.5 0 0 0 3-.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

@@ -57,7 +57,7 @@ export function DormantScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
   const show = started && result.leads.length > 0;
 
   const chip = (active: boolean) =>
-    `rounded-full px-4 py-2 text-[13px] font-bold cursor-pointer border transition-colors duration-200 ${
+    `rounded-full px-4 py-2 text-body font-bold cursor-pointer border transition-colors duration-200 ${
       active
         ? "bg-[rgba(63,203,155,0.14)] border-[rgba(63,203,155,0.5)] text-emerald"
         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] text-ink-soft hover:border-[rgba(255,255,255,0.2)]"
@@ -86,7 +86,7 @@ export function DormantScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
           house moves, so the person most likely to find something is the one
           least likely to install an app to look. */}
       <Card className="p-6 mb-5">
-        <span className="text-[13px] text-ink-soft block mb-2">{t("forWhom")}</span>
+        <span className="text-body text-ink-soft block mb-2">{t("forWhom")}</span>
         <RadioChips
           value={subject}
           onChange={(sub) => {
@@ -117,7 +117,7 @@ export function DormantScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
       </Card>
 
       <Card className="p-6">
-        <span className="text-[13px] text-ink-soft block mb-2">
+        <span className="text-body text-ink-soft block mb-2">
           {signsOwnLetters(subject) && subject === "self" ? t("jobsQuestion") : t("jobsQuestionOther")}
         </span>
         <RadioChips
@@ -139,11 +139,11 @@ export function DormantScreen({ isIsraeli = true }: { isIsraeli?: boolean }) {
               {result.institutionCount}
             </div>
             <p className="text-[14px] font-extrabold m-0 mt-1 mb-1.5">{t("countTitle")}</p>
-            <p className="text-ink-soft text-[13px] m-0 leading-relaxed">{t("countSub")}</p>
+            <p className="text-ink-soft text-body m-0 leading-relaxed">{t("countSub")}</p>
           </Card>
 
           <Card className="mt-5 p-6">
-            <span className="text-[13px] text-ink-soft block mb-2">{t("moreTitle")}</span>
+            <span className="text-body text-ink-soft block mb-2">{t("moreTitle")}</span>
             <div className="flex gap-2 flex-wrap">
               {FLAGS.map((f) => (
                 <button
@@ -272,8 +272,8 @@ function LeadRow({ lead }: { lead: DormantLead }) {
 
         {letter && (
           <div className="mt-4">
-            <div className="text-[13px] font-extrabold mb-2">{letter.subject}</div>
-            <pre className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
+            <div className="text-body font-extrabold mb-2">{letter.subject}</div>
+            <pre tabIndex={0} className="whitespace-pre-wrap font-sans text-body leading-relaxed bg-[rgba(0,0,0,0.25)] rounded-xl p-4 m-0 max-h-80 overflow-auto">
               {letter.body}
             </pre>
             <div className="mt-3 flex gap-2 flex-wrap">

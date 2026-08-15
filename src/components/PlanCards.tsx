@@ -15,14 +15,25 @@ import { formatAgorot } from "@/lib/money";
 export function PlanCards({
   currentPlan,
   bcp47,
+  paymentsLive = false,
 }: {
   currentPlan: PlanId | null;
   bcp47: string;
+  /**
+   * Whether a real PSP is configured. Decides between a checkout and a
+   * waitlist — and it is decided on the server, because the honest answer to
+   * "can this person pay" is a property of the deployment, not of the browser.
+   */
+  paymentsLive?: boolean;
 }) {
   const t = useTranslations("pricing");
   const tc = useTranslations("common");
   const router = useRouter();
   const [pending, setPending] = useState<PlanId | null>(null);
+  /** The plan they tried to buy, so the waitlist tap knows which one. */
+  const [wanted, setWanted] = useState<PlanId | null>(null);
+  const [waiting, setWaiting] = useState(false);
+  const [waitBusy, setWaitBusy] = useState(false);
   const [error, setError] = useState(false);
   const [billingComing, setBillingComing] = useState(false);
 
@@ -43,7 +54,27 @@ export function PlanCards({
       // 402 = a paid upgrade that can't be granted for free yet (billing not
       // connected). Show the honest "coming" note, not a generic error.
       if (res.status === 402) {
+        /**
+         * A paid tier, and the grant endpoint correctly refused to hand it over
+         * for free. If a PSP is live this is where a purchase begins; if not,
+         * the person is offered the only honest thing left — to be told when
+         * paying becomes possible.
+         */
+        if (paymentsLive) {
+          const checkout = await fetch("/api/account/plan/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plan, months: 1 }),
+          });
+          const data = (await checkout.json().catch(() => ({}))) as { checkoutUrl?: string };
+          if (checkout.ok && data.checkoutUrl) {
+            window.location.href = data.checkoutUrl;
+            return;
+          }
+        }
         setBillingComing(true);
+        setWanted(plan);
+        setWaiting(false);
         return;
       }
       if (!res.ok) throw new Error();
@@ -81,7 +112,7 @@ export function PlanCards({
                   {p.priceAgorot === 0 ? t("freePrice") : formatAgorot(p.priceAgorot, bcp47)}
                 </span>
                 {p.priceAgorot > 0 && (
-                  <span className="text-ink-soft text-[13px]">{t("perMonth")}</span>
+                  <span className="text-ink-soft text-body">{t("perMonth")}</span>
                 )}
               </div>
               <div className="text-emerald font-extrabold text-[14px] mt-1.5">
@@ -110,9 +141,41 @@ export function PlanCards({
         })}
       </div>
 
+      {/* The 402 was the end of the road: an honest note, and nothing anywhere
+          recording that somebody had just tried to hand us money. That is the
+          hardest number to get in a business with no revenue, and it was being
+          thrown away one tap at a time. */}
       {billingComing && (
         <Card className="mt-4 p-4 border-[rgba(63,203,155,0.35)]">
-          <p className="text-[13.5px] text-ink-soft m-0 leading-relaxed">{t("paymentComing")}</p>
+          <p className="text-body text-ink-soft m-0 leading-relaxed">{t("paymentComing")}</p>
+          {waiting ? (
+            <p className="text-body text-emerald font-bold mt-3 mb-0">{t("waitlistDone")}</p>
+          ) : (
+            wanted && (
+              <Button
+                className="mt-3 w-full"
+                disabled={waitBusy}
+                onClick={async () => {
+                  setWaitBusy(true);
+                  try {
+                    const res = await fetch("/api/account/plan/interest", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ plan: wanted }),
+                    });
+                    if (res.ok) setWaiting(true);
+                    else setError(true);
+                  } catch {
+                    setError(true);
+                  } finally {
+                    setWaitBusy(false);
+                  }
+                }}
+              >
+                {t("waitlistCta")}
+              </Button>
+            )
+          )}
         </Card>
       )}
 

@@ -41,7 +41,13 @@ export function EmailVerifyNudge() {
   }
 
   const done = state !== "idle";
-  const label =
+
+  /**
+   * What happened, once something has. This is a sentence about the system's
+   * state, not a thing to press — which is why it stops being rendered inside
+   * a Button below.
+   */
+  const status =
     state === "delivered"
       ? heEn(he, "נשלח — בדקו את המייל", "Sent — check your inbox")
       : state === "queued"
@@ -52,27 +58,42 @@ export function EmailVerifyNudge() {
           )
         : state === "accepted"
           ? heEn(he, "בוצע — בדקו את המייל או רעננו", "Done — check inbox or refresh")
-          : busy
-            ? heEn(he, "שולח…", "Sending…")
-            : heEn(he, "שלח קישור אימות", "Send verification link");
+          : null;
+
+  const label = busy
+    ? heEn(he, "שולח…", "Sending…")
+    : heEn(he, "אמתו את כתובת המייל שלכם", "Confirm your email address");
 
   return (
     <div className="rounded-2xl border border-[rgba(62,198,255,0.4)] bg-[rgba(62,198,255,0.08)] px-5 py-4 mb-5">
       <div className="font-extrabold text-[14.5px] text-[#3EC6FF]">
-        {heEn(he, "אמתו את המייל — שליחת Mandate בלחיצה אחת", "Verify email — one-tap Mandate send")}
+        {heEn(he, "אמתו את המייל פעם אחת — וכל תיק נשלח בלחיצה", "Confirm your email once — then every case sends in one tap")}
       </div>
-      <p className="text-[13px] text-ink-soft leading-relaxed mt-1.5 mb-3">
+      <p className="text-body text-ink-soft leading-relaxed mt-1.5 mb-3">
         {he
-          ? "בלי אימות מייל צריך קוד בעלות בכל תיק. אחרי אימות: אשר → שלח עם Mandate מיד."
-          : "Without email verify you need ownership codes on every case. After verify: approve → send with Mandate immediately."}
+          ? "בלי זה צריך לאמת בעלות מחדש בכל תיק בנפרד. אחרי האימות אפשר לשלוח לספק מיד."
+          : "Without it you have to prove ownership again on every single case. After confirming, a case can be sent to the provider straight away."}
       </p>
-      <Button
-        disabled={busy || done}
-        className="!text-[13px] !py-2.5"
-        onClick={() => void resend()}
-      >
-        {label}
-      </Button>
+      {/* A finished action stops being a control.
+
+          This used to stay a full-width primary Button, disabled, with the
+          status sentence as its label — so the most prominent green element
+          on the page was permanently unpressable and said "has not left the
+          system yet". That reads as a broken button, which is exactly the
+          complaint this pattern keeps generating.
+
+          It matters most in the state nobody tested: with no SMTP configured
+          every send is queued, so every reader reached that dead button and
+          none of them reached the working one. */}
+      {done && status ? (
+        <p role="status" className="text-body font-bold text-[#3EC6FF] m-0">
+          {status}
+        </p>
+      ) : (
+        <Button disabled={busy} className="!text-body !py-2.5" onClick={() => void resend()}>
+          {label}
+        </Button>
+      )}
       {err ? (
         <p className="text-[12px] text-amber mt-2 mb-0">
           {heEn(he, "לא הצלחנו לשלוח. נסו שוב בעוד רגע.", "Could not send. Try again in a moment.")}

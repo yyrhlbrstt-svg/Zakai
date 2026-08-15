@@ -81,7 +81,7 @@ export default async function PartnersPage({
         {tIapp_locale_partners_page("t_51ab2ede")}
       </h2>
       <Card className="p-5">
-        <pre className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
+        <pre tabIndex={0} className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
           {snippet}
         </pre>
       </Card>
@@ -89,11 +89,11 @@ export default async function PartnersPage({
       <h2 className="text-[16px] font-extrabold mt-10 mb-2">
         {tIapp_locale_partners_page("widgetTitle")}
       </h2>
-      <p className="text-ink-soft text-[13px] mb-3 m-0 leading-relaxed">
+      <p className="text-ink-soft text-body mb-3 m-0 leading-relaxed">
         {tIapp_locale_partners_page("widgetSub")}
       </p>
       <Card className="p-5">
-        <pre className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
+        <pre tabIndex={0} className="m-0 whitespace-pre-wrap text-[12.5px] leading-relaxed font-mono text-ink-soft overflow-x-auto">
           {widgetSnippet}
         </pre>
       </Card>
@@ -113,7 +113,7 @@ export default async function PartnersPage({
 
       <div className="mt-6 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] px-5 py-5">
         <div className="font-extrabold text-[15px]">{tIapp_locale_partners_page("widgetFairnessTitle")}</div>
-        <p className="text-[13px] text-ink-soft mt-2 mb-4 leading-relaxed m-0">
+        <p className="text-body text-ink-soft mt-2 mb-4 leading-relaxed m-0">
           {tIapp_locale_partners_page("widgetFairnessBody")}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -163,7 +163,7 @@ export default async function PartnersPage({
             key={p.path}
             className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] px-4 py-3 flex items-center justify-between gap-3 flex-wrap"
           >
-            <code className="text-[13px] font-mono text-emerald">data-path="{p.path}"</code>
+            <code className="text-body font-mono text-emerald">data-path="{p.path}"</code>
             <span className="text-[13.5px] text-ink-soft">{he ? p.heLabel : p.enLabel}</span>
           </div>
         ))}

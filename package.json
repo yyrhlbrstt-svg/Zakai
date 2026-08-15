@@ -32,17 +32,28 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "verify:routes": "node scripts/routeSweep.mjs",
+    "a11y": "node scripts/a11ySweep.mjs",
+    "verify:flows": "node scripts/flowSweep.mjs",
+    "verify:first-screen": "node scripts/verify-first-screen.mjs",
+    "verify:idor": "node scripts/verify-idor.mjs",
+    "mail:check": "node scripts/mail-check.mjs",
+    "verify:agent-auth": "node scripts/verify-agent-authorization.mjs",
+    "verify:money-loop": "node scripts/verify-money-loop.mjs",
+    "verify:journey": "node scripts/verify-journey.mjs",
+    "dev:smtp-sink": "node scripts/dev-smtp-sink.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
-    "@prisma/client": "6.19.0",
+    "@prisma/client": "6.19.3",
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
     "lucide-react": "^1.26.0",
-    "next": "^15.1.4",
-    "next-intl": "^3.26.3",
-    "nodemailer": "^6.9.16",
+    "next": "^16.3.1",
+    "next-intl": "^4.13.6",
+    "nodemailer": "^9.0.5",
+    "prisma": "6.19.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "web-push": "^3.6.7",
@@ -51,21 +62,23 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.5",
-    "@types/nodemailer": "^6.4.17",
+    "@types/nodemailer": "^8.0.1",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
     "@types/web-push": "^3.6.4",
     "autoprefixer": "^10.4.20",
+    "axe-core": "^4.13.0",
+    "playwright": "^1.62.1",
     "postcss": "^8.4.49",
-    "prisma": "6.19.0",
+    "prisma": "6.19.3",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^2.1.8"
   },
   "overrides": {
-    "prisma": "6.19.0",
-    "@prisma/client": "6.19.0"
+    "prisma": "6.19.3",
+    "@prisma/client": "6.19.3"
   },
   "engines": {
     "node": ">=20"

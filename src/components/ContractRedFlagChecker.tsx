@@ -5,8 +5,9 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Card, Button, Textarea } from "@/components/ui";
 import type { ContractAnalysis } from "@/lib/contractAnalysis";
+import { computeNoticeWindow } from "@/lib/noticeWindow";
 
-/** Enough lead time to actually cancel or renegotiate before the renewal hits. */
+/** Enough lead time to actually cancel or renegotiate before the deadline hits. */
 const REMIND_DAYS_BEFORE = 30;
 
 /**
@@ -26,8 +27,53 @@ export function ContractRedFlagChecker() {
   const [reminderAdded, setReminderAdded] = useState(false);
   const [needsLogin, setNeedsLogin] = useState(false);
 
+  const noticeWindow = computeNoticeWindow({
+    renewalDate: result?.renewalDate ?? null,
+    noticeDays: result?.noticeDays ?? null,
+  });
+
   async function addRenewalReminder() {
     if (!result?.renewalDate) return;
+    /**
+     * Remind on the date notice must be GIVEN, not the date the term renews.
+     *
+     * A contract that renews on 1 January and requires sixty days' notice has
+     * to be acted on by 1 November. Reminding on 1 January tells somebody
+     * their contract renewed today — accurate, and useless. The notice period
+     * is already extracted; it just was not being used, so the one number
+     * that decides whether a term rolls was collected and then ignored.
+     *
+     * Falls back to the renewal date only when the contract states no notice
+     * period, because a guessed customary value would produce a confident
+     * deadline that is wrong and somebody would plan around it.
+     */
+    const dueDate = noticeWindow.actBy
+      ? noticeWindow.actBy.toISOString().slice(0, 10)
+      : result.renewalDate;
+
+    /**
+     * Keep the contract, not only the reminder.
+     *
+     * A Deadline is a label and a date. The commitment record carries the
+     * renewal date and the notice period, so the act-by date stays correct if
+     * either is later corrected, the weekly watch can chase it without anyone
+     * opening the app, and the overlap finder can see it next to everything
+     * else this person pays for. A reminder somebody has to remember to set is
+     * the thing this product exists to replace.
+     */
+    void fetch("/api/commitments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        label: t("renewalCta"),
+        renewsOn: result.renewalDate,
+        noticeDays: result.noticeDays,
+        source: "contract_scan",
+      }),
+    }).catch(() => {
+      // The reminder below is the user-visible promise and must still be made.
+      // Failing to also file the commitment is not worth blocking it over.
+    });
     setReminderBusy(true);
     setNeedsLogin(false);
     try {
@@ -36,7 +82,7 @@ export function ContractRedFlagChecker() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           label: t("renewalCta"),
-          dueDate: result.renewalDate,
+          dueDate,
           remindDaysBefore: REMIND_DAYS_BEFORE,
         }),
       });
@@ -118,13 +164,45 @@ export function ContractRedFlagChecker() {
           {result.autoRenews && (
             <p className="text-ink-soft text-[12.5px] mt-1 mb-0">{t("renewalAutoRenewNote")}</p>
           )}
+          {noticeWindow.actBy && noticeWindow.daysLeft !== null && (
+            <p
+              className={`text-body font-extrabold mt-2 mb-0 ${
+                noticeWindow.state === "missed" || noticeWindow.state === "closing"
+                  ? "text-[#f08a6b]"
+                  : ""
+              }`}
+            >
+              {noticeWindow.state === "missed"
+                ? t("noticeMissed", {
+                    date: noticeWindow.actBy.toISOString().slice(0, 10),
+                    days: noticeWindow.noticeDays ?? 0,
+                  })
+                : t("noticeActBy", {
+                    date: noticeWindow.actBy.toISOString().slice(0, 10),
+                    days: noticeWindow.noticeDays ?? 0,
+                    left: noticeWindow.daysLeft,
+                  })}
+            </p>
+          )}
           {reminderAdded ? (
-            <p className="text-emerald text-[13px] font-bold mt-3 mb-0">{t("renewalAdded")}</p>
+            <div className="mt-3">
+              <p className="text-emerald text-body font-bold m-0">{t("renewalAdded")}</p>
+              {/* The contract was filed as a commitment a moment ago, and until
+                  now nothing said where it went. Storing something on somebody's
+                  behalf and not showing them where is the same shape of problem
+                  as the letter that says "sent" without leaving. */}
+              <p className="text-ink-soft text-caption mt-1.5 mb-0 leading-relaxed">
+                {t("renewalWhereKept")}{" "}
+                <Link href="/commitments" className="text-emerald font-bold no-underline">
+                  {t("renewalWhereLink")}
+                </Link>
+              </p>
+            </div>
           ) : needsLogin ? (
             <div className="mt-3">
               <p className="text-ink-soft text-[12.5px] mb-2">{t("renewalLoginNote")}</p>
               <Link href={`/login?return=/contract-check`} className="no-underline">
-                <Button variant="ghost" className="!text-[13px]">
+                <Button variant="ghost" className="!text-body">
                   {t("renewalCta")}
                 </Button>
               </Link>
@@ -132,7 +210,7 @@ export function ContractRedFlagChecker() {
           ) : (
             <Button
               variant="ghost"
-              className="mt-3 !text-[13px]"
+              className="mt-3 !text-body"
               disabled={reminderBusy}
               onClick={addRenewalReminder}
             >
@@ -141,6 +219,16 @@ export function ContractRedFlagChecker() {
           )}
         </div>
       )}
+
+      {/* Present before any scan, not only after one succeeds. A person who
+          pastes nothing, or whose contract does not parse, still has a contract
+          renewing on a date somebody has to hold. */}
+      <p className="text-ink-soft text-caption mt-5 mb-0 leading-relaxed">
+        {t("commitmentsAlways")}{" "}
+        <Link href="/commitments" className="text-emerald font-bold no-underline">
+          {t("renewalWhereLink")}
+        </Link>
+      </p>
 
       {result && result.clauses.length > 0 && (
         <div className="flex flex-col gap-3 mt-6">
@@ -157,7 +245,7 @@ export function ContractRedFlagChecker() {
                 <span aria-hidden>{c.risk === "red" ? "🔴" : "🟢"}</span>
                 <div>
                   <p className="text-[13.5px] font-bold leading-relaxed">{c.quote}</p>
-                  <p className="text-ink-soft text-[13px] mt-1 leading-relaxed">{c.explanation}</p>
+                  <p className="text-ink-soft text-body mt-1 leading-relaxed">{c.explanation}</p>
                 </div>
               </div>
             </div>

@@ -71,7 +71,7 @@ export default async function RightLandingPage({
       <p className="text-ink-soft text-[15px] leading-relaxed">{item.desc}</p>
 
       <Card className="p-5 mt-6">
-        <div className="text-[13px] font-extrabold text-emerald mb-2">{t("howTo")}</div>
+        <div className="text-body font-extrabold text-emerald mb-2">{t("howTo")}</div>
         <p className="text-[14px] leading-relaxed m-0">{item.how}</p>
       </Card>
 

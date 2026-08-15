@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { exportJWK, generateKeyPair } from "jose";
 import { prisma } from "@/lib/prisma";
 import { createCase, recordSaving, CaseError } from "./cases";
+import { createAuthorization } from "./authorization";
 import { PLANS } from "@/lib/plans";
 
 /**
@@ -22,6 +24,20 @@ const suite = hasDb ? describe : describe.skip;
  *  3. PRO charges half the FREE rate.
  */
 
+/**
+ * A chargeable fee must be bound to a signed Mandate, so the suite needs a
+ * signing key. Generated per run and never persisted: the point of the
+ * production rule is that keys come from env and are not minted at runtime,
+ * and a test that quietly relied on a real one would be testing the
+ * deployment rather than the code.
+ */
+beforeAll(async () => {
+  if (!hasDb || process.env.MANDATE_SIGNING_JWK) return;
+  const { privateKey } = await generateKeyPair("Ed25519", { extractable: true });
+  process.env.MANDATE_SIGNING_JWK = JSON.stringify(await exportJWK(privateKey));
+  process.env.MANDATE_SIGNING_KID = "plans-integration-test";
+});
+
 const tag = `plan-test-${Date.now()}`;
 const userIds: string[] = [];
 
@@ -37,6 +53,22 @@ async function makeUser(plan: "FREE" | "PRO" | "MAX") {
   });
   userIds.push(user.id);
   return user;
+}
+
+/**
+ * Bind a real Mandate before settling.
+ *
+ * `recordSaving` refuses to raise a fee without an ACTIVE authorization —
+ * added on 2026-08-04, a week after this file was last touched, which left
+ * these suites red for anyone who ran them with a database. They stayed green
+ * in CI only because CI sets no DATABASE_URL. Creating the authorization here
+ * is not a workaround: it is what production actually does before a case can
+ * be settled, so the test now exercises the real path instead of one that no
+ * longer exists.
+ */
+async function sendable(caseId: string) {
+  await prisma.case.update({ where: { id: caseId }, data: { status: "SENT" } });
+  await createAuthorization(caseId);
 }
 
 const caseInput = (userId: string) => ({
@@ -65,7 +97,7 @@ suite("plan enforcement (integration)", () => {
   it("MAX: saving documented, case SAVED, fee zero and WAIVED", async () => {
     const user = await makeUser("MAX");
     const kase = await createCase(caseInput(user.id));
-    await prisma.case.update({ where: { id: kase.id }, data: { status: "SENT" } });
+    await sendable(kase.id);
 
     const res = await recordSaving(kase.id, user.id, 50);
     expect(res.case.status).toBe("SAVED"); // saving counts even with 0% fee
@@ -80,7 +112,7 @@ suite("plan enforcement (integration)", () => {
   it("PRO: charges half the FREE rate", async () => {
     const user = await makeUser("PRO");
     const kase = await createCase(caseInput(user.id));
-    await prisma.case.update({ where: { id: kase.id }, data: { status: "SENT" } });
+    await sendable(kase.id);
 
     // ₪100 → ₪50: saving 5000 agorot; PRO 9% → 450 agorot (FREE would be 900).
     const res = await recordSaving(kase.id, user.id, 50);

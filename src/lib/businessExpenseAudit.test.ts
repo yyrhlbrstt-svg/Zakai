@@ -12,6 +12,7 @@ const charge = (merchant: string, monthlyAgorot = 10_000): RecurringCharge => ({
   merchant,
   category: "other",
   monthlyAgorot,
+  chargedOn: [],
   occurrences: 3,
   providerKey: null,
 });

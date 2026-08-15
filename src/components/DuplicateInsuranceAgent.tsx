@@ -101,20 +101,20 @@ export function DuplicateInsuranceAgent({
       <Card className="p-6 flex flex-col gap-4">
         <div className="font-display text-lg">{t("title")}</div>
         <p className="text-[13.5px] text-ink-soft leading-relaxed">{t("sub")}</p>
-        <p className="text-[13px] text-ink">
+        <p className="text-body text-ink">
           {t("estMonthly", { amount: formatAgorot(monthlyAgorot, bcp47) })}
         </p>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
           <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("insurerQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("insurerQ")}</span>
           <Input value={insurerName} onChange={(e) => setInsurerName(e.target.value)} required />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("emailQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("emailQ")}</span>
           <Input
             type="email"
             value={insurerEmail}
@@ -123,7 +123,7 @@ export function DuplicateInsuranceAgent({
           />
         </label>
 
-        {agentError && <p className="text-[13px] text-[#f08a6b]">{agentError}</p>}
+        {agentError && <p className="text-body text-[#f08a6b]">{agentError}</p>}
 
         <MissingFields
           items={[

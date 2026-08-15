@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
+import { CannotSpendPanel } from "@/components/CannotSpendPanel";
 import { FEE_DISPUTE_WINDOW_DAYS } from "@/lib/services/cases";
 import { alternateLanguages } from "@/lib/seo";
 import { publicSecurityEmail, publicSupportEmail } from "@/lib/contact";
@@ -48,7 +49,7 @@ export default async function TrustPage({
       <Section heading={t("differentHeading")}>
         <p className="text-[14.5px] leading-relaxed mb-3">{t("differentIntro")}</p>
         <Bullets items={different} />
-        <p className="text-[13px] text-ink-soft leading-relaxed mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
+        <p className="text-body text-ink-soft leading-relaxed mt-4 pt-3 border-t border-[rgba(255,255,255,0.08)]">
           {t("differentProof")}
           <a href={jwksUrl} target="_blank" rel="noopener noreferrer" className="text-emerald font-bold" dir="ltr">
             /.well-known/zakai-jwks.json
@@ -60,6 +61,16 @@ export default async function TrustPage({
           .
         </p>
       </Section>
+
+      {/*
+        Placed before the general security section because it is the one
+        question a reader actually arrives with after seeing an AI wired into
+        somebody's bank account, and because it is the only claim on this page
+        backed by a list rather than a sentence.
+      */}
+      <div className="my-8">
+        <CannotSpendPanel locale={locale} />
+      </div>
 
       <Section heading={t("securityHeading")}>
         <Bullets items={security} />
@@ -99,7 +110,7 @@ export default async function TrustPage({
         </a>
       </Section>
 
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed border-t border-[rgba(255,255,255,0.09)] pt-4">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed border-t border-[rgba(255,255,255,0.09)] pt-4">
         {t("disclaimer")}
       </p>
     </main>

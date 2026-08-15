@@ -79,17 +79,17 @@ export default async function RegulatoryKitPage({
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link href="/institutions">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {c.institutions}
           </Button>
         </Link>
         <Link href="/network-proof">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {c.network}
           </Button>
         </Link>
         <Link href="/domains">
-          <Button variant="ghost" className="!text-[13px]">
+          <Button variant="ghost" className="!text-body">
             {c.domains}
           </Button>
         </Link>

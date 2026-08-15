@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { RightsChecker } from "@/components/RightsChecker";
 import { RightsCatalogIndex } from "@/components/RightsCatalogIndex";
@@ -6,8 +7,23 @@ import { bcp47, type Locale } from "@/i18n/config";
 import { getVisitorMarket } from "@/lib/global/visitorMarket";
 import { rightsDefaultCountry } from "@/lib/global/marketGeo";
 import { VisitorMarketNotice } from "@/components/VisitorMarketNotice";
+import { publicPageMetadata } from "@/lib/seo";
 
 /** Public — the literal meaning of the brand: are you getting what you're entitled to? */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return publicPageMetadata(locale, {
+    title: t("rights.t"),
+    description: t("rights.d"),
+    path: "/rights",
+  });
+}
+
 export default async function RightsPage({
   params,
 }: {

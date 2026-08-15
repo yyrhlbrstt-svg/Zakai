@@ -155,7 +155,7 @@ export default async function BusinessPage({
             <Reveal key={c.title} delay={i * 70}>
               <SpotlightCard className="p-5 h-full border-[rgba(63,203,155,0.25)]">
                 <div className="font-extrabold text-[15px] text-emerald">{c.title}</div>
-                <div className="text-ink-soft text-[13px] mt-2 leading-relaxed">{c.sub}</div>
+                <div className="text-ink-soft text-body mt-2 leading-relaxed">{c.sub}</div>
               </SpotlightCard>
             </Reveal>
           ))}
@@ -210,7 +210,7 @@ export default async function BusinessPage({
       <div className="max-w-[420px]">
         <EmbedPreview locale={locale} />
       </div>
-      <pre className="mt-4 text-[12px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg max-w-[560px]">
+      <pre tabIndex={0} className="mt-4 text-[12px] leading-relaxed overflow-x-auto bg-black/30 p-4 rounded-lg max-w-[560px]">
         {`<div id="zakai-embed" data-locale="${locale}" data-ref="your-partner-id" data-path="money"></div>
 <script src="${ORIGIN}/embed.js" async></script>`}
       </pre>

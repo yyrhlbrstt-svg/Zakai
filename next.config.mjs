@@ -7,6 +7,15 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: { bodySizeLimit: "8mb" },
+    // src/app/global-not-found.tsx supplies its own <html>/<body> for a path
+    // that matches no route at all — there's no root layout.tsx to inherit
+    // from (see that file's own comment). Without this flag Next treats a
+    // same-shaped app/not-found.tsx as a legacy nested-not-found boundary
+    // instead, which cannot mount a second <html> inside one that already
+    // rendered: the page ships a 404 status with a fully empty <body>, for
+    // both a locale-prefixed typo and a bare unmatched path alike — proven
+    // live, not assumed from a changelog entry.
+    globalNotFound: true,
   },
   // Serverless NFT otherwise omits the packs tree → /api/cdn/packs 404 in prod.
   outputFileTracingIncludes: {

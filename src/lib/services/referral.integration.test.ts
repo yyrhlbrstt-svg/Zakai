@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { exportJWK, generateKeyPair } from "jose";
 import { prisma } from "@/lib/prisma";
 import { recordSaving } from "./cases";
+import { createAuthorization } from "./authorization";
 import { REFERRAL_REWARD_AGOROT } from "@/lib/referral";
 import { computeFee } from "@/lib/fee";
 
@@ -27,9 +29,18 @@ const tag = `ref-test-${Date.now()}`;
 let referrerId: string;
 let friendId: string;
 
-/** Insert a case already at SENT so recordSaving can settle it directly. */
+/**
+ * Insert a case at SENT with a real Mandate bound, so recordSaving can settle
+ * it.
+ *
+ * The Mandate binding became mandatory for a chargeable fee on 2026-08-04,
+ * after this file was last touched, which left the suite red for anyone
+ * running it against a database — and green in CI only because CI sets no
+ * DATABASE_URL. These are the tests that stop referral farming, so losing
+ * them silently was the expensive kind of quiet.
+ */
 async function sentCase(userId: string, originalAgorot: number, targetAgorot: number) {
-  return prisma.case.create({
+  const kase = await prisma.case.create({
     data: {
       userId,
       provider: "cellcom",
@@ -38,9 +49,19 @@ async function sentCase(userId: string, originalAgorot: number, targetAgorot: nu
       status: "SENT",
     },
   });
+  await createAuthorization(kase.id);
+  return kase;
 }
 
 beforeAll(async () => {
+  // A chargeable fee must be bound to a signed Mandate. Generated per run and
+  // never persisted — production keys come from env and are not minted at
+  // runtime.
+  if (!process.env.MANDATE_SIGNING_JWK) {
+    const { privateKey } = await generateKeyPair("Ed25519", { extractable: true });
+    process.env.MANDATE_SIGNING_JWK = JSON.stringify(await exportJWK(privateKey));
+    process.env.MANDATE_SIGNING_KID = "referral-integration-test";
+  }
   const referrer = await prisma.user.create({
     data: {
       email: `${tag}-referrer@zakai.test`,

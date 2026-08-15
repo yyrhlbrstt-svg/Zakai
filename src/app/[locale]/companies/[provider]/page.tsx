@@ -117,7 +117,7 @@ export default async function CompanyDetailPage({
 
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-5">
-      <Link href="/companies" className="text-[13px] font-bold text-emerald no-underline">
+      <Link href="/companies" className="text-body font-bold text-emerald no-underline">
         ← {t("companies.title")}
       </Link>
 
@@ -218,7 +218,7 @@ export default async function CompanyDetailPage({
         </Link>
       </div>
 
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] leading-relaxed max-w-[600px]">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed max-w-[600px]">
         {t("companies.disclaimer")}
       </p>
     </main>

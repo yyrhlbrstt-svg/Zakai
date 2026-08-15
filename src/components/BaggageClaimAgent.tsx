@@ -75,7 +75,7 @@ export function BaggageClaimAgent() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("agent.sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <div>
-          <span className="text-[13px] text-ink-soft block mb-2">{t("agent.disruptionQ")}</span>
+          <span className="text-body text-ink-soft block mb-2">{t("agent.disruptionQ")}</span>
           <RadioChips
             value={disruptionType}
             onChange={setDisruptionType}
@@ -88,15 +88,15 @@ export function BaggageClaimAgent() {
         </div>
         <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.name")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.name")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.airline")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.airline")}</span>
             <Input value={airline} onChange={(e) => setAirline(e.target.value)} maxLength={80} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.airlineEmail")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.airlineEmail")}</span>
             <Input
               type="email"
               value={airlineEmail}
@@ -106,20 +106,20 @@ export function BaggageClaimAgent() {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.pir")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.pir")}</span>
             <Input value={pirNumber} onChange={(e) => setPirNumber(e.target.value)} maxLength={40} dir="ltr" />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.flightDate")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.flightDate")}</span>
             <Input value={flightDate} onChange={(e) => setFlightDate(e.target.value)} maxLength={40} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.purchases")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("agent.purchases")}</span>
             <Input type="number" value={purchases} onChange={(e) => setPurchases(e.target.value)} />
           </label>
         </div>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("agent.description")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("agent.description")}</span>
           <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={500} />
         </label>
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{tFlow("honestNote")}</p>
@@ -133,7 +133,7 @@ export function BaggageClaimAgent() {
         <Button onClick={sendWithAgent} disabled={!ready || busy}>
           {busy ? tFlow("opening") : tFlow("openCase")}
         </Button>
-        {error && <p className="text-[13px] text-amber m-0">{error}</p>}
+        {error && <p className="text-body text-amber m-0">{error}</p>}
       </Card>
 
       {caseId && (

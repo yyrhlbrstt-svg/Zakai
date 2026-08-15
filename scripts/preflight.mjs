@@ -48,8 +48,18 @@ const CHECKS = [
     cost: "Institutional Mandate issue API stays closed." },
   { key: "MANDATE_REVOKE_KEY", level: "degrading",
     cost: "Mandate revoke/status ops API stays closed." },
+  /**
+   * "Fine to launch on" was wrong, and the correction came from reading a
+   * letter this product actually sent.
+   *
+   * This address is not only where institutional enquiries land. It is printed
+   * in the footer of every outbound letter, to every company, on behalf of
+   * every user — measured at three occurrences per letter in a real message
+   * pulled out of a mailbox. Unset, that is the founder's personal Gmail
+   * published to every counterparty the product ever writes to, forever.
+   */
   { key: "SALES_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
-    cost: "Institutional enquiries fall back to the founder address. Fine to launch on; set it once there is a shared inbox." },
+    cost: "Every outbound letter to every company prints the founder's personal address in its footer, three times. Set this before any real volume." },
   { key: "LEADS_EMAIL", level: "degrading", alt: ["NEXT_PUBLIC_SUPPORT_EMAIL"],
     cost: "Consumer leads fall back to the founder address. Fine to launch on; set it once there is a shared inbox." },
   // A privilege, not a destination: it opens the founder dashboard, which lists
@@ -96,6 +106,28 @@ if (from && smtpUser) {
   if (domain(from) && domain(smtpUser) && domain(from) !== domain(smtpUser)) {
     console.log(`\n  ! SMTP_FROM is @${domain(from)} but the transport authenticates as @${domain(smtpUser)}.`);
     console.log("    Unless SPF and DKIM are published for the From domain, Gmail will mark every message as unverified.");
+  }
+}
+
+/**
+ * The one contact address that leaves the building.
+ *
+ * Separate from the reserved-domain check below because the failure is not a
+ * bad address — it is a correct, working, *personal* address on a document
+ * sent to strangers at scale. Nothing breaks, which is exactly why nobody
+ * notices until it is on a thousand desks.
+ */
+{
+  const outbound = process.env.SALES_EMAIL?.trim() || process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim();
+  const personal = /@(gmail|outlook|hotmail|yahoo|icloud|walla|protonmail)\./i;
+  if (!outbound) {
+    console.log(
+      "\n  ! No SALES_EMAIL or NEXT_PUBLIC_SUPPORT_EMAIL — every letter to every company will carry the built-in founder address.",
+    );
+  } else if (personal.test(outbound)) {
+    console.log(
+      `\n  ! ${outbound} is a personal mailbox, and it is printed in the footer of every outbound letter to every company.`,
+    );
   }
 }
 

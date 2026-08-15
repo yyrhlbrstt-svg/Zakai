@@ -24,7 +24,14 @@ import { moneyCaseHref } from "@/lib/moneyCaseHref";
  * tracks" for a Mandate-backed Case (the tenant already vacated, so this
  * carries none of the ongoing-relationship risk overtime-backpay has).
  */
-export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
+export function DepositReturnClaim({
+  bcp47,
+  mailLive = true,
+}: {
+  bcp47: string;
+  /** False when no SMTP: the agent cannot deliver, so the letter leads. */
+  mailLive?: boolean;
+}) {
   const t = useTranslations("depositClaim");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
@@ -123,13 +130,13 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
     <div>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("vacateDateQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("vacateDateQ")}</span>
           <Input type="date" value={vacateDate} onChange={(e) => setVacateDate(e.target.value)} />
         </label>
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("amountQ")}</span>
+            <span className="text-body text-ink-soft">{t("amountQ")}</span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(depositAmount))}</span>
           </div>
           <input
@@ -144,7 +151,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
         </label>
 
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("rentQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("rentQ")}</span>
           <Input
             type="number"
             min={0}
@@ -157,7 +164,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
 
       {status && (
         <Card className="mt-5 p-6 text-center">
-          <div className="text-[13px] text-ink-soft font-bold">
+          <div className="text-body text-ink-soft font-bold">
             {status.isLate ? t("statusLate") : t("statusNotYet")}
           </div>
           <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
@@ -173,7 +180,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
 
       {capCheck?.exceeds && (
         <Card className="mt-5 p-5 border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.06)]">
-          <p className="text-[13px] leading-relaxed m-0">
+          <p className="text-body leading-relaxed m-0">
             {t("capExceededNote", { cap: money(capCheck.capAgorot) })}
           </p>
         </Card>
@@ -182,15 +189,15 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
       <Card className="mt-5 p-6 flex flex-col gap-3">
         <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("tenantQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("tenantQ")}</span>
             <Input value={tenantName} onChange={(e) => setTenantName(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("landlordQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("landlordQ")}</span>
             <Input value={landlordName} onChange={(e) => setLandlordName(e.target.value)} />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("landlordEmailQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("landlordEmailQ")}</span>
             <Input
               type="email"
               value={landlordEmail}
@@ -199,20 +206,27 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
             />
           </label>
           <label className="block">
-            <span className="text-[13px] text-ink-soft block mb-1.5">{t("addressQ")}</span>
+            <span className="text-body text-ink-soft block mb-1.5">{t("addressQ")}</span>
             <Input value={propertyAddress} onChange={(e) => setPropertyAddress(e.target.value)} />
           </label>
         </div>
         <div className="flex flex-col gap-2">
-          <Button onClick={sendWithAgent} disabled={!canSendWithAgent || busy}>
+          {/* Emphasis follows what can actually happen. With no outbound
+              mail the agent cannot deliver, so the copy-only letter is not an
+              "alternative" — it is the only route that reaches anyone. */}
+          <Button
+            variant={mailLive ? "primary" : "ghost"}
+            onClick={sendWithAgent}
+            disabled={!canSendWithAgent || busy}
+          >
             {busy ? t("agentBusy") : t("agentSendCta")}
           </Button>
-          <details className="text-[13px] text-ink-soft">
+          <details className="text-body text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
               {heEn(he, "חלופה — מכתב להעתקה בלבד", "Alternative — copy-only letter")}
             </summary>
             <Button
-              variant="ghost"
+              variant={mailLive ? "ghost" : "primary"}
               className="mt-2 w-full"
               onClick={generateLetter}
               disabled={!status}
@@ -236,7 +250,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
             ]}
           />
         )}
-        {agentError && <p className="text-[13px] text-amber">{agentError}</p>}
+        {agentError && <p className="text-body text-amber">{agentError}</p>}
       </Card>
 
       {caseId && (
@@ -256,7 +270,7 @@ export function DepositReturnClaim({ bcp47 }: { bcp47: string }) {
             value={letter}
             rows={14}
             dir="rtl"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink outline-none box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button

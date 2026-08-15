@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, Button, Input, Textarea } from "@/components/ui";
 import { buildSlcOverpaymentLetter } from "@/lib/slcOverpaymentLetter";
+import { MissingFields } from "@/components/MissingFields";
+import { OutcomeReport } from "@/components/OutcomeReport";
 
 export function SlcOverpaymentTool() {
   const t = useTranslations("studentLoanOverpayment.tool");
@@ -30,17 +32,18 @@ export function SlcOverpaymentTool() {
       <p className="text-ink-soft text-[14px] mb-5 leading-relaxed">{t("sub")}</p>
       <Card className="p-6 flex flex-col gap-4">
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("nameQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("referenceQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("referenceQ")}</span>
           <Input value={customerReference} onChange={(e) => setCustomerReference(e.target.value)} maxLength={60} />
         </label>
         <label className="block">
-          <span className="text-[13px] text-ink-soft block mb-1.5">{t("detailsQ")}</span>
+          <span className="text-body text-ink-soft block mb-1.5">{t("detailsQ")}</span>
           <Textarea value={accountDetails} onChange={(e) => setAccountDetails(e.target.value)} rows={3} maxLength={500} />
         </label>
+        <MissingFields items={[{ ok: accountDetails.trim().length > 0, label: t("detailsQ") }]} />
         <Button onClick={() => setLetter(letterPreview)} disabled={!canGenerate}>
           {t("generateCta")}
         </Button>
@@ -53,7 +56,7 @@ export function SlcOverpaymentTool() {
             value={letter}
             rows={14}
             dir="ltr"
-            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-[13px] leading-relaxed text-ink outline-none box-border"
+            className="w-full px-4 py-3 rounded-xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.05)] text-body leading-relaxed text-ink box-border"
           />
           <div className="flex gap-3 mt-3 flex-wrap items-center">
             <Button
@@ -72,6 +75,7 @@ export function SlcOverpaymentTool() {
             </Button>
             <span className="text-[12px] text-ink-soft">{t("sendHint")}</span>
           </div>
+          <OutcomeReport market="GB" vertical="student_loan_overpayment" counterparty="slc" variantId="standard" />
         </Card>
       )}
     </div>

@@ -55,7 +55,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
           <button
             key={l}
             onClick={() => switchLocale(l)}
-            className="bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] rounded-[10px] px-3 py-1.5 text-[13px] font-bold cursor-pointer min-w-[40px] hover:border-[rgba(63,203,155,0.35)] transition-colors"
+            className="bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] rounded-[10px] px-3 py-1.5 text-body font-bold cursor-pointer min-w-[40px] hover:border-[rgba(63,203,155,0.35)] transition-colors"
             aria-label={`Switch language to ${localeLabel[l]}`}
           >
             {localeLabel[l]}
@@ -125,6 +125,12 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
               <>
                 <ToolsMenu label={t("nav.tools")} toolLabel={toolLabel} allToolsLabel={t("nav.allTools")} />
                 <NavLink href="/business" pathname={pathname}>{tIcomponents_Header("t_79771be3")}</NavLink>
+                {/* Neither of these was reachable from the desktop nav at all:
+                    /agents from nowhere, /institutions from mobile only. The
+                    protocol is the long-term asset and it had no door on the
+                    surface most integrators arrive on. */}
+                <NavLink href="/agents" pathname={pathname}>{t("nav.agents")}</NavLink>
+                <NavLink href="/institutions" pathname={pathname}>{t("nav.institutions")}</NavLink>
                 <NavLink href="/pricing" pathname={pathname}>{t("nav.pricing")}</NavLink>
                 <NavLink href="/login" pathname={pathname}>{t("nav.login")}</NavLink>
                 <NavLink href="/signup" pathname={pathname}>{t("nav.signup")}</NavLink>
@@ -190,7 +196,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
                   className="flex items-center gap-2 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.1)] transition-colors"
                 >
                   <ToolIcon name={tool.key} size={17} className="text-emerald shrink-0" />
-                  <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
+                  <span className="text-body font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
                 </Link>
               ))}
             </div>
@@ -202,6 +208,7 @@ export function Header({ user }: { user: { name: string; plan?: string } | null 
             ) : (
               <>
                 <MobileLink href="/business" pathname={pathname}>{tIcomponents_Header("t_b4265709")}</MobileLink>
+                <MobileLink href="/agents" pathname={pathname}>{t("nav.agents")}</MobileLink>
                 <MobileLink href="/institutions" pathname={pathname}>{tIcomponents_Header("t_8886b51f")}</MobileLink>
                 <MobileLink href="/pricing" pathname={pathname}>{t("nav.pricing")}</MobileLink>
                 <MobileLink href="/login" pathname={pathname}>{t("nav.login")}</MobileLink>
@@ -277,13 +284,13 @@ function ToolsMenu({
               className="flex items-center gap-2.5 no-underline rounded-xl px-3 py-2.5 text-ink-soft hover:text-ink hover:bg-[rgba(63,203,155,0.12)] transition-colors"
             >
               <ToolIcon name={tool.key} size={18} className="text-emerald shrink-0" />
-              <span className="text-[13px] font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
+              <span className="text-body font-bold leading-tight">{toolLabel(tool.href, tool.key)}</span>
             </Link>
           ))}
           <Link
             href="/tools"
             role="menuitem"
-            className="col-span-2 mt-1 flex items-center justify-center gap-2 no-underline rounded-xl px-3 py-2.5 text-emerald font-extrabold text-[13px] border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.1)] hover:bg-[rgba(63,203,155,0.16)]"
+            className="col-span-2 mt-1 flex items-center justify-center gap-2 no-underline rounded-xl px-3 py-2.5 text-emerald font-extrabold text-body border border-[rgba(63,203,155,0.4)] bg-[rgba(63,203,155,0.1)] hover:bg-[rgba(63,203,155,0.16)]"
           >
             {allToolsLabel}
           </Link>

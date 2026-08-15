@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getCurrentUser } from "@/lib/auth/user";
@@ -5,6 +6,18 @@ import { StatementScan } from "@/components/StatementScan";
 import { planConfig } from "@/lib/plans";
 import { aiAvailable } from "@/lib/ai";
 import { bcp47, type Locale } from "@/i18n/config";
+import { privatePageMetadata } from "@/lib/seo";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pageMeta" });
+  return privatePageMetadata(t("scan.t"));
+}
 
 export default async function ScanPage({
   params,
@@ -28,6 +41,7 @@ export default async function ScanPage({
         fullScan={planConfig(user!.plan).fullScan}
         bcp47={bcp47[locale as Locale]}
         screenshotEnabled={aiAvailable()}
+        mailLive={smtpFullyConfigured()}
         referralCode={user!.referralCode}
       />
     </main>

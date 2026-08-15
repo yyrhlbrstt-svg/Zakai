@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
+import { linkifyAssistantText } from "@/lib/linkifyAssistant";
 import { Card, Button, Input } from "@/components/ui";
 import { formatAgorot } from "@/lib/money";
 import type { Insight } from "@/lib/insights";
@@ -188,7 +189,7 @@ export function AssistantScreen({
                 {insightText(i)}
               </p>
               <Link href={i.href} className="no-underline shrink-0">
-                <Button variant="ghost" className="!px-4 !py-2 !text-[13px]">
+                <Button variant="ghost" className="!px-4 !py-2 !text-body">
                   {t(`insightCta.${i.key}`)}
                 </Button>
               </Link>
@@ -250,11 +251,29 @@ export function AssistantScreen({
                         : "self-start bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)]"
                     }`}
                   >
-                    {m.text}
+                    {/* Rendered as segments, not raw text. A bare "/money?case=…"
+                        inside an RTL reply is reordered by bidi into
+                        "money?/case=…" — a scrambled, untappable string at the
+                        exact step where the reader has already agreed to
+                        everything. dir="ltr" on the link pins the path. */}
+                    {linkifyAssistantText(m.text).map((seg, j) =>
+                      seg.kind === "link" ? (
+                        <Link
+                          key={j}
+                          href={seg.href}
+                          dir="ltr"
+                          className="text-emerald font-bold underline inline-block"
+                        >
+                          {seg.label}
+                        </Link>
+                      ) : (
+                        <span key={j}>{seg.value}</span>
+                      ),
+                    )}
                   </div>
                 ))}
                 {busy && (
-                  <div className="self-start text-ink-soft text-[13px] px-2" aria-live="polite">
+                  <div className="self-start text-ink-soft text-body px-2" aria-live="polite">
                     {t("thinking")}
                   </div>
                 )}
@@ -262,7 +281,7 @@ export function AssistantScreen({
             )}
             {chatError && (
               <div className="flex flex-wrap items-center gap-2.5">
-                <p className="text-danger text-[13px] font-semibold m-0">
+                <p className="text-danger text-body font-semibold m-0">
                   {chatError === "quota" ? t("quotaError") : t("chatGenericError")}
                 </p>
                 {/* Only offered when there is something to resend. Losing a
@@ -282,7 +301,7 @@ export function AssistantScreen({
               </div>
             )}
             {imageError && (
-              <p className="text-danger text-[13px] font-semibold">{t("imageTooBig")}</p>
+              <p className="text-danger text-body font-semibold">{t("imageTooBig")}</p>
             )}
             {pendingImage && (
               <div className="flex items-center gap-2 mb-2.5 text-[12.5px] font-semibold text-emerald bg-[rgba(63,203,155,0.1)] border border-[rgba(63,203,155,0.25)] rounded-full px-3 py-1.5 w-fit">
@@ -312,7 +331,6 @@ export function AssistantScreen({
                 ref={fileRef}
                 type="file"
                 accept="image/*"
-                capture="environment"
                 className="hidden"
                 onChange={(e) => {
                   void onAttach(e.target.files?.[0]);
@@ -339,7 +357,7 @@ export function AssistantScreen({
       </Card>
 
       {/* Under the assistant: the full FAQ, and the improve-Zakai box. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-[13px]">
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-body">
         <Link href="/faq" className="text-emerald font-bold no-underline">
           {t("moreFaq")}
         </Link>

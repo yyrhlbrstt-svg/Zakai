@@ -10,6 +10,7 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { NumberedStepList } from "@/components/NumberedStepList";
 import { GradientCtaCard } from "@/components/GradientCtaCard";
 import { bcp47, type Locale } from "@/i18n/config";
+import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 
 export async function generateMetadata({
   params,
@@ -54,7 +55,7 @@ export default async function DepositPage({
           <Reveal key={r.name} delay={i * 60}>
             <SpotlightCard className="p-5 h-full">
               <div className="font-extrabold text-[15px]">{r.name}</div>
-              <div className="text-ink-soft text-[13px] mt-1.5 leading-relaxed">{r.note}</div>
+              <div className="text-ink-soft text-body mt-1.5 leading-relaxed">{r.note}</div>
             </SpotlightCard>
           </Reveal>
         ))}
@@ -75,7 +76,7 @@ export default async function DepositPage({
             {locale === "he" || locale === "ar" ? "לכסף שלי" : "My money"}
           </Link>
         </p>
-        <DepositReturnClaim bcp47={bcp47[locale as Locale]} />
+        <DepositReturnClaim bcp47={bcp47[locale as Locale]} mailLive={smtpFullyConfigured()} />
       </Reveal>
 
       <Reveal>
@@ -97,7 +98,7 @@ export default async function DepositPage({
         </GradientCtaCard>
       </Reveal>
 
-      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.7)] text-center leading-relaxed max-w-[600px] mx-auto">
+      <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] text-center leading-relaxed max-w-[600px] mx-auto">
         {t("disclaimer")}
       </p>
     </VerticalPageShell>

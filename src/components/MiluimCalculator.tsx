@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Card, RadioChips } from "@/components/ui";
 import { computeMiluim, type MiluimEmployment } from "@/lib/miluim";
 import { formatAgorot, shekelsToAgorot } from "@/lib/money";
+import { NextStep } from "@/components/NextStep";
 
 /**
  * Reserve-duty pay calculator — pure client-side (nothing leaves the
@@ -42,7 +43,7 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">
+            <span className="text-body text-ink-soft">
               {employment === "employee" ? t("salaryQ") : t("incomeQ")}
             </span>
             <span className="font-display text-[15px]">{money(shekelsToAgorot(monthly))}</span>
@@ -53,7 +54,7 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
 
         <label className="block">
           <div className="flex justify-between items-baseline mb-1.5">
-            <span className="text-[13px] text-ink-soft">{t("daysQ")}</span>
+            <span className="text-body text-ink-soft">{t("daysQ")}</span>
             <span className="font-display text-[15px]">{days}</span>
           </div>
           <input type="range" min={1} max={120} step={1} value={days}
@@ -62,7 +63,7 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
       </Card>
 
       <Card className="mt-5 p-6 text-center">
-        <div className="text-[13px] text-ink-soft font-bold">{t("resultTitle")}</div>
+        <div className="text-body text-ink-soft font-bold">{t("resultTitle")}</div>
         <div className="font-display grad-text text-4xl mt-1.5" aria-live="polite">
           {money(r.totalAgorot)}
         </div>
@@ -73,14 +74,12 @@ export function MiluimCalculator({ bcp47 }: { bcp47: string }) {
         </div>
       </Card>
 
-      <Card className="mt-5 p-6">
-        <div className="font-extrabold text-[15px] mb-3">{t("howTitle")}</div>
-        <ul className="m-0 p-0 ps-4 list-disc flex flex-col gap-2 text-[13.5px] text-ink-soft leading-relaxed">
-          {(t.raw("howSteps") as string[]).map((s) => (
-            <li key={s}>{s}</li>
-          ))}
-        </ul>
-      </Card>
+      {/* This was the least prominent thing on the page: five bullets of
+          13.5px grey under the number, naming the actual forms — בל/501,
+          בל/502, the 3010 certificate — that get somebody paid. Whoever wrote
+          them knew exactly what happens next. The reader, looking at a big
+          green figure with small grey text beneath it, did not. */}
+      <NextStep title={t("howTitle")} steps={t.raw("howSteps") as string[]} />
 
       <p className="mt-5 text-[11.5px] text-ink-soft leading-relaxed">{t("disclaimer")}</p>
     </div>

@@ -48,6 +48,10 @@ export async function commitCaseLearningSignal(input: {
   caseId: string;
   context: StrategyContext;
   variantId: string | null;
+  /** Model that wrote the draft, as "provider:model"; null when unattributed. */
+  drafterId?: string | null;
+  /** True when a signed settlement backs this outcome. */
+  settlementBacked?: boolean;
   paid: boolean;
   recoveredMinor: number;
   days: number;
@@ -69,6 +73,8 @@ export async function commitCaseLearningSignal(input: {
     await recordOutcome({
       context: input.context,
       variantId,
+      drafterId: input.drafterId,
+      settlementBacked: input.settlementBacked,
       paid: input.paid,
       recoveredMinor: input.recoveredMinor,
       days: input.days,

@@ -117,7 +117,10 @@ export function RefundChaseTool() {
         <div className="flex flex-col gap-2 mt-1">
           <MissingFields
             items={[
-              { ok: company.trim().length > 0, label: t("company") },
+              // The field's own label, not a second string: a checklist that points at
+              // an empty input must name it the way the input does, and t("company")
+              // never existed in any locale — it rendered as the raw key.
+              { ok: company.trim().length > 0, label: t("t_6a05400b") },
               { ok: hasOutreachEmail(contactEmail), label: t("contactEmailPlaceholder") },
             ]}
           />
@@ -126,7 +129,7 @@ export function RefundChaseTool() {
           </Button>
           <Button
             variant="ghost"
-            className="w-full text-[13px]"
+            className="w-full text-body"
             disabled={!company.trim() || busy}
             onClick={() => {
               const letter = buildRefundLetter({
@@ -146,7 +149,7 @@ export function RefundChaseTool() {
             {t("t_b4c9b341")}
           </Button>
         </div>
-        {error && <p className="text-[13px] text-amber mt-1 mb-0">{error}</p>}
+        {error && <p className="text-body text-amber mt-1 mb-0">{error}</p>}
       </Card>
 
       {caseId && (
@@ -162,7 +165,7 @@ export function RefundChaseTool() {
       {out && (
         <Card className="p-5">
           <div className="font-extrabold">{out.subject}</div>
-          <pre className="mt-3 whitespace-pre-wrap text-[13px] leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
+          <pre className="mt-3 whitespace-pre-wrap text-body leading-relaxed bg-[#060b12] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
             {out.body}
           </pre>
           <Button

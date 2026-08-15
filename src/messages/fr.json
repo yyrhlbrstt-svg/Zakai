@@ -75,7 +75,9 @@
     "authority": "Mes procurations",
     "incident": "J'ai été blessé — qui me doit quelque chose ?",
     "dormant": "Argent oublié",
-    "vehicleCheck": "Vérification véhicule d'occasion"
+    "vehicleCheck": "Vérification véhicule d'occasion",
+    "agents": "Pour les agents · Mandate",
+    "institutions": "Pour les institutions"
   },
   "door": {
     "title": "Continuer après Mon argent",
@@ -374,8 +376,10 @@
     "start": "Commençons"
   },
   "inline_app_locale_money_page": {
-    "t_98667843": "Money OS · Mon argent",
-    "t_2144de53": "Où va l'argent — et l'agent agit",
+    "t_98667843": "Mon argent",
+    "t_2144de53": "Voyez ce qui part de votre compte chaque mois — et arrêtez-le",
+    "heroCta": "Commencer — photographiez votre relevé",
+    "heroCtaPaste": "Commencer — collez vos lignes de débit",
     "t_26d7de3c": "Ou agir directement",
     "t_bc18d8da": "Résilier un abonnement avec l'agent",
     "t_a4c2b6a9": "Vérification de facture mobile",
@@ -472,5 +476,36 @@
   "zakameter": {
     "cta": "Photo de facture — commencer dans Mon argent",
     "ctaScan": "Ou vérifier ce qui vous est dû (gratuit)"
+  },
+  "pricing": {
+    "maxRoiCheapest": "À ce niveau d'économies, le forfait le moins cher pour vous est {plan}.",
+    "maxRoiCheapestSaves": "À ce niveau d'économies, le forfait le moins cher pour vous est {plan} — environ {amount} de moins par an que l'option suivante.",
+    "maxRoiStayFree": "À ce niveau d'économies, rester en gratuit est le moins cher. Un abonnement ne serait pas rentable.",
+    "maxRoiProFrom": "Pro devient le forfait le moins cher à partir d'environ {amount} d'économies mensuelles documentées.",
+    "maxRoiMaxFrom": "Max devient le forfait le moins cher à partir d'environ {amount} d'économies mensuelles documentées."
+  },
+  "contractCheck": {
+    "noticeActBy": "Préavis écrit à donner avant le {date} — {days} jours de préavis requis. Il reste {left} jours.",
+    "noticeMissed": "Le délai de préavis a expiré le {date} ({days} jours requis). Le contrat va se reconduire — vous pouvez encore demander la résiliation ou de nouvelles conditions."
+  },
+  "flow": {
+    "perMonth": "par mois"
+  },
+  "cannotSpend": {
+    "heading": "Zakai ne peut pas dépenser un shekel en votre nom",
+    "sub": "Vous avez vu des IA connectées à un compte bancaire pour « gérer » l'argent. Un agent capable de dépenser peut être amené à vider un compte. Zakai est construit à l'inverse : il ne trouve que l'argent qui vous est dû, et l'argent ne circule que vers vous. Le pire cas d'un mandat compromis est une lettre non désirée, pas un vol.",
+    "allowedHeading": "Tout ce qu'un mandat peut contenir — la liste complète",
+    "perAct": "exige une confirmation distincte pour chaque acte",
+    "refusedHeading": "Refusé dans tout mandat",
+    "refusedNote": "Ce ne sont pas des « pas encore pris en charge ». Un mandat qui en contient un est rejeté, et un test fait échouer la compilation si quelqu'un ajoute une capacité de dépense.",
+    "verify": "Vérifiez cette liste par rapport à la source :"
+  },
+  "commitments": {
+    "metaTitle": "Mes engagements — Zakai",
+    "metaDesc": "Ce à quoi vous êtes engagé, et jusqu'à quand vous pouvez encore sortir.",
+    "kicker": "Le registre des engagements",
+    "title": "Ce à quoi vous êtes engagé, et jusqu'à quand vous pouvez sortir",
+    "sub": "Un contrat qui se reconduit le 1er janvier avec 60 jours de préavis doit être traité avant le 1er novembre — et cette date ne figure nulle part.",
+    "footnote": "La date est recalculée à chaque chargement et n'est jamais stockée. Un contrat sans préavis indiqué ne reçoit aucune date devinée."
   }
 }

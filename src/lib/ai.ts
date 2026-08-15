@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { resolveProviderKey, type ProviderKey } from "./providers";
 import { normalizeContractAnalysis, type ContractAnalysis } from "./contractAnalysis";
 import { buildAssistantSystem } from "./assistantSystem";
+import { drafterId, UNKNOWN_DRAFTER } from "./ai/drafterId";
 
 /**
  * Server-side AI. The API key never reaches the browser.
@@ -175,6 +176,8 @@ async function geminiGenerate(opts: {
    * normal ranked candidates — quality upgrade, never a reliability regression.
    */
   preferModel?: string;
+  /** Reports the provider and model that actually served this call. */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new AiUnavailableError();
@@ -227,7 +230,10 @@ async function geminiGenerate(opts: {
         .map((p) => p.text ?? "")
         .join("\n")
         .trim();
-      if (text) return text;
+      if (text) {
+        opts.onModel?.("gemini", model);
+        return text;
+      }
       lastError = `Gemini ${model}: empty response`;
       continue;
     }
@@ -262,6 +268,8 @@ async function ollamaGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /** Reports the provider and model that actually served this call. */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   const base = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/+$/, "");
   const model = process.env.OLLAMA_MODEL || "llama3.1";
@@ -290,6 +298,7 @@ async function ollamaGenerate(opts: {
   const data = (await res.json()) as { message?: { content?: string } };
   const text = (data.message?.content ?? "").trim();
   if (!text) throw new Error(`Ollama ${model}: empty response`);
+  opts.onModel?.("ollama", model);
   return text;
 }
 
@@ -305,6 +314,8 @@ async function openaiCompatGenerate(opts: {
   mediaType?: string;
   maxTokens: number;
   temperature?: number;
+  /** Reports the provider and model that actually served this call. */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   const cfg = openaiCompatConfig();
   if (!cfg) throw new AiUnavailableError();
@@ -346,6 +357,7 @@ async function openaiCompatGenerate(opts: {
   };
   const text = (data.choices?.[0]?.message?.content ?? "").trim();
   if (!text) throw new Error(`OpenAI-compat ${cfg.model}: empty response`);
+  opts.onModel?.("openai", cfg.model);
   return text;
 }
 
@@ -363,6 +375,8 @@ async function fallbackGenerate(
     temperature?: number;
     /** Gemini-only: a stronger model to try first (ignored by other providers). */
     geminiPreferModel?: string;
+    /** Reports the provider and model that actually served this call. */
+    onModel?: (provider: AiProvider, model: string) => void;
   },
   /** Explicit provider (used when retrying after the primary failed at call time). */
   forceProvider?: AiProvider,
@@ -388,6 +402,31 @@ async function fallbackGenerate(
  */
 const DRAFT_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 const EXTRACT_MODEL = process.env.ANTHROPIC_EXTRACT_MODEL || "claude-haiku-4-5";
+
+/**
+ * The model used where the output is a sum of money that binds somebody.
+ *
+ * Every extraction here ran on the small model, which is right for most of
+ * them: classifying a document, pulling transaction rows, reading a receipt
+ * into a list. Those are cheap to check and cheap to get wrong — the person
+ * sees the result on screen next to the picture they just took.
+ *
+ * Three of them are not like that. The amount read off a bill becomes the
+ * figure in a demand letter sent to a real company over a real person's name,
+ * and the amount read out of a provider's reply becomes a SavingsProof and a
+ * fee charged to that person. Nobody re-reads the photograph at that point.
+ * The first non-negotiable in this codebase is that we never fabricate an
+ * amount, and a misread digit is a fabricated amount that nobody chose.
+ *
+ * This is an asymmetry judgement, not a benchmark: there is no API key in the
+ * environment this was written in, so I have not measured Hebrew bill OCR on
+ * the two models and am not going to claim I did. The reasoning is only that
+ * the cost of the two errors is wildly unequal — a few tenths of a cent per
+ * upload against a wrong number in a legal demand. Set ANTHROPIC_MONEY_MODEL
+ * to move it, and measure before you do.
+ */
+const MONEY_MODEL =
+  process.env.ANTHROPIC_MONEY_MODEL || process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
 /** A system block that opts into prompt caching. Text must be stable. */
 function cachedSystem(text: string) {
@@ -420,6 +459,17 @@ async function generateText(opts: {
   maxTokens: number;
   temperature?: number;
   geminiPreferModel?: string;
+  /**
+   * Called with the provider and model that actually produced the text, after
+   * the call succeeds — including when a fallback provider handled it.
+   *
+   * It is a callback rather than a return value so that adding attribution did
+   * not have to touch all ~15 call sites. The distinction that matters is that
+   * it reports the executed call, never the configuration: the two differ
+   * exactly when the primary provider failed, which is precisely when a
+   * configuration-derived answer would be wrong.
+   */
+  onModel?: (provider: AiProvider, model: string) => void;
 }): Promise<string> {
   if (aiProvider() !== "anthropic") return fallbackGenerate(opts);
 
@@ -449,6 +499,10 @@ async function generateText(opts: {
         },
       ],
     });
+    // Reported after the call returns, and from the response's own model
+    // field where the API echoes it, so an alias like "claude-sonnet-5"
+    // resolves to whatever actually served the request.
+    opts.onModel?.("anthropic", msg.model || opts.model);
     return msg.content
       .map((b) => (b.type === "text" ? b.text : ""))
       .join("\n")
@@ -475,6 +529,206 @@ export interface BillAnalysis {
 
 const BILL_EXTRACT_SYSTEM = `You extract data from photos of Israeli MOBILE phone bills. Extract the provider name, the monthly charge as a plain ILS number, and a short Hebrew plan description if visible. If the image is not a readable bill, set readable=false. Respond ONLY with JSON: {"provider":"...","amount":number_or_null,"plan":"...","readable":boolean}`;
 
+/**
+ * Name the document. Do not act on it.
+ *
+ * This exists because every other image entry point here is scoped to one
+ * document type and answers everything else with `readable: false`, which the
+ * UI shows as "I couldn't read the image, try a clearer photo". A sharp,
+ * well-lit electricity bill uploaded on /check got told to try a better
+ * picture — the app blaming the camera for a document it never handled.
+ *
+ * The model's whole job is the label. Where a label leads is decided by
+ * `routeDocument` in documentRouter.ts, in product code, tested without a
+ * network call — the same LLM-proposes / code-executes split used everywhere
+ * else in this file.
+ */
+const DOCUMENT_CLASSIFY_SYSTEM = `You identify what kind of document an image shows. Israeli context (Hebrew text common). Choose exactly one "kind" from this closed list:
+- "mobile_bill": a cellular/mobile phone bill (Cellcom, Partner, Pelephone, HOT Mobile, Golan, Rami Levy…)
+- "internet_bill": home internet / TV / landline bill (Bezeq, HOT, Partner Fiber…)
+- "electricity_bill": an electricity bill (חשמל, IEC)
+- "water_bill": a water bill (מים, תאגיד מים)
+- "arnona_bill": a municipal property tax notice (ארנונה)
+- "bank_statement": a bank account statement or transaction list
+- "card_statement": a credit-card statement or transaction list
+- "receipt": a shop/restaurant/service receipt or a one-off invoice
+- "subscription_notice": a subscription charge, renewal or cancellation notice
+- "insurance_policy": an insurance policy or premium notice
+- "unknown": anything else, or too blurry/dark/cropped to tell
+
+Set "legible" to false ONLY when the image itself cannot be read (blur, glare, cut off). A clear document of a type not listed above is legible with kind "unknown" — never call a readable image illegible just because it is not a phone bill.
+
+Respond ONLY with JSON: {"kind":"...","legible":boolean,"issuer":"..." or null}`;
+
+/**
+ * Read ANY bill, not only a mobile one.
+ *
+ * WHY THIS REPLACES CLASSIFY-AND-ROUTE
+ *
+ * `analyzeBillImage` is scoped to Israeli mobile bills. When something else
+ * arrived, the best the product could do was work out what kind of document it
+ * was and send the reader to a different page to start over. That is a
+ * consolation prize dressed as a feature: the bill was right there, readable,
+ * and we answered a photograph of an electricity bill with directions.
+ *
+ * A person who uploads a bill wants the bill handled. So this extracts the
+ * same facts from whatever utility, telecom, municipal or insurance bill it is
+ * given, and names the vertical, so the case opens directly instead of
+ * bouncing them somewhere else.
+ *
+ * It still refuses to guess. `readable: false` when the image genuinely cannot
+ * be read, and a null amount rather than an invented one — a fabricated figure
+ * would go into a letter to a real company over a real person's name.
+ */
+const ANY_BILL_SYSTEM = `You read a photo of ANY Israeli consumer bill or invoice and extract its facts. Common issuers: cellular (Cellcom, Partner, Pelephone, HOT Mobile, Golan, Rami Levy), internet/TV (Bezeq, HOT, Partner Fiber, yes), electricity (חשמל / IEC), water (מים / תאגיד מים), municipal property tax (ארנונה), insurance (ביטוח), gym/subscriptions.
+
+FIRST decide whether this image is a bill at all.
+- "isBill": true ONLY for a bill, invoice, charge notice or account statement issued to a customer. A price tag, a shop shelf, a menu, an advertisement, a contract, an ID document, a screenshot of an app that is not a statement, a photo of a person, an animal, an object, a room or a landscape is NOT a bill — set isBill to false. A number appearing somewhere in the image does not make it a bill.
+
+Then, only if isBill is true, extract:
+- "issuer": the company or authority name exactly as printed.
+- "amount": the amount charged for this period, as a plain number. Use the total actually charged, not a subtotal or a balance carried forward.
+- "period": short description of the billing period if printed (e.g. "אוגוסט 2026"), else "".
+- "vertical": one of "telecom", "electricity", "water", "arnona", "insurance", "subscription", "other". Use "telecom" for cellular AND internet/TV/landline.
+- "readable": false ONLY if the image itself cannot be read — blurred, dark, cropped. A clear bill you can read is readable even if you are unsure of the vertical.
+
+If isBill is false, set amount to null and readable to false.
+Never guess an amount. If no amount is legible, set amount to null and readable to false.
+
+Respond ONLY with JSON: {"isBill":boolean,"issuer":"...","amount":number_or_null,"period":"...","vertical":"...","readable":boolean}`;
+
+export type BillVertical =
+  | "telecom"
+  | "electricity"
+  | "water"
+  | "arnona"
+  | "insurance"
+  | "subscription"
+  | "other";
+
+export interface AnyBillAnalysis {
+  issuer: string;
+  provider: ProviderKey;
+  amountShekels: number;
+  period: string;
+  vertical: BillVertical;
+  /** Whether the image is a bill at all — a legible non-bill is still not one. */
+  isBill: boolean;
+  readable: boolean;
+}
+
+const BILL_VERTICALS: readonly BillVertical[] = [
+  "telecom",
+  "electricity",
+  "water",
+  "arnona",
+  "insurance",
+  "subscription",
+  "other",
+];
+
+/**
+ * Turn whatever the model said into something we are willing to act on.
+ *
+ * Split out from the model call so it can be tested without a key, because
+ * this is the function that decides whether a photograph becomes a demand
+ * letter sent to a real company over a real person's name. It was previously
+ * three lines inside an async function with no test of any kind.
+ *
+ * The gate that was missing is `isBill`. The old prompt only ever asked
+ * whether the image could be *read*, so an image that was perfectly legible
+ * and simply was not a bill — a price tag, a receipt for a coffee, a
+ * screenshot with a number in it — came back readable with an amount, and a
+ * case opened against a provider resolved from whatever text was on it. The
+ * founder found this the ordinary way: uploaded unrelated photos and watched
+ * the flow carry on regardless.
+ *
+ * Absence is refusal here, not permission. A response without `isBill: true`
+ * does not become a case, because the cost of the two errors is not
+ * symmetrical: refusing a real bill shows a message, and accepting a
+ * non-bill sends a stranger a demand for money.
+ */
+export function interpretBillExtraction(raw: unknown): AnyBillAnalysis {
+  const parsed = (raw ?? {}) as {
+    isBill?: boolean;
+    issuer?: string;
+    amount?: number | null;
+    period?: string;
+    vertical?: string;
+    readable?: boolean;
+  };
+
+  const issuer = typeof parsed.issuer === "string" ? parsed.issuer.trim() : "";
+  const amount = typeof parsed.amount === "number" && parsed.amount > 0 ? parsed.amount : 0;
+  const vertical = (BILL_VERTICALS as readonly string[]).includes(parsed.vertical ?? "")
+    ? (parsed.vertical as BillVertical)
+    : "other";
+
+  return {
+    issuer,
+    provider: resolveProviderKey(issuer || "other"),
+    amountShekels: amount,
+    period: typeof parsed.period === "string" ? parsed.period.trim() : "",
+    vertical,
+    isBill: parsed.isBill === true,
+    // An amount is what every downstream step needs; without one this is not
+    // a bill we can act on, whatever the model said about legibility.
+    readable: parsed.isBill === true && Boolean(parsed.readable) && amount > 0,
+  };
+}
+
+export async function analyzeAnyBillImage(
+  base64: string,
+  mediaType: string,
+): Promise<AnyBillAnalysis> {
+  const text = await generateText({
+    system: ANY_BILL_SYSTEM,
+    userText: "Extract this bill.",
+    imageBase64: base64,
+    mediaType,
+    model: MONEY_MODEL,
+    maxTokens: 400,
+    temperature: 0,
+  });
+  return interpretBillExtraction(extractJson(text));
+}
+
+export interface DocumentClassification {
+  /** Validated against the closed set by the caller; may be any string here. */
+  kind: string;
+  /** False only when the image is genuinely unreadable, not merely off-topic. */
+  legible: boolean;
+  /** Provider/issuer name if visible, for a more specific message. */
+  issuer: string | null;
+}
+
+export async function classifyDocumentImage(
+  base64: string,
+  mediaType: string,
+): Promise<DocumentClassification> {
+  const text = await generateText({
+    system: DOCUMENT_CLASSIFY_SYSTEM,
+    userText: "Identify this document.",
+    imageBase64: base64,
+    mediaType,
+    model: EXTRACT_MODEL,
+    maxTokens: 200,
+    temperature: 0,
+  });
+  const parsed = extractJson(text) as {
+    kind?: string;
+    legible?: boolean;
+    issuer?: string | null;
+  };
+  return {
+    kind: typeof parsed.kind === "string" ? parsed.kind : "unknown",
+    // Absent means readable: an omitted flag must not turn a good photo into
+    // the camera error this whole path exists to stop showing.
+    legible: parsed.legible !== false,
+    issuer: typeof parsed.issuer === "string" && parsed.issuer.trim() ? parsed.issuer.trim() : null,
+  };
+}
+
 export async function analyzeBillImage(
   base64: string,
   mediaType: string,
@@ -484,7 +738,7 @@ export async function analyzeBillImage(
     userText: "Extract this bill.",
     imageBase64: base64,
     mediaType,
-    model: EXTRACT_MODEL,
+    model: MONEY_MODEL,
     maxTokens: 400,
     temperature: 0,
   });
@@ -568,6 +822,13 @@ export interface Recommendation {
   marketHighShekels: number;
   draftMessage: string; // outreach body, always Hebrew (the provider reads Hebrew)
   source: "ai" | "template";
+  /**
+   * Which model actually wrote `draftMessage`, as "provider:model", so the
+   * outcome graph can later say whether it was worth using. `UNKNOWN_DRAFTER`
+   * for the deterministic template, because no model wrote that one — folding
+   * template outcomes into a model's record would inflate or wreck it.
+   */
+  drafterId: string;
 }
 
 export interface RecommendationInput {
@@ -613,8 +874,13 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
   const userText = `Customer pays ${input.amountShekels} ILS/month to ${input.providerLabel} for: "${input.plan || "a standard mobile plan"}". Customer name: "${input.customerName}". Strategy language: ${langName}.${stance}`;
 
   let text: string;
+  // Set from the call that actually ran, never from configuration.
+  let usedDrafter = UNKNOWN_DRAFTER;
+  const onModel = (provider: AiProvider, model: string) => {
+    usedDrafter = drafterId(provider, model);
+  };
   if (aiProvider() !== "anthropic") {
-    text = await fallbackGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900, temperature: 0.5 });
+    text = await fallbackGenerate({ system: RECOMMENDATION_SYSTEM, userText, maxTokens: 900, temperature: 0.5, onModel });
   } else {
     const anthropic = client();
     const msg = await anthropic.messages.create({
@@ -626,6 +892,7 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
       messages: [{ role: "user", content: userText }],
     });
     text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("\n");
+    usedDrafter = drafterId("anthropic", msg.model || DRAFT_MODEL);
   }
   const p = extractJson(text) as {
     strategy: string;
@@ -641,6 +908,7 @@ async function aiRecommendation(input: RecommendationInput): Promise<Recommendat
     marketHighShekels: Math.round(p.marketHigh),
     draftMessage: p.message,
     source: "ai",
+    drafterId: usedDrafter,
   };
 }
 
@@ -659,6 +927,31 @@ const STATEMENT_EXTRACT_SYSTEM = `You extract transaction rows from screenshots 
 - If a year is missing assume the current year visible elsewhere on screen, else 2026.
 - If NO transactions are visible, output exactly: NONE`;
 
+/**
+ * Keep only the lines that are actually transactions.
+ *
+ * `extractStatementImage` used to return the model's reply verbatim, and the
+ * caller pasted it straight into the box holding the person's own statement
+ * data and ran the recurring-charge detector over it. So a photo that was not
+ * a statement produced whatever the model said about it — a sentence, an
+ * apology, a description of the picture — sitting in the user's data as though
+ * they had typed it, and a scan that found nothing. From the outside that is
+ * indistinguishable from "I uploaded an image and it just moved on", which is
+ * exactly how it was reported.
+ *
+ * The line shape is narrow on purpose: a date, a merchant, a number. Anything
+ * else is not a transaction no matter how confidently it was written.
+ */
+const STATEMENT_ROW = /^\s*\d{1,2}[/.\-]\d{1,2}[/.\-]\d{2,4}\s*,[^,]{1,80},\s*-?[\d,]+(?:\.\d{1,2})?\s*$/;
+
+export function keepTransactionRows(raw: string): string {
+  return raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => STATEMENT_ROW.test(line))
+    .join("\n");
+}
+
 export async function extractStatementImage(
   base64: string,
   mediaType: string,
@@ -672,7 +965,7 @@ export async function extractStatementImage(
     maxTokens: 1500,
     temperature: 0,
   });
-  return text === "NONE" ? "" : text;
+  return text === "NONE" ? "" : keepTransactionRows(text);
 }
 
 // ---------- Inbound email savings extract (proof loop) ----------
@@ -778,7 +1071,7 @@ export async function extractSavingsFromEmail(
     } else {
       const anthropic = client();
       const msg = await anthropic.messages.create({
-        model: EXTRACT_MODEL,
+        model: MONEY_MODEL,
         max_tokens: 300,
         temperature: 0,
         system: cachedSystem(system),
@@ -823,7 +1116,9 @@ Also look specifically for an automatic-renewal clause: set autoRenews=true if t
 
 If the input is not readable as a contract at all (random text, a shopping list, gibberish), set readable=false and return an empty clauses array — do not force clauses onto unrelated text.
 
-Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"autoRenews":boolean,"renewalDate":"yyyy-mm-dd"_or_null,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
+Also extract the NOTICE PERIOD: how many days of advance written notice the contract requires before cancellation or non-renewal takes effect ("60 days", "חודשיים", "one month"). Convert to a whole number of days and set noticeDays. This is the number that decides whether a term rolls for another year, and it is usually stated separately from the renewal date. If the contract states no notice period, or you cannot resolve one confidently, set noticeDays to null — never assume a customary value, because a wrong deadline is worse than no deadline.
+
+Never invent a clause that isn't actually in the text. Respond ONLY with JSON: {"readable":boolean,"autoRenews":boolean,"renewalDate":"yyyy-mm-dd"_or_null,"noticeDays":number_or_null,"clauses":[{"quote":"...","risk":"green"|"red","explanation":"..."}]}`;
 
 /**
  * Read a contract's text and flag clauses for a non-lawyer — bounded output,
@@ -842,7 +1137,7 @@ export async function analyzeContractText(text: string): Promise<ContractAnalysi
   try {
     return normalizeContractAnalysis(extractJson(raw));
   } catch {
-    return { clauses: [], readable: false, autoRenews: false, renewalDate: null };
+    return { clauses: [], readable: false, autoRenews: false, renewalDate: null, noticeDays: null };
   }
 }
 
@@ -910,6 +1205,7 @@ export function templateRecommendation(input: RecommendationInput): Recommendati
     marketHighShekels: marketHigh,
     draftMessage,
     source: "template",
+    drafterId: UNKNOWN_DRAFTER,
   };
 }
 

@@ -36,7 +36,7 @@ export async function ReferenceVerifierLeadersList({
     return (
       <Card className="p-6 mt-6">
         <p className="text-[14px] text-ink-soft m-0 mb-3">{t("leadersEmpty")}</p>
-        <p className="text-[13px] text-emerald font-extrabold m-0 mb-4">
+        <p className="text-body text-emerald font-extrabold m-0 mb-4">
           {t("leadersEmptySlots", { n: pioneerLeft })}
         </p>
         <div className="flex flex-wrap gap-3">
@@ -73,7 +73,7 @@ export async function ReferenceVerifierLeadersList({
       {pioneers.length > 0 && (
         <Card className="p-6">
           <h2 className="font-display text-lg m-0 mb-2">{t("leadersPioneerHeading")}</h2>
-          <p className="text-[13px] text-ink-soft mb-4">{t("leadersPioneerSub")}</p>
+          <p className="text-body text-ink-soft mb-4">{t("leadersPioneerSub")}</p>
           <ul className="list-none p-0 m-0">{pioneers.map(renderRow)}</ul>
         </Card>
       )}
