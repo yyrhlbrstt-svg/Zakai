@@ -4,6 +4,7 @@ import { completePasswordReset } from "@/lib/services/passwordReset";
 import { passwordField } from "@/lib/validation";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 const schema = z.object({
   token: z.string().min(10).max(200),
@@ -24,7 +25,10 @@ export async function POST(request: Request) {
 
   try {
     const outcome = await completePasswordReset(parsed.data.token, parsed.data.password);
-    if (outcome === "ok") return NextResponse.json({ ok: true });
+    if (outcome === "ok") {
+      await logSecurityEvent({ type: "password_reset_completed", ip: clientIp(request) });
+      return NextResponse.json({ ok: true });
+    }
     // "expired" and "used" stay distinct from "invalid": they mean the link was
     // genuinely ours, so the honest instruction is "ask for a new one" rather
     // than "that link is wrong".

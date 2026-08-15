@@ -31,6 +31,14 @@ model User {
   id              String    @id @default(cuid())
   email           String    @unique
   passwordHash    String
+  /// When the password was last changed via completePasswordReset. Null for
+  /// an account that has never reset — sessions are stateless JWTs with no
+  /// server-side revocation list, so this is what lets a password reset
+  /// actually invalidate every session issued before it (getSessionUserId
+  /// compares this against the JWT's iat) instead of only changing the hash
+  /// while every previously-stolen or previously-shared session cookie stays
+  /// valid until its own 30-day expiry regardless.
+  passwordChangedAt DateTime?
   name            String
   // Product tier. Determines the success-fee rate, active-case allowance and
   // access to the recurring-charges scan. Billing collection is a later stage
@@ -621,6 +629,30 @@ enum PlanOrderStatus {
   PENDING
   PAID
   CANCELLED
+}
+
+/**
+ * A minimal security audit trail — not a general app log (see report-error.ts
+ * for that). Exists so "who tried what, when" is answerable for the handful
+ * of events where that answer actually matters — auth attempts, password
+ * resets, admin dashboard access — without grepping Vercel logs by hand.
+ *
+ * No relation to User on purpose: userId is genuinely unknown for a failed
+ * login against an email with no account, and an audit trail that vanishes
+ * the moment the account it's about gets deleted defeats its own purpose.
+ */
+model SecurityEvent {
+  id        String   @id @default(cuid())
+  /// "login_failed" | "login_success" | "password_reset_requested" |
+  /// "password_reset_completed" | "admin_access" — see securityEvent.ts.
+  type      String
+  userId    String?
+  ip        String
+  detail    String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([userId, createdAt])
 }
 
 model Feedback {

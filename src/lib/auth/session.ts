@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
+import { prisma } from "@/lib/prisma";
 
 const COOKIE_NAME = "zakai_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
@@ -85,7 +86,17 @@ export async function destroySession(): Promise<void> {
   store.delete(COOKIE_NAME);
 }
 
-/** Returns the userId of the current session, or null. */
+/**
+ * Returns the userId of the current session, or null.
+ *
+ * A session is a stateless JWT — there is no server-side list to strike a
+ * token from, so "log everyone else out" can only mean one thing: a session
+ * issued before the password last changed no longer counts, checked here on
+ * every read against the one thing that actually changed, `passwordChangedAt`.
+ * Without this, completePasswordReset changes the hash but every session
+ * cookie issued before the reset — stolen, shared, or left on another
+ * device — stays valid until its own 30-day expiry regardless.
+ */
 export async function getSessionUserId(): Promise<string | null> {
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
@@ -93,7 +104,26 @@ export async function getSessionUserId(): Promise<string | null> {
   try {
     const { payload } = await jwtVerify<SessionPayload>(token, secretKey());
     if (payload.purpose !== SESSION_PURPOSE) return null;
-    return payload.userId ?? null;
+    const userId = payload.userId ?? null;
+    if (!userId || !payload.iat) return userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { passwordChangedAt: true },
+    });
+    // JWT `iat` truncates to whole seconds; passwordChangedAt does not. A
+    // login in the same wall-clock second as the password change (the
+    // ordinary case right after a reset) would otherwise compare as
+    // "changed after issued" purely from that rounding and reject the
+    // brand-new session it just created — so both sides are floored to
+    // seconds before comparing.
+    if (
+      user?.passwordChangedAt &&
+      Math.floor(user.passwordChangedAt.getTime() / 1000) > payload.iat
+    ) {
+      return null;
+    }
+    return userId;
   } catch {
     return null;
   }

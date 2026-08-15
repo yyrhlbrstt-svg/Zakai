@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requestPasswordReset } from "@/lib/services/passwordReset";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email("invalidEmail"),
@@ -22,6 +23,12 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "invalidEmail" }, { status: 400 });
   }
+
+  await logSecurityEvent({
+    type: "password_reset_requested",
+    ip: clientIp(request),
+    detail: parsed.data.email,
+  });
 
   try {
     const origin = new URL(request.url).origin;

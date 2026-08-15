@@ -6,6 +6,7 @@ import { loginSchema, firstError } from "@/lib/validation";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { postAuthDestination } from "@/lib/services/postAuthDestination";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 export async function POST(request: Request) {
   const limited = await rateLimit("login", clientIp(request), 10, 600);
@@ -32,9 +33,11 @@ export async function POST(request: Request) {
       : await burnPasswordComparison(password);
 
     if (!user || !ok) {
+      await logSecurityEvent({ type: "login_failed", ip: clientIp(request), detail: email });
       return NextResponse.json({ error: "invalidCredentials" }, { status: 401 });
     }
 
+    await logSecurityEvent({ type: "login_success", userId: user.id, ip: clientIp(request) });
     await createSession(user.id);
     const nextHref = await postAuthDestination(user.id);
     return NextResponse.json({ ok: true, nextHref });

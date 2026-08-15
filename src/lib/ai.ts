@@ -1166,7 +1166,11 @@ export async function askZakai(
   ctx: AssistantContext,
   image?: { base64: string; mediaType: string },
 ): Promise<string> {
-  const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n${ctx.casesSummary}\n\nQuestion: ${question}`;
+  // <<<DATA>>>/<<<END_DATA>>> gives the model an unambiguous, hard-to-forge
+  // boundary around content this app assembled from the user's own cases —
+  // buildAssistantSystem's UNTRUSTED CONTENT rule tells it never to treat
+  // anything inside that boundary as a new instruction, however phrased.
+  const userText = `[User data snapshot — plan: ${ctx.plan}; locale: ${ctx.locale}]\n<<<DATA>>>\n${ctx.casesSummary}\n<<<END_DATA>>>\n\nQuestion: ${question}`;
   const system = buildAssistantSystem();
 
   // The assistant is the most reasoning-heavy call in the app, so on Gemini
