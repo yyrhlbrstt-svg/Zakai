@@ -199,7 +199,13 @@ for (const path of PAGES) {
       findings.push({ kind: "SELF_LINK", path, detail: `"${link.text}" → ${link.href}` });
       continue;
     }
-    const verdict = await isReachable(target || "/");
+    // Reachability must be checked against the *full* href, query string
+    // included — target above drops it for the same-page comparison only.
+    // An action endpoint like /api/markets/select?market=IL redirects
+    // correctly with its param and 400s without one; stripping the query
+    // here previously collapsed every distinct link into one wrong check.
+    const withQuery = link.href.split("#")[0] || "/";
+    const verdict = await isReachable(withQuery);
     if (verdict === "dead") {
       findings.push({ kind: "DEAD_LINK", path, detail: `"${link.text}" → ${link.href}` });
     } else if (verdict === "unknown") {
