@@ -3,9 +3,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/messaging";
+import { pushToUser } from "@/lib/push";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { badRequest } from "@/lib/api";
 import { reportError } from "@/lib/report-error";
+import { findAdminUserIds } from "@/lib/ops/internalAdminGate";
 
 const schema = z.object({
   message: z.string().trim().min(3).max(2000),
@@ -49,6 +51,26 @@ ${message}
       });
     } catch (mailErr) {
       await reportError(mailErr, { route: "feedback-mail" });
+    }
+
+    // Push reaches the founder's phone even when SMTP is unset — a second,
+    // independent channel for the one signal that should never wait for a
+    // daily digest. Best-effort: pushToUser silently no-ops without VAPID
+    // keys or a subscription, same contract as every other push call site.
+    try {
+      const adminIds = await findAdminUserIds();
+      await Promise.all(
+        adminIds.map((id) =>
+          pushToUser(id, {
+            title: "משוב חדש בזכאי",
+            body: message.slice(0, 120),
+            url: "/founder",
+            tag: "founder-feedback",
+          }),
+        ),
+      );
+    } catch (pushErr) {
+      await reportError(pushErr, { route: "feedback-push" });
     }
 
     return NextResponse.json({ ok: true });

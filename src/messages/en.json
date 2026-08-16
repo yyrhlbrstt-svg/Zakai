@@ -1139,6 +1139,7 @@
   "assistant": {
     "title": "My agent",
     "subtitle": "Zakai looks at your data and points to the next thing worth money. The agent proposes — you approve; nothing runs without your explicit confirmation.",
+    "learningStat": "The agent has learned from {count} documented cases · {pct}% led to a real saving",
     "chatTitle": "Ask Zakai",
     "chatOffline": "Free-form chat activates once the AI connection is configured on the server. Until then — the insights above are computed directly from your data and always available.",
     "freeQuotaNote": "Free plan: 5 questions per month.",
