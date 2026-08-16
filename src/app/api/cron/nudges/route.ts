@@ -324,7 +324,7 @@ ${money}
     const PRE_SEND_AFTER_DAYS = 1;
     const preSendCutoff = new Date(Date.now() - PRE_SEND_AFTER_DAYS * 86_400_000);
     let preSendNudges = 0;
-    const preSendWaiting = await prisma.case.findMany({
+    const preSendWaitingRaw = await prisma.case.findMany({
       where: {
         status: { in: ["APPROVED", "VERIFIED", "ANALYZED"] },
         updatedAt: { lt: preSendCutoff },
@@ -333,11 +333,20 @@ ${money}
         id: true,
         userId: true,
         status: true,
-        user: { select: { email: true, name: true, country: true } },
+        updatedAt: true,
+        user: { select: { email: true, name: true, country: true, plan: true } },
       },
-      take: 60,
+      take: 200,
       orderBy: { updatedAt: "asc" },
     });
+    // Same priority-handling promise as the SENT follow-up queue above — a
+    // case waiting on the user to send its Mandate is still "case handling."
+    // take: 200 above (up from the 60 actually processed) so this sort has a
+    // realistic pool to reorder before the cap bites, same reasoning as the
+    // SENT queue's 300→80.
+    const preSendWaiting = sortByFollowUpPriority(
+      preSendWaitingRaw.map((c) => ({ ...c, plan: c.user.plan })),
+    ).slice(0, 60);
     const seenPreSend = new Set<string>();
     for (const c of preSendWaiting) {
       if (seenPreSend.has(c.userId) || !c.user.email) continue;
