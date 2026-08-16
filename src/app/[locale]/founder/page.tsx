@@ -15,6 +15,7 @@ import { evaluateConsumerReleaseGate, paymentsFullyLive } from "@/lib/deploy/rel
 import { getAgentRoundMap } from "@/lib/services/agentFollowUp";
 import { MAX_AGENT_ROUNDS } from "@/lib/services/loopLimits";
 import { aggregateVariantPerformance, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
+import type { AutopilotFinding } from "@/lib/autopilot/findings";
 import { ControlGatesStrip } from "@/components/ControlGatesStrip";
 import { MonopolyMissionControl } from "@/components/MonopolyMissionControl";
 import { PipeNetworkLive } from "@/components/PipeNetworkLive";
@@ -43,6 +44,14 @@ const RELEASE_LABEL_HE: Record<string, string> = {
   leads_email: "LEADS_EMAIL",
   sales_email: "SALES_EMAIL",
   vapid: "Web Push (VAPID)",
+};
+
+const AUTOPILOT_LABEL_HE: Record<string, string> = {
+  "law-watcher": "Law Watcher — שינויים במקורות המשפטיים",
+  "price-sentinel": "Price Sentinel — שינויי מחיר בדפים ציבוריים",
+  "outcome-learner": "Outcome Learner — למידה מתוצאות תיקים",
+  "growth-bot": "Growth Bot — הצעות תוכן מנתונים",
+  "market-expander": "Market Expander — ביקוש לשווקים חדשים",
 };
 
 export const dynamic = "force-dynamic";
@@ -278,6 +287,23 @@ export default async function FounderPage({
 
   const variantPerformance = aggregateVariantPerformance(strategyOutcomeRows as LearningOutcomeRow[]);
 
+  // Autopilot (law-watcher, price-sentinel, outcome-learner, growth-bot,
+  // market-expander) runs daily via vercel.json cron and writes every result
+  // to AutopilotRun — but nothing ever rendered it, so five real jobs ran
+  // silently with no way to see a finding land. Latest run per job only.
+  const autopilotJobIds = ["law-watcher", "price-sentinel", "outcome-learner", "growth-bot", "market-expander"] as const;
+  const autopilotRuns = await Promise.all(
+    autopilotJobIds.map((jobId) =>
+      prisma.autopilotRun
+        .findFirst({
+          where: { jobId },
+          orderBy: { createdAt: "desc" },
+          select: { ok: true, summary: true, createdAt: true, findings: true },
+        })
+        .catch(() => null),
+    ),
+  );
+
   const agentRounds = await getAgentRoundMap(sentOpenIds.map((c) => c.id));
   const stuckMaxRounds = [...agentRounds.values()].filter((n) => n >= MAX_AGENT_ROUNDS).length;
 
@@ -353,6 +379,7 @@ export default async function FounderPage({
           ["#cases-time", "תיקים לאורך זמן"],
           ["#approach", "מה עובד — לפי גישה"],
           ["#by-provider", "מה עובד — לפי ספק"],
+          ["#autopilot", "אוטופיילוט"],
           ["#numbers", "כל המספרים"],
           ["#leads", "פניות"],
           ["#feedback", "משוב"],
@@ -840,6 +867,60 @@ export default async function FounderPage({
           </table>
         </div>
       )}
+
+      {/* Five real jobs run daily/weekly via vercel.json cron and write to
+          AutopilotRun — law-watcher detects when a cited legal source
+          changes, price-sentinel/outcome-learner/growth-bot/market-expander
+          each watch a different signal. None of it had anywhere to surface
+          until now, so every finding — including a law source actually
+          changing — has been running silently since the day it shipped. */}
+      <h2 id="autopilot" className="font-display text-xl mt-10 mb-1.5">אוטופיילוט</h2>
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
+        חמישה תהליכים רצים לבד (Law Watcher, Price Sentinel, Outcome Learner, Growth Bot, Market
+        Expander) — כל אחד עם שער אנושי משלו, אף פעם לא ממזג טקסט משפטי או שולח משהו החוצה לבד.
+      </p>
+      <div className="flex flex-col gap-2">
+        {autopilotJobIds.map((jobId, i) => {
+          const run = autopilotRuns[i];
+          const findings = (run?.findings as unknown as AutopilotFinding[] | null) ?? [];
+          const notable = findings.filter((f) => f.severity !== "note");
+          return (
+            <div
+              key={jobId}
+              className="rounded-xl border border-[rgba(255,255,255,0.06)] px-4 py-3.5"
+            >
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="font-bold text-body">{AUTOPILOT_LABEL_HE[jobId]}</span>
+                {run ? (
+                  <span className="text-micro text-ink-soft">
+                    {run.createdAt.toLocaleDateString("he-IL")} ·{" "}
+                    <span className={run.ok ? "text-emerald" : "text-danger"}>
+                      {run.ok ? "תקין" : "נכשל"}
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-micro text-ink-soft">עוד לא רץ</span>
+                )}
+              </div>
+              {run?.summary && (
+                <p className="text-caption text-ink-soft mt-1.5 mb-0 leading-relaxed">{run.summary}</p>
+              )}
+              {notable.length > 0 && (
+                <ul className="mt-2 mb-0 ps-4 flex flex-col gap-1">
+                  {notable.map((f, fi) => (
+                    <li
+                      key={fi}
+                      className={`text-micro leading-relaxed ${f.severity === "critical" ? "text-amber font-bold" : "text-ink-soft"}`}
+                    >
+                      {f.message}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       <p className="text-[11.5px] text-[rgba(147,166,165,0.85)] mt-5 leading-relaxed">
         עמוד פנימי, גלוי רק לכתובות ב-ADMIN_EMAIL. אם אחוז ההצלחה נמוך או לא יציב על מדגם אמיתי — זו
