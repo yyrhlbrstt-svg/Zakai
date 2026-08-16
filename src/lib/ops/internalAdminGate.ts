@@ -1,5 +1,6 @@
 import "server-only";
 import { secretsMatch } from "@/lib/security/timingSafe";
+import { prisma } from "@/lib/prisma";
 
 /** Founder/ops diagnostics — never expose env values in JSON. */
 export function isInternalOpsRequest(request: Request): boolean {
@@ -17,9 +18,29 @@ export function isInternalOpsRequest(request: Request): boolean {
  * from the one place that decides who is the founder.
  */
 export function isAdminEmail(email: string): boolean {
-  const allow = (process.env.ADMIN_EMAIL || "")
+  return adminEmailList().includes(email.toLowerCase());
+}
+
+/** The parsed allow-list itself, for callers that need to query by it directly. */
+export function adminEmailList(): string[] {
+  return (process.env.ADMIN_EMAIL || "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
-  return allow.includes(email.toLowerCase());
+}
+
+/**
+ * User row IDs for every ADMIN_EMAIL address that has actually signed up.
+ * Email is never lowercased at signup (see isAdminEmail's own comparison),
+ * so this matches case-insensitively per address rather than a single `in`
+ * filter, which would silently miss a differently-cased stored email.
+ */
+export async function findAdminUserIds(): Promise<string[]> {
+  const emails = adminEmailList();
+  if (emails.length === 0) return [];
+  const admins = await prisma.user.findMany({
+    where: { OR: emails.map((email) => ({ email: { equals: email, mode: "insensitive" } })) },
+    select: { id: true },
+  });
+  return admins.map((u) => u.id);
 }
