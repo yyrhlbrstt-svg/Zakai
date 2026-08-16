@@ -232,7 +232,19 @@ export default async function LocaleLayout({
           <Background />
           <Header
             user={
-              user ? { name: user.name, plan: user.plan, isAdmin: isAdminEmail(user.email) } : null
+              user
+                ? {
+                    name: user.name,
+                    plan: user.plan,
+                    // Matches the gate /founder itself enforces — isAdminEmail
+                    // alone is not enough there either (an unverified match is
+                    // "typed the address", not "controls it"). Showing the nav
+                    // link to an admin match whose email isn't verified would
+                    // advertise a link that then silently bounces to
+                    // /dashboard with no explanation.
+                    isAdmin: isAdminEmail(user.email) && Boolean(user.emailVerifiedAt),
+                  }
+                : null
             }
           />
           <LangSuggest initialShow={showLangSuggest} />
