@@ -227,8 +227,17 @@ Everything above is a credential or an account. None of it is engineering.
    `/companies/[provider]` — the one page that can turn it into outside
    pressure — gated behind the same sample threshold as everywhere else this
    table is read.
-5. Run `verify-buttons.mjs` against a **production build** (not a dev server)
-   to get a trustworthy pass over all 114 pages.
+5. ~~Run `verify-buttons.mjs` against a production build~~ — done: 121 pages,
+   0 dead ends (was 23, all in `/he/global`'s market selector). Every one
+   turned out to be the *script's* bug, not the app's: it stripped the query
+   string before checking reachability, which is right for deduplicating
+   normal page links but wrong for `/api/markets/select?market=IL`, an
+   action endpoint whose behavior depends on that param (400s without it,
+   307s correctly with it). Fixed the script to check the full href. One
+   real dead link surfaced once the noise cleared: `/protocol`'s "start as a
+   consumer" CTA pointed at `/door`, a route with no matching page and no
+   git history — repointed at `/money`, the app's one real self-serve entry
+   point everywhere else.
 
 ## Where the plan lives
 
