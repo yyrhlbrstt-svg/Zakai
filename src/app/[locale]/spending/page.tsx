@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { SpendingOverview } from "@/components/SpendingOverview";
+import { LeadCta } from "@/components/LeadCta";
 import { bcp47, type Locale } from "@/i18n/config";
 
 export async function generateMetadata({
@@ -32,6 +33,7 @@ export default async function SpendingPage({
       <h1 className="font-display text-3xl my-3">{t("title")}</h1>
       <p className="text-ink-soft text-[14.5px] leading-relaxed mb-6 max-w-[600px]">{t("subtitle")}</p>
       <SpendingOverview bcp47={bcp47[locale as Locale]} />
+      <LeadCta vertical="spending" />
     </main>
   );
 }

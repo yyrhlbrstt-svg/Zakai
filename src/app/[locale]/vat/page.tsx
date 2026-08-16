@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { VatReport } from "@/components/VatReport";
+import { LeadCta } from "@/components/LeadCta";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 
@@ -34,6 +35,7 @@ export default async function VatPage({
         {t("subtitle")}
       </p>
       <VatReport bcp47={bcp47[locale as Locale]} />
+      <LeadCta vertical="vat" />
     </main>
   );
 }
