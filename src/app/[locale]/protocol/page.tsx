@@ -208,7 +208,7 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
       <p className="text-[12.5px] text-ink-soft mt-6 leading-relaxed">{c.disclaimer}</p>
 
       <div className="mt-6">
-        <Link href="/door">
+        <Link href="/money">
           <Button className="w-full md:w-auto">{c.start}</Button>
         </Link>
       </div>

@@ -16,6 +16,7 @@ import { formatAgorot } from "@/lib/money";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
 import { fairnessScoreMap } from "@/lib/services/fairnessScoreMap";
+import { getStrategyInsights } from "@/lib/strategy/insights";
 
 export const revalidate = 3600;
 
@@ -114,6 +115,15 @@ export default async function CompanyDetailPage({
   const byVertical = aggregateProviderVerticalStats(provider, outcomes);
   const name = displayName(tp, provider);
   const verticalsForProvider = RULE_PACKS.filter((p) => p.counterparties.includes(provider));
+  // Which written approach actually won more often against this specific
+  // counterparty — already computed for the private dashboard
+  // (StrategyInsightsCard) but never surfaced on the one page that can turn
+  // it into outside pressure. Same sample gate as everywhere else this table
+  // is read (see strategy/insights.ts's own MIN_TRIALS) — never a claim
+  // below the honesty threshold.
+  const bestApproach = (await getStrategyInsights("IL")).counterparties.find(
+    (c) => c.counterparty === provider && c.bestVariantLabelHe,
+  );
 
   return (
     <main className="max-w-[760px] mx-auto px-5 pb-24 pt-5">
@@ -208,6 +218,20 @@ export default async function CompanyDetailPage({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {bestApproach && (bestApproach.bestVariantLabelHe || bestApproach.bestVariantLabelEn) && (
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5 mb-6">
+          <h2 className="font-display text-lg mb-2">{t("companies.bestApproachTitle")}</h2>
+          <p className="text-[14px] leading-relaxed m-0">
+            {t("companies.bestApproachFact", {
+              label:
+                (locale === "he" ? bestApproach.bestVariantLabelHe : bestApproach.bestVariantLabelEn) ?? "",
+              pct: Math.round(bestApproach.winRate * 100),
+              trials: bestApproach.trials,
+            })}
+          </p>
         </div>
       )}
 

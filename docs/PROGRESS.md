@@ -210,14 +210,34 @@ Everything above is a credential or an account. None of it is engineering.
    an email has been received by a human.
 2. Have one real person complete one loop end to end. Zero have. Until that
    happens, every other metric is theoretical.
-3. Convert calculator-only tools into agentic verticals — 29 of 91 catalog
-   entries currently open a real Case. `/price-protection`, `/landlord-repairs`
-   and `/train-delay` map closely onto existing pack shapes.
-4. Aggregate `StrategyOutcome.variantId` into a per-counterparty win rate.
-   The data is already being written and nothing reads it; this is the one
-   asset that compounds with volume and cannot be copied.
-5. Run `verify-buttons.mjs` against a **production build** (not a dev server)
-   to get a trustworthy pass over all 114 pages.
+3. ~~Convert calculator-only tools into agentic verticals~~ — done for the
+   cheap cases: 29 of 92 catalog entries now open a real Case (was 18/91).
+   A page-by-page audit of the remaining calculator-only pages found only 2
+   genuine dead ends left (`/spending`, `/vat` — fixed, both now end in
+   `LeadCta`); everything else already ends in `OutcomeReport`, `NextStep`,
+   or a CTA into a non-dead page. Converting more of these to full agentic
+   Case flows is no longer the highest-leverage move — the assisted tier is
+   already real.
+4. `cohortLearning()`'s `bestStance` and `getStrategyInsights()`'s
+   `CounterpartyInsight.bestVariantLabelHe/En` (src/lib/strategy/insights.ts)
+   already answer "which stance wins against which counterparty" — read
+   internally by the cron, the assistant, case ranking, and the autopilot
+   outcome-learner job, and shown privately on `/dashboard`
+   (`StrategyInsightsCard`). Now also surfaced publicly on
+   `/companies/[provider]` — the one page that can turn it into outside
+   pressure — gated behind the same sample threshold as everywhere else this
+   table is read.
+5. ~~Run `verify-buttons.mjs` against a production build~~ — done: 121 pages,
+   0 dead ends (was 23, all in `/he/global`'s market selector). Every one
+   turned out to be the *script's* bug, not the app's: it stripped the query
+   string before checking reachability, which is right for deduplicating
+   normal page links but wrong for `/api/markets/select?market=IL`, an
+   action endpoint whose behavior depends on that param (400s without it,
+   307s correctly with it). Fixed the script to check the full href. One
+   real dead link surfaced once the noise cleared: `/protocol`'s "start as a
+   consumer" CTA pointed at `/door`, a route with no matching page and no
+   git history — repointed at `/money`, the app's one real self-serve entry
+   point everywhere else.
 
 ## Where the plan lives
 

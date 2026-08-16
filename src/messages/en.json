@@ -1037,7 +1037,8 @@
           "Unlimited checks — every vendor, every case",
           "Bulk receipt sweep (CSV) — a full year of invoices at once, not one at a time",
           "Automatic monthly digest for your accountant — every deductible expense collected, in one file",
-          "Everything in Max"
+          "The smart agent — up to 500 questions a month (more than Max)",
+          "Everything else in Max"
         ]
       }
     },
@@ -3920,7 +3921,9 @@
     "noDataYet": "Not enough documented cases yet to show facts about {name} specifically. Be the first — start a check and your result becomes part of the record.",
     "activePressure": "{count} people currently have an open, unresolved case against this provider.",
     "checkCategoriesTitle": "Categories where you might be owed money from this provider",
-    "startCheck": "Start a check"
+    "startCheck": "Start a check",
+    "bestApproachTitle": "What worked best against this provider",
+    "bestApproachFact": "The \"{label}\" approach — succeeded in {pct}% of {trials} documented cases."
   },
   "deposit": {
     "metaTitle": "Rental deposit refund — landlord won't return it? | Zakai",
