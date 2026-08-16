@@ -4,12 +4,15 @@ import {
   SANDBOX_AUDIENCE,
   SANDBOX_KID,
   SANDBOX_TTL_SECONDS,
+  SANDBOX_STATUS_LIST_SIZE,
   issueSandboxMandate,
   sandboxIssuer,
   sandboxJwks,
+  signSandboxStatusList,
 } from "./sandbox";
 import { verifyMandateWithTrustRegistry } from "./verifyWithRegistry";
 import { verifyMandate, MandateError } from "./mandate";
+import { verifyStatusList } from "./statusList";
 
 const ORIGIN = "https://zakai.test";
 const scopes = ["read:bills"];
@@ -149,6 +152,75 @@ describe("sandbox mandate — verifies against the reference verifier itself", (
         publicJwks: (await sandboxJwks()).keys,
       }),
     ).rejects.toMatchObject({ code: "AUDIENCE_MISMATCH" } satisfies Partial<MandateError>);
+  });
+});
+
+describe("sandbox mandate — the full revocation demo actually works", () => {
+  it("carries a status pointer that resolves to a genuinely verifiable status list", async () => {
+    const { token, statusIndex, statusListUri, issuer } = await issueSandboxMandate({
+      origin: ORIGIN,
+      scopes,
+    });
+    expect(statusListUri).toBe(`${ORIGIN}/api/mandate/sandbox/status-list.json`);
+    const zkm = (decodeJwt(token) as { zkm?: { status?: { idx?: number; uri?: string } } }).zkm;
+    expect(zkm?.status).toEqual({ idx: statusIndex, uri: statusListUri });
+
+    // Nothing revoked yet — the default list an integrator sees on day one.
+    const freshList = await signSandboxStatusList({ origin: ORIGIN, revokedIndices: [] });
+    const verifiedFresh = await verifyStatusList(freshList, {
+      issuer,
+      publicJwks: (await sandboxJwks()).keys,
+    });
+    expect(verifiedFresh.isRevoked(statusIndex)).toBe(false);
+  });
+
+  it("reflects a revoked index as AUDIENCE-independent revoked, provably, via verifyStatusList", async () => {
+    const { statusIndex, issuer } = await issueSandboxMandate({ origin: ORIGIN, scopes });
+    const revokedList = await signSandboxStatusList({
+      origin: ORIGIN,
+      revokedIndices: [statusIndex],
+    });
+    const verified = await verifyStatusList(revokedList, {
+      issuer,
+      publicJwks: (await sandboxJwks()).keys,
+    });
+    expect(verified.isRevoked(statusIndex)).toBe(true);
+    // Bits are independent — revoking one index says nothing about its neighbours.
+    expect(verified.isRevoked((statusIndex + 1) % SANDBOX_STATUS_LIST_SIZE)).toBe(false);
+  });
+
+  it("issues a status list a plain token-holder cannot forge — tampering breaks verification", async () => {
+    const list = await signSandboxStatusList({ origin: ORIGIN, revokedIndices: [3] });
+    const [h, p, s] = list.split(".");
+    // Flip a bit in the decoded signature bytes, not the base64url text — the
+    // trailing character(s) of a base64url segment can carry only padding
+    // bits, so a text-level edit can silently round-trip to the same bytes.
+    const sigBytes = Buffer.from(s, "base64url");
+    sigBytes[0] ^= 0x01;
+    const tampered = `${h}.${p}.${sigBytes.toString("base64url")}`;
+    await expect(
+      verifyStatusList(tampered, {
+        issuer: sandboxIssuer(ORIGIN),
+        publicJwks: (await sandboxJwks()).keys,
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("closes the loop end to end: probeIssuer() reports revocation_takes_effect as passed, not missing", async () => {
+    const { probeIssuer } = await import("./probe");
+    const { token, audience, statusIndex } = await issueSandboxMandate({ origin: ORIGIN, scopes });
+    const revokedList = await signSandboxStatusList({
+      origin: ORIGIN,
+      revokedIndices: [statusIndex],
+    });
+    const results = await probeIssuer({
+      jwks: (await sandboxJwks()).keys,
+      audience,
+      sampleValidToken: token,
+      sampleStatusListToken: revokedList,
+    });
+    expect(results).toContainEqual({ id: "publishes_status_list", passed: true, detail: `zkm.status.idx=${statusIndex}` });
+    expect(results.find((r) => r.id === "revocation_takes_effect")).toMatchObject({ passed: true });
   });
 });
 

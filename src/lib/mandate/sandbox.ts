@@ -2,6 +2,7 @@ import "server-only";
 import { SignJWT, type JWK } from "jose";
 import { validateScopes } from "./scopes";
 import { MandateError, MANDATE_CLAIM_NS, MANDATE_VERSION } from "./mandate";
+import { signStatusList } from "./statusList";
 
 /**
  * A mandate you can hold, verify, and break — that can never authorise anything.
@@ -60,6 +61,12 @@ export const SANDBOX_TTL_SECONDS = 600;
 
 /** Names the key honestly: public, fixed, and trusted by nobody. */
 export const SANDBOX_KID = "zakai-sandbox-public-do-not-trust";
+
+/**
+ * Size of the demo status list. Small on purpose — this is a self-test
+ * fixture, not a capacity plan; see STATUS_LIST_CAPACITY for the real one.
+ */
+export const SANDBOX_STATUS_LIST_SIZE = 4096;
 
 /**
  * A fixed keypair, published on purpose — like the test vectors already are.
@@ -131,6 +138,10 @@ export interface SandboxMandate {
   kid: string;
   expiresAt: string;
   scopes: string[];
+  /** Index into the sandbox status list — pass to the revoke demo to break this token. */
+  statusIndex: number;
+  /** Where a verifier fetches the signed status list this index lives in. */
+  statusListUri: string;
 }
 
 export async function issueSandboxMandate(
@@ -148,6 +159,8 @@ export async function issueSandboxMandate(
   const nowSec = Math.floor((input.now?.getTime() ?? Date.now()) / 1000);
   const exp = nowSec + SANDBOX_TTL_SECONDS;
   const iss = sandboxIssuer(input.origin);
+  const statusIndex = Math.floor(Math.random() * SANDBOX_STATUS_LIST_SIZE);
+  const statusListUri = `${input.origin.replace(/\/+$/, "")}/api/mandate/sandbox/status-list.json`;
 
   // Same claim shape issueMandate() produces — `scope` as an OAuth-shaped
   // space-delimited string at top level, everything else namespaced under
@@ -174,6 +187,11 @@ export async function issueSandboxMandate(
       // contain this; a verifier that somehow reached signature checking
       // still has an unambiguous machine-readable reason to refuse.
       env: "sandbox",
+      // A demo-able revocation path, not just a signature to verify. An
+      // integrator can fetch statusListUri?revoke=<idx> to see this exact
+      // token flip to revoked — the same offline-bit-lookup flow production
+      // mandates use, with nothing to sign up for or wait on.
+      status: { idx: statusIndex, uri: statusListUri },
     },
   })
     .setProtectedHeader({ alg: "EdDSA", kid: SANDBOX_KID, typ: "JWT" })
@@ -193,5 +211,39 @@ export async function issueSandboxMandate(
     kid: SANDBOX_KID,
     expiresAt: new Date(exp * 1000).toISOString(),
     scopes: [...input.scopes],
+    statusIndex,
+    statusListUri,
   };
+}
+
+/**
+ * Sign the sandbox's own status list — the companion to the `status` pointer
+ * every sandbox mandate now carries.
+ *
+ * Deliberately stateless, unlike the production list at
+ * /api/mandate/revocations (which reads real revocations from
+ * MandateRevocation). There is nothing here to persist: an integrator's own
+ * test harness decides which indices are "revoked" for a given request, the
+ * same way it decides which sample mandate to hold in the first place. What
+ * makes this a real test of their verifier and not theatre is that the
+ * result is a genuinely signed, genuinely offline-verifiable statuslist+jwt —
+ * exactly the artifact production would serve, just without a database
+ * behind it.
+ */
+export async function signSandboxStatusList(input: {
+  origin: string;
+  revokedIndices: readonly number[];
+  now?: Date;
+}): Promise<string> {
+  const { privateJwk } = await sandboxKey();
+  return signStatusList(
+    {
+      issuer: sandboxIssuer(input.origin),
+      revokedIndices: input.revokedIndices,
+      size: SANDBOX_STATUS_LIST_SIZE,
+      ttlSeconds: SANDBOX_TTL_SECONDS,
+      now: input.now,
+    },
+    { kid: SANDBOX_KID, privateJwk },
+  );
 }
