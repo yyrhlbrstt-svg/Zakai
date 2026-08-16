@@ -1,7 +1,7 @@
 import "server-only";
 import { SignJWT, type JWK } from "jose";
 import { validateScopes } from "./scopes";
-import { MandateError } from "./mandate";
+import { MandateError, MANDATE_CLAIM_NS, MANDATE_VERSION } from "./mandate";
 
 /**
  * A mandate you can hold, verify, and break — that can never authorise anything.
@@ -149,30 +149,41 @@ export async function issueSandboxMandate(
   const exp = nowSec + SANDBOX_TTL_SECONDS;
   const iss = sandboxIssuer(input.origin);
 
+  // Same claim shape issueMandate() produces — `scope` as an OAuth-shaped
+  // space-delimited string at top level, everything else namespaced under
+  // `zkm`. A sandbox token that used a different shape from the production
+  // issuer would verify as garbage against the reference verifier's own
+  // normaliseClaims(), which keys its "nested vs flat" branch on the mere
+  // presence of the `zkm` claim — exactly the marker this token already
+  // carries for defence-in-depth. That mismatch previously made every
+  // sandbox-issued token fail with UNSUPPORTED_VERSION before any real check
+  // (audience, expiry, ...) ever ran against it.
   const token = await new SignJWT({
-    v: 1,
-    jti: `sandbox-${crypto.randomUUID()}`,
-    iss,
-    aud: SANDBOX_AUDIENCE,
-    sub: "sandbox-subject",
-    principal: {
-      name: input.principalName?.trim() || "Sample Principal",
-      contactMasked: "05*-***-**89",
+    scope: input.scopes.join(" "),
+    [MANDATE_CLAIM_NS]: {
+      v: MANDATE_VERSION,
+      principal: {
+        name: input.principalName?.trim() || "Sample Principal",
+        contactMasked: "05*-***-**89",
+      },
+      market: "IL",
+      statement:
+        "SANDBOX MANDATE — issued for integration testing only. This grants no authority and names no real person.",
+      ...(input.agent ? { onBehalfOf: { agent: input.agent, name: input.agent, note: "sandbox" } } : {}),
+      // Defence in depth. The structural barriers above are what actually
+      // contain this; a verifier that somehow reached signature checking
+      // still has an unambiguous machine-readable reason to refuse.
+      env: "sandbox",
     },
-    scopes: input.scopes,
-    market: "IL",
-    iat: nowSec,
-    nbf: nowSec,
-    exp,
-    statement:
-      "SANDBOX MANDATE — issued for integration testing only. This grants no authority and names no real person.",
-    ...(input.agent ? { onBehalfOf: { agent: input.agent, name: input.agent, note: "sandbox" } } : {}),
-    // Defence in depth. The structural barriers above are what actually
-    // contain this; a verifier that somehow reached signature checking still
-    // has an unambiguous machine-readable reason to refuse.
-    zkm: { env: "sandbox" },
   })
     .setProtectedHeader({ alg: "EdDSA", kid: SANDBOX_KID, typ: "JWT" })
+    .setIssuer(iss)
+    .setAudience(SANDBOX_AUDIENCE)
+    .setSubject("sandbox-subject")
+    .setJti(`sandbox-${crypto.randomUUID()}`)
+    .setIssuedAt(nowSec)
+    .setNotBefore(nowSec)
+    .setExpirationTime(exp)
     .sign(privateKey);
 
   return {

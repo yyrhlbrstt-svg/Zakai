@@ -9,6 +9,7 @@ import {
   sandboxJwks,
 } from "./sandbox";
 import { verifyMandateWithTrustRegistry } from "./verifyWithRegistry";
+import { verifyMandate, MandateError } from "./mandate";
 
 const ORIGIN = "https://zakai.test";
 const scopes = ["read:bills"];
@@ -42,7 +43,10 @@ describe("sandbox mandate — it is genuinely valid", () => {
       origin: ORIGIN,
       scopes: ["read:bills", "dispute:charge"],
     });
-    expect(decodeJwt(token).scopes).toEqual(["read:bills", "dispute:charge"]);
+    // OAuth-shaped — space-delimited string, same as the production issuer —
+    // not a bare array, so a verifier that only understands `scope` still
+    // reads a sandbox token correctly.
+    expect(decodeJwt(token).scope).toBe("read:bills dispute:charge");
   });
 
   it("signs with EdDSA under the sandbox kid", async () => {
@@ -113,7 +117,38 @@ describe("sandbox mandate — it cannot authorise anything", () => {
 
   it("says plainly, in the statement, that it grants nothing", async () => {
     const { token } = await issueSandboxMandate({ origin: ORIGIN, scopes });
-    expect(String(decodeJwt(token).statement)).toMatch(/SANDBOX/);
+    const zkm = (decodeJwt(token) as { zkm?: { statement?: string } }).zkm;
+    expect(String(zkm?.statement)).toMatch(/SANDBOX/);
+  });
+});
+
+describe("sandbox mandate — verifies against the reference verifier itself", () => {
+  /**
+   * verifyMandateWithTrustRegistry() rejects every sandbox token at the issuer
+   * lookup, before it ever reaches verifyMandate()/normaliseClaims() — so the
+   * "unknown issuer" tests above cannot catch a claim-shape bug in the token
+   * itself. probeIssuer() (used by /api/mandate/conformance/probe) is the one
+   * caller that bypasses the registry and calls verifyMandate() directly on
+   * caller-supplied artifacts, which is exactly how a sandbox/production
+   * shape mismatch here was previously invisible to every other test.
+   */
+  it("is accepted by verifyMandate() itself when presented to its own audience", async () => {
+    const { token, audience } = await issueSandboxMandate({ origin: ORIGIN, scopes });
+    const claims = await verifyMandate(token, {
+      audience,
+      publicJwks: (await sandboxJwks()).keys,
+    });
+    expect(claims.scopes).toEqual(scopes);
+  });
+
+  it("is refused by verifyMandate() with AUDIENCE_MISMATCH, not a claim-shape error, for the wrong audience", async () => {
+    const { token, audience } = await issueSandboxMandate({ origin: ORIGIN, scopes });
+    await expect(
+      verifyMandate(token, {
+        audience: `${audience}-deliberately-wrong`,
+        publicJwks: (await sandboxJwks()).keys,
+      }),
+    ).rejects.toMatchObject({ code: "AUDIENCE_MISMATCH" } satisfies Partial<MandateError>);
   });
 });
 
