@@ -279,7 +279,7 @@
       },
       "act": {
         "title": "The agent sends with a Mandate",
-        "sub": "Written outreach only — after you approve and verify. No call to you, no call to the provider; they can verify the signature via JWKS"
+        "sub": "Written outreach only — after you approve and verify. No call to you, no call to the provider; they can verify the signature themselves, without taking our word for it"
       },
       "pay": {
         "title": "Fee only after SavingsProof",
@@ -301,7 +301,7 @@
     "trust": [
       "One agent closes the loop — in-app, under your Mandate",
       "Success fee only — 18% of documented savings",
-      "Mandate verifiable via JWKS — not a verbal promise"
+      "Digitally signed, independently verifiable Mandate — not a verbal promise"
     ],
     "systemsTitle": "A system in the background — not another tip list",
     "systemsBullets": [
