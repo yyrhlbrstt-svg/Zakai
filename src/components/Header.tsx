@@ -7,7 +7,7 @@ import { activeLocales, localeLabel, type Locale } from "@/i18n/config";
 import { Logo } from "@/components/Logo";
 import { PlanBadge } from "@/components/PlanBadge";
 import { ToolIcon } from "@/components/ToolIcon";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { FEATURED_TOOLS } from "@/lib/toolsCatalog";
 import { TOOL_EXTRA_LABELS } from "@/lib/toolLabels";
@@ -24,6 +24,8 @@ export function Header({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const he = locale === "he" || locale === "ar";
+  // In RTL, "back" points right; in LTR, left.
+  const BackChevron = he ? ChevronRight : ChevronLeft;
   const tIcomponents_Header = useTranslations("inline_components_Header");
 
   useEffect(() => setMobileOpen(false), [pathname]);
@@ -101,9 +103,21 @@ export function Header({
     >
       <div className="max-w-[1080px] mx-auto px-5 py-3.5">
         <div className="flex justify-between items-center gap-3">
-          <Link href="/" className="flex items-center no-underline" aria-label={t("brand")}>
-            <Logo height={22} />
-          </Link>
+          <div className="flex items-center gap-1.5">
+            {pathname !== "/" && (
+              <button
+                type="button"
+                onClick={() => router.back()}
+                aria-label={t("nav.back")}
+                className="w-9 h-9 -ms-1.5 flex items-center justify-center rounded-xl text-ink-soft hover:text-ink hover:bg-[rgba(255,255,255,0.06)] transition-colors shrink-0"
+              >
+                <BackChevron size={20} aria-hidden />
+              </button>
+            )}
+            <Link href="/" className="flex items-center no-underline" aria-label={t("brand")}>
+              <Logo height={22} />
+            </Link>
+          </div>
 
           <nav className="hidden md:flex gap-1 items-center flex-wrap justify-end">
             <NavLink href="/" pathname={pathname}>{t("nav.home")}</NavLink>
