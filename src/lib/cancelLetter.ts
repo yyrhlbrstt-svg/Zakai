@@ -1,6 +1,7 @@
 /** Deterministic cancel / retention letters — Mandate agent voice, no AI required. */
 
 import { agentLetterCloseHe, agentLetterOpenHe } from "@/lib/agentLetterVoice";
+import { cancelTeethClauseHe } from "@/lib/legalTeeth";
 
 export type CancelIntent = "cancel" | "pause" | "downgrade" | "retention";
 
@@ -73,14 +74,23 @@ ${close}`,
     };
   }
 
+  // Statutory cancellation is the one intent where the law itself has teeth:
+  // the letter is framed as a 13ד cancellation notice AND as the written
+  // demand 31א(ב) requires, so continued billing afterward walks straight
+  // into the exemplary-damages exposure. Commercial asks above (retention /
+  // downgrade / pause) deliberately carry no legal clause — citing
+  // exemplary-damages law where it does not apply would be wrong and would
+  // teach providers to discount it where it does.
   return {
-    subject: `בקשת ביטול מנוי — ${product}`,
+    subject: `הודעת ביטול מנוי בכתב — ${product}`,
     body: `לכבוד ${company},
 
 ${open}${idLine}
 
-בשם הלקוח/ה אני מבקש לבטל לאלתר את המנוי/השירות: ${product}${amt}, ללא חיובים נוספים מעבר לתקופה שכבר שולמה.
+בשם הלקוח/ה אני מודיע על ביטול המנוי/השירות: ${product}${amt}, ללא חיובים נוספים מעבר לתקופה שכבר שולמה.
 ${reason ? `\nסיבה: ${reason}\n` : ""}
+${cancelTeethClauseHe()}
+
 בקשה אחת: אישור בכתב של מועד הביטול והעדר חיובים עתידיים.
 
 ${close}`,
