@@ -5204,9 +5204,9 @@
     "t_c4584cd0": "Manual cancel",
     "t_292af8ba": "Screenshot extract needs AI configured on the server.",
     "t_da95e09c": "Could not read screenshot. Try a clearer image or a CSV.",
-    "shotNeedsLoginPrefix": "AI photo scan needs an account — ",
-    "shotNeedsLoginLink": "quick sign in",
-    "shotNeedsLoginSuffix": ". Or paste/upload a statement file below — no account needed.",
+    "shotNeedsLoginPrefix": "Scanning more bills needs an account",
+    "shotNeedsLoginLink": "Quick sign-in — back here after",
+    "shotNeedsLoginSuffix": "Today's free scans are used up. You can also paste or upload a transactions file below, with no account at all.",
     "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file.",
     "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app."
   },
@@ -6875,5 +6875,15 @@
       "hadProviderBetween": "You were a {provider} customer between {from} and {to}",
       "inVertical": "You have a case in {vertical}"
     }
+  },
+  "mcpConnect": {
+    "title": "Connect Zakai to your agent (MCP)",
+    "intro": "An open MCP server — no key, no signup. Add this to your Claude or Cursor config and your agent can read rights from the graph and hand a person off to open a claim.",
+    "copy": "Copy config",
+    "copied": "Copied",
+    "toolCheckRights": "Which rights and refunds a person is owed, each with its legal source",
+    "toolPlaybook": "What actually happens at a given company when a claim is made",
+    "toolStartClaim": "Hand a person off to open a real claim under a signed, scoped mandate",
+    "toolStatus": "Live status: mandate signing, payments, mail delivery"
   }
 }

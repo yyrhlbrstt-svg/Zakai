@@ -383,6 +383,8 @@ export function MoneyHub({
   /** Read fine, nothing in it — different advice from a failed read. */
   const [shotNoTx, setShotNoTx] = useState(false);
   const [shotNeedsLogin, setShotNeedsLogin] = useState(false);
+  const pasteRef = useRef<HTMLTextAreaElement>(null);
+  const [scanNudge, setScanNudge] = useState(false);
   const [shotTooBig, setShotTooBig] = useState(false);
   const [saved, setSaved] = useState<SavedSummary | null>(null);
   const [busyMerchant, setBusyMerchant] = useState<string | null>(null);
@@ -761,13 +763,28 @@ export function MoneyHub({
           onChange={(e) => onScreenshot(e.target.files?.[0])}
         />
         {shotNeedsLogin && (
-          <p className="text-body font-semibold mt-3 mb-0">
-            {tIcomponents_MoneyHub("shotNeedsLoginPrefix")}
-            <Link href="/login?return=/money" className="text-emerald underline">
-              {tIcomponents_MoneyHub("shotNeedsLoginLink")}
+          /*
+            This is the product's whole promise — photograph a bill — and the
+            answer for a signed-out person used to be one small sentence with
+            the link buried mid-line. On a phone that reads as "I uploaded my
+            bill and nothing happened", which is what testers reported. It is
+            now the loudest thing on the card, with a full-width button that
+            comes straight back here afterwards.
+          */
+          <div
+            role="alert"
+            className="mt-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.09)] p-4"
+          >
+            <div className="font-extrabold text-body-lg">
+              {tIcomponents_MoneyHub("shotNeedsLoginPrefix")}
+            </div>
+            <p className="text-ink-soft text-body mt-1.5 mb-3 leading-relaxed">
+              {tIcomponents_MoneyHub("shotNeedsLoginSuffix")}
+            </p>
+            <Link href="/login?return=/money" className="no-underline block">
+              <Button className="w-full">{tIcomponents_MoneyHub("shotNeedsLoginLink")}</Button>
             </Link>
-            {tIcomponents_MoneyHub("shotNeedsLoginSuffix")}
-          </p>
+          </div>
         )}
         {shotTooBig && (
           <p className="text-danger text-body font-semibold mt-3 mb-0">
@@ -789,6 +806,7 @@ export function MoneyHub({
       <Card className="p-6" id="zakai-money-paste">
         <div className="font-extrabold text-[15px]">{tx(locale, "pasteTitle")}</div>
         <Textarea
+          ref={pasteRef}
           rows={5}
           dir="ltr"
           className="mt-2 font-mono text-[12.5px]"
@@ -803,7 +821,26 @@ export function MoneyHub({
           }}
         />
         <div className="flex gap-3 mt-3 flex-wrap">
-          <Button className="flex-1 min-w-[140px]" onClick={() => runScan(text)} disabled={!canScan}>
+          {/*
+            Never disabled. A greyed-out primary action is indistinguishable
+            from a broken app: testers tapped it, nothing happened, and they
+            concluded the product does not work. Tapping with an empty box now
+            does the useful thing — puts the cursor in the box and says, in
+            full size, what to put there.
+          */}
+          <Button
+            className="flex-1 min-w-[140px]"
+            onClick={() => {
+              if (!canScan) {
+                setScanNudge(true);
+                pasteRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+                pasteRef.current?.focus();
+                return;
+              }
+              setScanNudge(false);
+              runScan(text);
+            }}
+          >
             {tx(locale, "scanBtn")}
           </Button>
           <Button variant="ghost" onClick={() => fileRef.current?.click()}>
@@ -826,7 +863,16 @@ export function MoneyHub({
             "I press it and nothing happens" people reported. The copy already
             names both ways forward (paste lines, or load the demo). */}
         {!canScan && (
-          <p className="text-[12px] text-ink-soft mt-2 mb-0">{tx(locale, "tooShort")}</p>
+          <p
+            className={
+              scanNudge
+                ? "text-body font-bold text-amber mt-2 mb-0 leading-relaxed"
+                : "text-caption text-ink-soft mt-2 mb-0"
+            }
+            role={scanNudge ? "alert" : undefined}
+          >
+            {tx(locale, "tooShort")}
+          </p>
         )}
       </Card>
 

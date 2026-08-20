@@ -8,6 +8,7 @@ import { textDirection } from "@/lib/textDirection";
 import { Link } from "@/i18n/routing";
 import { MandateConsole } from "@/components/MandateConsole";
 import { DelegationApplyForm } from "@/components/DelegationApplyForm";
+import { McpConnectCard } from "@/components/McpConnectCard";
 
 export async function generateMetadata({
   params,
@@ -51,6 +52,8 @@ export default async function AgentsPage({
       </div>
 
       <MandateConsole he={locale === "he"} />
+
+      <McpConnectCard origin={ORIGIN} />
 
       {/* Immediately after the console, and deliberately not on another page.
           This form existed only inside a section of /institutions, so a

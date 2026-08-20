@@ -39,7 +39,7 @@ export default async function PricingPage({
       <h1 className="font-display text-[clamp(30px,4.5vw,40px)] text-center mt-4">
         {t("title")}
       </h1>
-      <p className="text-ink-soft text-center text-[15px] mt-3 mb-10 max-w-[540px] mx-auto leading-relaxed">
+      <p className="text-ink-soft text-center text-body-lg mt-3 mb-10 max-w-[540px] mx-auto leading-relaxed">
         {t("subtitle")}
       </p>
       <PlanCards

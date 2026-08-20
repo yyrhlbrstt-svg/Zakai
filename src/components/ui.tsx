@@ -73,7 +73,63 @@ export function Button({
     variant === "primary"
       ? "grad-bg btn-sheen text-[#06121A] px-7 py-4 text-[16.5px] shadow-[0_12px_32px_rgba(63,203,155,0.32)] hover:-translate-y-0.5 hover:brightness-[1.07] hover:shadow-[0_18px_48px_rgba(63,203,155,0.48)] active:translate-y-0 active:scale-[0.98] active:brightness-100"
       : "bg-[rgba(255,255,255,0.06)] text-ink border border-[rgba(255,255,255,0.1)] px-6 py-3.5 text-[15px] font-bold hover:bg-[rgba(255,255,255,0.11)] hover:border-[rgba(63,203,155,0.45)] active:bg-[rgba(255,255,255,0.08)]";
-  return <button type={type} className={`${base} ${styles} ${className}`} {...rest} />;
+  /**
+   * A disabled primary action is the single most reported "this app is
+   * broken" in testing: people tap it, nothing happens, and no amount of
+   * explanatory text beside it gets read. ~27 tools gate their main button on
+   * a readiness predicate and render <MissingFields/> above it saying exactly
+   * what is missing — the text was there all along, just never brought to
+   * anyone's attention.
+   *
+   * So a disabled button stays tappable and, when tapped, carries the person
+   * to that checklist and flashes it. The real onClick is never invoked while
+   * blocked, so a `disabled={busy}` guard still prevents a double submit; the
+   * only thing that changes is that the button now answers.
+   */
+  const blocked = rest.disabled === true;
+  const { disabled: _disabled, onClick, ...pass } = rest;
+  if (!blocked) {
+    return <button type={type} className={`${base} ${styles} ${className}`} onClick={onClick} {...pass} />;
+  }
+  return (
+    <button
+      type="button"
+      aria-disabled="true"
+      className={`${base} ${styles} ${className} opacity-40`}
+      onClick={(e) => {
+        e.preventDefault();
+        const hint = document.querySelector<HTMLElement>("[data-missing-fields]");
+        if (hint) {
+          hint.scrollIntoView({ block: "center", behavior: "smooth" });
+          hint.classList.add("missing-fields-flash");
+          window.setTimeout(() => hint.classList.remove("missing-fields-flash"), 1600);
+          return;
+        }
+        /*
+         * Some tools only render the checklist once an earlier step has
+         * resolved (a deposit has to be established as late before the fields
+         * are named), which leaves the button blocked and the screen silent —
+         * the worst case of all. Falling back to the first empty field is a
+         * true answer to "why is nothing happening": that is the thing
+         * standing in the way.
+         */
+        const scope =
+          (e.currentTarget as HTMLElement).closest("form") ??
+          document.querySelector("main") ??
+          document.body;
+        const fields = scope.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+          "input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea",
+        );
+        const empty = Array.from(fields).find(
+          (f) => !f.value.trim() && !f.disabled && !!(f.offsetWidth || f.offsetHeight),
+        );
+        if (!empty) return;
+        empty.scrollIntoView({ block: "center", behavior: "smooth" });
+        empty.focus();
+      }}
+      {...pass}
+    />
+  );
 }
 
 /**
@@ -173,7 +229,11 @@ export function Textarea({
   className = "",
   label,
   ...rest
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string }) {
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: string;
+  /** So a caller can focus the box — used to rescue an empty primary action. */
+  ref?: React.Ref<HTMLTextAreaElement>;
+}) {
   const generated = useId();
   const { id, ariaLabel } = useFieldName(rest, label, generated);
   const field = (

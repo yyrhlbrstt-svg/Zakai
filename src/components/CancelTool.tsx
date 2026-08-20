@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
@@ -31,6 +31,8 @@ export function CancelTool() {
   const router = useRouter();
   const search = useSearchParams();
 
+  const [needsFields, setNeedsFields] = useState(false);
+  const fieldsRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [product, setProduct] = useState("");
@@ -242,6 +244,7 @@ export function CancelTool() {
         <p className="text-[12px] text-ink-soft leading-relaxed mb-0">{t("agentHonestNote")}</p>
 
         <div className="flex flex-col gap-2 mt-1">
+          <div ref={fieldsRef} />
           <MissingFields
             items={[
               { ok: company.trim().length > 0, label: t("t_524bf65a") },
@@ -249,13 +252,34 @@ export function CancelTool() {
               { ok: Boolean(outreachTo), label: t("contactEmailPlaceholder") },
             ]}
           />
+          {/*
+            Never disabled while fields are missing. A greyed primary button
+            reads as a broken app, not as an instruction — people tap it,
+            nothing happens, and they leave. It now always responds: either it
+            opens the case, or it jumps to the fields still needed and says so.
+          */}
           <Button
-            onClick={sendWithAgent}
-            disabled={!agentReady || busy}
+            onClick={() => {
+              if (busy) return;
+              if (!agentReady) {
+                setNeedsFields(true);
+                fieldsRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+                return;
+              }
+              setNeedsFields(false);
+              sendWithAgent();
+            }}
             className="w-full"
           >
             {busy ? t("agentOpening") : t("agentOpenCase")}
           </Button>
+          {needsFields && !agentReady && (
+            <p role="alert" className="text-body font-bold text-amber mt-0 mb-0 leading-relaxed">
+              {locale === "he" || locale === "ar"
+                ? "כדי לפתוח תיק חסרים הפרטים המסומנים למעלה — מלאו אותם וזה ימשיך."
+                : "The marked fields above are still needed — fill them and this continues."}
+            </p>
+          )}
           <details className="text-body text-ink-soft">
             <summary className="cursor-pointer font-bold select-none">
               {locale === "he" || locale === "ar"
@@ -264,8 +288,16 @@ export function CancelTool() {
             </summary>
             <Button
               variant="ghost"
-              onClick={generate}
-              disabled={!company.trim() || !product.trim() || busy}
+              onClick={() => {
+                if (busy) return;
+                if (!company.trim() || !product.trim()) {
+                  setNeedsFields(true);
+                  fieldsRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+                  return;
+                }
+                setNeedsFields(false);
+                generate();
+              }}
               className="w-full text-body mt-2"
             >
               {t("t_b4c9b341")}

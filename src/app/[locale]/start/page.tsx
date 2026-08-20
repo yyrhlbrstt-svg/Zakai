@@ -47,7 +47,7 @@ export default async function StartPage({
       <h1 className="font-display text-[clamp(26px,5vw,38px)] leading-[1.14] m-0 text-balance mb-3">
         {heEn(he, "מתחילים ב«כסף שלי»", "Start in My money")}
       </h1>
-      <p className="text-ink-soft text-[15.5px] leading-relaxed mb-6">
+      <p className="text-ink-soft text-body-lg leading-relaxed mb-6">
         {heEn(
           he,
           "צילום חשבונית → תיק → Mandate → שליחה → חיסכון מתועד. זה הדלת. לא בוחרים מבין עשרות כלים.",
@@ -56,7 +56,7 @@ export default async function StartPage({
       </p>
 
       <Link href="/money#zakai-money-scan" className="no-underline block mb-6">
-        <Button className="w-full !text-[15px] !py-3">
+        <Button className="w-full !text-body-lg !py-3">
           {tIapp_locale_start_page("t_721693ca")}
         </Button>
       </Link>
