@@ -9,7 +9,8 @@ export type AutopilotJobId =
   | "outcome-learner"
   | "growth-bot"
   | "market-expander"
-  | "concentration-watcher";
+  | "concentration-watcher"
+  | "response-clock";
 
 export interface AutopilotJobDef {
   id: AutopilotJobId;
@@ -73,6 +74,16 @@ export const AUTOPILOT_JOBS: readonly AutopilotJobDef[] = [
     cronHint: "0 5 * * *",
     humanGate:
       "Reports and alerts only — diversifying the Rights Graph is a roadmap decision a human makes.",
+  },
+  {
+    id: "response-clock",
+    title: "Response Clock",
+    summary:
+      "Nightly deadline clocks over SENT cases: which response windows closed, and which escalation rung is due next (Phase 2 deadline clocks).",
+    intervalMs: 24 * 60 * 60 * 1000,
+    cronHint: "0 6 * * *",
+    humanGate:
+      "Clocks and reports only — every escalation artifact still requires the person's explicit action on their own case.",
   },
 ] as const;
 

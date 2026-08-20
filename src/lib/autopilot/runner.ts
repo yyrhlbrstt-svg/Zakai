@@ -9,6 +9,7 @@ import { runOutcomeLearner } from "./jobs/outcomeLearnerJob";
 import { runGrowthBot } from "./jobs/growthBotJob";
 import { runMarketExpander } from "./jobs/marketExpanderJob";
 import { runConcentrationWatcher } from "./jobs/concentrationWatcherJob";
+import { runResponseClock } from "./jobs/responseClockJob";
 import type { AutopilotJobResult } from "./findings";
 
 const RUNNERS: Record<AutopilotJobId, () => Promise<AutopilotJobResult>> = {
@@ -18,6 +19,7 @@ const RUNNERS: Record<AutopilotJobId, () => Promise<AutopilotJobResult>> = {
   "growth-bot": runGrowthBot,
   "market-expander": runMarketExpander,
   "concentration-watcher": runConcentrationWatcher,
+  "response-clock": runResponseClock,
 };
 
 export async function runAutopilotJob(id: AutopilotJobId): Promise<AutopilotJobResult> {

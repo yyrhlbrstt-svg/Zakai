@@ -53,6 +53,7 @@ const AUTOPILOT_LABEL_HE: Record<string, string> = {
   "growth-bot": "Growth Bot — הצעות תוכן מנתונים",
   "market-expander": "Market Expander — ביקוש לשווקים חדשים",
   "concentration-watcher": "Concentration Watcher — ריכוזיות סטטוטורית של התיקים הפעילים",
+  "response-clock": "Response Clock — חלונות מענה שנסגרו ומה מדרגת ההסלמה הבאה",
 };
 
 export const dynamic = "force-dynamic";
