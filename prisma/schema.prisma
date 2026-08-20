@@ -729,6 +729,31 @@ model StrategyOutcome {
   recoveredMinor Int // minor units; 0 when nothing came back
   days           Int // send -> resolution
 
+  /// The documented before-amount the demand was built on, in minor units —
+  /// the fine or charge being disputed, or the monthly amount being reduced
+  /// (snapshotted from Case.amountOriginal at settle time). This is the
+  /// denominator that turns an outcome into a priceable one: recovery
+  /// relative to what was at stake. Null for rows recorded before the field
+  /// existed and for flows with no documented amount — never backfilled,
+  /// never guessed.
+  claimBasisMinor Int?
+
+  /// How far up the ladder the case actually went before settling:
+  /// "letter" when the first written demand settled it, "followup" when it
+  /// took more. Derived from the Outbox record of what was really sent —
+  /// not from intent. Null when nothing was dispatched or the field predates
+  /// the row. A loss at "followup" and a loss at "letter" are different
+  /// facts, and pricing a stream of claims needs both.
+  escalationStage String?
+
+  /// Rights Graph right the letters invoked, when the vertical maps to one —
+  /// a public catalog id, identifies no person. This is what lets the ledger
+  /// price the graph itself: per-right win rates instead of folklore. A
+  /// historical fact about what was invoked, so it stays recorded even if
+  /// the right is later flipped to draft (the draft gate governs letters,
+  /// not the record of letters already sent).
+  rightId String?
+
   /// True when the person told us what happened, rather than the pipeline
   /// observing it. Both are real evidence and they are not the same evidence:
   /// a verified case has a provider reply and a documented saving behind it,
@@ -744,6 +769,7 @@ model StrategyOutcome {
   @@index([selfReported, createdAt])
   @@index([drafterId, selfReported])
   @@index([settlementBacked])
+  @@index([rightId])
 }
 
 /**

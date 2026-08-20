@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
+import { CANCEL_TEETH_RIGHT_ID } from "@/lib/legalTeeth";
 import type { StrategyContext } from "@/lib/strategy/types";
 import { documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack } from "@/lib/verticals";
@@ -62,12 +63,36 @@ export async function commitCaseLearningSignal(input: {
   try {
     const kase = await prisma.case.findUnique({
       where: { id: input.caseId },
-      select: { outcomeRecordedAt: true, status: true },
+      select: {
+        outcomeRecordedAt: true,
+        status: true,
+        amountOriginal: true,
+        vertical: true,
+      },
     });
     if (!kase) return { recorded: false, reason: "not_found" };
     if (kase.outcomeRecordedAt) return { recorded: false, reason: "already" };
     if (kase.status !== "SAVED" && kase.status !== "NO_SAVING") {
       return { recorded: false, reason: "not_settled" };
+    }
+
+    /**
+     * The pricing fields — what turns this row into an asset even when
+     * paid=false. Each derived from something the pipeline actually knows,
+     * never from intent: the claim basis is the case's documented
+     * before-amount; the escalation stage counts what the Outbox really
+     * dispatched (one letter settled it vs. it took more); the right id maps
+     * the vertical to the Rights Graph entry its letters invoke. Every
+     * lookup fails soft to null — an unpriced outcome is still an outcome.
+     */
+    let escalationStage: string | null = null;
+    try {
+      const sends = await prisma.outbox.count({
+        where: { caseId: input.caseId, channel: "EMAIL" },
+      });
+      escalationStage = sends > 1 ? "followup" : sends === 1 ? "letter" : null;
+    } catch {
+      escalationStage = null;
     }
 
     await recordOutcome({
@@ -79,6 +104,9 @@ export async function commitCaseLearningSignal(input: {
       recoveredMinor: input.recoveredMinor,
       days: input.days,
       selfReported: input.selfReported,
+      claimBasisMinor: kase.amountOriginal > 0 ? kase.amountOriginal : null,
+      escalationStage,
+      rightId: kase.vertical === "subscription" ? CANCEL_TEETH_RIGHT_ID : null,
     });
 
     await prisma.case.update({
