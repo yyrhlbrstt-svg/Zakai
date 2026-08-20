@@ -1,5 +1,5 @@
 import { SITE_URL } from "@/lib/seo";
-import { publicSupportEmail } from "@/lib/contact";
+import { configuredSupportEmail } from "@/lib/contact";
 
 /**
  * Organization and WebSite structured data.
@@ -14,6 +14,12 @@ import { publicSupportEmail } from "@/lib/contact";
  * have.
  */
 export function organizationJsonLd(locale: string) {
+  // Only a CONFIGURED mailbox goes into the schema. The founder-inbox
+  // fallback keeps mailto paths alive elsewhere, but publishing a personal
+  // gmail as the organization's address in machine-readable data (which
+  // Google indexes and shows) is the "hobby project" signal this block
+  // exists to avoid. The contact page URL is always present either way.
+  const email = configuredSupportEmail();
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -24,7 +30,7 @@ export function organizationJsonLd(locale: string) {
         alternateName: "זכאי",
         url: SITE_URL,
         logo: `${SITE_URL}/icon.svg`,
-        email: publicSupportEmail(),
+        ...(email ? { email } : {}),
         contactPoint: [
           {
             "@type": "ContactPoint",
@@ -32,7 +38,7 @@ export function organizationJsonLd(locale: string) {
             // is no phone line, and listing one that nobody answers is worse
             // than listing none.
             contactType: "customer support",
-            email: publicSupportEmail(),
+            ...(email ? { email } : {}),
             url: `${SITE_URL}/${locale}/contact`,
             availableLanguage: ["he", "en", "ar", "ru"],
           },

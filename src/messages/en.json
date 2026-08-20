@@ -836,14 +836,15 @@
     "differentProof": "You can check this yourself, not just take our word for it: our public verification key is available at ",
     "differentProofEnd": ", and the full institutional API spec is available at ",
     "disputeHeading": "Disputing a charge",
-    "dispute": "When a fee is charged, we email you an automatic confirmation with a full breakdown (original amount, new amount, saving and fee). If you believe the saving did not actually materialize, you have {days} days from receiving the email to contact us for review — and if the saving turns out not to have taken effect, the fee is cancelled or refunded. Contact: {email}",
+    "dispute": "When a fee is charged, we email you an automatic confirmation with a full breakdown (original amount, new amount, saving and fee). If you believe the saving did not actually materialize, you have {days} days from receiving the email to contact us for review — and if the saving turns out not to have taken effect, the fee is cancelled or refunded. Reach us by email via the link below",
     "contactHeading": "Security contact",
-    "contact": "Found a security issue or have a question? We'd like to hear from you: {email}",
+    "contact": "Found a security issue or have a question about it? We want to hear:",
     "supportHeading": "General support",
-    "supportContact": "Product questions, your account, or anything else — email us: {email}",
+    "supportContact": "Product questions, account issues, or anything else — write to us:",
     "disclaimer": "This document describes the prototype's security and trust policy. A commercial version will be accompanied by full legal documents (Terms of Use and Privacy Policy) drafted by a lawyer. Nothing here is legal advice.",
     "metaTitle": "Security & trust — Zakai",
-    "metaDesc": "Zakai's security and trust policy, and how the success fee and appeals mechanism works."
+    "metaDesc": "Zakai's security and trust policy, and how the success fee and appeals mechanism works.",
+    "emailCta": "Send an email"
   },
   "footer": {
     "trust": "Security & Trust",
@@ -2499,7 +2500,7 @@
   "legalPages": {
     "termsTitle": "Terms of Service",
     "privacyTitle": "Privacy Policy",
-    "privacyContact": "Privacy questions and rights requests: {email}. We respond within the statutory timeframe.",
+    "privacyContact": "Privacy questions and rights requests: write to us via the contact page. We respond within the statutory timeframe.",
     "updated": "Last updated: August 2026",
     "protocolBlurb": "Protocol laws (fee only on proof, send after your approval, no outbound money scopes on Mandates) are also published as public JSON for institutions and partners to verify.",
     "protocolLink": "Protocol page & fixed laws",
@@ -2603,7 +2604,8 @@
         "h": "Contact",
         "p": "Privacy questions and rights requests: {email}. We respond within the statutory timeframe."
       }
-    ]
+    ],
+    "privacyEmailCta": "Send an email"
   },
   "miluim": {
     "title": "Served in the reserves? Let's verify you were paid right.",
@@ -5374,7 +5376,8 @@
     "needsOutreachTitle": "Missing provider email — complete on the dashboard",
     "needsOutreachSub": "Without a destination the agent cannot send. We never invent an inbox.",
     "mandateInactiveTitle": "Mandate inactive — re-authorize on the dashboard",
-    "mandateInactiveSub": "Without an ACTIVE Mandate the agent cannot continue. Re-issue the authorization."
+    "mandateInactiveSub": "Without an ACTIVE Mandate the agent cannot continue. Re-issue the authorization.",
+    "proofsHintNoInbox": "When the bank or provider replies by email — paste the reply on your dashboard and the agent will offer a one-tap record of the saving."
   },
   "inline_app_locale_proofs_page": {
     "t_d2c8fb14": "Savings wall · anonymous",
@@ -6767,7 +6770,8 @@
       "recordedNote": "If you left an email address, the reply will go there.",
       "failed": "We could not store your message. Try again.",
       "tooMany": "Too many messages from this address. Try again in an hour."
-    }
+    },
+    "emailCta": "Send an email"
   },
   "status": {
     "metaTitle": "System status — Zakai",

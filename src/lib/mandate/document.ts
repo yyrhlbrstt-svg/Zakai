@@ -210,3 +210,13 @@ export function proofsInboundAddress(): string {
     FOUNDER_EMAIL
   );
 }
+
+/**
+ * The proofs inbox ONLY when a real one is configured — null on the
+ * founder-inbox fallback. Public marketing surfaces print the address only
+ * then; the paste-in-dashboard path works either way, so no capability is
+ * hidden along with the personal address.
+ */
+export function configuredProofsInboundAddress(): string | null {
+  return process.env.NEXT_PUBLIC_PROOFS_EMAIL || process.env.PROOFS_INBOUND_EMAIL || null;
+}

@@ -74,7 +74,10 @@ export function SpendingOverview({ bcp47 }: { bcp47: string }) {
           aria-label={t("paste")}
           className="font-mono text-[12.5px]"
         />
-        <Button onClick={run} disabled={text.trim().length === 0} className="w-full mt-4">
+        {/* Never disabled: a dead-looking button explains nothing. An empty
+            click runs the engine, hits the zero-transactions branch, and
+            shows the designed hint — the button itself is the explanation. */}
+        <Button onClick={run} className="w-full mt-4">
           {t("analyze")}
         </Button>
         {empty && <p className="text-ink-soft text-body mt-3 text-center">{t("empty")}</p>}

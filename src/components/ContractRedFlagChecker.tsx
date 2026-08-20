@@ -98,6 +98,12 @@ export function ContractRedFlagChecker() {
 
   async function check() {
     setErr(null);
+    // An empty or too-short click explains itself instead of the button
+    // sitting disabled with no reason on screen.
+    if (trimmed.length < 20) {
+      setErr(t("tooShort"));
+      return;
+    }
     setResult(null);
     setReminderAdded(false);
     setNeedsLogin(false);
@@ -144,11 +150,7 @@ export function ContractRedFlagChecker() {
       {tooShort && <p className="text-danger text-[12.5px] mt-2">{t("tooShort")}</p>}
       {err && <p className="text-danger text-[12.5px] mt-2">{err}</p>}
 
-      <Button
-        className="mt-4"
-        disabled={busy || trimmed.length < 20}
-        onClick={check}
-      >
+      <Button className="mt-4" disabled={busy} onClick={check}>
         {busy ? t("checking") : t("checkCta")}
       </Button>
 

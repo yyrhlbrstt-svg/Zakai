@@ -40,6 +40,27 @@ export function publicSupportEmail(): string {
   return FOUNDER_EMAIL;
 }
 
+/**
+ * The support address ONLY when a real one is configured — null when the
+ * founder-inbox fallback would apply. Screens use this to decide whether to
+ * PRINT an address: a personal gmail on a public page reads as a hobby
+ * project, so unconfigured surfaces show a labeled contact path instead,
+ * while mailto/delivery keeps using publicSupportEmail() underneath —
+ * hiding the text must never mean discarding the enquiry.
+ */
+export function configuredSupportEmail(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim();
+  if (raw && !isPlaceholderMailbox(raw)) return raw;
+  return null;
+}
+
+/** Same rule for the security contact. */
+export function configuredSecurityEmail(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SECURITY_EMAIL?.trim();
+  if (raw && !isPlaceholderMailbox(raw)) return raw;
+  return null;
+}
+
 export function publicSecurityEmail(): string {
   const raw = process.env.NEXT_PUBLIC_SECURITY_EMAIL?.trim();
   if (raw && !isPlaceholderMailbox(raw)) return raw;
