@@ -839,6 +839,35 @@ export function CheckFlow({
               <div className="font-extrabold">{tv("authTitle")}</div>
             </div>
             <p className="text-[13.5px] text-ink-soft mt-2 leading-relaxed">{tv("authSub")}</p>
+            {!auth && (
+              /*
+                The limits belong HERE, at the signature, not in a trust
+                section further down the page that nobody scrolls back to.
+                "Power of attorney" is a frightening phrase to sign under, and
+                the two facts that answer the fear — this cannot touch money,
+                and you can revoke it in one click — are both enforced in code
+                (FORBIDDEN_SCOPES, /authority), so stating them here is
+                reporting the system's behaviour rather than reassuring about
+                it.
+              */
+              <div className="mt-3 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)] p-3.5">
+                <div className="font-extrabold text-body">{tv("authScopeTitle")}</div>
+                <ul className="list-none p-0 m-0 mt-2 flex flex-col gap-1.5">
+                  <li className="text-caption leading-relaxed">
+                    <span className="text-emerald font-bold">✓</span> {tv("authScopeCan")}
+                  </li>
+                  <li className="text-caption leading-relaxed">
+                    <span className="text-danger font-bold">✕</span> {tv("authScopeCannot")}
+                  </li>
+                  <li className="text-caption leading-relaxed">
+                    <span className="text-emerald font-bold">↺</span> {tv("authScopeRevoke")}{" "}
+                    <Link href="/authority" className="text-emerald font-bold no-underline hover:underline">
+                      {tv("authScopeRevokeLink")}
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            )}
             {!auth ? (
               <Button onClick={generateAuth} disabled={busy} className="mt-3">
                 {tv("authGenerate")}

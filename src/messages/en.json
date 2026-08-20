@@ -679,7 +679,12 @@
     "bothRequired": "Both verifications must be completed to continue.",
     "authRevoked": "Authorization was revoked — cannot record a saving. Re-issue a Mandate or open a new case.",
     "feeMandateRequired": "No Mandate bound to this fee — checkout refused. Re-issue authorization.",
-    "genericError": "Something went wrong. Try again."
+    "genericError": "Something went wrong. Try again.",
+    "authScopeTitle": "What this authorization allows — and what it does not",
+    "authScopeCan": "Send a letter in your name to this provider, for this request only.",
+    "authScopeCannot": "It has no access to your bank account, moves no money and makes no payments. That is blocked in the code itself, not a marketing promise.",
+    "authScopeRevoke": "You can revoke it in one click, any time, from your authorizations page.",
+    "authScopeRevokeLink": "Authorizations page"
   },
   "authorizationDoc": {
     "docTitle": "Power of Attorney for Action Toward a Provider",
