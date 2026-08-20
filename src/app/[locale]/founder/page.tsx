@@ -52,6 +52,7 @@ const AUTOPILOT_LABEL_HE: Record<string, string> = {
   "outcome-learner": "Outcome Learner — למידה מתוצאות תיקים",
   "growth-bot": "Growth Bot — הצעות תוכן מנתונים",
   "market-expander": "Market Expander — ביקוש לשווקים חדשים",
+  "concentration-watcher": "Concentration Watcher — ריכוזיות סטטוטורית של התיקים הפעילים",
 };
 
 export const dynamic = "force-dynamic";

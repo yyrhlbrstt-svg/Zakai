@@ -10,8 +10,7 @@ import {
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
 import { resolveMandateAudience } from "@/lib/institutionAudience";
-import { rightForLetter } from "@/lib/rightsGraph/registry";
-import { CANCEL_TEETH_RIGHT_ID } from "@/lib/legalTeeth";
+import { rightForLetter, rightIdForVertical } from "@/lib/rightsGraph/registry";
 import {
   allocateStatusIndex,
   publishRevocation,
@@ -406,9 +405,10 @@ export async function getPublicAuthorization(code: string) {
    * being asserted to an institution.
    */
   let statutoryBasis: { law: string; section: string; sourceUrl: string } | null = null;
-  if (caseVertical === "subscription") {
+  const basisRightId = caseVertical ? rightIdForVertical(caseVertical) : null;
+  if (basisRightId) {
     try {
-      const right = rightForLetter(CANCEL_TEETH_RIGHT_ID);
+      const right = rightForLetter(basisRightId);
       statutoryBasis = {
         law: right.statute.name,
         section: right.statute.section,
