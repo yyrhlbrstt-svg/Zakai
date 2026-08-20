@@ -6875,5 +6875,15 @@
       "hadProviderBetween": "You were a {provider} customer between {from} and {to}",
       "inVertical": "You have a case in {vertical}"
     }
+  },
+  "mcpConnect": {
+    "title": "Connect Zakai to your agent (MCP)",
+    "intro": "An open MCP server — no key, no signup. Add this to your Claude or Cursor config and your agent can read rights from the graph and hand a person off to open a claim.",
+    "copy": "Copy config",
+    "copied": "Copied",
+    "toolCheckRights": "Which rights and refunds a person is owed, each with its legal source",
+    "toolPlaybook": "What actually happens at a given company when a claim is made",
+    "toolStartClaim": "Hand a person off to open a real claim under a signed, scoped mandate",
+    "toolStatus": "Live status: mandate signing, payments, mail delivery"
   }
 }
