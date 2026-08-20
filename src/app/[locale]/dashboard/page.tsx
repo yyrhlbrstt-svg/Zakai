@@ -49,6 +49,7 @@ import {
   resolveMoneyPayFeeCaseId,
 } from "@/lib/services/moneyPayFeeCase";
 import { cohortLearning, type LearningOutcomeRow } from "@/lib/strategy/learningInsights";
+import { computeResponseClock } from "@/lib/rightsGraph/responseClock";
 import { planHasCouponVault } from "@/lib/coupons";
 import { privatePageMetadata } from "@/lib/seo";
 
@@ -148,7 +149,7 @@ export default async function DashboardPage({
             OR: [{ providerMessageId: null }, { providerMessageId: { not: "inbound" } }],
           },
           orderBy: { createdAt: "desc" },
-          select: { caseId: true, status: true, providerMessageId: true },
+          select: { caseId: true, status: true, providerMessageId: true, sentAt: true },
         })
       : Promise.resolve([]),
     prisma.strategyOutcome
@@ -178,6 +179,43 @@ export default async function DashboardPage({
   for (const row of outRows) {
     if (!row.caseId || outreachDeliveryMap.has(row.caseId)) continue;
     outreachDeliveryMap.set(row.caseId, mapOutboxToOutreachDelivery(row));
+  }
+
+  // Response clocks (Phase 2): computed from demands that actually went out —
+  // QUEUED rows start no clock. Serialized to plain values for the client.
+  const responseClockMap = new Map<
+    string,
+    { expired: boolean; daysRemaining: number; daysOverdue: number; expiresAtMs: number; nextRung: string }
+  >();
+  {
+    const sentTrail = new Map<string, { last: Date; count: number }>();
+    for (const row of outRows) {
+      if (!row.caseId || row.status !== "SENT" || !row.sentAt) continue;
+      const cur = sentTrail.get(row.caseId);
+      if (!cur) sentTrail.set(row.caseId, { last: row.sentAt, count: 1 });
+      else {
+        cur.count += 1;
+        if (row.sentAt > cur.last) cur.last = row.sentAt;
+      }
+    }
+    for (const c of cases) {
+      if (c.status !== "SENT") continue;
+      const trail = sentTrail.get(c.id);
+      if (!trail) continue;
+      const clock = computeResponseClock({
+        vertical: c.vertical,
+        lastDemandSentAt: trail.last,
+        demandsSent: trail.count,
+      });
+      if (!clock) continue;
+      responseClockMap.set(c.id, {
+        expired: clock.expired,
+        daysRemaining: clock.daysRemaining,
+        daysOverdue: clock.daysOverdue,
+        expiresAtMs: clock.expiresAt.getTime(),
+        nextRung: clock.nextRung,
+      });
+    }
   }
 
   const learningTips = new Map<
@@ -461,6 +499,7 @@ export default async function DashboardPage({
                   proposedSaving={proposedClient}
                   proofsEmail={proofsEmail}
                   agentRound={agentRoundMap.get(c.id) ?? 0}
+                  responseClock={responseClockMap.get(c.id) ?? null}
                   emailConfigured={emailConfigured()}
                   outreachDelivery={outreachDeliveryMap.get(c.id) ?? "none"}
                   vertical={c.vertical}
