@@ -4,7 +4,12 @@ import { Card } from "@/components/ui";
 import { CannotSpendPanel } from "@/components/CannotSpendPanel";
 import { FEE_DISPUTE_WINDOW_DAYS } from "@/lib/services/cases";
 import { alternateLanguages } from "@/lib/seo";
-import { publicSecurityEmail, publicSupportEmail } from "@/lib/contact";
+import {
+  publicSecurityEmail,
+  publicSupportEmail,
+  configuredSecurityEmail,
+  configuredSupportEmail,
+} from "@/lib/contact";
 
 export async function generateMetadata({
   params,
@@ -82,31 +87,32 @@ export default async function TrustPage({
 
       <Section heading={t("disputeHeading")}>
         <p className="text-[14.5px] leading-relaxed">
-          {t("dispute", { days: FEE_DISPUTE_WINDOW_DAYS, email: SUPPORT_EMAIL })}
+          {t("dispute", { days: FEE_DISPUTE_WINDOW_DAYS })}
         </p>
       </Section>
 
+      {/* A configured mailbox is printed; the founder-inbox fallback still
+          receives the mail behind the labeled link, but its address is not
+          shown — a personal gmail on a trust page defeats the page. */}
       <Section heading={t("contactHeading")}>
-        <p className="text-[14.5px] leading-relaxed">
-          {t("contact", { email: SECURITY_EMAIL })}
-        </p>
+        <p className="text-[14.5px] leading-relaxed">{t("contact")}</p>
         <a
           href={`mailto:${SECURITY_EMAIL}`}
           className="inline-block mt-2 text-emerald font-bold no-underline"
-          dir="ltr"
+          dir={configuredSecurityEmail() ? "ltr" : undefined}
         >
-          {SECURITY_EMAIL}
+          {configuredSecurityEmail() ?? t("emailCta")}
         </a>
       </Section>
 
       <Section heading={t("supportHeading")}>
-        <p className="text-[14.5px] leading-relaxed">{t("supportContact", { email: SUPPORT_EMAIL })}</p>
+        <p className="text-[14.5px] leading-relaxed">{t("supportContact")}</p>
         <a
           href={`mailto:${SUPPORT_EMAIL}`}
           className="inline-block mt-2 text-emerald font-bold no-underline"
-          dir="ltr"
+          dir={configuredSupportEmail() ? "ltr" : undefined}
         >
-          {SUPPORT_EMAIL}
+          {configuredSupportEmail() ?? t("emailCta")}
         </a>
       </Section>
 

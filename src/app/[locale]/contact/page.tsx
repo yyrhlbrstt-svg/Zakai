@@ -3,7 +3,12 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui";
 import { ContactForm } from "@/components/ContactForm";
-import { publicSupportEmail, publicSecurityEmail, salesInboundEmail } from "@/lib/contact";
+import {
+  publicSupportEmail,
+  publicSecurityEmail,
+  salesInboundEmail,
+  FOUNDER_EMAIL,
+} from "@/lib/contact";
 import { publicPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -72,10 +77,13 @@ export default async function ContactPage({
               </div>
               <a
                 href={`mailto:${c.email}`}
-                dir="ltr"
+                dir={c.email === FOUNDER_EMAIL ? undefined : "ltr"}
                 className="text-emerald text-body font-bold no-underline mt-2 inline-block"
               >
-                {c.email}
+                {/* A configured mailbox is worth printing; the founder-inbox
+                    fallback still receives the mail but is not shown as text —
+                    a personal gmail on the contact page reads as a hobby. */}
+                {c.email === FOUNDER_EMAIL ? t("emailCta") : c.email}
               </a>
             </Card>
           </li>

@@ -15,7 +15,7 @@ import { aiAvailable } from "@/lib/ai";
 import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
-import { proofsInboundAddress } from "@/lib/mandate/document";
+import { configuredProofsInboundAddress } from "@/lib/mandate/document";
 import { getCurrentUser } from "@/lib/auth/user";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
 import { EmailVerifyNudge } from "@/components/EmailVerifyNudge";
@@ -82,7 +82,6 @@ export default async function MoneyPage({
   setRequestLocale(locale);
   const tIapp_locale_money_page = await getTranslations({ locale, namespace: "inline_app_locale_money_page" });
   const loc = bcp47[locale as Locale];
-  const proofsEmail = proofsInboundAddress();
   const user = await getCurrentUser();
   /**
    * Signed in, this is matched against their own history. Signed out, only
@@ -403,11 +402,14 @@ export default async function MoneyPage({
         </div>
       ) : null}
 
-      {proofsEmail ? (
-        <p className="text-[12px] text-ink-soft leading-relaxed mb-6 border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 bg-[rgba(63,203,155,0.06)]">
-          {tIapp_locale_money_page("proofsHint", { email: proofsEmail })}
-        </p>
-      ) : null}
+      {/* The forwarding address is printed only when a real proofs inbox is
+          configured; on the founder-inbox fallback the paste-in-dashboard
+          path (which fully works) leads, with no personal address shown. */}
+      <p className="text-[12px] text-ink-soft leading-relaxed mb-6 border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 bg-[rgba(63,203,155,0.06)]">
+        {configuredProofsInboundAddress()
+          ? tIapp_locale_money_page("proofsHint", { email: configuredProofsInboundAddress()! })
+          : tIapp_locale_money_page("proofsHintNoInbox")}
+      </p>
 
       <MoneyInstallInline />
 

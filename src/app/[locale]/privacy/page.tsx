@@ -40,15 +40,18 @@ export default async function PrivacyPage({
               {i + 1}. {s.h}
             </h2>
             <p className="text-ink-soft text-[13.5px] leading-relaxed m-0">
-              {s.p.includes("{email}")
-                ? t("privacyContact", { email: supportEmail })
-                : s.p}
+              {s.p.includes("{email}") ? t("privacyContact") : s.p}
             </p>
           </section>
         ))}
       </Card>
       <p className="mt-5 text-body text-ink-soft">
-        {t("privacyContact", { email: supportEmail })}
+        {t("privacyContact")}{" "}
+        {/* The mailto keeps working against the fallback inbox; only the
+            printed address is withheld until a real mailbox is configured. */}
+        <a href={`mailto:${supportEmail}`} className="text-emerald font-bold no-underline">
+          {t("privacyEmailCta")}
+        </a>
       </p>
       <p className="mt-3 text-[11.5px] text-ink-soft leading-relaxed">{t("legalNote")}</p>
     </main>
