@@ -24,6 +24,13 @@ import { join } from "node:path";
  * decided this — not a way to silence the test.
  */
 const INTENTIONAL: Record<string, string> = {
+  legalGates:
+    "Constraint-11 enforcement point (Master Build Prompt v2): the four dark " +
+    "capabilities — fee collection, assignment clause, trust remittance, claim " +
+    "purchase — must call requireLegalGate() when they are built, and the gate " +
+    "has to exist and be tested BEFORE any of them so the first implementation " +
+    "cannot ship without it. Its callers are deliberately unbuilt; the gate " +
+    "being ahead of them is the constraint working.",
   redactLetter:
     "Precondition for storing the letter text behind a documented saving, so the " +
     "outcome graph can learn which phrasings actually recovered money. It ships " +
