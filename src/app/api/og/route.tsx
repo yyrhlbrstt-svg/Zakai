@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { toVisualIfRtl } from "@/lib/ogBidi";
 
 /**
  * Dynamic share-card image — the difference between a share landing as a bare
@@ -24,11 +25,13 @@ function loadFont() {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const amount = (searchParams.get("amount") || "").slice(0, 40);
-  const kicker = (searchParams.get("kicker") || "Zakai").slice(0, 60);
-  const sub = (searchParams.get("sub") || "").slice(0, 90);
   const locale = searchParams.get("locale") || "he";
   const rtl = RTL_LOCALES.has(locale);
+  // Satori draws logical order LTR (no bidi) — convert RTL strings to
+  // visual order or every Hebrew share card renders its text reversed.
+  const amount = toVisualIfRtl((searchParams.get("amount") || "").slice(0, 40));
+  const kicker = toVisualIfRtl((searchParams.get("kicker") || "Zakai").slice(0, 60));
+  const sub = toVisualIfRtl((searchParams.get("sub") || "").slice(0, 90));
 
   const fontData = await loadFont();
 

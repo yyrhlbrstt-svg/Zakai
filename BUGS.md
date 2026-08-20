@@ -58,6 +58,16 @@ and re-confirmed.)
 placeholder text; empty aggregates render designed zeros (doctrine +
 existing tests). No seeded or fake number found on the demo path.
 
+### P0-2: WhatsApp share card rendered Hebrew REVERSED (found in S3 prep, fixed)
+The dynamic OG image (`/api/og`) — the first thing anyone sees when a Zakai
+link lands in WhatsApp — drew all Hebrew text backwards: "זכאי" rendered as
+"יאכז". Root cause: Satori (next/og's renderer) does not implement the
+Unicode bidi algorithm; it draws logical order left-to-right and ignores
+`direction: rtl`. **Fix:** `src/lib/ogBidi.ts` converts logical→visual order
+(RTL runs mirrored, digits/₪/Latin kept intact, run order reversed; 5 unit
+tests incl. round-trip and number-preservation), applied to all card texts.
+Verified by regenerating the card: correct Hebrew, correct ₪ amount.
+
 ## P1 — found and FIXED in this pass
 
 ### P1-1: Two dead-looking primary CTAs
