@@ -594,3 +594,26 @@ input[type="range"]::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   .missing-fields-flash { animation: none; }
 }
+
+/* ---- Anchor jumps acknowledge themselves --------------------------------
+   Every in-page link in this app resolves to a real target (verified across
+   137 pages), and yet tapping one reads as nothing having happened: the page
+   scrolls, and the thing you asked for looks exactly like everything around
+   it. Testers described this as buttons that lead nowhere. The destination
+   now says "here I am" for a moment, which is the difference between a jump
+   that worked and a jump the person believes worked. */
+:target {
+  animation: anchorArrive 1.4s var(--ease-out);
+  border-radius: 14px;
+  scroll-margin-top: 84px;
+}
+@keyframes anchorArrive {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(63, 203, 155, 0); background-color: transparent; }
+  20%, 55% {
+    box-shadow: 0 0 0 5px rgba(63, 203, 155, 0.22);
+    background-color: rgba(63, 203, 155, 0.07);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :target { animation: none; }
+}
