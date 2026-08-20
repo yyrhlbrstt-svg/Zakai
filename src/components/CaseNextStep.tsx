@@ -20,6 +20,8 @@ import { proofsInboundAddress } from "@/lib/mandate/document";
 import { heEn } from "@/lib/heEn";
 import { FeePayButton } from "@/components/FeePayButton";
 import { classifyFollowUpSendError, followUpDeliveryState } from "@/lib/followUpSendUi";
+import { rightIdForVertical } from "@/lib/rightsGraph/registry";
+import { SUPPORTED_RIGHT_ID, type SmallClaimsPackage } from "@/lib/smallClaimsPackage";
 import type { OutreachDelivery } from "@/lib/services/outreachDelivery";
 import { moneyPendingFeeHref } from "@/lib/services/moneyPayFeeCase";
 import { pendingFeeDisplayShekels } from "@/lib/pendingSuccessFee";
@@ -193,6 +195,17 @@ const copy: Record<string, Record<string, string>> = {
     exhaustedBanner:
       "סיבובי המעקב בכתב מוצו. אל תשלחו עוד תזכורת — רשמו סכום מתשובה בכתב, סמנו שלא השתנה, או עברו לנתיב אחר (ביטול / מתחרה).",
     exhaustedEscalate: "הספק לא ענה — הגישו תלונה לגורם המפקח",
+    smallClaimsCta: "הכינו תיק לתביעה קטנה (טיוטה)",
+    smallClaimsChargedLabel: "כמה חויבתם אחרי הביטול? (₪, לא חובה)",
+    smallClaimsTitle: "תיק תביעות קטנות — טיוטה לעיון ולעריכה",
+    smallClaimsNotDispatched:
+      "שימו לב: אף דרישה בכתב לא שוגרה בפועל מהמערכת. ודאו שהמכתב נשלח לספק בדרך כלשהי לפני שמגישים — כתב התביעה מסתמך על דרישה שנשלחה.",
+    smallClaimsCopy: "העתקת כתב התביעה",
+    smallClaimsCopied: "הועתק",
+    smallClaimsEvidence: "מסמכים לצירוף",
+    smallClaimsFiling: "פרטי הגשה",
+    smallClaimsFileLink: "להגשה עצמית באתר הרשות השופטת",
+    smallClaimsErr: "לא ניתן להכין טיוטה לתיק הזה כרגע.",
     mandateInactiveBanner:
       "אין Mandate פעיל על התיק — הסוכן לא יכול לשלוח המשך לספק עד שתאשרו הרשאה מחדש.",
     authRevokedBanner:
@@ -311,6 +324,17 @@ const copy: Record<string, Record<string, string>> = {
     exhaustedBanner:
       "Written follow-up rounds are exhausted. Do not send another reminder — record an amount from a written reply, mark no change, or pivot (cancel / competitor).",
     exhaustedEscalate: "Provider went silent — file a complaint with the regulator",
+    smallClaimsCta: "Prepare a small-claims file (draft)",
+    smallClaimsChargedLabel: "Charged after cancellation? (₪, optional)",
+    smallClaimsTitle: "Small-claims file — draft for your review",
+    smallClaimsNotDispatched:
+      "Note: no written demand was actually dispatched from the system. Make sure the letter reached the provider some way before filing — the claim statement relies on a demand that was sent.",
+    smallClaimsCopy: "Copy claim statement",
+    smallClaimsCopied: "Copied",
+    smallClaimsEvidence: "Documents to attach",
+    smallClaimsFiling: "Filing details",
+    smallClaimsFileLink: "File it yourself on the Judicial Authority site",
+    smallClaimsErr: "Could not prepare a draft for this case right now.",
     mandateInactiveBanner:
       "No ACTIVE Mandate on this case — the agent cannot send a follow-up until you re-issue authorization.",
     authRevokedBanner:
@@ -396,6 +420,11 @@ export function CaseNextStep({
   const he = locale === "he" || locale === "ar";
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [scPkg, setScPkg] = useState<SmallClaimsPackage | null>(null);
+  const [scDispatched, setScDispatched] = useState(true);
+  const [scCharged, setScCharged] = useState("");
+  const [scCopied, setScCopied] = useState(false);
+  const [scErr, setScErr] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [mailtoOpened, setMailtoOpened] = useState(false);
   const [draftEdit, setDraftEdit] = useState(draftMessageProp);
@@ -1318,6 +1347,104 @@ export function CaseNextStep({
             >
               {t(locale, "exhaustedEscalate")} →
             </Link>
+
+            {/*
+              The rung after the regulator: the small-claims draft. Offered
+              only for verticals whose right the generator can narrate — the
+              server enforces the same gate, this just avoids a dead button.
+            */}
+            {rightIdForVertical(vertical || "") === SUPPORTED_RIGHT_ID && !scPkg && (
+              <div className="mt-3 font-normal">
+                <label className="block text-caption text-ink-soft mb-1">
+                  {t(locale, "smallClaimsChargedLabel")}
+                  <Input
+                    type="number"
+                    min={0}
+                    value={scCharged}
+                    onChange={(e) => setScCharged(e.target.value)}
+                    className="mt-1"
+                  />
+                </label>
+                <Button
+                  disabled={busy}
+                  className="text-body py-2 px-3.5 w-full sm:w-auto"
+                  onClick={() =>
+                    run(async () => {
+                      setScErr(false);
+                      const charged = Number(scCharged);
+                      const res = await fetch(`/api/cases/${caseId}/small-claims-package`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(
+                          Number.isFinite(charged) && charged > 0
+                            ? { chargedAfterShekels: charged }
+                            : {},
+                        ),
+                      });
+                      const data = await res.json().catch(() => ({}));
+                      if (!res.ok || !data.package) {
+                        setScErr(true);
+                        return;
+                      }
+                      setScPkg(data.package as SmallClaimsPackage);
+                      setScDispatched(Boolean(data.writtenDemandDispatched));
+                    })
+                  }
+                >
+                  {t(locale, "smallClaimsCta")}
+                </Button>
+                {scErr && <FieldError>{t(locale, "smallClaimsErr")}</FieldError>}
+              </div>
+            )}
+
+            {scPkg && (
+              <div className="mt-3 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.25)] p-3 font-normal text-ink">
+                <div className="text-body font-extrabold mb-2">{t(locale, "smallClaimsTitle")}</div>
+                {!scDispatched && (
+                  <p className="text-caption text-[#f0b45c] font-bold leading-relaxed mb-2">
+                    {t(locale, "smallClaimsNotDispatched")}
+                  </p>
+                )}
+                <div
+                  dir="rtl"
+                  className="max-h-72 overflow-y-auto whitespace-pre-wrap text-caption leading-relaxed border border-[rgba(255,255,255,0.09)] rounded-lg p-2.5 mb-2"
+                >
+                  {scPkg.claimStatement}
+                </div>
+                <Button
+                  className="text-caption py-1.5 px-3"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(scPkg.claimStatement);
+                    setScCopied(true);
+                  }}
+                >
+                  {scCopied ? t(locale, "smallClaimsCopied") : t(locale, "smallClaimsCopy")}
+                </Button>
+                <div className="mt-2.5 text-caption text-ink-soft">
+                  <div className="font-extrabold text-ink mb-1">{t(locale, "smallClaimsEvidence")}</div>
+                  <ul className="list-disc ps-4 space-y-0.5">
+                    {scPkg.evidenceChecklist.map((e) => (
+                      <li key={e}>{e}</li>
+                    ))}
+                  </ul>
+                  <div className="font-extrabold text-ink mt-2 mb-1">{t(locale, "smallClaimsFiling")}</div>
+                  <p className="mb-1">{scPkg.filing.feeRuleHe}</p>
+                  {scPkg.filing.notesHe.map((n) => (
+                    <p key={n} className="mb-1">
+                      {n}
+                    </p>
+                  ))}
+                  <a
+                    href={scPkg.filing.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#3EC6FF] underline font-bold"
+                  >
+                    {t(locale, "smallClaimsFileLink")} →
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
