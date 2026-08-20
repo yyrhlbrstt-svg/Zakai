@@ -3100,7 +3100,12 @@
     "step2": "Keep a copy and the date you sent it. That is your proof you approached them.",
     "step3": "If the company gets back to you after the escalation, keep that too.",
     "openBody": "Go to {body}",
-    "noLinkNote": "This body has no fixed online form — current contact details are on gov.il. We never invent an address."
+    "noLinkNote": "This body has no fixed online form — current contact details are on gov.il. We never invent an address.",
+    "clockElapsed": "{days} days have passed since your complaint.",
+    "clockWaiting": "Per the Banking Supervision service charter, you may escalate when there has been no satisfactory reply within {wait} days ({extended} with a notified extension). {remaining} days to go.",
+    "clockReady": "The {wait} days the bank had to reply have passed — you can escalate now.",
+    "clockNoPeriod": "There is no fixed waiting period here: if the reply you got is not satisfactory, you can escalate now.",
+    "clockBadDate": "We could not read that date. Format: 01/03/2026."
   },
   "deadlines": {
     "metaTitle": "Never miss a deadline — passport, car test, filings | Zakai",
