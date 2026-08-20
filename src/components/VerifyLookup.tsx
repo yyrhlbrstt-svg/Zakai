@@ -18,6 +18,13 @@ interface PublicAuth {
   institutionVerifierLeader?: boolean;
   scope: string;
   issuedAt: string;
+  writtenDemands?: {
+    recordedAt: string;
+    sentAt: string | null;
+    subject: string;
+    delivery: "SENT" | "QUEUED" | "FAILED";
+  }[];
+  statutoryBasis?: { law: string; section: string; sourceUrl: string } | null;
 }
 
 interface GravityRow {
@@ -202,6 +209,64 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
             </div>
             <div className="text-[14px] mt-1 leading-relaxed">{result.scope}</div>
           </div>
+
+          {/* The written-demand trail — what turns "the code checks out" into
+              "a dated paper trail you cannot dismiss as bot noise". Dates and
+              delivery state come from the Outbox, which never claims SENT for
+              anything that only queued; this section inherits that honesty. */}
+          {result.writtenDemands && result.writtenDemands.length > 0 && (
+            <div className="mt-4 rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] px-3.5 py-3">
+              <div className="text-[11px] font-extrabold uppercase tracking-wide text-ink-soft">
+                {heEn(he, "מסלול הדרישות בכתב", "Written-demand trail")}
+              </div>
+              <ol className="m-0 mt-2 ps-0 list-none flex flex-col gap-2">
+                {result.writtenDemands.map((d, i) => (
+                  <li key={`${d.recordedAt}-${i}`} className="text-[13px] leading-relaxed">
+                    <span className="font-bold" dir="ltr">
+                      {new Date(d.sentAt ?? d.recordedAt).toLocaleDateString(bcp47[locale])}
+                    </span>
+                    {" · "}
+                    <span
+                      className={
+                        d.delivery === "SENT"
+                          ? "text-emerald font-bold"
+                          : d.delivery === "FAILED"
+                            ? "text-[#F08A6B] font-bold"
+                            : "text-ink-soft font-bold"
+                      }
+                    >
+                      {d.delivery === "SENT"
+                        ? heEn(he, "נשלח", "Sent")
+                        : d.delivery === "FAILED"
+                          ? heEn(he, "שליחה נכשלה", "Delivery failed")
+                          : heEn(he, "נרשם, ממתין לשליחה", "Recorded, awaiting dispatch")}
+                    </span>
+                    {d.subject ? (
+                      <span className="text-ink-soft"> — {d.subject}</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {result.statutoryBasis && (
+            <p className="text-[12.5px] text-ink-soft mt-3 mb-0 leading-relaxed">
+              {heEn(he, "בסיס סטטוטורי: ", "Statutory basis: ")}
+              <span className="font-bold">
+                {result.statutoryBasis.law}, {result.statutoryBasis.section}
+              </span>
+              {" · "}
+              <a
+                href={result.statutoryBasis.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#3EC6FF] font-bold no-underline"
+              >
+                {heEn(he, "לנוסח החוק →", "Consolidated text →")}
+              </a>
+            </p>
+          )}
           {gravity?.found && gravity.dispatchedCases != null && gravity.dispatchedCases > 0 ? (
             <div className="mt-4 rounded-xl border border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.08)] px-3.5 py-3">
               <div className="text-[11px] font-extrabold uppercase tracking-wide text-emerald">

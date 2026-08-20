@@ -10,6 +10,8 @@ import {
   MandateKeyUnavailableError,
 } from "@/lib/mandate/mandate";
 import { resolveMandateAudience } from "@/lib/institutionAudience";
+import { rightForLetter } from "@/lib/rightsGraph/registry";
+import { CANCEL_TEETH_RIGHT_ID } from "@/lib/legalTeeth";
 import {
   allocateStatusIndex,
   publishRevocation,
@@ -359,6 +361,64 @@ export async function getPublicAuthorization(code: string) {
     institutionVerifierLeader = false;
   }
 
+  /**
+   * The written-demand trail — the half that turns "a code checks out" into
+   * "a demand you cannot dismiss as bot noise": what was put in writing, when,
+   * and whether it was delivered. Read from the Outbox, which never claims
+   * SENT for anything that only queued, so this surface inherits that honesty
+   * verbatim. Subjects only, never bodies: whoever holds the code already
+   * holds the letter; the trail adds dates and delivery state, not content.
+   */
+  let writtenDemands: {
+    recordedAt: Date;
+    sentAt: Date | null;
+    subject: string;
+    delivery: "SENT" | "QUEUED" | "FAILED";
+  }[] = [];
+  let caseVertical: string | null = null;
+  try {
+    const kase = await prisma.case.findUnique({
+      where: { id: auth.caseId },
+      select: { vertical: true },
+    });
+    caseVertical = kase?.vertical ?? null;
+    const rows = await prisma.outbox.findMany({
+      where: { caseId: auth.caseId, channel: "EMAIL" },
+      orderBy: { createdAt: "asc" },
+      take: 20,
+      select: { createdAt: true, sentAt: true, subject: true, status: true },
+    });
+    writtenDemands = rows.map((r) => ({
+      recordedAt: r.createdAt,
+      sentAt: r.sentAt,
+      subject: r.subject ?? "",
+      delivery: r.status,
+    }));
+  } catch {
+    writtenDemands = [];
+  }
+
+  /**
+   * Statutory basis, from the Rights Graph — only where the letters actually
+   * carry it (the statutory-cancellation flow), and resolved through
+   * rightForLetter() so the draft gate reaches this surface too: a right
+   * flipped to draft silently drops off the verification page rather than
+   * being asserted to an institution.
+   */
+  let statutoryBasis: { law: string; section: string; sourceUrl: string } | null = null;
+  if (caseVertical === "subscription") {
+    try {
+      const right = rightForLetter(CANCEL_TEETH_RIGHT_ID);
+      statutoryBasis = {
+        law: right.statute.name,
+        section: right.statute.section,
+        sourceUrl: right.statute.sourceUrl,
+      };
+    } catch {
+      statutoryBasis = null;
+    }
+  }
+
   return {
     code: auth.code,
     status: auth.status,
@@ -370,5 +430,7 @@ export async function getPublicAuthorization(code: string) {
     scope: auth.scope,
     issuedAt: auth.issuedAt,
     revokedAt: auth.revokedAt,
+    writtenDemands,
+    statutoryBasis,
   };
 }
