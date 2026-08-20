@@ -199,8 +199,8 @@ export default async function HomePage({
   const accentText: Record<string, string> = {
     emerald: "text-emerald",
     violet: "text-[#c4b5fd]",
-    sky: "text-[#3ec6ff]",
-    amber: "text-[#f0b45c]",
+    sky: "text-cyan",
+    amber: "text-amber",
   };
   const accentIconBg: Record<string, string> = {
     emerald: "bg-[rgba(63,203,155,0.22)]",
@@ -212,8 +212,8 @@ export default async function HomePage({
   return (
     <main className="max-w-[1080px] mx-auto px-5 pb-28 pt-6">
       {!israeliVisitor && (
-        <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-[13.5px] text-ink-soft leading-relaxed">
-          <Globe size={18} className="shrink-0 text-[#3ec6ff]" aria-hidden />
+        <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-[rgba(62,198,255,0.28)] bg-[rgba(62,198,255,0.06)] px-5 py-3.5 text-caption text-ink-soft leading-relaxed">
+          <Globe size={18} className="shrink-0 text-cyan" aria-hidden />
           <span>{t("home.geoNote")}</span>
         </div>
       )}
@@ -234,15 +234,15 @@ export default async function HomePage({
             </h1>
           </Reveal>
           <Reveal delay={160}>
-            <p className="text-ink-soft text-[17px] leading-[1.75] my-7 max-w-[520px]">
+            <p className="text-ink-soft text-lead leading-[1.75] my-7 max-w-[520px]">
               {t("home.sub")}
             </p>
             <div className="flex flex-wrap gap-3 mb-2">
               <Link href="/money#zakai-money-scan">
-                <Button className="!text-[15px] !px-7 !py-3.5">{t("home.cta")}</Button>
+                <Button className="!text-body-lg !px-7 !py-3.5">{t("home.cta")}</Button>
               </Link>
               <Link href="/leaks">
-                <Button variant="ghost" className="!text-[14px]">
+                <Button variant="ghost" className="!text-body">
                   {t("home.heroLeaks")}
                 </Button>
               </Link>
@@ -256,7 +256,7 @@ export default async function HomePage({
       </div>
 
       <Reveal>
-        <h2 className="text-[15px] font-extrabold mb-4 text-ink-soft">
+        <h2 className="text-body-lg font-extrabold mb-4 text-ink-soft">
           {t("door.title")}
         </h2>
       </Reveal>
@@ -299,18 +299,18 @@ export default async function HomePage({
                       <div
                         className={
                           "font-extrabold " +
-                          (featured ? "text-[19px] " : "text-[17px] ") +
+                          (featured ? "text-h4 " : "text-title ") +
                           accentText[d.accent]
                         }
                       >
                         {t(d.titleKey)}
                       </div>
-                      <div className="text-ink-soft text-[13.5px] mt-2 leading-relaxed max-w-[520px]">
+                      <div className="text-ink-soft text-caption mt-2 leading-relaxed max-w-[520px]">
                         {t(d.subKey)}
                       </div>
                       <div
                         className={
-                          "mt-4 text-[14px] font-extrabold " + accentText[d.accent]
+                          "mt-4 text-body font-extrabold " + accentText[d.accent]
                         }
                       >
                         {t(d.ctaKey)}
@@ -347,7 +347,7 @@ export default async function HomePage({
               >
                 {i === 1 ? ilRightsCount : s.n}
               </div>
-              <div className="text-ink-soft text-[11.5px] mt-1.5 leading-tight">
+              <div className="text-ink-soft text-micro mt-1.5 leading-tight">
                 {s.label}
               </div>
             </div>
@@ -376,7 +376,7 @@ export default async function HomePage({
           {trust.map((line) => (
             <li
               key={line}
-              className="flex items-center gap-2.5 text-[13.5px] text-ink-soft"
+              className="flex items-center gap-2.5 text-caption text-ink-soft"
             >
               <span className="text-emerald font-black" aria-hidden>
                 ✓
@@ -388,7 +388,7 @@ export default async function HomePage({
       </Reveal>
 
       <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-4">
+        <h2 className="text-title font-extrabold mt-16 mb-4">
           {t("home.howTitle")}
         </h2>
       </Reveal>
@@ -404,7 +404,7 @@ export default async function HomePage({
               <div className="font-extrabold text-base mt-3">
                 {t("onboarding.steps." + key + ".title")}
               </div>
-              <div className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed">
+              <div className="text-ink-soft text-caption mt-1.5 leading-relaxed">
                 {t("onboarding.steps." + key + ".sub")}
               </div>
             </SpotlightCard>
@@ -421,7 +421,7 @@ export default async function HomePage({
       </Reveal>
 
       <Reveal>
-        <h2 className="text-[17px] font-extrabold mt-16 mb-4">
+        <h2 className="text-title font-extrabold mt-16 mb-4">
           {t("home.whyTitle")}
         </h2>
       </Reveal>
@@ -432,8 +432,8 @@ export default async function HomePage({
             ? "p-6 h-full border-[rgba(63,203,155,0.5)] bg-[rgba(63,203,155,0.06)]"
             : "p-6 h-full";
           const titleCls = isZakai
-            ? "font-extrabold text-[15px] text-emerald"
-            : "font-extrabold text-[15px]";
+            ? "font-extrabold text-body-lg text-emerald"
+            : "font-extrabold text-body-lg";
           const points =
             (t.raw("home.why." + col + ".points") as string[]) || [];
           return (
@@ -473,22 +473,22 @@ export default async function HomePage({
           <h2 className="font-display text-[clamp(20px,3.5vw,26px)] m-0 text-center">
             {t("home.developersTitle")}
           </h2>
-          <p className="text-ink-soft text-[14.5px] mt-3 max-w-[560px] mx-auto text-center leading-relaxed">
+          <p className="text-ink-soft text-body mt-3 max-w-[560px] mx-auto text-center leading-relaxed">
             {t("home.developersSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-5">
             <Link href="/tools">
-              <Button variant="ghost" className="!text-[13.5px]">
+              <Button variant="ghost" className="!text-caption">
                 {t("home.developersTools")}
               </Button>
             </Link>
             <Link href="/network-proof">
-              <Button variant="ghost" className="!text-[13.5px]">
+              <Button variant="ghost" className="!text-caption">
                 {t("home.developersProof")}
               </Button>
             </Link>
             <Link href="/integrations">
-              <Button variant="ghost" className="!text-[13.5px]">
+              <Button variant="ghost" className="!text-caption">
                 {t("home.developersIntegrations")}
               </Button>
             </Link>
@@ -501,12 +501,12 @@ export default async function HomePage({
           <div className="font-display text-[clamp(22px,4vw,32px)] leading-tight">
             {t("home.closingTitle")}
           </div>
-          <p className="text-ink-soft text-[15px] mt-3 max-w-[520px] mx-auto leading-relaxed">
+          <p className="text-ink-soft text-body-lg mt-3 max-w-[520px] mx-auto leading-relaxed">
             {t("home.closingSub")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mt-6">
             <Link href="/money#zakai-money-scan">
-              <Button className="!text-[15px] !px-7 !py-3.5">{t("home.closingCta")}</Button>
+              <Button className="!text-body-lg !px-7 !py-3.5">{t("home.closingCta")}</Button>
             </Link>
             <Link href="/business">
               <Button variant="ghost">{t("home.closingB2b")}</Button>
@@ -515,7 +515,7 @@ export default async function HomePage({
         </div>
       </Reveal>
 
-      <p className="mt-10 text-[11.5px] text-[rgba(147,166,165,0.85)] text-center leading-relaxed max-w-[560px] mx-auto">
+      <p className="mt-10 text-micro text-[rgba(147,166,165,0.85)] text-center leading-relaxed max-w-[560px] mx-auto">
         {t("home.scopeNote")}
       </p>
     </main>

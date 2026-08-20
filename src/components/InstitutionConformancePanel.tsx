@@ -125,7 +125,10 @@ export function InstitutionConformancePanel() {
           {/* A full endpoint is longer than a phone is wide. Wrapping keeps it
               readable; letting it run off the edge hides the path an
               integrator came here to copy. */}
-          <code className="text-[11px] block break-all" dir="ltr">
+          {/* [overflow-wrap:anywhere] on top of break-all: before the webfont
+              lands, the fallback mono can measure wider than the box for a
+              frame — anywhere-wrap holds at any font metric. */}
+          <code className="text-[11px] block break-all [overflow-wrap:anywhere]" dir="ltr">
             POST {ORIGIN}/api/mandate/conformance/probe
           </code>
         </li>

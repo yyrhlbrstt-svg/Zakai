@@ -385,7 +385,7 @@ export function ReferenceVerifierWizard() {
       {!pioneerReady && readyStep === "fail" ? (
         <p className="text-[12.5px] text-ink-soft mt-2 mb-0 leading-relaxed">
           {t("readyCliHint")}{" "}
-          <code className="text-[11px]">
+          <code className="text-[11px] break-all [overflow-wrap:anywhere]" dir="ltr">
             npm install github:yyrhlbrstt-svg/Zakai#path:sdk && npx zakai-mandate-ready
           </code>
           {" · "}

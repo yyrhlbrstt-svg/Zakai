@@ -258,7 +258,7 @@ export default async function MoneyPage({
             href="#zakai-money-scan"
             className="no-underline block"
           >
-            <Button className="w-full !text-[15px]">
+            <Button className="w-full !text-body-lg">
               {aiAvailable()
                 ? tIapp_locale_money_page("heroCta")
                 : tIapp_locale_money_page("heroCtaPaste")}
@@ -280,7 +280,7 @@ export default async function MoneyPage({
         <div className="mb-6">
           {!user.emailVerifiedAt ? <EmailVerifyNudge /> : null}
           {openLoopRedirect && openLoop ? (
-            <p className="text-[12.5px] text-ink-soft mb-2 leading-relaxed">
+            <p className="text-caption text-ink-soft mb-2 leading-relaxed">
               {locale === "he" || locale === "ar"
                 ? "הועברתם לכאן כי יש לכם תיק פתוח שצריך לסיים קודם — הכלי שפתחתם יחכה."
                 : "Brought you here because you have an open case to finish first — the tool you opened will wait."}
@@ -293,7 +293,7 @@ export default async function MoneyPage({
             <DashboardNextActionPanel userId={user.id} locale={locale as Locale} />
           ) : null}
           {justSent && focusCaseId ? (
-            <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold text-emerald">
+            <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-caption font-bold text-emerald">
               {locale === "he" || locale === "ar"
                 ? "✓ Mandate נשלח לספק — השלב הבא: להמתין לתשובה, להדביק תשובה בכתב, או לתעד חיסכון."
                 : "✓ Mandate delivered to the provider — next: wait for a reply, paste a written answer, or record a saving."}
@@ -312,21 +312,21 @@ export default async function MoneyPage({
           ) : null}
           {overnightCases.length > 0 ? <OvernightAgent cases={overnightCases} /> : null}
           {feeStatus === "paid" ? (
-            <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-[13.5px] font-bold text-emerald">
+            <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.12)] px-4 py-3.5 text-caption font-bold text-emerald">
               {locale === "he" || locale === "ar"
                 ? "✓ עמלת ההצלחה שולמה — אפשר לשתף את החיסכון המתועד."
                 : "✓ Success fee paid — share your documented saving."}
             </div>
           ) : null}
           {feeStatus === "confirming" ? (
-            <div className="mb-4 rounded-2xl border border-[rgba(62,198,255,0.45)] bg-[rgba(62,198,255,0.1)] px-4 py-3.5 text-[13.5px] font-bold text-[#3EC6FF]">
+            <div className="mb-4 rounded-2xl border border-[rgba(62,198,255,0.45)] bg-[rgba(62,198,255,0.1)] px-4 py-3.5 text-caption font-bold text-cyan">
               {locale === "he" || locale === "ar"
                 ? "התשלום בתהליך אישור אצל ספק הסליקה — רעננו בעוד רגע. השיתוף ייפתח רק אחרי אישור."
                 : "Payment is confirming with the card processor — refresh in a moment. Share unlocks only after confirmation."}
             </div>
           ) : null}
           {feeStatus === "error" ? (
-            <div className="mb-4 rounded-2xl border border-[rgba(240,138,107,0.45)] bg-[rgba(240,138,107,0.1)] px-4 py-3.5 text-[13.5px] font-bold text-[#f08a6b]">
+            <div className="mb-4 rounded-2xl border border-[rgba(240,138,107,0.45)] bg-[rgba(240,138,107,0.1)] px-4 py-3.5 text-caption font-bold text-danger">
               {locale === "he" || locale === "ar"
                 ? "התשלום לא הושלם — נסו שוב מהכפתור למטה."
                 : "Payment did not complete — try again with the button below."}
@@ -335,7 +335,7 @@ export default async function MoneyPage({
           {personalDocumented.pendingFeeAgorot > 0 && feeStatus !== "paid" && payFeeCaseId ? (
             <div className="mb-4 rounded-2xl border border-[rgba(63,203,155,0.45)] bg-[rgba(63,203,155,0.1)] px-4 py-3.5 flex flex-wrap items-center gap-3 justify-between">
               <div>
-                <div className="font-extrabold text-[14px] text-emerald">
+                <div className="font-extrabold text-body text-emerald">
                   {locale === "he" || locale === "ar" ? "עמלת הצלחה ממתינה" : "Success fee pending"}
                 </div>
                 <p className="text-body text-ink-soft mt-1 mb-0">
@@ -353,7 +353,7 @@ export default async function MoneyPage({
                 }
               />
               {!paymentsLive ? (
-                <p className="w-full m-0 text-[11.5px] text-amber leading-relaxed">
+                <p className="w-full m-0 text-micro text-amber leading-relaxed">
                   {locale === "he" || locale === "ar"
                     ? "סליקה אמיתית עדיין לא מחוברת — זה רץ במצב הדגמה, לא נגבה כסף אמיתי."
                     : "Real payment processing isn't connected yet — this runs in demo mode, no real money is charged."}
@@ -383,7 +383,7 @@ export default async function MoneyPage({
           />
         </div>
       ) : (
-        <p className="text-[12.5px] text-ink-soft mb-8 leading-relaxed">
+        <p className="text-caption text-ink-soft mb-8 leading-relaxed">
           {locale === "he" || locale === "ar"
             ? "סריקה חדשה תיפתח אחרי שתסגרו את התיק הפתוח — כך הלולאה נסגרת עם Mandate ו־SavingsProof."
             : "A new scan opens after you finish the open case — that is how Mandates and SavingsProofs compound."}
@@ -393,7 +393,7 @@ export default async function MoneyPage({
       {/* Secondary doors only when no open loop — otherwise they steal Mandates/Proofs. */}
       {!openLoop && !focusCaseId ? (
         <div className="mb-8">
-          <div className="font-extrabold text-[14px] mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
+          <div className="font-extrabold text-body mb-3">{tIapp_locale_money_page("priorityTitle")}</div>
           <PriorityActionsRanked
             limit={3}
             pinIds={[...MONTHLY_LEAK_PIN_IDS]}
@@ -405,7 +405,7 @@ export default async function MoneyPage({
       {/* The forwarding address is printed only when a real proofs inbox is
           configured; on the founder-inbox fallback the paste-in-dashboard
           path (which fully works) leads, with no personal address shown. */}
-      <p className="text-[12px] text-ink-soft leading-relaxed mb-6 border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 bg-[rgba(63,203,155,0.06)]">
+      <p className="text-micro text-ink-soft leading-relaxed mb-6 border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 bg-[rgba(63,203,155,0.06)]">
         {configuredProofsInboundAddress()
           ? tIapp_locale_money_page("proofsHint", { email: configuredProofsInboundAddress()! })
           : tIapp_locale_money_page("proofsHintNoInbox")}
@@ -417,7 +417,7 @@ export default async function MoneyPage({
 
       {!openLoop ? (
         <div className="mt-10 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] px-5 py-5">
-          <div className="font-extrabold text-[14px]">{tIapp_locale_money_page("t_26d7de3c")}</div>
+          <div className="font-extrabold text-body">{tIapp_locale_money_page("t_26d7de3c")}</div>
           <div className="flex flex-wrap gap-3 mt-3">
             <Link href="/cancel">
               <Button variant="ghost" className="!text-body">
@@ -444,7 +444,7 @@ export default async function MoneyPage({
       ) : (
         <div className="mt-8">
           <Link href={openLoopHref}>
-            <Button className="!text-[14px]">
+            <Button className="!text-body">
               {locale === "he" || locale === "ar" ? "המשיכו את התיק" : "Continue the case"} →
             </Button>
           </Link>

@@ -36,33 +36,33 @@ export default async function HowItWorksPage({
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
       <Reveal>
         <SpotlightCard className="p-6">
-          <div className="font-extrabold text-[16px] text-emerald">{t("whatTitle")}</div>
-          <p className="text-ink-soft text-[14.5px] mt-2.5 leading-relaxed m-0">{t("whatBody")}</p>
+          <div className="font-extrabold text-lead text-emerald">{t("whatTitle")}</div>
+          <p className="text-ink-soft text-body mt-2.5 leading-relaxed m-0">{t("whatBody")}</p>
         </SpotlightCard>
       </Reveal>
 
       <Reveal>
-        <h2 className="text-[15px] font-extrabold mt-10 mb-4">{t("stepsTitle")}</h2>
+        <h2 className="text-body-lg font-extrabold mt-10 mb-4">{t("stepsTitle")}</h2>
       </Reveal>
       <div className="flex flex-col gap-3">
         {steps.map((s, i) => (
           <Reveal key={s.title} delay={i * 60}>
             <SpotlightCard className="p-5">
-              <div className="font-extrabold text-[15px]">{s.title}</div>
-              <p className="text-ink-soft text-[13.5px] mt-1.5 leading-relaxed m-0">{s.body}</p>
+              <div className="font-extrabold text-body-lg">{s.title}</div>
+              <p className="text-ink-soft text-caption mt-1.5 leading-relaxed m-0">{s.body}</p>
             </SpotlightCard>
           </Reveal>
         ))}
       </div>
 
       <Reveal>
-        <h2 className="text-[15px] font-extrabold mt-10 mb-4">{t("glossaryTitle")}</h2>
+        <h2 className="text-body-lg font-extrabold mt-10 mb-4">{t("glossaryTitle")}</h2>
       </Reveal>
       <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
         {glossary.map((g, i) => (
           <Reveal key={g.term} delay={i * 60}>
             <SpotlightCard className="p-5 h-full">
-              <div className="font-extrabold text-[14px] text-emerald" dir="ltr">
+              <div className="font-extrabold text-body text-emerald" dir="ltr">
                 {g.term}
               </div>
               <p className="text-ink-soft text-body mt-1.5 leading-relaxed m-0">{g.def}</p>
@@ -73,8 +73,8 @@ export default async function HowItWorksPage({
 
       <Reveal>
         <div className="mt-10 rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.025)] p-6">
-          <div className="font-extrabold text-[15px]">{t("safeTitle")}</div>
-          <p className="text-ink-soft text-[13.5px] mt-2 leading-relaxed m-0">{t("safeBody")}</p>
+          <div className="font-extrabold text-body-lg">{t("safeTitle")}</div>
+          <p className="text-ink-soft text-caption mt-2 leading-relaxed m-0">{t("safeBody")}</p>
         </div>
       </Reveal>
 
@@ -83,7 +83,7 @@ export default async function HowItWorksPage({
           <div className="font-display text-xl">{t("ctaTitle")}</div>
           <div className="flex flex-wrap gap-3 justify-center mt-5">
             <Link href="/money#zakai-money-scan" className="no-underline">
-              <Button className="!text-[15px] !px-7 !py-3.5">{t("ctaBtn")}</Button>
+              <Button className="!text-body-lg !px-7 !py-3.5">{t("ctaBtn")}</Button>
             </Link>
           </div>
           <Link
