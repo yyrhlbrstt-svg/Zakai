@@ -58,6 +58,19 @@ interface Props {
   proofsEmail?: string;
   /** Agent auto-follow-up rounds already sent (dashboard). */
   agentRound?: number;
+  /**
+   * Response clock from the Rights Graph (Phase 2): where the response window
+   * on the last actually-dispatched demand stands. Null when no demand ever
+   * left the system or the vertical has no graphed right — no clock is shown
+   * rather than a clock on nothing.
+   */
+  responseClock?: {
+    expired: boolean;
+    daysRemaining: number;
+    daysOverdue: number;
+    expiresAtMs: number;
+    nextRung: string;
+  } | null;
   /** This case's vertical (Case.vertical) — excludes its own door from "what's next". */
   vertical?: string;
   /** Known provider key or label (Case.provider). */
@@ -400,6 +413,7 @@ export function CaseNextStep({
   pendingFeeAgorot,
   proofsEmail,
   agentRound = 0,
+  responseClock = null,
   emailConfigured = true,
   outreachDelivery = "none",
   vertical,
@@ -1303,6 +1317,37 @@ export function CaseNextStep({
           : `Agent already sent ${agentRound} auto round${agentRound > 1 ? "s" : ""}.`
         : null;
 
+    // The response clock: the graph's deadline, counted by a machine instead
+    // of by the person. Rendered only when a demand actually went out.
+    const RUNG_EN: Record<string, string> = {
+      followup_continued_billing: "a continued-billing follow-up letter",
+      regulator_complaint: "a regulator complaint",
+      small_claims_package: "a small-claims file",
+      counsel_handoff: "legal counsel",
+    };
+    const RUNG_HE: Record<string, string> = {
+      followup_continued_billing: "מכתב מעקב על חיוב שנמשך",
+      regulator_complaint: "תלונה לגורם המפקח",
+      small_claims_package: "הכנת תיק לתביעה קטנה",
+      counsel_handoff: "העברה לייעוץ משפטי",
+    };
+    const clockDate = responseClock
+      ? new Date(responseClock.expiresAtMs).toLocaleDateString(he ? "he-IL" : "en-GB", {
+          day: "numeric",
+          month: "numeric",
+          year: "numeric",
+        })
+      : "";
+    const clockLine = responseClock
+      ? responseClock.expired
+        ? he
+          ? `חלון המענה נסגר ב-${clockDate} (לפני ${responseClock.daysOverdue} ימים). הצעד הבא במסלול: ${RUNG_HE[responseClock.nextRung] ?? responseClock.nextRung}.`
+          : `The response window closed on ${clockDate} (${responseClock.daysOverdue} day(s) ago). Next step on the ladder: ${RUNG_EN[responseClock.nextRung] ?? responseClock.nextRung}.`
+        : he
+          ? `לספק נותרו ${responseClock.daysRemaining} ימים למענה (עד ${clockDate}).`
+          : `Provider has ${responseClock.daysRemaining} day(s) to respond (until ${clockDate}).`
+      : null;
+
     return (
       <div className="w-full mt-2 flex flex-col gap-3">
         <div className="rounded-xl border border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.08)] px-3 py-2.5 text-[12.5px] font-bold">
@@ -1320,6 +1365,13 @@ export function CaseNextStep({
           {roundHint && (
             <span className="block mt-1 text-emerald">
               {t(locale, "agentRoundLabel")}: {agentRound} · {roundHint}
+            </span>
+          )}
+          {clockLine && (
+            <span
+              className={`block mt-1 font-normal ${responseClock?.expired ? "text-[#f08a6b] font-bold" : "text-ink-soft"}`}
+            >
+              {clockLine}
             </span>
           )}
         </div>

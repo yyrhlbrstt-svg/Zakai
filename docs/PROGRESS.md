@@ -9,6 +9,46 @@ a file, a test, or a merged PR, it does not belong here.
 
 ---
 
+## Session — 2026-08-19/20
+
+### Master Build Prompt v2: Phase 0 + Phase 1 closed, Phase 2 opened
+
+Working from the founder's Master Build Prompt v2 (four atoms + COLLECT,
+constraints 1–14). Everything below is merged to `main` (PRs #163–#169):
+
+- **Phase 0**: `AUDIT.md` (repo vs. plan, honest deltas), `LEGAL-TODO.md`
+  (LT-1..LT-8), `legalGates.ts` (constraint 11 — the four dark capabilities
+  fail closed until a checked TODO item AND an attestation env agree),
+  authorized-practice lint (forbidden affirmative self-descriptions, honest
+  negations preserved).
+- **Phase 1 — the Rights Graph**: typed `Right` schema + predicate evaluator
+  (missing facts fail closed), the verified §31א continued-billing right as
+  the first fully-graphed entry, `rightForLetter()` draft gate (draft law
+  structurally cannot reach a letter — `legalTeeth.ts` resolves through it),
+  public read surface (`/.well-known/zakai-rights.json`, `/api/rights-graph`,
+  `/evaluate`), statute-concentration watcher (constraint 12, nightly),
+  recipient directory (four regulators re-verified 2026-08-20 with
+  lastVerifiedAt; registry ratchet fails CI on dangling directoryRefs;
+  `complaintEscalation.ts` now derives from it), ledger pricing fields on
+  `StrategyOutcome` (claimBasisMinor/escalationStage/rightId, de-identified).
+- **Phase 2 (opened)**: small-claims package generator — deterministic
+  כתב תביעה from the graph right + the case's real Outbox demand trail
+  (filing facts verified on gov.il: ₪39,900 ceiling as of 1.1.2026, 1% fee
+  min ₪50; 409 without a written demand; never claims we filed) — surfaced
+  on the case dashboard's exhausted-follow-ups dead end. Response clock:
+  pure module + nightly autopilot job computing which SENT cases' response
+  windows closed and which escalation rung is due; clock line shown on the
+  SENT case card.
+- **Design track**: founder supplied a parallel D0–D4 prompt; Phase D0
+  audit shipped (`DESIGN-AUDIT.md`, measurements only — including zero
+  WCAG 2.1 AA violations across all 137 routes). D1 is gated on founder
+  review of that file, per the track's own working agreement.
+
+Founder-side blockers unchanged: SMTP credentials (#1), domain mailboxes,
+PayPlus (deliberately held, `hold_phase_d`), LT-1..LT-8 sign-offs.
+
+---
+
 ## Session — 2026-08-12
 
 ### The founder used the app and found three holes in one sitting
