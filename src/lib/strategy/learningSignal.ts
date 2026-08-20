@@ -1,7 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
-import { CANCEL_TEETH_RIGHT_ID } from "@/lib/legalTeeth";
+import { rightIdForVertical } from "@/lib/rightsGraph/registry";
 import type { StrategyContext } from "@/lib/strategy/types";
 import { documentedRecoveryMinor } from "@/lib/fee";
 import { getRulePack } from "@/lib/verticals";
@@ -106,7 +106,7 @@ export async function commitCaseLearningSignal(input: {
       selfReported: input.selfReported,
       claimBasisMinor: kase.amountOriginal > 0 ? kase.amountOriginal : null,
       escalationStage,
-      rightId: kase.vertical === "subscription" ? CANCEL_TEETH_RIGHT_ID : null,
+      rightId: rightIdForVertical(kase.vertical),
     });
 
     await prisma.case.update({

@@ -14,6 +14,7 @@
 
 import { evaluateRemedyMinor, rightApplies, type CaseFacts, type Right } from "./schema";
 import { RIGHTS, verifiedRights } from "./registry";
+import { resolveDirectoryRef } from "./directory";
 
 export const RIGHTS_GRAPH_VERSION = "1";
 
@@ -31,12 +32,41 @@ function publicRight(origin: string, right: Right) {
       currency: right.remedy.currency,
     },
     procedure: right.procedure,
+    recipient: resolveRecipient(right.procedure.recipientDirectoryRef),
     escalation: right.escalation,
     act: {
       note: "Reading is free. Acting in a person's name requires a verified Mandate.",
       mandate_spec: `${origin}/.well-known/zakai-mandate.json`,
       handoff: `${origin}/api/pipe/handoff`,
     },
+  };
+}
+
+/**
+ * A directoryRef resolved for external readers: "self" tells an agent the
+ * demand goes to the person's own counterparty (named at demand-build time);
+ * a regulator ref becomes the body's legal name, verified intake channel,
+ * and the date a human last confirmed both. Refs are guaranteed to resolve
+ * by the registry test, so the null arm is defensive, not expected.
+ */
+function resolveRecipient(ref: string) {
+  const resolved = resolveDirectoryRef(ref);
+  if (!resolved) return { ref, kind: "unresolved" as const };
+  if (resolved.kind === "self") {
+    return {
+      ref,
+      kind: "counterparty" as const,
+      note: "The provider on the person's own case — named when the demand is built.",
+    };
+  }
+  const { entry } = resolved;
+  return {
+    ref,
+    kind: "regulator" as const,
+    legalName: entry.legalName,
+    demand: entry.demand,
+    sourceUrl: entry.sourceUrl,
+    lastVerifiedAt: entry.lastVerifiedAt,
   };
 }
 

@@ -8,7 +8,8 @@ export type AutopilotJobId =
   | "price-sentinel"
   | "outcome-learner"
   | "growth-bot"
-  | "market-expander";
+  | "market-expander"
+  | "concentration-watcher";
 
 export interface AutopilotJobDef {
   id: AutopilotJobId;
@@ -62,6 +63,16 @@ export const AUTOPILOT_JOBS: readonly AutopilotJobDef[] = [
     intervalMs: 7 * 24 * 60 * 60 * 1000,
     cronHint: "0 2 * * 1",
     humanGate: "Pack templates need local legal citations — community maintainer required.",
+  },
+  {
+    id: "concentration-watcher",
+    title: "Concentration Watcher",
+    summary:
+      "Nightly statute-concentration report over active cases (constraint 12); alerts on breach of the configured share ceiling.",
+    intervalMs: 24 * 60 * 60 * 1000,
+    cronHint: "0 5 * * *",
+    humanGate:
+      "Reports and alerts only — diversifying the Rights Graph is a roadmap decision a human makes.",
   },
 ] as const;
 

@@ -107,6 +107,22 @@ export const RIGHTS: readonly Right[] = [
   UNUSED_TAX_CREDIT_POINTS_DRAFT,
 ];
 
+/**
+ * The single source for "which Rights Graph right does this case vertical
+ * invoke". Two call sites already needed it (the learning signal and the
+ * public verify page) and each carried its own copy of the mapping — a third
+ * copy was about to appear in the concentration calc, which is exactly when
+ * a mapping stops being duplication and starts being drift. One vertical maps
+ * to at most one right today; when that stops being true, this signature
+ * changes and the compiler finds every caller.
+ */
+export function rightIdForVertical(vertical: string): string | null {
+  if (vertical === "subscription") {
+    return "il.consumer.31a.continued-billing-after-cancellation";
+  }
+  return null;
+}
+
 export function getRight(id: string): Right | undefined {
   return RIGHTS.find((r) => r.id === id);
 }

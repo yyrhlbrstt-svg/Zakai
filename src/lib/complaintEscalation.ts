@@ -18,14 +18,18 @@
  *  - General consumer complaints (misleading advertising, unauthorized
  *    charges, warranty/service, cancellation rights) not covered above: the
  *    Consumer Protection and Fair Trade Authority (הרשות להגנת הצרכן ולסחר
- *    הוגן) — this module points to gov.il rather than a specific phone
- *    number, since a wrong number handed to someone already frustrated is
- *    worse than a pointer to search for the current one.
+ *    הוגן), whose official gov.il complaint form was verified August 2026.
+ *
+ * Since August 2026 the identities and intake URLs live in the recipient
+ * directory (rightsGraph/directory.ts) with per-entry lastVerifiedAt dates;
+ * this module derives from it and keeps only the escalation copy and letter.
  *
  * This module only ever names the real body and drafts the escalation letter
  * — it does not claim a resolution timeline or success rate, which nobody
  * can honestly promise for an individual complaint.
  */
+
+import { getRegulator } from "@/lib/rightsGraph/directory";
 
 export type ComplaintCategory = "bank" | "telecom" | "consumer";
 
@@ -39,34 +43,51 @@ export interface EscalationBody {
   url?: string;
 }
 
+/**
+ * Body identity and intake URL come from the recipient directory
+ * (rightsGraph/directory.ts), which carries the verification date — this file
+ * keeps only the UI copy. Two files each holding their own copy of a
+ * regulator's name is how one of them quietly goes stale.
+ */
+const CATEGORY_REF: Record<ComplaintCategory, string> = {
+  bank: "regulator:boi-banking-supervision",
+  telecom: "regulator:moc-public-inquiries",
+  consumer: "regulator:consumer-protection-authority",
+};
+
+function bodyFromDirectory(
+  category: ComplaintCategory,
+  descriptionHe: string,
+  descriptionEn: string,
+): EscalationBody {
+  const entry = getRegulator(CATEGORY_REF[category]);
+  if (!entry) throw new Error(`escalation category "${category}" has no directory entry`);
+  return {
+    category,
+    nameHe: entry.legalName.he,
+    nameEn: entry.legalName.en,
+    descriptionHe,
+    descriptionEn,
+    url: entry.demand?.channel === "web_form" ? entry.demand.url : entry.sourceUrl,
+  };
+}
+
 export const ESCALATION_BODIES: Record<ComplaintCategory, EscalationBody> = {
-  bank: {
-    category: "bank",
-    nameHe: "הפיקוח על הבנקים — היחידה לפניות הציבור ולבקרה צרכנית (בנק ישראל)",
-    nameEn: "Banking Supervision — Public Inquiries and Consumer Supervision Unit (Bank of Israel)",
-    descriptionHe:
-      "מטפלת בתלונות נגד בנקים וחברות כרטיסי אשראי, בפרט כאשר לא התקבל מענה מספק תוך 45 יום (60 יום אם ניתנה הודעה על הארכה).",
-    descriptionEn:
-      "Handles complaints against banks and credit-card companies, in particular when there's been no satisfactory reply within 45 days (60 with a notified extension).",
-    url: "https://www.boi.org.il/information/public-enquiries-unit/",
-  },
-  telecom: {
-    category: "telecom",
-    nameHe: "משרד התקשורת — יחידת פניות הציבור",
-    nameEn: "Ministry of Communications — Public Inquiries Unit",
-    descriptionHe: "מטפלת בתלונות נגד בעלי רישיון בתחום התקשורת — סלולר, אינטרנט, טלפוניה, טלוויזיה.",
-    descriptionEn: "Handles complaints against telecom licensees — cellular, internet, landline, TV.",
-    url: "https://forms.moc.gov.il/f/PublicInquiries",
-  },
-  consumer: {
-    category: "consumer",
-    nameHe: "הרשות להגנת הצרכן ולסחר הוגן",
-    nameEn: "Consumer Protection and Fair Trade Authority",
-    descriptionHe:
-      "מטפלת בתלונות צרכניות כלליות — הטעיה, חיוב ללא הרשאה, אחריות ושירות, ביטול עסקה — שאינן נכנסות לתחום בנקאות או תקשורת. פרטי הקשר המעודכנים נמצאים באתר gov.il.",
-    descriptionEn:
-      "Handles general consumer complaints — deception, unauthorized charges, warranty/service, cancellation rights — outside banking or telecom. Current contact details are on gov.il.",
-  },
+  bank: bodyFromDirectory(
+    "bank",
+    "מטפלת בתלונות נגד בנקים וחברות כרטיסי אשראי, בפרט כאשר לא התקבל מענה מספק תוך 45 יום (60 יום אם ניתנה הודעה על הארכה).",
+    "Handles complaints against banks and credit-card companies, in particular when there's been no satisfactory reply within 45 days (60 with a notified extension).",
+  ),
+  telecom: bodyFromDirectory(
+    "telecom",
+    "מטפלת בתלונות נגד בעלי רישיון בתחום התקשורת — סלולר, אינטרנט, טלפוניה, טלוויזיה.",
+    "Handles complaints against telecom licensees — cellular, internet, landline, TV.",
+  ),
+  consumer: bodyFromDirectory(
+    "consumer",
+    "מטפלת בתלונות צרכניות כלליות — הטעיה, חיוב ללא הרשאה, אחריות ושירות, ביטול עסקה — שאינן נכנסות לתחום בנקאות או תקשורת.",
+    "Handles general consumer complaints — deception, unauthorized charges, warranty/service, cancellation rights — outside banking or telecom.",
+  ),
 };
 
 /**

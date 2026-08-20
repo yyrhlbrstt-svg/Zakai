@@ -11,10 +11,15 @@ describe("ESCALATION_BODIES", () => {
     }
   });
 
-  it("only sets a URL where one is actually verified — never invents one for consumer", () => {
+  it("every URL is a verified official domain — sourced from the recipient directory", () => {
+    // Identity + intake URL now come from rightsGraph/directory.ts, which
+    // carries lastVerifiedAt per entry. The consumer authority gained a real
+    // gov.il complaint form (verified 2026-08-20) — no longer url-less.
     expect(ESCALATION_BODIES.bank.url).toMatch(/^https:\/\/www\.boi\.org\.il/);
-    expect(ESCALATION_BODIES.telecom.url).toMatch(/^https:\/\/forms\.moc\.gov\.il/);
-    expect(ESCALATION_BODIES.consumer.url).toBeUndefined();
+    expect(ESCALATION_BODIES.telecom.url).toMatch(/^https:\/\/www\.gov\.il/);
+    expect(ESCALATION_BODIES.consumer.url).toMatch(
+      /^https:\/\/www\.gov\.il\/he\/service\/filing_a_complaint_to_fair_trade_authority$/,
+    );
   });
 });
 

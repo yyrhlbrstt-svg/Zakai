@@ -87,7 +87,9 @@ export function ComplaintEscalationTool() {
               rel="noopener noreferrer"
               className="text-emerald text-[12.5px] font-bold mt-2 inline-block"
             >
-              {body.url} →
+              {/* A label, not the raw URL: gov.il intake URLs run 70+ chars
+                  with no break point and overflow a 390px viewport. */}
+              {t("openBody", { body: t(`bodies.${category}.name`) })} →
             </a>
           )}
         </div>
