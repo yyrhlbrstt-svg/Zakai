@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  CANCEL_TEETH_BASIS,
+  cancelTeethBasis,
   cancelTeethClauseHe,
   buildContinuedBillingFollowUp,
 } from "./legalTeeth";
@@ -28,12 +28,13 @@ describe("cancelTeethClauseHe — the written-demand position", () => {
     expect(clause).not.toMatch(/תחויבו|מובטח|בוודאות/);
   });
 
-  it("keeps the basis record and the clause in sync", () => {
+  it("keeps the Rights Graph entry and the clause in sync", () => {
     const clause = cancelTeethClauseHe();
-    expect(clause).toContain(CANCEL_TEETH_BASIS.law);
-    expect(clause).toContain(
-      CANCEL_TEETH_BASIS.maxExemplaryShekels.toLocaleString("he-IL"),
-    );
+    const basis = cancelTeethBasis();
+    expect(clause).toContain(basis.law);
+    expect(clause).toContain(basis.maxExemplaryShekels.toLocaleString("he-IL"));
+    // The cap comes from the graph, in agorot — ₪10,000 exactly, no drift.
+    expect(basis.maxExemplaryShekels).toBe(10_000);
   });
 });
 

@@ -35,15 +35,30 @@
  *    damages for repeat violations) are NOT cited.
  */
 
-/** The statutory basis, as data — one place to update if the law changes. */
-export const CANCEL_TEETH_BASIS = {
-  law: "חוק הגנת הצרכן, התשמ\"א-1981",
-  cancellationSection: "סעיף 13ד",
-  mustStopChargingSection: "סעיף 13ד(ג)",
-  exemplaryDamagesSection: "סעיף 31א",
-  writtenDemandSection: "סעיף 31א(ב)",
-  maxExemplaryShekels: 10_000,
-} as const;
+import { rightForLetter } from "@/lib/rightsGraph/registry";
+
+/** The right in the Rights Graph this module's letters are built on. */
+export const CANCEL_TEETH_RIGHT_ID =
+  "il.consumer.31a.continued-billing-after-cancellation";
+
+/**
+ * The statutory basis, as data. The law name and the exemplary-damages cap
+ * come from the Rights Graph entry — resolved through rightForLetter(), the
+ * gate that throws on anything not `verified`. That makes the graph's
+ * draft/verified status load-bearing here: flip the right to draft and every
+ * letter built on this basis stops building, by construction.
+ */
+export function cancelTeethBasis() {
+  const right = rightForLetter(CANCEL_TEETH_RIGHT_ID);
+  return {
+    law: right.statute.name,
+    cancellationSection: "סעיף 13ד",
+    mustStopChargingSection: "סעיף 13ד(ג)",
+    exemplaryDamagesSection: "סעיף 31א",
+    writtenDemandSection: "סעיף 31א(ב)",
+    maxExemplaryShekels: Math.round((right.remedy.capMinor ?? 0) / 100),
+  } as const;
+}
 
 /**
  * The paragraph embedded in every statutory cancellation letter (IL market).
@@ -52,7 +67,7 @@ export const CANCEL_TEETH_BASIS = {
  * charging continues anyway.
  */
 export function cancelTeethClauseHe(): string {
-  const b = CANCEL_TEETH_BASIS;
+  const b = cancelTeethBasis();
   return (
     `הודעה זו ניתנת בהתאם ל${b.cancellationSection} ל${b.law}, ` +
     `והיא מהווה פנייה ודרישה בכתב לעניין ${b.writtenDemandSection} לחוק. ` +
@@ -83,7 +98,7 @@ export interface ContinuedBillingFollowUpInput {
 export function buildContinuedBillingFollowUp(
   input: ContinuedBillingFollowUpInput,
 ): { subject: string; body: string } {
-  const b = CANCEL_TEETH_BASIS;
+  const b = cancelTeethBasis();
   const name = input.customerName.trim() || "הלקוח/ה";
   const company = input.company.trim() || "החברה";
   const product = input.product.trim() || "השירות";
