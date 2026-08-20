@@ -162,6 +162,50 @@ proving `draft` can never reach the letter engine. The §31a ladder shipped in
 `legalTeeth.ts` becomes the first fully-graphed right
 (`il.consumer.31a.continued-billing-after-cancellation`).
 
+## 7. Phase 1 — status at close (2026-08-20)
+
+Everything §6 asked for now exists, verified and merged (or in the final PR
+of the phase):
+
+- **Right schema + predicate evaluator** — `src/lib/rightsGraph/schema.ts`:
+  typed `Right` with statute {name, section, sourceUrl, version,
+  lastVerifiedAt}; fact/all/any/not predicates that fail closed on missing
+  facts; remedy formulas evaluated (`min(<fact>, cap)` / `<fact>`), never
+  generated.
+- **Draft gate** — `rightForLetter()` throws `DraftRightError` on anything
+  not `verified` (schema-validated belt-and-braces); exercised for real by
+  `legalTeeth.ts`, asserted in tests. Draft law structurally cannot reach a
+  letter.
+- **First fully-graphed right** —
+  `il.consumer.31a.continued-billing-after-cancellation` (verified against
+  Nevo; the §31a ladder from `legalTeeth.ts` now resolves through the graph).
+- **Public read surface** — `/.well-known/zakai-rights.json`,
+  `/api/rights-graph`, `/api/rights-graph/evaluate` (zod-capped,
+  rate-limited, CORS; drafts counted, never detailed).
+- **Concentration (constraint 12)** — `concentration.ts` + nightly
+  `concentration-watcher` autopilot job: shares over mapped cases only,
+  unmapped reported not folded, min-sample alert gate, admin push on breach.
+- **Recipient directory** — `rightsGraph/directory.ts`: regulator entries
+  (BoI banking supervision, MoC public inquiries, Consumer Protection
+  Authority, Tax Authority) with legal name, verified intake channel,
+  official sourceUrl, lastVerifiedAt (re-verified 2026-08-20);
+  `resolveDirectoryRef()` for the ref grammar; a registry ratchet failing CI
+  on dangling refs; `resolveProviderDemandEmail()` as the one door to the
+  five provider-inbox datasets; `complaintEscalation.ts` now derives body
+  identity from it; the public surface publishes each right's resolved
+  recipient.
+- **Ledger pricing fields** — `StrategyOutcome.claimBasisMinor /
+  escalationStage / rightId` (de-identified, fail-soft), so every settle
+  prices the book.
+
+Deliberately NOT migrated yet: `global/packs` (13 market packs) — they are
+consumers-in-waiting of the graph, and moving them wholesale fails the
+"module fix suffices" rule; they migrate per-domain as each domain gets
+graphed. Phase 2 next: FSM + deadline clocks + artifact generators, with the
+small-claims package generator the single biggest missing artifact.
+
 ---
 
-*Update log: created at Phase 0 (2026-08-19), `main` @ `ee1a16d`.*
+*Update log: created at Phase 0 (2026-08-19), `main` @ `ee1a16d`.
+Phase 1 closed 2026-08-20 (rights graph, gate, public surface,
+concentration watcher, recipient directory).*
