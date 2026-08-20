@@ -578,3 +578,19 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
   border: 2px solid #06121a;
 }
+
+/* A blocked primary action brings the person to the list of what is still
+   needed and flashes it — see Button in components/ui.tsx. Without this the
+   checklist scrolls into view silently and reads as nothing having happened. */
+.missing-fields-flash {
+  background: rgba(240, 180, 92, 0.18);
+  box-shadow: 0 0 0 6px rgba(240, 180, 92, 0.18);
+  animation: missingFieldsPulse 1.6s var(--ease-out);
+}
+@keyframes missingFieldsPulse {
+  0%, 100% { background: rgba(240, 180, 92, 0); box-shadow: 0 0 0 6px rgba(240, 180, 92, 0); }
+  25%, 60% { background: rgba(240, 180, 92, 0.22); box-shadow: 0 0 0 6px rgba(240, 180, 92, 0.22); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .missing-fields-flash { animation: none; }
+}

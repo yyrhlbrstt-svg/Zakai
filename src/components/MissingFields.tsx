@@ -26,7 +26,15 @@ export function MissingFields({ items }: { items: Requirement[] }) {
   const missing = items.filter((i) => !i.ok).map((i) => i.label);
   if (missing.length === 0) return null;
   return (
-    <p className="text-caption text-amber m-0">
+    <p
+      /*
+        Tagged so a blocked primary button can find it in the DOM and bring it
+        to the person, without every one of the ~27 tools that renders this
+        needing its own wiring for that. See Button in ui.tsx.
+      */
+      data-missing-fields=""
+      className="text-caption text-amber m-0 rounded-lg transition-[background-color,box-shadow] duration-300"
+    >
       {t("stillNeeded", { fields: missing.join(" · ") })}
     </p>
   );
