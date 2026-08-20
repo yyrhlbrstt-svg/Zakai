@@ -30,9 +30,14 @@ const READINESS_GATE = /disabled=\{!\s*(can[A-Z]\w*|ready|formComplete|isReady|c
  * Gates whose missing ingredient is a single obvious thing the surrounding
  * copy already names, where a field checklist would be noise rather than help.
  */
+/*
+ * MoneyHub left this list on 2026-08-20: its scan button is no longer disabled
+ * at all. Testers tapped the greyed-out primary action of the main page,
+ * nothing happened, and they reported that the product does not work — an
+ * explanation in small text below a dead button does not reach anybody. The
+ * button now always responds and points at the box it needs.
+ */
 const EXPLAINED_ANOTHER_WAY: Record<string, string> = {
-  "MoneyHub.tsx":
-    "scan button; the card below it names both ways forward (paste lines, or load the demo) whenever it is blocked",
   "StatementScan.tsx": "same scan button, same copy",
   "BusinessExpenseAudit.tsx": "one textarea; the placeholder is the instruction",
   "UniversalCancelTool.tsx": "one textarea of charges; the empty state explains it",

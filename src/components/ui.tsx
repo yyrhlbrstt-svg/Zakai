@@ -173,7 +173,11 @@ export function Textarea({
   className = "",
   label,
   ...rest
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string }) {
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: string;
+  /** So a caller can focus the box — used to rescue an empty primary action. */
+  ref?: React.Ref<HTMLTextAreaElement>;
+}) {
   const generated = useId();
   const { id, ariaLabel } = useFieldName(rest, label, generated);
   const field = (

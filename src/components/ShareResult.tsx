@@ -40,6 +40,7 @@ export function ShareResult({
   const t = useTranslations("share");
   const locale = useLocale();
   const [copied, setCopied] = useState(false);
+  const [manualText, setManualText] = useState("");
 
   function url() {
     if (typeof window === "undefined") return "";
@@ -80,7 +81,11 @@ export function ShareResult({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      /* ignore */
+      // Clipboard access is refused in more places than people expect (no
+      // secure context, permission denied, in-app browsers). Swallowing that
+      // silently is how a share button becomes a button that does nothing —
+      // so instead we show the text and let them copy it by hand.
+      setManualText(fullText());
     }
   }
 
@@ -105,6 +110,17 @@ export function ShareResult({
           {copied ? t("copied") : t("more")}
         </button>
       </div>
+      {manualText && (
+        <textarea
+          readOnly
+          dir="auto"
+          aria-label={t("more")}
+          value={manualText}
+          onFocus={(e) => e.currentTarget.select()}
+          className="mt-3 w-full rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] p-3 text-caption text-ink leading-relaxed"
+          rows={3}
+        />
+      )}
     </div>
   );
 }

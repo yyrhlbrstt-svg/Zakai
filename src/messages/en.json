@@ -5204,9 +5204,9 @@
     "t_c4584cd0": "Manual cancel",
     "t_292af8ba": "Screenshot extract needs AI configured on the server.",
     "t_da95e09c": "Could not read screenshot. Try a clearer image or a CSV.",
-    "shotNeedsLoginPrefix": "AI photo scan needs an account — ",
-    "shotNeedsLoginLink": "quick sign in",
-    "shotNeedsLoginSuffix": ". Or paste/upload a statement file below — no account needed.",
+    "shotNeedsLoginPrefix": "Reading a bill photo needs an account",
+    "shotNeedsLoginLink": "Quick sign-in — back here after",
+    "shotNeedsLoginSuffix": "You can also paste or upload a transactions file below, with no account at all.",
     "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file.",
     "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app."
   },
