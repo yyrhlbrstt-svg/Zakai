@@ -49,13 +49,16 @@
     "press generate) before it reads <main>, which has not been done. Until it is, do",
     "not read this list as seventeen broken pages, and do not bolt an internal link",
     "onto a page whose correct answer is a government form, or a letter that already",
-    "exists one click below the fold, just to make a count move."
+    "exists one click below the fold, just to make a count move.",
+    "",
+    "2026-08-20: /complaint-escalation left the list for real — the Consumer",
+    "Protection Authority's verified gov.il complaint form (recipient directory)",
+    "now renders as an outward link on load, which the sweep can see."
   ],
   "routes": [
     "/advance-tax",
     "/assistant",
     "/cancel/universal",
-    "/complaint-escalation",
     "/deadlines",
     "/dormant",
     "/entitlements",
