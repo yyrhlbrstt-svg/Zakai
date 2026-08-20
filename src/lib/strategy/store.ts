@@ -128,6 +128,16 @@ export async function recordOutcome(input: {
   days: number;
   /** True when the person told us, rather than the pipeline observing it. */
   selfReported?: boolean;
+  /**
+   * The documented before-amount the demand was built on, minor units — the
+   * denominator that makes the outcome priceable. Absent when no documented
+   * amount exists; never guessed.
+   */
+  claimBasisMinor?: number | null;
+  /** "letter" | "followup" — how far the ladder actually went (from Outbox). */
+  escalationStage?: string | null;
+  /** Rights Graph right the letters invoked, when the vertical maps to one. */
+  rightId?: string | null;
 }): Promise<void> {
   // Cases opened before the engine carry no stance; attributing them to a
   // variant would be inventing evidence.
@@ -145,6 +155,12 @@ export async function recordOutcome(input: {
         recoveredMinor: Math.max(0, Math.round(input.recoveredMinor)),
         days: Math.max(0, Math.round(input.days)),
         selfReported: input.selfReported === true,
+        claimBasisMinor:
+          typeof input.claimBasisMinor === "number" && input.claimBasisMinor > 0
+            ? Math.round(input.claimBasisMinor)
+            : null,
+        escalationStage: input.escalationStage?.trim() || null,
+        rightId: input.rightId?.trim() || null,
       },
     });
   } catch (err) {
