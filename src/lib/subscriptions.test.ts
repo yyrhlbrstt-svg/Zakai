@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { parseStatement, detectRecurring, categorize, scanStatement } from "./subscriptions";
+import { parseStatement, detectRecurring, categorize, scanStatement, recurringConfidence} from "./subscriptions";
+import { CLAIM_SPEAK_THRESHOLD } from "./claimGate";
 
 /** A realistic Isracard-style export: Hebrew headers, dd/mm/yyyy, ₪ amounts. */
 const CSV_HE = `תאריך עסקה,שם בית עסק,סכום עסקה,סכום חיוב
@@ -115,5 +116,47 @@ describe("detectRecurring", () => {
     const res = scanStatement(CSV_HE);
     expect(res.transactions).toBe(7);
     expect(res.totalMonthlyAgorot).toBe(8990 + 5490);
+  });
+});
+
+describe("recurringConfidence", () => {
+  it("cannot reach the speaking threshold on two sightings, however tidy", () => {
+    // Two identical charges exactly a month apart is the textbook false
+    // positive: a fortnightly shop, two visits to the same restaurant. The
+    // detector may still list it; the claim gate must not announce it.
+    const c = recurringConfidence([4990, 4990], [30]);
+    expect(c).toBeLessThan(CLAIM_SPEAK_THRESHOLD);
+  });
+
+  it("clears the threshold once the pattern is actually a pattern", () => {
+    const c = recurringConfidence([4990, 4990, 4990, 4990], [30, 31, 29]);
+    expect(c).toBeGreaterThanOrEqual(CLAIM_SPEAK_THRESHOLD);
+  });
+
+  it("penalises amounts that wander", () => {
+    const steady = recurringConfidence([4990, 4990, 4990], [30, 30]);
+    const wandering = recurringConfidence([1200, 4990, 9400], [30, 30]);
+    expect(wandering).toBeLessThan(steady);
+  });
+
+  it("penalises a cadence that is not monthly", () => {
+    const monthly = recurringConfidence([4990, 4990, 4990], [30, 30]);
+    const scattered = recurringConfidence([4990, 4990, 4990], [3, 120]);
+    expect(scattered).toBeLessThan(monthly);
+  });
+
+  it("returns 0 rather than guessing on a single charge", () => {
+    expect(recurringConfidence([4990], [])).toBe(0);
+  });
+
+  it("stays inside 0..1 on hostile input", () => {
+    for (const c of [
+      recurringConfidence([0, 0, 0], [30, 30]),
+      recurringConfidence([1, 1_000_000], [1]),
+      recurringConfidence(new Array(50).fill(4990), new Array(49).fill(30)),
+    ]) {
+      expect(c).toBeGreaterThanOrEqual(0);
+      expect(c).toBeLessThanOrEqual(1);
+    }
   });
 });

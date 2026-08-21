@@ -89,6 +89,60 @@ Priority order (**do not invert**):
 - Prefer depth in the core loop over new verticals or shiny features.
 - Do **not** try to look impressive in many small ways. Be **decisive** in a few critical ways.
 - Every new screen or API must pass the **decisive filter** below. If it fails — deprioritize.
+- **Zakai speaks only when it is sure and there is somewhere to go.** See the silence law below.
+
+### The silence law
+
+`rightForLetter()` already refuses to let unverified law reach an institution. That
+gate was pointed in one direction only, and the thing a person experiences first is
+not a letter — it is a screen telling them they are being overcharged, which is an
+assertion about their money that nobody asked for.
+
+So the same gate points inward, as `decideClaim()` in `src/lib/claimGate.ts`. Zakai
+makes a claim only when **both** hold:
+
+1. **Confidence is high** — measured, not asserted. The bar (`CLAIM_SPEAK_THRESHOLD`)
+   sits deliberately above the 0.6 used where a human then confirms the proposal,
+   because nothing here has a human in the loop before it reaches the screen.
+2. **There is an immediate way to act on it**, in-app, now.
+
+Fail either and the answer is **silence, not a hedge**. "You may possibly be owed
+something, we are not sure, and there is nothing you can do about it here" transfers
+our uncertainty to somebody with less information and no way to resolve it, and it
+costs the same trust as being wrong. The asymmetry is the whole argument: a missed
+detection costs one claim; a wrong one costs every future claim with that person.
+
+Two consequences worth stating, because both are easy to get backwards:
+
+- **A mirror is not a claim.** Reading somebody's own statement back to them is not
+  an assertion, and hiding a row because we are unsure is its own betrayal — the
+  person who knows they pay for that gym and cannot find it has just learned the scan
+  misses things. The list stays whole; what gets gated is what Zakai *says about* it:
+  the pre-ticked box, the "best win", the call to action. See `src/lib/scanClaims.ts`.
+- **The action path is part of confidence, not a UI nicety.** A finding with no next
+  step never becomes a case, so it never produces an outcome, so nothing ever tells us
+  whether we were right. Alerts with no action are unfalsifiable by construction, and
+  unfalsifiable alerts are the ones that rot quietly.
+
+### The number that catches it before a user does
+
+Every claim that passes the gate is recorded as `claim.surfaced` on the event spine.
+Against `claim.created` and `outcome.recorded`, that gives **alert-to-outcome**
+(`src/lib/intel/alertToOutcome.ts`, shown on `/founder`):
+
+    surfaced ──► case created ──► proved in money
+
+Two ratios, kept apart because they fail in opposite directions. **Surfaced → case**
+collapsing means people are not believing us, or the finding had no usable next step:
+a product failure, visible in days. **Case → proved** collapsing means people believed
+us and we were wrong: a detector failure, far more expensive, visible only weeks later
+— which is precisely why it is watched rather than waited for. A healthy first ratio
+beside a dying second one is the exact shape of *getting very good at convincing people
+of things that are not true*, and no single number separates it.
+
+Below `MIN_SAMPLE` the ratios are `null`, never zero and never a percentage. A ratio
+over three events is noise wearing a percentage sign, and steering on noise is worse
+than not steering.
 
 ### Decisive filter
 

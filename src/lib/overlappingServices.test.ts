@@ -16,7 +16,7 @@ const charge = (
   category,
   monthlyAgorot,
   occurrences: 3,
-  providerKey: null,
+  providerKey: null, confidence: 1,
   chargedOn: [],
 });
 

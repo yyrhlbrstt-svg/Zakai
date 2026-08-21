@@ -133,7 +133,7 @@ describe("creditsFrom", () => {
     category: "other",
     monthlyAgorot: agorot,
     occurrences: 1,
-    providerKey: null,
+    providerKey: null, confidence: 1,
     chargedOn: [],
   });
 

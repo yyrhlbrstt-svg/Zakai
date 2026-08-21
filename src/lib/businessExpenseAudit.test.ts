@@ -14,7 +14,7 @@ const charge = (merchant: string, monthlyAgorot = 10_000): RecurringCharge => ({
   monthlyAgorot,
   chargedOn: [],
   occurrences: 3,
-  providerKey: null,
+  providerKey: null, confidence: 1,
 });
 
 describe("classifyBusinessCharge", () => {

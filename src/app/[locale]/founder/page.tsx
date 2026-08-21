@@ -25,6 +25,8 @@ import { loadLoopVolume } from "@/lib/services/loopVolume";
 import { bcp47, type Locale } from "@/i18n/config";
 import { privatePageMetadata } from "@/lib/seo";
 import { predictResponse } from "@/lib/intel/predictResponse";
+import { readAlertToOutcome } from "@/lib/intel/alertToOutcomeQuery";
+import { readAlertHealth } from "@/lib/intel/alertToOutcome";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
   database: "מסד נתונים",
@@ -310,6 +312,12 @@ export default async function FounderPage({
     ),
   );
 
+  // Alert-to-outcome: of everything Zakai said unprompted, how much became a
+  // case and how much of that was proved in money. The one number that catches
+  // a drifting detector in the data before a single person complains.
+  const alerts = await readAlertToOutcome(90);
+  const alertHealth = readAlertHealth(alerts);
+
   // Autopilot (law-watcher, price-sentinel, outcome-learner, growth-bot,
   // market-expander) runs daily via vercel.json cron and writes every result
   // to AutopilotRun — but nothing ever rendered it, so five real jobs ran
@@ -564,6 +572,64 @@ export default async function FounderPage({
           </table>
         </div>
       )}
+
+      {/*
+        The ratio that fails before a user does.
+
+        Every other number on this page counts things that went right. This one
+        counts the distance between what Zakai said and what turned out to be
+        true — and it is deliberately two ratios, not one, because they break in
+        opposite directions: nobody acting on what we said is a product problem,
+        and people acting on it and finding nothing is a truthfulness problem.
+        A strong first ratio next to a collapsing second one is the exact shape
+        of getting very good at convincing people of things that are not so, and
+        no single percentage would have separated it.
+      */}
+      <h2 id="alert-to-outcome" className="font-display text-xl mt-10 mb-1.5">
+        התראה מול תוצאה — 90 יום
+      </h2>
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
+        מכל מה שזכאי אמרה מיוזמתה («יש לך פה חיוב עודף») — כמה הפך לתיק אמיתי, וכמה מזה הוכח בכסף.
+        נספרות רק התראות שעברו את שער האמינות ורק אצל משתמשים מחוברים, כי רק להן יש דרך להפוך לתיק.
+        מתחת ל־{alerts.minSample} אירועים אין יחס — יש ספירה. אחוז על שלושה אירועים הוא רעש עם סימן אחוז.
+      </p>
+      <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] p-5 mb-6">
+        <div className="flex flex-wrap gap-6">
+          <div>
+            <div className="text-ink-soft text-micro uppercase tracking-wide">נאמר</div>
+            <div className="font-display text-2xl">{alerts.surfaced}</div>
+          </div>
+          <div>
+            <div className="text-ink-soft text-micro uppercase tracking-wide">הפך לתיק</div>
+            <div className="font-display text-2xl">{alerts.cases}</div>
+          </div>
+          <div>
+            <div className="text-ink-soft text-micro uppercase tracking-wide">הוכח בכסף</div>
+            <div className="font-display text-2xl">{alerts.proved}</div>
+          </div>
+          <div>
+            <div className="text-ink-soft text-micro uppercase tracking-wide">נאמר → תיק</div>
+            <div className="font-display text-2xl">
+              {alerts.surfacedToCase === null ? "—" : `${Math.round(alerts.surfacedToCase * 100)}%`}
+            </div>
+          </div>
+          <div>
+            <div className="text-ink-soft text-micro uppercase tracking-wide">תיק → הוכחה</div>
+            <div className="font-display text-2xl">
+              {alerts.caseToProved === null ? "—" : `${Math.round(alerts.caseToProved * 100)}%`}
+            </div>
+          </div>
+        </div>
+        <p className="text-caption text-ink-soft mt-4 mb-0 leading-relaxed">
+          {alertHealth === "unknown"
+            ? "אין עדיין די אירועים ליחס. המספרים למעלה אמיתיים; האחוזים ימתינו לנפח."
+            : alertHealth === "investigate"
+              ? "אחד היחסים נמוך מספיק כדי לבדוק את הגלאי או את המסך — לא להמתין לתלונה."
+              : alertHealth === "watch"
+                ? "יחס גבולי. שווה מבט לפני שהוא נהיה תלונה."
+                : "היחסים תקינים בטווח הזה."}
+        </p>
+      </div>
 
       <h2 id="approach" className="font-display text-xl mt-10 mb-1.5">מה עובד — לפי גישה</h2>
       <p className="text-ink-soft text-body mb-4 leading-relaxed">

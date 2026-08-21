@@ -5,6 +5,7 @@ import { useLocale , useTranslations } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Textarea, Input, PrivacyNote } from "@/components/ui";
+import { gateScanCharges } from "@/lib/scanClaims";
 import {
   scanStatement,
   type ScanResult,
@@ -355,13 +356,20 @@ interface SavedSummary {
   savedAt: string;
 }
 
+/*
+  Both of these used to rank the raw detections. They now rank only what the
+  claim gate lets Zakai assert: "your best win is here" and a checkbox already
+  ticked on somebody's behalf are claims, not observations, and a claim about a
+  charge the detector is unsure of is exactly the alert this product cannot
+  afford to get wrong. The list underneath is untouched — see scanClaims.ts for
+  why the mirror and the assertion are treated differently.
+*/
 function topRoi(recurring: RecurringCharge[]): RecurringCharge | null {
-  if (recurring.length === 0) return null;
-  return [...recurring].sort((a, b) => b.monthlyAgorot - a.monthlyAgorot)[0];
+  return gateScanCharges(recurring).claimable[0] ?? null;
 }
 
 function topN(recurring: RecurringCharge[], n: number): RecurringCharge[] {
-  return [...recurring].sort((a, b) => b.monthlyAgorot - a.monthlyAgorot).slice(0, n);
+  return gateScanCharges(recurring).claimable.slice(0, n);
 }
 
 export function MoneyHub({
@@ -452,6 +460,38 @@ export function MoneyHub({
       .map((i) => String(i));
     setSelected(new Set(keys));
     if (scan.recurring.length > 0) persist(scan);
+    reportSurfacedClaims(scan.recurring);
+  }
+
+  /*
+    Count what we said out loud.
+
+    This is the denominator of alert-to-outcome: of everything Zakai announced
+    unprompted, how much became a real case and how much of that was ever
+    proved in money. Only the claims that passed the gate are counted — a
+    finding nobody was shown is not an alert, and counting it would flatter the
+    ratio exactly where it most needs to be unflattering.
+
+    Fire-and-forget, and deliberately silent on failure: the person is mid-scan
+    and nothing about their result depends on whether we managed to write a row
+    about it. Signed-out scans record nothing (the endpoint 401s), which is the
+    right comparison rather than the flattering one — see the route.
+  */
+  function reportSurfacedClaims(recurring: RecurringCharge[]) {
+    const { claimable } = gateScanCharges(recurring);
+    if (claimable.length === 0) return;
+    void fetch("/api/events/claim-surfaced", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        surface: "money_scan",
+        claims: claimable.slice(0, 25).map((c) => ({
+          claimType: "recurring_charge",
+          estimatedValueAgorot: c.monthlyAgorot,
+          confidence: c.confidence,
+        })),
+      }),
+    }).catch(() => null);
   }
 
   async function onFile(file?: File | null) {
