@@ -43,7 +43,8 @@
     "verify:agent-auth": "node scripts/verify-agent-authorization.mjs",
     "verify:money-loop": "node scripts/verify-money-loop.mjs",
     "verify:journey": "node scripts/verify-journey.mjs",
-    "dev:smtp-sink": "node scripts/dev-smtp-sink.mjs"
+    "dev:smtp-sink": "node scripts/dev-smtp-sink.mjs",
+    "verify:open-banking": "node scripts/verify-open-banking.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

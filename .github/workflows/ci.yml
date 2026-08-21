@@ -169,3 +169,11 @@ jobs:
         run: npm run verify:money-loop
       - name: A stranger can walk the whole thing
         run: npm run verify:journey
+
+      # The other way in: a bank feed instead of a pasted statement. The check
+      # that earns its place here is not "the estimate appears" — it is that a
+      # figure produced by the MOCK provider is labelled as demonstration data
+      # on screen. A unit test can assert isLive === false; only a browser can
+      # assert that the person reading the number is told.
+      - name: The bank-feed path works and never passes fixtures off as real
+        run: npm run verify:open-banking

@@ -6912,5 +6912,24 @@
     "toolPlaybook": "What actually happens at a given company when a claim is made",
     "toolStartClaim": "Hand a person off to open a real claim under a signed, scoped mandate",
     "toolStatus": "Live status: mandate signing, payments, mail delivery"
+  },
+  "openBanking": {
+    "title": "Link your account — see what you are owed straight away",
+    "sub": "Read-only. We never hold your bank password. Disconnect any time.",
+    "cta": "Link an account and check",
+    "busy": "Reading the account…",
+    "demoBadge": "Demo data",
+    "demoNote": "The official bank link is not live yet. These figures are an example, not your account — so you can see exactly how it will look.",
+    "foundTitle": "What is in the account",
+    "monthlyLabel": "Recurring charges found",
+    "perMonth": "per month",
+    "readCount": "{count} transactions read",
+    "heldBack": "{count} more charges were detected but are not clear enough to point at.",
+    "riseTitle": "A price that went up",
+    "riseLine": "{merchant}: {from} to {to} — {delta} more a month",
+    "riseFactOnly": "Seen once at the new price — a fact from your statement, not yet a basis for a demand.",
+    "nextCta": "Continue — open a case",
+    "legalBasis": "Read-only access to account data, through a licensed financial-information provider, under Israel's Financial Information Service Law, 2021. No authority to move money. Revocable at any time.",
+    "empty": "No recurring charges found in this window."
   }
 }

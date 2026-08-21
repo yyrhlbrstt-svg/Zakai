@@ -6,6 +6,7 @@ import { useRouter, Link } from "@/i18n/routing";
 import { redirectIfOpenLoop } from "@/lib/openLoopClient";
 import { Card, Button, Textarea, Input, PrivacyNote } from "@/components/ui";
 import { gateScanCharges } from "@/lib/scanClaims";
+import { LinkAccountEstimate } from "@/components/LinkAccountEstimate";
 import {
   scanStatement,
   type ScanResult,
@@ -746,6 +747,15 @@ export function MoneyHub({
 
   return (
     <div className="flex flex-col gap-5 pb-28">
+      {/*
+        Value before signature. Linking a read-only feed shows the number that
+        makes signing a Mandate worth doing, so it sits above the photo path
+        rather than beside it. The photo path stays: not everybody will link a
+        bank, and the scan is the reason this worked at all before there was a
+        feed to read.
+      */}
+      <LinkAccountEstimate bcp47={bcp47} />
+
       {/* The claim, and a way to check it. This note sits directly above the
           upload; a reassurance a stranger cannot verify is worth nothing at
           exactly the moment it is needed. */}
