@@ -219,7 +219,8 @@
     "planNames": {
       "FREE": "חינם",
       "PRO": "Pro",
-      "MAX": "Max"
+      "MAX": "Max",
+      "BUSINESS": "עסקי"
     },
     "consent": "הסכמה לתנאים",
     "consentValue": "אושרה ב-{date}",

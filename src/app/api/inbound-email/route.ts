@@ -25,7 +25,9 @@ import { issueProposedSavingConfirmUrl } from "@/lib/services/confirmProposedSav
  *
  * Payload shape is deliberately simple so any forwarder can post JSON:
  *   { from, to, subject, text, html? }
- * Auth: optional shared secret in header X-Inbound-Secret when configured.
+ * Auth: shared secret in header X-Inbound-Secret. Required in production —
+ * without INBOUND_EMAIL_SECRET the route refuses with 503 rather than
+ * accepting unauthenticated mail (see the note at the check itself).
  * Rate limits: 60/hour per IP, 20/hour per from-address (abuse protection).
  */
 
@@ -47,13 +49,28 @@ export async function POST(request: Request) {
   const started = Date.now();
   const ip = clientIp(request);
 
-  // Optional shared-secret gate (set INBOUND_EMAIL_SECRET in env).
+  /*
+    Fails CLOSED in production, matching requireCronAuth.
+    It used to be `if (expected) { check }` with no else, so an unset
+    INBOUND_EMAIL_SECRET meant anyone could post here. That is not a
+    theoretical hole: the ZK-… code this endpoint matches on is printed in
+    every letter we send, so whoever holds one — including the provider being
+    claimed against — could forge a reply, and the forgery lands as a
+    proposed saving on a stranger's case, one confirmation away from a fee.
+    An inbound webhook nobody authenticates is an inbox anyone can write to.
+    Development stays open so a local forwarder still works.
+  */
   const expected = process.env.INBOUND_EMAIL_SECRET;
   if (expected) {
     const got = request.headers.get("x-inbound-secret") || "";
     if (!secretsMatch(got, expected)) {
       return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
     }
+  } else if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { ok: false, error: "inbound_secret_not_configured" },
+      { status: 503 },
+    );
   }
 
   // Rate limit by connecting IP (platform-set, not spoofable left-most XFF).

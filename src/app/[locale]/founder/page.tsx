@@ -24,6 +24,7 @@ import { GrantOwnerAccessButton } from "@/components/GrantOwnerAccessButton";
 import { loadLoopVolume } from "@/lib/services/loopVolume";
 import { bcp47, type Locale } from "@/i18n/config";
 import { privatePageMetadata } from "@/lib/seo";
+import { predictResponse } from "@/lib/intel/predictResponse";
 
 const RELEASE_LABEL_HE: Record<string, string> = {
   database: "מסד נתונים",
@@ -289,6 +290,26 @@ export default async function FounderPage({
 
   const variantPerformance = aggregateVariantPerformance(strategyOutcomeRows as LearningOutcomeRow[]);
 
+  /*
+    Engine 1, run over the institution × claim-type cells that actually have
+    closed cases. Capped at the busiest twelve so the panel stays a panel;
+    each cell is one small aggregate query, and cells with too little
+    evidence come back saying so rather than guessing.
+  */
+  const outcomeCells = await prisma.strategyOutcome
+    .groupBy({
+      by: ["market", "vertical", "counterparty"],
+      _count: { _all: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 12,
+    })
+    .catch(() => [] as { market: string; vertical: string; counterparty: string }[]);
+  const enginePredictions = await Promise.all(
+    outcomeCells.map((c) =>
+      predictResponse({ market: c.market, vertical: c.vertical, counterparty: c.counterparty }),
+    ),
+  );
+
   // Autopilot (law-watcher, price-sentinel, outcome-learner, growth-bot,
   // market-expander) runs daily via vercel.json cron and writes every result
   // to AutopilotRun — but nothing ever rendered it, so five real jobs ran
@@ -493,6 +514,56 @@ export default async function FounderPage({
           </tbody>
         </table>
       </div>
+
+      {/*
+        Engine 1, internal first exactly as the plan requires: read here,
+        by the person running the operation, before it is ever offered to
+        anyone. With no closed cases it says so — a prediction nobody earned
+        is the one thing this table must never print.
+      */}
+      <h2 id="engine1" className="font-display text-xl mt-10 mb-1.5">
+        מנוע 1 — מה צפוי מכל מוסד
+      </h2>
+      <p className="text-ink-soft text-body mb-4 leading-relaxed">
+        לכל צירוף של מוסד וסוג תביעה שיש עליו תיקים סגורים: סיכוי להסדר, טווח הסכום שהוחזר בפועל,
+        זמן חציוני, והגישה שניצחה. מתחת ל־5 תוצאות המנוע לא מנחש — הוא אומר שאין מספיק ראיות.
+        ציון הביטחון מורכב מנפח, טריות ודרגת ראיה בלבד; אין כאן מודל שפה ולכן אין רכיב של הסכמה
+        בין מודלים.
+      </p>
+      {enginePredictions.length === 0 ? (
+        <p className="text-ink-soft text-caption mb-6 leading-relaxed">
+          אין עדיין תיקים סגורים לאף מוסד. זה ריק כי אין נתונים — לא כי המנוע לא עובד.
+        </p>
+      ) : (
+        <div className="rounded-2xl border border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.02)] overflow-x-auto mb-6">
+          <table className="w-full text-body min-w-[520px]">
+            <thead>
+              <tr className="text-ink-soft text-micro uppercase tracking-wide">
+                <th className="text-start px-4 py-3 font-bold">מוסד / תחום</th>
+                <th className="text-center px-3 py-3 font-bold">תיקים</th>
+                <th className="text-center px-3 py-3 font-bold">סיכוי הסדר</th>
+                <th className="text-center px-3 py-3 font-bold">ימים</th>
+                <th className="text-center px-3 py-3 font-bold">ביטחון</th>
+              </tr>
+            </thead>
+            <tbody>
+              {enginePredictions.map((p) => (
+                <tr key={`${p.institution}:${p.claimType}`} className="border-t border-[rgba(255,255,255,0.07)]">
+                  <td className="px-4 py-3 font-bold">
+                    {p.institution} · {p.claimType}
+                  </td>
+                  <td className="text-center px-3 py-3">{p.basis.trials}</td>
+                  <td className="text-center px-3 py-3">
+                    {p.available ? `${Math.round((p.settleProbability ?? 0) * 100)}%` : "אין די ראיות"}
+                  </td>
+                  <td className="text-center px-3 py-3">{p.expectedDays ?? "—"}</td>
+                  <td className="text-center px-3 py-3">{p.available ? p.confidence : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <h2 id="approach" className="font-display text-xl mt-10 mb-1.5">מה עובד — לפי גישה</h2>
       <p className="text-ink-soft text-body mb-4 leading-relaxed">

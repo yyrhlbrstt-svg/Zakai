@@ -219,7 +219,8 @@
     "planNames": {
       "FREE": "Free",
       "PRO": "Pro",
-      "MAX": "Max"
+      "MAX": "Max",
+      "BUSINESS": "Business"
     },
     "consent": "Terms consent",
     "consentValue": "Granted on {date}",

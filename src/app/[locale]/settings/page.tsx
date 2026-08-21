@@ -24,6 +24,16 @@ export async function generateMetadata({
   return privatePageMetadata(t("settings.t"));
 }
 
+
+/** The plan's translated name, or its raw value — never a thrown page. */
+function planLabel(t: (k: string) => string, plan: string): string {
+  try {
+    return t(`planNames.${plan}`);
+  } catch {
+    return plan;
+  }
+}
+
 export default async function SettingsPage({
   params,
 }: {
@@ -57,7 +67,14 @@ export default async function SettingsPage({
     { label: t("name"), value: user!.name, ltr: false },
     { label: t("email"), value: user!.email, ltr: true },
     { label: t("phone"), value: user!.phone, ltr: true },
-    { label: t("plan"), value: t(`planNames.${user!.plan}`), ltr: false },
+    /*
+      A missing plan name used to take the whole page down: the Plan enum
+      gained BUSINESS and the catalogue did not, so every BUSINESS user got a
+      crash instead of their settings. The key is added — and the lookup no
+      longer trusts the catalogue to stay in step with the enum, because the
+      next plan we add would break this the same way.
+    */
+    { label: t("plan"), value: planLabel(t, user!.plan), ltr: false },
     ...(consent
       ? [{ label: t("consent"), value: t("consentValue", { date: consent.grantedAt.toLocaleDateString(loc) }), ltr: false }]
       : []),
