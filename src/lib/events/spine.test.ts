@@ -5,6 +5,15 @@ vi.mock("@/lib/prisma", () => ({ prisma: { zakaiEvent: { create: (...a: unknown[
 
 const { recordEvent, EVENT_TYPES } = await import("./spine");
 
+/**
+ * These two cases exercise what happens when a CALLER ignores the types —
+ * the runtime guard, which is the one that protects the table. Casting is
+ * deliberate and narrow: @ts-expect-error only suppresses the first error on
+ * the line it precedes, and a malformed call produces one per bad field.
+ */
+type AnyEventArg = Parameters<typeof recordEvent>[0];
+const asCall = (o: unknown) => o as AnyEventArg;
+
 beforeEach(() => {
   create.mockReset();
   create.mockResolvedValue({ id: "evt_1" });
@@ -27,21 +36,15 @@ describe("the event spine writes only what it can validate", () => {
   });
 
   it("rejects a payload that does not match its event, without writing", async () => {
-    const res = await recordEvent({
-      eventType: "outcome.recorded",
-      // @ts-expect-error deliberately wrong shape
-      payload: { finalStatus: "maybe" },
-    });
+    const res = await recordEvent(
+      asCall({ eventType: "outcome.recorded", payload: { finalStatus: "maybe" } }),
+    );
     expect(res).toEqual({ ok: false, reason: "invalid_payload" });
     expect(create).not.toHaveBeenCalled();
   });
 
   it("rejects an event type outside the closed set", async () => {
-    const res = await recordEvent({
-      // @ts-expect-error deliberately unknown type
-      eventType: "something.invented",
-      payload: {},
-    });
+    const res = await recordEvent(asCall({ eventType: "something.invented", payload: {} }));
     expect(res).toEqual({ ok: false, reason: "unknown_event_type" });
     expect(create).not.toHaveBeenCalled();
   });
