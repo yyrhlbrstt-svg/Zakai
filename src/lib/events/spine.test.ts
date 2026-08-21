@@ -67,6 +67,7 @@ describe("the event spine writes only what it can validate", () => {
 
   it("keeps the event set closed and stable", () => {
     expect([...EVENT_TYPES]).toEqual([
+      "claim.surfaced",
       "claim.created",
       "mandate.signed",
       "institution.contacted",

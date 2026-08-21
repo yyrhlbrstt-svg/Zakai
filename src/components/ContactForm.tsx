@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Card, Button, Input, Textarea } from "@/components/ui";
+import { useLocalizedValidity } from "@/components/useLocalizedValidity";
 
 /**
  * A message that is stored before anything is claimed about it.
@@ -13,6 +14,8 @@ import { Card, Button, Input, Textarea } from "@/components/ui";
  */
 export function ContactForm() {
   const t = useTranslations("contact");
+  /* The native validation bubble, in the page's language rather than the browser's. */
+  const validity = useLocalizedValidity();
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +60,7 @@ export function ContactForm() {
 
   return (
     <Card className="p-5">
-      <form onSubmit={submit} className="flex flex-col gap-3">
+      <form onSubmit={submit} className="flex flex-col gap-3" {...validity}>
         <label className="flex flex-col gap-1.5">
           <span className="text-caption text-ink-soft">{t("form.email")}</span>
           <Input name="email" type="email" dir="ltr" autoComplete="email" maxLength={160} />

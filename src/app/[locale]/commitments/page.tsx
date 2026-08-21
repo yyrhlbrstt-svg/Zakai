@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
 import { CommitmentsBoard } from "@/components/CommitmentsBoard";
 import { alternateLanguages } from "@/lib/seo";
+import { getSessionUserId } from "@/lib/auth/session";
 
 export async function generateMetadata({
   params,
@@ -38,12 +39,13 @@ export default async function CommitmentsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const signedIn = Boolean(await getSessionUserId());
   const t = await getTranslations({ locale, namespace: "commitments" });
 
   return (
     <VerticalPageShell heroGlow kicker={t("kicker")} title={t("title")} sub={t("sub")}>
       <div className="mt-8">
-        <CommitmentsBoard locale={locale} />
+        <CommitmentsBoard locale={locale} signedIn={signedIn} />
       </div>
       <p className="mt-8 text-micro text-ink-soft leading-relaxed max-w-[560px]">
         {t("footnote")}

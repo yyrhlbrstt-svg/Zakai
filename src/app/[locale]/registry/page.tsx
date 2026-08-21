@@ -76,6 +76,10 @@ export default async function RegistryPage({
           verifies once and relies on for every issuer, forever, not a claim
           it has to re-check per party:
         </p>
+        {/* pl-5, not ps-5, on purpose: this block is dir=ltr — machine-readable
+            scope names — so the gutter belongs on the physical left even when
+            the page around it is Hebrew. Everywhere else in the app uses the
+            logical property; this is the one place that must not. */}
         <ul className="list-disc pl-5 flex flex-col gap-1 text-[13.5px] font-mono">
           {doc.forbiddenScopes.map((s) => (
             <li key={s}>{s}</li>

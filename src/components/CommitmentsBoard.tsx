@@ -115,7 +115,7 @@ const COPY = {
   },
 } as const;
 
-export function CommitmentsBoard({ locale }: { locale: string }) {
+export function CommitmentsBoard({ locale, signedIn }: { locale: string; signedIn: boolean }) {
   const router = useRouter();
   const c = locale === "he" || locale === "ar" ? COPY.he : COPY.en;
 
@@ -134,6 +134,18 @@ export function CommitmentsBoard({ locale }: { locale: string }) {
   const [notice, setNotice] = useState("");
 
   const load = useCallback(async () => {
+    /*
+      Do not ask a question whose answer is already known. The list lives
+      behind a session; without one the request can only come back 401, and
+      firing it anyway put a failed request in a stranger's console on their
+      first visit to the page. The signed-out state below is exactly what the
+      401 branch produces, reached without the round trip.
+    */
+    if (!signedIn) {
+      setNeedsLogin(true);
+      setRows([]);
+      return;
+    }
     try {
       const res = await fetch("/api/commitments");
       /**
@@ -163,7 +175,7 @@ export function CommitmentsBoard({ locale }: { locale: string }) {
       setLoadErr(c.loadFailed);
       setRows([]);
     }
-  }, [c.loadFailed]);
+  }, [c.loadFailed, signedIn]);
 
   useEffect(() => {
     void load();

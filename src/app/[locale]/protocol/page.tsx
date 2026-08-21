@@ -7,7 +7,7 @@ import { alternateLanguages } from "@/lib/seo";
 import { buildZakaiProtocolDocument, getOutcomeGraphPublicStats } from "@/lib/protocol/discovery";
 import { PROTOCOL_LAWS } from "@/lib/protocol/laws";
 import { protocolDomainsSection } from "@/lib/marketing/protocolDomainsSection";
-import type { Locale } from "@/i18n/config";
+import { bcp47, type Locale } from "@/i18n/config";
 
 const copy = {
   he: {
@@ -122,7 +122,7 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
 
       <Card className="p-5 mt-6">
         <div className="font-display text-xl mb-3">{c.lawsTitle}</div>
-        <ul className="m-0 pl-5 text-[13.5px] leading-relaxed text-ink-soft space-y-2">
+        <ul className="m-0 ps-5 text-[13.5px] leading-relaxed text-ink-soft space-y-2">
           {PROTOCOL_LAWS.map((law) => (
             <li key={law.id}>
               <code className="text-[12px] text-[#3EC6FF]">{law.id}</code> — {law.summary}
@@ -167,7 +167,13 @@ export default async function ProtocolPage({ params }: { params: Promise<{ local
         <div className="flex flex-wrap gap-6 mt-3 text-[14px]">
           <div>
             <div className="text-ink-soft text-[12px]">{c.outcomesCount}</div>
-            <div className="font-display text-2xl">{stats.totalOutcomes.toLocaleString()}</div>
+            {/* Locale passed explicitly: an unqualified toLocaleString() formats with
+                the runtime's default, which differs between the server and the
+                visitor's browser and costs a hydration error the moment the
+                number is large enough to need a separator. */}
+            <div className="font-display text-2xl">
+              {stats.totalOutcomes.toLocaleString(bcp47[locale as Locale] ?? "he-IL")}
+            </div>
           </div>
           <div>
             <div className="text-ink-soft text-[12px]">{c.mandateLive}</div>

@@ -21,7 +21,7 @@ const monthly = (merchant: string, agorot: number, lastIso: string): RecurringCh
     category: "other",
     monthlyAgorot: agorot,
     occurrences: 3,
-    providerKey: null,
+    providerKey: null, confidence: 1,
     chargedOn: [earlier, prior, last],
   };
 };
@@ -32,7 +32,7 @@ const erratic = (merchant: string, agorot: number): RecurringCharge => ({
   category: "other",
   monthlyAgorot: agorot,
   occurrences: 3,
-  providerKey: null,
+  providerKey: null, confidence: 1,
   chargedOn: [d("2026-06-01"), d("2026-06-04"), d("2026-07-05")],
 });
 
@@ -75,7 +75,7 @@ describe("buildCommitmentWindow", () => {
       category: "other",
       monthlyAgorot: 30_000,
       occurrences: 3,
-      providerKey: null,
+      providerKey: null, confidence: 1,
       chargedOn: [d("2026-01-05"), d("2026-04-05"), d("2026-07-05")],
     };
     const w = buildCommitmentWindow([quarterly], { now: NOW, days: 7 });

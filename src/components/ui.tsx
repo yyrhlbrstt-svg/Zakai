@@ -61,6 +61,45 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
  * should submit still say so; buttons that should not can no longer do it by
  * accident.
  */
+/**
+ * What a blocked control does when someone taps it anyway.
+ *
+ * Shared, not copied, because the copy is the bug: the whole point of the
+ * change that introduced this behaviour is that a person tapping a control
+ * that will not act gets *told why*, and any control that skips it reads as
+ * broken — the QA sweep of 2026-08-21 found exactly one that had (the
+ * copy-only button on /flights, a raw <button disabled> that bypassed
+ * <Button> entirely and answered nothing on tap while the primary CTA beside
+ * it answered every time).
+ *
+ * Scrolls to the missing-fields checklist and flashes it; failing that, to
+ * the first empty field, which is the true answer to "why is nothing
+ * happening" when a tool renders its checklist only after an earlier step.
+ */
+export function explainBlocked(event: { preventDefault: () => void; currentTarget: EventTarget | null }) {
+  event.preventDefault();
+  const hint = document.querySelector<HTMLElement>("[data-missing-fields]");
+  if (hint) {
+    hint.scrollIntoView({ block: "center", behavior: "smooth" });
+    hint.classList.add("missing-fields-flash");
+    window.setTimeout(() => hint.classList.remove("missing-fields-flash"), 1600);
+    return;
+  }
+  const scope =
+    (event.currentTarget as HTMLElement | null)?.closest("form") ??
+    document.querySelector("main") ??
+    document.body;
+  const fields = scope.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+    "input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea",
+  );
+  const empty = Array.from(fields).find(
+    (f) => !f.value.trim() && !f.disabled && !!(f.offsetWidth || f.offsetHeight),
+  );
+  if (!empty) return;
+  empty.scrollIntoView({ block: "center", behavior: "smooth" });
+  empty.focus();
+}
+
 export function Button({
   variant = "primary",
   className = "",
@@ -105,37 +144,7 @@ export function Button({
         even lands.
       */
       className={`${base} ${styles} ${className} opacity-70 hover:opacity-100`}
-      onClick={(e) => {
-        e.preventDefault();
-        const hint = document.querySelector<HTMLElement>("[data-missing-fields]");
-        if (hint) {
-          hint.scrollIntoView({ block: "center", behavior: "smooth" });
-          hint.classList.add("missing-fields-flash");
-          window.setTimeout(() => hint.classList.remove("missing-fields-flash"), 1600);
-          return;
-        }
-        /*
-         * Some tools only render the checklist once an earlier step has
-         * resolved (a deposit has to be established as late before the fields
-         * are named), which leaves the button blocked and the screen silent —
-         * the worst case of all. Falling back to the first empty field is a
-         * true answer to "why is nothing happening": that is the thing
-         * standing in the way.
-         */
-        const scope =
-          (e.currentTarget as HTMLElement).closest("form") ??
-          document.querySelector("main") ??
-          document.body;
-        const fields = scope.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
-          "input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea",
-        );
-        const empty = Array.from(fields).find(
-          (f) => !f.value.trim() && !f.disabled && !!(f.offsetWidth || f.offsetHeight),
-        );
-        if (!empty) return;
-        empty.scrollIntoView({ block: "center", behavior: "smooth" });
-        empty.focus();
-      }}
+      onClick={explainBlocked}
       {...pass}
     />
   );
@@ -457,19 +466,51 @@ export function CheckboxChips<T extends string>({
  * same 🔒 emoji, just written twice. Extracted so the two can never drift,
  * and so the emoji-to-icon fix only had to happen once.
  */
+/**
+ * The safety line that sits directly above every upload.
+ *
+ * It used to be a claim with no way to check it — "we do not ask for or keep
+ * your bank password", full stop. That is the exact shape of promise this
+ * product exists to replace: the FTC's order against DoNotPay in February
+ * 2025 was not about a broken feature, it was about claims nobody had tested.
+ * A reassurance a stranger cannot verify is worth roughly nothing at the one
+ * moment it is needed, which is while they are deciding whether to photograph
+ * their bank statement.
+ *
+ * So the note can carry a way through to the page that shows its working —
+ * what a Mandate can and cannot authorise, the public key anyone can verify
+ * against, the fee that only exists after a documented saving. Optional,
+ * because a note beside a field that touches nothing sensitive does not need
+ * to send anybody anywhere.
+ */
 export function PrivacyNote({
   children,
   className = "",
+  learnMore,
 }: {
   children: React.ReactNode;
   className?: string;
+  learnMore?: { href: string; label: string };
 }) {
   return (
     <div
       className={`flex items-start gap-2.5 text-body text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 ${className}`}
     >
       <IconLock className="shrink-0 mt-0.5" />
-      <span>{children}</span>
+      <span>
+        {children}
+        {learnMore && (
+          <>
+            {" "}
+            <a
+              href={learnMore.href}
+              className="underline underline-offset-2 decoration-[rgba(63,203,155,0.5)] hover:decoration-[var(--emerald)]"
+            >
+              {learnMore.label} →
+            </a>
+          </>
+        )}
+      </span>
     </div>
   );
 }

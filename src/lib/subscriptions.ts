@@ -37,6 +37,17 @@ export interface RecurringCharge {
   /** Zakai provider key when the merchant maps to one we can act on. */
   providerKey: ProviderKey | null;
   /**
+   * How sure the detector is that this really is a recurring charge, 0..1.
+   *
+   * Measured from the evidence actually present — how many times it was seen,
+   * how steady the amount is, how regular the cadence — never asserted. The
+   * claim gate reads this to decide whether Zakai is entitled to tell somebody
+   * they are paying for this every month; before it existed, "recurring" was a
+   * boolean and two coffees thirty days apart carried the same weight as
+   * twelve identical monthly charges.
+   */
+  confidence: number;
+  /**
    * The dates this charge was actually seen on, oldest first.
    *
    * `detectRecurring` already sorts by date and measures the gaps — that is
@@ -257,6 +268,73 @@ function median(nums: number[]): number {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** A gap counts as monthly at 20–40 days — the same window the detector uses. */
+function isMonthlyGap(days: number): boolean {
+  return days >= 20 && days <= 40;
+}
+
+/**
+ * How sure we are that a group of charges is a subscription rather than a
+ * coincidence, from the three things the data can actually tell us.
+ *
+ * Occurrences dominate because they are the component that cannot be faked by
+ * chance: two charges a month apart for a similar amount is a plausible
+ * accident (a fortnightly shop, two visits to the same restaurant), and twelve
+ * of them is not. The other two components refine a number that occurrences
+ * has already bounded, which is why 2 occurrences cannot reach the speaking
+ * threshold no matter how tidy the amounts are.
+ *
+ * WHAT IS DELIBERATELY NOT IN HERE, AND WHAT WOULD SETTLE IT
+ *
+ * Merchant identity. A company in the provider registry bills recurringly by
+ * construction, so seeing it twice is stronger evidence than seeing an unknown
+ * merchant twice — which argues for a bounded prior that could lift a tidy
+ * 2-sighting case over the bar. It is left out on purpose, for two reasons.
+ *
+ * The prior is not uniform across the registry: a streaming service has almost
+ * no one-off charges, while a telecom sells handsets. Guessing per-merchant
+ * billing models with no data is exactly the thumb on the scale the gate
+ * exists to prevent, and it would arrive dressed as a detector improvement.
+ *
+ * The evidence that settles it already has an instrument: alert-to-outcome
+ * (`src/lib/intel/alertToOutcome.ts`). If claims about registry merchants
+ * prove at the same rate as the rest, the prior is real and belongs here with
+ * a measured weight. If they prove worse, it never did. Add it when the number
+ * exists, not before.
+ */
+export function recurringConfidence(
+  amountsAgorot: readonly number[],
+  gapsDays: readonly number[],
+): number {
+  const n = amountsAgorot.length;
+  if (n < 2) return 0;
+
+  // 2 → 0.3, 3 → 0.6, 4 → 0.9, 5+ → 1. Saturating, because the difference
+  // between eight sightings and nine is not information. The 2-sighting value
+  // is chosen so that even a flawless pair — identical amounts, exactly thirty
+  // days apart — lands at 0.65 and stays below the speaking threshold. That is
+  // the claim in the paragraph above, kept true by arithmetic rather than by
+  // assertion, and asserted again in the tests.
+  const occurrence = Math.min(1, 0.3 + (n - 2) * 0.3 - Math.max(0, n - 4) * 0.1);
+
+  const med = median([...amountsAgorot]);
+  const spread =
+    med > 0
+      ? amountsAgorot.reduce((sum, a) => sum + Math.abs(a - med), 0) / (n * med)
+      : 1;
+  // 0% deviation → 1, 25% average deviation → 0. Beyond that it is not the
+  // same charge repeating, it is the same shop being visited.
+  const steadiness = Math.max(0, 1 - spread / 0.25);
+
+  const cadence =
+    gapsDays.length === 0
+      ? 0
+      : gapsDays.filter(isMonthlyGap).length / gapsDays.length;
+
+  const score = 0.5 * occurrence + 0.3 * steadiness + 0.2 * cadence;
+  return Number(Math.min(1, Math.max(0, score)).toFixed(3));
+}
+
 /**
  * A merchant is "recurring" when charges repeat on a roughly monthly cadence
  * (any gap of 20–40 days between consecutive charges) with similar amounts,
@@ -282,11 +360,11 @@ export function detectRecurring(txns: StatementTxn[]): RecurringCharge[] {
     const med = median(amounts);
     const similar = amounts.every((a) => Math.abs(a - med) <= Math.max(med * 0.25, 500));
 
-    let monthlyGap = false;
+    const gaps: number[] = [];
     for (let i = 1; i < list.length; i++) {
-      const gap = (list[i].date.getTime() - list[i - 1].date.getTime()) / DAY_MS;
-      if (gap >= 20 && gap <= 40) monthlyGap = true;
+      gaps.push((list[i].date.getTime() - list[i - 1].date.getTime()) / DAY_MS);
     }
+    const monthlyGap = gaps.some(isMonthlyGap);
 
     const isRecurring = (monthlyGap && similar) || list.length >= 3;
     if (!isRecurring) continue;
@@ -299,6 +377,7 @@ export function detectRecurring(txns: StatementTxn[]): RecurringCharge[] {
       monthlyAgorot: med,
       occurrences: list.length,
       providerKey: ACTIONABLE.includes(category) ? resolveProviderKey(merchant) : null,
+      confidence: recurringConfidence(amounts, gaps),
       chargedOn: list.map((t) => t.date), // already sorted oldest-first above
     });
   }

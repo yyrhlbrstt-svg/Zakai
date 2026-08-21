@@ -4,11 +4,24 @@ import { useMemo, useState } from "react";
 import { useLocale , useTranslations } from "next-intl";
 import { Card, Input, Button } from "@/components/ui";
 import { analyzeCreditCard } from "@/lib/creditCard";
+import { bcp47, type Locale } from "@/i18n/config";
 import { Link } from "@/i18n/routing";
 
 export function CreditCardTool() {
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
+  /*
+    Number formatting must be told which locale to use.
+    `toLocaleString()` with no argument asks the *runtime* for its default:
+    on the server that is Node's, in the browser it is the visitor's. They
+    agree for he/en/ar by coincidence of format and disagree everywhere else
+    — a German phone renders 1.200 where the server rendered 1,200 — which
+    made React throw away the server HTML and re-render the page (hydration
+    error #418, observed on /de, /fr and /ru in the QA sweep). Passing the
+    page's own locale makes both sides produce the same string by
+    construction rather than by luck.
+  */
+  const numberLocale = bcp47[locale as Locale] ?? "he-IL";
   const tIcomponents_CreditCardTool = useTranslations("inline_components_CreditCardTool");
   const [balance, setBalance] = useState("10000");
   const [rate, setRate] = useState("12");
@@ -43,9 +56,9 @@ export function CreditCardTool() {
 
       <Card className="p-6 text-center">
         <div className="text-body text-ink-soft font-bold">{tIcomponents_CreditCardTool("t_59e0bebc")}</div>
-        <div className="font-display grad-text text-4xl mt-2">₪{result.monthlyInterestShekels.toLocaleString()}</div>
+        <div className="font-display grad-text text-4xl mt-2">₪{result.monthlyInterestShekels.toLocaleString(numberLocale)}</div>
         <div className="text-body text-ink-soft mt-3">
-          {tIcomponents_CreditCardTool("t_d51fcd64")} ₪{result.yearlyInterestShekels.toLocaleString()}
+          {tIcomponents_CreditCardTool("t_d51fcd64")} ₪{result.yearlyInterestShekels.toLocaleString(numberLocale)}
         </div>
         {result.monthsToClearIfMinOnly != null && (
           <div className="text-body text-ink-soft mt-2">

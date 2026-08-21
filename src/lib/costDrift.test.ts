@@ -105,7 +105,7 @@ describe("snapshotFromCharges", () => {
       category: "other",
       monthlyAgorot: 50_000,
       occurrences: 3,
-      providerKey: null,
+      providerKey: null, confidence: 1,
       chargedOn: [],
     };
     const s = snapshotFromCharges([charge], new Date("2026-08-01T00:00:00Z"));

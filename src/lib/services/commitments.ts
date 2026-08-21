@@ -166,6 +166,10 @@ export function asRecurringCharges(items: readonly CommitmentView[]): RecurringC
       // name is a real commitment but not a known company, and pretending
       // otherwise would let it match provider logic it has no business in.
       providerKey: isProviderKey(c.counterparty) ? c.counterparty : null,
+      // A commitment is not a detection. The person typed it in themselves,
+      // which is the strongest evidence available anywhere in this codebase —
+      // there is nothing for a detector to be unsure about.
+      confidence: 1,
       chargedOn: [],
     }));
 }

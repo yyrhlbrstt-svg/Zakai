@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/routing";
+import { Link, redirect } from "@/i18n/routing";
 import { DeadlineTracker } from "@/components/DeadlineTracker";
 import { alternateLanguages } from "@/lib/seo";
+import { getSessionUserId } from "@/lib/auth/session";
 
 export async function generateMetadata({
   params,
@@ -25,6 +26,14 @@ export default async function DeadlinesPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  /*
+    The tracker redirected to /login itself, but only after mounting, fetching
+    and being told 401 — so a signed-out visitor watched the page paint, saw a
+    failed request logged, and was then thrown to login. The session is
+    knowable here for free, before anything renders. Same destination, no
+    flash, and nothing failing in front of someone who has not signed up yet.
+  */
+  if (!(await getSessionUserId())) redirect({ href: "/login?return=/deadlines", locale });
   const t = await getTranslations("deadlines");
 
   return (

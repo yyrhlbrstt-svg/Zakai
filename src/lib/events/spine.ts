@@ -33,6 +33,21 @@ import { prisma } from "@/lib/prisma";
  */
 
 export const EVENT_TYPES = [
+  /**
+   * Zakai told somebody they are owed money, before they asked.
+   *
+   * Recorded at the moment the claim gate says speak — and only then, because
+   * a silenced finding was never shown to anybody and counting it would make
+   * the ratio below flatter it. This is the denominator of the one number that
+   * catches a drifting detector before a single person complains: of everything
+   * we announced, how much became a real case, and how much of that was ever
+   * proved in money.
+   *
+   * Deliberately carries no statement text and no merchant string — only the
+   * claim kind, the provider key when there is a registry-backed one, and the
+   * confidence that got it past the gate.
+   */
+  "claim.surfaced",
   "claim.created",
   "mandate.signed",
   "institution.contacted",
@@ -47,6 +62,14 @@ export type EventType = (typeof EVENT_TYPES)[number];
 const agorot = z.number().int().nonnegative();
 
 const PAYLOADS = {
+  "claim.surfaced": z.object({
+    claimType: z.string().min(1).max(60),
+    estimatedValueAgorot: agorot.nullable(),
+    /** What the gate measured. Stored so a bad ratio can be read by band. */
+    confidence: z.number().min(0).max(1),
+    /** Which screen said it, so a single bad surface is separable. */
+    surface: z.enum(["money_scan", "leaks", "entitlements", "vertical_tool", "signal"]),
+  }),
   "claim.created": z.object({
     claimType: z.string().min(1).max(60),
     estimatedValueAgorot: agorot.nullable(),
