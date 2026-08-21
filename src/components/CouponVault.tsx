@@ -61,6 +61,7 @@ export function CouponVault({
   const [category, setCategory] = useState<string>("all");
   const [copied, setCopied] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [actionErr, setActionErr] = useState(false);
   const [adding, setAdding] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   // Open only when there is nothing to retrieve yet. Once the vault has
@@ -94,11 +95,18 @@ export function CouponVault({
   async function toggleUsed(row: CouponRow) {
     setBusy(row.id);
     try {
-      await fetch(`/api/coupons/${row.id}`, {
+      // Refreshing regardless of the result made a failed write look like a
+      // successful one for the moment before the server's answer arrived.
+      const res = await fetch(`/api/coupons/${row.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ used: !row.usedAt }),
       });
+      if (!res.ok) {
+        setActionErr(true);
+        return;
+      }
+      setActionErr(false);
       router.refresh();
     } finally {
       setBusy(null);
@@ -108,7 +116,12 @@ export function CouponVault({
   async function remove(row: CouponRow) {
     setBusy(row.id);
     try {
-      await fetch(`/api/coupons/${row.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/coupons/${row.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setActionErr(true);
+        return;
+      }
+      setActionErr(false);
       router.refresh();
     } finally {
       setBusy(null);
@@ -258,6 +271,11 @@ export function CouponVault({
             {t("addTitle")}
           </Button>
         </div>
+      )}
+      {actionErr && (
+        <p role="alert" className="text-caption text-danger font-bold mb-3 leading-relaxed">
+          {t("actionFailed")}
+        </p>
       )}
       {rows.length === 0 ? (
         <Card className="p-7 text-center">

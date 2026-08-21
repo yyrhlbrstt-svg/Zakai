@@ -234,7 +234,8 @@
       "cancel": "Cancel",
       "wrongPassword": "Wrong password.",
       "failed": "Deletion failed. Try again."
-    }
+    },
+    "logoutFailed": "Sign-out did not complete — you are still signed in. Try again."
   },
   "disclosure": {
     "agent": "Zakai is a digital agent acting on the customer's behalf, with explicit authorization.",
@@ -6681,7 +6682,8 @@
       "title": "The coupon vault is available on Pro and above",
       "body": "This is where every discount code you were given is kept — retention offers, card benefits, coupons from emails — with search, categories, and a warning before a code expires. On the free plan this screen is locked.",
       "cta": "Compare plans"
-    }
+    },
+    "actionFailed": "That action did not complete. Try again."
   },
   "pageMeta": {
     "saving_confirm": {
