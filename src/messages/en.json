@@ -5229,7 +5229,9 @@
     "shotNeedsLoginLink": "Quick sign-in — back here after",
     "shotNeedsLoginSuffix": "Today's free scans are used up. You can also paste or upload a transactions file below, with no account at all.",
     "shotTooBig": "Image is too large (max 3MB) — try a regular screenshot instead of a camera photo, or crop the file.",
-    "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app."
+    "shotNoTransactions": "We read the image — there are no transactions in it. Photograph the transactions screen in your bank or card app.",
+    "shotPdfTitle": "PDF files are not supported yet",
+    "shotPdfHow": "Open the file, take a screenshot of the page with the charges, and upload that image instead. You can also paste the charge lines below as text."
   },
   "inline_components_OvernightAgent": {
     "t_aeb342ad": "Overnight agent — follow-up for all",
@@ -5398,7 +5400,10 @@
     "needsOutreachSub": "Without a destination the agent cannot send. We never invent an inbox.",
     "mandateInactiveTitle": "Mandate inactive — re-authorize on the dashboard",
     "mandateInactiveSub": "Without an ACTIVE Mandate the agent cannot continue. Re-issue the authorization.",
-    "proofsHintNoInbox": "When the bank or provider replies by email — paste the reply on your dashboard and the agent will offer a one-tap record of the saving."
+    "proofsHintNoInbox": "When the bank or provider replies by email — paste the reply on your dashboard and the agent will offer a one-tap record of the saving.",
+    "resumeKicker": "Your case",
+    "resumeTitle": "Your case is still going — no need to start over",
+    "resumeSub": "Here is where it stands and what is waiting for you. Nothing needs photographing again."
   },
   "inline_app_locale_proofs_page": {
     "t_d2c8fb14": "Savings wall · anonymous",

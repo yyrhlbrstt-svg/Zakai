@@ -383,6 +383,7 @@ export function MoneyHub({
   /** Read fine, nothing in it — different advice from a failed read. */
   const [shotNoTx, setShotNoTx] = useState(false);
   const [shotNeedsLogin, setShotNeedsLogin] = useState(false);
+  const [shotPdf, setShotPdf] = useState(false);
   const pasteRef = useRef<HTMLTextAreaElement>(null);
   const [scanNudge, setScanNudge] = useState(false);
   const [shotTooBig, setShotTooBig] = useState(false);
@@ -462,6 +463,20 @@ export function MoneyHub({
     setShotNoTx(false);
     setShotNeedsLogin(false);
     setShotTooBig(false);
+    setShotPdf(false);
+    /*
+      Most Israeli bills — electricity, arnona, bank and card statements —
+      arrive by email as a PDF, and the reader here handles images only. The
+      picker used to filter PDFs out entirely, so a person holding exactly
+      the document we asked for could not even see their own file, and the
+      obvious conclusion was that the app was broken. It is selectable now,
+      and answered with the one instruction that actually gets them through:
+      open it and screenshot the page with the charges.
+    */
+    if (file.type === "application/pdf" || /\.pdf$/i.test(file.name)) {
+      setShotPdf(true);
+      return;
+    }
     // Checked before any upload attempt: base64 inflates size ~4/3, and a
     // request near Vercel's ~4.5MB serverless body limit fails at the
     // platform level with an opaque error — indistinguishable from "broken".
@@ -758,10 +773,34 @@ export function MoneyHub({
         <input
           ref={shotRef}
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf,.pdf"
           className="hidden"
-          onChange={(e) => onScreenshot(e.target.files?.[0])}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            /*
+              Clearing the value is what lets somebody pick the SAME file
+              again. Without it a re-pick fires no change event at all, so
+              after a scan that failed the obvious next move — choose that
+              screenshot again — produced nothing: no spinner, no error,
+              total silence. That is the most common thing people do on iOS.
+            */
+            e.target.value = "";
+            onScreenshot(file);
+          }}
         />
+        {shotPdf && (
+          <div
+            role="alert"
+            className="mt-4 rounded-2xl border border-[rgba(240,180,92,0.45)] bg-[rgba(240,180,92,0.09)] p-4"
+          >
+            <div className="font-extrabold text-body-lg">
+              {tIcomponents_MoneyHub("shotPdfTitle")}
+            </div>
+            <p className="text-ink-soft text-body mt-1.5 mb-0 leading-relaxed">
+              {tIcomponents_MoneyHub("shotPdfHow")}
+            </p>
+          </div>
+        )}
         {shotNeedsLogin && (
           /*
             This is the product's whole promise — photograph a bill — and the

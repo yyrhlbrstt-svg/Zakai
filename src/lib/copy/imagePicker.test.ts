@@ -75,7 +75,21 @@ describe("uploading an image never forces the camera", () => {
   it("still accepts images on the inputs that take them", () => {
     // The fix must not have been "delete the input". Every screen that reads
     // an image should still be able to.
+    //
+    // Matched as "includes image/*" rather than "equals image/*": the picker
+    // was later widened to let PDFs be SELECTED — most Israeli bills arrive
+    // as one, and filtering them out meant a person holding exactly the
+    // document we asked for could not see their own file. They are answered
+    // with an instruction, not silently accepted. Narrowing away from images
+    // still fails this test, which is what it is here to prevent.
     const hub = readFileSync(join(process.cwd(), "src/components/MoneyHub.tsx"), "utf8");
-    expect(hub).toMatch(/accept="image\/\*"/);
+    expect(hub).toMatch(/accept="[^"]*image\/\*[^"]*"/);
+  });
+
+  it("answers a PDF instead of failing silently", () => {
+    // A dead end with no explanation is what made this look broken.
+    const hub = readFileSync(join(process.cwd(), "src/components/MoneyHub.tsx"), "utf8");
+    expect(hub).toMatch(/application\/pdf/);
+    expect(hub).toMatch(/shotPdfTitle/);
   });
 });

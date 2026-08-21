@@ -236,11 +236,19 @@ export default async function MoneyPage({
   }
 
   return (
+    /*
+      Arriving with ?case= means the person pressed "continue my case". The
+      page greeted them anyway with the pitch — "photograph your statement" —
+      and their actual case sat below the fold. Testers read that as being
+      thrown back to the start and asked to re-photograph everything, which
+      is exactly what it looks like. Same page, different first sentence:
+      when there is a case in hand, the hero talks about that case.
+    */
     <VerticalPageShell
       heroGlow
-      kicker={tIapp_locale_money_page("t_98667843")}
-      title={tIapp_locale_money_page("t_2144de53")}
-      sub={tIapp_locale_money_page("t_ef77bbd3")}
+      kicker={tIapp_locale_money_page(focusCaseId ? "resumeKicker" : "t_98667843")}
+      title={tIapp_locale_money_page(focusCaseId ? "resumeTitle" : "t_2144de53")}
+      sub={tIapp_locale_money_page(focusCaseId ? "resumeSub" : "t_ef77bbd3")}
     >
       {/* The first screen has to offer the one thing this page is for.
           Measured on an iPhone 13 it previously opened with fifteen text

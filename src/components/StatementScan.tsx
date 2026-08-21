@@ -218,14 +218,23 @@ export function StatementScan({
             type="file"
             accept=".csv,.tsv,.txt"
             className="hidden"
-            onChange={(e) => onFile(e.target.files?.[0])}
+            onChange={(e) => {
+              // Clear so re-picking the same file still fires a change event.
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              onFile(f);
+            }}
           />
           <input
             ref={shotRef}
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => onScreenshot(e.target.files?.[0])}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              onScreenshot(f);
+            }}
           />
         </div>
         {shotTooBig && (
