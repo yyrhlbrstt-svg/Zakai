@@ -2,6 +2,7 @@ import "server-only";
 
 import nodemailer from "nodemailer";
 import type { Outbox } from "@prisma/client";
+import { recordEvent } from "@/lib/events/spine";
 import { prisma } from "@/lib/prisma";
 import {
   rebuildMandateAttachmentsForCase,
@@ -91,6 +92,24 @@ async function deliverEmailRecord(record: Outbox): Promise<"sent" | "failed" | "
         error: null,
       },
     });
+    /*
+      The moment the letter actually left. Not when the case flipped to SENT —
+      that is our own bookkeeping — but when a transport accepted it. Every
+      "how long did they take to answer" the intelligence layer will ever
+      compute is measured from here, so it has to be logged here and nowhere
+      else. Fail-soft: the mail is already gone either way.
+    */
+    await recordEvent({
+      eventType: "institution.contacted",
+      caseId: record.caseId,
+      payload: {
+        channel: "email",
+        // The subject only. Bodies carry the person's own details and this
+        // table is not the place for them.
+        messageSummary: (record.subject ?? "").slice(0, 300),
+      },
+    });
+
     return "sent";
   } catch (err) {
     const attempts = parseOutboxAttempts(record.error) + 1;
