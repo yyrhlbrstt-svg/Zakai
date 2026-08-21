@@ -28,9 +28,9 @@ enum Plan {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  passwordHash    String
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
   /// When the password was last changed via completePasswordReset. Null for
   /// an account that has never reset — sessions are stateless JWTs with no
   /// server-side revocation list, so this is what lets a password reset
@@ -39,29 +39,29 @@ model User {
   /// while every previously-stolen or previously-shared session cookie stays
   /// valid until its own 30-day expiry regardless.
   passwordChangedAt DateTime?
-  name            String
+  name              String
   // Product tier. Determines the success-fee rate, active-case allowance and
   // access to the recurring-charges scan. Billing collection is a later stage
   // (PSP); the tier itself is enforced in code from day one.
-  plan            Plan      @default(FREE)
-  planChangedAt   DateTime?
+  plan              Plan      @default(FREE)
+  planChangedAt     DateTime?
   /// When a paid plan lapses. Null on FREE, and on any plan granted without
   /// payment. `GET /api/cron/plan-expiry` downgrades accounts past this date —
   /// deliberately a sweep rather than a read-time check, because the plan is
   /// read in twenty-three places and a rule enforced in one of them is a rule
   /// enforced nowhere.
-  planUntil       DateTime?
+  planUntil         DateTime?
   // E.164 mobile (any country), e.g. +972501234567. The number the user's bills
   // are registered to; ownership verification sends a code here.
-  phone           String
+  phone             String
   // ISO-3166 alpha-2 country the user signed up from. Israel is the launch
   // market (active tools are IL-first); capturing country turns international
   // signups into a real demand signal for where to expand next.
-  country         String    @default("IL")
-  createdAt       DateTime  @default(now())
+  country           String    @default("IL")
+  createdAt         DateTime  @default(now())
   /// When the person proved they control this address. Null until they do.
   /// Basic use never waits on it; privilege does.
-  emailVerifiedAt DateTime?
+  emailVerifiedAt   DateTime?
 
   // Referrals. `referralCode` is the short, shareable code in this user's
   // invite link; a DB default keeps the NOT NULL/UNIQUE column safe if a row is
@@ -88,8 +88,8 @@ model User {
 
   cases              Case[]
   phoneVerifications PhoneVerification[]
-  referralRewards    ReferralReward[]    @relation("Referrer")
-  referralRewardFor  ReferralReward?     @relation("ReferredUser")
+  referralRewards    ReferralReward[]         @relation("Referrer")
+  referralRewardFor  ReferralReward?          @relation("ReferredUser")
   consents           Consent[]
   passwordResets     PasswordReset[]
   emailVerifications EmailVerification[]
@@ -101,18 +101,15 @@ model User {
   inboxInterests     ConnectedInboxInterest[]
   commitments        Commitment[]
   coupons            Coupon[]
-  planOrders      PlanOrder[]
+  planOrders         PlanOrder[]
 }
 
 /**
  * A discount the person already holds and would otherwise lose track of.
- *
  * WHAT THIS IS, AND WHAT IT DELIBERATELY IS NOT
- *
  * This is the person's own vault: codes they were given — a retention offer a
  * provider made, a card benefit, a membership discount, a promo email — kept in
  * one place, searchable, and with the expiry date surfaced before it passes.
- *
  * It is NOT a scraped feed of public coupon codes. We have no agreement with
  * any coupon site, scraping them breaches their terms, and a code that has
  * already been redeemed is worse than no code at all: the person stands at a
@@ -120,17 +117,15 @@ model User {
  * same class of error as inventing an amount owed. `source` exists so a real
  * partner feed can populate rows later without a schema change — until such a
  * feed exists, every row got here because a person put it here.
- *
  * MONEY
- *
  * `percentOff` is whole percent; `amountMinor` is minor units. At most one is
  * set — a coupon is a percentage or a fixed sum, never both — and either may be
  * absent, because "free shipping" is a real coupon with neither.
  */
 model Coupon {
-  id       String @id @default(cuid())
-  userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   merchant String
   /// The code itself. Bearer value — never logged, never left the user's scope.
@@ -217,19 +212,19 @@ model Commitment {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   /// What the person calls it — "Netflix", "the office lease".
-  label String
+  label        String
   /// Normalised counterparty key when it maps to a known provider, else "".
   counterparty String @default("")
   /// Charge category, reused from the recurring-charge scanner so the overlap
   /// finder can run over commitments and scanned charges alike.
-  category String @default("other")
+  category     String @default("other")
 
   /// Recurring cost in agorot. Null when the person does not know it yet —
   /// which must stay distinguishable from zero.
   monthlyMinor Int?
 
   /// When the term renews, if it does.
-  renewsOn DateTime?
+  renewsOn   DateTime?
   /// Days of written notice required to get out. Null when the contract does
   /// not state one: a customary value guessed here would produce a confident
   /// deadline that is wrong, and somebody would plan around it.
@@ -284,18 +279,18 @@ model Case {
   // Which full-service vertical this case belongs to (rule-pack key). Defaults
   // to "telecom" — the one proven full-service vertical — so every existing and
   // current case is unchanged; new verticals set it explicitly.
-  vertical         String @default("telecom")
-  provider         String // counterparty key within the vertical (cellcom, hapoalim…)
+  vertical          String  @default("telecom")
+  provider          String // counterparty key within the vertical (cellcom, hapoalim…)
   // Direct outreach address for a counterparty that is not a known company —
   // late-payment's counterparty is the user's own client, never in the
   // provider registry. Null for every registry-backed vertical, which keeps
   // resolving contact address from `provider` via providers.ts as before.
   counterpartyEmail String?
-  planDescription  String @default("")
+  planDescription   String  @default("")
   // Family mode: an optional label for whom this check is run ("אמא", "אבא"…).
   // Empty = the account owner themselves. Purely a display grouping; the case
   // stays owned by, and scoped to, the userId — no extra access surface.
-  beneficiaryLabel String @default("")
+  beneficiaryLabel  String  @default("")
 
   // amounts in agorot
   amountOriginal Int // documented "before" amount, snapshotted at analysis time
@@ -316,7 +311,7 @@ model Case {
   /// The model that drafted this case's outreach, carried to `recordOutcome`
   /// the same way `strategyVariant` is. Null for drafts made before
   /// attribution, which must stay distinguishable from a real attribution.
-  drafterId       String?
+  drafterId         String?
   // When a de-identified StrategyOutcome row was written for this case.
   // Idempotency only — the Outcome table itself never stores caseId.
   outcomeRecordedAt DateTime?
@@ -337,11 +332,12 @@ model Case {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  authorization Authorization?
-  savingsProof  SavingsProof?
+  authorization  Authorization?
+  savingsProof   SavingsProof?
   promisedCredit PromisedCreditRecord?
-  fee           Fee?
-  outbox        Outbox[]
+  fee            Fee?
+  outbox         Outbox[]
+  events         ZakaiEvent[]
 
   @@index([userId])
 }
@@ -376,19 +372,19 @@ model Authorization {
   // Human-verifiable public code, e.g. ZK-7Q4K-2M9P. Unique per authorization.
   code String @unique
 
-  principalName  String
-  principalPhone String // E.164; shown masked on the public verify page
-  principalEmail String // shown masked on the public verify page
-  provider       String
-  scope          String
+  principalName      String
+  principalPhone     String // E.164; shown masked on the public verify page
+  principalEmail     String // shown masked on the public verify page
+  provider           String
+  scope              String
   /// JWT `aud` at mandate issue time (institution slug for banks).
-  mandateAudience String?
+  mandateAudience    String?
   /// Ed25519 mandate `jti` when machine mandate was issued at authorization time.
-  mandateJti      String? @unique
+  mandateJti         String? @unique
   /// Compact JWS for institution inbound JSON attachment (same token as jti).
-  mandateJws      String? @db.Text
+  mandateJws         String? @db.Text
   /// Bit position in the signed status list — allocated at issue, flipped on revoke.
-  mandateStatusIndex Int? @unique
+  mandateStatusIndex Int?    @unique
 
   status    AuthorizationStatus @default(ACTIVE)
   issuedAt  DateTime            @default(now())
@@ -434,7 +430,7 @@ model SavingsProof {
   originalAmount Int // agorot, copied from Case at record time
   newAmount      Int // agorot
   savingMonthly  Int // agorot, = max(0, original - new)
-  source         String   @default("manual") // how the new amount was obtained
+  source         String  @default("manual") // how the new amount was obtained
   /// True when the person told us they were paid, rather than the pipeline
   /// documenting it from a provider reply.
   ///
@@ -444,7 +440,7 @@ model SavingsProof {
   /// toward the person's own record and the public wall, and it never produces
   /// a chargeable Fee — eighteen percent of a number somebody typed is not a
   /// fee this company could defend if asked to.
-  selfReported   Boolean  @default(false)
+  selfReported   Boolean @default(false)
 
   /// How many billing cycles have actually been confirmed for this saving.
   ///
@@ -454,11 +450,11 @@ model SavingsProof {
   /// grow on evidence instead of on the flat ×12 the outcome graph used to
   /// assert off a single observation. Meaningless for lump recoveries, which
   /// arrive once and whole.
-  confirmedCycles Int      @default(1)
+  confirmedCycles Int       @default(1)
   /// When a later bill last confirmed the saving was still in place.
   lastConfirmedAt DateTime?
 
-  recordedAt     DateTime @default(now())
+  recordedAt DateTime @default(now())
 
   /// The settlement as a signed, independently verifiable object.
   ///
@@ -471,7 +467,7 @@ model SavingsProof {
   /// Nullable because signing needs MANDATE_SIGNING_JWK, and a deployment
   /// without it must still be able to record a saving. An unsigned proof is a
   /// weaker artifact, not a lost one.
-  settlementJws  String?  @db.Text
+  settlementJws String? @db.Text
 
   @@index([selfReported, recordedAt])
 }
@@ -636,7 +632,6 @@ enum PlanOrderStatus {
  * for that). Exists so "who tried what, when" is answerable for the handful
  * of events where that answer actually matters — auth attempts, password
  * resets, admin dashboard access — without grepping Vercel logs by hand.
- *
  * No relation to User on purpose: userId is genuinely unknown for a failed
  * login against an email with no account, and an audit trail that vanishes
  * the moment the account it's about gets deleted defeats its own purpose.
@@ -786,14 +781,14 @@ model CollectiveIntentSignal {
 }
 
 model AutopilotSourceSnapshot {
-  sourceUrl   String   @id
-  market      String
-  rightId     String
-  contentHash String
-  lastSnippet String?  @db.Text
+  sourceUrl     String    @id
+  market        String
+  rightId       String
+  contentHash   String
+  lastSnippet   String?   @db.Text
   lastChangedAt DateTime?
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
+  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
 }
 
 model AutopilotRun {
@@ -861,10 +856,10 @@ model EmailVerification {
 /// Conflating them would mean vouching for an identity check nobody performed,
 /// which is the failure a trust network does not recover from.
 model AgentClient {
-  id     String @id @default(cuid())
+  id          String @id @default(cuid())
   /// Stable public identifier the person sees named on the consent screen.
-  slug   String @unique
-  name   String
+  slug        String @unique
+  name        String
   /// Shown to the person under the name — who this is, in their words.
   description String @default("")
 
@@ -901,7 +896,7 @@ model AgentAuthorizationRequest {
   grantSeconds Int      @default(2592000)
 
   /// pending | approved | denied | exchanged | expired
-  status String @default("pending")
+  status String  @default("pending")
   /// Set the moment a person answers. Null means nobody has.
   userId String?
 
@@ -948,21 +943,21 @@ model DelegatedIssuer {
 /// not something that should ever be fully automatic), but the applicant never
 /// has to locate that human first.
 model DelegationApplication {
-  id               String   @id @default(cuid())
+  id              String   @id @default(cuid())
   /// Proposed, not yet reserved — uniqueness against DelegatedIssuer is
   /// enforced at approval time, not here, so two applicants proposing the same
   /// name is a normal event, not a race to fail loudly over.
-  slug             String
-  name             String
-  contactEmail     String
-  useCase          String
+  slug            String
+  name            String
+  contactEmail    String
+  useCase         String
   /// Validated against the real scope catalogue at submission time — an
   /// applicant learns immediately if a requested scope doesn't exist or is
   /// categorically forbidden, rather than waiting days for a human to say so.
-  requestedScopes  String[]
-  status           String   @default("pending") // pending | approved | rejected
-  reviewNote       String   @default("")
-  createdAt        DateTime @default(now())
+  requestedScopes String[]
+  status          String   @default("pending") // pending | approved | rejected
+  reviewNote      String   @default("")
+  createdAt       DateTime @default(now())
 
   @@index([status, createdAt])
 }
@@ -1147,10 +1142,10 @@ model ReferenceVerifier {
  */
 model WidgetKey {
   /// Opaque public key, e.g. pk_live_…
-  key       String   @id
+  key       String    @id
   /// Allowed Origin hostname (exact or subdomain of this apex).
   domain    String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   revokedAt DateTime?
 
   @@index([domain])
@@ -1169,10 +1164,10 @@ model WidgetKey {
  */
 model OracleKey {
   /// Opaque secret key, e.g. ok_live_…
-  key       String   @id
+  key       String    @id
   /// Customer/institution label — never a domain, this is a server-to-server key.
   label     String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   revokedAt DateTime?
 
   @@index([revokedAt])
@@ -1194,7 +1189,7 @@ model OracleKey {
  */
 model RegisteredIssuerRow {
   /// The exact `iss` claim its mandates carry — the natural key.
-  iss           String    @id
+  iss           String   @id
   name          String
   /// Where its public keys live. Institutions fetch and cache this.
   jwksUri       String
@@ -1203,9 +1198,9 @@ model RegisteredIssuerRow {
   /// Always a subset of the protocol's scopes — enforced at admission via validateIssuer().
   allowedScopes String[]
   /// active | suspended | withdrawn — never "sandbox" (that stays env/fixture-only).
-  status        String    @default("active")
-  admittedAt    DateTime  @default(now())
-  note          String    @default("")
+  status        String   @default("active")
+  admittedAt    DateTime @default(now())
+  note          String   @default("")
 
   @@index([status])
 }
@@ -1220,10 +1215,10 @@ model RegisteredIssuerRow {
  */
 model EvidenceKey {
   /// Opaque secret key, e.g. ev_live_…
-  key       String   @id
+  key       String    @id
   /// Customer/institution label — never a domain, this is a server-to-server key.
   label     String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
   revokedAt DateTime?
 
   @@index([revokedAt])
@@ -1239,20 +1234,20 @@ model EvidenceKey {
 // server-side because OCR needs the model, but nothing beyond the extracted
 // fields is persisted).
 model Receipt {
-  id       String @id @default(cuid())
-  userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   vendor       String
   amountAgorot Int
-  currency     String @default("ILS")
+  currency     String    @default("ILS")
   // The date printed on the receipt, if the model could read one — not when
   // the row was created. Null when unreadable; duplicate detection falls back
   // to createdAt for those.
   occurredAt   DateTime?
   category     String // "business_deductible" | "recurring" | "personal" | "other"
-  hasVat       Boolean @default(false)
-  source       String  @default("photo") // "photo" | "email" | "whatsapp"
+  hasVat       Boolean   @default(false)
+  source       String    @default("photo") // "photo" | "email" | "whatsapp"
 
   // Set when detectDuplicateReceipt (src/lib/receipts.ts) flags this receipt
   // against an earlier one for the same user — same vendor, same amount,
@@ -1281,4 +1276,56 @@ model ConnectedInboxInterest {
   createdAt DateTime @default(now())
 
   @@unique([userId, provider])
+}
+
+/// The event spine — append-only, internal, never published.
+///
+/// Every other table here records the CURRENT state of something: a case is
+/// SENT, a proof exists, a fee is paid. State that is updated in place cannot
+/// answer the questions the intelligence layer is built on — how long that
+/// institution took to answer last time, which tactic preceded a settlement,
+/// whether a practice appeared at one company before it appeared at four
+/// others. Those answers are only ever derivable from a record of what
+/// happened, in order, that nothing later overwrites. It also cannot be
+/// reconstructed after the fact, which is why this exists before any engine
+/// that consumes it.
+///
+/// THE BOUNDARY, and it is not negotiable: this table may reference a case,
+/// so it is personal data and stays internal. `StrategyOutcome` remains the
+/// only publishable outcome record and keeps its de-identification rule. No
+/// route serves rows from here, and nothing aggregated out of it may be sold
+/// to an institution in a form that identifies the person claiming against
+/// them — the moment that happens the trust this whole dataset depends on is
+/// gone, and with it the dataset.
+///
+/// Append-only by convention AND by construction: there is no updatedAt and
+/// no code path that updates a row. A correction is a new event, never an
+/// edit — an edited history is not a history.
+model ZakaiEvent {
+  id String @id @default(cuid())
+
+  /// Closed set, validated in src/lib/events/spine.ts before any write.
+  eventType String
+
+  /// Nullable on purpose: a policy observation can precede any case, and an
+  /// event that cannot be attached to a case is still worth keeping.
+  caseId String?
+  case   Case?   @relation(fields: [caseId], references: [id], onDelete: SetNull)
+
+  /// Normalised counterparty key — never free text, so grouping is possible.
+  institution String?
+  domain      String?
+
+  /// Event-specific fields. Money inside is integer agorot, like everywhere.
+  payload Json
+
+  /// When it actually happened, which is not always when we heard about it —
+  /// a provider's reply is dated by the provider, not by our webhook.
+  occurredAt DateTime
+  /// When this row was written. The gap between the two is itself a signal.
+  recordedAt DateTime @default(now())
+
+  @@index([eventType, occurredAt])
+  @@index([institution, occurredAt])
+  @@index([caseId])
 }

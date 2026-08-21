@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { recordOutcome, daysBetween } from "@/lib/strategy/store";
+import { recordEvent } from "@/lib/events/spine";
 import { rightIdForVertical } from "@/lib/rightsGraph/registry";
 import type { StrategyContext } from "@/lib/strategy/types";
 import { documentedRecoveryMinor } from "@/lib/fee";
@@ -113,6 +114,32 @@ export async function commitCaseLearningSignal(input: {
       where: { id: input.caseId },
       data: { outcomeRecordedAt: new Date() },
     });
+
+    /*
+      The same settlement, written a second time and for a different purpose.
+      StrategyOutcome above is the publishable, de-identified row the outcome
+      graph learns from. This one is the internal history: it keeps the case
+      link, so questions like "how long did this institution take, the last
+      four times" stay answerable later. It is fail-soft by construction — a
+      spine that could fail a settled case would be worse than no spine.
+    */
+    await recordEvent({
+      eventType: "outcome.recorded",
+      caseId: input.caseId,
+      institution: input.context.counterparty,
+      domain: kase.vertical,
+      payload: {
+        finalAmountAgorot: input.recoveredMinor > 0 ? input.recoveredMinor : null,
+        finalStatus: input.paid
+          ? input.recoveredMinor > 0
+            ? "won"
+            : "partial"
+          : "lost",
+        totalDurationDays: Number.isFinite(input.days) && input.days >= 0 ? input.days : null,
+        tacticsUsed: [variantId, ...(escalationStage ? [escalationStage] : [])],
+      },
+    });
+
     return { recorded: true };
   } catch (err) {
     console.warn("[learning] commit failed:", err);

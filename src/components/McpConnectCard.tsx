@@ -31,9 +31,17 @@ export function McpConnectCard({ origin }: { origin: string }) {
     <Card className="p-6 mb-4 border-[rgba(62,198,255,0.4)] bg-[rgba(62,198,255,0.06)]">
       <h2 className="font-display text-h4 mt-0 mb-2">{t("title")}</h2>
       <p className="text-ink-soft text-body leading-relaxed mt-0 mb-3">{t("intro")}</p>
+      {/*
+        tabIndex + a group role: a horizontally scrollable block is
+        unreachable by keyboard without them, which axe reports as a serious
+        WCAG failure and which is exactly true for anyone not using a mouse.
+      */}
       <pre
         dir="ltr"
-        className="overflow-x-auto rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.28)] p-3.5 text-caption leading-relaxed m-0"
+        tabIndex={0}
+        role="group"
+        aria-label={t("title")}
+        className="overflow-x-auto rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.28)] p-3.5 text-caption leading-relaxed m-0 focus:outline-none focus:ring-2 focus:ring-[rgba(63,203,155,0.5)]"
       >
         {snippet}
       </pre>

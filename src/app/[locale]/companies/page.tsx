@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { VerticalPageShell } from "@/components/VerticalPageShell";
+import { RegulatorDirectory } from "@/components/RegulatorDirectory";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui";
@@ -110,6 +111,8 @@ export default async function CompaniesPage({
           </Link>
         </div>
       )}
+
+      <RegulatorDirectory he={locale === "he" || locale === "ar"} locale={locale} />
 
       <p className="mt-8 text-[11.5px] text-[rgba(147,166,165,0.85)] leading-relaxed max-w-[600px]">
         {t("companies.disclaimer")}

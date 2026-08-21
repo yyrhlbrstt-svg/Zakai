@@ -3937,7 +3937,16 @@
     "checkCategoriesTitle": "Categories where you might be owed money from this provider",
     "startCheck": "Start a check",
     "bestApproachTitle": "What worked best against this provider",
-    "bestApproachFact": "The \"{label}\" approach — succeeded in {pct}% of {trials} documented cases."
+    "bestApproachFact": "The \"{label}\" approach — succeeded in {pct}% of {trials} documented cases.",
+    "dirTitle": "Where a written demand goes — and who supervises",
+    "dirIntro": "The bodies that supervise the companies billing you, each with its official intake channel and the date it was last verified. Where a channel is unverified, no address is shown.",
+    "dirForm": "Official intake form",
+    "dirUnverified": "Intake channel not yet verified — no address shown.",
+    "dirSource": "Official source",
+    "dirVerified": "Verified:",
+    "dirNextTitle": "Complained and heard nothing?",
+    "dirNextBody": "The tool counts the days since your complaint, says whether you may escalate yet, and drafts the letter to the supervising body.",
+    "dirNextCta": "Open the escalation clock"
   },
   "deposit": {
     "metaTitle": "Rental deposit refund — landlord won't return it? | Zakai",
