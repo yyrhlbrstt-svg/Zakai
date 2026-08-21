@@ -5,6 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Card, Button, Input, Select, Textarea } from "@/components/ui";
 import { ESCALATION_BODIES, buildEscalationLetter, type ComplaintCategory } from "@/lib/complaintEscalation";
+import {
+  computeComplaintClock,
+  parseComplaintDate,
+  BANK_EXTENDED_WAIT_DAYS,
+} from "@/lib/complaintClock";
 import { MissingFields } from "@/components/MissingFields";
 import { NextStep } from "@/components/NextStep";
 import { OutcomeReport } from "@/components/OutcomeReport";
@@ -44,6 +49,17 @@ export function ComplaintEscalationTool() {
   const body = ESCALATION_BODIES[category];
 
   const canGenerate = company.trim().length > 0 && summary.trim().length > 0;
+
+  /*
+    The escalation clock. People do not know whether they are allowed to
+    escalate yet, so they wait indefinitely — which is exactly what the
+    company is counting on. A period is only ever shown where this repo
+    carries a sourced figure for it (banking: 45/60 days); elsewhere the
+    honest answer is that nothing is stopping them today.
+  */
+  const clockDate = complaintDate.trim() ? parseComplaintDate(complaintDate) : null;
+  const clock = clockDate ? computeComplaintClock(category, clockDate) : null;
+  const clockUnreadable = complaintDate.trim().length > 0 && clockDate === null;
 
   const letterPreview = useMemo(() => {
     if (!canGenerate) return "";
@@ -93,6 +109,35 @@ export function ComplaintEscalationTool() {
             </a>
           )}
         </div>
+
+        {clock && (
+          <div
+            className={
+              "rounded-xl border p-4 " +
+              (clock.waitDays === null || clock.waitPassed
+                ? "border-[rgba(63,203,155,0.35)] bg-[rgba(63,203,155,0.07)]"
+                : "border-[rgba(240,180,92,0.35)] bg-[rgba(240,180,92,0.07)]")
+            }
+          >
+            <div className="font-extrabold text-body">
+              {t("clockElapsed", { days: clock.daysElapsed })}
+            </div>
+            <p className="text-caption text-ink-soft mt-1.5 mb-0 leading-relaxed">
+              {clock.waitDays === null
+                ? t("clockNoPeriod")
+                : clock.waitPassed
+                  ? t("clockReady", { wait: clock.waitDays })
+                  : t("clockWaiting", {
+                      wait: clock.waitDays,
+                      extended: BANK_EXTENDED_WAIT_DAYS,
+                      remaining: clock.daysRemaining,
+                    })}
+            </p>
+          </div>
+        )}
+        {clockUnreadable && (
+          <p className="text-caption text-amber m-0">{t("clockBadDate")}</p>
+        )}
 
         <label className="block">
           <span className="text-body text-ink-soft block mb-1.5">{t("nameQ")}</span>
