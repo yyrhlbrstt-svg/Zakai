@@ -43,7 +43,22 @@ export function DeadlineTracker() {
   );
 
   async function load() {
-    const res = await fetch("/api/deadlines");
+    /*
+      The !res.ok branch below already answers a server error. What it could
+      not answer was the fetch THROWING — a dropped connection, an offline
+      phone — because then nothing below runs at all: `rows` stays null, both
+      render branches are guarded on it, and the person sits in front of
+      blank space where their own deadlines should be, forever. On a phone
+      with weak reception that is the common case, not the rare one.
+    */
+    let res: Response;
+    try {
+      res = await fetch("/api/deadlines");
+    } catch {
+      setLoadErr(t("loadFailed"));
+      setRows([]);
+      return;
+    }
     if (res.status === 401) {
       router.replace("/login?return=/deadlines");
       return;
@@ -63,7 +78,12 @@ export function DeadlineTracker() {
       return;
     }
     setLoadErr(null);
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
+    if (!data || !Array.isArray(data.deadlines)) {
+      setLoadErr(t("loadFailed"));
+      setRows([]);
+      return;
+    }
     setRows(data.deadlines);
   }
 

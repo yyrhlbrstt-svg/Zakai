@@ -95,7 +95,16 @@ export function Button({
     <button
       type="button"
       aria-disabled="true"
-      className={`${base} ${styles} ${className} opacity-40`}
+      /*
+        Dimmed, but not to the point of looking broken. At 40% this read as a
+        dead control — which is exactly the report that started this work:
+        people saw a grey button, tapped nothing, and concluded the product
+        did not work. It answers every tap now, so it should look like
+        something worth tapping: legible, clearly not-yet-ready, and back to
+        full strength on hover so a hesitating finger gets a reply before it
+        even lands.
+      */
+      className={`${base} ${styles} ${className} opacity-70 hover:opacity-100`}
       onClick={(e) => {
         e.preventDefault();
         const hint = document.querySelector<HTMLElement>("[data-missing-fields]");

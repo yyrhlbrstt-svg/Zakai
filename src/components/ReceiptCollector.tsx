@@ -151,7 +151,12 @@ export function ReceiptCollector({
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => onUpload(e.target.files?.[0])}
+            onChange={(e) => {
+              // Same reason: without this, re-picking one file does nothing.
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              onUpload(f);
+            }}
           />
         </div>
         {tooBig && (

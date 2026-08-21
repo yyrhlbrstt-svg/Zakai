@@ -55,6 +55,7 @@ const COPY = {
     writeCancellation: "צור מכתב ביטול",
     emptyAct: "כבר יודעים על חוזה שרוצים לצאת ממנו?",
     loadFailed: "לא הצלחנו לטעון את הרשימה. רעננו את הדף.",
+    deleteFailed: "המחיקה לא הושלמה — הפריט עדיין קיים. נסו שוב.",
     signedOutTitle: "צריך להתחבר כדי לראות את הרישום",
     signedOutSub: "הרישום שמור לחשבון שלך בלבד. אם כבר עכשיו יש חוזה שרוצים לצאת ממנו — אפשר לייצר מכתב ביטול בלי להתחבר.",
     signIn: "התחברות",
@@ -92,6 +93,7 @@ const COPY = {
     writeCancellation: "Write cancellation letter",
     emptyAct: "Already know of a contract you want out of?",
     loadFailed: "We could not load the list. Refresh the page.",
+    deleteFailed: "The delete did not complete — the item is still there. Try again.",
     signedOutTitle: "Sign in to see your record",
     signedOutSub: "The record is kept on your account only. If you already have a contract you want out of, you can write a cancellation letter without signing in.",
     signIn: "Sign in",
@@ -207,10 +209,23 @@ export function CommitmentsBoard({ locale }: { locale: string }) {
 
   async function end(id: string) {
     setBusy(true);
+    setErr("");
     try {
-      await fetch(`/api/commitments/${id}`, { method: "DELETE" });
+      /*
+        A delete that fails used to say nothing at all: the row reappeared on
+        reload and the person tapped again, and again. Silence is the worst
+        answer here, because the obvious reading of it is that the app is
+        broken rather than that one request did not land.
+      */
+      const res = await fetch(`/api/commitments/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setErr(c.deleteFailed);
+        return;
+      }
       await load();
       router.refresh();
+    } catch {
+      setErr(c.deleteFailed);
     } finally {
       setBusy(false);
     }
