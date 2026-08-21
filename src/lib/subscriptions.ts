@@ -283,6 +283,24 @@ function isMonthlyGap(days: number): boolean {
  * of them is not. The other two components refine a number that occurrences
  * has already bounded, which is why 2 occurrences cannot reach the speaking
  * threshold no matter how tidy the amounts are.
+ *
+ * WHAT IS DELIBERATELY NOT IN HERE, AND WHAT WOULD SETTLE IT
+ *
+ * Merchant identity. A company in the provider registry bills recurringly by
+ * construction, so seeing it twice is stronger evidence than seeing an unknown
+ * merchant twice — which argues for a bounded prior that could lift a tidy
+ * 2-sighting case over the bar. It is left out on purpose, for two reasons.
+ *
+ * The prior is not uniform across the registry: a streaming service has almost
+ * no one-off charges, while a telecom sells handsets. Guessing per-merchant
+ * billing models with no data is exactly the thumb on the scale the gate
+ * exists to prevent, and it would arrive dressed as a detector improvement.
+ *
+ * The evidence that settles it already has an instrument: alert-to-outcome
+ * (`src/lib/intel/alertToOutcome.ts`). If claims about registry merchants
+ * prove at the same rate as the rest, the prior is real and belongs here with
+ * a measured weight. If they prove worse, it never did. Add it when the number
+ * exists, not before.
  */
 export function recurringConfidence(
   amountsAgorot: readonly number[],

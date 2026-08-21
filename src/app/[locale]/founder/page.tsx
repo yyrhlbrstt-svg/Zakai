@@ -620,6 +620,12 @@ export default async function FounderPage({
             </div>
           </div>
         </div>
+        {alerts.truncated && (
+          <p className="text-caption text-amber mt-4 mb-0 leading-relaxed">
+            נקראו רק חלק מהתוצאות בחלון הזה — «הוכח בכסף» הוא רצפה, לא סך הכול. הגיע הזמן להזיז את
+            הצבירה ל-SQL.
+          </p>
+        )}
         <p className="text-caption text-ink-soft mt-4 mb-0 leading-relaxed">
           {alertHealth === "unknown"
             ? "אין עדיין די אירועים ליחס. המספרים למעלה אמיתיים; האחוזים ימתינו לנפח."
