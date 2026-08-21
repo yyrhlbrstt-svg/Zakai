@@ -47,6 +47,7 @@ export function StatementScan({
   referralCode?: string;
 }) {
   const t = useTranslations("scan");
+  const tFooter = useTranslations("footer");
   const locale = useLocale();
   const he = locale === "he" || locale === "ar";
   const tIcomponents_StatementScan = useTranslations("inline_components_StatementScan");
@@ -181,7 +182,12 @@ export function StatementScan({
     <div className="pb-28">
       <CapabilityNotice mailLive={mailLive} aiLive={screenshotEnabled} />
       <Card className="p-6">
-        <PrivacyNote className="mb-5">{t("privacyNote")}</PrivacyNote>
+        {/* Same reasoning as the money hub: the promise carries a way to
+            check it, because this is the screen where somebody is deciding
+            whether to hand over a bank statement. */}
+        <PrivacyNote className="mb-5" learnMore={{ href: `/${locale}/trust`, label: tFooter("trust") }}>
+          {t("privacyNote")}
+        </PrivacyNote>
 
         <label className="block">
           <span className="text-[13.5px] text-ink-soft">{t("pasteLabel")}</span>

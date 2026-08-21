@@ -41,6 +41,7 @@ const copy: Record<string, Record<string, string>> = {
   he: {
     privacy:
       "אנחנו לא מבקשים ולא שומרים סיסמה לבנק. צילום מסך או קובץ תנועות — והניתוח אצלך במכשיר (או חילוץ מאובטח לצילום).",
+    trustLink: "אבטחה ואמון — מה בדיוק אפשר ומה לא",
     shotTitle: "הכי קל: צילום מסך מאפליקציית הבנק",
     shotSub: "פתח את רשימת החיובים / תנועות באפליקציה → צלם מסך → העלה כאן. זכאי יזהה חיובים קבועים.",
     shotBtn: "העלה צילום מסך",
@@ -95,6 +96,7 @@ const copy: Record<string, Record<string, string>> = {
   en: {
     privacy:
       "We never ask for or store your bank password. Screenshot or transaction file — analysis stays on-device.",
+    trustLink: "Security & trust — exactly what a Mandate can and cannot do",
     shotTitle: "Easiest: screenshot from your bank app",
     shotSub: "Open charges in the bank app → screenshot → upload here. Zakai finds recurring payments.",
     shotBtn: "Upload screenshot",
@@ -147,6 +149,7 @@ const copy: Record<string, Record<string, string>> = {
   },
   ar: {
     privacy: "لا نطلب كلمة مرور البنك.",
+    trustLink: "الأمان والثقة",
     shotTitle: "الأسهل: لقطة من تطبيق البنك",
     shotSub: "افتح الحركات → لقطة شاشة → ارفع هنا.",
     shotBtn: "رفع لقطة",
@@ -199,6 +202,7 @@ const copy: Record<string, Record<string, string>> = {
   },
   ru: {
     privacy: "Мы не просим пароль банка.",
+    trustLink: "Безопасность и доверие",
     shotTitle: "Проще всего: скрин из банковского приложения",
     shotSub: "Откройте операции → скрин → загрузите сюда.",
     shotBtn: "Загрузить скрин",
@@ -702,7 +706,12 @@ export function MoneyHub({
 
   return (
     <div className="flex flex-col gap-5 pb-28">
-      <PrivacyNote>{tx(locale, "privacy")}</PrivacyNote>
+      {/* The claim, and a way to check it. This note sits directly above the
+          upload; a reassurance a stranger cannot verify is worth nothing at
+          exactly the moment it is needed. */}
+      <PrivacyNote learnMore={{ href: `/${locale}/trust`, label: tx(locale, "trustLink") }}>
+        {tx(locale, "privacy")}
+      </PrivacyNote>
 
       {saved && !result && (
         <Card className="p-5">

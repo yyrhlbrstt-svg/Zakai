@@ -466,19 +466,51 @@ export function CheckboxChips<T extends string>({
  * same 🔒 emoji, just written twice. Extracted so the two can never drift,
  * and so the emoji-to-icon fix only had to happen once.
  */
+/**
+ * The safety line that sits directly above every upload.
+ *
+ * It used to be a claim with no way to check it — "we do not ask for or keep
+ * your bank password", full stop. That is the exact shape of promise this
+ * product exists to replace: the FTC's order against DoNotPay in February
+ * 2025 was not about a broken feature, it was about claims nobody had tested.
+ * A reassurance a stranger cannot verify is worth roughly nothing at the one
+ * moment it is needed, which is while they are deciding whether to photograph
+ * their bank statement.
+ *
+ * So the note can carry a way through to the page that shows its working —
+ * what a Mandate can and cannot authorise, the public key anyone can verify
+ * against, the fee that only exists after a documented saving. Optional,
+ * because a note beside a field that touches nothing sensitive does not need
+ * to send anybody anywhere.
+ */
 export function PrivacyNote({
   children,
   className = "",
+  learnMore,
 }: {
   children: React.ReactNode;
   className?: string;
+  learnMore?: { href: string; label: string };
 }) {
   return (
     <div
       className={`flex items-start gap-2.5 text-body text-emerald font-bold bg-[rgba(63,203,155,0.08)] border border-[rgba(63,203,155,0.25)] rounded-xl px-4 py-3 ${className}`}
     >
       <IconLock className="shrink-0 mt-0.5" />
-      <span>{children}</span>
+      <span>
+        {children}
+        {learnMore && (
+          <>
+            {" "}
+            <a
+              href={learnMore.href}
+              className="underline underline-offset-2 decoration-[rgba(63,203,155,0.5)] hover:decoration-[var(--emerald)]"
+            >
+              {learnMore.label} →
+            </a>
+          </>
+        )}
+      </span>
     </div>
   );
 }
