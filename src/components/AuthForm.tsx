@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { Card, Button, Input, Select, FieldError } from "@/components/ui";
+import { useLocalizedValidity } from "@/components/useLocalizedValidity";
 import { authSwitchHref, toolNameForReturnPath } from "@/lib/auth/returnReason";
 import { IconEye, IconEyeOff } from "@/components/Icon";
 
@@ -50,6 +51,8 @@ export function AuthForm({
   const locale = useLocale();
   const tc = useTranslations("common");
   const tl = useTranslations("legal");
+  /* The native validation bubble, in the page's language rather than the browser's. */
+  const validity = useLocalizedValidity();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = safeReturnPath(searchParams.get("return"));
@@ -135,7 +138,7 @@ export function AuthForm({
         </div>
       )}
       <Card className="p-6">
-        <form onSubmit={submit} className="flex flex-col gap-3.5">
+        <form onSubmit={submit} className="flex flex-col gap-3.5" {...validity}>
           {mode === "signup" && (
             <label className="block">
               <span className="text-[13.5px] text-ink-soft">{t("name")}</span>

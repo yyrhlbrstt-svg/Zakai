@@ -5,6 +5,10 @@
 **Mandate for this pass:** audit and report only. Nothing was fixed while sweeping, including things that were
 one line away from a fix.
 
+> **Status, updated after the sweep closed:** every finding below has since been fixed and re-verified in a
+> browser against a fresh production build. The findings are kept as written — a report that quietly edits
+> itself once the bugs are gone is worth nothing next time. See §5.
+
 ---
 
 ## 1. What was actually measured
@@ -45,7 +49,6 @@ Sorted by severity, worst first. No P0 was found.
 | `/flights` | he, en | 390×844 | "רק הכן מכתב להעתקה" / "Just generate letter to copy" — `FlightRightsChecker.tsx:425‑428` | Same behaviour as every other blocked button in the app: tapping it scrolls to the checklist and says what is missing | A raw `<button disabled>` that bypasses the shared `Button`. Measured: `disabled=true`, `opacity 0.45`, `cursor: default`; force-clicking changes scroll position by 0px and page text by 0 characters. It is the dead grey button the shared component was reworked to abolish — and the primary CTA directly above it on the same card *is* the answering kind, so the two behave differently side by side | none | **P2** |
 | `/login`, `/signup`, `/contact` | he (and any RTL locale) | 390×844 | submit with empty fields | A message in the page's language | No in-page validation message. Every required field relies on the **native browser bubble**, whose language follows the browser UI rather than the page — it rendered `"Please fill out this field."` over a Hebrew form here. Only the first invalid field gets a bubble, and it disappears on scroll. Where the app validates *itself* it is correct and in Hebrew ("יש לאשר את התנאים למעלה", "חסר אימייל ליעד") — the gap is only the native-only fields | none | **P3** |
 | `/protocol` | he, ar | both | `<ul className="m-0 pl-5">` — `protocol/page.tsx:125` | Indent on the start side | Measured in the browser: `direction: rtl`, `padding-left: 20px`, `padding-right: 0`, `list-style: none`. The gutter sits on the wrong side of an RTL list. `fairness-certified/page.tsx:50` carries the same class but did not render in this pass. `registry/page.tsx:79` also uses `pl-5` and is **not** a bug — that block is deliberately `dir=ltr` for machine-readable scope names | none | **P3** |
-| `/bank-fees` | he | 390×844 | "4 ספרות אחרונות של החשבון" | Four digits, or a refusal | Accepts arbitrary text — `"בדיקה"` was submitted and the case opened with `200`. Nothing numeric is enforced client- or server-side on that field | none | **P3** |
 
 ---
 
@@ -84,5 +87,27 @@ Reported because a sweep that only lists complaints tells the founder nothing ab
 - `src/app/[locale]/protocol/page.tsx:170` calls `toLocaleString()` with no locale — the same latent bug as the
   P1 above. It did not fire in this sweep (it is a server component and the value was 0), which is luck, not
   safety.
+- **A finding withdrawn.** An earlier revision of this report listed the "4 ספרות אחרונות של החשבון" field
+  on `/bank-fees` as accepting arbitrary text. That was wrong, and the error was mine: the sweep log recorded
+  what the probe *typed*, not what the field kept. Re-tested directly — typing Hebrew leaves the field empty and
+  typing `12345678` leaves `1234`. `BankFeesTool.tsx:149` already sanitizes with
+  `replace(/\D/g, "").slice(0, 4)`. Nothing to fix.
 - Three other raw `<button disabled>` exist (`EnablePush`, `FeePayButton`, `TrackRecordCard`) and are **not**
   findings: all three are `disabled={busy}`, i.e. in-flight double-submit protection, which is correct.
+
+---
+
+## 5. Fixed and re-verified (after the report was delivered)
+
+Re-measured against a fresh `next build`, in the same browser and viewports that found each problem.
+
+| Finding | Fix | Re-verified |
+|---|---|---|
+| P1 hydration on `/credit-card` | `CreditCardTool.tsx` passes `bcp47[locale]` to both `toLocaleString` calls. `protocol/page.tsx:175` had the same latent call and got the same fix | **0** page errors on `/credit-card` in de, fr, ru, he and en (was 6 errors across de/fr/ru) |
+| Regression guard | New ratchet `src/lib/localeFormatting.test.ts` fails CI on any `toLocaleString()` with no locale under `src/app` or `src/components`. It strips comments before scanning, so the comments explaining the rule do not trip it | Passing; set at flat zero, not a countdown — there is no legitimate reason to ask the runtime what language it feels like today |
+| P2 signed-out 401s | `/score` mounts `VigilWatchCard` only with a session; `CommitmentsBoard` takes `signedIn` and skips the doomed fetch, reaching the same signed-out state without the round trip; `/deadlines` gates on the server with `redirect()` instead of painting, fetching, being told 401 and *then* redirecting | `/commitments` and `/score`: **0** failed requests, **0** console errors. `/deadlines` lands on `/he/login` with nothing having failed |
+| P2 `/flights` dead button | The blocked-button behaviour is now `explainBlocked()`, exported from `ui.tsx` and shared rather than copied. The copy-only button keeps its quiet text-link look but is `aria-disabled` instead of natively `disabled`, and calls it | Tapping it now scrolls (1697 → 1534) and **flashes the missing-fields checklist**. `disabled: false`, `aria-disabled: true`, opacity 0.7 — matching the primary CTA beside it |
+| P3 native validation language | New `useLocalizedValidity()` hook sets `setCustomValidity` from the page's own catalogue and clears it on every keystroke, so a field cannot get stuck invalid. Wired into `AuthForm` (login + signup) and `ContactForm` | On a browser set to **en-US**, `/he/login` now answers an empty field with **"שדה חובה"**, and the field validates clean again after typing |
+| P3 RTL list indent | `pl-5` → `ps-5` on `/protocol` and `/fairness-certified`. `/registry` keeps `pl-5` and gained a comment saying why: that block is deliberately `dir=ltr` | Whole tree now has exactly one `pl-5`, and it is the correct one |
+
+`npx vitest run`: **2,965 passed, 88 skipped**. `npx next build`: clean. `npx tsc --noEmit`: clean.

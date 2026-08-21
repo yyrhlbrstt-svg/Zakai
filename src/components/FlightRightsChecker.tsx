@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter, Link } from "@/i18n/routing";
 import { hasOutreachEmail, redirectIfOpenLoop } from "@/lib/openLoopClient";
-import { Card, Button, Input, Select, Textarea, RadioChips } from "@/components/ui";
+import { Card, Button, Input, Select, Textarea, RadioChips, explainBlocked } from "@/components/ui";
 import { MissingFields } from "@/components/MissingFields";
 import { OutcomeReport } from "@/components/OutcomeReport";
 import { VerticalOutcomeStat } from "@/components/VerticalOutcomeStat";
@@ -138,6 +138,26 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
   const formComplete =
     Object.values(form).every((v) => v.trim().length > 0) &&
     (Boolean(knownAirlineInbox) || hasOutreachEmail(airlineEmail));
+  /** Named once so both actions on the card agree about when they are blocked. */
+  const blocked = !formComplete || busy;
+
+  /** The copy-only path: draft the letter here, the passenger sends it. */
+  function writeLetterOnly() {
+    setLetter(
+      buildFlightDemandLetter({
+        passengerName: form.name,
+        airline: form.airline,
+        flightNumber: form.flightNumber,
+        flightDate: form.flightDate,
+        route: form.route,
+        jurisdiction,
+        disruption:
+          kind === "cancelled"
+            ? { kind, noticeDaysAhead: shortNotice ? 0 : 14, tier }
+            : { kind, delayHours: isEU ? euDelay : ilDelay, tier },
+      }),
+    );
+  }
 
   async function sendWithAgent() {
     setError(null);
@@ -407,7 +427,7 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                     dashboard"). Nobody landed here to open a case. */}
                 <Button
                   className="!px-5 !py-3 !text-lead"
-                  disabled={!formComplete || busy}
+                  disabled={blocked}
                   onClick={sendWithAgent}
                 >
                   {busy
@@ -422,30 +442,24 @@ export function FlightRightsChecker({ bcp47, stat }: { bcp47: string; stat?: Sta
                 <p className="text-caption text-ink-soft m-0 leading-snug text-center">
                   {t("letter.nextStep")}
                 </p>
+                {/*
+                  Blocked, not dead. This was the one control in the whole
+                  2026-08-21 QA sweep that failed for real: a raw
+                  <button disabled> that bypassed <Button>, so it dimmed to 45%
+                  and answered nothing on tap — while the primary CTA directly
+                  above it, on the same card, explained itself every time. Two
+                  blocked buttons side by side behaving differently is worse
+                  than either behaviour on its own. It keeps its quiet text-link
+                  look and borrows the shared explanation.
+                */}
                 <button
                   type="button"
-                  disabled={!formComplete || busy}
-                  className="mt-1 self-center bg-transparent border-0 p-0 text-caption text-ink-soft underline cursor-pointer disabled:opacity-45 disabled:cursor-default"
-                  onClick={() =>
-                    setLetter(
-                      buildFlightDemandLetter({
-                        passengerName: form.name,
-                        airline: form.airline,
-                        flightNumber: form.flightNumber,
-                        flightDate: form.flightDate,
-                        route: form.route,
-                        jurisdiction,
-                        disruption:
-                          kind === "cancelled"
-                            ? { kind, noticeDaysAhead: shortNotice ? 0 : 14, tier }
-                            : {
-                                kind,
-                                delayHours: isEU ? euDelay : ilDelay,
-                                tier,
-                              },
-                      }),
-                    )
+                  aria-disabled={blocked}
+                  className={
+                    "mt-1 self-center bg-transparent border-0 p-0 text-caption text-ink-soft underline cursor-pointer " +
+                    (blocked ? "opacity-70 hover:opacity-100" : "")
                   }
+                  onClick={(e) => (blocked ? explainBlocked(e) : writeLetterOnly())}
                 >
                   {tIcomponents_FlightRightsChecker("t_b4c9b341")}
                 </button>
