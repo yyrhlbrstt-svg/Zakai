@@ -309,6 +309,10 @@ export function CheckFlow({
         return;
       }
       setStage("verify");
+    } catch {
+      // try/finally without a catch reset `busy` but told the person nothing:
+      // they pressed approve, the request died, and the screen sat unchanged.
+      setApproveErr(tFlow("errorGeneric"));
     } finally {
       setBusy(false);
     }
@@ -317,7 +321,14 @@ export function CheckFlow({
   async function sendCode() {
     if (!rec) return;
     setOwnErr(null);
-    const res = await fetch(`/api/cases/${rec.caseId}/ownership/send`, { method: "POST" });
+    // A thrown fetch used to leave this silent: no code, no error, no clue.
+    let res: Response;
+    try {
+      res = await fetch(`/api/cases/${rec.caseId}/ownership/send`, { method: "POST" });
+    } catch {
+      setOwnErr("genericError");
+      return;
+    }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       if (data.error === "cooldown") {
@@ -344,11 +355,18 @@ export function CheckFlow({
   async function verifyCode() {
     if (!rec) return;
     setOwnErr(null);
-    const res = await fetch(`/api/cases/${rec.caseId}/ownership/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
-    });
+    // Same silence on the verify half: the button simply stopped answering.
+    let res: Response;
+    try {
+      res = await fetch(`/api/cases/${rec.caseId}/ownership/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+    } catch {
+      setOwnErr("genericError");
+      return;
+    }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       const map: Record<string, string> = {
@@ -370,7 +388,16 @@ export function CheckFlow({
     if (!rec) return;
     setOwnErr(null);
     setBusy(true);
-    const res = await fetch(`/api/cases/${rec.caseId}/authorization`, { method: "POST" });
+    // busy was set before an unguarded fetch: one throw and the button stayed
+    // disabled for the rest of the session, with nothing on screen to explain it.
+    let res: Response;
+    try {
+      res = await fetch(`/api/cases/${rec.caseId}/authorization`, { method: "POST" });
+    } catch {
+      setBusy(false);
+      setOwnErr("genericError");
+      return;
+    }
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) {
@@ -384,13 +411,27 @@ export function CheckFlow({
     if (!rec) return;
     setStage("sending");
     // Prefer express dispatch (issues Mandate if missing) over bare /send.
-    const res = await fetch(`/api/cases/${rec.caseId}/dispatch`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        counterpartyEmail: providerContactEmail.trim() || undefined,
-      }),
-    });
+    /*
+      "sending" is a stage with no exit of its own: nothing else moves the
+      screen off it. So a thrown fetch here — the phone losing signal at the
+      exact moment somebody sends their letter — left a spinner that never
+      resolved and no way back. Falling back to the verify stage with a
+      visible error is the only honest end state.
+    */
+    let res: Response;
+    try {
+      res = await fetch(`/api/cases/${rec.caseId}/dispatch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          counterpartyEmail: providerContactEmail.trim() || undefined,
+        }),
+      });
+    } catch {
+      setStage("verify");
+      setOwnErr("genericError");
+      return;
+    }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setStage("verify");
@@ -473,11 +514,26 @@ export function CheckFlow({
     if (!rec) return;
     setBusy(true);
     setSaveErr(null);
-    const res = await fetch(`/api/cases/${rec.caseId}/record-saving`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ newAmountShekels: amt, locale }),
-    });
+    /*
+      This is the moment a person tells us they got their money back, and it
+      was the least protected call in the file: one dropped connection and
+      the fetch threw, `busy` stayed true forever, both buttons locked, and
+      `saveErr` — which exists precisely to explain this — was never set. The
+      screen simply stopped. Now a failure says so and hands the buttons back.
+    */
+    let res: Response;
+    try {
+      res = await fetch(`/api/cases/${rec.caseId}/record-saving`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newAmountShekels: amt, locale }),
+      });
+    } catch {
+      setBusy(false);
+      // saveErr holds a KEY, resolved through tvSafe at render.
+      setSaveErr("genericError");
+      return;
+    }
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (res.ok) {
