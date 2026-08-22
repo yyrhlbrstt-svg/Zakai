@@ -177,3 +177,8 @@ jobs:
       # assert that the person reading the number is told.
       - name: The bank-feed path works and never passes fixtures off as real
         run: npm run verify:open-banking
+        env:
+          # The entry point ships dark: it renders fixture data, so it is
+          # absent in production until somebody turns it on deliberately. CI
+          # turns it on precisely so the thing being tested exists.
+          ZAKAI_FLAG_OPEN_BANKING_ENTRY: "true"

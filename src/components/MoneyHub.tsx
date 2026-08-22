@@ -378,9 +378,19 @@ export function MoneyHub({
   bcp47,
   screenshotEnabled,
   referralCode,
+  bankLinkEnabled = false,
 }: {
   bcp47: string;
   screenshotEnabled: boolean;
+  /**
+   * Whether to offer the bank-link entry point.
+   *
+   * Passed down rather than read here: this is a client component, and
+   * `process.env` in one is inlined at build time — a flag that can only
+   * change by rebuilding is not a flag. Defaults to false so the surface is
+   * absent unless somebody turned it on.
+   */
+  bankLinkEnabled?: boolean;
   /** False when no SMTP: the agent cannot actually deliver anything. */
   mailLive?: boolean;
   referralCode?: string;
@@ -754,7 +764,7 @@ export function MoneyHub({
         bank, and the scan is the reason this worked at all before there was a
         feed to read.
       */}
-      <LinkAccountEstimate bcp47={bcp47} />
+      {bankLinkEnabled && <LinkAccountEstimate bcp47={bcp47} />}
 
       {/* The claim, and a way to check it. This note sits directly above the
           upload; a reassurance a stranger cannot verify is worth nothing at

@@ -15,6 +15,7 @@ import { aiAvailable } from "@/lib/ai";
 import { smtpFullyConfigured } from "@/lib/deploy/smtpConfigured";
 import { bcp47, type Locale } from "@/i18n/config";
 import { alternateLanguages } from "@/lib/seo";
+import { flagEnabled } from "@/lib/flags";
 import { configuredProofsInboundAddress } from "@/lib/mandate/document";
 import { getCurrentUser } from "@/lib/auth/user";
 import { DashboardNextActionPanel } from "@/components/DashboardNextActionPanel";
@@ -384,6 +385,7 @@ export default async function MoneyPage({
       {!openLoop && !focusCaseId ? (
         <div className="mt-2 mb-6">
           <MoneyHub
+            bankLinkEnabled={flagEnabled("openBankingEntry")}
             bcp47={loc}
             screenshotEnabled={aiAvailable()}
             mailLive={smtpFullyConfigured()}
