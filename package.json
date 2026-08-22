@@ -46,7 +46,8 @@
     "dev:smtp-sink": "node scripts/dev-smtp-sink.mjs",
     "verify:open-banking": "node scripts/verify-open-banking.mjs",
     "pre-demo": "node scripts/pre-demo-check.mjs",
-    "verify:journeys": "node scripts/verify-journeys.mjs"
+    "verify:journeys": "node scripts/verify-journeys.mjs",
+    "send-test-mail": "node scripts/send-test-mail.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
