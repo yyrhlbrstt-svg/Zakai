@@ -5,9 +5,33 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Patches arrive as ONE pull request rather than a dozen.
+    #
+    # The limit above is five. Without grouping, a quiet week of patch bumps
+    # fills all five slots and the next security patch has nowhere to land —
+    # the cap silently becomes the thing that delays the update it exists to
+    # deliver. Minor and major stay separate because those deserve reading.
+    groups:
+      patch-updates:
+        applies-to: version-updates
+        update-types: ["patch"]
+      security-patches:
+        applies-to: security-updates
+        patterns: ["*"]
     ignore:
       # Prisma 7 moves url/directUrl out of schema.prisma (P1012). Stay on 6.x until we migrate.
       - dependency-name: "prisma"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@prisma/client"
         update-types: ["version-update:semver-major"]
+
+  # The workflows themselves are a supply chain.
+  #
+  # Every job here runs third-party actions with a token, against a repository
+  # that holds this product's source. An unpatched action is as much a way in
+  # as an unpatched dependency, and nothing was watching them.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3

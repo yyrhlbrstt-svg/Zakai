@@ -20,6 +20,23 @@ jobs:
       - run: npm test
       - run: npm run verify:pack-labels
 
+      # A critical vulnerability in anything that SHIPS fails the build.
+      #
+      # Scoped to production dependencies on purpose, and the reasoning matters
+      # more than the flag. Today the only critical in the tree is vitest's UI
+      # server — a dev dependency, exploitable only while `vitest --ui` is
+      # listening, which nothing here ever starts. Gating on it would paint the
+      # pipeline red on day one, and a gate that is always red is a gate
+      # everybody learns to ignore. That is strictly worse than no gate,
+      # because it launders a real finding into background noise.
+      - name: No critical vulnerability in anything we ship
+        run: npm audit --omit=dev --audit-level=critical
+
+      # Dev findings are still reported — visible, not silently dropped, and
+      # not able to fail the build. `|| true` is the whole point of the step.
+      - name: Report dev-only vulnerabilities without failing
+        run: npm audit --audit-level=high || true
+
   # Open every page in a real browser at phone width.
   #
   # Every defect of this class found so far was found by loading the page and
