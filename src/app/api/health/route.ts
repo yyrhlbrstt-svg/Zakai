@@ -50,6 +50,7 @@ async function buildInternalHealth(request: Request) {
       jwks: "/.well-known/zakai-jwks.json",
       status: "/api/mandate/status/{jti}",
       verify: "/api/mandate/verify",
+      inspect: "/api/mandate/inspect",
       scopes: "/api/mandate/scopes",
       openapi: "/api/mandate/openapi.json",
       institutions: "/en/institutions",

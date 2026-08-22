@@ -40,16 +40,36 @@ export async function GET(
   }
 
   try {
-    const row = await prisma.mandateRevocation.findUnique({
-      where: { jti: id },
-      select: { jti: true, revokedAt: true },
-    });
+    /**
+     * Two different questions, answered together.
+     *
+     * `status` is the protocol answer and its meaning is unchanged: is this
+     * identifier on the revocation list. Six reference verifiers and the
+     * OpenAPI document depend on those exact words, so they stay.
+     *
+     * `issuedHere` is the honesty. Absence from a revocation list is not
+     * evidence a mandate exists — an identifier nobody ever issued is also
+     * absent from it, and this endpoint used to answer such a string with a
+     * bare "active". A machine following the protocol was never misled by
+     * that; a human pasting an identifier they were handed absolutely was,
+     * and this endpoint is public precisely so humans can paste into it.
+     */
+    const [row, issued] = await Promise.all([
+      prisma.mandateRevocation.findUnique({
+        where: { jti: id },
+        select: { jti: true, revokedAt: true },
+      }),
+      prisma.authorization
+        .findUnique({ where: { mandateJti: id }, select: { id: true } })
+        .catch(() => null),
+    ]);
 
     if (row) {
       return NextResponse.json(
         {
           jti: row.jti,
           status: "revoked",
+          issuedHere: true,
           revokedAt: row.revokedAt.toISOString(),
           checkedAt: new Date().toISOString(),
         },
@@ -61,7 +81,13 @@ export async function GET(
       {
         jti: id,
         status: "active",
+        issuedHere: Boolean(issued),
         checkedAt: new Date().toISOString(),
+        means: issued
+          ? "Issued by this issuer and not revoked."
+          : "Not on the revocation list. No mandate with this identifier was issued here, and " +
+            "absence from a revocation list is not proof a mandate exists — verify the signed " +
+            "mandate itself at /api/mandate/inspect.",
       },
       { headers: cors },
     );

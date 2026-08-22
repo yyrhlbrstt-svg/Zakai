@@ -29,6 +29,14 @@ describe("openapi.json documents every institutional endpoint it grants", () => 
     expect(source).toContain('"/.well-known/zakai-conformance.json"');
   });
 
+  it("documents the endpoint a non-addressee uses, and its one deliberate omission", () => {
+    // /inspect exists because /verify correctly refuses to answer without an
+    // audience. A spec that listed only /verify would send every stranger
+    // down the path that is right to reject them.
+    expect(source).toContain('"/api/mandate/inspect"');
+    expect(source).toContain("audienceChecked");
+  });
+
   it("documents the endpoint that independently probes a candidate's conformance", () => {
     expect(source).toContain('"/api/mandate/conformance/probe"');
   });

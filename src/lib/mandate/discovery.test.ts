@@ -21,6 +21,13 @@ describe("the published spec matches what we actually sign", () => {
     expect(source).toContain(`legacy_typ: "${LEGACY_MANDATE_TYPE}"`);
   });
 
+  it("advertises the endpoint a party that is not the addressee can use", () => {
+    // Discovery is what an agent reads. Leaving /inspect out of it would mean
+    // every autonomous reader lands on /verify, is refused for having no
+    // audience, and concludes the protocol is closed.
+    expect(source).toContain("inspect_uri");
+  });
+
   it("advertises the status list we really serve", () => {
     expect(source).toContain(`status_list_type: "${STATUS_LIST_TYPE}"`);
     expect(source).toContain("status_list_uri");

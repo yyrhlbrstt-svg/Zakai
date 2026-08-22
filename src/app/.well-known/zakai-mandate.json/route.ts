@@ -51,6 +51,13 @@ export async function GET(request: Request) {
     status_list_type: "statuslist+jwt",
     status_uri_template: `${origin}/api/mandate/status/{jti}`,
     verify_uri: `${origin}/api/mandate/verify`,
+    // Verification for whoever is *not* the addressee — a bank evaluating the
+    // protocol, a journalist handed a mandate, another agent reading this
+    // document. `verify` requires an audience and is right to; a stranger has
+    // none, and used to get a bare UNKNOWN_ISSUER that looks identical to a
+    // forgery. `inspect` answers on a GET, states which checks ran and which
+    // did not, and never returns a bare "valid".
+    inspect_uri: `${origin}/api/mandate/inspect`,
     // The endpoint most institutions actually want. `verify` answers whether a
     // token is authentic and leaves the caller to match scopes, enforce
     // per-act confirmation and decide what an unknown revocation status means

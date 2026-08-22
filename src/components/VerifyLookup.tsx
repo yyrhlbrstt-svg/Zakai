@@ -55,6 +55,52 @@ function looksLikeJws(v: string): boolean {
   return parts.length === 3 && parts.every((p) => /^[A-Za-z0-9_-]+$/.test(p) && p.length > 0);
 }
 
+/** What /api/mandate/inspect returns. Deliberately has no `valid` field. */
+interface MandateReport {
+  signatureVerified: boolean;
+  jwksUri: string | null;
+  keyId: string | null;
+  algorithm: string | null;
+  environment: "production" | "sandbox" | "unknown";
+  issuer: { iss: string; registered: boolean; name: string | null; status: string | null };
+  declaredAudience: string | null;
+  audienceChecked: false;
+  revocation: { state: string; via: string | null };
+  claims: {
+    jti: string | null;
+    scopes: string[];
+    market: string | null;
+    principalName: string | null;
+    principalContactMasked: string | null;
+    statement: string | null;
+    expiresAt: string | null;
+    expired: boolean | null;
+  } | null;
+  verdict: string;
+  reason: string;
+}
+
+/**
+ * Read the JWS `typ` header without a library.
+ *
+ * A settlement record and a mandate are both compact JWS and both arrive in
+ * the same box, because whoever was handed one does not know which kind it is
+ * — and should not have to. The header says which, so we ask it rather than
+ * guessing from the payload or making the reader pick a tab.
+ */
+function jwsTyp(token: string): string | null {
+  try {
+    const head = token.split(".")[0];
+    const json = atob(head.replace(/-/g, "+").replace(/_/g, "/"));
+    const parsed = JSON.parse(json) as { typ?: string };
+    return typeof parsed.typ === "string" ? parsed.typ : null;
+  } catch {
+    return null;
+  }
+}
+
+const SETTLEMENT_TYP = "zakai-settlement+jwt";
+
 export function VerifyLookup({ initialCode }: { initialCode?: string }) {
   const t = useTranslations("verifyPage");
   const locale = useLocale() as Locale;
@@ -65,6 +111,7 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [gravity, setGravity] = useState<GravityRow | null>(null);
+  const [mandate, setMandate] = useState<MandateReport | null>(null);
 
   const check = useCallback(async (value: string) => {
     const trimmed = value.trim();
@@ -74,6 +121,7 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
     setResult(null);
     setSettlement(null);
     setGravity(null);
+    setMandate(null);
     try {
       /**
        * A settlement is a compact JWS, an authorization is a short ZK- code.
@@ -82,6 +130,27 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
        * making them choose a tab first is asking the reader to know our
        * schema before they can use it.
        */
+      if (looksLikeJws(trimmed) && jwsTyp(trimmed) !== SETTLEMENT_TYP) {
+        /**
+         * A mandate. Sent to /inspect rather than /verify because the reader
+         * here is not an institution presenting a mandate addressed to itself
+         * — they are a stranger asking whether the thing in their hand is
+         * real. /verify would demand an audience they do not have, and refuse.
+         */
+        const mRes = await fetch("/api/mandate/inspect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: trimmed }),
+        });
+        const mData = await mRes.json();
+        if (!mRes.ok || typeof mData.verdict !== "string") {
+          setError("notFound");
+          return;
+        }
+        setMandate(mData as MandateReport);
+        return;
+      }
+
       if (looksLikeJws(trimmed)) {
         const sRes = await fetch("/api/mandate/verify-settlement", {
           method: "POST",
@@ -137,8 +206,16 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
         <div className="flex gap-2.5">
           <Input
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="ZK-XXXX-XXXX"
+            /**
+             * Upper-casing is for the ZK- code shape only. A compact JWS is
+             * base64url and case-carrying: upper-casing a pasted mandate
+             * silently corrupted it, so every paste failed verification and
+             * looked exactly like a forgery.
+             */
+            onChange={(e) =>
+              setCode(e.target.value.includes(".") ? e.target.value : e.target.value.toUpperCase())
+            }
+            placeholder={heEn(he, "ZK-XXXX-XXXX או מנדט חתום", "ZK-XXXX-XXXX or a signed mandate")}
             aria-label={t("codeLabel")}
             onKeyDown={(e) => e.key === "Enter" && check(code)}
           />
@@ -174,6 +251,8 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
           )}
         </div>
       )}
+
+      {mandate && <MandatePanel report={mandate} he={he} />}
 
       {result && (
         <Card
@@ -303,11 +382,139 @@ export function VerifyLookup({ initialCode }: { initialCode?: string }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, ltr }: { label: string; value: string; ltr?: boolean }) {
   return (
     <div className="flex justify-between gap-4 py-1.5 border-b border-[rgba(255,255,255,0.06)]">
       <span className="text-ink-soft text-sm">{label}</span>
-      <span className="text-sm font-bold text-end">{value}</span>
+      {/* Protocol values — issuer URIs, jti, timestamps — are LTR strings. In
+          an RTL page the browser reorders their segments, so a reader checking
+          a jti against a letter compares two different-looking strings. */}
+      <span className="text-sm font-bold text-end" dir={ltr ? "ltr" : undefined}>
+        {value}
+      </span>
     </div>
+  );
+}
+/**
+ * The mandate answer, rendered so a reader can disagree with it.
+ *
+ * Every panel here states three things a summary alone would let a reader
+ * blur together: whether the bytes are authentic, whether the issuer is one
+ * this network trusts, and what was NOT checked. The JWKS link is not
+ * decoration — it is the whole point. A verification you have to take on
+ * faith is a press release.
+ */
+const reasonHe: Record<string, string> = {
+  authentic_and_registered:
+    "החתימה מאומתת מול המפתח הציבורי של המנפיק, והמנפיק רשום במרשם האמון. הנמען לא נבדק כאן — מוסד שפועל על סמך המנדט חייב לקרוא ל־/api/mandate/verify עם המזהה שלו.",
+  authentic_sandbox_no_authority:
+    "החתימה אמיתית ואפשר לאמת אותה בעצמכם מול ה־JWKS של הסביבה הבטוחה — שינוי תו אחד מפיל אותה. היא לא מעניקה שום סמכות: מנפיק ה־Sandbox נעדר במכוון ממרשם האמון, אינו נושא שם של אדם אמיתי, והמאמת הייצורי דוחה אותו.",
+  authentic_but_expired:
+    "החתימה אמיתית, אבל תוקף המנדט פג. אף אחד לא רשאי לפעול על פיו.",
+  authentic_but_revoked:
+    "החתימה אמיתית והמנפיק מוכר, אבל המנדט בוטל. מנדט מבוטל אינו מעניק דבר, גם אם הוא נראה תקין לחלוטין.",
+  authentic_but_issuer_untrusted:
+    "המנפיק שמופיע במנדט אינו במרשם האמון של זכאי, ולכן הוא אינו מעניק שום סמכות כאן.",
+  signature_failed:
+    "אף מפתח ציבורי של המנפיק אינו מאמת את הבייטים האלה. או שהמסמך שונה אחרי החתימה, או שהוא לא נחתם על ידי המנפיק הזה.",
+  not_a_mandate:
+    "זה לא JWS קומפקטי — מנדט מורכב משלושה מקטעי base64url מופרדים בנקודות.",
+};
+
+function MandatePanel({ report, he }: { report: MandateReport; he: boolean }) {
+  const good = report.verdict === "authentic_and_registered";
+  const amber =
+    report.verdict === "authentic_sandbox_no_authority" ||
+    report.verdict === "authentic_but_expired";
+  const tone = good ? "#3FCB9B" : amber ? "#E4B363" : "#F08A6B";
+  const mark = good ? "\u2713" : amber ? "!" : "\u2715";
+
+  const headline: Record<string, [string, string]> = {
+    authentic_and_registered: ["חתימה מאומתת · מנפיק רשום", "Signature verified · issuer registered"],
+    authentic_sandbox_no_authority: ["חתימה אמיתית · מנדט Sandbox ללא סמכות", "Genuine signature · sandbox mandate, no authority"],
+    authentic_but_expired: ["חתימה אמיתית · פג תוקף", "Genuine signature · expired"],
+    authentic_but_revoked: ["חתימה אמיתית · בוטל", "Genuine signature · revoked"],
+    authentic_but_issuer_untrusted: ["מנפיק שאינו במרשם האמון", "Issuer is not in the trust registry"],
+    signature_failed: ["החתימה נכשלה", "Signature failed"],
+    not_a_mandate: ["זה לא מנדט חתום", "Not a signed mandate"],
+  };
+  const title = headline[report.verdict] ?? ["תוצאה לא מוכרת", "Unrecognised result"];
+
+  return (
+    <Card className="p-6 mt-4" style={{ border: `1px solid ${tone}66` }}>
+      <div
+        className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-body font-bold mb-3"
+        style={{ color: tone, background: `${tone}22` }}
+      >
+        {mark} {heEn(he, title[0], title[1])}
+      </div>
+      {/* The machine reason is authoritative and English; a Hebrew reader
+          gets the same sentence in their own language, keyed on the verdict
+          rather than translated at read time. An unrecognised verdict falls
+          back to the server's words rather than to silence. */}
+      <p className="text-caption text-ink-soft leading-relaxed m-0 mb-4">
+        {reasonHe[report.verdict] && he ? reasonHe[report.verdict] : report.reason}
+      </p>
+
+      <Row
+        label={heEn(he, "חתימה קריפטוגרפית", "Cryptographic signature")}
+        value={
+          report.signatureVerified
+            ? heEn(he, "אומתה", "Verified")
+            : heEn(he, "לא אומתה", "Not verified")
+        }
+      />
+      <Row label={heEn(he, "מנפיק", "Issuer")} value={report.issuer.iss || "—"} ltr />
+      <Row
+        label={heEn(he, "במרשם האמון", "In trust registry")}
+        value={report.issuer.registered ? heEn(he, "כן", "Yes") : heEn(he, "לא", "No")}
+      />
+      <Row
+        label={heEn(he, "סביבה", "Environment")}
+        value={
+          report.environment === "sandbox"
+            ? heEn(he, "Sandbox — ללא סמכות", "Sandbox — no authority")
+            : report.environment
+        }
+      />
+      {report.claims?.jti ? <Row label="jti" value={report.claims.jti} ltr /> : null}
+      {report.claims && report.claims.scopes.length > 0 ? (
+        <Row label={heEn(he, "היקפים", "Scopes")} value={report.claims.scopes.join(" ")} ltr />
+      ) : null}
+      {report.claims?.expiresAt ? (
+        <Row
+          label={heEn(he, "בתוקף עד", "Valid until")}
+          value={new Date(report.claims.expiresAt).toISOString().replace("T", " ").slice(0, 16)}
+          ltr
+        />
+      ) : null}
+      <Row label={heEn(he, "מצב ביטול", "Revocation")} value={report.revocation.state} />
+
+      {/* Said out loud, because the difference between "this is real" and
+          "this is addressed to you" is the whole of mandate security. */}
+      <div className="mt-4 rounded-xl border border-[rgba(228,179,99,0.35)] bg-[rgba(228,179,99,0.08)] px-3.5 py-3">
+        <p className="text-caption leading-relaxed m-0">
+          {heEn(
+            he,
+            `נמען מוצהר בתוך המנדט: ${report.declaredAudience ?? "—"}. הנמען לא נבדק כאן. מוסד שפועל על סמך מנדט חייב לקרוא ל־/api/mandate/verify עם המזהה שלו עצמו.`,
+            `Audience declared inside the mandate: ${report.declaredAudience ?? "—"}. It was NOT checked here. An institution acting on a mandate must call /api/mandate/verify with its own audience.`,
+          )}
+        </p>
+      </div>
+
+      {report.jwksUri ? (
+        <p className="text-caption mt-3 mb-0 leading-relaxed">
+          {heEn(he, "אל תסמכו עלינו — בדקו בעצמכם: ", "Do not take our word for it — check it yourself: ")}
+          <a
+            href={report.jwksUri}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#3EC6FF] font-bold no-underline break-all"
+          >
+            {report.jwksUri}
+          </a>
+        </p>
+      ) : null}
+    </Card>
   );
 }

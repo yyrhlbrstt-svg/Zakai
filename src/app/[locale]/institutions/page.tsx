@@ -328,6 +328,7 @@ cd sdk/python && pip install -e '.[crypto]' && zakai-mandate-ready`}</pre>
           <li>{ORIGIN}/.well-known/zakai-jwks.json</li>
           <li>{ORIGIN}/api/mandate/status/&#123;jti&#125;</li>
           <li>POST {ORIGIN}/api/mandate/verify</li>
+          <li>{ORIGIN}/api/mandate/inspect?token=&#123;jws&#125;</li>
           <li>POST {ORIGIN}/api/mandate/decide</li>
           <li>{ORIGIN}/api/mandate/test-vectors</li>
           <li>{ORIGIN}/.well-known/zakai-trust-registry.json</li>

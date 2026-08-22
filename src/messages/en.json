@@ -710,7 +710,7 @@
   },
   "verifyPage": {
     "title": "Verify a Zakai authorization document",
-    "sub": "If you received a request from Zakai on a customer's behalf, you can confirm here that the authorization is genuine and active.",
+    "sub": "If you received a request from Zakai on a customer's behalf, you can confirm here that the authorization is genuine and active. You can also paste a signed mandate and have the cryptography checked — without taking our word for any of it.",
     "codeLabel": "Authorization verification code",
     "checkBtn": "Check",
     "found": "Valid authorization document",

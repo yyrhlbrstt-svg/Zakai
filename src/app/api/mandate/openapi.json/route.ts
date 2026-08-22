@@ -276,6 +276,73 @@ export async function GET(request: Request) {
           },
         },
       },
+      "/api/mandate/inspect": {
+        get: {
+          tags: ["verify"],
+          summary: "Inspect a mandate without being its addressee",
+          description:
+            "For a party that holds a mandate but is not the institution it names: an agent, " +
+            "a journalist, or a bank evaluating the protocol. Runs every check /verify runs " +
+            "EXCEPT the audience binding, and says so in the response (audienceChecked is " +
+            "always false). Returns no `valid` field by design — the verdict names what was " +
+            "established, and jwksUri is returned so the caller can repeat the cryptography " +
+            "themselves. Anything that ACTS on a mandate must still call /verify with its own " +
+            "audience. Accepts ?token=<compact-jws> or ?jti=<mandate-id>; POST takes the same " +
+            "fields as JSON.",
+          parameters: [
+            {
+              name: "token",
+              in: "query",
+              required: false,
+              schema: { type: "string" },
+              description: "Compact JWS Mandate. Mutually exclusive with jti.",
+            },
+            {
+              name: "jti",
+              in: "query",
+              required: false,
+              schema: { type: "string" },
+              description:
+                "Mandate id. A recency answer only — an identifier is a name, not a proof.",
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Inspection report (mandate) or identifier report",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      kind: { type: "string", enum: ["mandate", "identifier"] },
+                      signatureVerified: { type: "boolean" },
+                      jwksUri: { type: "string", nullable: true },
+                      environment: { type: "string", enum: ["production", "sandbox", "unknown"] },
+                      declaredAudience: { type: "string", nullable: true },
+                      audienceChecked: { type: "boolean", enum: [false] },
+                      verdict: {
+                        type: "string",
+                        enum: [
+                          "authentic_and_registered",
+                          "authentic_sandbox_no_authority",
+                          "authentic_but_issuer_untrusted",
+                          "authentic_but_revoked",
+                          "authentic_but_expired",
+                          "signature_failed",
+                          "not_a_mandate",
+                        ],
+                      },
+                      reason: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            "400": { description: "missing_input | invalid_jti | token_too_large | invalid_json" },
+            "429": { description: "rate limited" },
+          },
+        },
+      },
       "/api/mandate/verify": {
         post: {
           tags: ["verify"],

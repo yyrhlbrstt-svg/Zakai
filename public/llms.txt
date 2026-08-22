@@ -79,6 +79,13 @@ is always free).
 - [Allowed scopes (closed set; outward money movement is forbidden by design)](https://zakai-3uxj.vercel.app/api/mandate/scopes)
 - Verify a mandate: `POST /api/mandate/verify` (CORS-enabled) · status by id:
   `GET /api/mandate/status/{jti}`
+- Inspect a mandate without being its addressee — for an agent, a journalist,
+  or a bank evaluating the protocol. Works as a plain GET, states which checks
+  ran and which did not, and never returns a bare "valid":
+  `GET /api/mandate/inspect?token=<compact-jws>` · by id:
+  `GET /api/mandate/inspect?jti=<mandate-id>`
+- Mint a sandbox mandate to try both, no signup:
+  `POST /api/mandate/sandbox/issue {"scopes":["read:bills"]}`
 - Machine readiness gate (vectors + Status List → `ready_for_pioneer`):
   `GET /api/mandate/ready` · CLI (zero-setup, no npm account needed):
   `npm install github:yyrhlbrstt-svg/Zakai#path:sdk && npx zakai-mandate-ready --origin https://zakai-3uxj.vercel.app`
