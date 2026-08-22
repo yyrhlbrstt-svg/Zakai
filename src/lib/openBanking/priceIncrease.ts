@@ -1,5 +1,5 @@
 import { normalizeMerchant, type StatementTxn } from "@/lib/subscriptions";
-import { CLAIM_SPEAK_THRESHOLD } from "@/lib/claimGate";
+import { decideClaim } from "@/lib/claimGate";
 
 /**
  * A charge that went up and stayed up, found inside a single statement window.
@@ -31,6 +31,16 @@ import { CLAIM_SPEAK_THRESHOLD } from "@/lib/claimGate";
  * it could be one month with an extra charge on it. That is why `confidence`
  * climbs with how many times the new price repeats, and why a single sighting
  * lands below the speaking threshold by construction.
+ *
+ * WHY THE VERDICT COMES FROM THE GATE RATHER THAN A COMPARISON HERE
+ *
+ * The first version of this file compared `confidence >= CLAIM_SPEAK_THRESHOLD`
+ * itself. That reproduced one third of the rule and quietly dropped the rest:
+ * the gate also requires an immediate way to act, and a claim with nowhere to
+ * go is unfalsifiable by construction — it never becomes a case, so nothing
+ * ever tells us whether we were right. Two implementations of one rule is one
+ * implementation and one bug waiting for the rule to change, so this calls
+ * `decideClaim` like every other surface does.
  */
 
 export interface PriceIncrease {
@@ -49,7 +59,22 @@ export interface PriceIncrease {
   confidence: number;
   /** True when the evidence supports asserting it, not merely showing it. */
   claimable: boolean;
+  /** Where a person goes to act on it. Present whether or not it is claimable:
+   *  the route exists either way, and only the assertion is gated. */
+  actionHref: string;
 }
+
+/**
+ * Where somebody goes when told their price went up.
+ *
+ * The negotiation tool, which is a real next step for exactly this: a package
+ * that quietly rose after a promotional period is the case it was built for.
+ * Deliberately NOT a new legal claim — the statutory angle on unnotified
+ * increases is real but unverified in this repo, and the rights graph refuses
+ * draft law by design. An action grounded in a tool we already ship needs no
+ * citation to be honest.
+ */
+export const PRICE_RISE_ACTION = "/check";
 
 /** Ignore rounding noise and trivial drift: a real rise is both. */
 const MIN_DELTA_AGOROT = 500; // ₪5
@@ -96,6 +121,19 @@ export function detectPriceIncreases(txns: readonly StatementTxn[]): PriceIncrea
       // month with something extra on it, three is a tariff.
       const n = after.length;
       const confidence = Number(Math.min(1, 0.45 + (n - 1) * 0.25).toFixed(3));
+      // No right is consulted: this is arithmetic over the person's own
+      // statement, and saying so honestly is better than borrowing the
+      // authority of a statute we have not verified.
+      const verdict = decideClaim(
+        {
+          kind: "price_increase",
+          confidence,
+          rightId: null,
+          actionHref: PRICE_RISE_ACTION,
+          estimatedValueAgorot: delta,
+        },
+        () => true,
+      );
       const candidate: PriceIncrease = {
         merchant: list[cut].merchant,
         fromAgorot: from,
@@ -104,7 +142,8 @@ export function detectPriceIncreases(txns: readonly StatementTxn[]): PriceIncrea
         since: list[cut].date,
         observationsAtNewPrice: n,
         confidence,
-        claimable: confidence >= CLAIM_SPEAK_THRESHOLD,
+        claimable: verdict.speak,
+        actionHref: PRICE_RISE_ACTION,
       };
       if (!best || candidate.deltaAgorot > best.deltaAgorot) best = candidate;
     }

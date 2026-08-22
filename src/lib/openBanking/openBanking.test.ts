@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { parseAmountToAgorot, merchantOf, type OpenBankingTransaction } from "./types";
 import { MockOpenBankingProvider, MOCK_WINDOW } from "./mock";
 import { estimateFromFeed, toStatementTxns } from "./estimate";
-import { detectPriceIncreases } from "./priceIncrease";
+import { detectPriceIncreases, PRICE_RISE_ACTION } from "./priceIncrease";
+import { decideClaim } from "@/lib/claimGate";
 import { selectProvider } from "./index";
 
 const txn = (over: Partial<OpenBankingTransaction>): OpenBankingTransaction => ({
@@ -238,5 +239,44 @@ describe("the price step-up the recurring detector cannot see", () => {
     ]);
     expect(once[0].confidence).toBeLessThan(thrice[0].confidence);
     expect(thrice[0].claimable).toBe(true);
+  });
+});
+
+describe("the price-rise verdict comes from the gate, not a copy of it", () => {
+  const at = (d: string, agorot: number) => ({
+    date: new Date(`${d}T00:00:00Z`), merchant: "ספק", amountAgorot: agorot,
+  });
+
+  it("carries an action path on every finding, claimable or not", () => {
+    // A claim with nowhere to go is unfalsifiable by construction: it never
+    // becomes a case, so nothing ever tells us whether we were right.
+    const once = detectPriceIncreases([at("2026-03-01", 8990), at("2026-04-01", 8990), at("2026-05-01", 11990)]);
+    expect(once[0].claimable).toBe(false);
+    expect(once[0].actionHref).toBe(PRICE_RISE_ACTION);
+    expect(PRICE_RISE_ACTION.startsWith("/")).toBe(true);
+  });
+
+  it("agrees with decideClaim rather than reproducing its threshold", () => {
+    const rows = detectPriceIncreases([
+      at("2026-01-01", 8990), at("2026-02-01", 8990),
+      at("2026-03-01", 11990), at("2026-04-01", 11990), at("2026-05-01", 11990),
+    ]);
+    const r = rows[0];
+    const viaGate = decideClaim(
+      { kind: "price_increase", confidence: r.confidence, rightId: null, actionHref: r.actionHref },
+      () => true,
+    );
+    expect(r.claimable).toBe(viaGate.speak);
+    expect(r.claimable).toBe(true);
+  });
+
+  it("would fall silent if the action path were ever removed", () => {
+    // The guarantee the old comparison could not make: confidence alone is
+    // not enough to speak.
+    const high = decideClaim(
+      { kind: "price_increase", confidence: 0.99, rightId: null, actionHref: "" },
+      () => true,
+    );
+    expect(high.speak).toBe(false);
   });
 });

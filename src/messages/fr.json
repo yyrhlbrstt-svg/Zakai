@@ -527,6 +527,7 @@
     "riseFactOnly": "Seen once at the new price — a fact from your statement, not yet a basis for a demand.",
     "nextCta": "Continue — open a case",
     "legalBasis": "Read-only access to account data, through a licensed financial-information provider, under Israel's Financial Information Service Law, 2021. No authority to move money. Revocable at any time.",
-    "empty": "No recurring charges found in this window."
+    "empty": "No recurring charges found in this window.",
+    "riseAction": "Vérifier auprès du fournisseur"
   }
 }

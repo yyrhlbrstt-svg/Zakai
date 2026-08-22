@@ -95,6 +95,7 @@ export async function POST(request: Request) {
           toAgorot: p.toAgorot,
           deltaAgorot: p.deltaAgorot,
           claimable: p.claimable,
+          actionHref: p.actionHref,
         })),
       },
     });

@@ -36,6 +36,7 @@ interface Rise {
   toAgorot: number;
   deltaAgorot: number;
   claimable: boolean;
+  actionHref: string;
 }
 
 interface Estimate {
@@ -144,6 +145,15 @@ export function LinkAccountEstimate({ bcp47 }: { bcp47: string }) {
                         {t("riseFactOnly")}
                       </span>
                     )}
+                    {/* The route exists whether or not the assertion is
+                        allowed. Silence means we do not claim they are owed
+                        it — not that we leave them with nowhere to go. */}
+                    <Link
+                      href={r.actionHref}
+                      className="text-emerald font-bold text-caption no-underline mt-1 inline-block"
+                    >
+                      {t("riseAction")} →
+                    </Link>
                   </li>
                 ))}
               </ul>
