@@ -167,24 +167,37 @@ Absent is better than `false`: it leaves no trap for whoever edits this next.
 
 ---
 
-## 7. Still outstanding after all of the above
+## 7. Mail — the shortest path that actually works
 
-SMTP. Four variables plus one that is not optional:
+The earlier plan here was Resend plus a bought domain with SPF and DKIM. That
+is the right destination and the wrong first step: it costs money, needs a
+domain registration, takes hours for DNS to settle, and every one of those
+services requires an adult to accept its terms. None of it is needed to prove
+one case.
+
+**Gmail SMTP needs no domain, no new account, and no code change.**
 
 ```
-SMTP_HOST=smtp.resend.com
+SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
-SMTP_USER=resend          # the literal string, not an address
-SMTP_PASS=re_…            # the Resend API key
-SMTP_FROM=Zakai <no-reply@yourdomain>
+SMTP_USER=you@gmail.com          # your actual address
+SMTP_PASS=abcdefghijklmnop       # a Google App Password, 16 chars, no spaces
+SMTP_FROM=Zakai <you@gmail.com>  # same address as SMTP_USER
 ```
 
-`SMTP_FROM` is mandatory with Resend, not cosmetic: the fallback chain is
-`SMTP_FROM || SMTP_USER || "no-reply@localhost"`, and `SMTP_USER` here is the
-word `resend`, which is not an email address. Every message would be rejected.
+Getting the App Password: Google Account → Security → turn on 2-Step
+Verification (required — App Passwords do not exist without it) → Security →
+App passwords → create one. Google shows it once. It is not your Google
+password, and it can be revoked on its own without touching your account.
 
-Requires a domain you control with SPF and DKIM published. That is the step with
-real lead time — start it first.
+Limit is about 500 messages a day. Case number one needs one.
+
+What you give up: the letter comes from a personal address rather than a
+company domain. For your own case that is fine, and it is honest — you are the
+person making the claim. Move to a domain when there are strangers' cases and
+the address is being read by a company's complaints desk. `preflight` will
+warn about `SALES_EMAIL` being a personal mailbox for exactly that reason; at
+one case it is a note, not a problem.
 
 Then:
 
@@ -194,7 +207,7 @@ Then:
 set -a; . ./.env.production.local; set +a
 node scripts/preflight.mjs
 
-npm run send-test-mail <your address>
+npm run send-test-mail your@gmail.com
 ```
 
 `send-test-mail` separates connect / authenticate / send, so a wrong password
@@ -203,3 +216,21 @@ spam placement before drawing conclusions from the first real letter: a demand
 that lands in a company's spam folder is indistinguishable from a company that
 ignored you, and that is the one wrong conclusion this whole experiment must
 not produce.
+
+---
+
+## 8. The first case should be your own
+
+Everything above gets one real case to `SavingsProof`. Make it a claim you
+personally have — a subscription you were charged for after cancelling, a
+parking ticket, a bank fee. Not a friend's, not a stranger's.
+
+Two reasons, and the second is the one that matters:
+
+1. You can see the whole loop, including the reply, without waiting on anybody.
+2. Acting on someone else's behalf is where this stops being a software
+   question. The Mandate exists to make that authority explicit and provable —
+   but the first time the system sends a real demand, the person it is sent for
+   should be the person operating it.
+
+Fees stay on the mock provider. Nothing charges anybody.
