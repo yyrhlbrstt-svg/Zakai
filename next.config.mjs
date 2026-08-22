@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -56,4 +57,30 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+/**
+ * Sentry wraps the config last, so source maps are uploaded at build time and
+ * a production stack trace points at a line of TypeScript rather than at
+ * column 40,000 of a minified bundle. That difference is the entire reason to
+ * pay for error reporting — an unmapped trace tells you something broke, which
+ * you already knew.
+ *
+ * Wrapped only when an auth token exists. Without one the plugin logs a
+ * warning and, more to the point, `next build` in CI would spend time trying
+ * to upload maps to nowhere. No token means no upload and an unmodified build.
+ */
+const withSentry = (config) => {
+  if (!process.env.SENTRY_AUTH_TOKEN?.trim()) return config;
+  return withSentryConfig(config, {
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+    silent: true,
+    // The maps are uploaded for Sentry to read and then removed from the
+    // deployed output: a public source map hands a reader the whole server
+    // codebase, and this one contains the Mandate signing paths.
+    sourcemaps: { deleteSourcemapsAfterUpload: true },
+    disableLogger: true,
+  });
+};
+
+export default withSentry(withNextIntl(nextConfig));

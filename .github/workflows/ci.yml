@@ -182,3 +182,37 @@ jobs:
           # absent in production until somebody turns it on deliberately. CI
           # turns it on precisely so the thing being tested exists.
           ZAKAI_FLAG_OPEN_BANKING_ENTRY: "true"
+
+  # The journeys, run against the PREVIEW DEPLOYMENT rather than a server this
+  # job started itself.
+  #
+  # That distinction is the whole point. A locally-built copy passing proves
+  # the code is fine and says nothing about the artefact that will actually be
+  # visited — which is how a green pipeline and a broken demo coexisted. The
+  # thing tested here is the thing that gets promoted.
+  #
+  # Needs the deployment to exist, so it waits for Vercel's status rather than
+  # racing it.
+  preview-journeys:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Wait for the Vercel preview
+        id: preview
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 900
+          check_interval: 10
+      - name: Walk the three critical journeys on the preview
+        run: npm run verify:journeys "${{ steps.preview.outputs.url }}"
+      - name: Pre-demo checks against the same URL
+        run: npm run pre-demo "${{ steps.preview.outputs.url }}"

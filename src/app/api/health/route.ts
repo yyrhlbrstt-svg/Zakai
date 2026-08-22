@@ -6,6 +6,8 @@ import { loadSigningKeyFromEnv } from "@/lib/mandate/mandate";
 import { allMarkets } from "@/lib/global/registry";
 import { activeLocales } from "@/i18n/config";
 import { isInternalOpsRequest } from "@/lib/ops/internalAdminGate";
+import { allFlags } from "@/lib/flags";
+import { errorReportingActive } from "@/lib/observability/sentry";
 
 export const dynamic = "force-dynamic";
 
@@ -100,8 +102,23 @@ export async function GET(request: Request) {
     db = false;
   }
 
+  /*
+    Flag state and whether errors are being recorded are deliberately public.
+
+    Neither is a secret — the flags are visible in the UI they gate, and
+    "somebody is watching for crashes" is a reassurance rather than an attack
+    surface. Making them public is what lets the pre-demo check answer the
+    question that actually matters five minutes before a demo: if this breaks
+    now, will anyone ever know? A check that needed an admin token would be a
+    check nobody ran.
+  */
   return NextResponse.json(
-    { ok: db, time: new Date().toISOString() },
+    {
+      ok: db,
+      time: new Date().toISOString(),
+      errorReporting: errorReportingActive(),
+      flags: Object.fromEntries(allFlags().map((f) => [f.name, f.on])),
+    },
     { status: db ? 200 : 503 },
   );
 }

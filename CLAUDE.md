@@ -168,6 +168,29 @@ FINANDA_BASE_URL=
 FINANDA_CLIENT_ID=
 FINANDA_CLIENT_SECRET=
 
+# Durable case workflow (Inngest). Both keys required; without them the
+# /api/inngest endpoint answers 503 by name and case progression stays on the
+# existing cron path. The flag below is a SEPARATE decision from the keys:
+# keys answer "can this work", the flag answers "did somebody choose to".
+INNGEST_EVENT_KEY=
+INNGEST_SIGNING_KEY=
+
+# Error reporting. NEXT_PUBLIC_SENTRY_DSN alone does nothing — the flag must
+# also be on, so pasting a DSN during setup does not start shipping users'
+# stack traces the same minute. SENTRY_AUTH_TOKEN is only needed to upload
+# source maps at build time; without it `next build` skips the upload rather
+# than failing, and maps are deleted from the deployed output either way.
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_ORG=
+SENTRY_PROJECT=
+SENTRY_AUTH_TOKEN=
+
+# Feature flags. All default OFF — a flag that defaults on is a slower deploy,
+# not a flag. See src/lib/flags.ts for the closed set.
+ZAKAI_FLAG_DURABLE_CASE_WORKFLOW=
+ZAKAI_FLAG_OPEN_BANKING_ENTRY=
+ZAKAI_FLAG_ERROR_REPORTING=
+
 # Optional read replica for fairness / gravity / oracle aggregates (Neon read-only URL).
 # NEON_DATABASE_URL_READ_REPLICA=
 
@@ -186,6 +209,28 @@ Run `node scripts/preflight.mjs` before believing any of this is set. It
 separates blocking from degrading and warns about an address on a reserved
 domain — a wrong address passes every check, is accepted by the transport, and
 discards the message silently.
+
+## Before a demo
+
+Run `npm run pre-demo <url>` — it is a command, not a checklist, because the
+demo that broke was demoed by somebody who believed it worked. It answers, by
+looking: is the URL up, is it the commit you tested (the "Ready Stale" trap),
+would a crash during the demo be recorded anywhere, which flags are on, and do
+the three screens most likely to be opened actually open.
+
+Then `npm run verify:journeys <url>` if anything shipped since CI.
+
+## Migrations and the pooled connection
+
+`NEON_DATABASE_URL` is the POOLED endpoint used at runtime; transaction-mode
+pooling does not preserve session state, so prepared statements and long
+transactions misbehave over it. `NEON_DATABASE_URL_UNPOOLED` is the direct
+endpoint and is what `prisma migrate` uses — that is why `directUrl` exists in
+`prisma/schema.prisma`. Running a migration over the pooled URL is the failure
+that looks like a hung deploy.
+
+Queries slower than 500ms are logged as `[slow-query]` with the query shape and
+no parameters — params are somebody's email and the amount they are owed.
 
 ## Deploy protocol (critical)
 
