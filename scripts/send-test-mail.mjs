@@ -101,8 +101,16 @@ try {
 }
 
 // 3. The part that decides whether case #1 is a valid experiment.
-const fromDomain = from.split("@")[1] ?? "";
-const userDomain = user.split("@")[1] ?? "";
+//
+// Parse the domain rather than splitting on "@". SMTP_FROM is normally written
+// in display form — `Zakai <me@gmail.com>` — and a bare split leaves the
+// closing angle bracket attached, so `gmail.com>` never equals `gmail.com` and
+// the mismatch warning fires on a configuration that is perfectly correct.
+// That warning is the last thing printed before somebody sends their first
+// real letter, and it was telling them their setup was broken when it was not.
+const mailDomain = (addr) => (addr.match(/@([^>\s]+)/) || [])[1]?.toLowerCase() ?? "";
+const fromDomain = mailDomain(from);
+const userDomain = mailDomain(user);
 console.log("");
 console.log("Now go and look, because 'accepted' is not 'delivered':");
 console.log("  - Is it in the INBOX or in SPAM?");
