@@ -250,7 +250,8 @@ const ACTIONABLE: ChargeCategory[] = ["cellular", "tv_internet"];
 /* Recurring detection                                                 */
 /* ------------------------------------------------------------------ */
 
-function normalizeMerchant(name: string): string {
+/** Exported so other detectors group merchants the same way this one does. */
+export function normalizeMerchant(name: string): string {
   return name
     .toLowerCase()
     .replace(/בע"מ|בעמ|ltd\.?|inc\.?/g, "")

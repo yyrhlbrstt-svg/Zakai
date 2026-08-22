@@ -157,6 +157,17 @@ FEEDBACK_EMAIL=     # falls back to the founder address
 # registered it first still gets nothing.
 ADMIN_EMAIL=
 
+# Open Banking. `mock` (default) serves fixture data through the same
+# interface the real provider will use — every figure it produces is labelled
+# as demonstration data on screen, and the E2E fails if that label is missing.
+# Setting `finanda` without all three credentials does NOT crash: it falls
+# back to mock and says so loudly in the logs, because the alternative is a
+# deploy where the money page is a stack trace.
+OPEN_BANKING_PROVIDER=mock
+FINANDA_BASE_URL=
+FINANDA_CLIENT_ID=
+FINANDA_CLIENT_SECRET=
+
 # Optional read replica for fairness / gravity / oracle aggregates (Neon read-only URL).
 # NEON_DATABASE_URL_READ_REPLICA=
 

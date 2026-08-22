@@ -68,6 +68,34 @@ export const SCOPES: readonly ScopeDef[] = [
     perActConfirmation: false,
     summary: "See your transaction history, to find overcharges and forgotten subscriptions.",
   },
+  /**
+   * The bank feed, and why it is its own scope rather than the two above.
+   *
+   * `read:accounts` and `read:transactions` describe WHAT is read.
+   * This describes HOW: through a third company, licensed under Israel's
+   * Financial Information Service Law, 2021, which holds the connection to
+   * the bank and sees the data on the way past.
+   *
+   * A person agreeing to "Zakai may see my transactions" has not thereby
+   * agreed to "a company I have never heard of holds a standing connection to
+   * my bank account". Those are different facts, one of them is the one people
+   * actually care about, and folding the second into the first would be
+   * burying the material term inside the innocuous one. Scopes are the unit of
+   * consent in this protocol precisely so that cannot happen.
+   *
+   * `perActConfirmation` is false because a feed is by nature standing rather
+   * than per-act — which is exactly why the consent screen has to state that
+   * it is revocable at any time, and why revocation must actually sever it.
+   */
+  {
+    scope: "read:bank_feed",
+    tier: "read",
+    perActConfirmation: false,
+    summary:
+      "Read-only access to your bank balance and transaction history, through a " +
+      "licensed financial-information provider. Revocable at any time. Never used " +
+      "to move money.",
+  },
   {
     scope: "read:credit",
     tier: "read",
