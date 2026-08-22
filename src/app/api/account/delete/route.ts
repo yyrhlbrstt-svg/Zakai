@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId, badRequest } from "@/lib/api";
 import { verifyPassword } from "@/lib/auth/password";
 import { destroySession } from "@/lib/auth/session";
-import { rateLimit } from "@/lib/ratelimit";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 /**
  * Right to be forgotten (Amendment 13): permanently delete the account and,
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
     }
 
     await prisma.user.delete({ where: { id: auth.userId } });
+    // Survives the account because SecurityEvent carries no foreign key to
+    // User — deliberately, so the record of an erasure is not erased with it.
+    await logSecurityEvent({
+      type: "account_deleted",
+      userId: auth.userId,
+      ip: clientIp(request),
+    });
     await destroySession();
     return NextResponse.json({ ok: true });
   } catch (err) {

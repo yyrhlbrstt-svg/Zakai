@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireUserId } from "@/lib/api";
-import { rateLimit } from "@/lib/ratelimit";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
 import { buildAccountExport } from "@/lib/services/accountExport";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
  * the single most attractive one to anybody who has just stolen a session — a
  * few per hour is generous for a person and useless for a scraper.
  */
-export async function GET() {
+export async function GET(request: Request) {
   const auth = await requireUserId();
   if ("response" in auth) return auth.response;
 
@@ -23,6 +24,15 @@ export async function GET() {
   try {
     const data = await buildAccountExport(auth.userId);
     if (!data) return NextResponse.json({ error: "notFound" }, { status: 404 });
+
+    // A whole account leaving in one file is the most valuable thing a stolen
+    // session can take. The rate limit bounds how often; this records that it
+    // happened at all, which is the part the owner would want afterwards.
+    await logSecurityEvent({
+      type: "account_exported",
+      userId: auth.userId,
+      ip: clientIp(request),
+    });
 
     const stamp = new Date().toISOString().slice(0, 10);
     return new NextResponse(JSON.stringify(data, null, 2), {

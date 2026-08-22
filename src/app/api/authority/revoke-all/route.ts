@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/api";
 import { revokeAllAuthorities } from "@/lib/services/authorityControl";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,12 @@ export async function POST(request: Request) {
 
   try {
     const result = await revokeAllAuthorities(auth.userId);
+    await logSecurityEvent({
+      type: "mandate_revoked",
+      userId: auth.userId,
+      ip: clientIp(request),
+      detail: `all revoked=${JSON.stringify(result).slice(0, 120)}`,
+    });
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
     await reportError(err, { route: "authority/revoke-all" });

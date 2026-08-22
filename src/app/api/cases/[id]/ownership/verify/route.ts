@@ -6,6 +6,7 @@ import { verifyOwnershipCode } from "@/lib/services/ownership";
 import { refreshVerifiedStatus } from "@/lib/services/cases";
 import { createAuthorization } from "@/lib/services/authorization";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 const schema = z.object({ code: z.string().trim().regex(/^\d{4,8}$/) });
 
@@ -49,6 +50,24 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     }
   } catch {
     /* dispatch will retry */
+  }
+
+  // Ownership is the gate everything downstream leans on: once it is set, one
+  // tap dispatches a demand in this person's name. Recording who cleared it,
+  // from where, is what makes the mandate defensible later.
+  await logSecurityEvent({
+    type: "ownership_verified",
+    userId: auth.userId,
+    ip: clientIp(request),
+    detail: `case=${id} via=otp`,
+  });
+  if (mandateJti) {
+    await logSecurityEvent({
+      type: "mandate_issued",
+      userId: auth.userId,
+      ip: clientIp(request),
+      detail: `case=${id} jti=${mandateJti}`,
+    });
   }
 
   await refreshVerifiedStatus(id);

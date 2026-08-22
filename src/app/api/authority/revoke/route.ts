@@ -4,6 +4,7 @@ import { requireUserId } from "@/lib/api";
 import { revokeAuthority } from "@/lib/services/authorityControl";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report-error";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,12 @@ export async function POST(request: Request) {
   try {
     const result = await revokeAuthority(auth.userId, parsed.data.code);
     if (!result.ok) return NextResponse.json({ error: "notFound" }, { status: 404 });
+    await logSecurityEvent({
+      type: "mandate_revoked",
+      userId: auth.userId,
+      ip: clientIp(request),
+      detail: `code=${parsed.data.code} alreadyRevoked=${result.alreadyRevoked}`,
+    });
     return NextResponse.json({ ok: true, alreadyRevoked: result.alreadyRevoked });
   } catch (err) {
     await reportError(err, { route: "authority/revoke" });

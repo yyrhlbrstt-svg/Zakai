@@ -3,7 +3,8 @@ import { z } from "zod";
 import { requireUserId, badRequest } from "@/lib/api";
 import { dispatchAgent } from "@/lib/services/dispatch";
 import { CaseError } from "@/lib/services/cases";
-import { rateLimit } from "@/lib/ratelimit";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 const schema = z.object({
   counterpartyEmail: z.string().max(120).optional(),
@@ -31,6 +32,23 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
       auth.userId,
       parsed.success ? parsed.data.counterpartyEmail : undefined,
     );
+    // The one action in this product that cannot be taken back: a demand has
+    // left, addressed to a company, in this person's name. Everything else can
+    // be re-run. Recorded after it succeeded, so the row means it happened.
+    await logSecurityEvent({
+      type: "case_dispatched",
+      userId: auth.userId,
+      ip: clientIp(_request),
+      detail: `case=${id} delivered=${result.delivered}`,
+    });
+    if (result.mandateJti) {
+      await logSecurityEvent({
+        type: "mandate_issued",
+        userId: auth.userId,
+        ip: clientIp(_request),
+        detail: `case=${id} jti=${result.mandateJti}`,
+      });
+    }
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof CaseError) {

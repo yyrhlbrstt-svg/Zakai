@@ -4,6 +4,7 @@ import { refreshVerifiedStatus } from "@/lib/services/cases";
 import { createAuthorization } from "@/lib/services/authorization";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { logSecurityEvent } from "@/lib/security/securityEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +65,19 @@ export async function GET(request: Request) {
   } catch {
     /* non-fatal */
   }
+
+  // The token proves the mailbox, not the account id, so the owner is read
+  // from the case itself rather than assumed. Best-effort: an audit write must
+  // never be the reason a verified person fails to get verified.
+  const owner = await prisma.case
+    .findUnique({ where: { id: result.caseId }, select: { userId: true } })
+    .catch(() => null);
+  await logSecurityEvent({
+    type: "ownership_verified",
+    userId: owner?.userId ?? null,
+    ip: clientIp(request),
+    detail: `case=${result.caseId} via=magic_link`,
+  });
 
   await refreshVerifiedStatus(result.caseId);
 

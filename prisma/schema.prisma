@@ -638,8 +638,12 @@ enum PlanOrderStatus {
  */
 model SecurityEvent {
   id        String   @id @default(cuid())
-  /// "login_failed" | "login_success" | "password_reset_requested" |
-  /// "password_reset_completed" | "admin_access" — see securityEvent.ts.
+  /// Closed set — the authoritative list and the reason for each is the
+  /// SecurityEventType union in src/lib/security/securityEvent.ts. Account
+  /// events (login, password reset, admin access) and authority events
+  /// (ownership verified, mandate issued/revoked, case dispatched, account
+  /// exported/deleted). Append-only: see the 20260822220000_append_only_audit
+  /// migration, which enforces that in the database rather than by convention.
   type      String
   userId    String?
   ip        String
